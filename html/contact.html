@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Contact</title>
+
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="../js/core.js" defer></script>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <nav class="nav-left">
+        <a href="index.html">Home</a>
+        <a href="contact.html">Contact</a>
+        <a href="about.html">About</a>
+      </nav>
+
+      <a class="brand" href="index.html">
+        <img src="../img/logo.png" alt="SEA-V" />
+      </a>
+
+      <div class="nav-right">
+        <a class="login" href="login.html">Login</a>
+      </div>
+    </div>
+  </header>
+
+    <section class="dash-content">
+      <div class="dash-header">
+        <div>
+          <h1 class="dash-h1">Contact</h1>
+          <p class="dash-sub">Get in touch with the SEA-V team</p>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <article class="dash-card">
+          <h3>Contact SEA-V</h3>
+          <p>
+            Whether you have feedback, ideas, partnership enquiries, or want early access to future features,
+            we’d love to hear from you.
+          </p>
+          <p>
+            SEA-V is being built to help seafarers better track their careers, manage sea time, organize
+            certificates, and present a modern professional profile.
+          </p>
+        </article>
+
+        <article class="dash-card">
+          <h3>Contact Details</h3>
+          <p><strong>Email:</strong> admin@sea-v.com</p>
+          <p><strong>Project:</strong> SEA-V</p>
+          <p><strong>Type:</strong> Maritime career platform for seafarers</p>
+          <p><strong>Enquiries:</strong> Product feedback, partnerships, support, early access</p>
+        </article>
+      </div>
+
+      <article class="dash-card" style="margin-top:14px;">
+        <h3>Send a Message</h3>
+
+        <form class="modal-form" action="mailto:admin@sea-v.com" method="post" enctype="text/plain">
+          <div class="modal-grid2">
+            <label>
+              Full Name
+              <input type="text" name="name" placeholder="Your name" required />
+            </label>
+
+            <label>
+              Email Address
+              <input type="email" name="email" placeholder="your@email.com" required />
+            </label>
+          </div>
+
+          <label>
+            Subject
+            <input type="text" name="subject" placeholder="How can we help?" required />
+          </label>
+
+          <label>
+            Message
+            <textarea name="message" rows="7" placeholder="Write your message here..." required></textarea>
+          </label>
+
+          <div class="dash-actions" style="margin-top:8px;">
+            <button type="submit" class="btn-blue">Send Message</button>
+          </div>
+
+          <p class="modal-note">
+            Prototype contact form: this opens your email app to send the message.
+          </p>
+        </form>
+      </article>
+    </section>
+</body>
+</html>
