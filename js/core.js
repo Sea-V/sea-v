@@ -98,7 +98,7 @@
           </nav>
 
           <a class="brand" href="index.html">
-            <img src="../img/logo.png" alt="SEA-V" />
+            <img src="img/logo.png" alt="SEA-V" />
           </a>
 
           <div class="nav-right">
@@ -342,4 +342,5 @@
     setActiveSidebarLink();
     window.SeavModals = initModals();
   });
+
 })();
