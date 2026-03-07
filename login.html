@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Login</title>
+
+  <link rel="stylesheet" href="../styles.css" />
+
+  <!-- Core system -->
+  <script src="../js/core.js" defer></script>
+
+  <!-- Page script -->
+  <script src="../js/login.js" defer></script>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+
+    <nav class="nav-left">
+      <a href="index.html">Home</a>
+      <a href="contact.html">Contact</a>
+      <a href="about.html">About</a>
+    </nav>
+
+    <a class="brand" href="index.html">
+      <img src="../img/logo.png" alt="SEA-V" />
+    </a>
+
+    <div class="nav-right">
+      <a class="login" href="signup.html">Sign Up</a>
+    </div>
+
+  </div>
+</header>
+
+<main class="signup-container">
+
+  <h1>Login to SEA-V</h1>
+
+  <form class="signup-form" id="loginForm">
+
+    <input
+      type="email"
+      id="loginEmail"
+      placeholder="Email Address"
+      required
+    >
+
+    <input
+      type="password"
+      id="loginPassword"
+      placeholder="Password"
+      required
+    >
+
+    <button type="submit" class="signup-button">
+      Login
+    </button>
+
+    <p id="loginMsg" class="form-msg"></p>
+
+    <p class="form-link">
+      Don’t have an account?
+      <a href="signup.html">Create one</a>
+    </p>
+
+  </form>
+
+</main>
+
+</body>
+</html>
