@@ -17,10 +17,11 @@
       }
 
       setTimeout(function () {
-        window.location.href = "../html/dashboard.html";
+        window.location.href = "dashboard.html";
       }, 700);
     });
   }
 
   document.addEventListener("DOMContentLoaded", initLogin);
+
 })();
