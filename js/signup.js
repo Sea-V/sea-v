@@ -17,10 +17,11 @@
 
       // Demo redirect (adjust path if needed)
       setTimeout(function () {
-        window.location.href = "../html/dashboard.html";
+        window.location.href = "dashboard.html";
       }, 700);
     });
   }
 
   document.addEventListener("DOMContentLoaded", initSignup);
+
 })();
