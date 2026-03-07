@@ -10,7 +10,7 @@
       return;
     }
     // Fallback (safe default if brand is missing)
-    window.location.href = "../html/dashboard.html";
+    window.location.href = "dashboard.html";
   }
 
   function initIndexAuthDemo() {
@@ -40,4 +40,5 @@
   }
 
   document.addEventListener("DOMContentLoaded", initIndexAuthDemo);
+
 })();
