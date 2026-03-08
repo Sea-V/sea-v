@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Profile</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="js/core.js" defer></script>
+  <script src="js/profile.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app">
+  
+<div id="topbarMount"></div>
+
+  <main class="dash">
+<div id="sidebarMount"></div>
+
+
+    <section class="dash-content">
+      <div class="dash-header">
+        <div>
+          <h1 class="dash-h1">Profile</h1>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        
+        <!-- FORM CARD -->
+        <article class="dash-card">
+          <h3>Personal Information</h3>
+
+          <form id="profileForm" class="modal-form">
+            <label>Full Name
+              <input id="pf_name" required />
+            </label>
+
+            <label>Rank
+              <input id="pf_rank" placeholder="Chief Officer / OOW" />
+            </label>
+
+            <label>Current Qualification
+           <input id="pf_qualification" placeholder="OOW 3000 / Chief Mate 3000 / Master 3000" />
+           </label>
+
+            <label>Nationality
+              <input id="pf_nationality" />
+            </label>
+
+            <label>Date of Birth
+              <input type="date" id="pf_dob" />
+            </label>
+
+            <label>Location (Home base)
+              <input id="pf_location" placeholder="Antibes, FR" />
+            </label>
+
+            <label>Email
+              <input type="email" id="pf_email" />
+            </label>
+
+            <label>Phone
+              <input id="pf_phone" />
+            </label>
+
+            <label>Availability
+              <select id="pf_availability">
+                <option value="Available">Available</option>
+                <option value="On Contract">On Contract</option>
+                <option value="Open to Offers">Open to Offers</option>
+              </select>
+            </label>
+
+            <label>Professional Summary
+              <textarea id="pf_bio" rows="4" placeholder="Short summary (optional)"></textarea>
+            </label>
+
+            <label>Profile Photo
+              <input type="file" id="pf_photo" accept="image/*" />
+            </label>
+
+            <button class="btn-blue" type="submit">Save Profile</button>
+            <p class="modal-note">Saved in your browser (localStorage).</p>
+          </form>
+        </article>
+
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" id="modalOverlay" hidden></div>
+
+<!-- CONTACT INFO MODAL -->
+<div class="modal" id="contactInfoModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Contact SEA-V</h3>
+      <button type="button" class="modal-x" data-close>&times;</button>
+    </div>
+
+    <div class="modal-form">
+      <p class="muted">
+        For product feedback, support, partnerships, or early access enquiries.
+      </p>
+
+      <label>Email
+        <input type="text" value="admin@sea-v.com" readonly />
+      </label>
+
+      <label>Enquiries
+        <textarea rows="4" readonly>Product feedback, support, partnerships, and early access.</textarea>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT INFO MODAL -->
+<div class="modal" id="aboutInfoModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>About SEA-V</h3>
+      <button type="button" class="modal-x" data-close>&times;</button>
+    </div>
+
+    <div class="modal-form">
+      <p class="muted">
+        SEA-V is a modern digital hub for seafarers.
+      </p>
+
+      <label>What it does
+        <textarea rows="5" readonly>Track sea time, manage certificates, store vessel history, collect references, and build a professional maritime profile in one place.</textarea>
+      </label>
+
+      <label>Vision
+        <textarea rows="4" readonly>Built to modernise how maritime careers are recorded, presented, and shared.</textarea>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- PROFILE PAGE - PREVIEW CARD -->
+<!-- ========================= -->
+
+<article class="dash-card profile-preview-card">
+  <h3>Preview</h3>
+
+  <div class="profile-preview-stack">
+    <div class="avatar avatar-xl" id="profilePreviewPhoto" aria-label="Profile photo"></div>
+
+    <h3 class="profile-name profile-preview-name" id="previewName">Your Name</h3>
+
+    <div class="profile-preview-fields">
+      <div class="profile-info-box">
+        <span class="profile-info-label">Rank</span>
+        <span class="profile-info-value" id="previewRank">—</span>
+      </div>
+
+     <div class="profile-info-box">
+      <span class="profile-info-label">Current Qualification</span>
+      <span class="profile-info-value" id="previewQualification">—</span>
+     </div>
+
+      <div class="profile-info-box">
+        <span class="profile-info-label">Nationality</span>
+        <span class="profile-info-value" id="previewNationality">—</span>
+      </div>
+
+      <div class="profile-info-box">
+        <span class="profile-info-label">Date of Birth</span>
+        <span class="profile-info-value" id="previewDob">—</span>
+      </div>
+
+      <div class="profile-info-box">
+        <span class="profile-info-label">Location</span>
+        <span class="profile-info-value" id="previewLocation">—</span>
+      </div>
+
+      <div class="profile-info-box">
+        <span class="profile-info-label">Email</span>
+        <span class="profile-info-value" id="previewEmail">—</span>
+      </div>
+
+      <div class="profile-info-box">
+        <span class="profile-info-label">Phone</span>
+        <span class="profile-info-value" id="previewPhone">—</span>
+      </div>
+
+      <div class="profile-info-box profile-info-box-full">
+        <span class="profile-info-label">Availability</span>
+        <span class="profile-info-value" id="previewAvailability">—</span>
+      </div>
+    </div>
+
+    <hr class="preview-divider">
+
+    <p id="previewBio" class="preview-bio muted"></p>
+  </div>
+</article>
+      </div>
+    </section>
+  </main>
+</body>
+
+</html>
