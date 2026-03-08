@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V Dashboard</title>
+
+<link rel="stylesheet" href="styles.css" />
+ <script src="js/core.js" defer></script>
+<script src="js/dashboard.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app">
+  
+<div id="topbarMount"></div>
+
+  <main class="dash">
+<div id="sidebarMount"></div>
+
+    <section class="dash-content">
+      <!-- HEADER -->
+      <div class="dash-header">
+        <div>
+          <h1 class="dash-h1">Welcome aboard</h1>
+        </div>
+      </div>
+
+      <!-- TOP ROW -->
+
+<div class="dash-top">
+
+<!-- PROFILE CARD -->
+<article class="dash-card dash-profile" id="profile">
+  <div class="dashboard-profile-wrap">
+
+    <div class="dashboard-profile-top">
+
+      <div class="avatar avatar-large dashboard-avatar-modern" id="dashAvatar" aria-label="Profile photo"></div>
+
+      <div class="dashboard-profile-heading">
+        <h3 class="profile-name dashboard-profile-name" id="dashProfileName">Demo User</h3>
+
+        <div class="dashboard-summary-box">
+  <span class="dashboard-info-label">Personal Summary</span>
+  <p class="dashboard-summary-text" id="dashProfileBio">Professional maritime profile.</p>
+</div>
+
+      <div class="dashboard-qualification-box">
+        <span class="dashboard-info-label">Current Qualification</span>
+        <span class="dashboard-info-value dashboard-qualification-value" id="dashProfileQualification">—</span>
+      </div>
+
+    </div>
+
+    <div class="dashboard-profile-fields">
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Rank</span>
+        <span class="dashboard-info-value" id="dashProfileRank">—</span>
+      </div>
+
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Nationality</span>
+        <span class="dashboard-info-value" id="dashProfileNationality">—</span>
+      </div>
+
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Date of Birth</span>
+        <span class="dashboard-info-value" id="dashProfileDob">—</span>
+      </div>
+
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Location</span>
+        <span class="dashboard-info-value" id="dashProfileLocation">—</span>
+      </div>
+
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Email</span>
+        <span class="dashboard-info-value" id="dashProfileEmail">—</span>
+      </div>
+
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Phone</span>
+        <span class="dashboard-info-value" id="dashProfilePhone">—</span>
+      </div>
+    </div>
+
+  </div>
+</article>
+
+  <!-- KPI ROW -->
+  <article class="dash-card dash-kpis-row">
+    <h3 class="kpi-title">Career Snapshot</h3>
+
+    <div class="kpi-row-grid">
+      <div class="kpi-box">
+        <div class="kpi-num" id="kpiSea">0</div>
+        <div class="kpi-label">At Sea</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-num" id="kpiPort">0</div>
+        <div class="kpi-label">In Port</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-num" id="kpiStandby">0</div>
+        <div class="kpi-label">Standby</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-num" id="kpiTotalDays">0</div>
+        <div class="kpi-label">Total</div>
+      </div>
+    </div>
+  </article>
+
+</div>
+      
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" id="modalOverlay" hidden></div>
+
+<!-- CONTACT INFO MODAL -->
+<div class="modal" id="contactInfoModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Contact SEA-V</h3>
+      <button type="button" class="modal-x" data-close>&times;</button>
+    </div>
+
+    <div class="modal-form">
+      <p class="muted">
+        For product feedback, support, partnerships, or early access enquiries.
+      </p>
+
+      <label>Email
+        <input type="text" value="hello@sea-v.co" readonly />
+      </label>
+
+      <label>Enquiries
+        <textarea rows="4" readonly>Product feedback, support, partnerships, and early access.</textarea>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT INFO MODAL -->
+<div class="modal" id="aboutInfoModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>About SEA-V</h3>
+      <button type="button" class="modal-x" data-close>&times;</button>
+    </div>
+
+    <div class="modal-form">
+      <p class="muted">
+        SEA-V is a modern digital hub for seafarers.
+      </p>
+
+      <label>What it does
+        <textarea rows="5" readonly>Track sea time, manage certificates, store vessel history, collect references, and build a professional maritime profile in one place.</textarea>
+      </label>
+
+      <label>Vision
+        <textarea rows="4" readonly>Built to modernise how maritime careers are recorded, presented, and shared.</textarea>
+      </label>
+    </div>
+  </div>
+</div>
+
+     <!-- OVERVIEW SNIPPETS -->
+<div class="dash-grid" style="margin-top:14px;">
+  <article class="dash-card full-row">
+    <h3>Sea Time</h3>
+    <div id="dashSeatimeSnippet"></div>
+  </article>
+
+  <article class="dash-card full-row">
+    <h3>Certificates</h3>
+    <div id="dashCertSnippet"></div>
+  </article>
+
+  <article class="dash-card">
+    <h3>Vessels</h3>
+    <div id="dashVesselSnippet"></div>
+  </article>
+
+  <article class="dash-card">
+    <h3>References</h3>
+    <div id="dashRefSnippet"></div>
+  </article>
+</div>
+    </section>
+  </main>
+</body>
+
+</html>
