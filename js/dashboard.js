@@ -38,14 +38,13 @@
 function renderDashboardProfile() {
   const dashAvatar = document.getElementById("dashAvatar");
   const dashProfileName = document.getElementById("dashProfileName");
-
   const dashProfileRank = document.getElementById("dashProfileRank");
+  const dashProfileQualification = document.getElementById("dashProfileQualification");
   const dashProfileNationality = document.getElementById("dashProfileNationality");
   const dashProfileDob = document.getElementById("dashProfileDob");
   const dashProfileLocation = document.getElementById("dashProfileLocation");
   const dashProfileEmail = document.getElementById("dashProfileEmail");
   const dashProfilePhone = document.getElementById("dashProfilePhone");
-
   const dashPublicProfileLink = document.getElementById("dashPublicProfileLink");
   const dashPublicProfileStatus = document.getElementById("dashPublicProfileStatus");
 
@@ -314,4 +313,5 @@ if (dashVesselSnippet) {
 
   // Optional: allow other scripts to trigger a refresh
   window.SeavDashboard = { refresh };
+
 })();
