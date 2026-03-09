@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Navigation</title>
+
+  <link rel="stylesheet" href="styles.css" />
+<script src="js/core.js" defer></script>
+
+<!-- Leaflet -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  defer
+></script>
+
+<script src="js/navigation.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+  
+<div id="topbarMount"></div>
+
+  <main class="dash">
+<div id="sidebarMount"></div>
+
+
+    <section class="dash-content">
+      <div class="dash-header">
+        <div>
+          <h1 class="dash-h1">Navigation</h1>
+          <p class="dash-sub">Global experience map of areas navigated.</p>
+        </div>
+      </div>
+
+      <article class="dash-card full-row">
+        <h3>Areas Navigated</h3>
+        <p class="muted" style="margin-top:8px;">
+          View ports, regions, and operational areas across your maritime career.
+        </p>
+
+        <div id="navMap"></div>
+      </article>
+
+<!-- NAVIGATION ENTRY -->
+<article class="dash-card full-row">
+  <h3>Add Area Navigated</h3>
+  <p class="muted" style="margin-top:8px;">
+    Select a country and port to add it to your navigation map.
+  </p>
+
+  <form class="modal-form" id="navForm" style="margin-top:14px;">
+    <div class="modal-grid2">
+      <label>Country
+        <input id="navCountry" list="countryList" placeholder="Select country" autocomplete="off" />
+        <datalist id="countryList"></datalist>
+      </label>
+
+      <label>Port
+        <input id="navPort" list="portList" placeholder="Select port" autocomplete="off" />
+        <datalist id="portList"></datalist>
+      </label>
+    </div>
+
+    <label>Note (optional)
+      <input id="navNote" placeholder="Mediterranean operations / charter season / expedition stop" />
+    </label>
+
+    <div class="dash-actions" style="margin-top:8px;">
+      <button type="submit" class="btn-blue">Add to Map</button>
+    </div>
+  </form>
+</article>
+
+      <article class="dash-card" style="margin-top:14px;">
+        <h3>Notes</h3>
+        <p class="muted">
+          This feature is currently a prototype map view. Future versions of SEA-V will link navigated areas directly to sea time, vessel history, and route records.
+        </p>
+      </article>
+      </section>
+     
+    </main>
+
+      <div id="sharedModalsMount"></div>
+      
+    </body>
+    </html>
