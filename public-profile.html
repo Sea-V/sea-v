@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Public Profile</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="js/core.js" defer></script>
+  <script src="js/public-profile.js" defer></script>
+</head>
+
+<body class="public-page">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <nav class="nav-left">
+        <a href="dashboard.html">Home</a>
+        <a href="contact.html">Contact</a>
+        <a href="about.html">About</a>
+      </nav>
+
+      <a class="brand" href="dashboard.html">
+        <img src="img/logo.png" alt="SEA-V" />
+      </a>
+
+      <div class="nav-right">
+        <a class="login" href="index.html">Login</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="dash">
+    <section class="dash-content" style="padding-left:0; grid-column: 1 / -1;">
+
+      <div class="dash-header">
+        <div>
+          <h1 class="dash-h1">Public Profile</h1>
+          <p class="dash-sub">Verified maritime profile</p>
+        </div>
+      </div>
+
+      <!-- IF PROFILE IS PRIVATE -->
+      <article class="dash-card" id="ppGate" hidden>
+        <h3>Profile not public</h3>
+        <p class="muted" style="margin-top:8px;">
+          This profile is currently set to private.
+        </p>
+        <div class="dash-actions" style="margin-top:14px;">
+          <a class="btn-blue" href="settings.html">Go to Settings</a>
+        </div>
+      </article>
+
+      <!-- MAIN CONTENT -->
+      <div id="ppContent">
+
+        <!-- PROFILE HEADER -->
+        <article class="dash-card public-profile-header">
+          <div class="profile-left">
+            <div class="avatar avatar-large" id="ppAvatar" aria-label="Profile photo"></div>
+
+            <div class="profile-info">
+              <h2 class="profile-name" id="pp_name">Demo User</h2>
+              <p class="profile-meta" id="pp_rank">Rank: —</p>
+              <p class="profile-meta" id="pp_nationality">Nationality: —</p>
+              <p class="profile-meta" id="pp_location">Location: —</p>
+              <p class="profile-meta public-bio" id="pp_bio">
+                Professional maritime profile.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- CAREER SNAPSHOT -->
+        <article class="dash-card dash-kpis-row" style="margin-top:14px;">
+          <h3 class="kpi-title">Career Snapshot</h3>
+
+          <div class="kpi-row-grid">
+            <div class="kpi-box">
+              <div class="kpi-num" id="kpiSea">0</div>
+              <div class="kpi-label">At Sea</div>
+            </div>
+
+            <div class="kpi-box">
+              <div class="kpi-num" id="kpiPort">0</div>
+              <div class="kpi-label">In Port</div>
+            </div>
+
+            <div class="kpi-box">
+              <div class="kpi-num" id="kpiStandby">0</div>
+              <div class="kpi-label">Standby</div>
+            </div>
+
+            <div class="kpi-box">
+              <div class="kpi-num" id="kpiTotalDays">0</div>
+              <div class="kpi-label">Total</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- VESSEL EXPERIENCE -->
+        <article class="dash-card" style="margin-top:14px;">
+          <div class="table-head">
+            <h3>Vessel Experience</h3>
+          </div>
+          <div id="ppVesselSnippet"></div>
+        </article>
+
+        <!-- SEA TIME -->
+        <article class="dash-card" style="margin-top:14px;">
+          <div class="table-head">
+            <h3>Latest Sea Time</h3>
+          </div>
+          <div id="ppSeatimeSnippet"></div>
+        </article>
+
+        <!-- CERTIFICATES -->
+        <article class="dash-card" style="margin-top:14px;">
+          <div class="table-head">
+            <h3>Certificates</h3>
+          </div>
+          <div id="ppCertSnippet"></div>
+        </article>
+
+        <!-- PROFESSIONAL REFERENCES -->
+        <article class="dash-card" style="margin-top:14px;">
+          <div class="table-head">
+            <h3>Professional References</h3>
+          </div>
+          <div id="ppRefSnippet"></div>
+        </article>
+
+      </div>
+    </section>
+  </main>
+</body>
+
+</html>
