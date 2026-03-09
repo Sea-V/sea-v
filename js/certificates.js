@@ -112,9 +112,9 @@
           const hasFile = !!(c.attachment && c.attachment.dataUrl);
           const expiryInfo = getCertExpiryInfo(c.expiry);
 
-          const attachCell = hasFile
-            ? `<a href="${c.attachment.dataUrl}" download="${Seav.escapeHtml(c.attachment.filename)}">Download</a>`
-            : `<span class="muted">—</span>`;
+        const attachCell = hasFile
+  ? `<a class="btn-blue btn-attach" href="${c.attachment.dataUrl}" download="${Seav.escapeHtml(c.attachment.filename)}">Download</a>`
+  : `<span class="muted">—</span>`;
 
           return `
             <tr>
