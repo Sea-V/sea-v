@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEA-V • Sign Up</title>
+
+  <link rel="stylesheet" href="styles.css">
+  <script src="js/core.js" defer></script>
+  <script src="js/signup.js" defer></script>
+</head>
+
+<body class="landing-page signup-page">
+
+  <div class="ocean"></div>
+  <div class="overlay"></div>
+
+  <main class="signup-shell">
+
+    <div class="signup-panel">
+
+      <img src="img/logo.png" class="logo signup-logo" alt="SEA-V">
+
+      <h1 class="signup-title">Create your account</h1>
+      <p class="signup-subtitle">Start building your professional SEA-V profile</p>
+
+      <form class="signup-form-modern" id="signupForm">
+
+        <input
+          type="text"
+          placeholder="Full name"
+          required
+        >
+
+        <input
+          type="email"
+          placeholder="Email address"
+          required
+        >
+
+        <input
+          type="password"
+          placeholder="Password"
+          required
+        >
+
+        <input
+          type="password"
+          placeholder="Confirm password"
+          required
+        >
+
+        <button type="submit" class="signup-submit-btn">
+          Create Account
+        </button>
+
+        <p id="signupMsg" class="signup-msg"></p>
+
+      </form>
+
+      <div class="signup-linkline">
+        Already have an account?
+        <a href="index.html">Login</a>
+      </div>
+
+    </div>
+
+  </main>
+<footer class="site-footer">
+
+  <div class="footer-inner">
+
+    <div class="footer-brand">
+      SEA-V
+    </div>
+
+    <div class="footer-links">
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+
+<div class="footer-copy">
+  © <span id="footerYear"></span> SEA-V
+</div>
+  </div>
+</footer>
+<div id="pageFade"></div>
+</body>
+</html>
