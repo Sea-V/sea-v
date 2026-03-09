@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Profile</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="js/core.js" defer></script>
+  <script src="js/profile.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+  
+<div id="topbarMount"></div>
+
+  <main class="dash">
+<div id="sidebarMount"></div>
+
+
+    <section class="dash-content">
+      <div class="dash-header">
+        <div>
+          <h1 class="dash-h1">Profile</h1>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        
+        <!-- FORM CARD -->
+        <article class="dash-card">
+          <h3>Personal Information</h3>
+
+          <form id="profileForm" class="modal-form">
+            <label>Full Name
+              <input id="pf_name" required />
+            </label>
+
+            <label>Rank
+              <input id="pf_rank" placeholder="Chief Officer / OOW" />
+            </label>
+
+            <label>Current Qualification
+           <input id="pf_qualification" placeholder="OOW 3000 / Chief Mate 3000 / Master 3000" />
+           </label>
+
+            <label>Nationality
+              <input id="pf_nationality" />
+            </label>
+
+            <label>Date of Birth
+              <input type="date" id="pf_dob" />
+            </label>
+
+            <label>Location (Home base)
+              <input id="pf_location" placeholder="Antibes, FR" />
+            </label>
+
+            <label>Email
+              <input type="email" id="pf_email" />
+            </label>
+
+            <label>Phone
+              <input id="pf_phone" />
+            </label>
+
+            <label>Availability
+              <select id="pf_availability">
+                <option value="Available">Available</option>
+                <option value="On Contract">On Contract</option>
+                <option value="Open to Offers">Open to Offers</option>
+              </select>
+            </label>
+
+            <label>Professional Summary
+              <textarea id="pf_bio" rows="4" placeholder="Short summary (optional)"></textarea>
+            </label>
+
+            <label>Profile Photo
+              <input type="file" id="pf_photo" accept="image/*" />
+            </label>
+
+            <button class="btn-blue" type="submit">Save Profile</button>
+            <p class="modal-note">Saved in your browser (localStorage).</p>
+          </form>
+        </article>
+
+<!-- ========================= -->
+<!-- PROFILE PAGE - PREVIEW CARD -->
+<!-- ========================= -->
+
+<article class="dash-card profile-preview-card">
+  <h3>Preview</h3>
+
+  <div class="profile-preview-stack">
+    <div class="avatar avatar-xl" id="profilePreviewPhoto" aria-label="Profile photo"></div>
+
+    <h3 class="profile-name profile-preview-name" id="previewName">Your Name</h3>
+
+    <div class="profile-preview-fields">
+      <div class="profile-info-box">
+        <span class="profile-info-label">Rank</span>
+        <span class="profile-info-value" id="previewRank">—</span>
+      </div>
+
+     <div class="profile-info-box">
+      <span class="profile-info-label">Current Qualification</span>
+      <span class="profile-info-value" id="previewQualification">—</span>
+     </div>
+
+      <div class="profile-info-box">
+        <span class="profile-info-label">Nationality</span>
+        <span class="profile-info-value" id="previewNationality">—</span>
+      </div>
+
+      <div class="profile-info-box">
+        <span class="profile-info-label">Date of Birth</span>
+        <span class="profile-info-value" id="previewDob">—</span>
+      </div>
+
+      <div class="profile-info-box">
+        <span class="profile-info-label">Location</span>
+        <span class="profile-info-value" id="previewLocation">—</span>
+      </div>
+
+      <div class="profile-info-box">
+        <span class="profile-info-label">Email</span>
+        <span class="profile-info-value" id="previewEmail">—</span>
+      </div>
+
+      <div class="profile-info-box">
+        <span class="profile-info-label">Phone</span>
+        <span class="profile-info-value" id="previewPhone">—</span>
+      </div>
+
+      <div class="profile-info-box profile-info-box-full">
+        <span class="profile-info-label">Availability</span>
+        <span class="profile-info-value" id="previewAvailability">—</span>
+      </div>
+    </div>
+
+    <hr class="preview-divider">
+
+    <p id="previewBio" class="preview-bio muted"></p>
+  </div>
+</article>
+      </div>
+    </section>
+  </main>
+  <div id="sharedModalsMount"></div>
+</body>
+
+</html>
