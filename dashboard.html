@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V Dashboard</title>
+
+<link rel="stylesheet" href="styles.css" />
+ <script src="js/core.js" defer></script>
+ <script src="js/seav-data.js" defer></script>
+<script src="js/dashboard.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+  
+<div id="topbarMount"></div>
+
+  <main class="dash">
+<div id="sidebarMount"></div>
+
+    <section class="dash-content">
+      <!-- HEADER -->
+      <div class="dash-header">
+        <div>
+          <h1 class="dash-h1">Welcome aboard</h1>
+        </div>
+      </div>
+
+      <!-- TOP ROW -->
+
+<div class="dash-top">
+
+<!-- PROFILE CARD -->
+<article class="dash-card dash-profile" id="profile">
+  <div class="dashboard-profile-wrap">
+
+    <div class="dashboard-profile-top">
+
+      <div class="avatar avatar-large dashboard-avatar-modern" id="dashAvatar" aria-label="Profile photo"></div>
+
+      <div class="dashboard-profile-heading">
+        <h3 class="profile-name dashboard-profile-name" id="dashProfileName">Demo User</h3>
+
+        <div class="dashboard-summary-box">
+  <span class="dashboard-info-label">Personal Summary</span>
+  <p class="dashboard-summary-text" id="dashProfileBio">Professional maritime profile.</p>
+</div>
+
+      <div class="dashboard-qualification-box">
+        <span class="dashboard-info-label">Current Qualification</span>
+        <span class="dashboard-info-value dashboard-qualification-value" id="dashProfileQualification">—</span>
+      </div>
+
+    </div>
+
+    <div class="dashboard-profile-fields">
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Rank</span>
+        <span class="dashboard-info-value" id="dashProfileRank">—</span>
+      </div>
+
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Nationality</span>
+        <span class="dashboard-info-value" id="dashProfileNationality">—</span>
+      </div>
+
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Date of Birth</span>
+        <span class="dashboard-info-value" id="dashProfileDob">—</span>
+      </div>
+
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Location</span>
+        <span class="dashboard-info-value" id="dashProfileLocation">—</span>
+      </div>
+
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Email</span>
+        <span class="dashboard-info-value" id="dashProfileEmail">—</span>
+      </div>
+
+      <div class="dashboard-info-box">
+        <span class="dashboard-info-label">Phone</span>
+        <span class="dashboard-info-value" id="dashProfilePhone">—</span>
+      </div>
+    </div>
+
+  </div>
+</article>
+
+  <!-- KPI ROW -->
+<article class="dash-card dash-kpis-row">
+  <h3 class="kpi-title">Career Snapshot</h3>
+
+  <div class="kpi-row-grid">
+    <div class="kpi-box">
+      <div class="kpi-num" id="kpiSea">0</div>
+      <div class="kpi-label">Actual Sea Service</div>
+    </div>
+
+    <div class="kpi-box">
+      <div class="kpi-num" id="kpiPort">0</div>
+      <div class="kpi-label">Yard Service</div>
+    </div>
+
+    <div class="kpi-box">
+      <div class="kpi-num" id="kpiStandby">0</div>
+      <div class="kpi-label">Standby Service</div>
+    </div>
+
+    <div class="kpi-box">
+      <div class="kpi-num" id="kpiTotalDays">0</div>
+      <div class="kpi-label">Total Qualifying Service</div>
+    </div>
+  </div>
+</article>
+
+</div>
+      
+     <!-- OVERVIEW SNIPPETS -->
+<div class="dash-grid" style="margin-top:14px;">
+  <article class="dash-card full-row">
+    <h3>Sea Time</h3>
+    <div id="dashSeatimeSnippet"></div>
+  </article>
+
+  <article class="dash-card full-row">
+    <h3>Certificates</h3>
+    <div id="dashCertSnippet"></div>
+  </article>
+
+  <article class="dash-card">
+    <h3>Vessels</h3>
+    <div id="dashVesselSnippet"></div>
+  </article>
+
+  <article class="dash-card">
+    <h3>References</h3>
+    <div id="dashRefSnippet"></div>
+  </article>
+   </div>
+    </section>
+  </main>
+
+  <div id="sharedModalsMount"></div>
+</body>
+
+</html>
