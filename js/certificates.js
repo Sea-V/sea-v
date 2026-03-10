@@ -2,6 +2,11 @@
 (function () {
   "use strict";
 
+  if (!window.Seav) {
+    console.warn("[SEA-V] Seav core not found. Did you include js/core.js before certificates.js?");
+    return;
+  }
+
   if (!window.SeavData) {
     console.warn("[SEA-V] SeavData not found. Did you include js/seav-data.js before certificates.js?");
     return;
@@ -92,10 +97,229 @@
     }
   }
 
+function emailCertificateSummary() {
+  const certs = Seav.load("seav_certs", []);
+  if (!certs.length) {
+    throw new Error("No certificates available.");
+  }
+
+  const lines = certs.map((c, i) => {
+    const expiryInfo = getCertExpiryInfo(c.expiry);
+    return `${i + 1}. ${c.name || "Unnamed"} | Expiry: ${c.expiry || "—"} | Status: ${expiryInfo.badge}`;
+  });
+
+  const subject = encodeURIComponent("SEA-V Certificate Summary");
+  const body = encodeURIComponent(
+    `Please find my certificate summary below:\n\n${lines.join("\n")}\n\nAttachments should be added manually from the exported ZIP pack.`
+  );
+
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
+async function shareAllCertificates() {
+  const zipBlob = await buildCertificatesZip();
+  const zipFile = new File([zipBlob], "sea-v-certificates.zip", {
+    type: "application/zip"
+  });
+
+  if (navigator.share && navigator.canShare && navigator.canShare({ files: [zipFile] })) {
+    await navigator.share({
+      title: "SEA-V Certificate Pack",
+      text: "Certificate export from SEA-V",
+      files: [zipFile]
+    });
+    return;
+  }
+
+  downloadBlob(zipBlob, "sea-v-certificates.zip");
+  throw new Error("Direct share not available on this device/browser. ZIP downloaded instead.");
+}
+
+async function downloadAllCertificates() {
+  const zipBlob = await buildCertificatesZip();
+  downloadBlob(zipBlob, "sea-v-certificates.zip");
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function buildCertificatesZip() {
+  const certs = Seav.load("seav_certs", []);
+  if (!certs.length) {
+    throw new Error("No certificates available.");
+  }
+
+  if (typeof JSZip === "undefined") {
+    throw new Error("JSZip not loaded.");
+  }
+
+  const zip = new JSZip();
+  const folder = zip.folder("sea-v-certificates");
+
+  const csv = buildCertSummaryCsv(certs);
+  folder.file("certificate-summary.csv", csv);
+  folder.file("certificate-summary.json", JSON.stringify(certs, null, 2));
+
+  certs.forEach((c, index) => {
+    if (!c.attachment?.dataUrl) return;
+
+    const blob = dataUrlToBlob(c.attachment.dataUrl);
+    const certName = safeFileName(c.name || `certificate-${index + 1}`);
+    const originalName = safeFileName(c.attachment.filename || "attachment");
+    const fileName = `${String(index + 1).padStart(2, "0")}-${certName}-${originalName}`;
+
+    folder.file(fileName, blob);
+  });
+
+  return zip.generateAsync({ type: "blob" });
+}
+
+function buildCertSummaryCsv(certs) {
+  const rows = [
+    ["Certificate", "Expiry", "Status", "Attachment"]
+  ];
+
+  certs.forEach((c) => {
+    const expiryInfo = getCertExpiryInfo(c.expiry);
+    rows.push([
+      c.name || "",
+      c.expiry || "",
+      expiryInfo.badge || "",
+      c.attachment?.filename || ""
+    ]);
+  });
+
+  return rows
+    .map((row) =>
+      row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(",")
+    )
+    .join("\n");
+}
+
+function safeFileName(name) {
+  return String(name || "file")
+    .trim()
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, "")
+    .replace(/\s+/g, "-");
+}
+
+function dataUrlToBlob(dataUrl) {
+  const parts = dataUrl.split(",");
+  const meta = parts[0];
+  const base64 = parts[1];
+  const mimeMatch = meta.match(/data:(.*?);base64/);
+  const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+
+  const binary = atob(base64);
+  const len = binary.length;
+  const bytes = new Uint8Array(len);
+
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return new Blob([bytes], { type: mime });
+}
+
   function initCertificates() {
-    if (!document.getElementById("certForm") && !document.getElementById("certsTableBody") && !document.getElementById("certsList")) return;
+   if (
+  !document.getElementById("certForm") &&
+  !document.getElementById("certsTableBody") &&
+  !document.getElementById("certsList") &&
+  !document.getElementById("btnDownloadAllCerts") &&
+  !document.getElementById("btnShareAllCerts")
+) return;
 
     renderCerts();
+
+        const btnDownloadAll = document.getElementById("btnDownloadAllCerts");
+    const btnShareAll = document.getElementById("btnShareAllCerts");
+    const btnShareZip = document.getElementById("btnShareZipCerts");
+    const btnEmailSummary = document.getElementById("btnEmailCertSummary");
+    const btnDownloadZipFromModal = document.getElementById("btnDownloadZipFromModal");
+    const certBulkMsg = document.getElementById("certBulkMsg");
+
+    if (btnDownloadAll) {
+      btnDownloadAll.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        try {
+          await downloadAllCertificates();
+          if (certBulkMsg) {
+            certBulkMsg.textContent = "Certificate ZIP downloaded.";
+          }
+        } catch (err) {
+          alert(err.message || "Could not download certificates.");
+        }
+      });
+    }
+
+    if (btnShareAll) {
+      btnShareAll.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        if (window.SeavModals?.openModal) {
+          window.SeavModals.openModal("certShareModal");
+        }
+      });
+    }
+
+    if (btnShareZip) {
+      btnShareZip.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        try {
+          await shareAllCertificates();
+          if (certBulkMsg) {
+            certBulkMsg.textContent = "Certificate ZIP shared.";
+          }
+        } catch (err) {
+          if (certBulkMsg) {
+            certBulkMsg.textContent =
+              err.message || "Share unavailable. ZIP downloaded instead.";
+          }
+        }
+      });
+    }
+
+    if (btnEmailSummary) {
+      btnEmailSummary.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        try {
+          emailCertificateSummary();
+          if (certBulkMsg) {
+            certBulkMsg.textContent =
+              "Email draft opened. Add the exported ZIP manually if needed.";
+          }
+        } catch (err) {
+          alert(err.message || "Could not open email summary.");
+        }
+      });
+    }
+
+    if (btnDownloadZipFromModal) {
+      btnDownloadZipFromModal.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        try {
+          await downloadAllCertificates();
+          if (certBulkMsg) {
+            certBulkMsg.textContent = "Certificate ZIP downloaded.";
+          }
+        } catch (err) {
+          alert(err.message || "Could not download certificates.");
+        }
+      });
+    }
 
     const certForm = document.getElementById("certForm");
     if (certForm) {
@@ -134,6 +358,8 @@
         if (window.SeavDashboard?.refresh) window.SeavDashboard.refresh();
       });
     }
+
+
 
     document.addEventListener("click", (e) => {
       const cf = e.target.closest("[data-del-cert]");
