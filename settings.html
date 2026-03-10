@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Settings</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/settings.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+<div id="topbarMount"></div>
+
+<main class="dash">
+
+<div id="sidebarMount"></div>
+
+<section class="dash-content">
+
+<div class="dash-header">
+<div>
+<h1 class="dash-h1">Settings</h1>
+<p class="dash-sub">Account + data controls (prototype)</p>
+</div>
+</div>
+
+<div class="dash-grid">
+
+<!-- PUBLIC PROFILE -->
+<article class="dash-card">
+<h3>Public Profile</h3>
+<p class="muted">Toggle whether your public profile page is visible.</p>
+
+<label class="profile-meta" style="display:flex; gap:10px; align-items:center; margin-top:12px;">
+<input type="checkbox" id="setPublicEnabled" />
+Enable public profile
+</label>
+
+<div style="margin-top:12px;">
+<a class="btn-ghost2" id="setViewPublic" href="public-profile.html">View public profile</a>
+</div>
+
+<p class="muted" id="setPublicMsg" style="margin-top:12px;"></p>
+</article>
+
+<!-- DATA -->
+<article class="dash-card">
+<h3>Data</h3>
+<p class="muted">Prototype data is saved in your browser (localStorage).</p>
+
+<div class="quick-actions" style="margin-top:12px;">
+<a class="btn-ghost2" href="#" id="btnExportData">Export JSON</a>
+<a class="btn-ghost2" href="#" id="btnClearData">Clear all data</a>
+</div>
+
+<p class="muted" id="setDataMsg" style="margin-top:12px;"></p>
+</article>
+
+<!-- ABOUT -->
+<article class="dash-card">
+<h3>About</h3>
+<p class="muted">
+SEA-V prototype. Next step: cloud accounts + real database.
+</p>
+</article>
+
+<!-- QUICK LINKS -->
+<article class="dash-card">
+<h3>Quick Links</h3>
+
+<div class="quick-actions" style="margin-top:12px;">
+<a class="btn-ghost2" href="profile.html">Edit Profile</a>
+<a class="btn-ghost2" href="dashboard.html">Dashboard</a>
+</div>
+
+</article>
+
+</div>
+</section>
+
+</main>
+
+<div id="sharedModalsMount"></div>
+</body>
+
+</html>
