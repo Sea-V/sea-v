@@ -1,0 +1,330 @@
+/* =========================================================
+   SEA-V • SPECIALIST QUALIFICATIONS
+   Accent: lavender (#c4a0ff) — icon & borders only
+========================================================= */
+
+.sq-shell-card {
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid rgba(196, 160, 255, 0.24);
+  background: var(--page-shell-bg);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+}
+
+.sq-shell-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 28px;
+  border-bottom: 1px solid rgba(196, 160, 255, 0.14);
+}
+
+.sq-shell-icon {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid rgba(196, 160, 255, 0.35);
+  background: rgba(255, 255, 255, 0.035);
+  color: #c4a0ff;
+}
+
+.sq-shell-icon svg {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+.sq-shell-head h2 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.sq-shell-head p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.65;
+  max-width: 720px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sq-section {
+  padding: 26px 28px 30px;
+}
+
+.sq-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.sq-kpi-box {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sq-kpi-box .kpi-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: #5bbcff;
+}
+
+.sq-kpi-box .kpi-label {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.sq-section-head {
+  margin-bottom: 18px;
+}
+
+.sq-section-head h3 {
+  margin: 0 0 5px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.sq-section-head p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.sq-compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sq-compact-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(196, 160, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sq-compact-summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 11px 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: background 0.15s ease;
+}
+
+.sq-compact-summary:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.sq-compact-summary:focus-visible {
+  outline: 2px solid rgba(196, 160, 255, 0.55);
+  outline-offset: -2px;
+}
+
+.sq-compact-summary-left {
+  min-width: 0;
+  flex: 1;
+}
+
+.sq-compact-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.sq-compact-title {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sq-compact-sub {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.sq-compact-card.is-expanded .sq-compact-summary {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid rgba(196, 160, 255, 0.12);
+}
+
+.sq-compact-card.is-expanded .sq-compact-title {
+  white-space: normal;
+  overflow: visible;
+}
+
+.sq-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: rgba(255, 255, 255, 0.55);
+  transition: transform 0.2s ease, color 0.15s ease;
+}
+
+.sq-chevron svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.sq-compact-card.is-expanded .sq-chevron {
+  transform: rotate(180deg);
+  color: rgba(196, 160, 255, 0.9);
+}
+
+.sq-compact-body {
+  padding: 14px 18px 16px;
+}
+
+.sq-status-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 0 11px;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.sq-status-pill.pill-neutral {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sq-status-pill.pill-valid {
+  border: 1px solid rgba(52, 168, 83, 0.34);
+  background: rgba(52, 168, 83, 0.18);
+}
+
+.sq-status-pill.pill-pending {
+  border: 1px solid rgba(91, 188, 255, 0.34);
+  background: rgba(91, 188, 255, 0.18);
+}
+
+.sq-status-pill.pill-expired {
+  border: 1px solid rgba(255, 109, 125, 0.34);
+  background: rgba(255, 109, 125, 0.22);
+}
+
+.sq-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sq-detail-panel {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.sq-detail-panel-full {
+  grid-column: 1 / -1;
+}
+
+.sq-detail-label {
+  margin-bottom: 8px;
+  color: #5bbcff;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.sq-detail-value {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 600;
+}
+
+.sq-attachment-link,
+.sq-attachment-link:link,
+.sq-attachment-link:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  margin-top: 4px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(91, 188, 255, 0.28);
+  background: rgba(91, 188, 255, 0.12);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sq-attachment-link svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #5bbcff;
+}
+
+.sq-compact-body .seav-actions {
+  margin-top: 14px;
+}
+
+@media (max-width: 900px) {
+  .sq-shell-head {
+    grid-template-columns: 1fr;
+  }
+
+  .sq-kpi-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sq-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .sq-kpi-row {
+    grid-template-columns: 1fr;
+  }
+}

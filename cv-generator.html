@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • CV Generator</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/cv-engine.js" defer></script>
+  <script src="js/cv-generator.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <div id="sidebarMount"></div>
+
+    <section class="dash-content">
+
+      <article class="cvgen-shell-card">
+
+        <div class="cvgen-shell-head">
+          <div class="cvgen-shell-icon">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="6" y="3.5" width="12" height="17" rx="2" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M9 8h6M9 11.5h5M9 15h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="cvgen-shell-copy">
+            <h2>CV Generator</h2>
+            <p>
+              Pull facts from your SEA-V records, then polish the Sea-V CV layout here —
+              career overview, experience bullets, and what to include — without changing your vessel logs.
+            </p>
+          </div>
+
+          <div class="cvgen-shell-actions">
+            <button type="button" class="btn-ghost2" id="btnResetCvDraft">Refresh from SEA-V</button>
+            <button type="button" class="btn-ghost2" id="btnPrintCv">Save as PDF</button>
+          </div>
+        </div>
+
+        <section class="cvgen-section">
+
+          <p class="cvgen-toolbar-note" id="cvDataHint">Loading profile data…</p>
+          <p class="cvgen-save-status" id="cvSaveStatus">Draft saves automatically on this device.</p>
+
+          <div class="cvgen-workspace">
+
+            <aside class="cvgen-editor" id="cvEditor">
+
+              <div class="cvgen-editor-block">
+                <label class="cvgen-field-label">
+                  Headline
+                  <input id="cvHeadlineInput" type="text" placeholder="Headline shown at the top of your CV" />
+                </label>
+                <label class="cvgen-field-label">
+                  Career overview
+                  <textarea id="cvSummaryInput" rows="5" placeholder="Describe your career path, growth, and goals at sea"></textarea>
+                </label>
+              </div>
+
+              <div class="cvgen-editor-block">
+                <h3 class="cvgen-editor-title">Include on CV</h3>
+                <div class="cvgen-toggle-grid">
+                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showContact" checked /> Contact details</label>
+                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showCerts" checked /> Certificates</label>
+                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showEducation" checked /> Specialist qualifications</label>
+                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showHighlights" checked /> Extracurricular</label>
+                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showReferences" checked /> References</label>
+                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showSalary" /> Salary</label>
+                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showSeavBranding" checked /> SEA-V logo</label>
+                </div>
+              </div>
+
+              <div class="cvgen-editor-block">
+                <h3 class="cvgen-editor-title">Yacht experience</h3>
+                <p class="cvgen-editor-note">Toggle jobs and rewrite bullets for hiring — your vessel records stay unchanged.</p>
+                <div class="cvgen-vessel-list" id="cvVesselEditor"></div>
+              </div>
+
+            </aside>
+
+            <div class="cvgen-preview-frame">
+              <div id="cvPreview" class="cv-document cv-document--seav" aria-live="polite"></div>
+            </div>
+
+          </div>
+
+          <p class="cvgen-footnote">
+            Tip: use <strong>Save as PDF</strong> in the print dialog. The SEA-V logo on your CV helps crew discover the platform — toggle it off anytime.
+          </p>
+
+        </section>
+
+      </article>
+
+    </section>
+
+  </main>
+
+  <div id="sharedModalsMount"></div>
+</body>
+</html>

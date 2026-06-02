@@ -1,0 +1,12 @@
+/* =========================================================
+   TYPOGRAPHY TOKENS
+   Applied site-wide in css/core/typography.css
+========================================================= */
+
+:root {
+  --font-app: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-body: 14px;
+  --font-page-title: 18px;
+  --font-weight-body: 600;
+  --font-weight-title: 800;
+}

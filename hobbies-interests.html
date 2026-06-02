@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Hobbies & Interests</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/hobbies-interests.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <div id="sidebarMount"></div>
+
+    <section class="dash-content">
+
+      <article class="hi-shell-card">
+
+        <div class="hi-shell-head">
+
+          <div class="hi-shell-icon">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="4" y="6.5" width="16" height="12" rx="2.2" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="12" cy="12.5" r="3.2" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M9 6.5l1.1-2.2h3.8L15 6.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M18.5 4.5l1 1.5M19.5 8l1.8.4M5.5 4.5l-1 1.5M4.5 8l-1.8.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="hi-shell-copy">
+            <h2>Hobbies & Interests</h2>
+            <p>
+              Showcase what you do off watch — sport, travel, music, photography, and
+              the interests that make you a rounded crew member. Add a few photos to
+              bring each entry to life.
+            </p>
+          </div>
+
+          <div class="hi-shell-actions">
+            <a class="btn-blue" href="#" id="hiOpenModal">Add interest</a>
+          </div>
+
+        </div>
+
+        <section class="hi-section">
+
+          <div class="hi-kpi-row" id="hiKpiRow"></div>
+
+          <div class="hi-section-head">
+            <div>
+              <h3>Your showcase</h3>
+              <p>
+                Build a visual profile of your passions — great for captains and
+                management companies who want to know the person behind the CV.
+              </p>
+            </div>
+          </div>
+
+          <div class="list" id="hiList"></div>
+
+        </section>
+
+      </article>
+
+    </section>
+
+  </main>
+
+  <div class="modal" id="hiModal" hidden>
+    <div class="modal-card modal-card-wide modal-card--fuchsia">
+
+      <div class="modal-head">
+        <h3>Add / edit hobby or interest</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="hiForm">
+
+        <input type="hidden" id="hi_edit_id" value="" />
+
+        <p class="modal-intro">
+          Describe an interest and add up to six showcase photos — sailing regattas,
+          ski trips, photography, volunteering, or anything that shows who you are.
+        </p>
+
+        <div class="modal-grid2">
+          <label>
+            Category
+            <select id="hi_category" required>
+              <option value="">Pick a category for this interest</option>
+            </select>
+          </label>
+
+          <label>
+            Status
+            <select id="hi_status">
+              <option value="Published">Published</option>
+              <option value="Draft">Draft</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Title
+          <input id="hi_title" required placeholder="Name of the hobby or interest" />
+        </label>
+
+        <label>
+          About this interest
+          <textarea id="hi_description" rows="4" required placeholder="What you do and why it matters to you"></textarea>
+        </label>
+
+        <div class="modal-grid2">
+          <div data-date-field="hi_date_from" data-date-label="Started (optional)"></div>
+          <div data-date-field="hi_date_to" data-date-label="Ended (optional)"></div>
+        </div>
+
+        <div class="hi-modal-photos">
+          <div class="hi-modal-photos-head">
+            <span class="hi-modal-photos-label">Showcase photos</span>
+            <span class="hi-modal-photos-count" id="hiPhotoCount">0 / 6</span>
+          </div>
+          <div class="hi-modal-photo-grid" id="hiPhotoPreview"></div>
+          <label class="hi-modal-upload">
+            <span>Add photos (JPEG / PNG, up to 6 total)</span>
+            <input type="file" id="hi_photos" accept="image/*" multiple />
+          </label>
+        </div>
+
+        <button class="btn-blue" type="submit">Save interest</button>
+
+        <p class="modal-footnote">
+          Saved to your SEA-V profile. Published entries can appear on your public profile.
+        </p>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div id="sharedModalsMount"></div>
+
+</body>
+</html>

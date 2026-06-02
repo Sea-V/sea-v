@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
+  <defs>
+    <linearGradient id="bg-ttp7ie" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1829"/>
+      <stop offset="100%" stop-color="#152a42"/>
+    </linearGradient>
+    <linearGradient id="rim-ttp7ie" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#72e4ff"/>
+      <stop offset="100%" stop-color="#5bbcff"/>
+    </linearGradient>
+    <filter id="glow-ttp7ie" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#5bbcff" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
+    fill="url(#bg-ttp7ie)"
+    stroke="url(#rim-ttp7ie)"
+    stroke-width="2.8"
+    filter="url(#glow-ttp7ie)"/>
+  <path d="M60 14 L100 31 L100 71 L60 104 L20 71 L20 31 Z"
+    fill="none"
+    stroke="#5bbcff"
+    stroke-width="1"
+    opacity="0.22"/>
+  <g transform="translate(60,56)" fill="none" stroke="#5bbcff" stroke-linecap="round" stroke-linejoin="round" color="#5bbcff">
+    <path d="M-16 8h32l-4-10H-12L-16 8z" stroke-width="2"/><path d="M-22 14c4-3 8-3 12 0s8 3 12 0 8 3 12 0" stroke-width="1.8"/>
+  </g>
+  <circle cx="60" cy="100" r="3.5" fill="#5bbcff" opacity="0.85"/>
+  
+</svg>

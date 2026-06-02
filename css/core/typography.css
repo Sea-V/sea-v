@@ -1,0 +1,161 @@
+/* =========================================================
+   SEA-V • UNIFIED TYPOGRAPHY
+   System font, normal case, one body size; page titles only larger
+========================================================= */
+
+:root {
+  --font-app: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-body: 14px;
+  --font-page-title: 18px;
+  --font-weight-body: 600;
+  --font-weight-title: 800;
+}
+
+/* App shell + public pages */
+body.app-page,
+body.public-page,
+body.public-profile-page,
+body.landing-page,
+body.index-page,
+body.signup-page {
+  font-family: var(--font-app);
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-body);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+body.app-page button,
+body.app-page input,
+body.app-page select,
+body.app-page textarea,
+body.public-page button,
+body.public-page input,
+body.public-page select,
+body.public-page textarea,
+body.public-profile-page button,
+body.public-profile-page input,
+body.public-profile-page select,
+body.public-profile-page textarea,
+body.landing-page button,
+body.landing-page input,
+body.index-page button,
+body.index-page input,
+body.signup-page button,
+body.signup-page input {
+  font-family: inherit;
+}
+
+/* Remove CSS-driven ALL CAPS everywhere in the product */
+body.app-page *,
+body.public-page *,
+body.public-profile-page *,
+body.landing-page *,
+body.index-page *,
+body.signup-page * {
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+/* Page titles — only headings that are slightly larger */
+body.app-page [class$="-shell-head"] h2,
+body.app-page .dashboard-shell-head h2,
+body.public-profile-page .public-cv-hero h1,
+body.public-page .info-shell-head h1,
+body.public-page .info-shell-head h2,
+body.landing-page .info-shell-head h1,
+body.landing-page .info-shell-head h2,
+body.landing-page .info-title {
+  font-family: inherit !important;
+  font-size: var(--font-page-title) !important;
+  font-weight: var(--font-weight-title) !important;
+  line-height: 1.25 !important;
+}
+
+/* Uniform body size — overrides scattered 11–13px rules in page CSS */
+:is(body.app-page, body.public-profile-page, body.landing-page) :where(
+  p,
+  span,
+  li,
+  td,
+  th,
+  label,
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  .dash-link,
+  .dash-nav-group-label,
+  .dash-title,
+  .dash-sub,
+  .dash-h1,
+  .dash-card,
+  .dash-card h3,
+  .dash-card p,
+  .dash-list,
+  .btn-blue,
+  .btn-ghost2,
+  .btn-attach,
+  .list-title,
+  .list-sub,
+  .nav-left,
+  .nav-left a,
+  .nav-right a,
+  .cert-compact-title,
+  .cert-compact-meta,
+  .vessel-meta-label,
+  .vessel-meta-value,
+  .dashboard-info-label,
+  .dashboard-info-value,
+  .dashboard-summary-text,
+  .dashboard-kpi-label,
+  .dashboard-kpi-num,
+  .navigation-route-label,
+  .navigation-stat-label,
+  .navigation-stat-value,
+  .modal-title,
+  .modal-sub,
+  .field label,
+  .pill,
+  .badge-label,
+  .table-head,
+  .achievement-card-title,
+  .reference-card-meta,
+  .public-cv-fact-label,
+  .public-cv-fact-value,
+  .public-cv-section-title,
+  .public-cv-vessel-label,
+  .public-cv-vessel-value,
+  .public-cv-reference-meta,
+  .public-cv-reference-text,
+  .cvgen-step-label,
+  .hi-card-title,
+  .ps-row-label,
+  .sq-card-title,
+  .onboard-card-title,
+  .tender-card-title,
+  .seatime-stat-label,
+  .seatime-stat-value,
+  .profile-field-label,
+  .profile-field-value
+) {
+  font-family: inherit !important;
+  font-size: var(--font-body) !important;
+}
+
+/* Section / card headings match body size (not page titles) */
+:is(body.app-page, body.public-profile-page, body.landing-page) :where(
+  h3,
+  h4,
+  h5,
+  h6,
+  [class$="-shell-section-head"] h3,
+  [class$="-section-head"] h3,
+  .dash-card h3
+) {
+  font-family: inherit !important;
+  font-size: var(--font-body) !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}

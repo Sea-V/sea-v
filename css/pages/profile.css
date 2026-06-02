@@ -1,0 +1,305 @@
+/* =========================================================
+   SEA-V • PROFILE PAGE
+========================================================= */
+
+/* =========================================================
+   SHELL
+========================================================= */
+
+.profile-shell-card {
+  overflow: hidden;
+
+  border-radius: 30px;
+  border: 1px solid rgba(66,214,181,0.24);
+
+  background: var(--page-shell-bg);
+
+  box-shadow:
+    0 20px 48px rgba(0,0,0,0.28);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.profile-shell-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+
+  gap: 20px;
+  align-items: center;
+
+  padding: 28px;
+
+  border-bottom: 1px solid rgba(66,214,181,0.14);
+}
+
+.profile-shell-icon {
+  width: 72px;
+  height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 1.5px solid rgba(66,214,181,0.32);
+
+  background: rgba(255,255,255,0.035);
+
+  color: #42d6b5;
+}
+
+.profile-shell-icon svg {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+.profile-shell-head h2 {
+  margin: 0 0 8px;
+
+  color: #ffffff;
+
+  font-size: var(--font-page-title);
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.profile-shell-head p {
+  margin: 0;
+
+  color: rgba(255,255,255,0.68);
+
+  font-size: var(--font-body);
+  line-height: 1.65;
+  font-weight: 500;
+}
+
+/* =========================================================
+   SECTION / GRID
+========================================================= */
+
+.profile-section {
+  padding: 28px;
+}
+
+.profile-page-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+  align-items: start;
+}
+
+/* =========================================================
+   MAIN CARDS
+========================================================= */
+
+.profile-preview-card,
+.profile-form-card {
+  min-height: 100%;
+
+  border-radius: 30px;
+  border: 1.5px solid rgba(66,214,181,0.22);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(20,38,61,0.84),
+      rgba(12,28,48,0.78)
+    );
+
+  box-shadow:
+    0 20px 48px rgba(0,0,0,0.22);
+}
+
+.profile-form-card {
+  padding: 22px;
+}
+
+.profile-preview-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 14px;
+
+  width: 100%;
+}
+
+/* =========================================================
+   AVATAR
+========================================================= */
+
+.avatar-xl {
+  width: 96px;
+  height: 96px;
+
+  border-radius: 20px;
+  overflow: hidden;
+
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(66,214,181,0.22);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 10px 24px rgba(0,0,0,0.18);
+}
+
+/* =========================================================
+   TEXT
+========================================================= */
+
+.profile-preview-name {
+  margin: 4px 0 0;
+
+  color: #ffffff;
+
+  font-size: var(--font-page-title);
+  line-height: 1.15;
+  font-weight: 900;
+}
+
+.preview-bio {
+  width: 100%;
+  margin: 0;
+
+  color: rgba(255,255,255,0.78);
+
+  font-size: var(--font-body);
+  line-height: 1.6;
+  font-weight: 500;
+
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* =========================================================
+   INFO GRID
+========================================================= */
+
+.profile-preview-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  width: 100%;
+}
+
+.profile-info-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 6px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 78px;
+
+  padding: 16px 18px;
+
+  border-radius: 18px;
+  border: 1px solid rgba(66,214,181,0.18);
+
+  background: rgba(255,255,255,0.035);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04);
+
+  text-align: center;
+}
+
+.profile-info-box-full {
+  grid-column: 1 / -1;
+}
+
+.profile-info-label {
+  color: #5bbcff;
+
+  font-size: var(--font-label);
+  line-height: 1.1;
+  font-weight: 850;
+
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.profile-info-value {
+  color: rgba(255,255,255,0.94);
+
+  font-size: var(--font-value);
+  line-height: 1.4;
+  font-weight: 700;
+
+  letter-spacing: 0;
+  text-transform: none;
+
+  word-break: break-word;
+}
+
+/* =========================================================
+   DIVIDER
+========================================================= */
+
+.preview-divider {
+  width: 100%;
+
+  margin: 4px 0 0;
+
+  border: 0;
+  border-top: 1px solid rgba(66,214,181,0.14);
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+#profileForm .btn-blue {
+  width: 100%;
+  min-height: 46px;
+
+  padding: 12px 18px;
+
+  border-radius: 30px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: var(--font-body);
+  line-height: 1;
+  font-weight: 900;
+
+  text-align: center;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  .profile-shell-head {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-page-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-section {
+    padding: 20px;
+  }
+
+  .profile-preview-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-info-box-full {
+    grid-column: auto;
+  }
+}

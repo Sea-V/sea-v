@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Certificates</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/certificates.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <!-- Topbar -->
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <!-- Sidebar -->
+    <div id="sidebarMount"></div>
+
+<!-- Main Content -->
+<section class="dash-content">
+
+  <!-- Certificate Library -->
+  <article class="cert-shell-card">
+
+    <div class="cert-shell-head">
+
+      <div class="cert-shell-icon">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="6.5" y="4.5" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
+          <path
+            d="M9 8h6M9 11h6M10 18.5l2-1.2 2 1.2"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+
+      <div class="cert-shell-title">
+        <h2>Certificate Library</h2>
+
+        <p>
+          Track mandatory certificates, additional qualifications,
+          uploaded documents, and expiry status in one place.
+        </p>
+      </div>
+
+      <div class="cert-shell-actions">
+        <a class="btn-blue" href="#" data-open="certModal">
+          Add Certificate
+        </a>
+      </div>
+
+    </div>
+
+    <section class="cert-section">
+      <div class="cert-section-head">
+        <div>
+          <h3>Core compliance</h3>
+          <p>
+            Universal baseline for any seafarer — ENG1, Basic Safety Training,
+            and Security Awareness. Click a row to expand details.
+          </p>
+        </div>
+      </div>
+
+      <div class="cert-compact-list" id="mandatoryCertsList"></div>
+    </section>
+
+    <section class="cert-section">
+      <div class="cert-section-head">
+        <div>
+          <h3>Rank & role certificates</h3>
+          <p>
+            CoC, GMDSS, PDSD, and other qualifications required for your
+            capacity onboard — not universal for every crew member.
+          </p>
+        </div>
+      </div>
+
+      <div class="cert-compact-list" id="rankRoleCertsList"></div>
+    </section>
+
+    <section class="cert-section">
+      <div class="cert-section-head">
+        <div>
+          <h3>Additional certificates</h3>
+          <p>Role-specific, optional, or career-progression qualifications you add yourself.</p>
+        </div>
+      </div>
+
+      <div class="cert-compact-list" id="additionalCertsList"></div>
+    </section>
+
+</article>
+      <!-- Notes -->
+      <article class="dash-card" style="margin-top:14px;">
+        <h3>Notes</h3>
+
+        <p class="muted">
+          Core compliance covers the universal STCW baseline. Rank & role templates
+          depend on your position — add extras under Additional certificates.
+        </p>
+
+        <div class="cert-shell-footer-actions">
+  <a class="btn-ghost2" href="#" id="btnDownloadAllCerts">
+    Download All
+  </a>
+
+  <a class="btn-ghost2" href="#" id="btnShareAllCerts">
+    Share All
+  </a>
+</div>
+      </article>
+
+    </section>
+  </main>
+
+  <!-- Share Certificates Modal -->
+  <div class="modal" id="certShareModal" hidden>
+    <div class="modal-card modal-card--gold">
+
+      <div class="modal-head">
+        <h3>Share certificates</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <div class="modal-form">
+        <p class="modal-intro">
+          Export or share your full certificate pack — attachments plus a summary file
+          for recruiters, PYA, or training managers.
+        </p>
+
+        <div class="dash-actions">
+          <a href="#" class="btn-blue" id="btnShareZipCerts">Share ZIP</a>
+          <a href="#" class="btn-ghost2" id="btnEmailCertSummary">Email summary</a>
+          <a href="#" class="btn-ghost2" id="btnDownloadZipFromModal">Download ZIP</a>
+        </div>
+
+        <p class="modal-footnote" id="certBulkMsg">
+          ZIP includes PDF/image attachments and a CSV summary of your certificate library.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Certificate Modal -->
+  <div class="modal" id="certModal" hidden>
+    <div class="modal-card modal-card--gold">
+
+      <div class="modal-head">
+        <h3>Add / edit certificate</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="certForm">
+        <input type="hidden" id="ct_edit_id" />
+        <input type="hidden" id="ct_is_template" value="false" />
+        <input type="hidden" id="ct_is_mandatory" value="false" />
+
+        <p class="modal-intro">
+          Upload copies of mandatory and rank-specific certificates. Expiry dates drive
+          dashboard alerts and your compliance summary.
+        </p>
+
+        <label>
+          Certificate code
+          <input id="ct_code" placeholder="Code printed on the certificate, if shown" />
+        </label>
+
+        <label>
+          Certificate name
+          <input required id="ct_name" placeholder="Full name of the certificate or medical" />
+        </label>
+
+        <div data-date-field="ct_expiry" data-date-label="Expiry date" data-date-optional></div>
+
+        <label>
+          Status
+          <select id="ct_status">
+            <option value="Missing">Missing</option>
+            <option value="Pending">Pending</option>
+            <option value="Valid">Valid</option>
+            <option value="Expired">Expired</option>
+          </select>
+        </label>
+
+        <label>
+          Attachment (PDF / image)
+          <input type="file" id="ct_file" accept=".pdf,image/*" />
+        </label>
+
+        <button class="btn-blue" type="submit">Save certificate</button>
+
+        <p class="modal-footnote">
+          Saved to your SEA-V profile. Template certificates sync from your rank profile on load.
+        </p>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Shared Modals -->
+  <div id="sharedModalsMount"></div>
+
+</body>
+</html>

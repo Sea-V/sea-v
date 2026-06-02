@@ -1,0 +1,337 @@
+/* =========================================================
+   BADGE UNLOCK CELEBRATION
+========================================================= */
+
+body.badge-unlock-open {
+  overflow: hidden;
+}
+
+.badge-unlock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: none;
+  place-items: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.65s ease,
+    visibility 0.65s ease;
+}
+
+.badge-unlock-overlay.is-open {
+  display: grid;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.badge-unlock-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, rgba(91, 188, 255, 0.12), transparent 58%),
+    rgba(4, 10, 18, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.badge-unlock-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 280px);
+  max-height: min(92vh, 520px);
+  overflow: auto;
+  padding: 18px 16px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(91, 188, 255, 0.22);
+  background:
+    radial-gradient(circle at top, rgba(91, 188, 255, 0.1), transparent 60%),
+    linear-gradient(180deg, rgba(16, 31, 52, 0.98), rgba(8, 16, 28, 0.98));
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  text-align: center;
+  transform: translateY(20px) scale(0.94);
+  opacity: 0;
+  transition:
+    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.9s ease;
+}
+
+.badge-unlock-card.is-visible {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.badge-unlock-card.is-closing {
+  transform: translateY(14px) scale(0.96);
+  opacity: 0;
+  transition:
+    transform 0.75s ease,
+    opacity 0.65s ease;
+}
+
+.badge-unlock-card.is-entering .badge-unlock-badge-stage {
+  animation: badgeUnlockPop 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+}
+
+.badge-unlock-glow {
+  position: absolute;
+  inset: 20% 12% auto;
+  height: 88px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(91, 188, 255, 0.18), transparent 72%);
+  pointer-events: none;
+  animation: badgeUnlockGlow 3.2s ease-in-out infinite;
+}
+
+.badge-unlock-kicker {
+  margin: 0 0 4px;
+  color: #5bbcff;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.badge-unlock-heading {
+  margin: 0;
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.badge-unlock-subheading {
+  margin: 6px 0 14px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.badge-unlock-badge-stage {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 10px;
+  flex-shrink: 0;
+}
+
+.badge-unlock-badge-ring {
+  position: absolute;
+  inset: -5px;
+  border-radius: 999px;
+  border: 1px solid rgba(91, 188, 255, 0.22);
+  box-shadow: 0 0 16px rgba(91, 188, 255, 0.14);
+  animation: badgeUnlockPulse 3.2s ease-in-out infinite;
+}
+
+.badge-unlock-badge-image {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 72px;
+  height: 72px;
+  max-width: 72px;
+  max-height: 72px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.38));
+}
+
+.badge-unlock-badge-name {
+  margin: 0 0 6px;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 850;
+}
+
+.badge-unlock-tier-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 9px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.badge-unlock-card[data-tier="bronze"] .badge-unlock-tier-pill,
+.badge-unlock-card.tier-bronze .badge-unlock-tier-pill {
+  border-color: rgba(205, 127, 50, 0.32);
+  color: #f0b27a;
+}
+
+.badge-unlock-card[data-tier="silver"] .badge-unlock-tier-pill,
+.badge-unlock-card.tier-silver .badge-unlock-tier-pill {
+  border-color: rgba(184, 201, 220, 0.32);
+  color: #d7e4f2;
+}
+
+.badge-unlock-card[data-tier="gold"] .badge-unlock-tier-pill,
+.badge-unlock-card.tier-gold .badge-unlock-tier-pill {
+  border-color: rgba(255, 210, 90, 0.32);
+  color: #ffe08a;
+}
+
+.badge-unlock-card[data-tier="platinum"] .badge-unlock-tier-pill,
+.badge-unlock-card.tier-platinum .badge-unlock-tier-pill {
+  border-color: rgba(114, 228, 255, 0.32);
+  color: #9aeaff;
+}
+
+.badge-unlock-reason {
+  margin: 0 0 12px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+  animation: badgeUnlockReasonIn 0.9s ease;
+}
+
+.badge-unlock-reason-label {
+  margin: 0 0 5px;
+  color: #5bbcff;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.badge-unlock-reason-text {
+  margin: 0 0 5px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 12px;
+  line-height: 1.55;
+  font-weight: 600;
+}
+
+.badge-unlock-reason-meta {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.badge-unlock-cta {
+  width: 100%;
+  margin-top: 2px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(91, 188, 255, 0.2);
+  background: rgba(91, 188, 255, 0.07);
+  color: rgba(159, 214, 255, 0.72);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: not-allowed;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.badge-unlock-cta.is-ready:not(:disabled) {
+  cursor: pointer;
+  color: #b8e4ff;
+  border-color: rgba(91, 188, 255, 0.32);
+  animation: badgeUnlockCtaPulse 2.4s ease-in-out infinite;
+}
+
+.badge-unlock-cta.is-ready:not(:disabled):hover {
+  background: rgba(91, 188, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+.badge-unlock-cta--primary {
+  border-color: rgba(91, 188, 255, 0.3);
+  background: linear-gradient(180deg, rgba(91, 188, 255, 0.24), rgba(91, 188, 255, 0.12));
+  color: #ffffff;
+  cursor: pointer;
+  animation: none;
+}
+
+.badge-unlock-card.is-revealed .badge-unlock-badge-stage {
+  transform: scale(0.94);
+  transition: transform 0.75s ease;
+}
+
+@keyframes badgeUnlockPop {
+  0% {
+    transform: scale(0.5) rotate(-6deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.03) rotate(1deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes badgeUnlockPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes badgeUnlockGlow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes badgeUnlockReasonIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes badgeUnlockCtaPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(91, 188, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(91, 188, 255, 0.12);
+  }
+}
+
+@media (max-width: 480px) {
+  .badge-unlock-card {
+    width: min(100%, 260px);
+    padding: 16px 14px 12px;
+  }
+
+  .badge-unlock-heading {
+    font-size: 19px;
+  }
+}

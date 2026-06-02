@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V Achievements</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/achievements.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <!-- Topbar -->
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <!-- Sidebar -->
+    <div id="sidebarMount"></div>
+
+<!-- Main Content -->
+<section class="dash-content">
+
+  <article class="achievement-shell-card">
+
+    <!-- HEADER -->
+    <div class="achievement-shell-head">
+
+      <div class="achievement-shell-icon">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M12 4.8l1.9 3.8 4.2.6-3 3 .7 4.2L12 14.8 8.2 16.4l.7-4.2-3-3 4.2-.6L12 4.8Z"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+
+      <div class="achievement-shell-copy">
+        <h2>Achievements</h2>
+
+        <p>
+          Build your SEA-V career record through verified milestones,
+          crossings, qualifications, operational experience, and
+          professional achievements.
+        </p>
+      </div>
+
+      <div class="achievement-shell-actions">
+        <a href="#" class="btn-blue" data-open="achievementModal">
+          Add Achievement
+        </a>
+      </div>
+
+    </div>
+
+    <!-- BODY -->
+    <section class="achievement-section">
+
+      <div class="achievement-section-head">
+        <div>
+          <h3>SEA-V achievement badges</h3>
+          <p>
+            Hover any badge to see the milestone. Earned badges glow in full colour;
+            locked badges show until you qualify or verify the achievement.
+          </p>
+        </div>
+      </div>
+
+      <div class="achievement-badge-gallery" id="achievementBadgeCatalog"></div>
+
+      <div class="achievement-section-head" style="margin-top:28px;">
+        <div>
+          <h3>SEA-V Achievement Record</h3>
+
+          <p>
+            Achievements are displayed as collectible career milestone cards
+            linked to vessels, operations, sea time, and witness records.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="vessel-grid achievement-grid"
+        id="achievementsList"
+      ></div>
+
+    </section>
+
+  </article>
+
+</section>
+  </main>
+
+  <!-- =========================
+       ACHIEVEMENT MODAL
+  ========================== -->
+  <div class="modal" id="achievementModal" hidden>
+    <div class="modal-card modal-card--purple">
+
+      <!-- Modal Header -->
+      <div class="modal-head">
+        <h3>Add / edit achievement</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <!-- Form -->
+      <form class="modal-form" id="achievementForm">
+
+        <input type="hidden" id="ach_edit_index" value="" />
+
+        <p class="modal-intro">
+          Log milestones and operational achievements with vessel context, witness details,
+          and supporting evidence for your career record.
+        </p>
+
+        <!-- Achievement Selection -->
+        <label>
+          Achievement
+          <select id="ach_code" required>
+            <option value="">Pick the type of achievement</option>
+          </select>
+        </label>
+
+        <!-- Badge Info -->
+        <div class="modal-info-box">
+          <span class="modal-info-label">Assigned badge</span>
+          <span class="modal-info-value" id="achBadgeLabel">
+            Select an achievement to view its assigned badge.
+          </span>
+        </div>
+
+        <div class="modal-info-box">
+          <span class="modal-info-label">Badge artwork</span>
+          <div id="achBadgePreview"></div>
+        </div>
+
+        <!-- Vessel + Date -->
+        <div class="modal-grid2">
+
+          <label>
+            Vessel
+            <select id="ach_vessel">
+              <option value="">Choose from your vessel list</option>
+            </select>
+          </label>
+
+          <div data-date-field="ach_date" data-date-label="Date"></div>
+
+        </div>
+
+        <!-- Status + Witness Name -->
+        <div class="modal-grid2">
+
+          <label>
+            Status
+            <select id="ach_status">
+              <option value="Draft">Draft</option>
+              <option value="Pending Approval">Pending Approval</option>
+              <option value="Approved">Approved</option>
+              <option value="Declined">Declined</option>
+            </select>
+          </label>
+
+          <label>
+            Witness Name
+            <input type="text" id="ach_witness_name" placeholder="Name of the officer who witnessed this" />
+          </label>
+
+        </div>
+
+        <!-- Witness Details -->
+        <div class="modal-grid2">
+
+          <label>
+            Witness Position
+            <input type="text" id="ach_witness_position" placeholder="Their rank, e.g. Master or Chief Officer" />
+          </label>
+
+          <label>
+            Witness Email
+            <input type="email" id="ach_witness_email" placeholder="Their work email address" />
+          </label>
+
+        </div>
+
+        <!-- CoC -->
+        <label>
+          CoC Number
+          <input type="text" id="ach_witness_coc" placeholder="Their certificate of competency number" />
+        </label>
+
+        <!-- Notes -->
+        <label>
+          Supporting notes
+          <textarea
+            id="ach_description"
+            rows="5"
+            placeholder="What happened, your role, and any supporting detail"
+          ></textarea>
+        </label>
+
+        <!-- File -->
+        <label>
+          Attachment
+          <input type="file" id="ach_file" accept="image/*,.pdf,.doc,.docx" />
+        </label>
+
+        <!-- Info Box -->
+        <div class="modal-info-box">
+          <span class="modal-info-label">Record note</span>
+          <span class="modal-info-value">
+            Auto-awarded badges cannot be edited here. Manual entries support witness verification.
+          </span>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-blue">Save achievement</button>
+
+        <p class="modal-footnote">Saved to your SEA-V profile.</p>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Shared Modals -->
+  <div id="sharedModalsMount"></div>
+
+</body>
+</html>

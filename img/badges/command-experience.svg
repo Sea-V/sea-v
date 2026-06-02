@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
+  <defs>
+    <linearGradient id="bg-73exje" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1829"/>
+      <stop offset="100%" stop-color="#152a42"/>
+    </linearGradient>
+    <linearGradient id="rim-73exje" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d7f4ff"/>
+      <stop offset="100%" stop-color="#72e4ff"/>
+    </linearGradient>
+    <filter id="glow-73exje" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#72e4ff" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
+    fill="url(#bg-73exje)"
+    stroke="url(#rim-73exje)"
+    stroke-width="2.8"
+    filter="url(#glow-73exje)"/>
+  <path d="M60 14 L100 31 L100 71 L60 104 L20 71 L20 31 Z"
+    fill="none"
+    stroke="#72e4ff"
+    stroke-width="1"
+    opacity="0.22"/>
+  <g transform="translate(60,56)" fill="none" stroke="#72e4ff" stroke-linecap="round" stroke-linejoin="round" color="#72e4ff">
+    <path d="M-8-12h16v8H-8z M-12 4h24v8H-12z" stroke-width="2"/><path d="M0-12V-18" stroke-width="2"/>
+  </g>
+  <circle cx="60" cy="100" r="3.5" fill="#72e4ff" opacity="0.85"/>
+  
+</svg>

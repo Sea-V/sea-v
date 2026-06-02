@@ -1,0 +1,363 @@
+/* =========================================================
+   SEA-V • REFERENCES PAGE
+========================================================= */
+
+/* =========================================================
+   SHELL
+========================================================= */
+
+.reference-shell-card {
+  overflow: hidden;
+
+  border-radius: 30px;
+  border: 1px solid rgba(209,107,255,0.24);
+
+  background: var(--page-shell-bg);
+
+  box-shadow:
+    0 20px 48px rgba(0,0,0,0.28);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.reference-shell-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+
+  gap: 20px;
+  align-items: center;
+
+  padding: 28px;
+
+  border-bottom: 1px solid rgba(209,107,255,0.14);
+}
+
+.reference-shell-copy {
+  min-width: 0;
+}
+
+.reference-shell-actions {
+  display: flex;
+  align-items: center;
+}
+
+.reference-shell-icon {
+  width: 72px;
+  height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 1.5px solid rgba(209,107,255,0.35);
+
+  background: rgba(255,255,255,0.035);
+
+  color: #d16bff;
+}
+
+.reference-shell-icon svg {
+  width: 34px;
+  height: 34px;
+
+  display: block;
+}
+
+.reference-shell-head h2 {
+  margin: 0 0 8px;
+
+  color: #ffffff;
+
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.reference-shell-head p {
+  margin: 0;
+
+  color: rgba(255,255,255,0.68);
+
+  font-size: 14px;
+  line-height: 1.65;
+  font-weight: 500;
+}
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.reference-section {
+  padding: 26px 28px 30px;
+}
+
+.reference-section-head {
+  margin-bottom: 18px;
+}
+
+.reference-section-head h3 {
+  margin: 0 0 5px;
+
+  color: #ffffff;
+
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.reference-section-head p {
+  margin: 0;
+
+  color: rgba(255,255,255,0.60);
+
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   REFERENCE CARD
+========================================================= */
+
+.reference-modern-card {
+  padding: 22px;
+
+  border-radius: 24px;
+  border: 1px solid rgba(209,107,255,0.20);
+
+  background: rgba(255,255,255,0.04);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 12px 28px rgba(0,0,0,0.14);
+}
+
+/* =========================================================
+   TOP
+========================================================= */
+
+.reference-modern-top {
+  display: flex;
+  justify-content: space-between;
+
+  gap: 28px;
+}
+
+.reference-modern-left {
+  display: flex;
+  gap: 18px;
+
+  min-width: 0;
+}
+
+.reference-avatar {
+  width: 76px;
+  height: 76px;
+
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      #6f42ff,
+      #d16bff
+    );
+
+  color: white;
+
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.reference-modern-name {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 20px;
+  line-height: 1.15;
+  font-weight: 900;
+}
+
+.reference-modern-meta {
+  margin-top: 8px;
+
+  color: rgba(255,255,255,0.70);
+
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.reference-modern-attachment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 10px;
+
+  min-height: 30px;
+
+  padding: 0 12px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(91,188,255,0.28);
+
+  background: rgba(91,188,255,0.12);
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.reference-modern-attachment:hover {
+  background: rgba(91,188,255,0.20);
+
+  border-color: rgba(91,188,255,0.44);
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   VERIFIED PILL
+========================================================= */
+
+.reference-verified-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 32px;
+
+  padding: 0 12px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(209,107,255,0.30);
+
+  background: rgba(209,107,255,0.10);
+
+  color: #d16bff;
+
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.reference-modern-top > .seav-actions {
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  align-self: flex-start;
+
+  min-width: 118px;
+  margin-top: 0;
+  padding-top: 0;
+
+  border-top: 0;
+}
+
+.reference-modern-top > .seav-actions .seav-action {
+  justify-content: center;
+}
+
+/* =========================================================
+   LOWER GRID
+========================================================= */
+
+.reference-modern-grid {
+  display: grid;
+
+  grid-template-columns:
+    1.4fr
+    1fr
+    1fr;
+
+  gap: 18px;
+
+  margin-top: 24px;
+  padding-top: 22px;
+
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.reference-modern-box {
+  min-width: 0;
+}
+
+.reference-modern-label {
+  margin-bottom: 8px;
+
+  color: #5bbcff;
+
+  font-size: 11px;
+  font-weight: 850;
+
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.reference-modern-value {
+  color: rgba(255,255,255,0.84);
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .reference-shell-head {
+    grid-template-columns: 1fr;
+  }
+
+  .reference-modern-top {
+    flex-direction: column;
+  }
+
+  .reference-modern-actions {
+    flex-direction: row;
+    min-width: 0;
+  }
+
+  .reference-modern-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+
+  .reference-modern-left {
+    flex-direction: column;
+  }
+
+  .reference-avatar {
+    width: 66px;
+    height: 66px;
+
+    font-size: 24px;
+  }
+
+  .reference-modern-name {
+    font-size: 18px;
+  }
+}

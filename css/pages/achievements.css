@@ -1,0 +1,313 @@
+/* =========================================================
+   SEA-V • ACHIEVEMENTS PAGE
+========================================================= */
+
+/* =========================================================
+   SHELL
+========================================================= */
+
+.achievement-shell-card {
+  overflow: hidden;
+
+  border-radius: 30px;
+  border: 1px solid rgba(209,107,255,0.24);
+
+  background: var(--page-shell-bg);
+
+  box-shadow:
+    0 20px 48px rgba(0,0,0,0.28);
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.achievement-shell-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+
+  gap: 20px;
+  align-items: center;
+
+  padding: 28px;
+
+  border-bottom: 1px solid rgba(255,215,90,0.14);
+}
+
+.achievement-shell-copy {
+  min-width: 0;
+}
+
+.achievement-shell-actions {
+  display: flex;
+  align-items: center;
+}
+
+.achievement-shell-icon {
+  width: 72px;
+  height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,215,90,0.32);
+
+  background: rgba(255,255,255,0.035);
+
+  color: #ffb347;
+}
+
+.achievement-shell-icon svg {
+  width: 34px;
+  height: 34px;
+
+  display: block;
+}
+
+.achievement-shell-head h2 {
+  margin: 0 0 8px;
+
+  color: #ffffff;
+
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.achievement-shell-head p {
+  margin: 0;
+
+  color: rgba(255,255,255,0.68);
+
+  font-size: 14px;
+  line-height: 1.65;
+  font-weight: 500;
+}
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.achievement-section {
+  padding: 26px 28px 30px;
+}
+
+.achievement-section-head {
+  margin-bottom: 18px;
+}
+
+.achievement-section-head h3 {
+  margin: 0 0 5px;
+
+  color: #ffffff;
+
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.achievement-section-head p {
+  margin: 0;
+
+  color: rgba(255,255,255,0.60);
+
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-top: 10px;
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.achievement-card {
+  overflow: hidden;
+
+  border-radius: 24px;
+  border: 1.5px solid rgba(255,179,71,0.24);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(20,38,61,0.82),
+      rgba(12,28,48,0.76)
+    );
+
+  box-shadow:
+    0 12px 26px rgba(0,0,0,0.18);
+}
+
+
+
+/* =========================================================
+   CARD MEDIA
+========================================================= */
+
+.achievement-card .achievement-photo {
+  height: 220px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  background: rgba(0,0,0,0.18);
+}
+
+.achievement-card .achievement-photo img {
+  width: 94%;
+  height: 94%;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+/* =========================================================
+   BODY SPACING
+========================================================= */
+
+.achievement-card .vessel-body {
+  padding: 18px;
+}
+
+.achievement-card .achievement-photo {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* =========================================================
+   TITLES
+========================================================= */
+
+.achievement-card .achievement-title {
+  margin: 0 0 16px;
+
+  color: #ffffff;
+
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 900;
+
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.achievement-card .vessel-title {
+  color: #ffffff;
+
+  line-height: 1.2;
+
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.achievement-card .vessel-title {
+  margin-bottom: 4px;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.achievement-card .achievement-desc,
+.achievement-card .vessel-desc {
+  color: rgba(255,255,255,0.82);
+
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 500;
+
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.achievement-card .achievement-desc {
+  margin-top: 14px;
+  min-height: 48px;
+}
+
+.achievement-card .vessel-desc {
+  min-height: 58px;
+}
+
+/* =========================================================
+   META GRID
+========================================================= */
+
+.achievement-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 14px 18px;
+
+  margin-top: 18px;
+}
+
+.achievement-meta-item {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.achievement-meta-label {
+  color: #5bbcff;
+
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.achievement-meta-value {
+  color: rgba(255,255,255,0.72);
+
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 600;
+
+  text-transform: none;
+  letter-spacing: 0;
+
+  word-break: break-word;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.achievement-card .vessel-foot {
+  margin-top: 12px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  .achievement-shell-head {
+    grid-template-columns: 1fr;
+  }
+}

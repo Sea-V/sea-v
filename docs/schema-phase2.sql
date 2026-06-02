@@ -1,0 +1,275 @@
+-- =============================================================================
+-- RUN ORDER: 2  |  SAVE AS IN SUPABASE: "2 - Auth and per-user security"
+-- =============================================================================
+-- SEA-V — Real user accounts + private data per user (Phase 2)
+-- Prerequisite: schema-full.sql (step 1) already applied.
+-- Enable Email auth first: Authentication → Providers → Email
+-- See docs/SQL-SETUP-GUIDE.md for plain English.
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- 1. Add user_id to all tables (uuid — matches auth.users.id)
+-- ---------------------------------------------------------------------------
+alter table public.profile add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.vessels add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.seatimes add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.certificates add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.sea_references add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.tenders add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.achievements add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.navigation_areas add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.onboard_experiences add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.hobbies_interests add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.specialist_qualifications add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.payslips add column if not exists user_id uuid references auth.users(id) on delete cascade;
+
+-- If a previous run created user_id as text, convert to uuid (nulls stay null)
+do $$
+declare
+  t text;
+begin
+  foreach t in array array[
+    'profile', 'vessels', 'seatimes', 'certificates', 'sea_references',
+    'tenders', 'achievements', 'navigation_areas', 'onboard_experiences',
+    'hobbies_interests', 'specialist_qualifications', 'payslips'
+  ]
+  loop
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = t
+        and column_name = 'user_id'
+        and udt_name = 'text'
+    ) then
+      execute format(
+        'alter table public.%I alter column user_id type uuid using nullif(trim(user_id::text), '''')::uuid',
+        t
+      );
+    end if;
+  end loop;
+end $$;
+
+create index if not exists profile_user_id_idx on public.profile (user_id);
+create index if not exists vessels_user_id_idx on public.vessels (user_id);
+create index if not exists seatimes_user_id_idx on public.seatimes (user_id);
+create index if not exists certificates_user_id_idx on public.certificates (user_id);
+create index if not exists sea_references_user_id_idx on public.sea_references (user_id);
+create index if not exists tenders_user_id_idx on public.tenders (user_id);
+create index if not exists achievements_user_id_idx on public.achievements (user_id);
+create index if not exists navigation_areas_user_id_idx on public.navigation_areas (user_id);
+create index if not exists onboard_experiences_user_id_idx on public.onboard_experiences (user_id);
+create index if not exists hobbies_interests_user_id_idx on public.hobbies_interests (user_id);
+create index if not exists specialist_qualifications_user_id_idx on public.specialist_qualifications (user_id);
+create index if not exists payslips_user_id_idx on public.payslips (user_id);
+
+-- ---------------------------------------------------------------------------
+-- 2. Optional: migrate legacy demo row to your first auth user
+--    Replace YOUR-AUTH-USER-UUID before running this block.
+-- ---------------------------------------------------------------------------
+-- update public.profile set id = 'YOUR-AUTH-USER-UUID', user_id = 'YOUR-AUTH-USER-UUID'::uuid where id = 'default-profile';
+-- update public.vessels set user_id = 'YOUR-AUTH-USER-UUID'::uuid where user_id is null;
+-- (...repeat for each table...)
+
+-- ---------------------------------------------------------------------------
+-- 3. Drop Phase 1 permissive policies
+-- ---------------------------------------------------------------------------
+do $$
+declare
+  t text;
+begin
+  foreach t in array array[
+    'profile', 'vessels', 'seatimes', 'certificates', 'sea_references',
+    'tenders', 'achievements', 'navigation_areas', 'onboard_experiences',
+    'hobbies_interests', 'specialist_qualifications', 'payslips'
+  ]
+  loop
+    execute format('drop policy if exists %I on public.%I', t || '_anon_all', t);
+  end loop;
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- 4. Owner policies (authenticated users only see/edit their rows)
+-- ---------------------------------------------------------------------------
+drop policy if exists "profile_owner_all" on public.profile;
+drop policy if exists "profile_public_read" on public.profile;
+
+create policy "profile_owner_all"
+  on public.profile for all to authenticated
+  using (auth.uid() = user_id or auth.uid()::text = id)
+  with check (auth.uid() = user_id or auth.uid()::text = id);
+
+create policy "profile_public_read"
+  on public.profile for select to anon
+  using (public_enabled = true);
+
+do $$
+declare
+  t text;
+begin
+  foreach t in array array[
+    'vessels', 'seatimes', 'certificates', 'sea_references', 'tenders',
+    'achievements', 'navigation_areas', 'onboard_experiences',
+    'hobbies_interests', 'specialist_qualifications', 'payslips'
+  ]
+  loop
+    execute format('drop policy if exists %I on public.%I', t || '_owner_all', t);
+    execute format(
+      'create policy %I on public.%I for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id)',
+      t || '_owner_all',
+      t
+    );
+
+    execute format('drop policy if exists %I on public.%I', t || '_public_read', t);
+    execute format(
+      'create policy %I on public.%I for select to anon using (
+        exists (
+          select 1 from public.profile p
+          where p.user_id = %I.user_id
+          and p.public_enabled = true
+        )
+      )',
+      t || '_public_read',
+      t,
+      t
+    );
+  end loop;
+end $$;
+
+-- Payslips: never public — drop anon read
+drop policy if exists payslips_public_read on public.payslips;
+
+-- ---------------------------------------------------------------------------
+-- 5. Storage — private buckets + owner-only paths ({user_id}/...)
+-- ---------------------------------------------------------------------------
+update storage.buckets set public = false where id in (
+  'profile-photos', 'vessel-photos', 'vessel-documents', 'certificate-files',
+  'reference-files', 'seatime-files', 'achievement-files', 'tender-photos',
+  'onboard-experience-files', 'hobbies-interest-photos',
+  'specialist-qualification-files', 'payslip-files'
+);
+
+-- Drop Phase 1 storage policies (names from schema-full.sql)
+do $$
+declare
+  bucket text;
+begin
+  foreach bucket in array array[
+    'profile-photos', 'vessel-photos', 'vessel-documents', 'certificate-files',
+    'reference-files', 'seatime-files', 'achievement-files', 'tender-photos',
+    'onboard-experience-files', 'hobbies-interest-photos',
+    'specialist-qualification-files', 'payslip-files'
+  ]
+  loop
+    execute format('drop policy if exists %I on storage.objects', bucket || '_select');
+    execute format('drop policy if exists %I on storage.objects', bucket || '_insert');
+    execute format('drop policy if exists %I on storage.objects', bucket || '_update');
+    execute format('drop policy if exists %I on storage.objects', bucket || '_delete');
+  end loop;
+end $$;
+
+-- Owner can read/write only inside their folder prefix
+do $$
+declare
+  bucket text;
+begin
+  foreach bucket in array array[
+    'profile-photos', 'vessel-photos', 'vessel-documents', 'certificate-files',
+    'reference-files', 'seatime-files', 'achievement-files', 'tender-photos',
+    'onboard-experience-files', 'hobbies-interest-photos',
+    'specialist-qualification-files', 'payslip-files'
+  ]
+  loop
+    execute format(
+      'create policy %I on storage.objects for select to authenticated
+       using (bucket_id = %L and (storage.foldername(name))[1] = auth.uid()::text)',
+      bucket || '_owner_select', bucket
+    );
+    execute format(
+      'create policy %I on storage.objects for insert to authenticated
+       with check (bucket_id = %L and (storage.foldername(name))[1] = auth.uid()::text)',
+      bucket || '_owner_insert', bucket
+    );
+    execute format(
+      'create policy %I on storage.objects for update to authenticated
+       using (bucket_id = %L and (storage.foldername(name))[1] = auth.uid()::text)',
+      bucket || '_owner_update', bucket
+    );
+    execute format(
+      'create policy %I on storage.objects for delete to authenticated
+       using (bucket_id = %L and (storage.foldername(name))[1] = auth.uid()::text)',
+      bucket || '_owner_delete', bucket
+    );
+  end loop;
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- 6. Auto-create profile on signup (avoids client-side RLS insert failures)
+--    Also run docs/schema-phase2-auth-trigger.sql if you already applied this file.
+-- ---------------------------------------------------------------------------
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profile (id, user_id, name, email, public_enabled, updated_at)
+  values (
+    new.id::text,
+    new.id,
+    coalesce(new.raw_user_meta_data->>'name', ''),
+    coalesce(new.email, ''),
+    false,
+    now()
+  )
+  on conflict (id) do update set
+    email = excluded.email,
+    name = case
+      when coalesce(excluded.name, '') <> '' then excluded.name
+      else profile.name
+    end,
+    user_id = coalesce(profile.user_id, excluded.user_id),
+    updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+-- ---------------------------------------------------------------------------
+-- 7. Public profile files — anon can read when profile is public (not payslips)
+-- ---------------------------------------------------------------------------
+drop policy if exists profile_photos_public_read on storage.objects;
+
+do $$
+declare
+  bucket text;
+begin
+  foreach bucket in array array[
+    'profile-photos', 'vessel-photos', 'vessel-documents', 'certificate-files',
+    'reference-files', 'seatime-files', 'achievement-files', 'tender-photos',
+    'onboard-experience-files', 'hobbies-interest-photos',
+    'specialist-qualification-files'
+  ]
+  loop
+    execute format('drop policy if exists %I on storage.objects', bucket || '_public_read');
+    execute format(
+      'create policy %I on storage.objects for select to anon
+       using (
+         bucket_id = %L
+         and exists (
+           select 1
+           from public.profile p
+           where p.public_enabled = true
+             and p.user_id::text = (storage.foldername(name))[1]
+         )
+       )',
+      bucket || '_public_read',
+      bucket
+    );
+  end loop;
+end $$;

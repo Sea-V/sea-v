@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Vessels</title>
+
+<link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+<script src="js/seav-data.js" defer></script>
+<script src="js/seav-badges.js" defer></script>
+<script src="js/api.js" defer></script>
+<script src="js/state.js" defer></script>
+<script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+<script src="js/vessels.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+  
+<div id="topbarMount"></div>
+
+  <main class="dash">
+<div id="sidebarMount"></div>
+
+
+   <section class="dash-content">
+
+  <article class="vessel-shell-card">
+
+    <div class="vessel-shell-head">
+      <div class="vessel-shell-icon">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 14.5h12l-1.8-4.5H9.5L6 14.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M4 18c1.3-1 2.7-1 4 0s2.7 1 4 0 2.7-1 4 0 2.7 1 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="vessel-shell-copy">
+        <h2>Vessel History</h2>
+        <p>Build a professional vessel portfolio with operational history, vessel specifications, onboard experience, linked records, and supporting documentation.</p>
+      </div>
+
+      <div class="vessel-shell-actions">
+        <a class="btn-blue" href="#" data-open="vesselModal">Add Vessel</a>
+      </div>
+    </div>
+
+    <section class="vessel-shell-section">
+      <div class="vessel-shell-section-head">
+        <h3>Current Vessel</h3>
+        <p>Your active vessel profile and linked operational records.</p>
+      </div>
+
+      <div id="currentVesselCard"></div>
+    </section>
+
+    <section class="vessel-shell-section vessel-shell-history">
+      <div class="vessel-shell-section-head">
+        <h3>Vessel History</h3>
+        <p>Previous vessels saved to your SEA-V profile.</p>
+      </div>
+
+      <div class="vessel-grid" id="vesselsGrid"></div>
+    </section>
+
+  </article>
+
+</section>
+</main>
+
+  <!-- VESSEL MODAL -->
+  <div class="modal" id="vesselModal" hidden>
+    <div class="modal-card modal-card--blue">
+      <div class="modal-head">
+        <h3>Add / edit vessel</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="vesselForm">
+        <input type="hidden" id="vs_edit_index" value="" />
+
+        <p class="modal-intro">
+          Build your vessel portfolio — dates, role, specifications, and documents
+          link to sea time, references, and your public profile.
+        </p>
+
+        <label>Vessel name
+          <input required id="vs_name" placeholder="Name of the yacht you worked on" />
+        </label>
+
+        <div class="modal-grid2">
+          <label>Flag (optional)
+            <input id="vs_flag" placeholder="Country where the vessel is registered" />
+          </label>
+
+          <label>Gross tonnage (optional)
+            <input id="vs_gt" placeholder="Vessel gross tonnage — check the crew list if unsure" />
+          </label>
+        </div>
+
+        <div class="modal-grid2">
+          <label>Length
+            <input type="text" id="vs_length" placeholder="Overall length of the vessel" />
+          </label>
+
+          <label>Builder
+            <input id="vs_builder" placeholder="Shipyard or builder name" />
+          </label>
+        </div>
+
+        <label>Experience onboard
+          <textarea id="vs_desc" rows="4" placeholder="Where you sailed, your duties, charters, yard periods…"></textarea>
+        </label>
+
+        <div class="modal-grid2">
+          <div data-date-field="vs_date_from" data-date-label="Start date"></div>
+          <div id="vs_to_wrap">
+            <div data-date-field="vs_date_to" data-date-label="End date"></div>
+          </div>
+        </div>
+        <p class="modal-date-hint">Type the year directly — Mac calendar pickers often hide the year control.</p>
+
+        <label class="modal-check">
+          <input type="checkbox" id="vs_current" />
+          <span>Currently onboard</span>
+        </label>
+
+        <div class="modal-grid2">
+          <label>Role on vessel
+            <input id="vs_role" placeholder="Your rank or position on board" />
+          </label>
+
+          <label>Vessel type
+            <input id="vs_type" placeholder="Motor yacht, explorer, sailing yacht…" />
+          </label>
+        </div>
+
+        <label>Owner / program notes
+          <input id="vs_program" placeholder="Private owner, charter, or expedition use" />
+        </label>
+
+        <label>Vessel photo (optional)
+          <input type="file" id="vs_photo" accept="image/*" />
+        </label>
+
+        <label>Seafarer employment agreement (optional)
+          <input type="file" id="vs_sea" accept=".pdf,.doc,.docx,image/*" />
+        </label>
+
+        <button class="btn-blue" type="submit">Save vessel</button>
+        <p class="modal-footnote">Saved to your SEA-V profile. Flag and GT pre-fill sea service entries.</p>
+      </form>
+    </div>
+  </div>
+<div id="sharedModalsMount"></div>
+</body>
+
+</html>

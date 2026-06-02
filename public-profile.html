@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Public Profile</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/public-profile.js?v=5" defer></script>
+</head>
+
+<body class="public-page public-profile-page">
+
+  <header class="public-cv-topbar">
+    <div class="public-cv-topbar-inner">
+      <a class="public-cv-brand" href="index.html">
+        <img src="img/logo.png" alt="SEA-V" />
+      </a>
+      <nav class="public-cv-topbar-links" aria-label="SEA-V">
+        <a href="about.html">About</a>
+        <a href="index.html" class="public-cv-topbar-cta">Create yours</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="public-cv-main">
+
+    <div class="public-cv-shell">
+
+      <article class="dash-card public-cv-state-card" id="ppLoading">
+        <p class="muted" style="margin:0;">Loading public profile…</p>
+      </article>
+
+      <article class="dash-card public-cv-state-card" id="ppGate" hidden>
+        <h3>Profile not public</h3>
+        <p class="muted" style="margin-top:8px;">
+          This profile is currently set to private.
+        </p>
+        <div class="dash-actions" style="margin-top:14px;">
+          <a class="btn-blue" href="index.html">Back to SEA-V</a>
+        </div>
+      </article>
+
+      <div id="ppContent" class="public-cv-page" style="display:none;">
+
+        <nav
+          class="public-cv-section-nav"
+          id="ppSectionNav"
+          hidden
+          aria-label="Jump to profile section"
+        ></nav>
+
+        <article class="public-cv-hero" id="pp-section-overview">
+          <div class="public-cv-hero-top">
+            <div
+              class="avatar avatar-large public-cv-avatar"
+              id="ppAvatar"
+              aria-label="Profile photo"
+            ></div>
+            <div class="public-cv-headline">
+              <p class="public-cv-kicker">Verified yacht career profile</p>
+              <h1 class="public-cv-name" id="pp_name">Demo User</h1>
+              <p class="public-cv-rank" id="pp_rank">—</p>
+              <p class="public-cv-tagline" id="pp_tagline" hidden></p>
+              <div class="public-cv-facts-inline" id="ppFactsInline"></div>
+            </div>
+          </div>
+
+          <div class="public-cv-trust-strip" id="ppTrustStrip" hidden></div>
+
+          <div class="public-cv-career-overview" id="ppCareerOverview" hidden>
+            <p class="public-cv-section-kicker">Career overview</p>
+            <p class="public-bio" id="pp_bio"></p>
+          </div>
+        </article>
+
+        <div class="public-cv-sections">
+
+          <article class="public-cv-section public-cv-section--compact" id="ppCertSection">
+            <div class="public-cv-section-head">
+              <h2>Certificates</h2>
+              <span class="public-cv-section-count" id="ppCertSummary" hidden></span>
+            </div>
+            <p class="public-cv-section-note">Compliance status at a glance — full documents available on request.</p>
+            <div id="ppCertSnippet"></div>
+          </article>
+
+          <article class="public-cv-section public-cv-section--compact" id="ppVesselSection">
+            <div class="public-cv-section-head">
+              <h2>Yacht experience</h2>
+              <span class="public-cv-section-count" id="ppVesselCount" hidden></span>
+            </div>
+            <p class="public-cv-section-note">Roles, programs, and onboard highlights — cross-check with sea time and references below.</p>
+            <div id="ppVesselSnippet"></div>
+          </article>
+
+          <article class="public-cv-section public-cv-section--compact" id="ppSeatimeSection" hidden>
+            <div class="public-cv-section-head">
+              <h2>Sea service record</h2>
+              <span class="public-cv-section-badge public-cv-section-badge--trust">Auditable</span>
+            </div>
+            <p class="public-cv-section-note">Formal sea time logged in SEA-V — helps employers verify experience claims.</p>
+            <div id="ppSeatimeSnippet"></div>
+          </article>
+
+          <article class="public-cv-section public-cv-section--compact" id="ppRefSection" hidden>
+            <div class="public-cv-section-head">
+              <h2>Verified references</h2>
+              <span class="public-cv-section-badge public-cv-section-badge--trust">Confirmed</span>
+            </div>
+            <p class="public-cv-section-note">Only references with confirmed verification are shown publicly.</p>
+            <div id="ppRefSnippet"></div>
+          </article>
+
+          <article class="public-cv-section public-cv-section--compact" id="ppOperationsSection" hidden>
+            <div class="public-cv-section-head">
+              <h2>Signed-off operations</h2>
+              <span class="public-cv-section-badge public-cv-section-badge--trust">Verified</span>
+            </div>
+            <div id="ppOperationsSnippet"></div>
+          </article>
+
+          <article class="public-cv-section public-cv-section--compact" id="ppNavigationSection" hidden>
+            <div class="public-cv-section-head">
+              <h2>Areas navigated</h2>
+            </div>
+            <div id="ppNavigationSnippet"></div>
+          </article>
+
+          <article class="public-cv-section public-cv-section--compact" id="ppSpecialistSection" hidden>
+            <div class="public-cv-section-head">
+              <h2>Specialist skills</h2>
+            </div>
+            <div id="ppSpecialistSnippet"></div>
+          </article>
+
+          <article class="public-cv-section public-cv-section--compact public-cv-section--muted" id="ppAchievementSection" hidden>
+            <div class="public-cv-section-head">
+              <h2>Highlights</h2>
+            </div>
+            <div id="ppAchievementSnippet"></div>
+          </article>
+
+          <article class="public-cv-section public-cv-section--compact" id="ppHobbiesSection" hidden>
+            <div class="public-cv-section-head">
+              <h2>Hobbies & interests</h2>
+            </div>
+            <div id="ppHobbiesSnippet"></div>
+          </article>
+
+        </div>
+
+        <footer class="public-cv-footer">
+          <p class="public-cv-footer-note" id="ppFooterNote" hidden>
+            Profile powered by SEA-V — structured maritime records employers can trust.
+          </p>
+          <a class="public-cv-footer-cta" href="signup.html">Build your own SEA-V profile</a>
+        </footer>
+
+      </div>
+    </div>
+  </main>
+</body>
+</html>

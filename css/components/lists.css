@@ -1,0 +1,66 @@
+/* =========================================================
+   SHARED LIST COMPONENTS
+========================================================= */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+  border: 1px solid var(--surface-border);
+
+  background: var(--surface-bg-soft);
+}
+
+.list-title {
+  color: rgba(255,255,255,0.92);
+
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 900;
+
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.list-sub {
+  margin-top: 4px;
+
+  color: rgba(255,255,255,0.68);
+
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 800;
+
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+/* Actions — plain text links only; use .seav-action pills for Edit/Delete */
+
+.row-actions a:not(.seav-action) {
+  color: #5bbcff;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+  text-decoration: none;
+}
+
+.row-actions a:not(.seav-action):hover {
+  text-decoration: underline;
+}

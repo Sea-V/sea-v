@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Tenders</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/tenders.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <div id="sidebarMount"></div>
+
+    <section class="dash-content">
+
+  <article class="tender-shell-card">
+
+    <div class="tender-shell-head">
+
+      <div class="tender-shell-icon">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M7 14.5h10l-1.2-2.8H9L7 14.5Z"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linejoin="round"/>
+
+          <path d="M4 18c1.2-.9 2.4-.9 3.6 0 1.2.9 2.4.9 3.6 0 1.2-.9 2.4-.9 3.6 0 1.2.9 2.4.9 3.6 0"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div>
+        <h2>Tender Fleet</h2>
+
+        <p>
+          Manage chase boats, guest tenders, rescue craft,
+          and operational fleet assets in one place.
+        </p>
+      </div>
+
+      <div class="tender-shell-actions">
+        <a class="btn-blue" href="#" data-open="tenderModal">
+          Add Tender
+        </a>
+      </div>
+
+    </div>
+
+    <section class="tender-section">
+
+      <div class="tender-section-head">
+        <div>
+          <h3>Fleet Overview</h3>
+          <p>All registered tenders linked to your SEA-V profile.</p>
+        </div>
+      </div>
+
+      <div class="vessel-grid" id="tendersGrid"></div>
+
+    </section>
+
+  </article>
+
+</section>
+
+  </main>
+
+  <!-- =========================================================
+     TENDER MODAL
+  ========================================================= -->
+
+  <div class="modal" id="tenderModal" hidden>
+    <div class="modal-card modal-card--green">
+
+      <div class="modal-head">
+        <h3>Add / edit tender</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="tenderForm">
+
+        <input type="hidden" id="td_edit_id" />
+
+        <p class="modal-intro">
+          Log chase boats, RIBs, and toys linked to your fleet — specs and photos
+          appear on your dashboard and public profile.
+        </p>
+
+        <label>
+          Tender name
+          <input id="td_name" required placeholder="Name of the tender or toy" />
+        </label>
+
+        <label>
+          Attached Vessel (optional)
+          <select id="td_vessel">
+            <option value="">Link to parent yacht, or leave blank</option>
+          </select>
+        </label>
+
+        <div class="modal-grid2">
+          <label>
+            Type
+            <input id="td_type" placeholder="RIB, chase boat, jet ski…" />
+          </label>
+
+          <label>
+            Make / Model
+            <input id="td_model" placeholder="Manufacturer and model name" />
+          </label>
+        </div>
+
+        <div class="modal-grid2">
+          <label>
+            Length
+            <input id="td_length" placeholder="Length of the tender" />
+          </label>
+
+          <label>
+            Engine
+            <input id="td_engine" placeholder="Engine type or horsepower" />
+          </label>
+        </div>
+
+        <label>
+          Capacity
+          <input id="td_capacity" placeholder="How many passengers it carries" />
+        </label>
+
+        <label>
+          Registration / Hull Number
+          <input id="td_reg" placeholder="Official registration if known" />
+        </label>
+
+        <label>
+          Notes
+          <textarea id="td_desc" rows="3" placeholder="Any extra details about this tender"></textarea>
+        </label>
+
+        <label>
+          Photo
+          <input type="file" id="td_photo" accept="image/*" />
+        </label>
+
+        <button class="btn-blue" type="submit">Save tender</button>
+        <p class="modal-footnote">Saved to your SEA-V profile.</p>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div id="sharedModalsMount"></div>
+
+</body>
+</html>

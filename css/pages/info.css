@@ -1,0 +1,266 @@
+/* =========================================================
+   SEA-V • INFO PAGES
+   about.html • contact.html • help pages
+========================================================= */
+
+body.info-page {
+  min-height: 100vh;
+}
+
+/* =========================================================
+   PAGE SHELL
+========================================================= */
+
+body.info-page .info-shell {
+  position: relative;
+  z-index: 10;
+
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 34px 20px 120px;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   MAIN PANEL
+========================================================= */
+
+body.info-page .info-panel {
+  width: min(980px, 94vw);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+
+  padding: 42px 34px 34px;
+
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.14);
+
+  background: rgba(15, 32, 52, 0.34);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow: 0 22px 60px rgba(0,0,0,0.34);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+body.info-page .info-logo {
+  width: 320px;
+  max-width: 78%;
+
+  margin-bottom: 10px;
+}
+
+body.info-page .info-title {
+  margin: 0;
+
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+body.info-page .info-subtitle {
+  margin: 10px 0 26px;
+
+  color: rgba(255,255,255,0.72);
+
+  font-size: 14px;
+}
+
+/* =========================================================
+   CONTENT GRID
+========================================================= */
+
+body.info-page .info-content {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+
+  text-align: left;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+body.info-page .info-card {
+  padding: 22px;
+
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.10);
+
+  background: rgba(255,255,255,0.06);
+}
+
+body.info-page .info-card h3 {
+  margin-top: 0;
+  margin-bottom: 14px;
+
+  color: white;
+
+  font-size: 20px;
+}
+
+/* =========================================================
+   TEXT
+========================================================= */
+
+body.info-page .info-card p,
+body.info-page .info-card li,
+body.info-page .info-card label,
+body.info-page .info-note {
+  color: rgba(255,255,255,0.82);
+
+  line-height: 1.6;
+}
+
+body.info-page .info-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+body.info-page .info-note {
+  margin: 0;
+
+  font-size: 13px;
+}
+
+/* =========================================================
+   LINKS / BUTTONS
+========================================================= */
+
+body.info-page .info-links {
+  width: 100%;
+
+  margin-top: 26px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 14px;
+}
+
+body.info-page .info-link-btn {
+  min-height: 44px;
+  padding: 0 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.18);
+
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+
+  text-decoration: none;
+  white-space: nowrap;
+
+  font-weight: 600;
+}
+
+body.info-page .info-link-btn-primary {
+  border: none;
+
+  background: linear-gradient(135deg, #5bbcff, #2d7cff);
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+body.info-page .info-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+body.info-page .info-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+body.info-page .info-form label {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  font-size: 14px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  body.info-page .info-content,
+  body.info-page .info-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  body.info-page .info-panel {
+    padding: 34px 20px 26px;
+
+    border-radius: 22px;
+  }
+
+  body.info-page .info-logo {
+    width: 250px;
+    max-width: 80%;
+  }
+
+  body.info-page .info-title {
+    font-size: 28px;
+  }
+
+  body.info-page .info-subtitle {
+    margin-bottom: 20px;
+
+    font-size: 13px;
+  }
+
+  body.info-page .info-card {
+    padding: 18px;
+  }
+
+  body.info-page .info-card h3 {
+    font-size: 18px;
+  }
+
+  body.info-page .info-links {
+    gap: 10px;
+  }
+
+  body.info-page .info-link-btn {
+    width: 100%;
+    max-width: 260px;
+  }
+}

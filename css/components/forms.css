@@ -1,0 +1,74 @@
+/* =========================================================
+   SHARED FORM ELEMENTS
+========================================================= */
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  box-sizing: border-box;
+
+  border: 1px solid rgba(255,255,255,0.22);
+
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.form-input {
+  height: 46px;
+  padding: 0 16px;
+
+  border-radius: 22px;
+
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: rgba(255,255,255,0.58);
+}
+
+/* =========================================================
+   TEXTAREAS
+========================================================= */
+
+.form-textarea {
+  padding: 12px 14px;
+
+  border-radius: 18px;
+
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.form-button {
+  height: 46px;
+
+  border: none;
+  border-radius: 22px;
+
+  background: linear-gradient(135deg, #5bbcff, #2d7cff);
+
+  color: white;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 10px 24px rgba(0,0,0,0.28);
+}

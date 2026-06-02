@@ -1,0 +1,362 @@
+// /js/tenders.js
+(function () {
+  "use strict";
+
+  if (!window.Seav) {
+    console.warn("[SEA-V] Seav core not found. Did you include js/core.js before tenders.js?");
+    return;
+  }
+
+  if (!window.SeavAPI) {
+    console.warn("[SEA-V] SeavAPI not found. Did you include js/api.js before tenders.js?");
+    return;
+  }
+
+  if (!window.SeavData) {
+    console.warn("[SEA-V] SeavData not found. Did you include js/seav-data.js before tenders.js?");
+    return;
+  }
+
+  if (!window.SeavState) {
+    console.warn("[SEA-V] SeavState not found. Did you include js/state.js before tenders.js?");
+    return;
+  }
+
+ const {
+  KEYS,
+  createId,
+  getSortedVesselOptions
+} = window.SeavData;
+
+  const STORAGE_KEY = KEYS.TENDERS;
+
+  function getTenders() {
+    return window.SeavState?.tenders || [];
+  }
+
+  function getVessels() {
+    return window.SeavState?.vessels || [];
+  }
+
+function populateTenderVesselOptions() {
+  const select = document.getElementById("td_vessel");
+  if (!select) return;
+
+  const currentValue = select.value || "";
+
+  const vessels = getSortedVesselOptions(getVessels());
+
+  select.innerHTML = `
+    <option value="">Link to parent yacht, or leave blank</option>
+    ${vessels
+      .map(
+        (v) =>
+          `<option value="${Seav.escapeHtml(v.id)}">${Seav.escapeHtml(v.name)}</option>`
+      )
+      .join("")}
+  `;
+
+  if (currentValue) {
+    select.value = currentValue;
+  }
+}
+
+function getVesselNameForTender(tender) {
+  if (!tender?.vesselId) return "Standalone / Chase";
+
+  const vessel = getVessels().find((item) => item.id === tender.vesselId);
+  return vessel?.name || "Unknown Vessel";
+}
+
+  function buildTenderCard(tender) {
+  const tenderId = tender.id || "";
+  const photoUrl = tender.photo?.url || tender.photo?.dataUrl || "";
+  const hasPhoto = !!photoUrl;
+
+  const photoHtml = hasPhoto
+    ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(tender.name || "Tender")}" />`
+    : `<div class="vessel-photo-fallback">No Photo</div>`;
+
+  const vesselName = getVesselNameForTender(tender);
+
+  return `
+    <article class="vessel-card">
+      <div class="vessel-photo">${photoHtml}</div>
+
+      <div class="vessel-body">
+        <h3 class="vessel-title vessel-title-strong">
+          ${Seav.escapeHtml(tender.name || "Unnamed Tender")}
+        </h3>
+
+        <div class="vessel-meta-grid">
+
+          <div class="vessel-meta-item">
+            <span class="vessel-meta-label">Vessel</span>
+            <span class="vessel-meta-value">${Seav.escapeHtml(vesselName)}</span>
+          </div>
+
+          <div class="vessel-meta-item">
+            <span class="vessel-meta-label">Type</span>
+            <span class="vessel-meta-value">${Seav.escapeHtml(tender.type || "—")}</span>
+          </div>
+
+          <div class="vessel-meta-item">
+            <span class="vessel-meta-label">Model</span>
+            <span class="vessel-meta-value">${Seav.escapeHtml(tender.model || "—")}</span>
+          </div>
+
+          <div class="vessel-meta-item">
+            <span class="vessel-meta-label">Length</span>
+            <span class="vessel-meta-value">${Seav.escapeHtml(tender.length || "—")}</span>
+          </div>
+
+          <div class="vessel-meta-item">
+            <span class="vessel-meta-label">Engine</span>
+            <span class="vessel-meta-value">${Seav.escapeHtml(tender.engine || "—")}</span>
+          </div>
+
+          <div class="vessel-meta-item">
+            <span class="vessel-meta-label">Capacity</span>
+            <span class="vessel-meta-value">${Seav.escapeHtml(tender.capacity || "—")}</span>
+          </div>
+
+          <div class="vessel-meta-item">
+            <span class="vessel-meta-label">Registration</span>
+            <span class="vessel-meta-value">${Seav.escapeHtml(tender.reg || "—")}</span>
+          </div>
+
+        </div>
+
+        ${
+          tender.desc
+            ? `<div class="vessel-desc vessel-desc-soft">${Seav.escapeHtml(tender.desc)}</div>`
+            : ``
+        }
+
+        ${Seav.seavActions(
+          `${Seav.seavAction(
+            "edit",
+            "Edit",
+            `data-edit-tender-id="${Seav.escapeHtml(tenderId)}"`
+          )}${Seav.seavAction(
+            "delete",
+            "Delete",
+            `data-del-tender-id="${Seav.escapeHtml(tenderId)}"`
+          )}`,
+          "seav-actions--compact"
+        )}
+      </div>
+    </article>
+  `;
+}
+
+  function renderTenders() {
+    const tendersGrid = document.getElementById("tendersGrid");
+    if (!tendersGrid && !document.getElementById("tenderForm")) return;
+    if (!tendersGrid) return;
+
+    const tenders = getTenders();
+
+    if (!tenders.length) {
+      tendersGrid.innerHTML = `<p class="muted">No tenders added yet.</p>`;
+      return;
+    }
+
+    tendersGrid.innerHTML = tenders.map((tender) => buildTenderCard(tender)).join("");
+  }
+
+  function fillTenderForm(tender) {
+    document.getElementById("td_name").value = tender.name || "";
+    document.getElementById("td_vessel").value = tender.vesselId || "";
+    document.getElementById("td_type").value = tender.type || "";
+    document.getElementById("td_model").value = tender.model || "";
+    document.getElementById("td_length").value = tender.length || "";
+    document.getElementById("td_engine").value = tender.engine || "";
+    document.getElementById("td_capacity").value = tender.capacity || "";
+    document.getElementById("td_reg").value = tender.reg || "";
+    document.getElementById("td_desc").value = tender.desc || "";
+
+    const editId = document.getElementById("td_edit_id");
+    if (editId) editId.value = tender.id || "";
+
+    if (window.SeavModals?.openModal) {
+      window.SeavModals.openModal("tenderModal");
+    }
+  }
+
+  function resetTenderFormState() {
+    const form = document.getElementById("tenderForm");
+    if (form) form.reset();
+
+    const editId = document.getElementById("td_edit_id");
+    if (editId) editId.value = "";
+
+    const vesselSelect = document.getElementById("td_vessel");
+    if (vesselSelect) vesselSelect.value = "";
+  }
+
+function readTenderForm() {
+  return {
+    id: document.getElementById("td_edit_id")?.value || "",
+    name: document.getElementById("td_name")?.value.trim(),
+    vesselId: document.getElementById("td_vessel")?.value || "",
+    type: document.getElementById("td_type")?.value.trim() || "",
+    model: document.getElementById("td_model")?.value.trim() || "",
+    length: document.getElementById("td_length")?.value.trim() || "",
+    engine: document.getElementById("td_engine")?.value.trim() || "",
+    capacity: document.getElementById("td_capacity")?.value.trim() || "",
+    reg: document.getElementById("td_reg")?.value.trim() || "",
+    desc: document.getElementById("td_desc")?.value.trim() || "",
+    file: document.getElementById("td_photo")?.files?.[0] || null
+  };
+}
+
+  async function buildTenderPhoto(file, existingPhoto, tenderId) {
+  if (!file) return existingPhoto || null;
+
+  if (window.SeavSupabase) {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const filePath = SeavAPI.buildStoragePath(tenderId, safeName);
+
+    const { error } = await window.SeavSupabase.storage
+      .from("tender-photos")
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: true
+      });
+
+    if (error) {
+      console.error("[SEA-V] Tender photo upload failed:", error);
+      Seav.notify("error", "Upload failed", "Tender photo upload failed. Please try again.");
+      return existingPhoto || null;
+    }
+
+    return SeavAPI.buildUploadedFileMeta("tender-photos", filePath, file);
+  }
+
+  return await Seav.buildStoredFile(file, {
+    fallback: existingPhoto || null,
+    kind: "Photo"
+  });
+}
+
+  async function saveTenderData(tenderData) {
+    await SeavAPI.upsertItemById(STORAGE_KEY, tenderData);
+  }
+
+  function initTenders() {
+    if (
+      !document.getElementById("tendersGrid") &&
+      !document.getElementById("tenderForm")
+    ) return;
+
+    const runRefresh = () => {
+      populateTenderVesselOptions();
+      renderTenders();
+    };
+
+    if (window.SeavState?.ready) {
+      runRefresh();
+    } else {
+      document.addEventListener("seav:state-ready", runRefresh, { once: true });
+    }
+
+    const tenderForm = document.getElementById("tenderForm");
+    if (tenderForm) {
+      tenderForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = readTenderForm();
+        if (!formData.name) return;
+
+        const existingTender = formData.id
+          ? getTenders().find((item) => item.id === formData.id) || null
+          : null;
+
+        await Seav.withSaving(async () => {
+        const tenderId = formData.id || createId("tender");
+
+        const photo = await buildTenderPhoto(
+          formData.file,
+          existingTender?.photo || null,
+          tenderId
+        );
+
+        if (formData.file && !photo) return;
+
+       const now = new Date().toISOString();
+
+       const tenderData = {
+        id: tenderId,
+        name: formData.name,
+        vesselId: formData.vesselId,
+        type: formData.type,
+        model: formData.model,
+        length: formData.length,
+        engine: formData.engine,
+        capacity: formData.capacity,
+        reg: formData.reg,
+        desc: formData.desc,
+        photo,
+        createdAt: existingTender?.createdAt || now,
+        updatedAt: now
+        };
+
+        await saveTenderData(tenderData);
+
+        resetTenderFormState();
+        if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
+
+        Seav.notify("success", "Tender logged", "Added to your fleet overview.");
+
+        if (window.Seav.app?.refreshAll) {
+          await window.Seav.app.refreshAll();
+        } else {
+          renderTenders();
+        }
+        }, { sub: "Saving tender" });
+      });
+    }
+
+    document.addEventListener("click", async (e) => {
+      const editBtn = e.target.closest("[data-edit-tender-id]");
+      if (editBtn) {
+        e.preventDefault();
+        populateTenderVesselOptions();
+        const tenderId = editBtn.getAttribute("data-edit-tender-id");
+        const tender = getTenders().find((item) => item.id === tenderId);
+        if (!tender) return;
+        fillTenderForm(tender);
+        return;
+      }
+
+      const delBtn = e.target.closest("[data-del-tender-id]");
+      if (delBtn) {
+        e.preventDefault();
+        const tenderId = delBtn.getAttribute("data-del-tender-id");
+        const tender = getTenders().find((item) => item.id === tenderId);
+
+        if (
+          !Seav.confirmDelete({
+            itemName: tender?.name || "",
+            itemLabel: "tender"
+          })
+        ) {
+          return;
+        }
+
+        await SeavAPI.deleteItemById(STORAGE_KEY, tenderId);
+
+        if (window.Seav.app?.refreshAll) {
+          await window.Seav.app.refreshAll();
+        } else {
+          renderTenders();
+        }
+      }
+    });
+
+    document.addEventListener("seav:data-updated", runRefresh);
+  }
+
+  document.addEventListener("DOMContentLoaded", initTenders);
+})();

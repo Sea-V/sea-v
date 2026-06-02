@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Sea Service</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/seatime.js?v=2" defer></script>
+ </head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <!-- Topbar -->
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+  <!-- Sidebar -->
+  <div id="sidebarMount"></div>
+
+  <!-- Main Content -->
+  <section class="dash-content">
+
+  <article class="seatime-shell-card">
+
+    <!-- HEADER -->
+    <div class="seatime-shell-head">
+
+      <div class="seatime-shell-icon">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="11" r="4.5" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M12 11V8.8M12 11l2 1.3"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+          <path d="M4 18c1.3-1 2.7-1 4 0s2.7 1 4 0 2.7-1 4 0 2.7 1 4 0"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="seatime-shell-copy">
+        <h2>Sea service record</h2>
+
+        <p>
+          Track qualifying service in a format aligned with PYA / MCA sea service
+          testimonials — vessel, capacity, dates, day breakdown, and supporting evidence.
+        </p>
+      </div>
+
+      <div class="seatime-shell-actions">
+        <a class="btn-ghost2" href="#" id="btnExportSeatimeCsv">
+          Export CSV
+        </a>
+
+        <a class="btn-blue" href="#" data-open="seatimeModal">
+          Add service entry
+        </a>
+      </div>
+
+    </div>
+
+    <!-- KPI SECTION -->
+    <article class="dash-card dash-kpis-row seatime-kpi-panel">
+      <h3 class="kpi-title">Service summary</h3>
+
+      <div class="kpi-row-grid kpi-row-grid-5">
+
+        <div class="kpi-box">
+          <div class="kpi-num" id="kpiSea">0</div>
+          <div class="kpi-label">Actual sea service</div>
+        </div>
+
+        <div class="kpi-box">
+          <div class="kpi-num" id="kpiStandby">0</div>
+          <div class="kpi-label">Standby service</div>
+        </div>
+
+        <div class="kpi-box">
+          <div class="kpi-num" id="kpiYard">0</div>
+          <div class="kpi-label">Yard / shipyard</div>
+        </div>
+
+        <div class="kpi-box">
+          <div class="kpi-num" id="kpiWatchkeeping">0</div>
+          <div class="kpi-label">Watchkeeping</div>
+        </div>
+
+        <div class="kpi-box">
+          <div class="kpi-num" id="kpiTotalDays">0</div>
+          <div class="kpi-label">Total qualifying days</div>
+        </div>
+
+      </div>
+    </article>
+
+    <!-- VERIFICATION PORTALS -->
+    <section class="seatime-section seatime-portals">
+
+      <div class="seatime-section-head">
+        <h3>Official verification portals</h3>
+
+        <p>
+          Submit and verify sea service with PYA or Nautilus — SEA-V helps you prepare
+          records locally; use these portals for official verification.
+        </p>
+      </div>
+
+      <div class="seatime-portal-links">
+
+        <a
+          class="seatime-portal-link"
+          href="https://member.pya.org/login"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="seatime-portal-logo seatime-portal-logo--pya">
+            <img src="assets/logos/pya-logo.png" alt="PYA" />
+          </span>
+          <span class="seatime-portal-copy">
+            <span class="seatime-portal-name">PYA member portal</span>
+            <span class="seatime-portal-desc">Upload testimonials, track verification, and access your D-SRB.</span>
+          </span>
+          <span class="seatime-portal-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H9M17 7v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <a
+          class="seatime-portal-link"
+          href="https://app.nautilusssr.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="seatime-portal-logo seatime-portal-logo--nautilus">
+            <img src="assets/logos/nautilus-logo.png" alt="Nautilus Sea Service Record" />
+          </span>
+          <span class="seatime-portal-copy">
+            <span class="seatime-portal-name">Nautilus Sea Service Record</span>
+            <span class="seatime-portal-desc">Log, calculate, and review qualifying sea service in the SSR portal.</span>
+          </span>
+          <span class="seatime-portal-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H9M17 7v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+      </div>
+
+    </section>
+
+    <!-- TABLE SECTION -->
+    <section class="seatime-section">
+
+      <div class="seatime-section-head">
+        <h3>Sea service entries</h3>
+
+        <p>
+          One row per vessel engagement. Keep dates continuous, attach signed testimonials
+          where available, and ensure day totals match the employment period.
+        </p>
+      </div>
+
+      <div class="seatime-table-wrap">
+
+        <table class="seatime-table">
+          <thead>
+            <tr>
+              <th colspan="3">Vessel &amp; capacity</th>
+              <th colspan="2">Service period</th>
+              <th colspan="5">Qualifying days</th>
+              <th colspan="3">Evidence</th>
+            </tr>
+            <tr>
+              <th>Vessel</th>
+              <th>Flag / GT</th>
+              <th>Capacity</th>
+              <th>Joined</th>
+              <th>Left</th>
+              <th>Sea</th>
+              <th>Standby</th>
+              <th>Yard</th>
+              <th>Watch</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Testimonial</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="seatimeBody"></tbody>
+        </table>
+
+      </div>
+
+    </section>
+
+    <!-- GUIDANCE -->
+    <section class="seatime-section seatime-notes">
+      <details class="seatime-checklist-panel">
+        <summary class="seatime-checklist-summary">
+          <span>
+            <strong>PYA / MCA testimonial checklist</strong>
+            <small>Open when preparing sea service for verification or CoC applications.</small>
+          </span>
+        </summary>
+
+        <ul class="seatime-guidance-list">
+          <li>Record both start and end dates for every engagement — even if still onboard.</li>
+          <li>Do not overlap dates between entries; new testimonials should follow the last period.</li>
+          <li>Break down actual sea, standby, and yard service using MCA definitions.</li>
+          <li>Watchkeeping days should reflect approved watchkeeping service only.</li>
+          <li>Attach signed sea service testimonials (SST) — Captain, or Owner/Manager for Masters.</li>
+          <li>Use the PYA or Nautilus portal links above for official verification, or export CSV for your training manager.</li>
+        </ul>
+      </details>
+    </section>
+
+  </article>
+
+</section>
+  </main>
+
+  <!-- Sea Service Entry Modal -->
+  <div class="modal" id="seatimeModal" hidden>
+    <div class="modal-card modal-card-wide modal-card--indigo">
+
+      <div class="modal-head">
+        <h3>Add / edit sea service entry</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="seatimeForm">
+        <input type="hidden" id="st_edit_index" value="" />
+
+        <p class="modal-intro">
+          Link to a vessel from your fleet, confirm flag and tonnage, then log the service
+          period and day breakdown as it would appear on a PYA sea service testimonial.
+        </p>
+
+        <!-- Vessel Details -->
+        <label>
+          Vessel
+          <select required id="st_vessel">
+            <option value="">Choose from your vessel list</option>
+          </select>
+        </label>
+
+        <div class="modal-grid2">
+          <label>
+            Flag
+            <input id="st_flag" placeholder="Country where the vessel is registered" />
+          </label>
+
+          <label>
+            Gross tonnage (GT)
+            <input id="st_gt" placeholder="Vessel gross tonnage — total registered size" />
+          </label>
+        </div>
+
+        <div class="modal-grid2">
+          <label>
+            IMO / official number
+            <input id="st_imo" placeholder="Official vessel number if known" />
+          </label>
+
+          <label>
+            Capacity served
+            <input required id="st_role" placeholder="Rank or role held during this period" />
+          </label>
+        </div>
+
+        <!-- Service Period -->
+        <div class="modal-grid2">
+          <div data-date-field="st_date_joined" data-date-label="Date joined" data-date-required></div>
+          <div data-date-field="st_date_left" data-date-label="Date left" data-date-required></div>
+        </div>
+        <p class="modal-date-hint">Type the year (e.g. 2019), then choose month and day — works the same on Mac and Windows.</p>
+
+        <!-- Service Breakdown -->
+        <div class="modal-grid2">
+          <label>
+            Actual sea service (days)
+            <input type="number" min="0" id="st_actual_sea" placeholder="Days at sea during this period" />
+          </label>
+
+          <label>
+            Standby service (days)
+            <input type="number" min="0" id="st_standby" placeholder="Days on standby, not ashore leave" />
+          </label>
+        </div>
+
+        <div class="modal-grid2">
+          <label>
+            Yard / shipyard service (days)
+            <input type="number" min="0" id="st_yard" placeholder="Days in shipyard or dry dock" />
+          </label>
+
+          <label>
+            Watchkeeping service (days)
+            <input type="number" min="0" id="st_watchkeeping" placeholder="Days on navigational watch" />
+          </label>
+        </div>
+
+        <!-- Verification -->
+        <label>
+          Verification status
+          <select id="st_status">
+            <option value="Logged">Logged</option>
+            <option value="Pending Verification">Pending verification</option>
+            <option value="Verified">Verified</option>
+          </select>
+        </label>
+
+        <label>
+          Notes
+          <textarea id="st_notes" rows="3" placeholder="Rotation pattern, leave, or extra detail for sea service records"></textarea>
+        </label>
+
+        <label>
+          Sea service testimonial / supporting evidence
+          <input type="file" id="st_attachment" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+        </label>
+
+        <p class="modal-footnote">
+          Upload signed SSTs, company sea service letters, or discharge book pages.
+          Saved to your SEA-V profile.
+        </p>
+
+        <button class="btn-blue" type="submit">Save service entry</button>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Shared Modals -->
+  <div id="sharedModalsMount"></div>
+
+</body>
+</html>

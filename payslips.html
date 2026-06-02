@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Payslips</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+  <script src="js/payslips.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <div id="sidebarMount"></div>
+
+    <section class="dash-content">
+
+      <article class="ps-shell-card">
+
+        <div class="ps-shell-head">
+
+          <div class="ps-shell-icon">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="8.5" cy="15" r="3.8" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="12" cy="11.5" r="3.8" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="15.5" cy="8" r="3.8" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M15.5 6.6v2.8M14.2 8h2.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="ps-shell-copy">
+            <h2>Payslips</h2>
+            <p>
+              Store payslips by tax year and export a pack for your accountant.
+              Private records — never shown on your public yacht CV.
+            </p>
+          </div>
+
+          <div class="ps-shell-actions">
+            <a class="btn-blue" href="#" data-open="psModal">Add payslip</a>
+          </div>
+
+        </div>
+
+        <section class="ps-section">
+
+          <div class="ps-kpi-row" id="psKpiRow"></div>
+
+          <div class="ps-toolbar">
+            <label class="ps-filter-label">
+              Tax year
+              <select id="psTaxYearFilter">
+                <option value="">All tax years</option>
+              </select>
+            </label>
+            <div class="ps-toolbar-actions">
+              <a class="btn-ghost2" href="#" id="btnDownloadPayslipPack">Download pack</a>
+              <a class="btn-ghost2" href="#" id="btnSharePayslipPack">Share pack</a>
+            </div>
+          </div>
+
+          <div class="ps-section-head">
+            <div>
+              <h3>Your payslip records</h3>
+              <p>Upload PDF payslips month by month. Each month can only be logged once per tax year.</p>
+            </div>
+          </div>
+
+          <div class="ps-compact-list" id="psList"></div>
+
+          <p class="ps-footnote" id="psExportMsg">
+            Download pack includes PDF attachments and a CSV summary for your accountant.
+          </p>
+
+        </section>
+
+      </article>
+
+    </section>
+
+  </main>
+
+  <div class="modal" id="psModal" hidden>
+    <div class="modal-card modal-card-wide modal-card--bronze">
+
+      <div class="modal-head">
+        <h3>Add / edit payslip</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="psForm">
+
+        <input type="hidden" id="ps_edit_id" value="" />
+
+        <p class="modal-intro">
+          Pick the tax year and month — each month can only be logged once per tax year, across all vessels.
+        </p>
+
+        <div class="modal-grid2">
+          <label>
+            Tax year
+            <select id="ps_tax_year" required></select>
+          </label>
+          <label>
+            Month
+            <select id="ps_pay_month" required disabled>
+              <option value="">Select tax year first</option>
+            </select>
+          </label>
+        </div>
+
+        <p class="modal-note" id="ps_month_hint">One payslip per month, per tax year — logged months are removed from the list.</p>
+
+        <div class="modal-grid2">
+          <div data-date-field="ps_payment_date" data-date-label="Payment date" data-date-optional></div>
+          <label>
+            Linked vessel (optional)
+            <select id="ps_vessel">
+              <option value="">Link to a vessel if this pay relates to one</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Employer / management co.
+          <input id="ps_employer" placeholder="Company that paid you or managed payroll" />
+        </label>
+
+        <div class="modal-grid3">
+          <label>
+            Gross amount
+            <input id="ps_gross" type="number" min="0" step="0.01" placeholder="Total pay before tax" />
+          </label>
+          <label>
+            Net amount
+            <input id="ps_net" type="number" min="0" step="0.01" placeholder="Take-home pay after deductions" />
+          </label>
+          <label>
+            Currency
+            <select id="ps_currency"></select>
+          </label>
+        </div>
+
+        <label>
+          Notes (optional)
+          <textarea id="ps_notes" rows="2" placeholder="Tax deducted, leave balance, or other notes"></textarea>
+        </label>
+
+        <label>
+          Payslip file (PDF / image)
+          <input type="file" id="ps_file" accept=".pdf,image/*" />
+        </label>
+
+        <button class="btn-blue" type="submit">Save payslip</button>
+
+        <p class="modal-footnote">
+          Stored privately in SEA-V. Export via Download pack when sharing with your accountant.
+        </p>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div id="sharedModalsMount"></div>
+</body>
+</html>

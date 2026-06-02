@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Specialist Qualifications</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/specialist-qualifications.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <div id="sidebarMount"></div>
+
+    <section class="dash-content">
+
+      <article class="sq-shell-card">
+
+        <div class="sq-shell-head">
+
+          <div class="sq-shell-icon">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5.2L12 14.8 7.5 17l.9-5.2L4.8 8.2l5-.7L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M8 19.5h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="sq-shell-copy">
+            <h2>Specialist Qualifications &amp; Skills</h2>
+            <p>
+              Wellness, water sports, hospitality, and other professional credentials
+              that strengthen your yacht CV — massage therapy, yoga, personal training,
+              kite instruction, languages, and more.
+            </p>
+          </div>
+
+          <div class="sq-shell-actions">
+            <a class="btn-blue" href="#" data-open="sqModal">Add qualification</a>
+          </div>
+
+        </div>
+
+        <section class="sq-section">
+
+          <div class="sq-kpi-row" id="sqKpiRow"></div>
+
+          <div class="sq-section-head">
+            <div>
+              <h3>Your specialist credentials</h3>
+              <p>
+                Log qualifications beyond maritime certificates. Upload supporting
+                documents where you have them.
+              </p>
+            </div>
+          </div>
+
+          <div class="sq-compact-list" id="sqList"></div>
+
+        </section>
+
+      </article>
+
+    </section>
+
+  </main>
+
+  <div class="modal" id="sqModal" hidden>
+    <div class="modal-card modal-card-wide modal-card--lavender">
+
+      <div class="modal-head">
+        <h3>Add / edit qualification</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="sqForm">
+
+        <input type="hidden" id="sq_edit_id" value="" />
+
+        <p class="modal-intro">
+          Record specialist skills and qualifications that make you more valuable
+          onboard — separate from STCW and rank certificates.
+        </p>
+
+        <div class="modal-grid2">
+          <label>
+            Category
+            <select id="sq_category" required>
+              <option value="">Pick the type of qualification</option>
+            </select>
+          </label>
+
+          <label>
+            Status
+            <select id="sq_status">
+              <option value="Self-declared">Self-declared</option>
+              <option value="Verified">Verified</option>
+              <option value="Expired">Expired</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Qualification title
+          <input id="sq_title" required placeholder="Name of the course or qualification" />
+        </label>
+
+        <label>
+          Issuing body / school (optional)
+          <input id="sq_issuing_body" placeholder="Training school, university, or governing body" />
+        </label>
+
+        <div class="modal-grid2">
+          <div data-date-field="sq_date_obtained" data-date-label="Date obtained"></div>
+          <div data-date-field="sq_expiry" data-date-label="Expiry date" data-date-optional></div>
+        </div>
+
+        <label>
+          Notes (optional)
+          <textarea id="sq_notes" rows="3" placeholder="Extra detail for your CV or recruiters"></textarea>
+        </label>
+
+        <label>
+          Supporting file (PDF / image)
+          <input type="file" id="sq_file" accept=".pdf,image/*" />
+        </label>
+
+        <button class="btn-blue" type="submit">Save qualification</button>
+
+        <p class="modal-footnote">
+          Saved to your SEA-V profile and shown on your public CV when enabled.
+        </p>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div id="sharedModalsMount"></div>
+</body>
+</html>

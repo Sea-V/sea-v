@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • References</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/references.js" defer></script>     
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+    
+    <div id="sidebarMount"></div>
+
+    <section class="dash-content">
+
+      <article class="reference-shell-card">
+
+    <div class="reference-shell-head">
+
+      <div class="reference-shell-icon">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/>
+          <path
+            d="M8.7 12.2l2.1 2.1 4.5-4.7"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+
+      <div class="reference-shell-title">
+        <h2>References</h2>
+
+        <p>
+          Store Captain and senior officer references to support your maritime
+          profile and professional reputation.
+        </p>
+      </div>
+
+      <div class="reference-shell-actions">
+        <a class="btn-blue" href="#" data-open="refModal">
+          Add Reference
+        </a>
+      </div>
+
+    </div>
+
+    <section class="reference-section">
+
+      <div class="reference-section-head">
+        <div>
+          <h3>Captain / Officer References</h3>
+          <p>
+            References may later support email confirmation, QR validation,
+            or verified SEA-V profile sharing.
+          </p>
+        </div>
+      </div>
+
+      <div class="list" id="refsList"></div>
+
+    </section>
+
+  </article>
+
+</section>
+
+  <!-- =========================================================
+     REFERENCE MODAL
+  ========================================================= -->
+
+  <div class="modal" id="refModal" hidden>
+    <div class="modal-card modal-card--purple">
+
+      <div class="modal-head">
+        <h3>Add / edit reference</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="refForm">
+
+        <input type="hidden" id="rf_edit_id" value="" />
+
+        <p class="modal-intro">
+          Store written references from captains and senior officers — link to a vessel,
+          attach signed PDFs, and track verification status.
+        </p>
+
+        <label>
+          Captain / referee name
+          <input required id="rf_name" placeholder="Full name of the person giving the reference" />
+        </label>
+
+        <label>
+          Position / company
+          <input id="rf_title" placeholder="Their job title and type of vessel" />
+        </label>
+
+        <label>
+          Referee email
+          <input type="email" id="rf_email" placeholder="Their work email address" />
+        </label>
+
+        <div class="modal-grid2">
+          <label>
+            Vessel
+            <select id="rf_vessel">
+              <option value="">Choose from your vessel list</option>
+            </select>
+          </label>
+
+          <label>
+            Your role
+            <input id="rf_role" placeholder="Your rank while they knew you" />
+          </label>
+        </div>
+
+        <label>
+          Service period
+          <input id="rf_period" placeholder="Dates you sailed together" />
+        </label>
+
+        <label>
+          Reference text
+          <textarea required id="rf_text" rows="5" placeholder="What they wrote about your work and character"></textarea>
+        </label>
+
+        <div class="modal-grid2">
+          <div data-date-field="rf_date" data-date-label="Reference date"></div>
+
+          <label>
+            Status
+            <select id="rf_status">
+              <option value="Draft">Draft</option>
+              <option value="Sent for Verification">Sent for verification</option>
+              <option value="Verified">Verified</option>
+              <option value="Declined">Declined</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Attachment (PDF / image)
+          <input type="file" id="rf_file" accept=".pdf,image/*" />
+        </label>
+
+        <button class="btn-blue" type="submit">Save reference</button>
+
+        <p class="modal-footnote">
+          Saved to your SEA-V profile. Use verification when a captain confirms the reference.
+        </p>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- =========================================================
+     REFERENCE VERIFICATION MODAL
+  ========================================================= -->
+
+  <div class="modal" id="refVerifyModal" hidden>
+    <div class="modal-card modal-card--purple">
+
+      <div class="modal-head">
+        <h3>Reference verification</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="refVerifyForm">
+
+        <input type="hidden" id="rv_index" value="" />
+
+        <p class="modal-intro">
+          Captain or senior officer confirms the attached reference is accurate.
+          In production this can link to email or QR verification.
+        </p>
+
+        <label class="modal-check">
+          <input type="checkbox" id="rv_confirmed" />
+          <span>I confirm this reference is true and approved by me.</span>
+        </label>
+
+        <label>
+          Verification note
+          <textarea id="rv_note" rows="4" placeholder="Brief confirmation that the reference is accurate"></textarea>
+        </label>
+
+        <div class="modal-grid2">
+          <label>
+            Rank / Position
+            <input id="rv_rank" placeholder="Verifier's rank or position" />
+          </label>
+
+          <label>
+            CoC Number
+            <input id="rv_coc" placeholder="Certificate of competency number" />
+          </label>
+        </div>
+
+        <div class="modal-grid2">
+          <label>
+            Signature
+            <input id="rv_signature" placeholder="Type full name to sign" />
+          </label>
+
+          <div data-date-field="rv_signed_at" data-date-label="Signed date"></div>
+        </div>
+
+        <button class="btn-blue" type="submit">Save verification</button>
+
+        <p class="modal-footnote">
+          Verification is stored on the reference record in your SEA-V profile.
+        </p>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div id="sharedModalsMount"></div>
+
+</body>
+</html>

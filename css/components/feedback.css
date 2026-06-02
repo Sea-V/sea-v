@@ -1,0 +1,338 @@
+/* =========================================================
+   SEA-V • FEEDBACK (toasts + page loader)
+========================================================= */
+
+.seav-toast-stack {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 12000;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  width: min(380px, calc(100vw - 36px));
+  pointer-events: none;
+}
+
+.seav-toast {
+  position: relative;
+  overflow: hidden;
+
+  padding: 14px 16px 18px 54px;
+
+  border-radius: 18px;
+  border: 1px solid rgba(114, 228, 255, 0.24);
+
+  background:
+    radial-gradient(circle at top left, rgba(91, 188, 255, 0.14), transparent 42%),
+    linear-gradient(145deg, rgba(9, 24, 42, 0.96), rgba(20, 43, 70, 0.92));
+
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  pointer-events: auto;
+
+  transform: translateY(16px) scale(0.98);
+  opacity: 0;
+
+  animation: seavToastIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.seav-toast.is-leaving {
+  animation: seavToastOut 0.28s ease forwards;
+}
+
+.seav-toast-icon {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 1px solid rgba(114, 228, 255, 0.28);
+  background: rgba(91, 188, 255, 0.12);
+  color: #72e4ff;
+}
+
+.seav-toast-icon svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.seav-toast-title {
+  margin: 0 0 4px;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 850;
+}
+
+.seav-toast-message {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.seav-toast-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  overflow: hidden;
+  opacity: 0.85;
+}
+
+.seav-toast-wave span {
+  position: absolute;
+  left: -40%;
+  bottom: 0;
+  width: 180%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(91, 188, 255, 0.15),
+    rgba(114, 228, 255, 0.85),
+    rgba(91, 188, 255, 0.15),
+    transparent
+  );
+  animation: seavToastWave 2.4s linear infinite;
+}
+
+.seav-toast--success {
+  border-color: rgba(94, 230, 168, 0.28);
+}
+
+.seav-toast--success .seav-toast-icon {
+  border-color: rgba(94, 230, 168, 0.34);
+  background: rgba(94, 230, 168, 0.12);
+  color: #5ee6a8;
+}
+
+.seav-toast--success .seav-toast-wave span {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(94, 230, 168, 0.15),
+    rgba(94, 230, 168, 0.85),
+    rgba(94, 230, 168, 0.15),
+    transparent
+  );
+}
+
+.seav-toast--error {
+  border-color: rgba(255, 109, 125, 0.28);
+}
+
+.seav-toast--error .seav-toast-icon {
+  border-color: rgba(255, 109, 125, 0.34);
+  background: rgba(255, 109, 125, 0.12);
+  color: #ff8fab;
+}
+
+.seav-toast--error .seav-toast-wave span {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 109, 125, 0.15),
+    rgba(255, 109, 125, 0.85),
+    rgba(255, 109, 125, 0.15),
+    transparent
+  );
+}
+
+.seav-toast--info {
+  border-color: rgba(255, 210, 90, 0.28);
+}
+
+.seav-toast--info .seav-toast-icon {
+  border-color: rgba(255, 210, 90, 0.34);
+  background: rgba(255, 210, 90, 0.12);
+  color: #ffd25a;
+}
+
+.seav-toast--info .seav-toast-wave span {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 210, 90, 0.15),
+    rgba(255, 210, 90, 0.85),
+    rgba(255, 210, 90, 0.15),
+    transparent
+  );
+}
+
+/* =========================================================
+   PAGE LOADER
+========================================================= */
+
+.seav-page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background:
+    radial-gradient(circle at center, rgba(91, 188, 255, 0.08), transparent 42%),
+    rgba(9, 20, 34, 0.72);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+
+.seav-page-loader.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.seav-page-loader-card {
+  width: min(320px, 100%);
+  padding: 28px 24px 22px;
+
+  border-radius: 24px;
+  border: 1px solid rgba(114, 228, 255, 0.22);
+
+  background:
+    radial-gradient(circle at top, rgba(91, 188, 255, 0.12), transparent 40%),
+    linear-gradient(160deg, rgba(12, 28, 48, 0.96), rgba(20, 43, 70, 0.92));
+
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.34);
+  text-align: center;
+}
+
+.seav-page-loader-mark {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 1.5px solid rgba(114, 228, 255, 0.28);
+  background: rgba(91, 188, 255, 0.1);
+  color: #72e4ff;
+}
+
+.seav-page-loader-mark svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+  animation: seavLoaderBob 2.2s ease-in-out infinite;
+}
+
+.seav-page-loader-text {
+  margin: 0 0 18px;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 800;
+}
+
+.seav-page-loader-sub {
+  margin: -10px 0 18px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.seav-loader-ocean {
+  position: relative;
+  height: 54px;
+  overflow: hidden;
+  border-radius: 0 0 16px 16px;
+  margin: 0 -24px -22px;
+  background: linear-gradient(180deg, rgba(91, 188, 255, 0.04), rgba(91, 188, 255, 0.12));
+}
+
+.seav-loader-ocean svg {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 200%;
+  height: 100%;
+  display: block;
+}
+
+.seav-loader-ocean .seav-wave-a {
+  animation: seavOceanDrift 4.8s linear infinite;
+  opacity: 0.55;
+}
+
+.seav-loader-ocean .seav-wave-b {
+  animation: seavOceanDrift 3.6s linear infinite reverse;
+  opacity: 0.85;
+}
+
+body.seav-is-loading {
+  overflow: hidden;
+}
+
+@keyframes seavToastIn {
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes seavToastOut {
+  to {
+    transform: translateY(10px) scale(0.98);
+    opacity: 0;
+  }
+}
+
+@keyframes seavToastWave {
+  to {
+    transform: translateX(40%);
+  }
+}
+
+@keyframes seavLoaderBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes seavOceanDrift {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 640px) {
+  .seav-toast-stack {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+    width: auto;
+  }
+}

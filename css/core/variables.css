@@ -1,0 +1,133 @@
+:root {
+
+  /* =========================================================
+     BASE COLORS
+  ========================================================= */
+
+  --white: #ffffff;
+
+  --navy-900: #172438;
+  --navy-800: #21334d;
+
+  /* Solid page shell surfaces (no gradient shading) */
+  --page-shell-bg: #0e1c2e;
+  --page-shell-panel: #132238;
+
+  /* App layout */
+  --sidebar-width: 280px;
+  --dash-layout-gap: 20px;
+
+  --muted: rgba(255,255,255,0.82);
+  --muted2: rgba(255,255,255,0.68);
+
+  /* Empty form fields — hint text (not filled-in values) */
+  --field-hint-color: rgba(148, 163, 184, 0.55);
+  --field-value-color: #ffffff;
+
+  /* =========================================================
+     BRAND COLORS
+  ========================================================= */
+
+  /* Pulled from SEA-V logo: sky text, mid wave, deep wave */
+  --logo-sky: #72e4ff;
+  --logo-ocean: #4a9fd4;
+  --logo-deep: #2a6eb8;
+  --logo-navy: #1a4d8c;
+
+  --accent-blue: #5bbcff;
+  --accent-cyan: #72e4ff;
+  --accent-ice: #d7f4ff;
+
+  --accent-green: #5ee6a8;
+  --accent-amber: #ffb86b;
+  --accent-coral: #ff8fab;
+  --accent-fuchsia: #e879f9;
+
+  /* =========================================================
+     GLASS SURFACES
+  ========================================================= */
+
+  --surface-bg:
+    linear-gradient(
+      180deg,
+      rgba(29,48,73,0.88),
+      rgba(18,32,50,0.82)
+    );
+
+  --surface-bg-strong:
+    linear-gradient(
+      180deg,
+      rgba(32,55,84,0.96),
+      rgba(18,31,49,0.94)
+    );
+
+  --surface-bg-soft:
+    linear-gradient(
+      180deg,
+      rgba(38,61,90,0.72),
+      rgba(20,35,55,0.66)
+    );
+
+  --surface-border:
+    rgba(255,255,255,0.12);
+
+  --surface-border-strong:
+    rgba(114,228,255,0.18);
+
+  --surface-shadow:
+    0 18px 42px rgba(0,0,0,0.34),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
+  --surface-blur:
+    blur(16px);
+
+  /* =========================================================
+     PILL SYSTEM
+  ========================================================= */
+
+  --pill-bg:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.075),
+      rgba(255,255,255,0.035)
+    );
+
+  --pill-bg-hover:
+    linear-gradient(
+      180deg,
+      rgba(91,188,255,0.18),
+      rgba(91,188,255,0.08)
+    );
+
+  --pill-border:
+    rgba(255,255,255,0.10);
+
+  --pill-border-hover:
+    rgba(114,228,255,0.30);
+
+  --pill-radius:
+    14px;
+
+  /* =========================================================
+     NEUTRAL SURFACES
+  ========================================================= */
+
+  --neutral-surface:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.055),
+      rgba(255,255,255,0.025)
+    );
+
+  --neutral-border:
+    rgba(255,255,255,0.075);
+
+  /* =========================================================
+     PROGRESS COLORS
+  ========================================================= */
+
+  --progress-red: #ff5f6d;
+  --progress-amber: #ffb86b;
+  --progress-green: #5ee6a8;
+  --progress-cyan: #72e4ff;
+}

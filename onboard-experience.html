@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Onboard Experience</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/onboard-experience.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <div id="sidebarMount"></div>
+
+    <section class="dash-content">
+
+      <article class="onboard-shell-card">
+
+        <div class="onboard-shell-head">
+
+          <div class="onboard-shell-icon">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 18c1.3-1 2.7-1 4 0s2.7 1 4 0 2.7-1 4 0 2.7 1 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M8 14.5h8l-1.6-4H9.6L8 14.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M12 6v3M10 8h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="onboard-shell-copy">
+            <h2>Onboard Experience</h2>
+            <p>
+              Log practical yacht skills, familiarisations, paint work, crane driving,
+              varnishing, and other duties — with senior crew sign-off so your
+              experience stays on record when you leave the vessel.
+            </p>
+          </div>
+
+          <div class="onboard-shell-actions">
+            <a class="btn-blue" href="#" data-open="oeModal">Add experience</a>
+          </div>
+
+        </div>
+
+        <section class="onboard-section">
+
+          <div class="onboard-kpi-row" id="oeKpiRow"></div>
+
+          <div class="onboard-section-head">
+            <div>
+              <h3>Logged onboard work</h3>
+              <p>
+                Link each entry to a vessel. Request sign-off from a senior officer
+                (Captain, Chief Officer, HOD) when the work is complete.
+              </p>
+            </div>
+          </div>
+
+          <div class="list" id="oeList"></div>
+
+        </section>
+
+      </article>
+
+    </section>
+
+  </main>
+
+  <div class="modal" id="oeModal" hidden>
+    <div class="modal-card modal-card-wide modal-card--coral">
+
+      <div class="modal-head">
+        <h3>Add / edit onboard experience</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="oeForm">
+
+        <input type="hidden" id="oe_edit_id" value="" />
+
+        <p class="modal-intro">
+          Log skills, familiarisations, and operational work onboard — linked to a vessel
+          and ready for senior crew sign-off.
+        </p>
+
+        <label>
+          Vessel
+          <select id="oe_vessel" required>
+            <option value="">Choose from your vessel list</option>
+          </select>
+        </label>
+
+        <div class="modal-grid2">
+          <label>
+            Category
+            <select id="oe_category" required>
+              <option value="">What type of onboard work was this?</option>
+            </select>
+          </label>
+
+          <label>
+            Status
+            <select id="oe_status">
+              <option value="Draft">Draft</option>
+              <option value="Pending Sign-off">Pending Sign-off</option>
+              <option value="Signed Off">Signed Off</option>
+              <option value="Declined">Declined</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="modal-check">
+          <input type="checkbox" id="oe_familiarisation" />
+          <span>This entry is a vessel familiarisation</span>
+        </label>
+
+        <label>
+          Title / skill summary
+          <input id="oe_title" required placeholder="Short summary of the skill or task" />
+        </label>
+
+        <label>
+          What you did
+          <textarea id="oe_description" rows="4" required placeholder="Describe the work, where on board, and your role"></textarea>
+        </label>
+
+        <div class="modal-grid2">
+          <label>
+            Location onboard
+            <input id="oe_location" placeholder="Area of the vessel, e.g. sundeck or engine room" />
+          </label>
+
+          <label>
+            Approx. hours (optional)
+            <input type="number" id="oe_hours" min="0" step="0.5" placeholder="Rough hours spent on this task" />
+          </label>
+        </div>
+
+        <div class="modal-grid2">
+          <div data-date-field="oe_date_from" data-date-label="Date from"></div>
+          <div data-date-field="oe_date_to" data-date-label="Date to"></div>
+        </div>
+
+        <label>
+          Supporting file (PDF / image)
+          <input type="file" id="oe_file" accept=".pdf,image/*" />
+        </label>
+
+        <button class="btn-blue" type="submit">Save entry</button>
+
+        <p class="modal-footnote">
+          Saved to your SEA-V profile. Use “Senior sign-off” on the card when a HOD can confirm the work.
+        </p>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div class="modal" id="oeSignoffModal" hidden>
+    <div class="modal-card modal-card--coral">
+
+      <div class="modal-head">
+        <h3>Senior crew sign-off</h3>
+        <button type="button" class="modal-x" data-close>&times;</button>
+      </div>
+
+      <form class="modal-form" id="oeSignoffForm">
+
+        <input type="hidden" id="oe_signoff_id" value="" />
+
+        <p class="modal-intro">
+          A senior crew member (Captain, Chief Officer, or head of department) confirms
+          this onboard experience. In production this can link to email or QR verification.
+        </p>
+
+        <label class="modal-check">
+          <input type="checkbox" id="oe_so_confirmed" />
+          <span>I confirm this onboard experience is accurate and I authorise it.</span>
+        </label>
+
+        <div class="modal-grid2">
+          <label>
+            Signatory name
+            <input id="oe_so_name" placeholder="Full name of the signatory" />
+          </label>
+
+          <label>
+            Rank / position
+            <input id="oe_so_rank" placeholder="Their rank, e.g. Chief Officer or Captain" />
+          </label>
+        </div>
+
+        <div class="modal-grid2">
+          <label>
+            Signatory email (optional)
+            <input type="email" id="oe_so_email" placeholder="Their work email address" />
+          </label>
+
+          <label>
+            CoC / ticket no. (optional)
+            <input id="oe_so_coc" placeholder="Certificate of competency number" />
+          </label>
+        </div>
+
+        <div class="modal-grid2">
+          <label>
+            Signature (typed)
+            <input id="oe_so_signature" placeholder="Type full name to sign" />
+          </label>
+
+          <div data-date-field="oe_so_signed_at" data-date-label="Signed date"></div>
+        </div>
+
+        <label>
+          Sign-off note
+          <textarea id="oe_so_note" rows="3" placeholder="Brief confirmation that the work was completed"></textarea>
+        </label>
+
+        <button class="btn-blue" type="submit">Save sign-off</button>
+
+        <p class="modal-footnote">Sign-off is stored on the onboard experience record.</p>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div id="sharedModalsMount"></div>
+
+</body>
+</html>

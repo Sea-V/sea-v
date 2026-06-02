@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
+  <defs>
+    <linearGradient id="bg-6o19m9" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1829"/>
+      <stop offset="100%" stop-color="#152a42"/>
+    </linearGradient>
+    <linearGradient id="rim-6o19m9" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#eef6ff"/>
+      <stop offset="100%" stop-color="#b8c9dc"/>
+    </linearGradient>
+    <filter id="glow-6o19m9" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#b8c9dc" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
+    fill="url(#bg-6o19m9)"
+    stroke="url(#rim-6o19m9)"
+    stroke-width="2.8"
+    filter="url(#glow-6o19m9)"/>
+  <path d="M60 14 L100 31 L100 71 L60 104 L20 71 L20 31 Z"
+    fill="none"
+    stroke="#b8c9dc"
+    stroke-width="1"
+    opacity="0.22"/>
+  <g transform="translate(60,56)" fill="none" stroke="#b8c9dc" stroke-linecap="round" stroke-linejoin="round" color="#b8c9dc">
+    
+    <circle cx="-12" cy="4" r="3" stroke-width="1.8"/>
+    <circle cx="12" cy="-6" r="3" stroke-width="1.8"/>
+    <path d="M-9 2c8-6 16-6 21-8" stroke-width="2" stroke-dasharray="3 2"/>
+    <text x="0" y="18" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="800" fill="currentColor" stroke="none">500</text>
+  </g>
+  <circle cx="60" cy="100" r="3.5" fill="#b8c9dc" opacity="0.85"/>
+  
+</svg>

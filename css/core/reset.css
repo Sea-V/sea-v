@@ -1,0 +1,45 @@
+/* =========================================================
+   RESET + BASE
+========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  overflow-y: scroll;
+}
+
+body {
+  margin: 0;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+
+  background: var(--navy-900);
+  color: var(--white);
+}
+
+/* =========================================================
+   GLOBAL HELPERS
+========================================================= */
+
+[hidden] {
+  display: none !important;
+}
+
+.muted {
+  color: rgba(255,255,255,0.6);
+}

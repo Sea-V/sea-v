@@ -1,0 +1,204 @@
+/* =========================================
+   INDEX PAGE
+========================================= */
+
+body.index-page {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+  overflow: hidden;
+}
+
+/* animated ocean */
+
+body.index-page .ocean {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background-color: #0b1c2e;
+  background-image:
+    linear-gradient(180deg, rgba(8, 18, 35, 0.2) 0%, rgba(11, 28, 46, 0.85) 100%),
+    url("../../img/ocean.png");
+  background-size: cover, cover;
+  background-repeat: no-repeat, repeat-x;
+  animation: waveMove 60s linear infinite;
+}
+
+/* dark overlay */
+
+body.index-page .overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(8, 18, 35, 0.45);
+}
+
+/* content container */
+
+body.index-page .container {
+  position: relative;
+  text-align: center;
+  z-index: 10;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 24px;
+  padding: 20px;
+}
+
+/* logo */
+
+body.index-page .logo {
+  width: 520px;
+  max-width: 80%;
+}
+
+body.index-page .demo-notice,
+body.signup-page .demo-notice {
+  max-width: 320px;
+  margin: -8px 0 0;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(114, 228, 255, 0.28);
+  background: rgba(18, 34, 56, 0.55);
+  color: rgba(215, 244, 255, 0.92);
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+body.index-page .demo-muted {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+}
+
+/* login form */
+
+body.index-page .login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 260px;
+}
+
+body.index-page .login-form input {
+  height: 40px;
+  padding: 0 14px;
+
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.25);
+
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+  outline: none;
+}
+
+body.index-page .login-form input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+body.index-page .login-btn {
+  height: 40px;
+
+  border: none;
+  border-radius: 20px;
+
+  background: linear-gradient(135deg, #5bbcff, #2d7cff);
+
+  color: white;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+body.index-page .login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+
+body.index-page .create-account {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+body.index-page .create-account a {
+  color: #5bbcff;
+  text-decoration: none;
+}
+
+body.index-page .show-password {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+body.index-page .login-help {
+  font-size: 13px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+body.index-page .login-help a {
+  color: #5bbcff;
+  text-decoration: none;
+}
+
+body.index-page .login-help a:hover {
+  text-decoration: underline;
+}
+
+body.index-page #loginMsg {
+  min-height: 20px;
+
+  margin-top: -4px;
+
+  color: #5bbcff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  text-align: center;
+}
+
+/* animation */
+
+@keyframes waveMove {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* mobile */
+
+@media (max-width: 640px) {
+  body.index-page .logo {
+    width: 320px;
+    max-width: 85%;
+  }
+
+  body.index-page .login-form {
+    width: min(260px, 82vw);
+  }
+
+  body.index-page .create-account {
+    font-size: 13px;
+  }
+}

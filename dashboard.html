@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V Dashboard</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css?v=2" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
+  <!-- Core Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+    defer
+  ></script>
+  <script src="js/dashboard.js?v=5" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <!-- Topbar -->
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <!-- Sidebar -->
+    <div id="sidebarMount"></div>
+
+    <!-- Main Content -->
+    <section class="dash-content">
+
+      <article class="dashboard-shell-card">
+
+  <div class="dashboard-shell-head">
+
+    <div class="dashboard-shell-icon">
+<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/>
+  <path
+    d="M12 8.5l2.8 2.8-4.2 4.2"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
+    </div>
+
+    <div class="dashboard-shell-copy">
+      <h2>Dashboard</h2>
+
+      <p>
+        Your complete SEA-V maritime career overview, qualifications,
+        service history, vessels, operations, and professional records.
+      </p>
+    </div>
+
+  </div>
+
+  <section class="dashboard-shell-section">
+
+      <!-- Top Section -->
+      <div class="dash-top">
+
+        <!-- =========================
+             PROFILE CARD
+        ========================== -->
+        <article class="dash-card dash-card-accent-profile dash-profile" id="profile">
+          <div
+            class="dashboard-profile-complete-badge"
+            id="dashboardProfileCompleteBadge"
+            hidden
+            title="Profile complete"
+            aria-label="Profile complete"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="dashboard-profile-wrap">
+            <div class="dashboard-profile-top">
+
+              <!-- Left Column -->
+              <div class="dashboard-profile-left">
+                <div
+                  class="avatar avatar-large dashboard-avatar-modern"
+                  id="dashAvatar"
+                  aria-label="Profile photo"
+                ></div>
+
+                <div class="dashboard-bio-under dashboard-bio-under--clamp" id="dashCareerOverviewWrap">
+                  <span class="dashboard-info-label">Career overview</span>
+                  <p class="dashboard-summary-text" id="dashProfileBio">
+                    Professional maritime profile.
+                  </p>
+                  <button
+                    type="button"
+                    class="dashboard-career-read-more"
+                    id="dashCareerReadMore"
+                    aria-expanded="false"
+                    hidden
+                  >
+                    Read more
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right Column -->
+              <div class="dashboard-profile-heading">
+                <h3 class="profile-name dashboard-profile-name" id="dashProfileName">
+                  Demo User
+                </h3>
+
+                <div class="dashboard-profile-fields">
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Current Qualification</span>
+                    <span class="dashboard-info-value" id="dashProfileQualification">—</span>
+                  </div>
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Rank</span>
+                    <span class="dashboard-info-value" id="dashProfileRank">—</span>
+                  </div>
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Availability</span>
+                    <span class="dashboard-info-value" id="dashProfileAvailability">—</span>
+                  </div>
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Nationality</span>
+                    <span class="dashboard-info-value" id="dashProfileNationality">—</span>
+                  </div>
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Date of Birth</span>
+                    <span class="dashboard-info-value" id="dashProfileDob">—</span>
+                  </div>
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Location</span>
+                    <span class="dashboard-info-value" id="dashProfileLocation">—</span>
+                  </div>
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Email</span>
+                    <span class="dashboard-info-value" id="dashProfileEmail">—</span>
+                  </div>
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Phone</span>
+                    <span class="dashboard-info-value" id="dashProfilePhone">—</span>
+                  </div>
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Current Salary</span>
+                    <span class="dashboard-info-value" id="dashProfileSalary">—</span>
+                  </div>
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Passports Held</span>
+                    <span class="dashboard-info-value" id="dashProfilePassportsHeld">—</span>
+                  </div>
+
+                  <div class="dashboard-info-box">
+                    <span class="dashboard-info-label">Visas Held</span>
+                    <span class="dashboard-info-value" id="dashProfileVisasHeld">—</span>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+        <!-- =========================
+             PROFILE COMPLETION
+        ========================== -->
+        <article class="dash-card dash-card-accent-profile" id="profileCompletionCard">
+          <div class="progress-section">
+            <div class="progress-label">Profile completion</div>
+
+            <div class="progress-bar">
+              <div
+                class="progress-fill progress-good"
+                id="profileProgressFill"
+                style="width: 0%;"
+              ></div>
+            </div>
+
+            <div class="progress-percent" id="profileProgressPercent">0%</div>
+            <div id="profileProgressMissing" class="progress-missing"></div>
+          </div>
+        </article>
+
+        <!-- =========================
+              VESSELS
+             ========================== -->
+             <article class="dash-card dash-card-accent-vessels">
+                <div class="dashboard-card-headline">
+                  <h3>Vessels</h3>
+                  <a href="vessels.html">View all</a>
+                </div>
+
+               <div id="dashVesselSnippet"></div>
+             </article>
+
+             <!-- =========================
+              TENDERS
+             ========================== -->
+
+             <article class="dash-card dash-card-accent-tenders">
+             <div class="dashboard-card-headline">
+               <h3>Tenders</h3>
+               <a href="tenders.html">View all</a>
+             </div>
+
+          <div id="dashTenderSnippet"></div>
+       </article>
+
+       <!-- =========================
+            NAVIGATION CHART
+       ========================== -->
+       <article class="dash-card dash-card-accent-navigation dashboard-navigation-card">
+         <div class="dashboard-card-headline">
+           <h3>Navigation chart</h3>
+           <a href="navigation.html">Open full chart</a>
+         </div>
+         <div id="dashNavigationSnippet"></div>
+       </article>
+
+          <!-- =========================
+             KPI SNAPSHOT
+               ========================== -->
+           <article class="dash-card dash-card-accent-seatime dash-kpis-row">
+          <h3 class="kpi-title">Career snapshot</h3>
+
+          <div class="kpi-row-grid kpi-row-grid-5">
+
+            <div class="kpi-box">
+              <div class="kpi-num" id="kpiSea">0</div>
+              <div class="kpi-label">Actual Sea Service</div>
+            </div>
+
+            <div class="kpi-box">
+              <div class="kpi-num" id="kpiPort">0</div>
+              <div class="kpi-label">Yard Service</div>
+            </div>
+
+            <div class="kpi-box">
+              <div class="kpi-num" id="kpiStandby">0</div>
+              <div class="kpi-label">Standby Service</div>
+            </div>
+
+            <div class="kpi-box">
+              <div class="kpi-num" id="kpiWatchkeeping">0</div>
+              <div class="kpi-label">Watchkeeping</div>
+            </div>
+
+            <div class="kpi-box">
+              <div class="kpi-num" id="kpiTotalDays">0</div>
+              <div class="kpi-label">Total Qualifying Service</div>
+            </div>
+
+          </div>
+        </article>
+
+      </div>
+
+      <!-- =========================
+           DASHBOARD STACK
+      ========================== -->
+      <div class="dashboard-stack">
+
+        <article class="dash-card dash-card-accent-seatime">
+          <div class="dashboard-card-headline">
+            <h3>Sea time</h3>
+            <a href="seatime.html">View all</a>
+          </div>
+
+        <div id="dashSeatimeSnippet"></div>
+      </article>
+
+        <article class="dash-card dash-card-accent-certificates">
+          <div class="dashboard-card-headline">
+            <h3>Certificates</h3>
+            <a href="certificates.html">View all</a>
+          </div>
+
+          <div id="dashCertSnippet"></div>
+        </article>
+
+        <article class="dash-card dash-card-accent-specialist">
+          <div class="dashboard-card-headline">
+            <h3>Specialist qualifications</h3>
+            <a href="specialist-qualifications.html">View all</a>
+          </div>
+          <div id="dashSpecialistSnippet"></div>
+        </article>
+
+        <article class="dash-card dash-card-accent-onboard">
+          <div class="dashboard-card-headline">
+            <h3>Onboard experience</h3>
+            <a href="onboard-experience.html">View all</a>
+          </div>
+          <div id="dashOnboardSnippet"></div>
+        </article>
+
+        <article class="dash-card dash-card-accent-hobbies">
+          <div class="dashboard-card-headline">
+            <h3>Hobbies & interests</h3>
+            <a href="hobbies-interests.html">View all</a>
+          </div>
+          <div id="dashHobbiesSnippet"></div>
+        </article>
+
+        <article class="dash-card dash-card-accent-references">
+          <div class="dashboard-card-headline">
+            <h3>References</h3>
+            <a href="references.html">View all</a>
+          </div>
+          <div id="dashRefSnippet"></div>
+        </article>
+
+      </div>
+
+      </section>
+
+  </article>
+
+</section>
+</main>
+
+  <!-- Shared Modals -->
+  <div id="sharedModalsMount"></div>
+
+</body>
+</html>

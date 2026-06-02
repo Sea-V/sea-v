@@ -1,0 +1,604 @@
+/* =========================================================
+   SEA-V • SEA SERVICE PAGE
+   Accent (#829eff): shell border, dividers, icon only
+   Labels/titles: standard blue — same as other pages
+========================================================= */
+
+.seatime-shell-card {
+  --seatime-accent: #829eff;
+  --seatime-accent-soft: rgba(130, 158, 255, 0.14);
+  --seatime-accent-border: rgba(130, 158, 255, 0.28);
+  --seatime-accent-strong: rgba(130, 158, 255, 0.42);
+}
+
+/* =========================================================
+   SHELL
+========================================================= */
+
+.seatime-shell-card {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+
+  border-radius: 30px;
+  border: 1px solid var(--seatime-accent-border);
+
+  background: var(--page-shell-bg);
+
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.28);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.seatime-shell-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+
+  gap: 20px;
+  align-items: center;
+
+  padding: 28px;
+
+  border-bottom: 1px solid rgba(130, 158, 255, 0.14);
+}
+
+.seatime-shell-icon {
+  width: 72px;
+  height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 1.5px solid rgba(130, 158, 255, 0.34);
+
+  background: rgba(130, 158, 255, 0.06);
+
+  color: var(--seatime-accent);
+}
+
+.seatime-shell-icon svg {
+  width: 34px;
+  height: 34px;
+
+  display: block;
+}
+
+.seatime-shell-copy {
+  min-width: 0;
+}
+
+.seatime-shell-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.seatime-shell-head h2 {
+  margin: 0 0 8px;
+
+  color: #ffffff;
+
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.seatime-shell-head p {
+  margin: 0;
+
+  color: rgba(255,255,255,0.68);
+
+  font-size: 14px;
+  line-height: 1.65;
+  font-weight: 500;
+}
+
+/* =========================================================
+   KPI SECTION
+========================================================= */
+
+.seatime-shell-card .dash-kpis-row {
+  margin: 0;
+
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid rgba(130, 158, 255, 0.10);
+
+  background: transparent;
+
+  box-shadow: none;
+}
+
+.seatime-shell-card .kpi-box {
+  border: 1.5px solid rgba(130, 158, 255, 0.34);
+
+  background: var(--page-shell-panel);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.seatime-section {
+  padding: 26px 28px 30px;
+}
+
+.seatime-section + .seatime-section {
+  padding-top: 0;
+}
+
+.seatime-portals {
+  border-bottom: 1px solid rgba(130, 158, 255, 0.10);
+}
+
+.seatime-portal-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.seatime-portal-link {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+
+  min-height: 118px;
+  padding: 18px;
+
+  border-radius: 18px;
+  border: 1px solid rgba(130, 158, 255, 0.22);
+
+  background:
+    radial-gradient(circle at 12% 0%, rgba(130, 158, 255, 0.16), transparent 34%),
+    rgba(255, 255, 255, 0.028);
+
+  color: inherit;
+  text-decoration: none;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.seatime-portal-link:hover {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(130, 158, 255, 0.24), transparent 36%),
+    rgba(130, 158, 255, 0.06);
+  border-color: rgba(130, 158, 255, 0.34);
+  transform: translateY(-1px);
+}
+
+.seatime-portal-link:focus-visible {
+  outline: 2px solid rgba(130, 158, 255, 0.55);
+  outline-offset: 2px;
+}
+
+.seatime-portal-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.seatime-portal-logo {
+  width: 118px;
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #ffffff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 12px 24px rgba(0, 0, 0, 0.14);
+}
+
+.seatime-portal-logo img {
+  display: block;
+  width: 100%;
+  max-width: 94px;
+  max-height: 56px;
+  object-fit: contain;
+}
+
+.seatime-portal-logo--nautilus img {
+  max-height: 62px;
+}
+
+.seatime-portal-name {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.seatime-portal-desc {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.seatime-portal-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+  border: 1px solid rgba(130, 158, 255, 0.24);
+
+  background: rgba(130, 158, 255, 0.08);
+  color: var(--seatime-accent);
+}
+
+.seatime-portal-arrow svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.seatime-section-head {
+  margin-bottom: 18px;
+}
+
+.seatime-section-head h3 {
+  margin: 0 0 5px;
+
+  color: #ffffff;
+
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.seatime-section-head p {
+  margin: 0;
+
+  color: rgba(255,255,255,0.60);
+
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   SEA SERVICE INNER CARD
+========================================================= */
+
+.seatime-table-wrap {
+  border-radius: 24px;
+
+  border: 1.5px solid rgba(130, 158, 255, 0.42);
+
+  background: var(--page-shell-panel);
+
+  overflow: hidden;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 12px 28px rgba(0,0,0,0.14);
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.seatime-table-wrap {
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
+
+  border-radius: 18px;
+  border: 1px solid rgba(130, 158, 255, 0.14);
+
+  background: rgba(255,255,255,0.025);
+}
+
+.seatime-table-wrap table {
+  width: 100%;
+  min-width: 1400px;
+
+  border-collapse: collapse;
+}
+
+.seatime-table-wrap thead th {
+  padding: 14px;
+
+  border-bottom: 1px solid rgba(91, 188, 255, 0.14);
+
+  color: var(--accent-blue);
+
+  font-size: 11px;
+  font-weight: 800;
+
+  text-align: left;
+
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+
+  white-space: nowrap;
+}
+
+.seatime-table-wrap thead tr:first-child th {
+  padding-bottom: 8px;
+
+  border-bottom: 1px solid rgba(130, 158, 255, 0.18);
+
+  color: var(--accent-blue);
+
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.seatime-table-wrap thead tr:last-child th {
+  padding-top: 10px;
+}
+
+.seatime-table-wrap tbody td {
+  padding: 14px;
+
+ border-bottom: 1px solid rgba(130, 158, 255, 0.10);
+
+  color: rgba(255,255,255,0.82);
+
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 500;
+
+  vertical-align: middle;
+}
+
+.seatime-table-wrap tbody tr:hover {
+  background: rgba(255,255,255,0.025);
+}
+
+.seatime-empty-row td {
+  padding: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.seatime-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 180px;
+  padding: 36px 24px;
+
+  text-align: center;
+}
+
+.seatime-empty-state strong {
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.seatime-empty-state span {
+  max-width: 420px;
+
+  color: rgba(255,255,255,0.58);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.seatime-no-file {
+  color: rgba(255,255,255,0.42);
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.seatime-testimonial-link {
+  min-height: 28px;
+  padding: 0 10px;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   DOWNLOAD LINKS
+========================================================= */
+
+.seatime-download-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 30px;
+
+  padding: 0 12px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(91, 188, 255, 0.24);
+
+  background: rgba(91, 188, 255, 0.10);
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.seatime-download-link:hover {
+  background: rgba(91, 188, 255, 0.16);
+}
+
+/* =========================================================
+   ACTION LINKS
+========================================================= */
+
+.seatime-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.seatime-actions a {
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.seatime-actions .edit-link {
+  color: var(--accent-blue);
+}
+
+.seatime-actions .delete-link {
+  color: #ff6d7d;
+}
+
+/* =========================================================
+   NOTES
+========================================================= */
+
+.seatime-notes {
+  border-top: 1px solid rgba(130, 158, 255, 0.10);
+}
+
+.seatime-checklist-panel {
+  border-radius: 18px;
+  border: 1px solid rgba(130, 158, 255, 0.18);
+  background: rgba(255, 255, 255, 0.025);
+  overflow: hidden;
+}
+
+.seatime-checklist-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.seatime-checklist-summary::-webkit-details-marker {
+  display: none;
+}
+
+.seatime-checklist-summary::before {
+  content: "›";
+  display: inline-block;
+  color: var(--seatime-accent);
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.seatime-checklist-panel[open] .seatime-checklist-summary::before {
+  transform: rotate(90deg);
+}
+
+.seatime-checklist-summary span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.seatime-checklist-summary strong {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.seatime-checklist-summary small {
+  color: rgba(255,255,255,0.56);
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.seatime-guidance-list {
+  display: grid;
+  gap: 10px;
+
+  margin: 0;
+  padding: 0 18px 18px 46px;
+
+  list-style: none;
+}
+
+.seatime-guidance-list li {
+  position: relative;
+
+  padding: 14px 16px 14px 42px;
+
+  border-radius: 16px;
+  border: 1px solid rgba(130, 158, 255, 0.16);
+
+  background: rgba(255,255,255,0.025);
+
+  color: rgba(255,255,255,0.72);
+
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.seatime-guidance-list li::before {
+  content: "";
+
+  position: absolute;
+  top: 18px;
+  left: 16px;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: var(--seatime-accent);
+  box-shadow: 0 0 0 4px rgba(130, 158, 255, 0.12);
+}
+
+@media (max-width: 900px) {
+  .seatime-shell-head {
+    grid-template-columns: 1fr;
+  }
+
+  .seatime-shell-actions {
+    flex-wrap: wrap;
+  }
+
+  .seatime-portal-links {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .seatime-portal-link {
+    grid-template-columns: 1fr auto;
+  }
+
+  .seatime-portal-logo {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Navigation</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/navigation-ports.js?v=5" defer></script>
+  <script src="js/navigation-routing.js?v=7" defer></script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+    defer
+  ></script>
+  <script src="js/navigation.js?v=19" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <div id="sidebarMount"></div>
+
+    <section class="dash-content">
+
+      <article class="navigation-shell-card">
+
+        <div class="navigation-shell-head">
+          <div class="navigation-shell-icon">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 18l4-12 8 8-12 4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+              <path d="M10 10l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </div>
+
+          <div class="navigation-shell-copy">
+            <h2>Navigation</h2>
+            <p>
+              Explore your career on a world chart — ports visited, passage tracks,
+              distances sailed, and the routes you've worked.
+            </p>
+          </div>
+        </div>
+
+        <section class="navigation-section navigation-map-section">
+          <div class="navigation-section-head">
+            <h3>World passage chart</h3>
+            <p>
+              Pan and zoom the chart to explore towns, ports and coastlines. Each logged
+              passage draws a track from port of departure to port of arrival.
+            </p>
+          </div>
+
+          <div class="navigation-map-toolbar">
+            <label class="navigation-filter-label">
+              Show vessel
+              <select id="navMapVesselFilter">
+                <option value="">All vessels</option>
+              </select>
+            </label>
+
+            <div class="navigation-stats" id="navStatsStrip" aria-live="polite">
+              <div class="navigation-stat">
+                <span class="navigation-stat-value" id="navStatCountries">0</span>
+                <span class="navigation-stat-label">Countries</span>
+              </div>
+              <div class="navigation-stat">
+                <span class="navigation-stat-value" id="navStatPorts">0</span>
+                <span class="navigation-stat-label">Ports</span>
+              </div>
+              <div class="navigation-stat">
+                <span class="navigation-stat-value" id="navStatPassages">0</span>
+                <span class="navigation-stat-label">Passages</span>
+              </div>
+              <div class="navigation-stat navigation-stat--highlight">
+                <span class="navigation-stat-value" id="navStatMiles">0</span>
+                <span class="navigation-stat-label">Total NM</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="navigation-map-wrap">
+            <div id="navMap" class="navigation-map" aria-label="World navigation chart"></div>
+            <div class="navigation-map-hint">Drag to pan · Scroll to zoom · Tracks follow sea lanes, not over land</div>
+          </div>
+        </section>
+
+        <section class="navigation-section navigation-form-section">
+          <div class="navigation-section-head">
+            <h3>Log a passage</h3>
+            <p>
+              Choose port of departure and port of arrival from the lists below,
+              add optional waypoints to steer the track, link a vessel, and add it to your chart.
+            </p>
+          </div>
+
+          <form class="modal-form" id="navForm">
+            <input type="hidden" id="nav_edit_id" value="" />
+
+            <label>
+              Passage name
+              <input id="navPassageName" placeholder="Match your sea time entry / ECDIS passage plan title" />
+            </label>
+
+            <label>
+              Vessel
+              <select id="navVessel">
+                <option value="">Choose from your vessel list</option>
+              </select>
+            </label>
+
+            <label>
+              Link to sea time entry (optional)
+              <select id="navSeatime">
+                <option value="">No linked sea time entry</option>
+              </select>
+            </label>
+
+            <div class="modal-grid2">
+              <div data-date-field="navDepartureDate" data-date-label="Departure date"></div>
+              <div data-date-field="navArrivalDate" data-date-label="Arrival date"></div>
+            </div>
+
+            <label>
+              Operation type
+              <select id="navOperationType">
+                <option value="">What kind of passage or operation was this?</option>
+                <option value="Port visit">Port visit</option>
+                <option value="Coastal passage">Coastal passage</option>
+                <option value="Offshore passage">Offshore passage</option>
+                <option value="Ocean crossing">Ocean crossing</option>
+                <option value="Polar navigation">Polar navigation</option>
+                <option value="Canal transit">Canal transit</option>
+                <option value="Expedition area">Expedition area</option>
+                <option value="Charter season">Charter season</option>
+                <option value="Shipyard / refit">Shipyard / refit</option>
+              </select>
+            </label>
+
+            <div class="navigation-route-block">
+              <p class="navigation-route-label">Port of departure</p>
+              <label>
+                Departure location
+                <input
+                  id="navFromLocation"
+                  type="text"
+                  placeholder="Type port, position, or RTZ waypoint name"
+                  autocomplete="off"
+                />
+              </label>
+              <div class="modal-grid2">
+                <label>
+                  Country <span class="navigation-field-optional">(optional)</span>
+                  <select id="navFromCountry">
+                    <option value="">Select country</option>
+                  </select>
+                  <span class="navigation-field-hint">You can set country without choosing a port from the list.</span>
+                </label>
+
+                <label>
+                  Port / town from list <span class="navigation-field-optional">(optional)</span>
+                  <select id="navFromPort" disabled>
+                    <option value="">Select country first (optional)</option>
+                  </select>
+                </label>
+              </div>
+              <div class="navigation-endpoint-tools">
+                <span id="navFromPointStatus">Green start (S) — set from list, import, or pick on chart.</span>
+                <div class="navigation-endpoint-tools-actions">
+                  <button type="button" class="btn-ghost2" id="navPickFromBtn">Pick start on chart</button>
+                  <button type="button" class="btn-ghost2" id="navResetFromPointBtn">Reset start point</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="navigation-route-block">
+              <p class="navigation-route-label">Port of arrival</p>
+              <label>
+                Arrival location
+                <input
+                  id="navToLocation"
+                  type="text"
+                  placeholder="Type port, position, or RTZ waypoint name"
+                  autocomplete="off"
+                />
+              </label>
+              <div class="modal-grid2">
+                <label>
+                  Country <span class="navigation-field-optional">(optional)</span>
+                  <select id="navToCountry">
+                    <option value="">Select country</option>
+                  </select>
+                  <span class="navigation-field-hint">You can set country without choosing a port from the list.</span>
+                </label>
+
+                <label>
+                  Port / town from list <span class="navigation-field-optional">(optional)</span>
+                  <select id="navToPort" disabled>
+                    <option value="">Select country first (optional)</option>
+                  </select>
+                </label>
+              </div>
+              <div class="navigation-endpoint-tools">
+                <span id="navToPointStatus">Red finish (F) — set from list, import, or pick on chart.</span>
+                <div class="navigation-endpoint-tools-actions">
+                  <button type="button" class="btn-ghost2" id="navPickToBtn">Pick finish on chart</button>
+                  <button type="button" class="btn-ghost2" id="navResetToPointBtn">Reset finish point</button>
+                </div>
+              </div>
+            </div>
+
+            <details class="navigation-route-block navigation-waypoints-block" id="navWaypointsPanel">
+              <summary class="navigation-waypoints-summary">
+                <span class="navigation-route-label">Waypoints (optional)</span>
+                <span class="navigation-waypoints-count" id="navWaypointCount">0</span>
+              </summary>
+
+              <div class="navigation-waypoint-import">
+                <label class="btn-ghost2 navigation-route-upload navigation-route-upload--primary">
+                  Import KML/RTZ passage file
+                  <input id="navRouteFile" type="file" accept=".kml,.rtz,.xml,application/vnd.google-earth.kml+xml,application/xml,text/xml" />
+                </label>
+                <span>Best if you already have an ECDIS RTZ route or KML track.</span>
+              </div>
+
+              <p class="navigation-waypoints-help">
+                Imported RTZ/KML sets green <strong>S</strong> start and red <strong>F</strong> finish on the chart.
+                Waypoints stay numbered <strong>1, 2, 3…</strong> — not S/F. You can also add points manually;
+                the track runs departure → each waypoint → arrival.
+              </p>
+
+              <ul id="navWaypointList" class="navigation-waypoint-list"></ul>
+
+              <div class="navigation-waypoint-add">
+                <button type="button" class="btn-ghost2" id="navRecommendPassageBtn">Use recommended passage</button>
+                <button type="button" class="btn-ghost2" id="navPickOnMapBtn">Pick on chart</button>
+                <div class="navigation-waypoint-coords">
+                  <input id="navWaypointLat" type="number" step="any" min="-90" max="90" placeholder="Latitude" />
+                  <input id="navWaypointLng" type="number" step="any" min="-180" max="180" placeholder="Longitude" />
+                  <button type="button" class="btn-ghost2" id="navAddWaypointBtn">Add point</button>
+                </div>
+              </div>
+            </details>
+
+            <label>
+              Note
+              <input id="navNote" placeholder="Optional note about this passage" />
+            </label>
+
+            <div class="dash-actions navigation-form-actions" style="margin-top:8px;">
+              <button type="submit" class="btn-blue" id="navSubmitBtn">Add passage to chart</button>
+              <button type="button" class="btn-ghost2" id="navCancelEditBtn" hidden>Cancel edit</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="navigation-section navigation-log-section">
+          <div class="navigation-section-head">
+            <h3>Navigation log</h3>
+            <p>Saved passages linked to your vessel history and world chart.</p>
+          </div>
+
+          <div id="navEntriesList" class="list"></div>
+        </section>
+
+      </article>
+
+    </section>
+  </main>
+
+  <div id="sharedModalsMount"></div>
+
+</body>
+</html>

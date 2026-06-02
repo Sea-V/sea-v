@@ -1,0 +1,287 @@
+/* =========================================================
+   SEA-V • TENDERS PAGE
+========================================================= */
+
+/* =========================================================
+   SHELL
+========================================================= */
+
+.tender-shell-card {
+  overflow: hidden;
+
+  border-radius: 30px;
+  border: 1px solid rgba(76,255,184,0.26);
+
+  background: var(--page-shell-bg);
+
+  box-shadow:
+    0 20px 48px rgba(0,0,0,0.28);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.tender-shell-head {
+  display: flex;
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 28px;
+
+  border-bottom: 1px solid rgba(76,255,184,0.12);
+}
+
+.tender-shell-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.tender-shell-actions {
+  margin-left: auto;
+
+  display: flex;
+  align-items: center;
+}
+
+.tender-shell-icon {
+  width: 72px;
+  height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 72px;
+
+  border-radius: 50%;
+  border: 1.5px solid rgba(76,255,184,0.28);
+
+  background: rgba(255,255,255,0.035);
+
+  color: #4cffb8;
+}
+
+.tender-shell-icon svg {
+  width: 34px;
+  height: 34px;
+
+  display: block;
+}
+
+.tender-shell-head h2 {
+  margin: 0 0 8px;
+
+  color: #ffffff;
+
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.tender-shell-head p {
+  margin: 0;
+
+  color: rgba(255,255,255,0.68);
+
+  font-size: 15px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.tender-section {
+  padding: 24px 28px 28px;
+}
+
+.tender-section-head {
+  margin-bottom: 18px;
+}
+
+.tender-section-head h3 {
+  margin: 0 0 4px;
+
+  color: #ffffff;
+
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.tender-section-head p {
+  margin: 0;
+
+  color: rgba(255,255,255,0.60);
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   GRID
+========================================================= */
+
+#tendersGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+#tendersGrid .vessel-card {
+  overflow: hidden;
+
+  border-radius: 24px;
+  border: 1px solid rgba(76,255,184,0.18);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(20,38,61,0.82),
+      rgba(12,28,48,0.76)
+    );
+
+  box-shadow:
+    0 12px 26px rgba(0,0,0,0.18);
+}
+
+/* =========================================================
+   PHOTO
+========================================================= */
+
+#tendersGrid .vessel-photo {
+  height: 190px;
+
+  overflow: hidden;
+
+  background: rgba(0,0,0,0.24);
+}
+
+#tendersGrid .vessel-photo img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+/* =========================================================
+   BODY
+========================================================= */
+
+#tendersGrid .vessel-body {
+  padding: 16px;
+}
+
+#tendersGrid .vessel-title {
+  margin: 0 0 14px;
+
+  color: #ffffff;
+
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+/* =========================================================
+   META GRID
+========================================================= */
+
+#tendersGrid .vessel-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+
+  gap: 10px;
+}
+
+#tendersGrid .vessel-meta-item {
+  padding: 10px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.07);
+
+  background: rgba(255,255,255,0.035);
+}
+
+#tendersGrid .vessel-meta-label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #5bbcff;
+
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+#tendersGrid .vessel-meta-value {
+  display: block;
+
+  color: rgba(255,255,255,0.84);
+
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+#tendersGrid .vessel-desc {
+  margin-top: 14px;
+
+  color: rgba(255,255,255,0.78);
+
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+#tendersGrid .vessel-foot {
+  margin-top: 14px;
+}
+
+#tendersGrid .vessel-foot .seav-actions {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+  .tender-shell-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tender-shell-actions {
+    margin-left: 0;
+  }
+
+  #tendersGrid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  #tendersGrid {
+    grid-template-columns: 1fr;
+  }
+}

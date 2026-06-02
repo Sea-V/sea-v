@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEA-V • Profile</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js" defer></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/seav-data.js" defer></script>
+  <script src="js/seav-badges.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/achievements-engine.js" defer></script>
+  <script src="js/badge-unlock.js" defer></script>
+  <script src="js/profile.js" defer></script>
+</head>
+
+<body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <div id="topbarMount"></div>
+
+  <main class="dash">
+
+    <div id="sidebarMount"></div>
+
+    <section class="dash-content">
+
+     <article class="profile-shell-card">
+
+  <!-- HEADER -->
+  <div class="profile-shell-head">
+
+    <div class="profile-shell-icon">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="8" r="4"
+          stroke="currentColor"
+          stroke-width="1.8"/>
+
+        <path
+          d="M5 19c1.7-2.8 4.1-4 7-4s5.3 1.2 7 4"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="profile-shell-copy">
+      <h2>Profile</h2>
+
+      <p>
+        Build your professional maritime identity with verified career,
+        certification, and employment information.
+      </p>
+    </div>
+
+  </div>
+
+  <section class="profile-section">
+
+    <div class="profile-page-grid">
+        <!-- =========================================================
+           PROFILE FORM
+        ========================================================= -->
+
+        <article class="dash-card profile-form-card">
+          <h3>Personal Information</h3>
+
+          <form id="profileForm" class="modal-form">
+
+            <label>
+              Full Name
+              <input id="pf_name" required placeholder="Your full legal name" />
+            </label>
+
+            <label>
+              Rank
+              <input id="pf_rank" placeholder="Your current or sought rank" />
+            </label>
+
+            <label>
+              Current Qualification
+              <input id="pf_qualification" placeholder="Certificate of competency you hold" />
+            </label>
+
+            <label>
+              Nationality
+              <input id="pf_nationality" placeholder="Your nationality or citizenship" />
+            </label>
+
+            <!-- DOB -->
+            <div>
+              <label>Date of Birth</label>
+
+              <div class="modal-grid2" style="grid-template-columns: 1fr 1fr 1fr;">
+
+                <select id="pf_dob_day">
+                  <option value="">Day</option>
+                  <option value="01">01</option>
+                  <option value="02">02</option>
+                  <option value="03">03</option>
+                  <option value="04">04</option>
+                  <option value="05">05</option>
+                  <option value="06">06</option>
+                  <option value="07">07</option>
+                  <option value="08">08</option>
+                  <option value="09">09</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
+                  <option value="13">13</option>
+                  <option value="14">14</option>
+                  <option value="15">15</option>
+                  <option value="16">16</option>
+                  <option value="17">17</option>
+                  <option value="18">18</option>
+                  <option value="19">19</option>
+                  <option value="20">20</option>
+                  <option value="21">21</option>
+                  <option value="22">22</option>
+                  <option value="23">23</option>
+                  <option value="24">24</option>
+                  <option value="25">25</option>
+                  <option value="26">26</option>
+                  <option value="27">27</option>
+                  <option value="28">28</option>
+                  <option value="29">29</option>
+                  <option value="30">30</option>
+                  <option value="31">31</option>
+                </select>
+
+                <select id="pf_dob_month">
+                  <option value="">Month</option>
+                  <option value="01">January</option>
+                  <option value="02">February</option>
+                  <option value="03">March</option>
+                  <option value="04">April</option>
+                  <option value="05">May</option>
+                  <option value="06">June</option>
+                  <option value="07">July</option>
+                  <option value="08">August</option>
+                  <option value="09">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+
+                <input id="pf_dob_year" inputmode="numeric" placeholder="Birth year" maxlength="4" />
+
+              </div>
+            </div>
+
+            <label>
+              Location (Home base)
+              <input id="pf_location" placeholder="Where you are based or available from" />
+            </label>
+
+            <label>
+              Email
+              <input type="email" id="pf_email" placeholder="Contact email for employers" />
+            </label>
+
+            <label>
+              Phone
+              <input id="pf_phone" placeholder="Phone number with country code" />
+            </label>
+
+            <label>
+              Passports Held
+              <textarea id="pf_passportsHeld" rows="2" placeholder="Nationalities on your passport(s)"></textarea>
+            </label>
+
+            <label>
+              Visas Held
+              <textarea id="pf_visasHeld" rows="2" placeholder="Visas you currently hold"></textarea>
+            </label>
+
+            <label>
+              Current Salary
+              <input id="pf_salary" placeholder="Expected monthly salary, if you wish to share" />
+            </label>
+
+            <label>
+              Availability
+              <select id="pf_availability">
+                <option value="Available Immediately">Available Immediately</option>
+                <option value="1 Week">1 Week</option>
+                <option value="2 Weeks">2 Weeks</option>
+                <option value="4 Weeks +">4 Weeks +</option>
+              </select>
+            </label>
+
+            <label>
+              Career overview
+              <textarea id="pf_bio" rows="4" placeholder="Describe your career path, growth, and goals at sea"></textarea>
+            </label>
+
+            <label>
+              Profile Photo
+              <input type="file" id="pf_photo" accept="image/*" />
+            </label>
+
+            <label class="vessel-current-check">
+              <input type="checkbox" id="pf_publicEnabled" />
+              <span>Make my public profile visible</span>
+            </label>
+
+            <div class="dash-actions">
+              <a
+                class="btn-blue"
+                href="public-profile.html"
+                target="_blank"
+                rel="noopener"
+                id="btnViewPublicProfile"
+              >
+                View Public Profile
+              </a>
+              <button type="button" class="btn-ghost2" id="btnCopyPublicUrl">
+                Copy public link
+              </button>
+            </div>
+
+            <button class="btn-blue" type="submit">Save Profile</button>
+
+            <p class="modal-note">
+              Saved securely to your SEA-V profile.
+            </p>
+
+          </form>
+        </article>
+
+        <!-- =========================================================
+           PROFILE PREVIEW
+        ========================================================= -->
+
+        <article class="dash-card profile-preview-card">
+          <h3>Preview</h3>
+
+          <div class="profile-preview-stack">
+
+            <div class="avatar avatar-xl" id="profilePreviewPhoto" aria-label="Profile photo"></div>
+
+            <h3 class="profile-name profile-preview-name" id="previewName">
+              Your Name
+            </h3>
+
+            <div class="profile-preview-fields">
+
+              <div class="profile-info-box">
+                <span class="profile-info-label">Rank</span>
+                <span class="profile-info-value" id="previewRank">—</span>
+              </div>
+
+              <div class="profile-info-box">
+                <span class="profile-info-label">Current Qualification</span>
+                <span class="profile-info-value" id="previewQualification">—</span>
+              </div>
+
+              <div class="profile-info-box">
+                <span class="profile-info-label">Nationality</span>
+                <span class="profile-info-value" id="previewNationality">—</span>
+              </div>
+
+              <div class="profile-info-box">
+                <span class="profile-info-label">Date of Birth</span>
+                <span class="profile-info-value" id="previewDob">—</span>
+              </div>
+
+              <div class="profile-info-box">
+                <span class="profile-info-label">Location</span>
+                <span class="profile-info-value" id="previewLocation">—</span>
+              </div>
+
+              <div class="profile-info-box">
+                <span class="profile-info-label">Email</span>
+                <span class="profile-info-value" id="previewEmail">—</span>
+              </div>
+
+              <div class="profile-info-box">
+                <span class="profile-info-label">Phone</span>
+                <span class="profile-info-value" id="previewPhone">—</span>
+              </div>
+
+              <div class="profile-info-box">
+                <span class="profile-info-label">Passports Held</span>
+                <span class="profile-info-value" id="previewPassportsHeld">—</span>
+              </div>
+
+              <div class="profile-info-box">
+                <span class="profile-info-label">Visas Held</span>
+                <span class="profile-info-value" id="previewVisasHeld">—</span>
+              </div>
+
+              <div class="profile-info-box">
+                <span class="profile-info-label">Current Salary</span>
+                <span class="profile-info-value" id="previewSalary">—</span>
+              </div>
+
+              <div class="profile-info-box profile-info-box-full">
+                <span class="profile-info-label">Availability</span>
+                <span class="profile-info-value" id="previewAvailability">—</span>
+              </div>
+
+            </div>
+
+            <hr class="preview-divider">
+
+            <div class="profile-info-box profile-info-box-full">
+              <span class="profile-info-label">Career overview</span>
+              <p id="previewBio" class="preview-bio muted">—</p>
+            </div>
+
+          </div>
+        </article>
+
+          </div>
+
+  </section>
+
+</article>
+
+</section>
+
+</main>
+
+  <div id="sharedModalsMount"></div>
+
+</body>
+</html>
