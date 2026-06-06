@@ -136,70 +136,6 @@ async function updateDayTypeKpis() {
   if (kpiTotalDays) kpiTotalDays.textContent = String(totals.total);
 }
 
-function syncDashboardProfileHeights() {
-  const left = document.querySelector(".dashboard-profile-left");
-  const heading = document.querySelector(".dashboard-profile-heading");
-  const wrap = document.getElementById("dashCareerOverviewWrap");
-  if (!left || !heading) return;
-
-  if (window.matchMedia("(max-width: 768px)").matches || wrap?.classList.contains("is-expanded")) {
-    left.style.height = "";
-    left.style.minHeight = "";
-    return;
-  }
-
-  const headingHeight = heading.offsetHeight;
-  left.style.height = `${headingHeight}px`;
-  left.style.minHeight = `${headingHeight}px`;
-}
-
-function updateCareerOverviewClampState() {
-  const wrap = document.getElementById("dashCareerOverviewWrap");
-  const bioEl = document.getElementById("dashProfileBio");
-  const readMoreBtn = document.getElementById("dashCareerReadMore");
-  if (!wrap || !bioEl || !readMoreBtn) return;
-
-  if (wrap.classList.contains("is-expanded")) {
-    readMoreBtn.hidden = false;
-    return;
-  }
-
-  syncDashboardProfileHeights();
-  void wrap.offsetHeight;
-
-  const text = bioEl.textContent.trim();
-  if (!text || text === "—") {
-    wrap.classList.remove("dashboard-bio-under--clamp");
-    readMoreBtn.hidden = true;
-    return;
-  }
-
-  wrap.classList.add("dashboard-bio-under--clamp");
-  readMoreBtn.hidden = false;
-  readMoreBtn.style.visibility = "hidden";
-
-  void bioEl.offsetHeight;
-  const overflows = bioEl.scrollHeight > bioEl.clientHeight + 1;
-
-  readMoreBtn.style.visibility = "";
-  readMoreBtn.hidden = !overflows;
-}
-
-function setupCareerOverviewToggle() {
-  const wrap = document.getElementById("dashCareerOverviewWrap");
-  const readMoreBtn = document.getElementById("dashCareerReadMore");
-  if (!wrap || !readMoreBtn) return;
-
-  wrap.classList.remove("is-expanded");
-  readMoreBtn.setAttribute("aria-expanded", "false");
-  readMoreBtn.textContent = "Read more";
-
-  requestAnimationFrame(() => {
-    syncDashboardProfileHeights();
-    requestAnimationFrame(updateCareerOverviewClampState);
-  });
-}
-
 function renderDashboardProfile() {
   const dashAvatar = document.getElementById("dashAvatar");
   const dashProfileName = document.getElementById("dashProfileName");
@@ -236,7 +172,6 @@ function renderDashboardProfile() {
   if (dashProfilePhone) dashProfilePhone.textContent = profile.phone || "—";
   const careerOverview = profile.bio || "—";
   if (dashProfileBio) dashProfileBio.textContent = careerOverview;
-  setupCareerOverviewToggle();
   if (dashProfilePassportsHeld) dashProfilePassportsHeld.textContent = profile.passportsHeld || "—";
   if (dashProfileVisasHeld) dashProfileVisasHeld.textContent = profile.visasHeld || "—";
   if (dashProfileSalary) dashProfileSalary.textContent = profile.salary || "—";
@@ -403,59 +338,56 @@ function updateProfileCompletion(profile) {
     `;
   }
 
+const DASH_CERT_WARNING_DAYS = 90;
+
+function updateCertCardCompleteState(attentionCount) {
+  const container = document.getElementById("dashCertSnippet");
+  const badge = document.getElementById("dashboardCertCompleteBadge");
+  const card = container?.closest(".dash-card");
+  const heading = card?.querySelector(".dashboard-card-headline h3, .dash-card > h3");
+
+  if (heading) {
+    heading.textContent =
+      attentionCount > 0 ? `Certificates (${attentionCount})` : "Certificates";
+  }
+
+  if (badge) badge.hidden = attentionCount > 0;
+}
+
 async function renderCertSnippet() {
   const dashCertSnippet = document.getElementById("dashCertSnippet");
   if (!dashCertSnippet) return;
 
   const certs = window.SeavState?.certs || [];
-  const mandatoryCodes = (window.SeavData?.MANDATORY_CERTS || []).map((c) =>
-    String(c.code || "").trim().toUpperCase()
+  const isExpiringOrExpired = window.SeavData?.isCertExpiringOrExpired;
+  const attentionCerts = certs.filter((cert) =>
+    isExpiringOrExpired?.(cert, DASH_CERT_WARNING_DAYS)
   );
 
-  const mandatoryCerts = certs.filter((cert) =>
-    mandatoryCodes.includes(String(cert.code || "").trim().toUpperCase())
-  );
+  updateCertCardCompleteState(attentionCerts.length);
 
-  updateCardTitle("dashCertSnippet", "Core compliance", mandatoryCerts.length);
-
-  if (!mandatoryCerts.length) {
-    dashCertSnippet.innerHTML = `<div class="muted">No mandatory certificates found.</div>`;
+  if (!attentionCerts.length) {
+    dashCertSnippet.innerHTML = `
+      <p class="dashboard-cert-attention-note muted">
+        No certificates expiring within 3 months or already expired. Only certificates due for renewal appear here.
+      </p>
+    `;
     return;
   }
 
   function getDashboardCertStatus(cert) {
-  const hasAttachment = !!(cert.attachment?.url || cert.attachment?.dataUrl);
-    if (!hasAttachment && !cert.expiry) {
-      return {
-        label: "Missing",
-        badge: "Missing",
-        statusClass: "pill"
-      };
-    }
-
-    if (!cert.expiry) {
-      return {
-        label: cert.status || "Pending",
-        badge: cert.status || "Pending",
-        statusClass: "pill"
-      };
-    }
-
-    return getCertExpiryInfo(cert.expiry);
+    return getCertExpiryInfo(cert.expiry, { warningDays: DASH_CERT_WARNING_DAYS });
   }
 
-  const sortedCerts = [...mandatoryCerts].sort((a, b) => {
+  const sortedCerts = [...attentionCerts].sort((a, b) => {
     const aInfo = getDashboardCertStatus(a);
     const bInfo = getDashboardCertStatus(b);
 
     const score = (info) => {
       const badge = String(info.badge || "").toLowerCase();
-      if (badge === "missing") return 0;
-      if (badge === "expired") return 1;
-      if (badge === "expires soon") return 2;
-      if (badge === "pending") return 3;
-      if (badge === "valid") return 4;
-      return 5;
+      if (badge === "expired") return 0;
+      if (badge === "expires soon") return 1;
+      return 2;
     };
 
     const aScore = score(aInfo);
@@ -468,46 +400,10 @@ async function renderCertSnippet() {
     return aDate - bDate;
   });
 
-  const total = mandatoryCerts.length;
-  let missing = 0;
-  let expired = 0;
-  let expiringSoon = 0;
-  let valid = 0;
-  let pending = 0;
-
-  sortedCerts.forEach((cert) => {
-    const status = getDashboardCertStatus(cert).badge;
-
-    if (status === "Missing") missing++;
-    else if (status === "Expired") expired++;
-    else if (status === "Expires Soon") expiringSoon++;
-    else if (status === "Valid") valid++;
-    else if (status === "Pending") pending++;
-  });
-
   dashCertSnippet.innerHTML = `
-    <div class="dashboard-info-grid" style="margin-bottom:12px;">
-      <div class="dashboard-info-box">
-        <span class="dashboard-info-label">Total</span>
-        <span class="dashboard-info-value">${total}</span>
-      </div>
-      <div class="dashboard-info-box">
-        <span class="dashboard-info-label">Valid</span>
-        <span class="dashboard-info-value">${valid}</span>
-      </div>
-      <div class="dashboard-info-box">
-        <span class="dashboard-info-label">Expiring</span>
-        <span class="dashboard-info-value">${expiringSoon}</span>
-      </div>
-      <div class="dashboard-info-box">
-        <span class="dashboard-info-label">Expired</span>
-        <span class="dashboard-info-value">${expired}</span>
-      </div>
-      <div class="dashboard-info-box">
-        <span class="dashboard-info-label">Missing</span>
-        <span class="dashboard-info-value">${missing}</span>
-      </div>
-    </div>
+    <p class="dashboard-cert-attention-note muted">
+      Showing certificates expiring within 3 months or already expired.
+    </p>
 
     <div class="list">
       ${sortedCerts
@@ -1157,33 +1053,6 @@ async function renderDashboardSnippets() {
     }
 
     document.addEventListener("seav:data-updated", runRefresh);
-
-    document.getElementById("dashCareerReadMore")?.addEventListener("click", (event) => {
-      const wrap = document.getElementById("dashCareerOverviewWrap");
-      const btn = event.currentTarget;
-      if (!wrap || !btn) return;
-
-      const expanded = wrap.classList.toggle("is-expanded");
-      btn.setAttribute("aria-expanded", expanded ? "true" : "false");
-      btn.textContent = expanded ? "Show less" : "Read more";
-
-      if (!expanded) {
-        requestAnimationFrame(() => {
-          syncDashboardProfileHeights();
-          requestAnimationFrame(updateCareerOverviewClampState);
-        });
-      } else {
-        syncDashboardProfileHeights();
-      }
-    });
-
-    const profileHeading = document.querySelector(".dashboard-profile-heading");
-    if (profileHeading && typeof ResizeObserver !== "undefined") {
-      const profileLayoutObserver = new ResizeObserver(() => {
-        updateCareerOverviewClampState();
-      });
-      profileLayoutObserver.observe(profileHeading);
-    }
   }
 
   document.addEventListener("DOMContentLoaded", initDashboard);

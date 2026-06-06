@@ -192,13 +192,17 @@
     const code = normalizeCode(cert?.code || "");
     if (code === "STCW A-II/1") return 0;
     if (code === "ENG1") return 1;
-    if (code === "GMDSS") return 2;
-    if (code === "STCW A-VI/1") return 3;
-    if (code === "STCW A-VI/6-2") return 4;
-    if (code === "STCW A-VI/3") return 5;
-    if (code === "STCW A-VI/2") return 6;
-    if (code === "STCW A-VI/4-1") return 7;
-    if (MANDATORY_CERTS.some((item) => normalizeCode(item.code) === code)) return 8;
+    if (code === "PST") return 2;
+    if (code === "FPFF") return 3;
+    if (code === "EFA") return 4;
+    if (code === "PSSR") return 5;
+    if (code === "PSA") return 6;
+    if (code === "GMDSS") return 7;
+    if (code === "STCW A-VI/6-2") return 8;
+    if (code === "STCW A-VI/3") return 9;
+    if (code === "STCW A-VI/2") return 10;
+    if (code === "STCW A-VI/4-1") return 11;
+    if (MANDATORY_CERTS.some((item) => normalizeCode(item.code) === code)) return 12;
     return 9;
   }
 

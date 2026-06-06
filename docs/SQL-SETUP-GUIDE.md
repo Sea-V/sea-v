@@ -13,6 +13,7 @@ You’ve already signed up, logged in, and saved a profile — so you’ve almos
 | Start a **brand new** Supabase project | Step 1, then Step 2 |
 | Fix **“row level security” on signup** | Step 3 |
 | Fix **photos/files not showing** on public profile | Step 4 |
+| **Harden public profile + storage** (recommended before go-live) | Step 5 |
 | Move old demo data to your account | Step 2 (optional block inside the file) |
 
 ---
@@ -68,6 +69,18 @@ This is the main “production” security step. **Your real profile lives here.
 
 ---
 
+### Step 5 — Public profile privacy + storage hardening (recommended)
+
+| | |
+|--|--|
+| **File** | `docs/schema-phase2-public-hardening.sql` |
+| **Save in SQL Editor as** | `5 - Public profile and storage hardening` |
+| **What it does** | Stops anon users reading email/phone/salary on public profiles; only shows verified refs, approved achievements, signed-off ops, and published hobbies; re-applies private storage so anonymous uploads fail. |
+| **When** | Before going live, or if `node scripts/test-supabase.mjs` reports anon storage uploads succeeding |
+| **Prerequisite** | Steps 1 and 2 done |
+
+---
+
 ## Do not run (unless you know you need them)
 
 These are **older or optional** scripts. If you ran **Step 1 (`schema-full.sql`)**, you usually **do not** need these — the same tables are already in Step 1.
@@ -91,6 +104,7 @@ These are **older or optional** scripts. If you ran **Step 1 (`schema-full.sql`)
 | `schema-phase2.sql` | **Real logins + your data is yours alone** |
 | `schema-phase2-auth-trigger.sql` | **Auto-create profile on signup** |
 | `schema-phase2-storage-public-photos.sql` | **Public link can show uploaded files** |
+| `schema-phase2-public-hardening.sql` | **Lock down public profile + storage** |
 | `schema-phase1.sql` | Old docs — ignore unless debugging |
 | `*-table.sql` | Single feature — skip if you ran `schema-full` |
 

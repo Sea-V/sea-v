@@ -14,12 +14,15 @@
     RECOMMENDED_CERTS,
     getReferenceStatus,
     getCertExpiryInfo,
+    isCertNoExpiry,
     isProfilePublic,
     formatDatePretty,
     getOnboardCategoryLabel,
     getHobbyInterestCategoryLabel,
     getSpecialistCategoryLabel,
-    getSeatimeTotals
+    getSeatimeTotals,
+    renderMandatoryCertDetailHtml,
+    isSuppressedAdditionalCert
   } = window.SeavData;
 
   const LIMITS = {
@@ -269,6 +272,14 @@
       return { badge: "Missing", label: "Not recorded", className: "pp-pill-missing" };
     }
 
+    if (isCertNoExpiry(cert)) {
+      return {
+        badge: "No Expiry",
+        label: "No expiry",
+        className: "pp-pill-neutral"
+      };
+    }
+
     if (cert.expiry) {
       const info = getCertExpiryInfo(cert.expiry);
       return {
@@ -386,9 +397,9 @@
 
   function getPublicCertTypeLabel(cert, template) {
     if (template && (MANDATORY_CERTS || []).some((item) => normalizeCode(item.code) === normalizeCode(template.code))) {
-      return "Core compliance";
+      return "Minimum mandatory";
     }
-    if (isMandatoryCert(cert)) return "Core compliance";
+    if (isMandatoryCert(cert)) return "Minimum mandatory";
     if (template && (RECOMMENDED_CERTS || []).some((item) => normalizeCode(item.code) === normalizeCode(template.code))) {
       return "Rank & role";
     }
@@ -1224,6 +1235,7 @@
               </div>
             </div>
           </div>
+          ${renderMandatoryCertDetailHtml(code)}
         </div>
       </article>
     `;
@@ -1255,10 +1267,18 @@
     const section = document.getElementById("ppCertSection");
     if (!box) return;
 
-    const coreHtml = (MANDATORY_CERTS || []).map((template) =>
-      buildPublicCertRow(findCertByCode(certs, template.code), template).replace(
-        " data-pp-more-item",
-        ""
+    const mandatoryBlocks = (MANDATORY_CERTS || []).map((template) =>
+      renderCertBlock(
+        template.name,
+        [
+          buildPublicCertRow(findCertByCode(certs, template.code), template).replace(
+            " data-pp-more-item",
+            ""
+          )
+        ],
+        [],
+        "",
+        "certificates"
       )
     );
 
@@ -1271,7 +1291,8 @@
       (cert) =>
         (cert.name || cert.code) &&
         !isMandatoryCert(cert) &&
-        !isRecommendedCert(cert)
+        !isRecommendedCert(cert) &&
+        !isSuppressedAdditionalCert(cert)
     );
 
     const visibleAdditional = additional
@@ -1282,7 +1303,7 @@
       .map((cert) => buildPublicCertRow(cert, null));
 
     const blocks = [
-      renderCertBlock("Core", coreHtml, [], "", "certificates"),
+      ...mandatoryBlocks,
       rankHtml.length
         ? renderCertBlock("Rank & role", rankHtml, [], "", "certificates")
         : "",
@@ -1305,7 +1326,7 @@
     if (summaryEl) {
       const summary = getCertComplianceSummary(certs);
       if (summary.total) {
-        summaryEl.textContent = `${summary.valid}/${summary.total} core valid`;
+        summaryEl.textContent = `${summary.valid}/${summary.total} mandatory valid`;
         summaryEl.hidden = false;
       } else {
         summaryEl.hidden = true;

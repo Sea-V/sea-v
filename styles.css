@@ -41,6 +41,7 @@
 @import url("./css/pages/public-profile.css");
 @import url("./css/pages/cv-generator.css");
 @import url("./css/pages/info.css");
+@import url("./css/pages/legal.css");
 
 /* Auth / Public */
 @import url("./css/pages/index.css");

@@ -72,18 +72,19 @@
 
     </div>
 
-    <section class="cert-section">
+    <section class="cert-section-group">
       <div class="cert-section-head">
         <div>
-          <h3>Core compliance</h3>
+          <h3>Minimum mandatory certificates</h3>
           <p>
-            Universal baseline for any seafarer — ENG1, Basic Safety Training,
-            and Security Awareness. Click a row to expand details.
+            Universal baseline for yacht crew — ENG1, the four BST modules
+            (PST, FPFF, EFA, PSSR), and Proficiency in Security Awareness (PSA).
+            Upload and track each certificate separately.
           </p>
         </div>
       </div>
 
-      <div class="cert-compact-list" id="mandatoryCertsList"></div>
+      <div class="cert-compact-list" id="mandatoryCertsMount"></div>
     </section>
 
     <section class="cert-section">
@@ -117,8 +118,9 @@
         <h3>Notes</h3>
 
         <p class="muted">
-          Core compliance covers the universal STCW baseline. Rank & role templates
-          depend on your position — add extras under Additional certificates.
+          Minimum mandatory certificates cover ENG1, BST modules, and PSA.
+          Rank & role templates depend on your position — add extras under
+          Additional certificates.
         </p>
 
         <div class="cert-shell-footer-actions">
@@ -195,6 +197,11 @@
 
         <div data-date-field="ct_expiry" data-date-label="Expiry date" data-date-optional></div>
 
+        <label class="modal-check">
+          <input type="checkbox" id="ct_no_expiry" />
+          <span>This certificate does not expire</span>
+        </label>
+
         <label>
           Status
           <select id="ct_status">
@@ -202,6 +209,7 @@
             <option value="Pending">Pending</option>
             <option value="Valid">Valid</option>
             <option value="Expired">Expired</option>
+            <option value="No Expiry">No expiry</option>
           </select>
         </label>
 

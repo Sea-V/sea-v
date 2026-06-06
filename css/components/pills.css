@@ -145,8 +145,9 @@
 ========================================================= */
 
 .pill-valid {
-  background: rgba(52,168,83,0.18);
-  border-color: rgba(52,168,83,0.34);
+  background: rgba(46, 160, 67, 0.42);
+  border-color: rgba(92, 220, 120, 0.62);
+  color: #eaffef;
 }
 
 .pill-warning {

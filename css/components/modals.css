@@ -565,6 +565,14 @@
   accent-color: var(--accent-blue);
 }
 
+.modal-date-group.is-disabled {
+  opacity: 0.55;
+}
+
+.modal-date-group.is-disabled .modal-date-row {
+  pointer-events: none;
+}
+
 .modal-form .btn-blue {
   margin-top: 4px;
 }

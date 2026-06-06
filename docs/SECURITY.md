@@ -58,11 +58,11 @@ Payslips must **never** appear on the public profile (the app already excludes t
 
 ## Your checklist before going live
 
-1. Run **`docs/schema-phase2.sql`** after **`docs/schema-full.sql`**
+1. Run **`docs/schema-phase2.sql`** after **`docs/schema-full.sql`**, then **`docs/schema-phase2-public-hardening.sql`**
 2. Enable **Email** provider in Supabase → Authentication
 3. Confirm **RLS enabled** on every table (Supabase Table Editor → RLS)
 4. Confirm storage buckets are **private**; app uploads use `userId/entityId/file` paths
-5. Publish a **Privacy Policy** and **Terms of Use** (what you collect, why, retention, deletion, contact)
+5. Publish a **Privacy Policy** and **Terms of Use** — see `privacy.html` and `terms.html` (have a lawyer review before go-live)
 6. Add a **cookie/storage notice** if required in your markets
 7. Process **data subject requests** (access / delete) — Supabase lets you delete a user and cascade rows
 8. Use **HTTPS only** in production (Netlify/Vercel provide this)

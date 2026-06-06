@@ -1,7 +1,7 @@
 -- SEA-V certificate template alignment (optional — app also syncs on load)
 -- Run in Supabase SQL Editor if you want DB rows updated immediately.
 
--- Demote legacy universal-mandatory flags (now rank/role or identity docs)
+-- Demote legacy universal-mandatory flags (now rank/role, identity, or superseded BST rows)
 UPDATE certificates
 SET
   is_mandatory = false,
@@ -11,11 +11,13 @@ WHERE upper(trim(code)) IN (
   'PASSPORT',
   'STCW A-II/1',
   'GMDSS',
-  'STCW A-VI/4-1'
+  'STCW A-VI/4-1',
+  'STCW A-VI/1',
+  'STCW A-VI/6-1'
 )
 AND is_mandatory = true;
 
--- Ensure core compliance rows stay mandatory
+-- Ensure minimum mandatory rows stay mandatory
 UPDATE certificates
 SET
   is_mandatory = true,
@@ -23,8 +25,35 @@ SET
   updated_at = now()
 WHERE upper(trim(code)) IN (
   'ENG1',
-  'STCW A-VI/1',
-  'STCW A-VI/6-1'
+  'PST',
+  'FPFF',
+  'EFA',
+  'PSSR',
+  'PSA'
+);
+
+-- Minimum mandatory templates (insert only if missing by code)
+INSERT INTO certificates (id, code, name, expiry_date, status, is_mandatory, is_template, updated_at)
+SELECT
+  'cert_tpl_' || lower(replace(replace(code, ' ', '_'), '/', '_')),
+  code,
+  name,
+  NULL,
+  'Missing',
+  true,
+  true,
+  now()
+FROM (
+  VALUES
+    ('ENG1', 'ENG1 Medical Certificate'),
+    ('PST', 'Personal Survival Techniques (PST)'),
+    ('FPFF', 'Fire Prevention and Fire Fighting (FPFF)'),
+    ('EFA', 'Elementary First Aid (EFA)'),
+    ('PSSR', 'Personal Safety and Social Responsibilities (PSSR)'),
+    ('PSA', 'Proficiency in Security Awareness (PSA)')
+) AS tpl(code, name)
+WHERE NOT EXISTS (
+  SELECT 1 FROM certificates c WHERE upper(trim(c.code)) = upper(trim(tpl.code))
 );
 
 -- Recommended rank/role templates (insert only if missing by code)

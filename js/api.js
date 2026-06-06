@@ -1005,13 +1005,30 @@ function mapPayslipToSupabase(item) {
     }
   }
 
+const PUBLIC_PROFILE_COLUMNS = [
+  "id",
+  "user_id",
+  "name",
+  "rank",
+  "qualification",
+  "nationality",
+  "dob",
+  "location",
+  "availability",
+  "bio",
+  "photo",
+  "public_enabled",
+  "created_at",
+  "updated_at"
+].join(",");
+
 const SeavAPI = {
   async getPublicProfile(profileId) {
     if (!window.SeavSupabase || !profileId) return null;
 
     const { data, error } = await window.SeavSupabase
       .from("profile")
-      .select("*")
+      .select(PUBLIC_PROFILE_COLUMNS)
       .eq("id", profileId)
       .eq("public_enabled", true)
       .maybeSingle();
@@ -1120,7 +1137,9 @@ const SeavAPI = {
     },
 
     async getArray(key) {
-      return fetchArrayByKey(key);
+      const userId = getAuthUserId();
+      if (!userId) return [];
+      return fetchArrayByKey(key, userId);
     },
 
     async getArrayForUser(key, userId) {

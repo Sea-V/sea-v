@@ -33,6 +33,15 @@
         return;
       }
 
+      const acceptLegal = document.getElementById("signupAcceptLegal");
+      if (!acceptLegal?.checked) {
+        if (msg) {
+          msg.textContent = "Please accept the Terms of Use and Privacy Policy.";
+          msg.style.color = "#ff8fab";
+        }
+        return;
+      }
+
       if (msg) {
         msg.textContent = "Creating your account…";
         msg.style.color = "#5bbcff";

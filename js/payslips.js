@@ -26,6 +26,7 @@
   const STORAGE_KEY = KEYS.PAYSLIPS;
   const expandedPsIds = new Set();
   let activeTaxYearFilter = "";
+  const activeYearMonthFilters = {};
 
   function getEntries() {
     return window.SeavState?.payslips || [];
@@ -43,17 +44,46 @@
     return vessel?.name || "";
   }
 
-  function populateTaxYearOptions(selectId, includeAllOption = false) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-
-    const current = select.value || "";
+  function getTaxYearsForFilter() {
     const years = getUkTaxYearOptions();
     const loggedYears = [
       ...new Set(getEntries().map((entry) => entry.taxYear).filter(Boolean))
     ].filter((year) => !years.includes(year));
 
-    const allYears = [...new Set([...years, ...loggedYears])].sort().reverse();
+    return [...new Set([...years, ...loggedYears])].sort().reverse();
+  }
+
+  function getMonthFilterOptionsHtml(taxYear, selectedMonth = "") {
+    const taken = getPayslipMonthsLogged(taxYear, getEntries());
+
+    return `
+      <option value="">All months</option>
+      ${PAYSLIP_TAX_YEAR_MONTHS.map((month) => {
+        const logged = taken.has(month.value);
+        const label = getPayslipMonthLabel(month.value, taxYear);
+        const status = logged ? "Logged" : "Missing";
+        return `<option value="${Seav.escapeHtml(month.value)}"${
+          selectedMonth === month.value ? " selected" : ""
+        }>${Seav.escapeHtml(`${label} · ${status}`)}</option>`;
+      }).join("")}
+    `;
+  }
+
+  function filterEntriesForYear(entries, taxYear) {
+    const monthFilter = activeYearMonthFilters[taxYear] || "";
+    if (!monthFilter) return entries;
+
+    return entries.filter(
+      (entry) => normalizePayslipMonth(entry) === monthFilter
+    );
+  }
+
+  function populateTaxYearOptions(selectId, includeAllOption = false) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    const current = select.value || "";
+    const allYears = getTaxYearsForFilter();
 
     select.innerHTML = includeAllOption
       ? `<option value="">All tax years</option>`
@@ -371,16 +401,38 @@
     list.innerHTML = [...grouped.entries()]
       .sort((a, b) => b[0].localeCompare(a[0]))
       .map(([year, items]) => {
-        const sortedItems = [...items].sort((a, b) => {
+        const filteredItems = filterEntriesForYear(items, year);
+        const sortedItems = [...filteredItems].sort((a, b) => {
           const order = PAYSLIP_TAX_YEAR_MONTHS.map((month) => month.value);
           const ia = order.indexOf(normalizePayslipMonth(a));
           const ib = order.indexOf(normalizePayslipMonth(b));
           return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
         });
+        const monthFilter = activeYearMonthFilters[year] || "";
+        const monthFilterLabel = monthFilter
+          ? getPayslipMonthLabel(monthFilter, year)
+          : "";
+
         return `
           <div class="ps-year-group">
-            <h4 class="ps-year-label">Tax year ${Seav.escapeHtml(year)} · ${getPayslipMonthsLogged(year, getEntries()).size}/12 months</h4>
-            ${sortedItems.map(buildRow).join("")}
+            <div class="ps-year-head">
+              <h4 class="ps-year-label">Tax year ${Seav.escapeHtml(year)} · ${getPayslipMonthsLogged(year, getEntries()).size}/12 months</h4>
+              <label class="ps-filter-label ps-filter-label--inline">
+                Month
+                <select data-ps-year-month-filter="${Seav.escapeHtml(year)}">
+                  ${getMonthFilterOptionsHtml(year, monthFilter)}
+                </select>
+              </label>
+            </div>
+            ${
+              sortedItems.length
+                ? sortedItems.map(buildRow).join("")
+                : `<div class="ps-month-empty">${
+                    monthFilterLabel
+                      ? `No payslip logged for ${Seav.escapeHtml(monthFilterLabel)}.`
+                      : "No payslips logged for this tax year yet."
+                  }</div>`
+            }
           </div>
         `;
       })
@@ -644,9 +696,23 @@
     if (filter) {
       filter.addEventListener("change", () => {
         activeTaxYearFilter = filter.value || "";
+        Object.keys(activeYearMonthFilters).forEach((key) => {
+          delete activeYearMonthFilters[key];
+        });
         refreshView();
       });
     }
+
+    document.addEventListener("change", (e) => {
+      const monthFilter = e.target.closest("[data-ps-year-month-filter]");
+      if (!monthFilter || activeTaxYearFilter) return;
+
+      const taxYear = monthFilter.getAttribute("data-ps-year-month-filter") || "";
+      if (!taxYear) return;
+
+      activeYearMonthFilters[taxYear] = monthFilter.value || "";
+      renderList();
+    });
 
     const runRefresh = () => refreshView();
 

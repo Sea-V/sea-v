@@ -19,7 +19,8 @@ Phase 2 uses **Supabase Auth** — each user has their own profile, documents, a
 1. Run **`docs/schema-full.sql`** (tables + buckets)
 2. Enable **Email** auth in Supabase Dashboard
 3. Run **`docs/schema-phase2.sql`** (per-user RLS + private storage)
-4. Verify: `node scripts/test-supabase.mjs`
+4. Run **`docs/schema-phase2-public-hardening.sql`** (public profile privacy + storage lock-down)
+5. Verify: `node scripts/test-supabase.mjs`
 
 Guides: **[docs/SUPABASE-PHASE2.md](docs/SUPABASE-PHASE2.md)** · **[docs/SECURITY.md](docs/SECURITY.md)**
 

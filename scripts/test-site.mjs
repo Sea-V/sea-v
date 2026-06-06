@@ -16,6 +16,8 @@ const PAGES = [
   "signup.html",
   "about.html",
   "contact.html",
+  "privacy.html",
+  "terms.html",
   "dashboard.html",
   "profile.html",
   "public-profile.html",

@@ -106,22 +106,6 @@
                   id="dashAvatar"
                   aria-label="Profile photo"
                 ></div>
-
-                <div class="dashboard-bio-under dashboard-bio-under--clamp" id="dashCareerOverviewWrap">
-                  <span class="dashboard-info-label">Career overview</span>
-                  <p class="dashboard-summary-text" id="dashProfileBio">
-                    Professional maritime profile.
-                  </p>
-                  <button
-                    type="button"
-                    class="dashboard-career-read-more"
-                    id="dashCareerReadMore"
-                    aria-expanded="false"
-                    hidden
-                  >
-                    Read more
-                  </button>
-                </div>
               </div>
 
               <!-- Right Column -->
@@ -190,6 +174,13 @@
                 </div>
               </div>
 
+            </div>
+
+            <div class="dashboard-bio-under dashboard-profile-bio" id="dashCareerOverviewWrap">
+              <span class="dashboard-info-label">Career overview</span>
+              <p class="dashboard-summary-text" id="dashProfileBio">
+                Professional maritime profile.
+              </p>
             </div>
           </div>
         </article>
@@ -302,7 +293,18 @@
         <div id="dashSeatimeSnippet"></div>
       </article>
 
-        <article class="dash-card dash-card-accent-certificates">
+        <article class="dash-card dash-card-accent-certificates dash-card-certs">
+          <div
+            class="dashboard-profile-complete-badge"
+            id="dashboardCertCompleteBadge"
+            hidden
+            title="No certificates expiring or expired"
+            aria-label="No certificates expiring or expired"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <div class="dashboard-card-headline">
             <h3>Certificates</h3>
             <a href="certificates.html">View all</a>

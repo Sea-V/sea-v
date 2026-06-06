@@ -7,6 +7,8 @@
     "signup.html",
     "about.html",
     "contact.html",
+    "privacy.html",
+    "terms.html",
     "public-profile.html"
   ]);
 

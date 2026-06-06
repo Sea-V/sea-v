@@ -169,12 +169,22 @@
 
   window.SeavState = state;
 
+  function shouldLoadAuthenticatedState() {
+    const isAppPage = document.body.classList.contains("app-page");
+    if (!isAppPage) return false;
+    return window.SeavAuth?.isAuthenticated?.() === true;
+  }
+
   document.addEventListener("DOMContentLoaded", async () => {
     const isAppPage = document.body.classList.contains("app-page");
+
     if (isAppPage && window.SeavAuth?.whenReady) {
       await window.SeavAuth.whenReady();
     }
-    if (isAppPage && window.SeavFeedback?.showPageLoader) {
+
+    const loadUserData = shouldLoadAuthenticatedState();
+
+    if (loadUserData && window.SeavFeedback?.showPageLoader) {
       window.SeavFeedback.showPageLoader(
         "Setting sail…",
         "Loading your career records"
@@ -182,21 +192,25 @@
     }
 
     try {
-      await state.loadAll();
-      const setupIssues = await state.checkSetup();
-      if (setupIssues.length) {
-        document.dispatchEvent(
-          new CustomEvent("seav:setup-issues", { detail: { issues: setupIssues } })
-        );
+      if (loadUserData) {
+        await state.loadAll();
+        const setupIssues = await state.checkSetup();
+        if (setupIssues.length) {
+          document.dispatchEvent(
+            new CustomEvent("seav:setup-issues", { detail: { issues: setupIssues } })
+          );
+        }
       }
     } finally {
-      if (isAppPage && window.SeavFeedback?.hidePageLoader) {
+      if (loadUserData && window.SeavFeedback?.hidePageLoader) {
         window.SeavFeedback.hidePageLoader();
       }
     }
 
     document.dispatchEvent(new CustomEvent("seav:state-ready"));
-    document.dispatchEvent(new CustomEvent("seav:data-updated"));
+    if (loadUserData) {
+      document.dispatchEvent(new CustomEvent("seav:data-updated"));
+    }
   });
 
   window.addEventListener("storage", async (ev) => {

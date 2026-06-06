@@ -375,14 +375,43 @@ body.app-page::before {
 }
 
 .dash-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-top: 10px;
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dash-sidebar-footer .dash-link.dash-logout {
-  margin-top: 0;
+  margin: 0;
   border-top: none;
+}
+
+.dash-sidebar-legal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  padding: 0 6px 4px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.dash-sidebar-legal a {
+  color: rgba(255, 255, 255, 0.48);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.dash-sidebar-legal a:hover {
+  color: #5bbcff;
+}
+
+.dash-sidebar-legal-sep {
+  color: rgba(255, 255, 255, 0.22);
+  user-select: none;
 }
 
 /* =========================================================

@@ -28,7 +28,11 @@
     RECOMMENDED_CERTS,
     DEPRECATED_MANDATORY_CODES,
     createId,
-    getCertExpiryInfo
+    getCertExpiryInfo,
+    renderMandatoryCertDetailHtml,
+    getMandatoryCertTemplate,
+    isSuppressedAdditionalCert,
+    isCertNoExpiry
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.CERTS;
@@ -69,6 +73,13 @@
     return !!cert.isTemplate && recommendedCodeSet.has(normalizeCode(cert.code));
   }
 
+  function findCertByCode(certs, code) {
+    const target = normalizeCode(code);
+    return certs.find((cert) => normalizeCode(cert.code) === target) || null;
+  }
+
+  const MANDATORY_TYPE_LABEL = "Minimum mandatory";
+
   function getMandatoryCerts(certs) {
     return certs.filter(isMandatoryCert);
   }
@@ -78,7 +89,12 @@
   }
 
   function getAdditionalCerts(certs) {
-    return certs.filter((cert) => !isMandatoryCert(cert) && !isRecommendedTemplate(cert));
+    return certs.filter(
+      (cert) =>
+        !isMandatoryCert(cert) &&
+        !isRecommendedTemplate(cert) &&
+        !isSuppressedAdditionalCert(cert)
+    );
   }
 
   async function syncCertificateTemplates() {
@@ -87,6 +103,16 @@
 
     for (const cert of existing) {
       const code = normalizeCode(cert.code);
+      const template = getMandatoryCertTemplate(code);
+
+      if (template && cert.name !== template.name) {
+        await SeavAPI.updateItemById(STORAGE_KEY, cert.id, {
+          ...cert,
+          name: template.name
+        });
+        changed = true;
+        continue;
+      }
 
       if (mandatoryCodeSet.has(code) && !cert.isMandatory) {
         await SeavAPI.updateItemById(STORAGE_KEY, cert.id, {
@@ -102,8 +128,14 @@
         await SeavAPI.updateItemById(STORAGE_KEY, cert.id, {
           ...cert,
           isMandatory: false,
-          isTemplate: true
+          isTemplate: false
         });
+        changed = true;
+        continue;
+      }
+
+      if (isSuppressedAdditionalCert(cert)) {
+        await SeavAPI.deleteItemById(STORAGE_KEY, cert.id);
         changed = true;
       }
     }
@@ -174,8 +206,55 @@
     });
   }
 
+  function syncCertExpiryFields(noExpiry) {
+    const group = document.getElementById("ct_expiry_year")?.closest(".modal-date-group");
+    const fields = ["ct_expiry_year", "ct_expiry_month", "ct_expiry_day"]
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    const statusEl = document.getElementById("ct_status");
+    const noExpiryEl = document.getElementById("ct_no_expiry");
+
+    if (noExpiryEl) noExpiryEl.checked = !!noExpiry;
+
+    if (noExpiry) {
+      Seav.clearDateTriplet("ct_expiry");
+      fields.forEach((el) => {
+        el.disabled = true;
+      });
+      if (group) group.classList.add("is-disabled");
+      if (statusEl) {
+        statusEl.value = "No Expiry";
+        statusEl.disabled = true;
+      }
+      return;
+    }
+
+    fields.forEach((el) => {
+      el.disabled = false;
+    });
+    if (group) group.classList.remove("is-disabled");
+    if (statusEl) {
+      statusEl.disabled = false;
+      if (statusEl.value === "No Expiry") statusEl.value = "Pending";
+    }
+  }
+
+  function getCertExpiryLabel(cert) {
+    if (isCertNoExpiry(cert)) return "No expiry";
+    if (cert?.expiry) return formatDatePretty(cert.expiry);
+    return "No expiry recorded";
+  }
+
   function getDisplayStatus(cert) {
     const hasAttachment = !!(cert?.attachment?.url || cert?.attachment?.dataUrl);
+
+    if (isCertNoExpiry(cert)) {
+      return {
+        label: "No Expiry",
+        badge: "No Expiry",
+        statusClass: "pill-neutral"
+      };
+    }
 
     if (!hasAttachment && !cert?.expiry) {
       return {
@@ -186,12 +265,19 @@
     }
 
     if (!cert?.expiry) {
+      const status = String(cert?.status || "Pending");
+      if (status.toLowerCase() === "valid") {
+        return {
+          label: "Valid",
+          badge: "Valid",
+          statusClass: "pill-valid"
+        };
+      }
+
       return {
-        label: cert?.status || "Pending",
-        badge: cert?.status || "Pending",
-        statusClass: String(cert?.status || "")
-          .toLowerCase()
-          .includes("pending")
+        label: status || "Pending",
+        badge: status || "Pending",
+        statusClass: status.toLowerCase().includes("pending")
           ? "pill-pending"
           : "pill-neutral"
       };
@@ -245,12 +331,17 @@
     const statusLabel = statusInfo.badge || statusInfo.label || "Unknown";
     const statusClass = statusInfo.statusClass || "pill-neutral";
 
-    const expiryLabel = cert.expiry ? formatDatePretty(cert.expiry) : "No expiry recorded";
+    const expiryLabel = getCertExpiryLabel(cert);
+    const expiryMeta = isCertNoExpiry(cert)
+      ? "No expiry"
+      : cert.expiry
+        ? `Expires ${expiryLabel}`
+        : expiryLabel;
     const displayTitle = cert.name || cert.code || "Certificate";
     const isExpanded = expandedCertIds.has(certId);
 
     const typeLabel = isMandatoryCert(cert)
-      ? "Core compliance"
+      ? MANDATORY_TYPE_LABEL
       : isRecommendedTemplate(cert)
         ? "Rank & role"
         : "Additional";
@@ -267,7 +358,7 @@
           <div class="cert-compact-summary-left">
             <div class="cert-compact-title">${Seav.escapeHtml(displayTitle)}</div>
             <div class="cert-compact-sub">
-              ${Seav.escapeHtml(cert.code || "No code")} • Expires ${Seav.escapeHtml(expiryLabel)}
+              ${Seav.escapeHtml(cert.code || "No code")} • ${Seav.escapeHtml(expiryMeta)}
             </div>
           </div>
           <div class="cert-compact-summary-right">
@@ -319,6 +410,8 @@
             </div>
           </div>
 
+          ${renderMandatoryCertDetailHtml(cert.code)}
+
           <div class="seav-actions seav-actions--compact">
             ${Seav.seavAction(
               "edit",
@@ -349,13 +442,28 @@
     `;
   }
 
+  function renderMandatorySections(certs) {
+    const mount = document.getElementById("mandatoryCertsMount");
+    if (!mount) return;
+
+    const rows = (MANDATORY_CERTS || [])
+      .map((template) => {
+        const cert = findCertByCode(certs, template.code);
+        return cert
+          ? buildCertRow(cert, { allowDelete: false })
+          : renderEmptyRow(`No record for ${template.name} yet.`);
+      })
+      .join("");
+
+    mount.innerHTML = rows;
+  }
+
   function renderCerts() {
-    const mandatoryList = document.getElementById("mandatoryCertsList");
     const rankRoleList = document.getElementById("rankRoleCertsList");
     const additionalList = document.getElementById("additionalCertsList");
 
     if (
-      !mandatoryList &&
+      !document.getElementById("mandatoryCertsMount") &&
       !rankRoleList &&
       !additionalList &&
       !document.getElementById("certForm")
@@ -364,15 +472,9 @@
     }
 
     const certs = getCerts();
-    const mandatoryCerts = getMandatoryCerts(certs);
+    renderMandatorySections(certs);
     const rankRoleCerts = getRankRoleCerts(certs);
     const additionalCerts = getAdditionalCerts(certs);
-
-    if (mandatoryList) {
-      mandatoryList.innerHTML = mandatoryCerts.length
-        ? sortCerts(mandatoryCerts).map((cert) => buildCertRow(cert, { allowDelete: false })).join("")
-        : renderEmptyRow("No core compliance certificates found.");
-    }
 
     if (rankRoleList) {
       rankRoleList.innerHTML = rankRoleCerts.length
@@ -592,6 +694,8 @@
     }
     if (statusEl) statusEl.value = cert.status || "Missing";
 
+    syncCertExpiryFields(isCertNoExpiry(cert));
+
     if (window.SeavModals?.openModal) {
       window.SeavModals.openModal("certModal");
     }
@@ -616,16 +720,20 @@
     if (nameEl) nameEl.disabled = false;
 
     Seav.clearDateTriplet("ct_expiry");
+    syncCertExpiryFields(false);
   }
 
   function readCertForm() {
+    const noExpiry = document.getElementById("ct_no_expiry")?.checked || false;
+
     return {
       id: document.getElementById("ct_edit_id")?.value || "",
       isTemplate: document.getElementById("ct_is_template")?.value === "true",
       isMandatory: document.getElementById("ct_is_mandatory")?.value === "true",
       code: document.getElementById("ct_code")?.value.trim() || "",
       name: document.getElementById("ct_name")?.value.trim(),
-      expiry: Seav.readDateTriplet("ct_expiry"),
+      noExpiry,
+      expiry: noExpiry ? "" : Seav.readDateTriplet("ct_expiry"),
       status: document.getElementById("ct_status")?.value || "Missing",
       file: document.getElementById("ct_file")?.files?.[0] || null
     };
@@ -667,7 +775,7 @@
   function initCertificates() {
     if (
       !document.getElementById("certForm") &&
-      !document.getElementById("mandatoryCertsList") &&
+      !document.getElementById("mandatoryCertsMount") &&
       !document.getElementById("rankRoleCertsList") &&
       !document.getElementById("additionalCertsList") &&
       !document.getElementById("btnDownloadAllCerts") &&
@@ -779,6 +887,13 @@
 
     const certForm = document.getElementById("certForm");
     if (certForm) {
+      const noExpiryEl = document.getElementById("ct_no_expiry");
+      if (noExpiryEl) {
+        noExpiryEl.addEventListener("change", (event) => {
+          syncCertExpiryFields(event.target.checked);
+        });
+      }
+
       certForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
@@ -825,8 +940,9 @@
         if (formData.file && !attachment) return;
 
         const hasAttachment = !!(attachment?.url || attachment?.dataUrl);
-        const finalStatus =
-          formData.status === "Missing" && (formData.expiry || hasAttachment)
+        const finalStatus = formData.noExpiry
+          ? "No Expiry"
+          : formData.status === "Missing" && (formData.expiry || hasAttachment)
             ? "Pending"
             : formData.status;
 
@@ -834,9 +950,10 @@
           id: certId,
           code: existingCert?.isTemplate ? existingCert.code : formData.code,
           name: existingCert?.isTemplate ? existingCert.name : formData.name,
-          expiry: formData.expiry,
+          expiry: formData.noExpiry ? "" : formData.expiry,
           status: finalStatus,
           attachment,
+          noExpiry: !!formData.noExpiry,
           isMandatory: existingCert ? existingCert.isMandatory : formData.isMandatory,
           isTemplate: existingCert ? existingCert.isTemplate : formData.isTemplate
         };

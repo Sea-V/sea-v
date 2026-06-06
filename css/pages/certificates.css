@@ -134,6 +134,15 @@
   font-size: 14px;
 }
 
+.cert-section-group {
+  padding: 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cert-section-group > .cert-section-head {
+  margin-bottom: 14px;
+}
+
 /* =========================================================
    COMPACT LIST (onboard-style collapsible rows)
 ========================================================= */
@@ -287,8 +296,12 @@
 }
 
 .cert-status-pill.pill-valid {
-  border: 1px solid rgba(52, 168, 83, 0.34);
-  background: rgba(52, 168, 83, 0.18);
+  border: 1px solid rgba(92, 220, 120, 0.62);
+  background: rgba(46, 160, 67, 0.42);
+  color: #eaffef;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 4px 12px rgba(46, 160, 67, 0.18);
 }
 
 .cert-status-pill.pill-warning {
@@ -372,6 +385,87 @@
   transform: translateY(-1px);
   text-decoration: none;
   color: #ffffff;
+}
+
+.cert-module-guide {
+  margin-top: 14px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 210, 90, 0.18);
+  background: rgba(255, 210, 90, 0.05);
+}
+
+.cert-module-guide-head {
+  margin-bottom: 14px;
+}
+
+.cert-module-guide-title {
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.cert-module-guide-intro {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.cert-module-guide-list {
+  display: grid;
+  gap: 12px;
+}
+
+.cert-module-guide-item {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.cert-module-guide-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.cert-module-guide-code {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 210, 90, 0.34);
+  background: rgba(255, 210, 90, 0.12);
+  color: #ffd25a;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.cert-module-guide-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.cert-module-guide-topics {
+  margin: 0;
+  padding-left: 18px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.cert-module-guide-topics li + li {
+  margin-top: 4px;
 }
 
 /* Legacy alias — keep pill styling if old markup is cached */

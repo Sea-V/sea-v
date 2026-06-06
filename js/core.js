@@ -6,7 +6,8 @@
      UTILITIES
   ========================================================= */
 
-  const MAX_UPLOAD_BYTES = 2 * 1024 * 1024;
+  // Per-file cap (Supabase free tier allows up to 50 MB per object).
+  const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
   function escapeHtml(str) {
     return String(str ?? "")
@@ -413,6 +414,11 @@ function renderAppSidebar() {
             <span class="dash-icon" aria-hidden="true">${iconLogout}</span>
             <span>Logout</span>
           </a>
+          <nav class="dash-sidebar-legal" aria-label="Legal">
+            <a href="privacy.html">Privacy Policy</a>
+            <span class="dash-sidebar-legal-sep" aria-hidden="true">·</span>
+            <a href="terms.html">Terms of Use</a>
+          </nav>
         </div>
       </aside>
 
@@ -808,5 +814,40 @@ document.addEventListener("DOMContentLoaded", function () {
   if (footerYear) {
     footerYear.textContent = new Date().getFullYear();
   }
+
+  initLegalPage();
 });
+
+function initLegalPage() {
+  if (!document.body.classList.contains("legal-page")) return;
+
+  const tocLinks = document.querySelectorAll(".legal-toc a[href^='#']");
+  const sections = [...document.querySelectorAll(".legal-section[id]")];
+  if (!tocLinks.length || !sections.length) return;
+
+  const setActive = (id) => {
+    tocLinks.forEach((link) => {
+      const match = link.getAttribute("href") === `#${id}`;
+      link.classList.toggle("is-active", match);
+    });
+  };
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length) {
+          setActive(visible[0].target.id);
+        }
+      },
+      { rootMargin: "-20% 0px -60% 0px", threshold: [0, 0.2, 0.5] }
+    );
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  const hash = window.location.hash.replace("#", "");
+  if (hash) setActive(hash);
+}
 })();

@@ -88,11 +88,83 @@
      CERTIFICATE LIBRARY
   ========================================================= */
 
-  /* Universal baseline — required for any seafarer on a yacht (STCW / ENG1) */
+  /* Minimum mandatory — universal baseline for yacht crew */
   const MANDATORY_CERTS = [
-    { code: "ENG1", name: "ENG1 Medical Certificate" },
-    { code: "STCW A-VI/1", name: "Basic Safety Training (BST)" },
-    { code: "STCW A-VI/6-1", name: "Security Awareness" }
+    {
+      code: "ENG1",
+      name: "ENG1 Medical Certificate",
+      summary:
+        "MCA-approved medical fitness certificate required before joining any vessel."
+    },
+    {
+      code: "PST",
+      name: "Personal Survival Techniques (PST)",
+      stcwRef: "STCW A-VI/1",
+      summary:
+        "Core BST module — survival at sea, lifejackets, liferafts, and abandon-ship procedures.",
+      topics: [
+        "Survival at sea",
+        "Lifejackets and immersion suits",
+        "Liferaft launching and boarding",
+        "Abandon ship procedures",
+        "Cold water survival techniques"
+      ]
+    },
+    {
+      code: "FPFF",
+      name: "Fire Prevention and Fire Fighting (FPFF)",
+      stcwRef: "STCW A-VI/1",
+      summary:
+        "Core BST module — fire prevention, equipment, and practical firefighting drills.",
+      topics: [
+        "Causes of fire onboard",
+        "Fire prevention measures",
+        "Fire extinguishers and firefighting equipment",
+        "Breathing apparatus",
+        "Practical firefighting exercises in smoke-filled environments"
+      ]
+    },
+    {
+      code: "EFA",
+      name: "Elementary First Aid (EFA)",
+      stcwRef: "STCW A-VI/1",
+      summary:
+        "Core BST module — emergency first response and casualty care at sea.",
+      topics: [
+        "CPR",
+        "Bleeding control",
+        "Shock treatment",
+        "Casualty assessment",
+        "Basic medical emergencies at sea"
+      ]
+    },
+    {
+      code: "PSSR",
+      name: "Personal Safety and Social Responsibilities (PSSR)",
+      stcwRef: "STCW A-VI/1",
+      summary:
+        "Core BST module — safe working practices, pollution prevention, and teamwork onboard.",
+      topics: [
+        "Safe working practices",
+        "Accident prevention",
+        "Pollution prevention",
+        "Emergency procedures",
+        "Teamwork and human relations onboard"
+      ]
+    },
+    {
+      code: "PSA",
+      name: "Proficiency in Security Awareness (PSA)",
+      stcwRef: "STCW A-VI/6-1",
+      summary:
+        "Usually completed alongside BST for yacht crew — maritime security awareness and reporting.",
+      topics: [
+        "Maritime security threats",
+        "Anti-piracy awareness",
+        "Restricted areas",
+        "Security reporting procedures"
+      ]
+    }
   ];
 
   /* Rank / role templates — seeded as recommended, not universal mandatory */
@@ -111,8 +183,71 @@
     "PASSPORT",
     "STCW A-II/1",
     "GMDSS",
-    "STCW A-VI/4-1"
+    "STCW A-VI/4-1",
+    "STCW A-VI/1",
+    "STCW A-VI/6-1"
   ];
+
+  function normalizeCertCode(value) {
+    return String(value || "").trim().toUpperCase();
+  }
+
+  function getMandatoryCertTemplate(code) {
+    return (
+      MANDATORY_CERTS.find(
+        (item) => normalizeCertCode(item.code) === normalizeCertCode(code)
+      ) || null
+    );
+  }
+
+  /* Legacy / duplicate rows hidden from Additional certificates */
+  function isSuppressedAdditionalCert(cert) {
+    if (!cert) return true;
+
+    const code = normalizeCertCode(cert.code);
+    const name = String(cert.name || "").trim().toLowerCase();
+
+    if (DEPRECATED_MANDATORY_CODES.includes(code)) return true;
+
+    if (getMandatoryCertTemplate(code) && !cert.isMandatory) return true;
+
+    if (/basic safety training|\(\s*bst\s*\)|\bbst\b/.test(name)) return true;
+
+    if (/security awareness|proficiency in security awareness/.test(name) && code !== "PSA") {
+      return true;
+    }
+
+    return false;
+  }
+
+  function renderMandatoryCertDetailHtml(code) {
+    const template = getMandatoryCertTemplate(code);
+    if (!template) return "";
+
+    const stcwLine = template.stcwRef
+      ? `<p class="cert-module-guide-intro">STCW reference: ${template.stcwRef}</p>`
+      : "";
+    const summaryLine = template.summary
+      ? `<p class="cert-module-guide-intro">${template.summary}</p>`
+      : "";
+    const topicsHtml = (template.topics || []).length
+      ? `<ul class="cert-module-guide-topics">${(template.topics || [])
+          .map((topic) => `<li>${topic}</li>`)
+          .join("")}</ul>`
+      : "";
+
+    if (!stcwLine && !summaryLine && !topicsHtml) return "";
+
+    return `
+      <div class="cert-module-guide">
+        <div class="cert-module-guide-head">
+          ${summaryLine}
+          ${stcwLine}
+        </div>
+        ${topicsHtml}
+      </div>
+    `;
+  }
 
   /* =========================================================
      ID HELPERS
@@ -220,7 +355,8 @@ function getEmptySeatimeEntry() {
       status: "Missing",
       attachment: null,
       isMandatory: false,
-      isTemplate: false
+      isTemplate: false,
+      noExpiry: false
     };
   }
 
@@ -525,7 +661,29 @@ function getEmptyTenderEntry() {
      CERTIFICATE HELPERS
   ========================================================= */
 
-  function getCertExpiryInfo(expiry) {
+  function isCertNoExpiry(cert) {
+    if (!cert) return false;
+    if (cert.noExpiry) return true;
+    return String(cert.status || "").trim().toLowerCase() === "no expiry";
+  }
+
+  function isCertExpiringOrExpired(cert, warningDays = 60) {
+    if (!cert || isCertNoExpiry(cert) || !cert.expiry) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const exp = new Date(cert.expiry);
+    if (Number.isNaN(exp.getTime())) return false;
+    exp.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+    return diffDays <= warningDays;
+  }
+
+  function getCertExpiryInfo(expiry, options = {}) {
+    const warningDays = options.warningDays ?? 60;
+
     if (!expiry) {
       return {
         label: "No Expiry",
@@ -553,7 +711,7 @@ function getEmptyTenderEntry() {
       };
     }
 
-    if (diffDays <= 60) {
+    if (diffDays <= warningDays) {
       return {
         label: `Expires in ${diffDays} day${diffDays === 1 ? "" : "s"}`,
         badge: "Expires Soon",
@@ -636,6 +794,9 @@ window.SeavData = {
   MANDATORY_CERTS,
   RECOMMENDED_CERTS,
   DEPRECATED_MANDATORY_CODES,
+  getMandatoryCertTemplate,
+  renderMandatoryCertDetailHtml,
+  isSuppressedAdditionalCert,
   createId,
   DEFAULT_PROFILE,
   getEmptySeatimeEntry,
@@ -667,6 +828,8 @@ window.SeavData = {
   totalQualifyingDays,
   getSeatimeTotals,
   getCertExpiryInfo,
+  isCertNoExpiry,
+  isCertExpiringOrExpired,
   getCurrentVesselIndex,
   getVesselHistory,
   getSortedVesselOptions,

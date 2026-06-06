@@ -59,8 +59,9 @@ body.index-page .container {
 /* logo */
 
 body.index-page .logo {
-  width: 520px;
-  max-width: 80%;
+  width: 240px;
+  max-width: 60vw;
+  height: auto;
 }
 
 body.index-page .demo-notice,
@@ -190,8 +191,8 @@ body.index-page #loginMsg {
 
 @media (max-width: 640px) {
   body.index-page .logo {
-    width: 320px;
-    max-width: 85%;
+    width: 190px;
+    max-width: 55vw;
   }
 
   body.index-page .login-form {

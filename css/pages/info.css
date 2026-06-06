@@ -225,6 +225,37 @@ body.info-page .info-form label {
   }
 }
 
+.signup-legal-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 4px 0 2px;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.signup-legal-consent input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.signup-legal-consent a {
+  color: #5bbcff;
+}
+
+.profile-public-notice {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.profile-public-notice a {
+  color: #5bbcff;
+}
+
 @media (max-width: 640px) {
   body.info-page .info-panel {
     padding: 34px 20px 26px;
