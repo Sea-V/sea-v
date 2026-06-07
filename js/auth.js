@@ -198,6 +198,17 @@
     const { error } = await client.auth.signOut();
     if (error) console.warn("[SEA-V] Sign out failed:", error);
     currentUser = null;
+
+    try {
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.startsWith("seav_state_cache_v1_")) {
+          sessionStorage.removeItem(key);
+        }
+      });
+      sessionStorage.removeItem("seav_setup_checked_v1");
+    } catch (cacheErr) {
+      console.warn("[SEA-V] Session cache clear failed:", cacheErr);
+    }
   }
 
   async function requestPasswordReset(email) {

@@ -13,9 +13,75 @@
   }
 
   const { KEYS, DEFAULT_PROFILE } = window.SeavData;
+  const CACHE_KEY_PREFIX = "seav_state_cache_v1_";
+  const CACHE_TTL_MS = 3 * 60 * 1000;
+  const SETUP_CHECK_KEY = "seav_setup_checked_v1";
 
   function safeArray(value) {
     return Array.isArray(value) ? value : [];
+  }
+
+  function cacheStorageKey() {
+    const userId = window.SeavAuth?.getUserId?.();
+    return userId ? `${CACHE_KEY_PREFIX}${userId}` : null;
+  }
+
+  function readCachedData() {
+    const key = cacheStorageKey();
+    if (!key) return null;
+
+    try {
+      const raw = sessionStorage.getItem(key);
+      if (!raw) return null;
+
+      const parsed = JSON.parse(raw);
+      if (!parsed?.savedAt || !parsed?.data) return null;
+      if (Date.now() - parsed.savedAt > CACHE_TTL_MS) return null;
+
+      return parsed.data;
+    } catch (err) {
+      console.warn("[SEA-V] State cache read failed:", err);
+      return null;
+    }
+  }
+
+  function writeCachedData(data) {
+    const key = cacheStorageKey();
+    if (!key) return;
+
+    try {
+      sessionStorage.setItem(
+        key,
+        JSON.stringify({
+          savedAt: Date.now(),
+          data
+        })
+      );
+    } catch (err) {
+      console.warn("[SEA-V] State cache write failed:", err);
+    }
+  }
+
+  function clearCachedData() {
+    const key = cacheStorageKey();
+    if (key) sessionStorage.removeItem(key);
+  }
+
+  function applyData(snapshot) {
+    return {
+      profile: { ...DEFAULT_PROFILE, ...(snapshot.profile || {}) },
+      seatimes: safeArray(snapshot.seatimes),
+      certs: safeArray(snapshot.certs),
+      vessels: safeArray(snapshot.vessels),
+      refs: safeArray(snapshot.refs),
+      achievements: safeArray(snapshot.achievements),
+      navigationAreas: safeArray(snapshot.navigationAreas),
+      tenders: safeArray(snapshot.tenders),
+      onboardExperiences: safeArray(snapshot.onboardExperiences),
+      hobbiesInterests: safeArray(snapshot.hobbiesInterests),
+      specialistQualifications: safeArray(snapshot.specialistQualifications),
+      payslips: safeArray(snapshot.payslips)
+    };
   }
 
   const state = {
@@ -36,7 +102,18 @@
       payslips: []
     },
 
-    async loadAll() {
+    async loadAll(options = {}) {
+      const force = options.force === true;
+
+      if (!force) {
+        const cached = readCachedData();
+        if (cached) {
+          this.data = applyData(cached);
+          this.ready = true;
+          return this.data;
+        }
+      }
+
       const [
         profile,
         seatimes,
@@ -65,30 +142,32 @@
         SeavAPI.getArray(KEYS.PAYSLIPS)
       ]);
 
-      this.data.profile = {
-        ...DEFAULT_PROFILE,
-        ...(profile || {}),
-        id: profile?.id || DEFAULT_PROFILE.id
-      };
+      this.data = applyData({
+        profile: {
+          ...(profile || {}),
+          id: profile?.id || DEFAULT_PROFILE.id
+        },
+        seatimes,
+        certs,
+        vessels,
+        refs,
+        achievements,
+        navigationAreas,
+        tenders,
+        onboardExperiences,
+        hobbiesInterests,
+        specialistQualifications,
+        payslips
+      });
 
-      this.data.seatimes = safeArray(seatimes);
-      this.data.certs = safeArray(certs);
-      this.data.vessels = safeArray(vessels);
-      this.data.refs = safeArray(refs);
-      this.data.achievements = safeArray(achievements);
-      this.data.navigationAreas = safeArray(navigationAreas);
-      this.data.tenders = safeArray(tenders);
-      this.data.onboardExperiences = safeArray(onboardExperiences);
-      this.data.hobbiesInterests = safeArray(hobbiesInterests);
-      this.data.specialistQualifications = safeArray(specialistQualifications);
-      this.data.payslips = safeArray(payslips);
-
+      writeCachedData(this.data);
       this.ready = true;
       return this.data;
     },
 
     async refresh() {
-      await this.loadAll();
+      clearCachedData();
+      await this.loadAll({ force: true });
       document.dispatchEvent(new CustomEvent("seav:state-ready"));
       document.dispatchEvent(new CustomEvent("seav:data-updated"));
       return this.data;
@@ -183,8 +262,9 @@
     }
 
     const loadUserData = shouldLoadAuthenticatedState();
+    const hasWarmCache = loadUserData && !!readCachedData();
 
-    if (loadUserData && window.SeavFeedback?.showPageLoader) {
+    if (loadUserData && !hasWarmCache && window.SeavFeedback?.showPageLoader) {
       window.SeavFeedback.showPageLoader(
         "Setting sail…",
         "Loading your career records"
@@ -194,11 +274,16 @@
     try {
       if (loadUserData) {
         await state.loadAll();
-        const setupIssues = await state.checkSetup();
-        if (setupIssues.length) {
-          document.dispatchEvent(
-            new CustomEvent("seav:setup-issues", { detail: { issues: setupIssues } })
-          );
+
+        if (!sessionStorage.getItem(SETUP_CHECK_KEY)) {
+          const setupIssues = await state.checkSetup();
+          if (setupIssues.length) {
+            document.dispatchEvent(
+              new CustomEvent("seav:setup-issues", { detail: { issues: setupIssues } })
+            );
+          } else {
+            sessionStorage.setItem(SETUP_CHECK_KEY, "1");
+          }
         }
       }
     } finally {
