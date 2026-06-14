@@ -486,7 +486,7 @@
       marker.on("dragend", () => {
         const ll = marker.getLatLng();
         S.formWaypoints[index] = {
-          ...formWaypoints[index],
+          ...S.formWaypoints[index],
           lat: roundCoord(ll.lat),
           lng: roundCoord(ll.lng)
         };
@@ -502,7 +502,7 @@
 
     const route = await buildRouteThroughAnchors([
       from,
-      ...formWaypoints.map((wp) => ({ lat: wp.lat, lng: wp.lng })),
+      ...S.formWaypoints.map((wp) => ({ lat: wp.lat, lng: wp.lng })),
       to
     ]);
 

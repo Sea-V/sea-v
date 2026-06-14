@@ -41,6 +41,10 @@
   const resetEndpointToPort = (r) => F.resetEndpointToPort(r);
   const applySeatimeLink = (id) => F.applySeatimeLink(id);
   const setNavFormMode = (v) => F.setNavFormMode(v);
+  const readEndpointDetails = F.readEndpointDetails;
+  const resolveEndpointCoord = F.resolveEndpointCoord;
+  const getCountryList = H.getCountryList;
+  const normalizeText = H.normalizeText;
   const buildSeatimeLabel = H.buildSeatimeLabel;
   const formatDateRange = M.formatDateRange;
   const formatRouteLabel = H.formatRouteLabel;
@@ -93,7 +97,7 @@
     }
 
     filterSelect?.addEventListener("change", async () => {
-      activeVesselFilter = filterSelect.value || "";
+      S.activeVesselFilter = filterSelect.value || "";
       await refreshMap();
     });
 
@@ -119,15 +123,15 @@
     });
 
     document.getElementById("navPickFromBtn")?.addEventListener("click", () => {
-      setEndpointPickMode(endpointPickRole === "from" ? null : "from");
+      setEndpointPickMode(S.endpointPickRole === "from" ? null : "from");
     });
 
     document.getElementById("navPickToBtn")?.addEventListener("click", () => {
-      setEndpointPickMode(endpointPickRole === "to" ? null : "to");
+      setEndpointPickMode(S.endpointPickRole === "to" ? null : "to");
     });
 
     document.getElementById("navPickOnMapBtn")?.addEventListener("click", () => {
-      setPickMode(!pickMode);
+      setPickMode(!S.pickMode);
     });
 
     document.getElementById("navRecommendPassageBtn")?.addEventListener("click", () => {
@@ -259,7 +263,7 @@
           departureDate,
           arrivalDate,
           note,
-          waypoints: formWaypoints.map((wp) => ({
+          waypoints: S.formWaypoints.map((wp) => ({
             lat: wp.lat,
             lng: wp.lng,
             label: wp.label || ""

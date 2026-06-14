@@ -40,22 +40,6 @@
     "#0369a1" // harbour blue
   ];
 
-  let map = null;
-  let pathLayer = null;
-  let pointLayer = null;
-  let workingLayer = null;
-  let activeVesselFilter = "";
-  let resizeTimer = null;
-  let mapReady = false;
-  let pendingMapRefresh = false;
-  let refreshMapPromise = null;
-
-  let formWaypoints = [];
-  let formEndpointCoords = { from: null, to: null };
-  let pickMode = false;
-  let endpointPickRole = null;
-  let workingRouteToken = 0;
-
   function roundCoord(value) {
     return Math.round(Number(value) * 10000) / 10000;
   }

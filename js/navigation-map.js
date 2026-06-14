@@ -9,7 +9,8 @@
   const Seav = window.Seav;
   const {
     getVesselColor, getVesselName, loadNavEntries, hasCoord, normalizeNavEntry,
-    haversineNm, formatNm, formatRouteLabel, entryHasRoute, buildRouteForEntry, buildPassagePaths
+    haversineNm, formatNm, formatRouteLabel, entryHasRoute, buildRouteForEntry, buildPassagePaths,
+    roundCoord
   } = { ...H, buildPassagePaths: P.buildPassagePaths };
   const { MAP_TILE_URL, MAP_TILE_ATTRIBUTION, MAP_DEFAULT_VIEW } = H;
 
@@ -138,7 +139,7 @@
       dates ? Seav.escapeHtml(dates) : "",
       Seav.escapeHtml(formatNm(path.distanceNm))
     ].filter(Boolean);
-    return `<div class="nav-S.map-popup">${lines.join("<br/>")}</div>`;
+    return `<div class="nav-map-popup">${lines.join("<br/>")}</div>`;
   }
 
   function buildPointPopup(point) {
@@ -156,7 +157,7 @@
       Seav.escapeHtml(roleDate),
       Seav.escapeHtml(entry.operationType || "")
     ].filter(Boolean);
-    return `<div class="nav-S.map-popup">${lines.join("<br/>")}</div>`;
+    return `<div class="nav-map-popup">${lines.join("<br/>")}</div>`;
   }
 
   async function refreshMap() {
@@ -252,19 +253,20 @@
     S.mapReady = true;
 
     S.map.on("click", (event) => {
+      const form = window.SeavNavigationForm;
       if (S.endpointPickRole) {
         S.formEndpointCoords[S.endpointPickRole] = {
           lat: roundCoord(event.latlng.lat),
           lng: roundCoord(event.latlng.lng)
         };
-        renderEndpointStatus();
-        renderWorkingRoute();
-        setEndpointPickMode(null);
+        form?.renderEndpointStatus?.();
+        form?.renderWorkingRoute?.();
+        form?.setEndpointPickMode?.(null);
         return;
       }
 
       if (!S.pickMode) return;
-      addWaypoint(event.latlng.lat, event.latlng.lng);
+      form?.addWaypoint?.(event.latlng.lat, event.latlng.lng);
     });
 
     window.setTimeout(() => {
@@ -276,7 +278,7 @@
         S.pendingMapRefresh = false;
         refreshMap();
       }
-      renderWorkingRoute();
+      window.SeavNavigationForm?.renderWorkingRoute?.();
     });
 
     window.addEventListener("resize", () => {
