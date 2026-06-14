@@ -789,10 +789,10 @@
     };
 
     const initData = async () => {
-      const synced = await syncCertificateTemplates();
+      await syncCertificateTemplates();
 
-      if (synced && window.Seav.app?.refreshAll) {
-        await window.Seav.app.refreshAll();
+      if (window.SeavState?.refresh) {
+        await window.SeavState.refresh();
       } else {
         runRefresh();
       }
