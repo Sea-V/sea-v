@@ -140,10 +140,6 @@
       }
     }
 
-    if (changed) {
-      existing = await SeavAPI.getArray(STORAGE_KEY);
-    }
-
     for (const template of MANDATORY_CERTS) {
       const exists = existing.some(
         (cert) => normalizeCode(cert.code) === normalizeCode(template.code)
@@ -163,10 +159,6 @@
       });
 
       changed = true;
-    }
-
-    if (changed) {
-      existing = await SeavAPI.getArray(STORAGE_KEY);
     }
 
     for (const template of RECOMMENDED_CERTS) {
@@ -190,7 +182,11 @@
       changed = true;
     }
 
-    return changed;
+    if (changed) {
+      existing = await SeavAPI.getArray(STORAGE_KEY);
+    }
+
+    return { changed, certs: existing };
   }
 
   function formatDatePretty(dateStr) {
@@ -789,11 +785,14 @@
     };
 
     const initData = async () => {
-      await syncCertificateTemplates();
+      runRefresh();
 
-      if (window.SeavState?.refresh) {
-        await window.SeavState.refresh();
-      } else {
+      const { certs } = await syncCertificateTemplates();
+
+      if (window.SeavState?.updateCerts) {
+        window.SeavState.updateCerts(certs);
+      } else if (window.SeavState?.data) {
+        window.SeavState.data.certs = certs;
         runRefresh();
       }
     };

@@ -173,6 +173,13 @@
       return this.data;
     },
 
+    updateCerts(certs) {
+      this.data.certs = safeArray(certs);
+      writeCachedData(this.data);
+      document.dispatchEvent(new CustomEvent("seav:data-updated"));
+      return this.data.certs;
+    },
+
     get profile() {
       return this.data.profile;
     },
