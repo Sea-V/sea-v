@@ -52,9 +52,7 @@
   const setNavFormMode = (v) => F.setNavFormMode(v);
   const readEndpointDetails = F.readEndpointDetails;
   const resolveEndpointCoord = F.resolveEndpointCoord;
-  const getCountryList = H.getCountryList;
   const normalizeText = H.normalizeText;
-  const formatDateRange = M.formatDateRange;
   const formatRouteLabel = H.formatRouteLabel;
   const formatNm = H.formatNm;
   const getVesselName = H.getVesselName;
@@ -98,7 +96,7 @@
       updateEndpointFromPort("to");
     });
 
-    if (!getCountryList().length) {
+    if (!H.getCountryList().length) {
       window.setTimeout(() => {
         resetRouteForm();
       }, 150);
