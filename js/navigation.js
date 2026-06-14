@@ -10,7 +10,16 @@
   const F = window.SeavNavigationForm;
   const L = window.SeavNavigationList;
   const S = window.SeavNavigationState;
-  if (!H || !M || !F || !L || !S) return;
+  if (!H || !M || !F || !L || !S) {
+    console.warn("[SEA-V] Navigation module load incomplete.", {
+      helpers: !!H,
+      map: !!M,
+      form: !!F,
+      list: !!L,
+      state: !!S
+    });
+    return;
+  }
 
   const STORAGE_KEY = H.STORAGE_KEY;
   const loadNavEntries = H.loadNavEntries;
@@ -45,7 +54,6 @@
   const resolveEndpointCoord = F.resolveEndpointCoord;
   const getCountryList = H.getCountryList;
   const normalizeText = H.normalizeText;
-  const buildSeatimeLabel = H.buildSeatimeLabel;
   const formatDateRange = M.formatDateRange;
   const formatRouteLabel = H.formatRouteLabel;
   const formatNm = H.formatNm;
@@ -375,7 +383,12 @@
   }
 
   async function initNavigationPage() {
-    initForm();
+    try {
+      initForm();
+    } catch (error) {
+      console.warn("[SEA-V] Navigation form init failed:", error);
+    }
+
     try {
       initNavigationMap();
     } catch (error) {
@@ -383,6 +396,9 @@
     }
 
     if (window.SeavState?.ready) {
+      window.setTimeout(() => {
+        if (S.map) S.map.invalidateSize();
+      }, 150);
       await initNavigationData();
       return;
     }
@@ -390,6 +406,9 @@
     document.addEventListener(
       "seav:state-ready",
       () => {
+        window.setTimeout(() => {
+          if (S.map) S.map.invalidateSize();
+        }, 150);
         initNavigationData().catch((error) => {
           console.warn("[SEA-V] Navigation refresh failed:", error);
         });

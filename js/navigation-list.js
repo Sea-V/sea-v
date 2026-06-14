@@ -2,16 +2,19 @@
 (function () {
   "use strict";
   const H = window.SeavNavigationHelpers;
+  const P = window.SeavNavigationPassage;
   const M = window.SeavNavigationMap;
+  const F = window.SeavNavigationForm;
   const S = window.SeavNavigationState;
-  if (!H || !M || !S || !window.Seav) return;
+  if (!H || !P || !M || !F || !S || !window.Seav) return;
 
   const Seav = window.Seav;
   const {
-    STORAGE_KEY, loadNavEntries, getVesselName, getSeatimes, formatNm, formatRouteLabel,
-    entryHasRoute, buildRouteForEntry
+    loadNavEntries, getVesselName, getSeatimes, formatNm, formatRouteLabel, entryHasRoute
   } = H;
   const { formatDateRange } = M;
+  const buildRouteForEntry = P.buildRouteForEntry;
+  const buildSeatimeLabel = F.buildSeatimeLabel;
 
   async function buildDistanceMap(entries) {
     const distances = new Map();

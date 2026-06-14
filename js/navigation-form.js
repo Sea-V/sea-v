@@ -13,7 +13,8 @@
     normalizeText, findPort, normalizeWaypointList, normalizeNavEntry, hasCoord
   } = H;
   const buildRecommendedPassageWaypoints = P.buildRecommendedPassageWaypoints;
-  const { refreshMap } = M;
+  const buildRouteThroughAnchors = P.buildRouteThroughAnchors;
+  const { refreshMap, formatDateRange } = M;
 
   function buildCountryOptions(selectedValue = "") {
     return getCountryList().map((country) => {
