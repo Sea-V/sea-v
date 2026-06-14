@@ -16,6 +16,7 @@
   const CACHE_KEY_PREFIX = "seav_state_cache_v1_";
   const CACHE_TTL_MS = 3 * 60 * 1000;
   const SETUP_CHECK_KEY = "seav_setup_checked_v1";
+  const PAGE_LOADER_MIN_MS = 500;
 
   function safeArray(value) {
     return Array.isArray(value) ? value : [];
@@ -269,13 +270,15 @@
     }
 
     const loadUserData = shouldLoadAuthenticatedState();
-    const hasWarmCache = loadUserData && !!readCachedData();
+    let showedPageLoader = false;
+    const pageLoaderStartedAt = Date.now();
 
-    if (loadUserData && !hasWarmCache && window.SeavFeedback?.showPageLoader) {
+    if (loadUserData && window.SeavFeedback?.showPageLoader) {
       window.SeavFeedback.showPageLoader(
         "Setting sail…",
         "Loading your career records"
       );
+      showedPageLoader = true;
     }
 
     try {
@@ -294,7 +297,12 @@
         }
       }
     } finally {
-      if (loadUserData && window.SeavFeedback?.hidePageLoader) {
+      if (showedPageLoader && window.SeavFeedback?.hidePageLoader) {
+        const elapsed = Date.now() - pageLoaderStartedAt;
+        const waitMs = Math.max(0, PAGE_LOADER_MIN_MS - elapsed);
+        if (waitMs > 0) {
+          await new Promise((resolve) => window.setTimeout(resolve, waitMs));
+        }
         window.SeavFeedback.hidePageLoader();
       }
     }

@@ -786,6 +786,7 @@
       "All present and accounted for",
       "Preparing your certificate library for inspection"
     ];
+    const CERT_LOADER_MIN_MS = 500;
 
     let certLoaderTimer = null;
 
@@ -818,6 +819,7 @@
     };
 
     const initData = async () => {
+      const loaderStartedAt = Date.now();
       showCertLoader();
 
       try {
@@ -837,15 +839,16 @@
           "Could not load your certificates. Please refresh and try again."
         );
       } finally {
+        const elapsed = Date.now() - loaderStartedAt;
+        const waitMs = Math.max(0, CERT_LOADER_MIN_MS - elapsed);
+        if (waitMs > 0) {
+          await new Promise((resolve) => window.setTimeout(resolve, waitMs));
+        }
         hideCertLoader();
       }
     };
 
-    if (window.SeavState?.ready) {
-      initData();
-    } else {
-      document.addEventListener("seav:state-ready", initData, { once: true });
-    }
+    document.addEventListener("seav:state-ready", initData, { once: true });
 
     const btnDownloadAll = document.getElementById("btnDownloadAllCerts");
     const btnShareAll = document.getElementById("btnShareAllCerts");
