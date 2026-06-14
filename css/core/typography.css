@@ -159,3 +159,60 @@ body.landing-page .info-title {
   font-weight: 700 !important;
   line-height: 1.35 !important;
 }
+
+/* =========================================================
+   UNIFIED SHELL SURFACES
+   Loads after page CSS so every app shell/card uses the
+   same solid palette instead of mixed gradients and tints.
+========================================================= */
+
+body.app-page [class$="-shell-card"] {
+  background: var(--page-shell-bg);
+}
+
+body.app-page :where(
+  .dash-card,
+  .ui-card,
+  .ui-mini-box,
+  [class$="-compact-card"],
+  [class$="-modern-card"],
+  .achievement-card,
+  #tendersGrid .vessel-card,
+  .profile-preview-card,
+  .profile-form-card,
+  .vessel-profile-card,
+  .vessel-overview-card,
+  .vessel-info-mini-card,
+  .vessel-linked-clean-card,
+  .vessel-experience-card,
+  .vessel-sea-card,
+  .vessel-card-compact,
+  .reference-modern-card,
+  .cert-modern-card,
+  .ps-kpi-box,
+  .navigation-stat,
+  .cert-compact-detail-panel,
+  .cert-compact-empty,
+  .sq-detail-panel,
+  .ps-detail-panel,
+  .hi-detail-panel,
+  .onboard-detail-panel,
+  .seatime-portal-link,
+  .cvgen-vessel-card
+) {
+  background: var(--page-shell-panel);
+}
+
+body.app-page .navigation-stat--highlight {
+  background: rgba(91, 188, 255, 0.09);
+}
+
+body.app-page :where(
+  .vessel-image-card,
+  .vessel-history-photo,
+  .vessel-photo,
+  .achievement-card .achievement-photo,
+  #tendersGrid .vessel-photo
+) {
+  background: rgba(0, 0, 0, 0.24);
+}

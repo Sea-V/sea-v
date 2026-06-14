@@ -735,15 +735,7 @@ body.app-page::before {
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.10);
 
-  background:
-    linear-gradient(
-      180deg,
-      rgba(24,39,60,0.78),
-      rgba(22,35,54,0.70)
-    );
-
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: var(--page-shell-panel);
 
   box-shadow:
     0 14px 34px rgba(0,0,0,0.22),

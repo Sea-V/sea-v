@@ -12,6 +12,7 @@
   /* Solid page shell surfaces (no gradient shading) */
   --page-shell-bg: #0e1c2e;
   --page-shell-panel: #132238;
+  --page-shell-surface: var(--page-shell-panel);
 
   /* App layout */
   --sidebar-width: 280px;
