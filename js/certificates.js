@@ -780,20 +780,64 @@
       return;
     }
 
+    const CERT_LOADER_LINES = [
+      "Safety first — muster your compliance records",
+      "Checking ENG1, BST modules, and STCW status…",
+      "All present and accounted for",
+      "Preparing your certificate library for inspection"
+    ];
+
+    let certLoaderTimer = null;
+
+    function showCertLoader() {
+      if (!window.SeavFeedback?.showPageLoader) return;
+
+      window.SeavFeedback.showPageLoader(
+        "Loading certificates…",
+        CERT_LOADER_LINES[0]
+      );
+
+      let lineIndex = 0;
+      certLoaderTimer = window.setInterval(() => {
+        lineIndex = (lineIndex + 1) % CERT_LOADER_LINES.length;
+        const subEl = document.querySelector(".seav-page-loader-sub");
+        if (subEl) subEl.textContent = CERT_LOADER_LINES[lineIndex];
+      }, 2400);
+    }
+
+    function hideCertLoader() {
+      if (certLoaderTimer) {
+        window.clearInterval(certLoaderTimer);
+        certLoaderTimer = null;
+      }
+      window.SeavFeedback?.hidePageLoader?.();
+    }
+
     const runRefresh = () => {
       renderCerts();
     };
 
     const initData = async () => {
-      runRefresh();
+      showCertLoader();
 
-      const { certs } = await syncCertificateTemplates();
+      try {
+        const { certs } = await syncCertificateTemplates();
 
-      if (window.SeavState?.updateCerts) {
-        window.SeavState.updateCerts(certs);
-      } else if (window.SeavState?.data) {
-        window.SeavState.data.certs = certs;
-        runRefresh();
+        if (window.SeavState?.updateCerts) {
+          window.SeavState.updateCerts(certs);
+        } else if (window.SeavState?.data) {
+          window.SeavState.data.certs = certs;
+          runRefresh();
+        }
+      } catch (err) {
+        console.error("[SEA-V] Certificate load failed:", err);
+        Seav.notify(
+          "error",
+          "Load failed",
+          "Could not load your certificates. Please refresh and try again."
+        );
+      } finally {
+        hideCertLoader();
       }
     };
 
