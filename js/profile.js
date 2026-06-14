@@ -164,37 +164,14 @@
     }
 
     async function buildProfilePhoto(file, existingPhoto, profileId) {
-  if (!file) return existingPhoto || null;
-
-  if (window.SeavSupabase) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = SeavAPI.buildStoragePath(profileId, safeName);
-
-    const { error } = await window.SeavSupabase.storage
-      .from("profile-photos")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: true
-      });
-
-    if (error) {
-      console.error("[SEA-V] Profile photo upload failed:", error);
-      if (window.SeavFeedback?.error) {
-        window.SeavFeedback.error("Upload failed", "Profile photo upload failed. Please try again.");
-      } else {
-        alert("Profile photo upload failed. Please try again.");
-      }
-      return existingPhoto || null;
+      return window.SeavUpload?.uploadToStorage({
+        bucket: "profile-photos",
+        entityId: profileId,
+        file,
+        existingMeta: existingPhoto,
+        kind: "Photo"
+      }) ?? existingPhoto ?? null;
     }
-
-    return SeavAPI.buildUploadedFileMeta("profile-photos", filePath, file);
-  }
-
-  return await Seav.buildStoredFile(file, {
-    fallback: existingPhoto || null,
-    kind: "Photo"
-  });
-}
 
     function fillForm(profile) {
       const dobParts = splitDob(profile.dob);
@@ -403,5 +380,23 @@
     }
 
     document.addEventListener("seav:data-updated", runRefresh);
+
+    const deleteBtn = document.getElementById("btnDeleteAccount");
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", async () => {
+        const confirmed = window.confirm(
+          "Delete your SEA-V account and all uploaded documents?\n\nThis cannot be undone."
+        );
+        if (!confirmed) return;
+
+        try {
+          await window.SeavAuth?.deleteAccount?.();
+          window.location.href = "index.html";
+        } catch (err) {
+          console.error("[SEA-V] Account deletion failed:", err);
+          Seav.notify("error", "Could not delete account", err?.message || "Try again or contact support.");
+        }
+      });
+    }
   }
 })();

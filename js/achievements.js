@@ -390,33 +390,14 @@
   }
 
   async function buildAchievementAttachment(file, existingAttachment, achievementId) {
-  if (!file) return existingAttachment || null;
-
-  if (window.SeavSupabase) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = SeavAPI.buildStoragePath(achievementId, safeName);
-
-    const { error } = await window.SeavSupabase.storage
-      .from("achievement-files")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: true
-      });
-
-    if (error) {
-      console.error("[SEA-V] Achievement attachment upload failed:", error);
-      Seav.notify("error", "Upload failed", "Achievement attachment upload failed. Please try again.");
-      return existingAttachment || null;
-    }
-
-    return SeavAPI.buildUploadedFileMeta("achievement-files", filePath, file);
+    return window.SeavUpload?.uploadToStorage({
+      bucket: "achievement-files",
+      entityId: achievementId,
+      file,
+      existingMeta: existingAttachment,
+      kind: "Achievement"
+    }) ?? existingAttachment ?? null;
   }
-
-  return await Seav.buildStoredFile(file, {
-    fallback: existingAttachment || null,
-    kind: "Attachment"
-  });
-}
 
   async function saveAchievementData(item) {
     await SeavAPI.upsertItemById(STORAGE_KEY, item);

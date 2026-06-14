@@ -316,33 +316,14 @@ function readReferenceForm() {
 }
 
   async function buildReferenceAttachment(file, existingAttachment, refId) {
-  if (!file) return existingAttachment || null;
-
-  if (window.SeavSupabase) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = SeavAPI.buildStoragePath(refId, safeName);
-
-    const { error } = await window.SeavSupabase.storage
-      .from("reference-files")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: true
-      });
-
-    if (error) {
-      console.error("[SEA-V] Reference attachment upload failed:", error);
-      Seav.notify("error", "Upload failed", "Reference attachment upload failed. Please try again.");
-      return existingAttachment || null;
-    }
-
-    return SeavAPI.buildUploadedFileMeta("reference-files", filePath, file);
+    return window.SeavUpload?.uploadToStorage({
+      bucket: "reference-files",
+      entityId: refId,
+      file,
+      existingMeta: existingAttachment,
+      kind: "Reference"
+    }) ?? existingAttachment ?? null;
   }
-
-  return await Seav.buildStoredFile(file, {
-    fallback: existingAttachment || null,
-    kind: "Attachment"
-  });
-}
 
   async function saveReferenceData(refData) {
     await SeavAPI.upsertItemById(STORAGE_KEY, refData);

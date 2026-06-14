@@ -20,7 +20,8 @@ Phase 2 uses **Supabase Auth** — each user has their own profile, documents, a
 2. Enable **Email** auth in Supabase Dashboard
 3. Run **`docs/schema-phase2.sql`** (per-user RLS + private storage)
 4. Run **`docs/schema-phase2-public-hardening.sql`** (public profile privacy + storage lock-down)
-5. Verify: `node scripts/test-supabase.mjs`
+5. Optional: **`docs/schema-account-deletion.sql`** (self-service delete account)
+6. Verify: `node scripts/test-supabase.mjs --step all`
 
 Guides: **[docs/SUPABASE-PHASE2.md](docs/SUPABASE-PHASE2.md)** · **[docs/SECURITY.md](docs/SECURITY.md)**
 
@@ -28,8 +29,7 @@ Guides: **[docs/SUPABASE-PHASE2.md](docs/SUPABASE-PHASE2.md)** · **[docs/SECURI
 
 ```bash
 python3 -m http.server 8765   # terminal 1
-node scripts/test-site.mjs    # terminal 2
-node scripts/test-supabase.mjs
+npm test                      # terminal 2 (site + Supabase smoke tests)
 ```
 
 Manual walkthrough: **[docs/TEST-PLAN.md](docs/TEST-PLAN.md)**
@@ -43,7 +43,7 @@ Brand mark lives at **`img/logo.png`**. Replace that file to use your own logo (
 | Path | Purpose |
 |------|---------|
 | `*.html` | Page entry points |
-| `js/` | App logic (`core.js`, `api.js`, `state.js`, feature modules) |
+| `js/` | App logic — split modules: `api-core.js`, `certificates-*.js`, `navigation-*.js`, `dashboard-snippets.js`, `public-profile-*.js`, `seav-config.js`, `seav-upload.js` |
 | `css/` | Styles (core, components, pages, responsive) |
 | `img/badges/` | Achievement badge SVGs |
 | `docs/` | Supabase setup SQL and Phase 1 guide |

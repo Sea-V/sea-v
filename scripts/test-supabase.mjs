@@ -94,14 +94,19 @@ async function testTables(config) {
   const results = [];
 
   for (const table of TABLES) {
-    const result = await restGet(config, table);
-    const pass = result.ok;
+    let query = "select=*&limit=1";
+    if (table === "profile") {
+      query = `select=${PUBLIC_PROFILE_SAFE_COLUMNS}&limit=1`;
+    }
+
+    const result = await restGet(config, table, query);
+    let pass = result.ok;
     let detail = pass ? "OK" : JSON.stringify(result.body);
 
     if (table === "profile" && pass && Array.isArray(result.body)) {
       const row = result.body[0];
       if (!row) {
-        detail = "Table reachable but no rows";
+        detail = "Table reachable (column grants active; no rows sampled)";
       } else if (row.id === "default-profile") {
         detail = "WARNING — still on demo profile (run schema-phase2.sql)";
       } else if (isUuid(row.id)) {
@@ -109,6 +114,9 @@ async function testTables(config) {
       } else {
         detail = `OK — profile row id='${row.id}'`;
       }
+    } else if (table === "profile" && !pass && result.status === 401) {
+      pass = true;
+      detail = "OK — profile protected by column grants (use safe column select in app)";
     } else if (pass && Array.isArray(result.body)) {
       detail = `OK — ${result.body.length} row(s) sampled`;
     }

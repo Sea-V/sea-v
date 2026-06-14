@@ -1,0 +1,295 @@
+// /js/navigation-map.js
+(function () {
+  "use strict";
+  const H = window.SeavNavigationHelpers;
+  const P = window.SeavNavigationPassage;
+  const S = window.SeavNavigationState;
+  if (!H || !P || !S || !window.Seav) return;
+
+  const Seav = window.Seav;
+  const {
+    getVesselColor, getVesselName, loadNavEntries, hasCoord, normalizeNavEntry,
+    haversineNm, formatNm, formatRouteLabel, entryHasRoute, buildRouteForEntry, buildPassagePaths
+  } = { ...H, buildPassagePaths: P.buildPassagePaths };
+  const { MAP_TILE_URL, MAP_TILE_ATTRIBUTION, MAP_DEFAULT_VIEW } = H;
+
+  function filterEntries(entries) {
+    if (!S.activeVesselFilter) return entries;
+    return entries.filter((entry) => entry.vesselId === S.activeVesselFilter);
+  }
+
+  function buildMapPoints(entries) {
+    const points = [];
+    const seen = new Set();
+
+    function addPoint(lat, lng, entry, role, label) {
+      if (!hasCoord(lat, lng)) return;
+      const key = `${lat.toFixed(4)}|${lng.toFixed(4)}|${role}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+
+      points.push({
+        lat,
+        lng,
+        size: role === "departure" ? 0.38 : 0.48,
+        color: getVesselColor(entry.vesselId),
+        entry,
+        role,
+        label
+      });
+    }
+
+    entries.forEach((entry) => {
+      addPoint(
+        entry.fromLat,
+        entry.fromLng,
+        entry,
+        "departure",
+        `${entry.fromPort || "Departure"}${entry.fromCountry ? `, ${entry.fromCountry}` : ""}`
+      );
+      addPoint(
+        entry.toLat,
+        entry.toLng,
+        entry,
+        "arrival",
+        `${entry.toPort || "Arrival"}${entry.toCountry ? `, ${entry.toCountry}` : ""}`
+      );
+    });
+
+    return points;
+  }
+
+  function collectVisitedCountries(entries) {
+    const countries = new Set();
+    entries.forEach((entry) => {
+      if (entry.fromCountry) countries.add(entry.fromCountry);
+      if (entry.toCountry) countries.add(entry.toCountry);
+    });
+    return countries;
+  }
+
+  function buildNavigationStats(entries, paths) {
+    const countries = collectVisitedCountries(entries);
+    const ports = new Set();
+
+    entries.forEach((entry) => {
+      if (entry.fromCountry && entry.fromPort) {
+        ports.add(`${entry.fromCountry}|${entry.fromPort}`);
+      }
+      if (entry.toCountry && entry.toPort) {
+        ports.add(`${entry.toCountry}|${entry.toPort}`);
+      }
+    });
+
+    const totalNm = paths.reduce((sum, path) => sum + Number(path.distanceNm || 0), 0);
+
+    return {
+      countries: countries.size,
+      ports: ports.size,
+      passages: paths.length,
+      totalNm
+    };
+  }
+
+  function renderStats(stats) {
+    const countriesEl = document.getElementById("navStatCountries");
+    const portsEl = document.getElementById("navStatPorts");
+    const passagesEl = document.getElementById("navStatPassages");
+    const milesEl = document.getElementById("navStatMiles");
+
+    if (countriesEl) countriesEl.textContent = String(stats.countries);
+    if (portsEl) portsEl.textContent = String(stats.ports);
+    if (passagesEl) passagesEl.textContent = String(stats.passages);
+    if (milesEl) milesEl.textContent = formatNm(stats.totalNm);
+  }
+
+  function fitMapToData(paths, points) {
+    if (!S.map) return;
+
+    const coords = [];
+    paths.forEach((path) => {
+      (path.coords || []).forEach((point) => coords.push([point[0], point[1]]));
+    });
+    points.forEach((point) => coords.push([point.lat, point.lng]));
+
+    if (!coords.length) return;
+
+    try {
+      const bounds = L.latLngBounds(coords);
+      S.map.fitBounds(bounds, { padding: [44, 44], maxZoom: 9, animate: true });
+    } catch (error) {
+      console.warn("[SEA-V] Could not fit S.map bounds:", error);
+    }
+  }
+
+  function formatDateRange(fromDate, toDate) {
+    if (fromDate && toDate) return `${fromDate} → ${toDate}`;
+    return fromDate || toDate || "";
+  }
+
+  function buildPathPopup(path) {
+    const vessel = path.vesselName || "Vessel";
+    const route = `${path.fromPort || "Departure"} → ${path.toPort || "Arrival"}`;
+    const dates = formatDateRange(path.departureDate, path.arrivalDate);
+    const lines = [
+      path.passageName ? `<strong>${Seav.escapeHtml(path.passageName)}</strong>` : "",
+      `<strong>${Seav.escapeHtml(vessel)}</strong>`,
+      Seav.escapeHtml(route),
+      dates ? Seav.escapeHtml(dates) : "",
+      Seav.escapeHtml(formatNm(path.distanceNm))
+    ].filter(Boolean);
+    return `<div class="nav-S.map-popup">${lines.join("<br/>")}</div>`;
+  }
+
+  function buildPointPopup(point) {
+    const entry = point.entry;
+    const vesselName = getVesselName(entry.vesselId);
+    const roleLabel = point.role === "departure" ? "Departure" : "Arrival";
+    const roleDate =
+      point.role === "departure"
+        ? entry.departureDate || entry.visitedDate || ""
+        : entry.arrivalDate || "";
+    const lines = [
+      `<strong>${Seav.escapeHtml(roleLabel)}</strong>`,
+      Seav.escapeHtml(point.label || ""),
+      Seav.escapeHtml(vesselName),
+      Seav.escapeHtml(roleDate),
+      Seav.escapeHtml(entry.operationType || "")
+    ].filter(Boolean);
+    return `<div class="nav-S.map-popup">${lines.join("<br/>")}</div>`;
+  }
+
+  async function refreshMap() {
+    if (!S.map) {
+      S.pendingMapRefresh = true;
+      return;
+    }
+
+    if (S.refreshMapPromise) return S.refreshMapPromise;
+
+    S.refreshMapPromise = (async () => {
+      const entries = filterEntries(await loadNavEntries());
+      const paths = await buildPassagePaths(entries);
+      const points = buildMapPoints(entries);
+      const stats = buildNavigationStats(entries, paths);
+
+      renderStats(stats);
+
+      if (S.pathLayer) S.pathLayer.clearLayers();
+      if (S.pointLayer) S.pointLayer.clearLayers();
+
+      paths.forEach((path) => {
+        const latlngs = (path.coords || []).map((point) => [point[0], point[1]]);
+        if (latlngs.length < 2) return;
+
+        const line = L.polyline(latlngs, {
+          color: path.color,
+          weight: 4,
+          opacity: 0.94,
+          lineJoin: "round",
+          lineCap: "round"
+        });
+        line.bindPopup(buildPathPopup(path));
+        line.bindTooltip(
+          `${Seav.escapeHtml(path.fromPort || "")} → ${Seav.escapeHtml(path.toPort || "")}`,
+          { sticky: true }
+        );
+        S.pathLayer.addLayer(line);
+      });
+
+      points.forEach((point) => {
+        const marker = L.circleMarker([point.lat, point.lng], {
+          radius: point.role === "departure" ? 5 : 7,
+          color: "#ffffff",
+          weight: 1.5,
+          fillColor: point.color,
+          fillOpacity: 0.95
+        });
+        marker.bindPopup(buildPointPopup(point));
+        S.pointLayer.addLayer(marker);
+      });
+
+      if (paths.length || points.length) {
+        fitMapToData(paths, points);
+      }
+    })()
+      .catch((error) => {
+        console.warn("[SEA-V] Map refresh failed:", error);
+      })
+      .finally(() => {
+        S.refreshMapPromise = null;
+      });
+
+    return S.refreshMapPromise;
+  }
+
+  function initNavigationMap() {
+    const container = document.getElementById("navMap");
+    if (!container || typeof L === "undefined") {
+      console.warn("[SEA-V] Leaflet not available.");
+      return;
+    }
+
+    S.map = L.map(container, {
+      center: [MAP_DEFAULT_VIEW.lat, MAP_DEFAULT_VIEW.lng],
+      zoom: MAP_DEFAULT_VIEW.zoom,
+      minZoom: 2,
+      worldCopyJump: true,
+      zoomControl: true,
+      attributionControl: true
+    });
+
+    L.tileLayer(MAP_TILE_URL, {
+      attribution: MAP_TILE_ATTRIBUTION,
+      subdomains: "abcd",
+      maxZoom: 19
+    }).addTo(S.map);
+
+    S.pathLayer = L.layerGroup().addTo(S.map);
+    S.pointLayer = L.layerGroup().addTo(S.map);
+    S.workingLayer = L.layerGroup().addTo(S.map);
+
+    S.mapReady = true;
+
+    S.map.on("click", (event) => {
+      if (S.endpointPickRole) {
+        S.formEndpointCoords[S.endpointPickRole] = {
+          lat: roundCoord(event.latlng.lat),
+          lng: roundCoord(event.latlng.lng)
+        };
+        renderEndpointStatus();
+        renderWorkingRoute();
+        setEndpointPickMode(null);
+        return;
+      }
+
+      if (!S.pickMode) return;
+      addWaypoint(event.latlng.lat, event.latlng.lng);
+    });
+
+    window.setTimeout(() => {
+      if (S.map) S.map.invalidateSize();
+    }, 200);
+
+    refreshMap().then(() => {
+      if (S.pendingMapRefresh) {
+        S.pendingMapRefresh = false;
+        refreshMap();
+      }
+      renderWorkingRoute();
+    });
+
+    window.addEventListener("resize", () => {
+      if (!S.map) return;
+      window.clearTimeout(S.resizeTimer);
+      S.resizeTimer = window.setTimeout(() => S.map.invalidateSize(), 150);
+    });
+  }
+
+
+  window.SeavNavigationMap = {
+    filterEntries, buildMapPoints, collectVisitedCountries, buildNavigationStats,
+    renderStats, fitMapToData, formatDateRange, buildPathPopup, buildPointPopup,
+    refreshMap, initNavigationMap
+  };
+})();

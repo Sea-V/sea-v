@@ -212,33 +212,14 @@ function readTenderForm() {
 }
 
   async function buildTenderPhoto(file, existingPhoto, tenderId) {
-  if (!file) return existingPhoto || null;
-
-  if (window.SeavSupabase) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = SeavAPI.buildStoragePath(tenderId, safeName);
-
-    const { error } = await window.SeavSupabase.storage
-      .from("tender-photos")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: true
-      });
-
-    if (error) {
-      console.error("[SEA-V] Tender photo upload failed:", error);
-      Seav.notify("error", "Upload failed", "Tender photo upload failed. Please try again.");
-      return existingPhoto || null;
-    }
-
-    return SeavAPI.buildUploadedFileMeta("tender-photos", filePath, file);
+    return window.SeavUpload?.uploadToStorage({
+      bucket: "tender-photos",
+      entityId: tenderId,
+      file,
+      existingMeta: existingPhoto,
+      kind: "Tender photo"
+    }) ?? existingPhoto ?? null;
   }
-
-  return await Seav.buildStoredFile(file, {
-    fallback: existingPhoto || null,
-    kind: "Photo"
-  });
-}
 
   async function saveTenderData(tenderData) {
     await SeavAPI.upsertItemById(STORAGE_KEY, tenderData);

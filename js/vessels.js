@@ -442,63 +442,23 @@ function readVesselForm() {
 }
 
 async function buildVesselPhoto(file, existingPhoto, vesselId) {
-  if (!file) return existingPhoto || null;
-
-  // 👉 ALWAYS use Supabase if available (skip local limits)
-  if (window.SeavSupabase) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = SeavAPI.buildStoragePath(vesselId, safeName);
-
-    const { error } = await window.SeavSupabase.storage
-      .from("vessel-photos")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: true
-      });
-
-    if (error) {
-      console.error("[SEA-V] Upload failed:", error);
-      Seav.notify("error", "Upload failed", "Try a smaller image.");
-      return existingPhoto || null;
-    }
-
-    return SeavAPI.buildUploadedFileMeta("vessel-photos", filePath, file);
-  }
-
-  // fallback ONLY if no Supabase
-  return await Seav.buildStoredFile(file, {
-    fallback: existingPhoto || null,
+  return window.SeavUpload?.uploadToStorage({
+    bucket: "vessel-photos",
+    entityId: vesselId,
+    file,
+    existingMeta: existingPhoto,
     kind: "Photo"
-  });
+  }) ?? existingPhoto ?? null;
 }
 
 async function buildSeaAttachment(file, existingAttachment, vesselId) {
-  if (!file) return existingAttachment || null;
-
-  if (window.SeavSupabase) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = SeavAPI.buildStoragePath(vesselId, safeName);
-
-    const { error } = await window.SeavSupabase.storage
-      .from("vessel-documents")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: true
-      });
-
-    if (error) {
-      console.error("[SEA-V] SEA upload failed:", error);
-      Seav.notify("error", "SEA upload failed", "Please try again with a smaller file.");
-      return existingAttachment || null;
-    }
-
-    return SeavAPI.buildUploadedFileMeta("vessel-documents", filePath, file);
-  }
-
-  return await Seav.buildStoredFile(file, {
-    fallback: existingAttachment || null,
-    kind: "SEA"
-  });
+  return window.SeavUpload?.uploadToStorage({
+    bucket: "vessel-documents",
+    entityId: vesselId,
+    file,
+    existingMeta: existingAttachment,
+    kind: "SEA document"
+  }) ?? existingAttachment ?? null;
 }
 
 async function saveVesselData(vesselData) {

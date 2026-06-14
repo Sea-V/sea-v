@@ -35,7 +35,59 @@ const PAGES = [
   "payslips.html"
 ];
 
-const REQUIRED_ASSETS = ["img/logo.png", "styles.css", "js/auth.js", "js/core.js"];
+const REQUIRED_ASSETS = [
+  "img/logo.png",
+  "styles.css",
+  "js/seav-config.js",
+  "js/seav-upload.js",
+  "js/auth.js",
+  "js/core.js",
+  "js/api-core.js",
+  "js/api-mappers.js",
+  "js/api.js",
+  "js/certificates-core.js",
+  "js/navigation-helpers.js",
+  "js/navigation-state.js",
+  "js/payslips-core.js",
+  "js/cv-engine-model.js"
+];
+
+const SCRIPT_CHAINS = {
+  "navigation.html": [
+    "js/navigation-state.js",
+    "js/navigation-map.js",
+    "js/navigation-form.js",
+    "js/navigation-list.js",
+    "js/navigation.js"
+  ],
+  "payslips.html": [
+    "js/payslips-core.js",
+    "js/payslips-render.js",
+    "js/payslips-export.js",
+    "js/payslips.js"
+  ],
+  "cv-generator.html": [
+    "js/cv-engine-model.js",
+    "js/cv-engine-render.js",
+    "js/cv-engine.js"
+  ]
+};
+
+function checkScriptOrder(page, scripts) {
+  const html = fs.readFileSync(path.join(root, page), "utf8");
+  let lastIdx = -1;
+  for (const src of scripts) {
+    const idx = html.indexOf(src);
+    if (idx === -1) {
+      return { page, pass: false, detail: `missing ${src}` };
+    }
+    if (idx < lastIdx) {
+      return { page, pass: false, detail: `wrong order before ${src}` };
+    }
+    lastIdx = idx;
+  }
+  return { page, pass: true, detail: "script order OK" };
+}
 
 function checkFile(relativePath) {
   const full = path.join(root, relativePath);
@@ -97,6 +149,14 @@ async function main() {
     console.log(`${check.pass ? "✓" : "✗"} ${check.relativePath.padEnd(28)} ${check.detail}`);
   }
 
+  console.log("\nSplit module script order:");
+  const chainChecks = Object.entries(SCRIPT_CHAINS).map(([page, scripts]) =>
+    checkScriptOrder(page, scripts)
+  );
+  for (const check of chainChecks) {
+    console.log(`${check.pass ? "✓" : "✗"} ${check.page.padEnd(28)} ${check.detail}`);
+  }
+
   console.log(`\nHTTP checks (${baseUrl}):`);
   const httpChecks = await Promise.all(PAGES.map(checkHttp));
   for (const check of httpChecks) {
@@ -104,13 +164,15 @@ async function main() {
   }
 
   const failedFiles = fileChecks.filter((c) => !c.pass);
+  const failedChains = chainChecks.filter((c) => !c.pass);
   const failedHttp = httpChecks.filter((c) => !c.pass);
 
   console.log("\n---");
-  if (!failedFiles.length && !failedHttp.length) {
+  if (!failedFiles.length && !failedChains.length && !failedHttp.length) {
     console.log("All static checks passed.");
   } else {
     if (failedFiles.length) console.log(`${failedFiles.length} local file check(s) failed.`);
+    if (failedChains.length) console.log(`${failedChains.length} script order check(s) failed.`);
     if (failedHttp.length) console.log(`${failedHttp.length} HTTP check(s) failed.`);
   }
   console.log("");

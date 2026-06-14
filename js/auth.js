@@ -218,6 +218,24 @@
     if (error) throw error;
   }
 
+  async function deleteAccount() {
+    const client = await waitForSupabase();
+    const userId = getUserId();
+    if (!userId) throw new Error("Not signed in.");
+
+    const { error } = await client.rpc("delete_own_account");
+    if (error) {
+      // Fallback: sign out if RPC not deployed (operator deletes via Supabase dashboard)
+      console.warn("[SEA-V] delete_own_account RPC unavailable:", error);
+      await logout();
+      throw new Error(
+        "Account deletion requires delete_own_account SQL in Supabase. You have been signed out — contact support to finish deletion."
+      );
+    }
+
+    await logout();
+  }
+
   async function ensureProfileRow(user, name = "") {
     if (!user?.id) return;
 
@@ -349,6 +367,7 @@
     authErrorMessage,
     logout,
     requestPasswordReset,
+    deleteAccount,
     ensureProfileRow,
     redirectAfterLogin,
     buildStoragePath(entityId, fileName) {

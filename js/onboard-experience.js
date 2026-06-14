@@ -337,33 +337,14 @@
   }
 
   async function buildAttachment(file, existing, entryId) {
-    if (!file) return existing || null;
-
-    if (window.SeavSupabase) {
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const filePath = SeavAPI.buildStoragePath(entryId, safeName);
-
-      const { error } = await window.SeavSupabase.storage
-        .from("onboard-experience-files")
-        .upload(filePath, file, { cacheControl: "3600", upsert: true });
-
-      if (error) {
-        console.error("[SEA-V] Onboard experience upload failed:", error);
-        const hint =
-          /row-level security|bucket not found|does not exist/i.test(error.message || "")
-            ? "Run docs/onboard-experiences-table.sql in Supabase (storage bucket + policies)."
-            : error.message || "Please try again.";
-        Seav.notify("error", "Upload failed", hint);
-        return existing || null;
-      }
-
-      return SeavAPI.buildUploadedFileMeta("onboard-experience-files", filePath, file);
-    }
-
-    return await Seav.buildStoredFile(file, {
-      fallback: existing || null,
-      kind: "Attachment"
-    });
+    return window.SeavUpload?.uploadToStorage({
+      bucket: "onboard-experience-files",
+      entityId: entryId,
+      file,
+      existingMeta: existing,
+      kind: "Onboard experience",
+      errorHint: "Run docs/onboard-experiences-table.sql in Supabase (storage bucket + policies)."
+    }) ?? existing ?? null;
   }
 
   async function refreshView() {

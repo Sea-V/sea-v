@@ -11,19 +11,22 @@ From the project root:
 python3 -m http.server 8765
 
 # Terminal 2 — checks
+npm test
+# or:
 node scripts/test-site.mjs
-node scripts/test-supabase.mjs
+node scripts/test-supabase.mjs --step all
 ```
 
-**Expected:** all table checks pass after running `docs/schema-full.sql` in Supabase.
+**Expected:** all static file checks pass; Supabase security probes pass after Phase 2 + hardening SQL.
 
 ---
 
 ## 2. Supabase setup (one time)
 
 1. Open **Supabase → SQL Editor**
-2. Paste and run **`docs/schema-full.sql`**
-3. Re-run `node scripts/test-supabase.mjs`
+2. Run **`docs/schema-full.sql`**, then **`docs/schema-phase2.sql`**, then **`docs/schema-phase2-public-hardening.sql`**
+3. Run hardening steps in **`docs/hardening-steps/`** (steps 1–4)
+4. Re-run `node scripts/test-supabase.mjs --step all`
 
 ---
 
@@ -33,28 +36,21 @@ Open **http://localhost:8765/index.html**
 
 | # | Test | Expected |
 |---|------|----------|
-| 1 | Login page | Your `logo.png` shows; demo notice visible |
-| 2 | Login with any email/password | Redirects to dashboard |
-| 3 | Open `dashboard.html` directly in a new incognito window | Redirects to login (session guard) |
-| 4 | Dashboard | Sidebar loads; CV Generator link present |
-| 5 | Profile → edit name → Save | Toast success; name persists after refresh |
-| 6 | Profile → tick public → Copy public link | Clipboard has `public-profile.html` URL |
-| 7 | View Public Profile | Opens public CV (or gate if not public) |
-| 8 | Vessels → Add vessel | Saves and appears in list |
-| 9 | Sea Time → Add entry | Saves; totals update |
-| 10 | Certificates | Templates load; can add cert |
-| 11 | Navigation → Add port | Map marker appears |
-| 12 | Payslips → Add payslip + PDF | Upload succeeds |
-| 13 | CV Generator | Preview renders with logo |
-| 14 | Logout | Returns to login; app pages blocked again |
+| 1 | Login page | Logo shows; email/password fields present |
+| 2 | Sign up with a new email | Confirmation email sent (or auto-login if confirm disabled) |
+| 3 | Login with correct credentials | Redirects to dashboard |
+| 4 | Open `dashboard.html` directly in incognito | Redirects to login (session guard) |
+| 5 | Dashboard | Sidebar loads; CV Generator link present |
+| 6 | Profile → edit name → Save | Toast success; name persists after refresh |
+| 7 | Upload a certificate PDF | File stored in Supabase Storage (not base64 in DB) |
+| 8 | Enable public profile → open public link | Public CV loads; email/phone not visible |
+| 9 | Payslips page | Only visible when logged in as owner |
+| 10 | Logout | Redirects to login; protected pages blocked |
 
 ---
 
-## 4. If something fails
+## 4. Security regression checks
 
-| Symptom | Fix |
-|---------|-----|
-| Setup banner on dashboard | Run `docs/schema-full.sql` |
-| Upload / RLS error | Re-run `docs/schema-full.sql` (storage policies) |
-| Logo broken | Serve via `http://localhost` (not `file://`) |
-| Table missing in smoke test | Run `docs/schema-full.sql` |
+- `node scripts/test-supabase.mjs --step all` — anon writes blocked, column grants active, storage private
+- Incognito: cannot read another user's private data via browser devtools + anon key
+- Production: `ALLOW_DATAURL_FALLBACK` is false (uploads require Supabase)

@@ -1,0 +1,14 @@
+{
+  "name": "sea-v",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/test-site.mjs && node scripts/test-supabase.mjs --step all",
+    "test:site": "node scripts/test-site.mjs",
+    "test:supabase": "node scripts/test-supabase.mjs --step all",
+    "lint": "eslint js/*.js"
+  },
+  "devDependencies": {
+    "eslint": "^9.22.0"
+  }
+}

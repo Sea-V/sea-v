@@ -18,3 +18,4 @@ npm-debug.log*
 
 # Local serve / tooling
 node_modules/
+.cv-temp/

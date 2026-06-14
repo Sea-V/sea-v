@@ -329,33 +329,14 @@
   }
 
   async function buildSeatimeAttachment(file, existingAttachment, seatimeId) {
-  if (!file) return existingAttachment || null;
-
-  if (window.SeavSupabase) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = SeavAPI.buildStoragePath(seatimeId, safeName);
-
-    const { error } = await window.SeavSupabase.storage
-      .from("seatime-files")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: true
-      });
-
-    if (error) {
-      console.error("[SEA-V] Seatime attachment upload failed:", error);
-      Seav.notify("error", "Upload failed", "Seatime attachment upload failed. Please try again.");
-      return existingAttachment || null;
-    }
-
-    return SeavAPI.buildUploadedFileMeta("seatime-files", filePath, file);
+    return window.SeavUpload?.uploadToStorage({
+      bucket: "seatime-files",
+      entityId: seatimeId,
+      file,
+      existingMeta: existingAttachment,
+      kind: "Sea time attachment"
+    }) ?? existingAttachment ?? null;
   }
-
-  return await Seav.buildStoredFile(file, {
-    fallback: existingAttachment || null,
-    kind: "Attachment"
-  });
-}
 
   async function saveSeatimeData(seatimeData) {
     await SeavAPI.upsertItemById(STORAGE_KEY, seatimeData);

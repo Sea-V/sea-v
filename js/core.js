@@ -32,6 +32,11 @@
       .replaceAll("'", "&#039;");
   }
 
+  /** Alias for templates — always escape user-controlled text. */
+  function text(str) {
+    return escapeHtml(str);
+  }
+
   function seavAction(type, label, attrs = "") {
     const actionType = ["edit", "delete", "secondary"].includes(type) ? type : "secondary";
     return `<a href="#" class="seav-action seav-action--${actionType}" ${attrs}>${escapeHtml(label)}</a>`;
@@ -218,6 +223,17 @@
         alert(msg);
       }
       return null;
+    }
+
+    const allowDataUrl = window.SeavConfig?.ALLOW_DATAURL_FALLBACK === true;
+    if (!allowDataUrl) {
+      const msg = `${kind} upload requires a signed-in connection. Check your network and try again.`;
+      if (window.SeavFeedback?.error) {
+        window.SeavFeedback.error("Upload unavailable", msg);
+      } else {
+        alert(msg);
+      }
+      return fallback;
     }
 
     return {
@@ -766,6 +782,7 @@ function renderSidebarAchievements() {
     app,
     MAX_UPLOAD_BYTES,
     escapeHtml,
+    text,
     seavAction,
     seavActions,
     confirmDelete,
