@@ -702,6 +702,52 @@ function renderSidebarAchievements() {
     target.prepend(banner);
   }
 
+  function showDataEmptyBanner() {
+    if (!document.body.classList.contains("app-page")) return;
+    if (!window.SeavAuth?.isAuthenticated?.()) return;
+
+    const target = document.querySelector(".dash-content");
+    if (!target || document.getElementById("seavDataEmptyBanner")) return;
+
+    const banner = document.createElement("div");
+    banner.id = "seavDataEmptyBanner";
+    banner.className = "seav-setup-banner";
+    banner.innerHTML = `
+      <strong>Your records did not load</strong>
+      <p>SEA-V stores everything in your Supabase account. If this page looks empty, try reloading your data or signing in again with the same email you use on www.sea-v.com.</p>
+      <p style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button type="button" class="btn-blue" id="seavReloadDataBtn">Reload my data</button>
+        <a class="btn-ghost2" href="index.html">Sign in again</a>
+      </p>
+    `;
+    target.prepend(banner);
+
+    banner.querySelector("#seavReloadDataBtn")?.addEventListener("click", async () => {
+      if (window.SeavFeedback?.showPageLoader) {
+        window.SeavFeedback.showPageLoader("Reloading…", "Fetching your Supabase records");
+      }
+      try {
+        window.SeavState?.clearStateCache?.();
+        await window.SeavState?.ensureUserDataLoaded?.(true);
+        if (window.Seav.app?.refreshAll) {
+          await window.Seav.app.refreshAll();
+        }
+        if (!window.SeavState?.isDataLikelyEmpty?.()) {
+          banner.remove();
+          Seav.notify("success", "Data loaded", "Your SEA-V records are visible again.");
+        } else {
+          Seav.notify(
+            "info",
+            "Still empty",
+            "No records found for this account in Supabase. Check you are signed in with the correct email."
+          );
+        }
+      } finally {
+        window.SeavFeedback?.hidePageLoader?.();
+      }
+    });
+  }
+
   function setActiveTopbarLink() {
     const links = document.querySelectorAll(".topbar .nav-left a[href], .topbar .nav-right a[href]");
     if (!links.length) return;
@@ -827,6 +873,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.addEventListener("seav:setup-issues", (event) => {
     showSetupBanner(event.detail?.issues || []);
+  });
+
+  document.addEventListener("seav:data-empty", () => {
+    showDataEmptyBanner();
   });
 
   function updateSidebarBadges() {

@@ -17,4 +17,9 @@
       flowType: "pkce"
     }
   });
+
+  window.SeavSupabaseConfig = {
+    url: supabaseUrl,
+    anonKey: supabaseKey
+  };
 })();

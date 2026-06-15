@@ -100,6 +100,9 @@
     });
     if (error) throw error;
     currentUser = data.session?.user || data.user || null;
+    if (currentUser) {
+      document.dispatchEvent(new CustomEvent("seav:session-active"));
+    }
     return data.session;
   }
 
@@ -317,6 +320,15 @@
     document.documentElement.classList.add("auth-pending");
 
     try {
+      if (location.protocol === "file:") {
+        const message =
+          "SEA-V must be served over HTTP (not opened as a file). Run: python3 -m http.server 8765 then open http://localhost:8765/index.html";
+        console.error("[SEA-V]", message);
+        if (window.SeavFeedback?.error) {
+          window.SeavFeedback.error("Local server required", message);
+        }
+      }
+
       await waitForSupabase();
       await refreshSession();
 
@@ -337,8 +349,11 @@
         );
       }
 
-      window.SeavSupabase.auth.onAuthStateChange((_event, session) => {
+      window.SeavSupabase.auth.onAuthStateChange((event, session) => {
         currentUser = session?.user || null;
+        if (session?.user && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
+          document.dispatchEvent(new CustomEvent("seav:session-active"));
+        }
       });
 
       await enforceRouteAccess();

@@ -23,6 +23,16 @@
       "reference-files",
       "seatime-files",
       "vessel-documents"
-    ])
+    ]),
+
+    /**
+     * Supabase Edge Function URL for sending verification emails.
+     * Leave empty to call RPC directly (dev: link copied to console on localhost).
+     */
+    REFERENCE_VERIFICATION_FUNCTION_URL:
+      "https://bnjtrwmwyulvmsautssd.supabase.co/functions/v1/reference-verification",
+
+    /** Show verification link in UI when email is not sent (localhost only). */
+    SHOW_DEV_VERIFY_LINK: isLocal
   };
 })();

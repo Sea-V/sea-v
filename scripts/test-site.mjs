@@ -26,6 +26,7 @@ const PAGES = [
   "seatime.html",
   "certificates.html",
   "references.html",
+  "verify-reference.html",
   "achievements.html",
   "tenders.html",
   "navigation.html",

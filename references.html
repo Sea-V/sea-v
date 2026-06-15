@@ -9,21 +9,22 @@
   <link rel="stylesheet" href="styles.css" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js"></script>
+  <script src="js/seav-config.js?v=24"></script>
   <script src="js/supabase.js"></script>
-  <script src="js/auth.js"></script>
+  <script src="js/auth.js?v=24"></script>
   <script src="js/feedback.js" defer></script>
-  <script src="js/core.js" defer></script>
+  <script src="js/core.js?v=24" defer></script>
   <script src="js/seav-upload.js" defer></script>
   <script src="js/seav-data.js" defer></script>
   <script src="js/seav-badges.js" defer></script>
   <script src="js/api-core.js" defer></script>
   <script src="js/api-mappers.js" defer></script>
   <script src="js/api.js" defer></script>
-  <script src="js/state.js" defer></script>
+  <script src="js/state.js?v=24" defer></script>
   <script src="js/achievements-engine.js" defer></script>
   <script src="js/badge-unlock.js" defer></script>
-  <script src="js/references.js" defer></script>     
+  <script src="js/reference-verification.js?v=23" defer></script>
+  <script src="js/references.js?v=23" defer></script>     
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -76,8 +77,8 @@
         <div>
           <h3>Captain / Officer References</h3>
           <p>
-            References may later support email confirmation, QR validation,
-            or verified SEA-V profile sharing.
+            Send a secure email link so captains and senior officers can verify
+            references on your public SEA-V profile.
           </p>
         </div>
       </div>
@@ -157,9 +158,6 @@
             Status
             <select id="rf_status">
               <option value="Draft">Draft</option>
-              <option value="Sent for Verification">Sent for verification</option>
-              <option value="Verified">Verified</option>
-              <option value="Declined">Declined</option>
             </select>
           </label>
         </div>
@@ -172,70 +170,7 @@
         <button class="btn-blue" type="submit">Save reference</button>
 
         <p class="modal-footnote">
-          Saved to your SEA-V profile. Use verification when a captain confirms the reference.
-        </p>
-
-      </form>
-
-    </div>
-  </div>
-
-  <!-- =========================================================
-     REFERENCE VERIFICATION MODAL
-  ========================================================= -->
-
-  <div class="modal" id="refVerifyModal" hidden>
-    <div class="modal-card modal-card--purple">
-
-      <div class="modal-head">
-        <h3>Reference verification</h3>
-        <button type="button" class="modal-x" data-close>&times;</button>
-      </div>
-
-      <form class="modal-form" id="refVerifyForm">
-
-        <input type="hidden" id="rv_index" value="" />
-
-        <p class="modal-intro">
-          Captain or senior officer confirms the attached reference is accurate.
-          In production this can link to email or QR verification.
-        </p>
-
-        <label class="modal-check">
-          <input type="checkbox" id="rv_confirmed" />
-          <span>I confirm this reference is true and approved by me.</span>
-        </label>
-
-        <label>
-          Verification note
-          <textarea id="rv_note" rows="4" placeholder="Brief confirmation that the reference is accurate"></textarea>
-        </label>
-
-        <div class="modal-grid2">
-          <label>
-            Rank / Position
-            <input id="rv_rank" placeholder="Verifier's rank or position" />
-          </label>
-
-          <label>
-            CoC Number
-            <input id="rv_coc" placeholder="Certificate of competency number" />
-          </label>
-        </div>
-
-        <div class="modal-grid2">
-          <label>
-            Signature
-            <input id="rv_signature" placeholder="Type full name to sign" />
-          </label>
-
-          <div data-date-field="rv_signed_at" data-date-label="Signed date"></div>
-        </div>
-
-        <button class="btn-blue" type="submit">Save verification</button>
-
-        <p class="modal-footnote">
-          Verification is stored on the reference record in your SEA-V profile.
+          Saved to your SEA-V profile. Use <strong>Send email</strong> on the card to request referee verification.
         </p>
 
       </form>

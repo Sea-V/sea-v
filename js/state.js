@@ -115,6 +115,18 @@
         }
       }
 
+      let userId = window.SeavAuth?.getUserId?.() || null;
+      if (!userId) {
+        await new Promise((resolve) => window.setTimeout(resolve, 200));
+        userId = window.SeavAuth?.getUserId?.() || null;
+      }
+
+      if (!userId) {
+        console.warn("[SEA-V] No active session — cannot load Supabase records.");
+        this.ready = true;
+        return this.data;
+      }
+
       const [
         profile,
         seatimes,
@@ -254,13 +266,67 @@
     }
   };
 
-  window.SeavState = state;
+  function clearStateCacheForAllUsers() {
+    try {
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.startsWith(CACHE_KEY_PREFIX)) {
+          sessionStorage.removeItem(key);
+        }
+      });
+    } catch (err) {
+      console.warn("[SEA-V] Could not clear state cache:", err);
+    }
+  }
+
+  function isDataLikelyEmpty() {
+    const profile = state.data.profile || {};
+    const hasProfile =
+      !!String(profile.name || "").trim() ||
+      !!String(profile.email || "").trim() ||
+      (profile.id && profile.id !== DEFAULT_PROFILE.id);
+    const hasRecords =
+      state.data.vessels.length > 0 ||
+      state.data.seatimes.length > 0 ||
+      state.data.certs.length > 0 ||
+      state.data.refs.length > 0;
+    return !hasProfile && !hasRecords;
+  }
+
+  async function ensureUserDataLoaded(force = false) {
+    if (!shouldLoadAuthenticatedState()) return state.data;
+    if (ensureUserDataLoaded._pending) return ensureUserDataLoaded._pending;
+
+    ensureUserDataLoaded._pending = (async () => {
+      if (window.SeavAuth?.refreshSession) {
+        await window.SeavAuth.refreshSession();
+      }
+
+      if (force || !state.ready || isDataLikelyEmpty()) {
+        clearStateCacheForAllUsers();
+        await state.loadAll({ force: true });
+        document.dispatchEvent(new CustomEvent("seav:data-updated"));
+      }
+
+      return state.data;
+    })();
+
+    try {
+      return await ensureUserDataLoaded._pending;
+    } finally {
+      ensureUserDataLoaded._pending = null;
+    }
+  }
 
   function shouldLoadAuthenticatedState() {
     const isAppPage = document.body.classList.contains("app-page");
     if (!isAppPage) return false;
     return window.SeavAuth?.isAuthenticated?.() === true;
   }
+
+  window.SeavState = state;
+  window.SeavState.ensureUserDataLoaded = ensureUserDataLoaded;
+  window.SeavState.isDataLikelyEmpty = isDataLikelyEmpty;
+  window.SeavState.clearStateCache = clearStateCacheForAllUsers;
 
   document.addEventListener("DOMContentLoaded", async () => {
     const isAppPage = document.body.classList.contains("app-page");
@@ -283,7 +349,15 @@
 
     try {
       if (loadUserData) {
-        await state.loadAll();
+        await ensureUserDataLoaded(true);
+
+        if (window.SeavConfig?.SHOW_DEV_VERIFY_LINK && !sessionStorage.getItem("seav_local_hint_shown")) {
+          sessionStorage.setItem("seav_local_hint_shown", "1");
+          window.SeavFeedback?.info?.(
+            "Local dev",
+            "Sign in with the same email as www.sea-v.com — your records live in Supabase, not on this computer."
+          );
+        }
 
         if (!sessionStorage.getItem(SETUP_CHECK_KEY)) {
           const setupIssues = await state.checkSetup();
@@ -294,6 +368,10 @@
           } else {
             sessionStorage.setItem(SETUP_CHECK_KEY, "1");
           }
+        }
+
+        if (isDataLikelyEmpty()) {
+          document.dispatchEvent(new CustomEvent("seav:data-empty", { detail: { reason: "no-records" } }));
         }
       }
     } finally {
@@ -311,6 +389,12 @@
     if (loadUserData) {
       document.dispatchEvent(new CustomEvent("seav:data-updated"));
     }
+  });
+
+  document.addEventListener("seav:session-active", () => {
+    ensureUserDataLoaded(true).catch((err) => {
+      console.warn("[SEA-V] Session data reload failed:", err);
+    });
   });
 
   window.addEventListener("storage", async (ev) => {

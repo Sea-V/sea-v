@@ -1,0 +1,123 @@
+/* =========================================================
+   SEA-V • VERIFY REFERENCE (public referee page)
+========================================================= */
+
+.verify-reference-page .verify-reference-shell {
+  position: relative;
+  z-index: 2;
+
+  display: grid;
+  place-items: center;
+
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.verify-reference-panel {
+  width: min(640px, 100%);
+
+  padding: 36px 32px 40px;
+
+  border-radius: 28px;
+  border: 1px solid rgba(209, 107, 255, 0.24);
+
+  background: rgba(8, 14, 28, 0.88);
+  backdrop-filter: blur(18px);
+
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.35);
+}
+
+.verify-reference-logo {
+  display: block;
+  width: 72px;
+  height: auto;
+  margin: 0 auto 24px;
+}
+
+.verify-reference-title {
+  margin: 0 0 10px;
+
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 800;
+  text-align: center;
+}
+
+.verify-reference-subtitle {
+  margin: 0 0 24px;
+
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.55;
+  text-align: center;
+}
+
+.verify-reference-state {
+  text-align: center;
+}
+
+.verify-reference-card {
+  margin-bottom: 24px;
+  padding: 20px;
+
+  border-radius: 18px;
+  border: 1px solid rgba(209, 107, 255, 0.18);
+
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.verify-reference-meta {
+  margin-bottom: 14px;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.verify-reference-quote {
+  margin: 0;
+
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.verify-reference-form label {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.verify-reference-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.verify-reference-footnote {
+  margin: 18px 0 0;
+
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+@media (max-width: 560px) {
+  .verify-reference-panel {
+    padding: 28px 20px 32px;
+  }
+
+  .verify-reference-actions {
+    flex-direction: column;
+  }
+
+  .verify-reference-actions .btn-blue,
+  .verify-reference-actions .btn-ghost2 {
+    width: 100%;
+  }
+}
+
+.seav-verify-link-dialog {
+  z-index: 13000;
+}

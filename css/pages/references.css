@@ -320,6 +320,24 @@
   line-height: 1.6;
 }
 
+.reference-pending-verify {
+  margin-top: 16px;
+  padding: 14px 16px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(209, 107, 255, 0.22);
+
+  background: rgba(209, 107, 255, 0.08);
+
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.reference-pending-verify strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */

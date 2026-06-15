@@ -24,6 +24,33 @@
 
   const { KEYS, createId, getSortedVesselOptions, formatDatePretty } = window.SeavData;
   const STORAGE_KEY = KEYS.REFS;
+  const VERIFY_LINK_KEY_PREFIX = "seav_ref_verify_url_";
+
+  function normalizeRefStatus(status) {
+    const value = String(status || "Draft").trim().toLowerCase();
+    if (value === "verified") return "Verified";
+    if (value === "declined") return "Declined";
+    if (value.startsWith("sent")) return "Sent for Verification";
+    return String(status || "Draft").trim() || "Draft";
+  }
+
+  function rememberVerifyLink(refId, verifyUrl) {
+    if (!refId || !verifyUrl) return;
+    try {
+      sessionStorage.setItem(`${VERIFY_LINK_KEY_PREFIX}${refId}`, verifyUrl);
+    } catch (err) {
+      console.warn("[SEA-V] Could not store verification link:", err);
+    }
+  }
+
+  function readStoredVerifyLink(refId) {
+    if (!refId) return "";
+    try {
+      return sessionStorage.getItem(`${VERIFY_LINK_KEY_PREFIX}${refId}`) || "";
+    } catch {
+      return "";
+    }
+  }
 
   function getRefs() {
     return window.SeavState?.refs || [];
@@ -106,8 +133,9 @@
         : "";
 
         const verification = r.verification || {};
+        const status = normalizeRefStatus(r.status);
         const verifiedHtml =
-          r.status === "Verified"
+          status === "Verified"
             ? `
           <div class="list-sub" style="margin-top:10px;text-transform:none;letter-spacing:0;line-height:1.5;">
             <strong>Verified by:</strong> ${Seav.escapeHtml(r.name || "—")}<br>
@@ -127,8 +155,16 @@
         `
             : "";
 
-        const canSend = !!r.email && (r.status === "Draft" || !r.status);
-        const canVerify = r.status === "Draft" || r.status === "Sent for Verification" || !r.status;
+        const canSend =
+          !!r.email &&
+          status !== "Verified" &&
+          status !== "Declined" &&
+          (status === "Draft" || status === "Sent for Verification");
+        const sendLabel =
+          status === "Sent for Verification" ? "Resend email" : "Send email";
+        const storedVerifyLink = readStoredVerifyLink(refId);
+        const showOpenLink =
+          status === "Sent for Verification" && !!storedVerifyLink;
 
  return `
   <div class="reference-modern-card ui-card ui-card-hover ui-accent-purple">
@@ -149,9 +185,13 @@
             </h3>
 
             ${
-              r.status === "Verified"
+              status === "Verified"
                 ? `<span class="reference-verified-pill">Verified</span>`
-                : ``
+                : status === "Sent for Verification"
+                  ? `<span class="pill">Sent for verification</span>`
+                  : status === "Declined"
+                    ? `<span class="pill">Declined</span>`
+                    : ``
             }
           </div>
 
@@ -176,6 +216,21 @@
             “${Seav.escapeHtml(r.text)}”
           </div>
 
+          ${
+            status === "Sent for Verification"
+              ? `<div class="reference-pending-verify">
+                  <strong>Waiting for referee confirmation.</strong>
+                  ${
+                    showOpenLink
+                      ? ` Use <em>Open verify link</em> below to complete the test as the referee.`
+                      : canSend
+                        ? ` Click <em>Resend email</em> to generate a new link.`
+                        : ` Add a referee email, save, then resend.`
+                  }
+                </div>`
+              : ``
+          }
+
         </div>
 
       </div>
@@ -183,14 +238,18 @@
       ${Seav.seavActions(
         `${Seav.seavAction("edit", "Edit", `data-edit-ref-id="${Seav.escapeHtml(refId)}"`)}${
           canSend
-            ? Seav.seavAction("secondary", "Send", `data-send-ref-id="${Seav.escapeHtml(refId)}"`)
-            : ""
-        }${
-          canVerify
             ? Seav.seavAction(
                 "secondary",
-                "Verify",
-                `data-verify-ref-id="${Seav.escapeHtml(refId)}"`
+                sendLabel,
+                `data-send-ref-id="${Seav.escapeHtml(refId)}"`
+              )
+            : ""
+        }${
+          showOpenLink
+            ? Seav.seavAction(
+                "secondary",
+                "Open verify link",
+                `data-open-verify-link="${Seav.escapeHtml(refId)}"`
               )
             : ""
         }${Seav.seavAction("delete", "Delete", `data-del-ref-id="${Seav.escapeHtml(refId)}"`)}`
@@ -252,21 +311,7 @@
       .join("");
   }
 
-  function openVerifyModal(ref) {
-    const verification = ref.verification || {};
-
-    document.getElementById("rv_index").value = ref.id || "";
-    document.getElementById("rv_confirmed").checked = !!verification.confirmed;
-    document.getElementById("rv_note").value = verification.note || "";
-    document.getElementById("rv_rank").value = verification.rank || ref.title || "";
-    document.getElementById("rv_coc").value = verification.cocNumber || "";
-    document.getElementById("rv_signature").value = verification.signatureName || "";
-    Seav.setDateTriplet("rv_signed_at", verification.signedAt || "");
-
-    if (window.SeavModals?.openModal) window.SeavModals.openModal("refVerifyModal");
-  }
-
-function fillReferenceForm(ref) {
+  function fillReferenceForm(ref) {
   const editId = document.getElementById("rf_edit_id");
   if (editId) editId.value = ref.id || "";
 
@@ -283,7 +328,16 @@ function fillReferenceForm(ref) {
   document.getElementById("rf_period").value = ref.period || "";
   document.getElementById("rf_text").value = ref.text || "";
   Seav.setDateTriplet("rf_date", ref.date || "");
-  document.getElementById("rf_status").value = ref.status || "Draft";
+
+  const statusField = document.getElementById("rf_status");
+  if (statusField) {
+    statusField.value = ref.status || "Draft";
+    const locked =
+      ref.status === "Verified" ||
+      ref.status === "Declined" ||
+      ref.status === "Sent for Verification";
+    statusField.disabled = locked;
+  }
 
   if (window.SeavModals?.openModal) window.SeavModals.openModal("refModal");
 }
@@ -295,6 +349,12 @@ function resetReferenceForm(form) {
   if (editId) editId.value = "";
 
   Seav.clearDateTriplet("rf_date");
+
+  const statusField = document.getElementById("rf_status");
+  if (statusField) {
+    statusField.value = "Draft";
+    statusField.disabled = false;
+  }
 }
 
 function readReferenceForm() {
@@ -332,8 +392,7 @@ function readReferenceForm() {
   function initReferences() {
     if (
       !document.getElementById("refsList") &&
-      !document.getElementById("refForm") &&
-      !document.getElementById("refVerifyForm")
+      !document.getElementById("refForm")
     ) return;
 
     const runRefresh = () => {
@@ -358,6 +417,15 @@ function readReferenceForm() {
         const existingRef = formData.id
          ? getRefs().find((item) => item.id === formData.id) || null
          : null;
+
+        if (
+          existingRef &&
+          (existingRef.status === "Verified" ||
+            existingRef.status === "Sent for Verification" ||
+            existingRef.status === "Declined")
+        ) {
+          formData.status = existingRef.status;
+        }
 
         await Seav.withSaving(async () => {
         const refId = formData.id || createId("ref");
@@ -409,58 +477,6 @@ function readReferenceForm() {
       });
     }
 
-    const verifyForm = document.getElementById("refVerifyForm");
-    if (verifyForm) {
-      verifyForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const refId = document.getElementById("rv_index")?.value || "";
-        const confirmed = !!document.getElementById("rv_confirmed")?.checked;
-        const note = document.getElementById("rv_note")?.value.trim() || "";
-        const rank = document.getElementById("rv_rank")?.value.trim() || "";
-        const cocNumber = document.getElementById("rv_coc")?.value.trim() || "";
-        const signatureName = document.getElementById("rv_signature")?.value.trim() || "";
-        const signedAt = Seav.readDateTriplet("rv_signed_at");
-
-        const ref = getRefs().find((item) => item.id === refId);
-        if (!ref) return;
-
-        await Seav.withSaving(async () => {
-        const updatedRef = {
-          ...ref,
-          verification: {
-            confirmed,
-            note,
-            rank,
-            cocNumber,
-            signatureName,
-            signedAt
-          },
-          status: confirmed ? "Verified" : "Declined"
-        };
-
-        await SeavAPI.updateItemById(STORAGE_KEY, refId, updatedRef);
-
-        verifyForm.reset();
-        if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
-
-        Seav.notify(
-          "success",
-          confirmed ? "Reference verified" : "Verification updated",
-          confirmed
-            ? "Officer confirmation saved to this reference."
-            : "Reference verification status has been updated."
-        );
-
-        if (window.Seav.app?.refreshAll) {
-          await window.Seav.app.refreshAll();
-        } else {
-          renderRefs();
-        }
-        }, { sub: "Saving reference verification" });
-      });
-    }
-
     document.addEventListener("click", async (e) => {
       const editBtn = e.target.closest("[data-edit-ref-id]");
       if (editBtn) {
@@ -479,29 +495,77 @@ function readReferenceForm() {
         const ref = getRefs().find((item) => item.id === refId);
         if (!ref) return;
 
-        const updatedRef = {
-          ...ref,
-          status: "Sent for Verification"
-        };
+        if (!ref.email) {
+          Seav.notify("error", "Email required", "Add the referee email before sending.");
+          return;
+        }
 
-        await SeavAPI.updateItemById(STORAGE_KEY, refId, updatedRef);
+        if (!window.SeavReferenceVerification?.sendRequest) {
+          Seav.notify(
+            "error",
+            "Verification unavailable",
+            "Reference verification is not loaded. Refresh and try again."
+          );
+          return;
+        }
 
-        if (window.Seav.app?.refreshAll) {
-          await window.Seav.app.refreshAll();
+        let sendResult = null;
+        await Seav.withSaving(async () => {
+          sendResult = await window.SeavReferenceVerification.sendRequest(refId);
+
+          Seav.notify(
+            "success",
+            sendResult.emailSent ? "Email sent" : "Verification requested",
+            sendResult.message ||
+              (sendResult.emailSent
+                ? "The referee will receive a secure link by email."
+                : "Use the verification link dialog to open the page as the referee.")
+          );
+
+          if (window.Seav.app?.refreshAll) {
+            await window.Seav.app.refreshAll();
+          } else {
+            renderRefs();
+          }
+        }, { sub: "Sending verification email" });
+
+        if (sendResult?.verifyUrl && !sendResult.emailSent) {
+          rememberVerifyLink(refId, sendResult.verifyUrl);
+          window.SeavReferenceVerification.showVerifyLinkDialog(sendResult.verifyUrl);
+        }
+
+        return;
+      }
+
+      const openLinkBtn = e.target.closest("[data-open-verify-link]");
+      if (openLinkBtn) {
+        e.preventDefault();
+        const refId = openLinkBtn.getAttribute("data-open-verify-link");
+        const verifyUrl = readStoredVerifyLink(refId);
+        if (!verifyUrl) {
+          Seav.notify(
+            "info",
+            "No saved link",
+            "Click Resend email to generate a new verification link."
+          );
+          return;
+        }
+        if (window.SeavReferenceVerification?.showVerifyLinkDialog) {
+          window.SeavReferenceVerification.showVerifyLinkDialog(verifyUrl);
         } else {
-          renderRefs();
+          window.open(verifyUrl, "_blank", "noopener");
         }
         return;
       }
 
-      const verifyBtn = e.target.closest("[data-verify-ref-id]");
-      if (verifyBtn) {
+      const legacyVerifyBtn = e.target.closest("[data-verify-ref-id]");
+      if (legacyVerifyBtn) {
         e.preventDefault();
-        const refId = verifyBtn.getAttribute("data-verify-ref-id");
-        const ref = getRefs().find((item) => item.id === refId);
-        if (!ref) return;
-
-        openVerifyModal(ref);
+        Seav.notify(
+          "info",
+          "Page update required",
+          "Hard refresh this page (Cmd+Shift+R), then use Send email — not Verify."
+        );
         return;
       }
 

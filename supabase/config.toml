@@ -1,0 +1,5 @@
+# Supabase local config (optional — deploy via Supabase CLI)
+project_id = "bnjtrwmwyulvmsautssd"
+
+[functions.reference-verification]
+verify_jwt = true
