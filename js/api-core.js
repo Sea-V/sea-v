@@ -53,6 +53,25 @@ function getAuthUserId() {
   return window.SeavAuth?.getUserId?.() || null;
 }
 
+async function resolveAuthUserId() {
+  const cached = getAuthUserId();
+  if (cached) return cached;
+
+  if (!window.SeavSupabase) return null;
+
+  try {
+    const { data, error } = await window.SeavSupabase.auth.getSession();
+    if (error) {
+      console.warn("[SEA-V] Could not resolve auth session:", error);
+      return null;
+    }
+    return data.session?.user?.id || null;
+  } catch (err) {
+    console.warn("[SEA-V] Session resolve failed:", err);
+    return null;
+  }
+}
+
 const STORAGE_BUCKETS = {
   PROFILE_PHOTOS: "profile-photos",
   VESSEL_PHOTOS: "vessel-photos",
@@ -252,7 +271,7 @@ function isPayslipKey(key) {
   window.SeavApiCore = {
     STORAGE_BUCKETS,
     ENTITY_FILE_FIELDS,
-    getAuthUserId,
+    getAuthUserId, resolveAuthUserId,
     vesselKey, seatimeKey, certKey, refKey, profileKey,
     tenderKey, achievementKey, navigationAreaKey, onboardExperienceKey,
     hobbyInterestKey, specialistQualificationKey, payslipKey,

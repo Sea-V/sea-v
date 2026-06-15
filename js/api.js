@@ -7,7 +7,7 @@
   const M = window.SeavApiMappers;
 
   const {
-    STORAGE_BUCKETS, ENTITY_FILE_FIELDS, getAuthUserId,
+    STORAGE_BUCKETS, ENTITY_FILE_FIELDS, getAuthUserId, resolveAuthUserId,
     isVesselKey, isSeatimeKey, isCertKey, isRefKey, isProfileKey,
     isTenderKey, isAchievementKey, isNavigationAreaKey, isOnboardExperienceKey,
     isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,
@@ -274,6 +274,47 @@ const OWNER_PROFILE_COLUMNS = [
   "updated_at"
 ].join(",");
 
+async function fetchOwnerProfileRow(userId) {
+  if (!window.SeavSupabase || !userId) return { data: null, error: null };
+
+  let result = await window.SeavSupabase
+    .from("profile")
+    .select(OWNER_PROFILE_COLUMNS)
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!result.error && result.data) return result;
+
+  if (result.error) {
+    console.warn("[SEA-V] Profile fetch by id failed, retrying safe columns:", result.error.message);
+    result = await window.SeavSupabase
+      .from("profile")
+      .select(PUBLIC_PROFILE_COLUMNS)
+      .eq("id", userId)
+      .maybeSingle();
+    if (!result.error && result.data) return result;
+  }
+
+  const byUserId = await window.SeavSupabase
+    .from("profile")
+    .select(OWNER_PROFILE_COLUMNS)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (!byUserId.error && byUserId.data) return byUserId;
+
+  if (!byUserId.error && !byUserId.data) {
+    const byUserSafe = await window.SeavSupabase
+      .from("profile")
+      .select(PUBLIC_PROFILE_COLUMNS)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!byUserSafe.error && byUserSafe.data) return byUserSafe;
+  }
+
+  return result.error ? result : byUserId;
+}
+
 const SeavAPI = {
   async getPublicProfile(profileId) {
     if (!window.SeavSupabase || !profileId) return null;
@@ -321,25 +362,23 @@ const SeavAPI = {
   },
 
   getAuthUserId,
+  resolveAuthUserId,
   async get(key, fallback = null) {
     if (isProfileKey(key)) {
       if (!window.SeavSupabase) return fallback;
 
-      const userId = getAuthUserId();
+      const userId = await resolveAuthUserId();
       if (!userId) return fallback;
 
-      const { data, error } = await window.SeavSupabase
-        .from("profile")
-        .select(OWNER_PROFILE_COLUMNS)
-        .eq("id", userId)
-        .maybeSingle();
+      const { data, error } = await fetchOwnerProfileRow(userId);
 
       if (error) {
         console.error("[SEA-V] Supabase profile fetch failed:", error);
         if (window.SeavFeedback?.error) {
           window.SeavFeedback.error(
             "Profile did not load",
-            "Your session may have expired, or Supabase column grants need updating. Try signing in again."
+            "Run grant select on profile to authenticated in Supabase, then reload. Details: " +
+              (error.message || "permission denied")
           );
         }
         return fallback;
@@ -404,8 +443,11 @@ const SeavAPI = {
     },
 
     async getArray(key) {
-      const userId = getAuthUserId();
-      if (!userId) return [];
+      const userId = await resolveAuthUserId();
+      if (!userId) {
+        console.warn("[SEA-V] getArray skipped — no auth session for", key);
+        return [];
+      }
       return fetchArrayByKey(key, userId);
     },
 

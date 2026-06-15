@@ -115,11 +115,11 @@
         }
       }
 
-      let userId = window.SeavAuth?.getUserId?.() || null;
+      let userId = await window.SeavAPI?.resolveAuthUserId?.() || window.SeavAuth?.getUserId?.() || null;
       if (!userId) {
-        for (let attempt = 0; attempt < 5 && !userId; attempt += 1) {
-          await new Promise((resolve) => window.setTimeout(resolve, 200));
-          userId = window.SeavAuth?.getUserId?.() || null;
+        for (let attempt = 0; attempt < 8 && !userId; attempt += 1) {
+          await new Promise((resolve) => window.setTimeout(resolve, 250));
+          userId = await window.SeavAPI?.resolveAuthUserId?.() || window.SeavAuth?.getUserId?.() || null;
         }
       }
 
@@ -135,6 +135,7 @@
         console.warn("[SEA-V] Profile bootstrap before load:", bootstrapErr);
       }
 
+      try {
       const [
         profile,
         seatimes,
@@ -149,18 +150,18 @@
         specialistQualifications,
         payslips
       ] = await Promise.all([
-        SeavAPI.get(KEYS.PROFILE, DEFAULT_PROFILE),
-        SeavAPI.getArray(KEYS.SEATIMES),
-        SeavAPI.getArray(KEYS.CERTS),
-        SeavAPI.getArray(KEYS.VESSELS),
-        SeavAPI.getArray(KEYS.REFS),
-        SeavAPI.getArray(KEYS.ACHIEVEMENTS),
-        SeavAPI.getArray(KEYS.NAVIGATION_AREAS),
-        SeavAPI.getArray(KEYS.TENDERS),
-        SeavAPI.getArray(KEYS.ONBOARD_EXPERIENCES),
-        SeavAPI.getArray(KEYS.HOBBIES_INTERESTS),
-        SeavAPI.getArray(KEYS.SPECIALIST_QUALIFICATIONS),
-        SeavAPI.getArray(KEYS.PAYSLIPS)
+        window.SeavAPI.get(KEYS.PROFILE, DEFAULT_PROFILE),
+        window.SeavAPI.getArray(KEYS.SEATIMES),
+        window.SeavAPI.getArray(KEYS.CERTS),
+        window.SeavAPI.getArray(KEYS.VESSELS),
+        window.SeavAPI.getArray(KEYS.REFS),
+        window.SeavAPI.getArray(KEYS.ACHIEVEMENTS),
+        window.SeavAPI.getArray(KEYS.NAVIGATION_AREAS),
+        window.SeavAPI.getArray(KEYS.TENDERS),
+        window.SeavAPI.getArray(KEYS.ONBOARD_EXPERIENCES),
+        window.SeavAPI.getArray(KEYS.HOBBIES_INTERESTS),
+        window.SeavAPI.getArray(KEYS.SPECIALIST_QUALIFICATIONS),
+        window.SeavAPI.getArray(KEYS.PAYSLIPS)
       ]);
 
       this.data = applyData({
@@ -182,6 +183,16 @@
       });
 
       writeCachedData(this.data);
+      } catch (loadErr) {
+        console.error("[SEA-V] loadAll failed:", loadErr);
+        if (window.SeavFeedback?.error) {
+          window.SeavFeedback.error(
+            "Records did not load",
+            loadErr?.message || "Check the browser console (F12) and Supabase grants."
+          );
+        }
+      }
+
       this.ready = true;
       return this.data;
     },
@@ -301,7 +312,7 @@
   }
 
   async function ensureUserDataLoaded(force = false) {
-    if (!shouldLoadAuthenticatedState()) return state.data;
+    if (!(await shouldLoadUserData())) return state.data;
     if (ensureUserDataLoaded._pending) return ensureUserDataLoaded._pending;
 
     ensureUserDataLoaded._pending = (async () => {
@@ -331,6 +342,22 @@
     return window.SeavAuth?.isAuthenticated?.() === true;
   }
 
+  async function hasSupabaseSession() {
+    if (!window.SeavSupabase) return false;
+    try {
+      const { data } = await window.SeavSupabase.auth.getSession();
+      return !!data.session?.user?.id;
+    } catch {
+      return false;
+    }
+  }
+
+  async function shouldLoadUserData() {
+    if (!document.body.classList.contains("app-page")) return false;
+    if (shouldLoadAuthenticatedState()) return true;
+    return await hasSupabaseSession();
+  }
+
   window.SeavState = state;
   window.SeavState.ensureUserDataLoaded = ensureUserDataLoaded;
   window.SeavState.isDataLikelyEmpty = isDataLikelyEmpty;
@@ -343,7 +370,7 @@
       await window.SeavAuth.whenReady();
     }
 
-    const loadUserData = shouldLoadAuthenticatedState();
+    const loadUserData = await shouldLoadUserData();
     let showedPageLoader = false;
     const pageLoaderStartedAt = Date.now();
 

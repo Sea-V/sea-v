@@ -704,7 +704,6 @@ function renderSidebarAchievements() {
 
   function showDataEmptyBanner() {
     if (!document.body.classList.contains("app-page")) return;
-    if (!window.SeavAuth?.isAuthenticated?.()) return;
 
     const target = document.querySelector(".dash-content");
     if (!target || document.getElementById("seavDataEmptyBanner")) return;
@@ -877,6 +876,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.addEventListener("seav:data-empty", () => {
     showDataEmptyBanner();
+  });
+
+  document.addEventListener("seav:fetch-error", (event) => {
+    const detail = event.detail || {};
+    const table = detail.table || "table";
+    const message = detail.message || "Permission denied";
+    if (!document.body.classList.contains("app-page")) return;
+
+    const target = document.querySelector(".dash-content");
+    if (!target || document.getElementById("seavFetchErrorBanner")) return;
+
+    const banner = document.createElement("div");
+    banner.id = "seavFetchErrorBanner";
+    banner.className = "seav-setup-banner";
+    banner.innerHTML = `
+      <strong>Could not load ${escapeHtml(table)}</strong>
+      <p>${escapeHtml(message)}</p>
+      <p>Run <code>docs/schema-grant-authenticated-read.sql</code> in Supabase SQL Editor, then click Reload my data.</p>
+    `;
+    target.prepend(banner);
   });
 
   function updateSidebarBadges() {

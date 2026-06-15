@@ -89,6 +89,12 @@
       return null;
     }
     currentUser = data.session?.user || null;
+    if (!currentUser) {
+      const userResult = await client.auth.getUser();
+      if (!userResult.error && userResult.data?.user) {
+        currentUser = userResult.data.user;
+      }
+    }
     return data.session;
   }
 
