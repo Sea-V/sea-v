@@ -13,7 +13,7 @@
     isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,
     profileKey, vesselKey, seatimeKey, certKey, refKey,
     resolveStorageFileUrl, sanitizeFileForStorage, buildUploadedFileMeta,
-    hydrateProfilePhoto, withUserId, findIndexById
+    hydrateProfilePhoto, withUserId, findIndexById, hydrateArrayFiles
   } = Core;
 
   const {

@@ -8,7 +8,7 @@
   if (!C || !R || !X) return;
   const {
     STORAGE_KEY, expandedCertIds, syncCertificateTemplates, syncCertExpiryFields,
-    getCerts, isMandatoryCert, isRecommendedTemplate, findCertByCode, getDisplayStatus, normalizeCode
+    getCerts, isMandatoryCert, isRecommendedTemplate, findCertByCode, getDisplayStatus, normalizeCode, normalizeName
   } = C;
   const { renderCerts } = R;
   const { emailCertificateSummary, shareAllCertificates, downloadAllCertificates } = X;

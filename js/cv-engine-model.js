@@ -565,6 +565,6 @@
     shouldUseProfileCareerOverview, buildAutoHeadline, getDefaultSections,
     createDefaultDraft, syncDraftWithSource, loadDraft, saveDraft, resetDraftFromSource,
     getOrderedVessels, getCertStrip, getSpecialistQualificationItems, getHighlightLines,
-    buildCvDocument, CV_TEMPLATE
+    buildCvDocument, CV_TEMPLATE, LOGO_SRC
   };
 })();

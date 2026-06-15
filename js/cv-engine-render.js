@@ -6,7 +6,7 @@
   const {
     escapeHtml, formatCvDate, formatCvDateRange, formatYear, splitParagraphs, splitBullets,
     getVesselRole, getVesselType, formatVesselSize, formatVesselMeta, formatVesselSubline,
-    formatProfileDob, getPhotoUrl, getCertDisplayName
+    formatProfileDob, getPhotoUrl, getCertDisplayName, splitProfileLines, LOGO_SRC
   } = M;
   function renderBrandMark(showBranding) {
     if (!showBranding) return "";

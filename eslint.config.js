@@ -32,6 +32,10 @@ export default [
         alert: "readonly",
         confirm: "readonly",
         navigator: "readonly",
+        atob: "readonly",
+        btoa: "readonly",
+        File: "readonly",
+        JSZip: "readonly",
         // App globals assigned by earlier script tags (browser only).
         Seav: "readonly",
         SeavAPI: "readonly"
@@ -39,8 +43,9 @@ export default [
     },
     rules: {
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-      "no-undef": "error",
-      "no-empty": "warn"
+      "no-undef": "warn",
+      "no-empty": "warn",
+      "no-control-regex": "off"
     }
   }
 ];

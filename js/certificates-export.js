@@ -3,7 +3,7 @@
   "use strict";
   const C = window.SeavCertificatesCore;
   if (!C || !window.Seav) return;
-  const { getCerts, getDisplayStatus } = C;
+  const { getCerts, getDisplayStatus, isMandatoryCert } = C;
   const Seav = window.Seav;
   async function emailCertificateSummary() {
     const certs = getCerts();
@@ -160,7 +160,7 @@
   function safeFileName(name) {
     return String(name || "file")
       .trim()
-      .replace(/[<>:"/\\|?*\x00-\x1F]/g, "")
+      .replace(/[<>:"/\\|?*]/g, "")
       .replace(/\s+/g, "-");
   }
 
