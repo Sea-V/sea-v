@@ -102,6 +102,11 @@
     currentUser = data.session?.user || data.user || null;
     if (currentUser) {
       document.dispatchEvent(new CustomEvent("seav:session-active"));
+      try {
+        await ensureProfileRow(currentUser);
+      } catch (profileErr) {
+        console.warn("[SEA-V] Profile bootstrap on session apply:", profileErr);
+      }
     }
     return data.session;
   }
@@ -349,10 +354,15 @@
         );
       }
 
-      window.SeavSupabase.auth.onAuthStateChange((event, session) => {
+      window.SeavSupabase.auth.onAuthStateChange(async (event, session) => {
         currentUser = session?.user || null;
         if (session?.user && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
           document.dispatchEvent(new CustomEvent("seav:session-active"));
+          try {
+            await ensureProfileRow(session.user);
+          } catch (profileErr) {
+            console.warn("[SEA-V] Profile bootstrap on auth state:", profileErr);
+          }
         }
       });
 

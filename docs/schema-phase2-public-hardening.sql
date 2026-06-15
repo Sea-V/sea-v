@@ -11,6 +11,8 @@
 -- ---------------------------------------------------------------------------
 revoke all on table public.profile from anon;
 
+grant select on table public.profile to authenticated;
+
 grant select (
   id,
   user_id,

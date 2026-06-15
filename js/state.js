@@ -117,14 +117,22 @@
 
       let userId = window.SeavAuth?.getUserId?.() || null;
       if (!userId) {
-        await new Promise((resolve) => window.setTimeout(resolve, 200));
-        userId = window.SeavAuth?.getUserId?.() || null;
+        for (let attempt = 0; attempt < 5 && !userId; attempt += 1) {
+          await new Promise((resolve) => window.setTimeout(resolve, 200));
+          userId = window.SeavAuth?.getUserId?.() || null;
+        }
       }
 
       if (!userId) {
         console.warn("[SEA-V] No active session — cannot load Supabase records.");
         this.ready = true;
         return this.data;
+      }
+
+      try {
+        await window.SeavAuth?.ensureProfileRow?.(window.SeavAuth.getUser?.());
+      } catch (bootstrapErr) {
+        console.warn("[SEA-V] Profile bootstrap before load:", bootstrapErr);
       }
 
       const [
@@ -158,7 +166,7 @@
       this.data = applyData({
         profile: {
           ...(profile || {}),
-          id: profile?.id || DEFAULT_PROFILE.id
+          id: profile?.id || userId || DEFAULT_PROFILE.id
         },
         seatimes,
         certs,

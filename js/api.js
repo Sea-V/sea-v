@@ -48,6 +48,11 @@
 
     if (error) {
       console.error(`[SEA-V] Supabase fetch failed for ${table}:`, error);
+      document.dispatchEvent(
+        new CustomEvent("seav:fetch-error", {
+          detail: { table, message: error.message || String(error) }
+        })
+      );
       return [];
     }
 
@@ -246,6 +251,29 @@ const PUBLIC_PROFILE_COLUMNS = [
   "updated_at"
 ].join(",");
 
+/** Owner read — includes private fields; never use select("*") (blocked after column hardening). */
+const OWNER_PROFILE_COLUMNS = [
+  "id",
+  "user_id",
+  "name",
+  "rank",
+  "qualification",
+  "nationality",
+  "dob",
+  "location",
+  "email",
+  "phone",
+  "passports_held",
+  "visas_held",
+  "salary",
+  "availability",
+  "bio",
+  "photo",
+  "public_enabled",
+  "created_at",
+  "updated_at"
+].join(",");
+
 const SeavAPI = {
   async getPublicProfile(profileId) {
     if (!window.SeavSupabase || !profileId) return null;
@@ -302,16 +330,31 @@ const SeavAPI = {
 
       const { data, error } = await window.SeavSupabase
         .from("profile")
-        .select("*")
+        .select(OWNER_PROFILE_COLUMNS)
         .eq("id", userId)
         .maybeSingle();
 
       if (error) {
         console.error("[SEA-V] Supabase profile fetch failed:", error);
+        if (window.SeavFeedback?.error) {
+          window.SeavFeedback.error(
+            "Profile did not load",
+            "Your session may have expired, or Supabase column grants need updating. Try signing in again."
+          );
+        }
         return fallback;
       }
 
-      const profile = data ? mapProfileFromSupabase(data) : fallback;
+      if (!data) {
+        console.warn("[SEA-V] No profile row for signed-in user — bootstrap may be needed.");
+        return {
+          ...(fallback || {}),
+          id: userId,
+          email: window.SeavAuth?.getUserEmail?.() || fallback?.email || ""
+        };
+      }
+
+      const profile = mapProfileFromSupabase(data);
       return profile ? hydrateProfilePhoto(profile) : fallback;
     }
 
