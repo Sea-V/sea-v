@@ -281,15 +281,26 @@ function updateProfileCompletion(profile) {
   async function renderDashboardSnippets() {
     const S = window.SeavDashboardSnippets;
     if (!S) return;
-    await S.renderSeatimeSnippet();
-    await S.renderCertSnippet();
-    await S.renderSpecialistSnippet();
-    await S.renderVesselSnippet();
-    await S.renderTenderSnippet();
-    await S.renderNavigationSnippet();
-    await S.renderReferenceSnippet();
-    await S.renderOnboardSnippet();
-    await S.renderHobbiesSnippet();
+
+    const snippetRenderers = [
+      S.renderSeatimeSnippet,
+      S.renderCertSnippet,
+      S.renderSpecialistSnippet,
+      S.renderVesselSnippet,
+      S.renderTenderSnippet,
+      S.renderNavigationSnippet,
+      S.renderReferenceSnippet,
+      S.renderOnboardSnippet,
+      S.renderHobbiesSnippet
+    ];
+
+    for (const renderSnippet of snippetRenderers) {
+      try {
+        await renderSnippet();
+      } catch (err) {
+        console.error("[SEA-V] Dashboard snippet render failed:", renderSnippet.name || "anonymous", err);
+      }
+    }
   }
 
   async function refresh() {

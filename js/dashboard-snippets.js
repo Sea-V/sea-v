@@ -7,6 +7,67 @@
     return;
   }
 
+  const Seav = window.Seav;
+  const {
+    totalQualifyingDays,
+    getCertExpiryInfo,
+    getReferenceStatus,
+    formatDatePretty
+  } = window.SeavData;
+
+  const DASH_NAV_TILE_URL =
+    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+  const DASH_NAV_ATTRIBUTION =
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+  const DASH_NAV_COLORS = [
+    "#2563eb",
+    "#dc2626",
+    "#16a34a",
+    "#9333ea",
+    "#ea580c",
+    "#0891b2",
+    "#be123c",
+    "#4f46e5",
+    "#0f766e",
+    "#b45309",
+    "#7c3aed",
+    "#0284c7"
+  ];
+
+  let dashNavigationChart = null;
+  let dashNavigationLayer = null;
+
+  function updateCardTitle(containerId, baseTitle, count) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const card = container.closest(".dash-card");
+    if (!card) return;
+
+    const heading = card.querySelector(".dashboard-card-headline h3, .dash-card > h3");
+    if (!heading) return;
+
+    heading.textContent = `${baseTitle} (${count})`;
+  }
+
+  function haversineNm(lat1, lng1, lat2, lng2) {
+    const toRad = (deg) => (deg * Math.PI) / 180;
+    const earthRadiusNm = 3440.065;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    return 2 * earthRadiusNm * Math.asin(Math.sqrt(a));
+  }
+
+  function formatNm(value) {
+    const miles = Number(value || 0);
+    if (miles >= 1000) return `${Math.round(miles).toLocaleString()} NM`;
+    if (miles >= 100) return `${Math.round(miles)} NM`;
+    return `${Math.round(miles * 10) / 10} NM`;
+  }
+
   async function renderSeatimeSnippet() {
     const dashSeatimeSnippet = document.getElementById("dashSeatimeSnippet");
     if (!dashSeatimeSnippet) return;
@@ -207,8 +268,8 @@ async function renderCertSnippet() {
         const gt = Seav.escapeHtml(vessel.gt || "—");
         const role = Seav.escapeHtml(vessel.vessel_role || vessel.role || "—");
         const length = Seav.escapeHtml(vessel.vessel_length || vessel.length || "—");
-        const from = vessel.from ? SeavData.formatDatePretty(vessel.from) : "—";
-        const to = vessel.to ? SeavData.formatDatePretty(vessel.to) : "Present";
+        const from = vessel.from ? formatDatePretty(vessel.from) : "—";
+        const to = vessel.to ? formatDatePretty(vessel.to) : "Present";
 
         return `
           <article class="dash-mini-card">
