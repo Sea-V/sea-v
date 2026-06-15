@@ -28,7 +28,13 @@ export default [
         IntersectionObserver: "readonly",
         ResizeObserver: "readonly",
         L: "readonly",
-        supabase: "readonly"
+        supabase: "readonly",
+        alert: "readonly",
+        confirm: "readonly",
+        navigator: "readonly",
+        // App globals assigned by earlier script tags (browser only).
+        Seav: "readonly",
+        SeavAPI: "readonly"
       }
     },
     rules: {
