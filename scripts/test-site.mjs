@@ -10,6 +10,10 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const baseUrl = process.argv[2] || "http://127.0.0.1:8765";
+const skipHttpChecks =
+  process.env.SKIP_HTTP_CHECKS === "1" ||
+  process.env.CI === "true" ||
+  process.env.GITHUB_ACTIONS === "true";
 
 const PAGES = [
   "index.html",
@@ -158,10 +162,15 @@ async function main() {
     console.log(`${check.pass ? "✓" : "✗"} ${check.page.padEnd(28)} ${check.detail}`);
   }
 
-  console.log(`\nHTTP checks (${baseUrl}):`);
-  const httpChecks = await Promise.all(PAGES.map(checkHttp));
-  for (const check of httpChecks) {
-    console.log(`${check.pass ? "✓" : "✗"} ${check.page.padEnd(28)} ${check.status}  ${check.detail}`);
+  let httpChecks = [];
+  if (skipHttpChecks) {
+    console.log("\nHTTP checks: skipped (CI / SKIP_HTTP_CHECKS)");
+  } else {
+    console.log(`\nHTTP checks (${baseUrl}):`);
+    httpChecks = await Promise.all(PAGES.map(checkHttp));
+    for (const check of httpChecks) {
+      console.log(`${check.pass ? "✓" : "✗"} ${check.page.padEnd(28)} ${check.status}  ${check.detail}`);
+    }
   }
 
   const failedFiles = fileChecks.filter((c) => !c.pass);
@@ -175,6 +184,7 @@ async function main() {
     if (failedFiles.length) console.log(`${failedFiles.length} local file check(s) failed.`);
     if (failedChains.length) console.log(`${failedChains.length} script order check(s) failed.`);
     if (failedHttp.length) console.log(`${failedHttp.length} HTTP check(s) failed.`);
+    process.exit(1);
   }
   console.log("");
 }
