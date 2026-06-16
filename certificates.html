@@ -21,8 +21,8 @@
   <script src="js/state.js?v=27" defer></script>
   <script src="js/achievements-engine.js" defer></script>
   <script src="js/badge-unlock.js" defer></script>
-  <script src="js/certificates.js?v=32" defer></script>
-  <script src="js/certificates-export.js?v=32" defer></script>
+  <script src="js/certificates.js?v=33" defer></script>
+  <script src="js/certificates-export.js?v=33" defer></script>
 </head>
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
 
@@ -32,31 +32,51 @@
     <div id="sidebarMount"></div>
 
     <section class="dash-content">
+
       <article class="cert-shell-card">
 
-        <header class="cert-shell-head">
-          <div class="cert-shell-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
+        <div class="cert-shell-head">
+          <div class="cert-shell-icon">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <rect x="6.5" y="4.5" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
               <path d="M9 8h6M9 11h6M10 18.5l2-1.2 2 1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <div class="cert-shell-title">
+
+          <div class="cert-shell-copy">
             <h2>Certificates</h2>
-            <p>Add each certificate once. Expiry date sets the status.</p>
+            <p>
+              STCW, medical, and rank certificates for your maritime profile.
+              Add each certificate once — expiry date sets the status automatically.
+            </p>
           </div>
-          <a class="btn-blue" href="#" data-open="certModal">Add certificate</a>
-        </header>
 
-        <div class="cert-list" id="certsList"></div>
+          <div class="cert-shell-actions">
+            <a class="btn-ghost2" href="#" id="btnDownloadAllCerts">Download all</a>
+            <a class="btn-ghost2" href="#" id="btnShareAllCerts">Share all</a>
+            <a class="btn-blue" href="#" data-open="certModal">Add certificate</a>
+          </div>
+        </div>
 
-        <footer class="cert-shell-foot">
-          <a class="cert-foot-link" href="#" id="btnDownloadAllCerts">Download all</a>
-          <span class="cert-foot-dot" aria-hidden="true">·</span>
-          <a class="cert-foot-link" href="#" id="btnShareAllCerts">Share all</a>
-        </footer>
+        <section class="cert-section">
+
+          <div class="cert-kpi-row" id="certKpiRow"></div>
+
+          <div class="cert-section-head">
+            <div>
+              <h3>Your certificates</h3>
+              <p>
+                Pick a certificate from the list when adding. Upload a PDF or image where you have one.
+              </p>
+            </div>
+          </div>
+
+          <div class="cert-compact-list" id="certsList"></div>
+
+        </section>
 
       </article>
+
     </section>
   </main>
 
@@ -104,7 +124,7 @@
           <input type="file" id="ct_file" accept=".pdf,image/*" />
         </label>
 
-        <button class="btn-blue" type="submit">Save</button>
+        <button class="btn-blue" type="submit">Save certificate</button>
       </form>
     </div>
   </div>

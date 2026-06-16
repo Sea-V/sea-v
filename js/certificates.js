@@ -10,11 +10,13 @@
     MANDATORY_CERTS,
     RECOMMENDED_CERTS,
     createId,
-    getCertExpiryInfo
+    getCertExpiryInfo,
+    formatDatePretty
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.CERTS;
   const CUSTOM = "__CUSTOM__";
+  const expandedCertIds = new Set();
 
   function getCerts() {
     return window.SeavState?.certs || [];
@@ -78,17 +80,24 @@
     return getCertExpiryInfo(expiry).badge || "Valid";
   }
 
-  function formatExpiry(expiry) {
-    if (!expiry) return "";
-    const d = new Date(expiry);
-    if (Number.isNaN(d.getTime())) return expiry;
-    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  function expiryLabel(cert) {
+    if (cert.noExpiry || !cert.expiry) return "No expiry";
+    return formatDatePretty(cert.expiry) || "No expiry";
   }
 
-  function expiryLabel(cert) {
-    if (cert.noExpiry || !cert.expiry) return "No expiry date";
-    const formatted = formatExpiry(cert.expiry);
-    return formatted ? `Expires ${formatted}` : "No expiry date";
+  function certTypeLabel(cert) {
+    const item = findCatalog(cert?.code);
+    if (item && item.code !== CUSTOM) return cert.code;
+    return "Other";
+  }
+
+  function certCategoryLabel(cert) {
+    if ((MANDATORY_CERTS || []).some((t) => normCode(t.code) === normCode(cert?.code))) {
+      return "Mandatory";
+    }
+    const item = findCatalog(cert?.code);
+    if (item && item.code !== CUSTOM) return "Recommended";
+    return "Other";
   }
 
   function sortCerts(certs) {
@@ -100,6 +109,123 @@
     });
   }
 
+  function renderKpis() {
+    const row = document.getElementById("certKpiRow");
+    if (!row) return;
+
+    const certs = getSavedCerts();
+    const valid = certs.filter((c) => {
+      const s = statusFromCert(c);
+      return s.statusClass === "pill-valid" || s.statusClass === "pill-neutral";
+    }).length;
+    const expiring = certs.filter((c) => statusFromCert(c).statusClass === "pill-warning").length;
+    const withFile = certs.filter((c) => c.attachment?.url || c.attachment?.dataUrl).length;
+
+    row.innerHTML = `
+      <div class="cert-kpi-box">
+        <div class="kpi-num">${certs.length}</div>
+        <div class="kpi-label">Total logged</div>
+      </div>
+      <div class="cert-kpi-box">
+        <div class="kpi-num">${valid}</div>
+        <div class="kpi-label">Valid / no expiry</div>
+      </div>
+      <div class="cert-kpi-box">
+        <div class="kpi-num">${expiring}</div>
+        <div class="kpi-label">Expiring soon</div>
+      </div>
+      <div class="cert-kpi-box">
+        <div class="kpi-num">${withFile}</div>
+        <div class="kpi-label">With document</div>
+      </div>
+    `;
+  }
+
+  function buildRow(cert) {
+    const certId = cert.id || "";
+    const status = statusFromCert(cert);
+    const fileUrl = cert.attachment?.url || cert.attachment?.dataUrl || "";
+    const hasFile = !!fileUrl;
+    const isExpanded = expandedCertIds.has(certId);
+    const typeLabel = certTypeLabel(cert);
+    const categoryLabel = certCategoryLabel(cert);
+    const expiry = expiryLabel(cert);
+
+    return `
+      <article class="cert-compact-card ui-card ui-card-hover ui-accent-gold${
+        isExpanded ? " is-expanded" : ""
+      }" data-cert-id="${Seav.escapeHtml(certId)}">
+
+        <button
+          type="button"
+          class="cert-compact-summary"
+          aria-expanded="${isExpanded ? "true" : "false"}"
+          data-toggle-cert-id="${Seav.escapeHtml(certId)}"
+        >
+          <div class="cert-compact-summary-left">
+            <div class="cert-compact-title">${Seav.escapeHtml(cert.name || "Certificate")}</div>
+            <div class="cert-compact-sub">
+              ${Seav.escapeHtml(typeLabel)} • Expiry ${Seav.escapeHtml(expiry)}
+            </div>
+          </div>
+          <div class="cert-compact-summary-right">
+            <span class="cert-status-pill ${Seav.escapeHtml(status.statusClass)}">
+              ${Seav.escapeHtml(status.badge)}
+            </span>
+            <span class="cert-chevron" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </button>
+
+        <div class="cert-compact-body"${isExpanded ? "" : " hidden"}>
+          <div class="cert-compact-detail-grid">
+            <div class="cert-compact-detail-panel">
+              <div class="cert-compact-detail-label">Certificate</div>
+              <div class="cert-compact-detail-value">
+                ${Seav.escapeHtml(cert.name || "—")}<br>
+                ${Seav.escapeHtml(typeLabel)}
+              </div>
+            </div>
+            <div class="cert-compact-detail-panel">
+              <div class="cert-compact-detail-label">Expiry &amp; status</div>
+              <div class="cert-compact-detail-value">
+                Expiry: ${Seav.escapeHtml(expiry)}<br>
+                ${Seav.escapeHtml(status.label || status.badge)}
+              </div>
+            </div>
+            <div class="cert-compact-detail-panel">
+              <div class="cert-compact-detail-label">Type</div>
+              <div class="cert-compact-detail-value">${Seav.escapeHtml(categoryLabel)}</div>
+            </div>
+            <div class="cert-compact-detail-panel">
+              <div class="cert-compact-detail-label">Attachment</div>
+              <div class="cert-compact-detail-value">
+                ${
+                  hasFile
+                    ? `<a class="cert-attachment-link" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M12 3v10m0 0l3.5-3.5M12 13l-3.5-3.5M5 15v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        View document
+                      </a>`
+                    : "No attachment uploaded"
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="seav-actions seav-actions--compact">
+            ${Seav.seavAction("edit", "Edit", `data-edit-cert-id="${Seav.escapeHtml(certId)}"`)}
+            ${Seav.seavAction("delete", "Delete", `data-del-cert-id="${Seav.escapeHtml(certId)}"`)}
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
   function renderList() {
     const list = document.getElementById("certsList");
     if (!list) return;
@@ -107,36 +233,21 @@
     const certs = sortCerts(getSavedCerts());
 
     if (!certs.length) {
-      list.innerHTML = `<p class="cert-empty">No certificates added yet.</p>`;
+      list.innerHTML = `
+        <div class="list-row">
+          <div>
+            <div class="list-title">No certificates yet</div>
+            <div class="list-sub">
+              Add STCW, medical, and rank certificates from the dropdown.
+            </div>
+          </div>
+          <span class="pill">Empty</span>
+        </div>
+      `;
       return;
     }
 
-    list.innerHTML = certs
-      .map((cert) => {
-        const status = statusFromCert(cert);
-        const fileUrl = cert.attachment?.url || cert.attachment?.dataUrl || "";
-        const id = Seav.escapeHtml(cert.id);
-
-        return `
-          <div class="cert-item">
-            <div class="cert-item-main">
-              <div class="cert-item-name">${Seav.escapeHtml(cert.name || "Certificate")}</div>
-              <div class="cert-item-date">${Seav.escapeHtml(expiryLabel(cert))}</div>
-            </div>
-            <span class="cert-pill ${Seav.escapeHtml(status.statusClass)}">${Seav.escapeHtml(status.badge)}</span>
-            <div class="cert-item-actions">
-              ${
-                fileUrl
-                  ? `<a class="cert-action-link" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">View</a>`
-                  : ""
-              }
-              ${Seav.seavAction("edit", "Edit", `data-edit-cert-id="${id}"`)}
-              ${Seav.seavAction("delete", "Delete", `data-del-cert-id="${id}"`)}
-            </div>
-          </div>
-        `;
-      })
-      .join("");
+    list.innerHTML = certs.map(buildRow).join("");
   }
 
   function fillTypeSelect(currentCode) {
@@ -277,18 +388,19 @@
     getDisplayStatus: statusFromCert
   };
 
-  window.SeavCertificatesRender = { renderCerts: renderList };
-
-  function runRefresh() {
+  function refreshView() {
+    renderKpis();
     renderList();
   }
+
+  window.SeavCertificatesRender = { renderCerts: refreshView };
 
   function init() {
     if (!document.getElementById("certsList")) return;
 
-    document.addEventListener("seav:state-ready", runRefresh, { once: true });
-    document.addEventListener("seav:data-updated", renderList);
-    if (window.SeavState?.ready) runRefresh();
+    document.addEventListener("seav:state-ready", refreshView, { once: true });
+    document.addEventListener("seav:data-updated", refreshView);
+    if (window.SeavState?.ready) refreshView();
 
     document.querySelectorAll('[data-open="certModal"]').forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -351,11 +463,20 @@
 
         window.SeavModals?.closeAllModals?.();
         Seav.notify("success", "Saved", "Certificate added to your library.");
-        renderList();
+        refreshView();
       }, { sub: "Saving certificate" });
     });
 
     document.addEventListener("click", async (e) => {
+      const toggleBtn = e.target.closest("[data-toggle-cert-id]");
+      if (toggleBtn) {
+        const certId = toggleBtn.getAttribute("data-toggle-cert-id");
+        if (expandedCertIds.has(certId)) expandedCertIds.delete(certId);
+        else expandedCertIds.add(certId);
+        renderList();
+        return;
+      }
+
       const editBtn = e.target.closest("[data-edit-cert-id]");
       if (editBtn) {
         e.preventDefault();
@@ -372,7 +493,8 @@
       if (!Seav.confirmDelete({ itemName: cert?.name || "", itemLabel: "certificate" })) return;
 
       await window.SeavAPI.deleteItemById(STORAGE_KEY, delBtn.getAttribute("data-del-cert-id"));
-      renderList();
+      expandedCertIds.delete(delBtn.getAttribute("data-del-cert-id"));
+      refreshView();
     });
 
     const exportApi = window.SeavCertificatesExport;
