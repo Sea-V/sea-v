@@ -27,9 +27,12 @@
 
   function isSavedCert(cert) {
     if (!cert) return false;
-    if (!cert.isTemplate) return true;
-    const hasFile = !!(cert.attachment?.url || cert.attachment?.dataUrl);
-    return !!(cert.expiry || cert.noExpiry || hasFile);
+    if (cert.name && String(cert.name).trim()) {
+      if (!cert.isTemplate) return true;
+      const hasFile = !!(cert.attachment?.url || cert.attachment?.dataUrl);
+      if (cert.expiry || cert.noExpiry || hasFile) return true;
+    }
+    return false;
   }
 
   function getSavedCerts() {
@@ -40,9 +43,51 @@
     return String(v || "").trim().toUpperCase();
   }
 
+  function catalogGroups() {
+    if (typeof getCertificateCatalogGroups === "function") {
+      return getCertificateCatalogGroups();
+    }
+    return [
+      {
+        label: "Minimum mandatory (yacht crew)",
+        isMandatory: true,
+        certs: (MANDATORY_CERTS || []).map((t) => ({ code: t.code, name: t.name }))
+      },
+      {
+        label: "Other certificates",
+        certs: (RECOMMENDED_CERTS || []).map((t) => ({ code: t.code, name: t.name }))
+      }
+    ];
+  }
+
+  function catalogFlat() {
+    if (typeof getCertificateCatalog === "function") {
+      return getCertificateCatalog();
+    }
+    return catalogGroups().flatMap((group) =>
+      (group.certs || []).map((cert) => ({
+        code: cert.code,
+        name: cert.name,
+        isMandatory: !!group.isMandatory,
+        isTemplate: true,
+        group: group.label
+      }))
+    );
+  }
+
+  function lookupCatalogItem(code) {
+    if (typeof findCertificateCatalogItem === "function") {
+      return findCertificateCatalogItem(code);
+    }
+    const normalized = normCode(code);
+    return (
+      catalogFlat().find((item) => normCode(item.code) === normalized) || null
+    );
+  }
+
   function catalog() {
     return [
-      ...getCertificateCatalog(),
+      ...catalogFlat(),
       { code: CUSTOM, name: "Other certificate", isMandatory: false, isTemplate: false, group: "Other" }
     ];
   }
@@ -51,7 +96,7 @@
     if (normCode(code) === normCode(CUSTOM)) {
       return { code: CUSTOM, name: "Other certificate", isMandatory: false, isTemplate: false };
     }
-    return findCertificateCatalogItem(code) || null;
+    return lookupCatalogItem(code) || null;
   }
 
   function takenCodes(certs) {
@@ -254,29 +299,28 @@
 
     select.innerHTML = `<option value="">Choose a certificate…</option>`;
 
-    function appendOption(groupEl, item) {
+    function appendOption(item) {
       if (item.code !== CUSTOM && taken.has(normCode(item.code)) && normCode(item.code) !== editCode) {
         return;
       }
-      const label = item.code === CUSTOM ? item.name : `${item.name} (${item.code})`;
+      const label = `${item.name} (${item.code})`;
       const opt = new Option(label, item.code);
       if (normCode(item.code) === editCode) opt.selected = true;
-      groupEl.appendChild(opt);
+      select.appendChild(opt);
     }
 
-    getCertificateCatalogGroups().forEach((group) => {
+    catalogGroups().forEach((group) => {
       const available = (group.certs || []).filter(
         (item) =>
-          item.code === CUSTOM ||
-          !taken.has(normCode(item.code)) ||
-          normCode(item.code) === editCode
+          !taken.has(normCode(item.code)) || normCode(item.code) === editCode
       );
       if (!available.length) return;
 
-      const optgroup = document.createElement("optgroup");
-      optgroup.label = group.label;
-      available.forEach((item) => appendOption(optgroup, item));
-      select.appendChild(optgroup);
+      const header = new Option(`— ${group.label} —`, "");
+      header.disabled = true;
+      select.appendChild(header);
+
+      available.forEach((item) => appendOption(item));
     });
 
     if (!taken.has(normCode(CUSTOM)) || editCode === normCode(CUSTOM)) {
@@ -405,8 +449,13 @@
   };
 
   function refreshView() {
-    renderKpis();
-    renderList();
+    try {
+      renderKpis();
+      renderList();
+    } catch (err) {
+      console.error("[SEA-V] certificates refresh failed:", err);
+      renderKpis();
+    }
   }
 
   window.SeavCertificatesRender = { renderCerts: refreshView };

@@ -172,6 +172,7 @@ function mapVesselToSupabase(item) {
       attachment: c.attachment || null,
       isMandatory: !!c.is_mandatory,
       isTemplate: !!c.is_template,
+      noExpiry: !c.expiry_date,
       createdAt: c.created_at || "",
       updatedAt: c.updated_at || ""
     };
