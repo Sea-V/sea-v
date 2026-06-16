@@ -4,9 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SEA-V • Certificates</title>
-
   <link rel="stylesheet" href="styles.css" />
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/seav-config.js?v=25"></script>
   <script src="js/supabase.js"></script>
@@ -23,10 +21,9 @@
   <script src="js/state.js?v=27" defer></script>
   <script src="js/achievements-engine.js" defer></script>
   <script src="js/badge-unlock.js" defer></script>
-  <script src="js/certificates.js?v=28" defer></script>
-  <script src="js/certificates-export.js?v=28" defer></script>
+  <script src="js/certificates.js?v=30" defer></script>
+  <script src="js/certificates-export.js?v=30" defer></script>
 </head>
-
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
 
   <div id="topbarMount"></div>
@@ -45,61 +42,24 @@
                 <path d="M9 8h6M9 11h6M10 18.5l2-1.2 2 1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-
             <div class="cert-shell-title">
               <h2>Certificate Library</h2>
-              <p>
-                Track mandatory certificates, additional qualifications,
-                uploaded documents, and expiry status in one place.
-              </p>
+              <p>Add the certificates you hold. Nothing appears here until you save it.</p>
             </div>
-
             <div class="cert-shell-actions">
               <a class="btn-blue" href="#" data-open="certModal">Add Certificate</a>
             </div>
           </div>
 
-          <section class="cert-section-group">
-            <div class="cert-section-head">
-              <div>
-                <h3>Minimum mandatory certificates</h3>
-                <p>
-                  Universal baseline for yacht crew — ENG1, the four BST modules
-                  (PST, FPFF, EFA, PSSR), and Proficiency in Security Awareness (PSA).
-                </p>
-              </div>
-            </div>
-            <div class="cert-compact-list" id="mandatoryCertsMount"></div>
-          </section>
-
-          <section class="cert-section">
-            <div class="cert-section-head">
-              <div>
-                <h3>Rank & role certificates</h3>
-                <p>CoC, GMDSS, PDSD, and other qualifications for your capacity onboard.</p>
-              </div>
-            </div>
-            <div class="cert-compact-list" id="rankRoleCertsList"></div>
-          </section>
-
-          <section class="cert-section">
-            <div class="cert-section-head">
-              <div>
-                <h3>Additional certificates</h3>
-                <p>Role-specific, optional, or career-progression qualifications you add yourself.</p>
-              </div>
-            </div>
-            <div class="cert-compact-list" id="additionalCertsList"></div>
-          </section>
+          <div class="cert-section">
+            <div class="cert-compact-list" id="certsList"></div>
+            <p class="cert-empty-msg" id="certsEmpty" hidden>No certificates yet. Click Add Certificate to get started.</p>
+          </div>
         </article>
 
         <aside class="cert-notes-card">
           <h3>Notes</h3>
-          <p>
-            Minimum mandatory certificates cover ENG1, BST modules, and PSA.
-            Rank & role certificates depend on your position. Use Add Certificate
-            to pick from the list — only added certificates appear above.
-          </p>
+          <p>Status is worked out from your expiry date. Upload a PDF or image when you add each certificate.</p>
           <div class="cert-notes-actions">
             <a class="btn-ghost2" href="#" id="btnDownloadAllCerts">Download All</a>
             <a class="btn-ghost2" href="#" id="btnShareAllCerts">Share All</a>
@@ -117,18 +77,13 @@
         <button type="button" class="modal-x" data-close>&times;</button>
       </div>
       <div class="modal-form">
-        <p class="modal-intro">
-          Export or share your full certificate pack — attachments plus a summary file
-          for recruiters, PYA, or training managers.
-        </p>
+        <p class="modal-intro">Download or share your certificate pack as a ZIP.</p>
         <div class="dash-actions">
           <a href="#" class="btn-blue" id="btnShareZipCerts">Share ZIP</a>
           <a href="#" class="btn-ghost2" id="btnEmailCertSummary">Email summary</a>
           <a href="#" class="btn-ghost2" id="btnDownloadZipFromModal">Download ZIP</a>
         </div>
-        <p class="modal-footnote" id="certBulkMsg">
-          ZIP includes PDF/image attachments and a CSV summary of your certificate library.
-        </p>
+        <p class="modal-footnote" id="certBulkMsg"></p>
       </div>
     </div>
   </div>
@@ -140,69 +95,27 @@
         <button type="button" class="modal-x" data-close>&times;</button>
       </div>
 
-      <form class="modal-form" id="certForm">
+      <form class="modal-form cert-modal-form" id="certForm">
         <input type="hidden" id="ct_edit_id" />
-        <input type="hidden" id="ct_is_template" value="false" />
-        <input type="hidden" id="ct_is_mandatory" value="false" />
-        <input type="hidden" id="ct_picker_code" value="" />
 
-        <p class="modal-intro">
-          Tap a certificate type below, upload your file, and set the expiry date.
-          Nothing is saved until you press Save.
-        </p>
+        <label id="ct_type_wrap">
+          Certificate
+          <select id="ct_type" required></select>
+        </label>
 
-        <div id="ct_picker_wrap" class="cert-picker-panel">
-          <p class="cert-picker-label">Certificate type</p>
-          <div id="ct_cert_picker" class="cert-picker-list"></div>
-        </div>
+        <label id="ct_name_wrap" hidden>
+          Certificate name
+          <input id="ct_name" placeholder="Full name of the certificate" />
+        </label>
 
-        <div id="ct_selected_wrap" class="cert-picker-selected" hidden>
-          <span class="cert-picker-selected-label">Selected:</span>
-          <strong id="ct_selected_label"></strong>
-          <a href="#" id="ct_change_picker" class="cert-picker-change">Change</a>
-        </div>
+        <div data-date-field="ct_expiry" data-date-label="Expiry date" data-date-optional></div>
 
-        <div id="ct_details_wrap" hidden>
-          <div id="ct_custom_wrap" class="cert-custom-fields" hidden>
-            <label>
-              Certificate code
-              <input id="ct_code" placeholder="e.g. ENG1" />
-            </label>
-            <label>
-              Certificate name
-              <input id="ct_name" placeholder="Full certificate name" />
-            </label>
-          </div>
-
-          <div data-date-field="ct_expiry" data-date-label="Expiry date" data-date-optional></div>
-
-          <label class="modal-check">
-            <input type="checkbox" id="ct_no_expiry" />
-            <span>This certificate does not expire</span>
-          </label>
-
-          <label>
-            Status
-            <select id="ct_status">
-              <option value="Missing">Missing</option>
-              <option value="Pending">Pending</option>
-              <option value="Valid">Valid</option>
-              <option value="Expired">Expired</option>
-              <option value="No Expiry">No expiry</option>
-            </select>
-          </label>
-
-          <label>
-            Attachment (PDF / image)
-            <input type="file" id="ct_file" accept=".pdf,image/*" />
-          </label>
-        </div>
+        <label>
+          Attachment (PDF / image, optional)
+          <input type="file" id="ct_file" accept=".pdf,image/*" />
+        </label>
 
         <button class="btn-blue" type="submit">Save certificate</button>
-
-        <p class="modal-footnote">
-          Files upload to your Supabase certificate-files bucket. Only certificates you save appear in your library.
-        </p>
       </form>
     </div>
   </div>
