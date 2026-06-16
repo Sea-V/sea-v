@@ -122,19 +122,19 @@
     const withFile = certs.filter((c) => c.attachment?.url || c.attachment?.dataUrl).length;
 
     row.innerHTML = `
-      <div class="cert-kpi-box">
+      <div class="sq-kpi-box">
         <div class="kpi-num">${certs.length}</div>
         <div class="kpi-label">Total logged</div>
       </div>
-      <div class="cert-kpi-box">
+      <div class="sq-kpi-box">
         <div class="kpi-num">${valid}</div>
         <div class="kpi-label">Valid / no expiry</div>
       </div>
-      <div class="cert-kpi-box">
+      <div class="sq-kpi-box">
         <div class="kpi-num">${expiring}</div>
         <div class="kpi-label">Expiring soon</div>
       </div>
-      <div class="cert-kpi-box">
+      <div class="sq-kpi-box">
         <div class="kpi-num">${withFile}</div>
         <div class="kpi-label">With document</div>
       </div>

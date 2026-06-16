@@ -57,75 +57,24 @@
 
 .cert-shell-actions {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
+}
+
+.cert-section-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 10px;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 210, 90, 0.12);
 }
 
-.cert-section {
-  padding: 26px 28px 30px;
-}
-
-.cert-kpi-row {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 22px;
-}
-
-.cert-kpi-box {
-  padding: 14px 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.cert-kpi-box .kpi-num {
-  font-size: 22px;
-  font-weight: 800;
-  color: #5bbcff;
-}
-
-.cert-kpi-box .kpi-label {
-  margin-top: 4px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-}
-
-.cert-section-head {
-  margin-bottom: 18px;
-}
-
-.cert-section-head h3 {
-  margin: 0 0 5px;
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.cert-section-head p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.65);
-  line-height: 1.5;
-  font-size: 14px;
-}
+/* Section uses sq-section / sq-kpi-row / sq-section-head from specialist-qualifications.css */
 
 @media (max-width: 900px) {
   .cert-shell-head {
-    grid-template-columns: 1fr;
-  }
-
-  .cert-kpi-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 520px) {
-  .cert-kpi-row {
     grid-template-columns: 1fr;
   }
 }

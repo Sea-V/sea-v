@@ -21,8 +21,8 @@
   <script src="js/state.js?v=27" defer></script>
   <script src="js/achievements-engine.js" defer></script>
   <script src="js/badge-unlock.js" defer></script>
-  <script src="js/certificates.js?v=33" defer></script>
-  <script src="js/certificates-export.js?v=33" defer></script>
+  <script src="js/certificates.js?v=34" defer></script>
+  <script src="js/certificates-export.js?v=34" defer></script>
 </head>
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
 
@@ -52,17 +52,15 @@
           </div>
 
           <div class="cert-shell-actions">
-            <a class="btn-ghost2" href="#" id="btnDownloadAllCerts">Download all</a>
-            <a class="btn-ghost2" href="#" id="btnShareAllCerts">Share all</a>
             <a class="btn-blue" href="#" data-open="certModal">Add certificate</a>
           </div>
         </div>
 
-        <section class="cert-section">
+        <section class="sq-section cert-section">
 
-          <div class="cert-kpi-row" id="certKpiRow"></div>
+          <div class="sq-kpi-row" id="certKpiRow"></div>
 
-          <div class="cert-section-head">
+          <div class="sq-section-head">
             <div>
               <h3>Your certificates</h3>
               <p>
@@ -71,7 +69,12 @@
             </div>
           </div>
 
-          <div class="cert-compact-list" id="certsList"></div>
+          <div class="sq-compact-list cert-compact-list" id="certsList"></div>
+
+          <div class="cert-section-foot">
+            <a class="btn-ghost2" href="#" id="btnDownloadAllCerts">Download all</a>
+            <a class="btn-ghost2" href="#" id="btnShareAllCerts">Share all</a>
+          </div>
 
         </section>
 
