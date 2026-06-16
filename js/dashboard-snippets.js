@@ -149,7 +149,9 @@ async function renderCertSnippet() {
   const dashCertSnippet = document.getElementById("dashCertSnippet");
   if (!dashCertSnippet) return;
 
-  const certs = window.SeavState?.certs || [];
+  const certs = (window.SeavState?.certs || []).filter(
+    (cert) => window.SeavData?.isSavedCert?.(cert) ?? !!cert?.name
+  );
   const isExpiringOrExpired = window.SeavData?.isCertExpiringOrExpired;
   const attentionCerts = certs.filter((cert) =>
     isExpiringOrExpired?.(cert, DASH_CERT_WARNING_DAYS)

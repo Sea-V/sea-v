@@ -105,14 +105,15 @@ Run **`docs/payslips-table.sql`** in the SQL Editor (table + `payslip-files` sto
 
 Place your brand file at **`img/logo.png`** (all pages reference that path).
 
-## Certificate templates (optional SQL)
+## Certificate templates (legacy — optional)
 
-The app auto-syncs certificate templates on load (`js/certificates.js`). To align existing Supabase rows immediately (demote legacy mandatory flags, add rank/role templates), run:
+The Certificates page no longer auto-seeds template rows on load. Users add certificates from the dropdown when they have them.
 
-`docs/certificates-templates-migration.sql`
+**Do not run** `docs/certificates-templates-migration.sql` on new setups — it inserts placeholder rows into the user `certificates` table and can make the public profile look populated when nothing was logged.
 
-**Core compliance (mandatory):** ENG1, STCW A-VI/1, STCW A-VI/6-1  
-**Rank & role (recommended templates):** CoC, GMDSS, PDSD, passport, etc.
+For the yacht certificate dropdown catalog (reference data only), use `docs/certificate-catalog.sql`. The app reads the catalog from `js/seav-data.js` (`CERT_CATALOG_GROUPS`).
+
+**Minimum mandatory (yacht crew):** ENG1, PST, FPFF, EFA, PSSR, PSA — shown as static compliance slots on the public profile only when the user has saved each one.
 
 ## Phase 2 (later)
 

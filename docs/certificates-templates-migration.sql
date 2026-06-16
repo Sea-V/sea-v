@@ -1,5 +1,8 @@
--- SEA-V certificate template alignment (optional — app also syncs on load)
--- Run in Supabase SQL Editor if you want DB rows updated immediately.
+-- SEA-V certificate template alignment (LEGACY — avoid on new projects)
+-- The app no longer auto-syncs templates. Running this inserts placeholder rows into
+-- the user certificates table, which can show false "recorded" certs on the public profile.
+-- Prefer letting users add certificates from the dropdown (js/seav-data.js catalog).
+-- Run in Supabase SQL Editor only if you need to demote old mandatory flags in existing data.
 
 -- Demote legacy universal-mandatory flags (now rank/role, identity, or superseded BST rows)
 UPDATE certificates

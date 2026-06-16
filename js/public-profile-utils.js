@@ -13,7 +13,8 @@
     getOnboardCategoryLabel,
     getSeatimeTotals,
     renderMandatoryCertDetailHtml,
-    isSuppressedAdditionalCert
+    isSuppressedAdditionalCert,
+    isRankRoleCert
   } = window.SeavData;
 
   const LIMITS = {
@@ -147,7 +148,7 @@
     let attention = 0;
 
     templates.forEach((template) => {
-      const cert = findCertByCode(certs, template.code);
+      const cert = findSavedCertByCode(certs, template.code);
       const status = getCertPublicStatus(cert);
       if (status.badge === "Missing" || status.badge === "Expired") {
         attention += 1;
@@ -247,14 +248,26 @@
   }
 
   function isRecommendedCert(cert) {
+    if (typeof isRankRoleCert === "function") return isRankRoleCert(cert);
     if (!cert || isMandatoryCert(cert)) return false;
     const codes = (RECOMMENDED_CERTS || []).map((item) => normalizeCode(item.code));
     return codes.includes(normalizeCode(cert.code));
   }
 
   function findCertByCode(certs, code) {
+    if (window.SeavData?.findCertByCode) {
+      return window.SeavData.findCertByCode(certs, code);
+    }
     const target = normalizeCode(code);
     return certs.find((cert) => normalizeCode(cert.code) === target) || null;
+  }
+
+  function findSavedCertByCode(certs, code) {
+    if (window.SeavData?.findSavedCertByCode) {
+      return window.SeavData.findSavedCertByCode(certs, code);
+    }
+    const cert = findCertByCode(certs, code);
+    return window.SeavData?.isSavedCert?.(cert) ? cert : null;
   }
 
   function getCertPublicStatus(cert) {
@@ -394,7 +407,7 @@
       return "Minimum mandatory";
     }
     if (isMandatoryCert(cert)) return "Minimum mandatory";
-    if (template && (RECOMMENDED_CERTS || []).some((item) => normalizeCode(item.code) === normalizeCode(template.code))) {
+    if (template && isRankRoleCert?.({ code: template.code })) {
       return "Rank & role";
     }
     if (isRecommendedCert(cert)) return "Rank & role";
@@ -591,7 +604,7 @@
     isReferenceVerified, isTrustedVerificationStatus, getCertComplianceSummary,
     groupSeatimeByVessel, toNumber, renderVerificationBadge,
     normalizeCode, parseMeters, formatExpiryShort, getComplianceClass,
-    isMandatoryCert, isRecommendedCert, findCertByCode, getCertPublicStatus,
+    isMandatoryCert, isRecommendedCert, findCertByCode, findSavedCertByCode, getCertPublicStatus,
     buildCareerTagline, formatDates, truncate, setSectionCount, buildShowMoreButton,
     bindPublicCertToggles, resolvePublicCertKey, getPublicCertTypeLabel, isPublicCertExpanded,
     bindExpandToggles, getSectionNavOffset, scrollToSection, setActiveSectionNavLink,

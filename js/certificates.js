@@ -12,6 +12,7 @@
     getCertificateCatalogGroups,
     getCertificateCatalog,
     findCertificateCatalogItem,
+    isSavedCert,
     createId,
     getCertExpiryInfo,
     formatDatePretty
@@ -23,16 +24,6 @@
 
   function getCerts() {
     return window.SeavState?.certs || [];
-  }
-
-  function isSavedCert(cert) {
-    if (!cert) return false;
-    if (cert.name && String(cert.name).trim()) {
-      if (!cert.isTemplate) return true;
-      const hasFile = !!(cert.attachment?.url || cert.attachment?.dataUrl);
-      if (cert.expiry || cert.noExpiry || hasFile) return true;
-    }
-    return false;
   }
 
   function getSavedCerts() {
@@ -83,13 +74,6 @@
     return (
       catalogFlat().find((item) => normCode(item.code) === normalized) || null
     );
-  }
-
-  function catalog() {
-    return [
-      ...catalogFlat(),
-      { code: CUSTOM, name: "Other certificate", isMandatory: false, isTemplate: false, group: "Other" }
-    ];
   }
 
   function findCatalog(code) {
@@ -159,6 +143,7 @@
       return s.statusClass === "pill-valid" || s.statusClass === "pill-neutral";
     }).length;
     const expiring = certs.filter((c) => statusFromCert(c).statusClass === "pill-warning").length;
+    const expired = certs.filter((c) => statusFromCert(c).statusClass === "pill-expired").length;
     const withFile = certs.filter((c) => c.attachment?.url || c.attachment?.dataUrl).length;
 
     row.innerHTML = `
@@ -173,6 +158,10 @@
       <div class="sq-kpi-box">
         <div class="kpi-num">${expiring}</div>
         <div class="kpi-label">Expiring soon</div>
+      </div>
+      <div class="sq-kpi-box">
+        <div class="kpi-num">${expired}</div>
+        <div class="kpi-label">Expired</div>
       </div>
       <div class="sq-kpi-box">
         <div class="kpi-num">${withFile}</div>

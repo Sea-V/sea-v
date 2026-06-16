@@ -16,8 +16,9 @@
     isCertNoExpiry,
     renderMandatoryCertDetailHtml,
     isSuppressedAdditionalCert,
+    isSavedCert,
+    isRankRoleCert,
     MANDATORY_CERTS,
-    RECOMMENDED_CERTS,
     getSeatimeTotals,
     formatDatePretty
   } = window.SeavData;
@@ -29,7 +30,7 @@
     formatDates, truncate, setSectionCount, buildShowMoreButton,
     groupSeatimeByVessel, formatNm, hasNavCoord, getNavigationRouteCoords,
     computeNavigationTotalNm,
-    bindExpandToggles, getCertPublicStatus, findCertByCode, isMandatoryCert,
+    bindExpandToggles, getCertPublicStatus, findCertByCode, findSavedCertByCode, isMandatoryCert,
     isRecommendedCert, normalizeCode, formatExpiryShort, getComplianceClass,
     renderVerificationBadge, isReferenceVerified,
     resolvePublicCertKey, getPublicCertTypeLabel, isPublicCertExpanded
@@ -662,7 +663,7 @@
       renderCertBlock(
         template.name,
         [
-          buildPublicCertRow(findCertByCode(certs, template.code), template).replace(
+          buildPublicCertRow(findSavedCertByCode(certs, template.code), template).replace(
             " data-pp-more-item",
             ""
           )
@@ -673,13 +674,13 @@
       )
     );
 
-    const rankHtml = (RECOMMENDED_CERTS || [])
-      .map((template) => findCertByCode(certs, template.code))
-      .filter((cert) => cert && cert.name)
+    const rankHtml = (certs || [])
+      .filter((cert) => isSavedCert(cert) && isRecommendedCert(cert))
       .map((cert) => buildPublicCertRow(cert, null).replace(" data-pp-more-item", ""));
 
-    const additional = certs.filter(
+    const additional = (certs || []).filter(
       (cert) =>
+        isSavedCert(cert) &&
         (cert.name || cert.code) &&
         !isMandatoryCert(cert) &&
         !isRecommendedCert(cert) &&

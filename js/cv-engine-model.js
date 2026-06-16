@@ -11,6 +11,7 @@
     KEYS,
     MANDATORY_CERTS,
     RECOMMENDED_CERTS,
+    isSavedCert,
     formatDatePretty,
     getSpecialistCategoryLabel,
     getOnboardCategoryLabel
@@ -231,7 +232,9 @@
     const vessels = sortByDateDesc(state?.vessels || [], "from").sort(
       compareVesselsChronologicalDesc
     );
-    const certs = (state?.certs || []).filter((cert) => cert?.name);
+    const certs = (state?.certs || []).filter((cert) =>
+      typeof isSavedCert === "function" ? isSavedCert(cert) : !!cert?.name
+    );
     const specialist = sortByDateDesc(state?.specialistQualifications || [], "dateObtained");
     const onboard = state?.onboardExperiences || [];
     const achievements = state?.achievements || [];

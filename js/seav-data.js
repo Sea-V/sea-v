@@ -296,6 +296,18 @@
 
   const RECOMMENDED_CERTS = CERT_CATALOG_GROUPS.flatMap((group) => group.certs || []);
 
+  /* Public profile “Rank & role” — catalog groups only (not full dropdown catalog) */
+  const RANK_ROLE_GROUP_LABELS = new Set([
+    "Identity & seafarer records",
+    "STCW basic & combined training",
+    "CoC, rank & MCA yacht qualifications",
+    "Navigation, bridge & GMDSS",
+    "Advanced STCW (safety & medical)",
+    "Passenger / large-yacht STCW"
+  ]);
+
+  const RANK_ROLE_LEGACY_CODES = new Set(["GMDSS"]);
+
   /* Legacy mandatory codes demoted on sync (frontend + optional SQL migration) */
   const DEPRECATED_MANDATORY_CODES = [
     "PASSPORT",
@@ -351,6 +363,40 @@
         (item) => normalizeCertCode(item.code) === normalized
       ) || null
     );
+  }
+
+  function isSavedCert(cert) {
+    if (!cert) return false;
+    if (cert.name && String(cert.name).trim()) {
+      if (!cert.isTemplate) return true;
+      const hasFile = !!(cert.attachment?.url || cert.attachment?.dataUrl);
+      if (cert.expiry || cert.noExpiry || hasFile) return true;
+    }
+    return false;
+  }
+
+  function getSavedCertificates(certs) {
+    return (certs || []).filter(isSavedCert);
+  }
+
+  function findCertByCode(certs, code) {
+    const target = normalizeCertCode(code);
+    return (certs || []).find((item) => normalizeCertCode(item.code) === target) || null;
+  }
+
+  function findSavedCertByCode(certs, code) {
+    const cert = findCertByCode(certs, code);
+    return isSavedCert(cert) ? cert : null;
+  }
+
+  function isRankRoleCert(cert) {
+    if (!cert) return false;
+    const mandatoryCodes = MANDATORY_CERTS.map((item) => normalizeCertCode(item.code));
+    if (mandatoryCodes.includes(normalizeCertCode(cert.code))) return false;
+
+    const item = findCertificateCatalogItem(cert.code);
+    if (item && RANK_ROLE_GROUP_LABELS.has(item.group)) return true;
+    return RANK_ROLE_LEGACY_CODES.has(normalizeCertCode(cert.code));
   }
 
   /* Legacy / duplicate rows hidden from Additional certificates */
@@ -946,10 +992,16 @@ window.SeavData = {
   KEYS,
   MANDATORY_CERTS,
   RECOMMENDED_CERTS,
+  RANK_ROLE_GROUP_LABELS,
   CERT_CATALOG_GROUPS,
   getCertificateCatalogGroups,
   getCertificateCatalog,
   findCertificateCatalogItem,
+  isSavedCert,
+  getSavedCertificates,
+  findCertByCode,
+  findSavedCertByCode,
+  isRankRoleCert,
   DEPRECATED_MANDATORY_CODES,
   getMandatoryCertTemplate,
   renderMandatoryCertDetailHtml,
