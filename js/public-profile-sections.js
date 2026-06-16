@@ -18,7 +18,8 @@
     isSuppressedAdditionalCert,
     MANDATORY_CERTS,
     RECOMMENDED_CERTS,
-    getSeatimeTotals
+    getSeatimeTotals,
+    formatDatePretty
   } = window.SeavData;
 
   const U = window.SeavPublicProfileUtils || {};
@@ -30,7 +31,8 @@
     computeNavigationTotalNm,
     bindExpandToggles, getCertPublicStatus, findCertByCode, isMandatoryCert,
     isRecommendedCert, normalizeCode, formatExpiryShort, getComplianceClass,
-    renderVerificationBadge, isReferenceVerified
+    renderVerificationBadge, isReferenceVerified,
+    resolvePublicCertKey, getPublicCertTypeLabel, isPublicCertExpanded
   } = U;
 
   const Seav = window.Seav;
@@ -557,7 +559,7 @@
     const hasFile = !!fileUrl;
     const expiryLine = record?.expiry ? `Expires ${expiryLabel}` : expiryLabel;
     const certKey = resolvePublicCertKey(record, template);
-    const isExpanded = expandedPublicCertIds.has(certKey);
+    const isExpanded = isPublicCertExpanded?.(certKey) === true;
     const typeLabel = getPublicCertTypeLabel(record, template);
 
     return `

@@ -385,6 +385,10 @@
     return `pp-cert-${normalizeCode(code)}`;
   }
 
+  function isPublicCertExpanded(certKey) {
+    return expandedPublicCertIds.has(certKey);
+  }
+
   function getPublicCertTypeLabel(cert, template) {
     if (template && (MANDATORY_CERTS || []).some((item) => normalizeCode(item.code) === normalizeCode(template.code))) {
       return "Minimum mandatory";
@@ -589,7 +593,7 @@
     normalizeCode, parseMeters, formatExpiryShort, getComplianceClass,
     isMandatoryCert, isRecommendedCert, findCertByCode, getCertPublicStatus,
     buildCareerTagline, formatDates, truncate, setSectionCount, buildShowMoreButton,
-    bindPublicCertToggles, resolvePublicCertKey, getPublicCertTypeLabel,
+    bindPublicCertToggles, resolvePublicCertKey, getPublicCertTypeLabel, isPublicCertExpanded,
     bindExpandToggles, getSectionNavOffset, scrollToSection, setActiveSectionNavLink,
     bindSectionNav, renderSectionNav, renderTrustStrip
   };
