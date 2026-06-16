@@ -50,7 +50,7 @@ const REQUIRED_ASSETS = [
   "js/api-core.js",
   "js/api-mappers.js",
   "js/api.js",
-  "js/certificates-core.js",
+  "js/certificates.js",
   "js/navigation-helpers.js",
   "js/navigation-state.js",
   "js/payslips-core.js",

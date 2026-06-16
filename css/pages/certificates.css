@@ -3,6 +3,175 @@
 ========================================================= */
 
 /* =========================================================
+   PAGE STACK
+========================================================= */
+
+.cert-page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.cert-notes-card {
+  border-radius: 30px;
+  border: 1px solid rgba(255, 210, 90, 0.24);
+  background: var(--page-shell-bg);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+  padding: 28px 32px 32px;
+}
+
+.cert-notes-card h3 {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.cert-notes-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 72ch;
+}
+
+.cert-notes-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 210, 90, 0.16);
+}
+
+/* =========================================================
+   ADD MODAL PICKER
+========================================================= */
+
+.cert-picker-panel {
+  margin-bottom: 18px;
+}
+
+.cert-picker-label {
+  margin: 0 0 10px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cert-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 280px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.cert-picker-group-label {
+  margin: 0 0 8px;
+  color: rgba(255, 210, 90, 0.92);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cert-picker-group-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.cert-picker-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 210, 90, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.cert-picker-btn:hover {
+  border-color: rgba(255, 210, 90, 0.45);
+  background: rgba(255, 210, 90, 0.08);
+}
+
+.cert-picker-btn.is-selected {
+  border-color: rgba(255, 210, 90, 0.75);
+  background: rgba(255, 210, 90, 0.14);
+  box-shadow: 0 0 0 1px rgba(255, 210, 90, 0.18);
+}
+
+.cert-picker-btn-title {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.cert-picker-btn-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.cert-picker-empty {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 210, 90, 0.28);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.cert-picker-selected {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 210, 90, 0.24);
+  background: rgba(255, 210, 90, 0.08);
+}
+
+.cert-picker-selected-label {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cert-picker-change {
+  margin-left: auto;
+  color: #ffd25a;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.cert-picker-change:hover {
+  text-decoration: underline;
+}
+
+.cert-custom-fields {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+/* =========================================================
    SHELL
 ========================================================= */
 
@@ -99,36 +268,6 @@
   padding-top: 24px;
 
   border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-.cert-notes-card {
-  margin-top: 14px;
-  padding: 24px 28px 28px;
-}
-
-.cert-notes-card h3 {
-  margin: 0 0 12px;
-
-  color: #ffffff;
-
-  font-size: 18px;
-  font-weight: 900;
-}
-
-.cert-notes-card p {
-  margin: 0 0 12px;
-
-  color: rgba(255, 255, 255, 0.72);
-
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-.cert-notes-card .cert-shell-footer-actions {
-  margin-top: 20px;
-  padding-top: 20px;
-
-  border-top: 1px solid rgba(255, 210, 90, 0.16);
 }
 
 /* =========================================================

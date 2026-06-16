@@ -54,10 +54,10 @@ function patchAppPage(html) {
     );
   }
 
-  if (next.includes("js/certificates.js") && !next.includes("js/certificates-core.js")) {
+  if (next.includes("js/certificates.js") && !next.includes("js/certificates-export.js")) {
     next = next.replace(
-      '<script src="js/certificates.js" defer></script>',
-      `<script src="js/certificates-core.js" defer></script>\n  <script src="js/certificates-render.js" defer></script>\n  <script src="js/certificates-export.js" defer></script>\n  <script src="js/certificates.js" defer></script>`
+      /<script src="js\/certificates\.js([^"]*)" defer><\/script>/,
+      `<script src="js/certificates.js$1" defer></script>\n  <script src="js/certificates-export.js$1" defer></script>`
     );
   }
 
