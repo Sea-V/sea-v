@@ -473,6 +473,15 @@
   color: var(--field-hint-color);
 }
 
+.modal-form select option:disabled {
+  color: rgba(255, 210, 90, 0.88);
+  background-color: #0e1c2e;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .modal-form input:focus,
 .modal-form select:focus,
 .modal-form textarea:focus {

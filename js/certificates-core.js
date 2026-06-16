@@ -1,7 +1,10 @@
 // /js/certificates-core.js
 (function () {
   "use strict";
-  if (!window.Seav || !window.SeavAPI || !window.SeavData || !window.SeavState) return;
+  if (!window.SeavData) {
+    console.warn("[SEA-V] SeavData not found. Did you include js/seav-data.js before certificates-core.js?");
+    return;
+  }
 
   const {
     KEYS, MANDATORY_CERTS, RECOMMENDED_CERTS, DEPRECATED_MANDATORY_CODES,

@@ -1,11 +1,14 @@
 // /js/certificates.js
 (function () {
   "use strict";
-  if (!window.Seav || !window.SeavAPI || !window.SeavData || !window.SeavState) return;
+  if (!window.Seav || !window.SeavData) return;
   const C = window.SeavCertificatesCore;
   const R = window.SeavCertificatesRender;
   const X = window.SeavCertificatesExport;
-  if (!C || !R || !X) return;
+  if (!C || !R || !X) {
+    console.warn("[SEA-V] Certificate modules failed to load.");
+    return;
+  }
   const {
     STORAGE_KEY, expandedCertIds, CUSTOM_CERT_PICKER_CODE, syncCertExpiryFields,
     getCerts, isMandatoryCert, isRecommendedTemplate, findCertByCode, getDisplayStatus,
@@ -39,34 +42,75 @@
     const select = document.getElementById("ct_cert_picker");
     if (!select) return;
 
-    const options = getAvailableCertPickerOptions(getCerts());
+    const options =
+      typeof getAvailableCertPickerOptions === "function"
+        ? getAvailableCertPickerOptions(getCerts())
+        : buildPickerOptionsFallback(getCerts());
+
     const groups = [
       { key: "mandatory", label: "Minimum mandatory" },
       { key: "rank", label: "Rank & role" },
       { key: "custom", label: "Other" }
     ];
 
-    select.innerHTML = `<option value="">Choose a certificate…</option>`;
+    select.replaceChildren();
+    select.appendChild(new Option("Choose a certificate…", "", true, true));
 
     groups.forEach(({ key, label }) => {
       const items = options.filter((option) => option.group === key);
       if (!items.length) return;
 
-      const optgroup = document.createElement("optgroup");
-      optgroup.label = label;
+      const heading = new Option(`— ${label} —`, "", false, false);
+      heading.disabled = true;
+      select.appendChild(heading);
 
       items.forEach((option) => {
-        const el = document.createElement("option");
-        el.value = option.code;
-        el.textContent =
+        const labelText =
           option.code === CUSTOM_CERT_PICKER_CODE
             ? option.name
             : `${option.name} (${option.code})`;
-        optgroup.appendChild(el);
+        select.appendChild(new Option(labelText, option.code));
       });
-
-      select.appendChild(optgroup);
     });
+  }
+
+  function buildPickerOptionsFallback(certs) {
+    const SD = window.SeavData || {};
+    const existingCodes = new Set(
+      (certs || [])
+        .map((cert) => normalizeCode(cert.code))
+        .filter(Boolean)
+    );
+
+    const catalog = [
+      ...(SD.MANDATORY_CERTS || []).map((template) => ({
+        code: template.code,
+        name: template.name,
+        isMandatory: true,
+        isTemplate: true,
+        group: "mandatory"
+      })),
+      ...(SD.RECOMMENDED_CERTS || []).map((template) => ({
+        code: template.code,
+        name: template.name,
+        isMandatory: false,
+        isTemplate: true,
+        group: "rank"
+      })),
+      {
+        code: CUSTOM_CERT_PICKER_CODE,
+        name: "Custom certificate (enter details below)",
+        isMandatory: false,
+        isTemplate: false,
+        group: "custom"
+      }
+    ];
+
+    return catalog.filter(
+      (option) =>
+        option.code === CUSTOM_CERT_PICKER_CODE ||
+        !existingCodes.has(normalizeCode(option.code))
+    );
   }
 
   function applyCertPickerSelection(code) {
@@ -294,8 +338,11 @@
 
     const certForm = document.getElementById("certForm");
 
-    document.querySelector('[data-open="certModal"]')?.addEventListener("click", () => {
-      if (certForm) resetCertForm(certForm);
+    document.querySelectorAll('[data-open="certModal"]').forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (certForm) resetCertForm(certForm);
+        else populateCertPicker();
+      });
     });
 
     const btnDownloadAll = document.getElementById("btnDownloadAllCerts");
