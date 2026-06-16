@@ -5,14 +5,14 @@
   if (!C || !window.Seav) return;
   const {
     expandedCertIds, MANDATORY_TYPE_LABEL, getCerts, isMandatoryCert, isRecommendedTemplate,
-    findCertByCode, getRankRoleCerts, getAdditionalCerts, getCertExpiryLabel,
-    getDisplayStatus, sortCerts
+    getRankRoleCerts, getAdditionalCerts, getCertExpiryLabel,
+    getDisplayStatus, sortCerts, getMandatoryCerts
   } = C;
-  const { MANDATORY_CERTS, renderMandatoryCertDetailHtml, isCertNoExpiry } = window.SeavData;
+  const { renderMandatoryCertDetailHtml, isCertNoExpiry } = window.SeavData;
   const Seav = window.Seav;
   function buildCertRow(cert, options = {}) {
     const certId = cert.id || "";
-    const allowDelete = options.allowDelete !== false && !isMandatoryCert(cert);
+    const allowDelete = options.allowDelete !== false;
 
     const fileUrl = cert.attachment?.url || cert.attachment?.dataUrl || "";
     const hasFile = !!fileUrl;
@@ -135,16 +135,14 @@
     const mount = document.getElementById("mandatoryCertsMount");
     if (!mount) return;
 
-    const rows = (MANDATORY_CERTS || [])
-      .map((template) => {
-        const cert = findCertByCode(certs, template.code);
-        return cert
-          ? buildCertRow(cert, { allowDelete: false })
-          : renderEmptyRow(`No record for ${template.name} yet.`);
-      })
-      .join("");
+    const mandatoryCerts = sortCerts(getMandatoryCerts(certs));
 
-    mount.innerHTML = rows;
+    mount.innerHTML = mandatoryCerts.length
+      ? mandatoryCerts.map((cert) => buildCertRow(cert)).join("")
+      : renderEmptyRow(
+          "No mandatory certificates yet. Click Add Certificate and choose ENG1, BST modules, or PSA.",
+          "—"
+        );
   }
 
   function renderCerts() {
@@ -167,14 +165,20 @@
 
     if (rankRoleList) {
       rankRoleList.innerHTML = rankRoleCerts.length
-        ? sortCerts(rankRoleCerts).map((cert) => buildCertRow(cert, { allowDelete: false })).join("")
-        : renderEmptyRow("Rank & role templates will appear after sync.", "—");
+        ? sortCerts(rankRoleCerts).map((cert) => buildCertRow(cert)).join("")
+        : renderEmptyRow(
+            "No rank & role certificates yet. Click Add Certificate to add CoC, GMDSS, PDSD, and more.",
+            "—"
+          );
     }
 
     if (additionalList) {
       additionalList.innerHTML = additionalCerts.length
         ? sortCerts(additionalCerts).map((cert) => buildCertRow(cert)).join("")
-        : renderEmptyRow("No additional certificates yet. Use Add certificate for extras.", "—");
+        : renderEmptyRow(
+            "No additional certificates yet. Choose Custom certificate when adding, or add optional extras here.",
+            "—"
+          );
     }
   }
 

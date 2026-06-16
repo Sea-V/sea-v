@@ -31,6 +31,136 @@
     { stateKey: "payslips", table: "payslips" }
   ];
 
+  const ALL_STATE_KEYS = [
+    "profile",
+    "seatimes",
+    "certs",
+    "vessels",
+    "refs",
+    "achievements",
+    "navigationAreas",
+    "tenders",
+    "onboardExperiences",
+    "hobbiesInterests",
+    "specialistQualifications",
+    "payslips"
+  ];
+
+  /** Profile + achievements power the sidebar on every app page. */
+  const CORE_LOAD_KEYS = ["profile", "achievements"];
+
+  const PAGE_LOAD_KEYS = {
+    "dashboard.html": [
+      "seatimes",
+      "certs",
+      "vessels",
+      "refs",
+      "navigationAreas",
+      "tenders",
+      "onboardExperiences",
+      "hobbiesInterests",
+      "specialistQualifications",
+      "payslips"
+    ],
+    "profile.html": [],
+    "cv-generator.html": [
+      "seatimes",
+      "certs",
+      "vessels",
+      "refs",
+      "navigationAreas",
+      "tenders",
+      "onboardExperiences",
+      "hobbiesInterests",
+      "specialistQualifications"
+    ],
+    "vessels.html": ["vessels", "seatimes"],
+    "seatime.html": ["seatimes", "vessels"],
+    "certificates.html": ["certs"],
+    "references.html": ["refs"],
+    "achievements.html": ["seatimes", "vessels", "tenders"],
+    "tenders.html": ["tenders", "vessels"],
+    "navigation.html": ["navigationAreas", "vessels", "seatimes"],
+    "onboard-experience.html": ["onboardExperiences", "vessels"],
+    "hobbies-interests.html": ["hobbiesInterests"],
+    "specialist-qualifications.html": ["specialistQualifications"],
+    "payslips.html": ["payslips"]
+  };
+
+  const PAGE_FILE_HYDRATION_KEYS = {
+    "dashboard.html": FILE_HYDRATION_TABLES.map((t) => t.stateKey),
+    "profile.html": [],
+    "cv-generator.html": ["vessels", "certs", "refs", "achievements"],
+    "vessels.html": ["vessels"],
+    "seatime.html": ["seatimes"],
+    "certificates.html": ["certs"],
+    "references.html": ["refs"],
+    "achievements.html": ["achievements"],
+    "tenders.html": ["tenders"],
+    "navigation.html": [],
+    "onboard-experience.html": ["onboardExperiences"],
+    "hobbies-interests.html": ["hobbiesInterests"],
+    "specialist-qualifications.html": ["specialistQualifications"],
+    "payslips.html": ["payslips"]
+  };
+
+  function currentPageFile() {
+    const part = location.pathname.split("/").pop();
+    if (!part || part === "") return "dashboard.html";
+    return part.split("?")[0].split("#")[0].toLowerCase();
+  }
+
+  function keysForPage(page = currentPageFile()) {
+    const pageKeys = PAGE_LOAD_KEYS[page];
+    const combined = pageKeys
+      ? [...CORE_LOAD_KEYS, ...pageKeys]
+      : ALL_STATE_KEYS;
+    return [...new Set(combined)];
+  }
+
+  function deferredKeysForPage(page = currentPageFile()) {
+    const immediate = new Set(keysForPage(page));
+    return ALL_STATE_KEYS.filter((key) => !immediate.has(key));
+  }
+
+  function fileHydrationTablesForPage(page = currentPageFile()) {
+    const allowed = new Set(
+      PAGE_FILE_HYDRATION_KEYS[page] || FILE_HYDRATION_TABLES.map((t) => t.stateKey)
+    );
+    return FILE_HYDRATION_TABLES.filter((entry) => allowed.has(entry.stateKey));
+  }
+
+  async function fetchStateKey(key, userId) {
+    switch (key) {
+      case "profile":
+        return window.SeavAPI.get(KEYS.PROFILE, DEFAULT_PROFILE);
+      case "seatimes":
+        return window.SeavAPI.getArray(KEYS.SEATIMES);
+      case "certs":
+        return window.SeavAPI.getArray(KEYS.CERTS);
+      case "vessels":
+        return window.SeavAPI.getArray(KEYS.VESSELS);
+      case "refs":
+        return window.SeavAPI.getArray(KEYS.REFS);
+      case "achievements":
+        return window.SeavAPI.getArray(KEYS.ACHIEVEMENTS);
+      case "navigationAreas":
+        return window.SeavAPI.getArray(KEYS.NAVIGATION_AREAS);
+      case "tenders":
+        return window.SeavAPI.getArray(KEYS.TENDERS);
+      case "onboardExperiences":
+        return window.SeavAPI.getArray(KEYS.ONBOARD_EXPERIENCES);
+      case "hobbiesInterests":
+        return window.SeavAPI.getArray(KEYS.HOBBIES_INTERESTS);
+      case "specialistQualifications":
+        return window.SeavAPI.getArray(KEYS.SPECIALIST_QUALIFICATIONS);
+      case "payslips":
+        return window.SeavAPI.getArray(KEYS.PAYSLIPS);
+      default:
+        return [];
+    }
+  }
+
   function safeArray(value) {
     return Array.isArray(value) ? value : [];
   }
@@ -118,6 +248,7 @@
 
     async loadAll(options = {}) {
       const force = options.force === true;
+      const loadAllKeys = options.allKeys === true;
       const skipFileHydration = options.skipFileHydration === true;
 
       if (!force) {
@@ -126,7 +257,7 @@
           this.data = applyData(cached);
           this.ready = true;
           if (!skipFileHydration) {
-            queueBackgroundFileHydration();
+            queueBackgroundFileHydration(currentPageFile());
           }
           return this.data;
         }
@@ -147,66 +278,47 @@
       }
 
       try {
-        await window.SeavAuth?.ensureProfileRow?.(window.SeavAuth.getUser?.());
-      } catch (bootstrapErr) {
-        console.warn("[SEA-V] Profile bootstrap before load:", bootstrapErr);
-      }
-
-      try {
       window.SeavAPI?.setBulkHydrateFiles?.(false);
 
-      const [
-        profile,
-        seatimes,
-        certs,
-        vessels,
-        refs,
-        achievements,
-        navigationAreas,
-        tenders,
-        onboardExperiences,
-        hobbiesInterests,
-        specialistQualifications,
-        payslips
-      ] = await Promise.all([
-        window.SeavAPI.get(KEYS.PROFILE, DEFAULT_PROFILE),
-        window.SeavAPI.getArray(KEYS.SEATIMES),
-        window.SeavAPI.getArray(KEYS.CERTS),
-        window.SeavAPI.getArray(KEYS.VESSELS),
-        window.SeavAPI.getArray(KEYS.REFS),
-        window.SeavAPI.getArray(KEYS.ACHIEVEMENTS),
-        window.SeavAPI.getArray(KEYS.NAVIGATION_AREAS),
-        window.SeavAPI.getArray(KEYS.TENDERS),
-        window.SeavAPI.getArray(KEYS.ONBOARD_EXPERIENCES),
-        window.SeavAPI.getArray(KEYS.HOBBIES_INTERESTS),
-        window.SeavAPI.getArray(KEYS.SPECIALIST_QUALIFICATIONS),
-        window.SeavAPI.getArray(KEYS.PAYSLIPS)
-      ]);
+      const page = currentPageFile();
+      const loadKeys = loadAllKeys ? ALL_STATE_KEYS : keysForPage(page);
+      const fetched = await Promise.all(loadKeys.map((key) => fetchStateKey(key, userId)));
+      const snapshot = {};
+
+      loadKeys.forEach((key, index) => {
+        snapshot[key] = fetched[index];
+      });
 
       window.SeavAPI?.setBulkHydrateFiles?.(true);
 
       this.data = applyData({
+        ...this.data,
         profile: {
-          ...(profile || {}),
-          id: profile?.id || userId || DEFAULT_PROFILE.id
+          ...(snapshot.profile || this.data.profile || {}),
+          id: snapshot.profile?.id || userId || DEFAULT_PROFILE.id
         },
-        seatimes,
-        certs,
-        vessels,
-        refs,
-        achievements,
-        navigationAreas,
-        tenders,
-        onboardExperiences,
-        hobbiesInterests,
-        specialistQualifications,
-        payslips
+        seatimes: snapshot.seatimes ?? this.data.seatimes,
+        certs: snapshot.certs ?? this.data.certs,
+        vessels: snapshot.vessels ?? this.data.vessels,
+        refs: snapshot.refs ?? this.data.refs,
+        achievements: snapshot.achievements ?? this.data.achievements,
+        navigationAreas: snapshot.navigationAreas ?? this.data.navigationAreas,
+        tenders: snapshot.tenders ?? this.data.tenders,
+        onboardExperiences: snapshot.onboardExperiences ?? this.data.onboardExperiences,
+        hobbiesInterests: snapshot.hobbiesInterests ?? this.data.hobbiesInterests,
+        specialistQualifications:
+          snapshot.specialistQualifications ?? this.data.specialistQualifications,
+        payslips: snapshot.payslips ?? this.data.payslips
       });
 
       writeCachedData(this.data);
 
       if (!skipFileHydration) {
-        queueBackgroundFileHydration();
+        queueBackgroundFileHydration(loadAllKeys ? currentPageFile() : page);
+      }
+
+      if (!loadAllKeys) {
+        queueDeferredPageLoads(page, userId);
       }
       } catch (loadErr) {
         window.SeavAPI?.setBulkHydrateFiles?.(true);
@@ -225,7 +337,7 @@
 
     async refresh() {
       clearCachedData();
-      await this.loadAll({ force: true });
+      await this.loadAll({ force: true, allKeys: true });
       document.dispatchEvent(new CustomEvent("seav:data-updated"));
       return this.data;
     },
@@ -235,6 +347,21 @@
       writeCachedData(this.data);
       document.dispatchEvent(new CustomEvent("seav:data-updated"));
       return this.data.certs;
+    },
+
+    patchData(partial) {
+      if (!partial || typeof partial !== "object") return this.data;
+      Object.keys(partial).forEach((key) => {
+        if (key in this.data) {
+          this.data[key] = partial[key];
+        }
+      });
+      writeCachedData(this.data);
+      return this.data;
+    },
+
+    syncCache() {
+      writeCachedData(this.data);
     },
 
     get profile() {
@@ -337,8 +464,49 @@
   }
 
   let fileHydrationQueued = false;
+  let deferredLoadQueued = false;
 
-  async function hydrateStoredFilesInBackground() {
+  async function loadDeferredKeys(page, userId) {
+    const deferred = deferredKeysForPage(page);
+    if (!deferred.length) return false;
+
+    window.SeavAPI?.setBulkHydrateFiles?.(false);
+
+    const results = await Promise.all(deferred.map((key) => fetchStateKey(key, userId)));
+    const partial = {};
+    deferred.forEach((key, index) => {
+      partial[key] = results[index];
+    });
+
+    window.SeavAPI?.setBulkHydrateFiles?.(true);
+    state.patchData(applyData({ ...state.data, ...partial }));
+    document.dispatchEvent(new CustomEvent("seav:data-updated"));
+    return true;
+  }
+
+  function queueDeferredPageLoads(page, userId) {
+    const deferred = deferredKeysForPage(page);
+    if (!deferred.length || deferredLoadQueued) return;
+    deferredLoadQueued = true;
+
+    const run = () => {
+      loadDeferredKeys(page, userId)
+        .catch((err) => {
+          console.warn("[SEA-V] Background data load failed:", err);
+        })
+        .finally(() => {
+          deferredLoadQueued = false;
+        });
+    };
+
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(run, { timeout: 4000 });
+    } else {
+      window.setTimeout(run, 300);
+    }
+  }
+
+  async function hydrateStoredFilesInBackground(page = currentPageFile()) {
     if (hydrateStoredFilesInBackground._running) {
       return hydrateStoredFilesInBackground._promise;
     }
@@ -350,7 +518,7 @@
 
       let changed = false;
 
-      for (const { stateKey, table } of FILE_HYDRATION_TABLES) {
+      for (const { stateKey, table } of fileHydrationTablesForPage(page)) {
         const items = state.data[stateKey];
         if (!Array.isArray(items) || !items.length) continue;
 
@@ -405,12 +573,12 @@
     }
   }
 
-  function queueBackgroundFileHydration() {
+  function queueBackgroundFileHydration(page = currentPageFile()) {
     if (fileHydrationQueued) return;
     fileHydrationQueued = true;
 
     const run = () => {
-      hydrateStoredFilesInBackground()
+      hydrateStoredFilesInBackground(page)
         .catch((err) => {
           console.warn("[SEA-V] Background file hydration failed:", err);
         })
@@ -436,7 +604,7 @@
       }
 
       if (!force && state.ready && !isDataLikelyEmpty()) {
-        queueBackgroundFileHydration();
+        queueBackgroundFileHydration(currentPageFile());
         return state.data;
       }
 
@@ -566,6 +734,7 @@
     if (!ev.key || !ev.key.startsWith("seav_")) return;
     if (ev.key.startsWith("seav_signed_url_v1:")) return;
     if (ev.key.startsWith("seav_celebrated_badge_codes")) return;
+    if (ev.key === KEYS.CV_DRAFT) return;
     await state.refresh();
   });
 })();

@@ -74,6 +74,10 @@
   }
 
   async function loadNavEntries() {
+    if (window.SeavState?.ready) {
+      return (window.SeavState.navigationAreas || []).map(normalizeNavEntry);
+    }
+
     try {
       const raw = await SeavAPI.getArray(STORAGE_KEY);
       return raw.map(normalizeNavEntry);

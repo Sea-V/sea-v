@@ -23,7 +23,13 @@
 }
 
 html.auth-pending body {
-  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+html:not(.auth-pending) body {
+  opacity: 1;
+  transition: opacity 0.15s ease;
 }
 
 @media (max-width: 640px) {

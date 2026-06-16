@@ -32,6 +32,7 @@
   let currentUser = null;
   let ready = false;
   let initPromise = null;
+  const profileBootstrapDone = new Set();
 
   function currentPage() {
     const part = location.pathname.split("/").pop();
@@ -252,6 +253,7 @@
 
   async function ensureProfileRow(user, name = "") {
     if (!user?.id) return;
+    if (profileBootstrapDone.has(user.id)) return;
 
     const client = await waitForSupabase();
     const { data: sessionData } = await client.auth.getSession();
@@ -274,7 +276,10 @@
       throw updateError;
     }
 
-    if (updated) return;
+    if (updated) {
+      profileBootstrapDone.add(user.id);
+      return;
+    }
 
     const { error: insertError } = await client.from("profile").insert([
       {
@@ -291,6 +296,8 @@
       console.warn("[SEA-V] Profile insert failed:", insertError);
       throw insertError;
     }
+
+    profileBootstrapDone.add(user.id);
   }
 
   function redirectToLogin() {

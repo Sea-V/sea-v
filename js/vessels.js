@@ -611,12 +611,6 @@ async function saveVesselData(vesselData) {
 
     await SeavAPI.deleteItemById(STORAGE_KEY, vesselId);
 
-    const latestVessels = await SeavAPI.getArray(STORAGE_KEY);
-
-    if (window.SeavState) {
-      window.SeavState.vessels = latestVessels;
-    }
-
     renderVessels();
     document.dispatchEvent(new CustomEvent("seav:data-updated"));
   }

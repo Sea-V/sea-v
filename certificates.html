@@ -126,8 +126,8 @@
 
         <p class="muted">
           Minimum mandatory certificates cover ENG1, BST modules, and PSA.
-          Rank & role templates depend on your position — add extras under
-          Additional certificates.
+          Rank & role certificates depend on your position. Use Add Certificate
+          to pick from the list — only added certificates appear here.
         </p>
 
         <div class="cert-shell-footer-actions">
@@ -188,18 +188,25 @@
         <input type="hidden" id="ct_is_mandatory" value="false" />
 
         <p class="modal-intro">
-          Upload copies of mandatory and rank-specific certificates. Expiry dates drive
-          dashboard alerts and your compliance summary.
+          Choose a certificate from the list, then upload your copy and set the expiry date.
+          Only certificates you add appear in your library.
         </p>
 
-        <label>
+        <label id="ct_picker_wrap">
+          Certificate
+          <select id="ct_cert_picker" required>
+            <option value="">Choose a certificate…</option>
+          </select>
+        </label>
+
+        <label id="ct_code_wrap" hidden>
           Certificate code
           <input id="ct_code" placeholder="Code printed on the certificate, if shown" />
         </label>
 
-        <label>
+        <label id="ct_name_wrap" hidden>
           Certificate name
-          <input required id="ct_name" placeholder="Full name of the certificate or medical" />
+          <input id="ct_name" placeholder="Full name of the certificate or medical" />
         </label>
 
         <div data-date-field="ct_expiry" data-date-label="Expiry date" data-date-optional></div>
@@ -228,7 +235,7 @@
         <button class="btn-blue" type="submit">Save certificate</button>
 
         <p class="modal-footnote">
-          Saved to your SEA-V profile. Template certificates sync from your rank profile on load.
+          Saved to your SEA-V profile. Pick from the dropdown when adding — nothing is created until you save.
         </p>
       </form>
 

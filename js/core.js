@@ -253,18 +253,6 @@ const app = {
 
     if (window.SeavAchievementEngine?.runAchievementEvaluation) {
       await window.SeavAchievementEngine.runAchievementEvaluation();
-    } else if (window.SeavAchievementEngine?.evaluateAutomaticAchievements) {
-      const result = await window.SeavAchievementEngine.evaluateAutomaticAchievements();
-
-      if ((result?.created || 0) > 0 && window.SeavState?.refresh) {
-        await window.SeavState.refresh();
-      }
-
-      if (result?.newAchievements?.length) {
-        window.setTimeout(() => {
-          window.SeavBadgeUnlock?.celebrate?.(result.newAchievements);
-        }, 600);
-      }
     }
 
     if (window.SeavDashboard?.refresh) {

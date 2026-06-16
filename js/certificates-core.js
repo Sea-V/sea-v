@@ -5,7 +5,7 @@
 
   const {
     KEYS, MANDATORY_CERTS, RECOMMENDED_CERTS, DEPRECATED_MANDATORY_CODES,
-    createId, getCertExpiryInfo, getMandatoryCertTemplate, isSuppressedAdditionalCert, isCertNoExpiry
+    getCertExpiryInfo, isSuppressedAdditionalCert, isCertNoExpiry
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.CERTS;
@@ -70,96 +70,52 @@
     );
   }
 
-  async function syncCertificateTemplates() {
-    let existing = await SeavAPI.getArray(STORAGE_KEY);
-    let changed = false;
+  const CUSTOM_CERT_PICKER_CODE = "__CUSTOM__";
 
-    for (const cert of existing) {
-      const code = normalizeCode(cert.code);
-      const template = getMandatoryCertTemplate(code);
+  function getCertCatalog() {
+    const mandatory = (MANDATORY_CERTS || []).map((template) => ({
+      code: template.code,
+      name: template.name,
+      isMandatory: true,
+      isTemplate: true,
+      group: "mandatory"
+    }));
 
-      if (template && cert.name !== template.name) {
-        await SeavAPI.updateItemById(STORAGE_KEY, cert.id, {
-          ...cert,
-          name: template.name
-        });
-        changed = true;
-        continue;
-      }
+    const recommended = (RECOMMENDED_CERTS || []).map((template) => ({
+      code: template.code,
+      name: template.name,
+      isMandatory: false,
+      isTemplate: true,
+      group: "rank"
+    }));
 
-      if (mandatoryCodeSet.has(code) && !cert.isMandatory) {
-        await SeavAPI.updateItemById(STORAGE_KEY, cert.id, {
-          ...cert,
-          isMandatory: true,
-          isTemplate: true
-        });
-        changed = true;
-        continue;
-      }
-
-      if (cert.isMandatory && deprecatedMandatorySet.has(code)) {
-        await SeavAPI.updateItemById(STORAGE_KEY, cert.id, {
-          ...cert,
-          isMandatory: false,
-          isTemplate: false
-        });
-        changed = true;
-        continue;
-      }
-
-      if (isSuppressedAdditionalCert(cert)) {
-        await SeavAPI.deleteItemById(STORAGE_KEY, cert.id);
-        changed = true;
-      }
-    }
-
-    for (const template of MANDATORY_CERTS) {
-      const exists = existing.some(
-        (cert) => normalizeCode(cert.code) === normalizeCode(template.code)
-      );
-
-      if (exists) continue;
-
-      await SeavAPI.upsertItemById(STORAGE_KEY, {
-        id: createId("cert"),
-        code: template.code,
-        name: template.name,
-        expiry: "",
-        status: "Missing",
-        attachment: null,
-        isMandatory: true,
-        isTemplate: true
-      });
-
-      changed = true;
-    }
-
-    for (const template of RECOMMENDED_CERTS) {
-      const exists = existing.some(
-        (cert) => normalizeCode(cert.code) === normalizeCode(template.code)
-      );
-
-      if (exists) continue;
-
-      await SeavAPI.upsertItemById(STORAGE_KEY, {
-        id: createId("cert"),
-        code: template.code,
-        name: template.name,
-        expiry: "",
-        status: "Missing",
-        attachment: null,
+    return [
+      ...mandatory,
+      ...recommended,
+      {
+        code: CUSTOM_CERT_PICKER_CODE,
+        name: "Custom certificate (enter details below)",
         isMandatory: false,
-        isTemplate: true
-      });
+        isTemplate: false,
+        group: "custom"
+      }
+    ];
+  }
 
-      changed = true;
-    }
+  function getAvailableCertPickerOptions(certs = getCerts()) {
+    const existingCodes = new Set(
+      (certs || []).map((cert) => normalizeCode(cert.code)).filter(Boolean)
+    );
 
-    if (changed) {
-      existing = await SeavAPI.getArray(STORAGE_KEY);
-    }
+    return getCertCatalog().filter(
+      (option) =>
+        option.code === CUSTOM_CERT_PICKER_CODE ||
+        !existingCodes.has(normalizeCode(option.code))
+    );
+  }
 
-    return { changed, certs: existing };
+  function findCatalogOption(code) {
+    return getCertCatalog().find((option) => normalizeCode(option.code) === normalizeCode(code)) || null;
   }
 
   function formatDatePretty(dateStr) {
@@ -292,10 +248,11 @@
 
 
   window.SeavCertificatesCore = {
-    STORAGE_KEY, expandedCertIds, MANDATORY_TYPE_LABEL,
+    STORAGE_KEY, expandedCertIds, MANDATORY_TYPE_LABEL, CUSTOM_CERT_PICKER_CODE,
     getCerts, normalizeCode, normalizeName, isMandatoryCert, isRecommendedTemplate,
     findCertByCode, getMandatoryCerts, getRankRoleCerts, getAdditionalCerts,
-    syncCertificateTemplates, formatDatePretty, syncCertExpiryFields,
+    getCertCatalog, getAvailableCertPickerOptions, findCatalogOption,
+    formatDatePretty, syncCertExpiryFields,
     getCertExpiryLabel, getDisplayStatus, sortCerts
   };
 })();

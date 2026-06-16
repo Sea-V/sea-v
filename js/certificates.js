@@ -7,13 +7,109 @@
   const X = window.SeavCertificatesExport;
   if (!C || !R || !X) return;
   const {
-    STORAGE_KEY, expandedCertIds, syncCertificateTemplates, syncCertExpiryFields,
-    getCerts, isMandatoryCert, isRecommendedTemplate, findCertByCode, getDisplayStatus, normalizeCode, normalizeName
+    STORAGE_KEY, expandedCertIds, CUSTOM_CERT_PICKER_CODE, syncCertExpiryFields,
+    getCerts, isMandatoryCert, isRecommendedTemplate, findCertByCode, getDisplayStatus,
+    normalizeCode, normalizeName, getAvailableCertPickerOptions, findCatalogOption
   } = C;
   const { renderCerts } = R;
   const { emailCertificateSummary, shareAllCertificates, downloadAllCertificates } = X;
   const { createId, isCertNoExpiry } = window.SeavData;
   const Seav = window.Seav;
+  function setCertModalMode(mode) {
+    const pickerWrap = document.getElementById("ct_picker_wrap");
+    const pickerEl = document.getElementById("ct_cert_picker");
+    const codeWrap = document.getElementById("ct_code_wrap");
+    const nameWrap = document.getElementById("ct_name_wrap");
+    const isAdd = mode === "add";
+
+    if (pickerWrap) pickerWrap.hidden = !isAdd;
+    if (pickerEl) {
+      pickerEl.required = isAdd;
+      if (isAdd) pickerEl.value = "";
+    }
+    if (codeWrap) codeWrap.hidden = isAdd;
+    if (nameWrap) nameWrap.hidden = isAdd;
+
+    if (isAdd) {
+      populateCertPicker();
+    }
+  }
+
+  function populateCertPicker() {
+    const select = document.getElementById("ct_cert_picker");
+    if (!select) return;
+
+    const options = getAvailableCertPickerOptions(getCerts());
+    const groups = [
+      { key: "mandatory", label: "Minimum mandatory" },
+      { key: "rank", label: "Rank & role" },
+      { key: "custom", label: "Other" }
+    ];
+
+    select.innerHTML = `<option value="">Choose a certificate…</option>`;
+
+    groups.forEach(({ key, label }) => {
+      const items = options.filter((option) => option.group === key);
+      if (!items.length) return;
+
+      const optgroup = document.createElement("optgroup");
+      optgroup.label = label;
+
+      items.forEach((option) => {
+        const el = document.createElement("option");
+        el.value = option.code;
+        el.textContent =
+          option.code === CUSTOM_CERT_PICKER_CODE
+            ? option.name
+            : `${option.name} (${option.code})`;
+        optgroup.appendChild(el);
+      });
+
+      select.appendChild(optgroup);
+    });
+  }
+
+  function applyCertPickerSelection(code) {
+    const codeEl = document.getElementById("ct_code");
+    const nameEl = document.getElementById("ct_name");
+    const isTemplateEl = document.getElementById("ct_is_template");
+    const isMandatoryEl = document.getElementById("ct_is_mandatory");
+    const codeWrap = document.getElementById("ct_code_wrap");
+    const nameWrap = document.getElementById("ct_name_wrap");
+
+    if (!code) return;
+
+    const catalogOption = findCatalogOption(code);
+    if (!catalogOption || catalogOption.code === CUSTOM_CERT_PICKER_CODE) {
+      if (codeEl) {
+        codeEl.value = "";
+        codeEl.disabled = false;
+      }
+      if (nameEl) {
+        nameEl.value = "";
+        nameEl.disabled = false;
+      }
+      if (isTemplateEl) isTemplateEl.value = "false";
+      if (isMandatoryEl) isMandatoryEl.value = "false";
+      if (codeWrap) codeWrap.hidden = false;
+      if (nameWrap) nameWrap.hidden = false;
+      return;
+    }
+
+    if (codeEl) {
+      codeEl.value = catalogOption.code;
+      codeEl.disabled = true;
+    }
+    if (nameEl) {
+      nameEl.value = catalogOption.name;
+      nameEl.disabled = true;
+    }
+    if (isTemplateEl) isTemplateEl.value = catalogOption.isTemplate ? "true" : "false";
+    if (isMandatoryEl) isMandatoryEl.value = catalogOption.isMandatory ? "true" : "false";
+    if (codeWrap) codeWrap.hidden = true;
+    if (nameWrap) nameWrap.hidden = true;
+  }
+
   function fillCertForm(cert) {
     const editId = document.getElementById("ct_edit_id");
     const isTemplateEl = document.getElementById("ct_is_template");
@@ -43,6 +139,7 @@
     if (statusEl) statusEl.value = cert.status || "Missing";
 
     syncCertExpiryFields(isCertNoExpiry(cert));
+    setCertModalMode("edit");
 
     if (window.SeavModals?.openModal) {
       window.SeavModals.openModal("certModal");
@@ -69,17 +166,36 @@
 
     Seav.clearDateTriplet("ct_expiry");
     syncCertExpiryFields(false);
+    setCertModalMode("add");
   }
 
   function readCertForm() {
     const noExpiry = document.getElementById("ct_no_expiry")?.checked || false;
+    const editId = document.getElementById("ct_edit_id")?.value || "";
+    const pickerCode = document.getElementById("ct_cert_picker")?.value || "";
+    const catalogOption = !editId && pickerCode ? findCatalogOption(pickerCode) : null;
+    const isCustomPick = catalogOption?.code === CUSTOM_CERT_PICKER_CODE;
+
+    let code = document.getElementById("ct_code")?.value.trim() || "";
+    let name = document.getElementById("ct_name")?.value.trim() || "";
+    let isTemplate = document.getElementById("ct_is_template")?.value === "true";
+    let isMandatory = document.getElementById("ct_is_mandatory")?.value === "true";
+
+    if (!editId && catalogOption && !isCustomPick) {
+      code = catalogOption.code;
+      name = catalogOption.name;
+      isTemplate = catalogOption.isTemplate;
+      isMandatory = catalogOption.isMandatory;
+    }
 
     return {
-      id: document.getElementById("ct_edit_id")?.value || "",
-      isTemplate: document.getElementById("ct_is_template")?.value === "true",
-      isMandatory: document.getElementById("ct_is_mandatory")?.value === "true",
-      code: document.getElementById("ct_code")?.value.trim() || "",
-      name: document.getElementById("ct_name")?.value.trim(),
+      id: editId,
+      pickerCode,
+      isCustomPick,
+      isTemplate,
+      isMandatory,
+      code,
+      name,
       noExpiry,
       expiry: noExpiry ? "" : Seav.readDateTriplet("ct_expiry"),
       status: document.getElementById("ct_status")?.value || "Missing",
@@ -114,29 +230,17 @@
     }
 
     const CERT_LOADER_LINES = [
-      "Safety first — muster your compliance records",
-      "Checking ENG1, BST modules, and STCW status…",
-      "All present and accounted for",
-      "Preparing your certificate library for inspection"
+      "Fetching your certificate library…",
+      "Ready when you are"
     ];
-    const CERT_LOADER_MIN_MS = 500;
+    const CERT_LOADER_MIN_MS = 0;
 
     let certLoaderTimer = null;
 
     function showCertLoader() {
       if (!window.SeavFeedback?.showPageLoader) return;
 
-      window.SeavFeedback.showPageLoader(
-        "Loading certificates…",
-        CERT_LOADER_LINES[0]
-      );
-
-      let lineIndex = 0;
-      certLoaderTimer = window.setInterval(() => {
-        lineIndex = (lineIndex + 1) % CERT_LOADER_LINES.length;
-        const subEl = document.querySelector(".seav-page-loader-sub");
-        if (subEl) subEl.textContent = CERT_LOADER_LINES[lineIndex];
-      }, 2400);
+      window.SeavFeedback.showPageLoader("Loading certificates…", CERT_LOADER_LINES[0]);
     }
 
     function hideCertLoader() {
@@ -151,19 +255,21 @@
       renderCerts();
     };
 
+    let initStarted = false;
+
     const initData = async () => {
+      if (initStarted) return;
+      initStarted = true;
+
       const loaderStartedAt = Date.now();
       showCertLoader();
 
       try {
-        const { certs } = await syncCertificateTemplates();
-
-        if (window.SeavState?.updateCerts) {
-          window.SeavState.updateCerts(certs);
-        } else if (window.SeavState?.data) {
-          window.SeavState.data.certs = certs;
-          runRefresh();
+        if (window.SeavState?.ready && !getCerts().length) {
+          const certs = await SeavAPI.getArray(STORAGE_KEY);
+          window.SeavState?.updateCerts?.(certs);
         }
+        runRefresh();
       } catch (err) {
         console.error("[SEA-V] Certificate load failed:", err);
         Seav.notify(
@@ -182,6 +288,15 @@
     };
 
     document.addEventListener("seav:state-ready", initData, { once: true });
+    if (window.SeavState?.ready) {
+      initData();
+    }
+
+    const certForm = document.getElementById("certForm");
+
+    document.querySelector('[data-open="certModal"]')?.addEventListener("click", () => {
+      if (certForm) resetCertForm(certForm);
+    });
 
     const btnDownloadAll = document.getElementById("btnDownloadAllCerts");
     const btnShareAll = document.getElementById("btnShareAllCerts");
@@ -264,8 +379,14 @@
       });
     }
 
-    const certForm = document.getElementById("certForm");
     if (certForm) {
+      const pickerEl = document.getElementById("ct_cert_picker");
+      if (pickerEl) {
+        pickerEl.addEventListener("change", (event) => {
+          applyCertPickerSelection(event.target.value);
+        });
+      }
+
       const noExpiryEl = document.getElementById("ct_no_expiry");
       if (noExpiryEl) {
         noExpiryEl.addEventListener("change", (event) => {
@@ -277,9 +398,18 @@
         e.preventDefault();
 
         const formData = readCertForm();
-        if (!formData.name) return;
 
-        const currentCerts = await SeavAPI.getArray(STORAGE_KEY);
+        if (!formData.id && !formData.pickerCode) {
+          Seav.notify("error", "Choose a certificate", "Select a certificate from the dropdown list.");
+          return;
+        }
+
+        if (!formData.name) {
+          Seav.notify("error", "Name required", "Enter the certificate name.");
+          return;
+        }
+
+        const currentCerts = getCerts();
 
         const inputCode = normalizeCode(formData.code);
         const inputName = normalizeName(formData.name);
@@ -309,50 +439,46 @@
           : null;
 
         await Seav.withSaving(async () => {
-        const certId = formData.id || createId("cert");
+          const certId = formData.id || createId("cert");
 
-        const attachment = await buildCertAttachment(
-          formData.file,
-          existingCert?.attachment || null,
-          certId
-        );
-        if (formData.file && !attachment) return;
+          const attachment = await buildCertAttachment(
+            formData.file,
+            existingCert?.attachment || null,
+            certId
+          );
+          if (formData.file && !attachment) return;
 
-        const hasAttachment = !!(attachment?.url || attachment?.dataUrl);
-        const finalStatus = formData.noExpiry
-          ? "No Expiry"
-          : formData.status === "Missing" && (formData.expiry || hasAttachment)
-            ? "Pending"
-            : formData.status;
+          const hasAttachment = !!(attachment?.url || attachment?.dataUrl);
+          const finalStatus = formData.noExpiry
+            ? "No Expiry"
+            : formData.status === "Missing" && (formData.expiry || hasAttachment)
+              ? "Pending"
+              : formData.status;
 
-        const certData = {
-          id: certId,
-          code: existingCert?.isTemplate ? existingCert.code : formData.code,
-          name: existingCert?.isTemplate ? existingCert.name : formData.name,
-          expiry: formData.noExpiry ? "" : formData.expiry,
-          status: finalStatus,
-          attachment,
-          noExpiry: !!formData.noExpiry,
-          isMandatory: existingCert ? existingCert.isMandatory : formData.isMandatory,
-          isTemplate: existingCert ? existingCert.isTemplate : formData.isTemplate
-        };
+          const certData = {
+            id: certId,
+            code: formData.code,
+            name: formData.name,
+            expiry: formData.noExpiry ? "" : formData.expiry,
+            status: finalStatus,
+            attachment,
+            noExpiry: !!formData.noExpiry,
+            isMandatory: existingCert ? existingCert.isMandatory : formData.isMandatory,
+            isTemplate: existingCert ? existingCert.isTemplate : formData.isTemplate
+          };
 
-        await saveCertData(certData);
+          await saveCertData(certData);
 
-        resetCertForm(certForm);
-        if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
+          resetCertForm(certForm);
+          if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
 
-        Seav.notify(
-          "success",
-          "Certificate stowed",
-          "Safely filed in your certificate library."
-        );
+          Seav.notify(
+            "success",
+            "Certificate stowed",
+            "Safely filed in your certificate library."
+          );
 
-        if (window.Seav.app?.refreshAll) {
-          await window.Seav.app.refreshAll();
-        } else {
           renderCerts();
-        }
         }, { sub: "Saving certificate" });
       });
     }
@@ -409,11 +535,11 @@
       await SeavAPI.deleteItemById(STORAGE_KEY, certId);
       expandedCertIds.delete(certId);
 
-      if (window.Seav.app?.refreshAll) {
-        await window.Seav.app.refreshAll();
-      } else {
-        renderCerts();
+      if (window.SeavState?.updateCerts) {
+        window.SeavState.updateCerts(window.SeavState.certs);
       }
+
+      renderCerts();
     });
 
     document.addEventListener("seav:data-updated", runRefresh);

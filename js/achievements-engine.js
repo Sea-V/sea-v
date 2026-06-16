@@ -164,9 +164,9 @@
       newAchievements.push(buildAutoAchievement(fullDefinition));
     }
 
-    for (const achievement of newAchievements) {
-      await SeavAPI.upsertItemById(KEYS.ACHIEVEMENTS, achievement);
-    }
+    await Promise.all(
+      newAchievements.map((achievement) => SeavAPI.upsertItemById(KEYS.ACHIEVEMENTS, achievement))
+    );
 
     return {
       created: newAchievements.length,
@@ -178,8 +178,8 @@
   async function runAchievementEvaluation() {
     const result = await evaluateAutomaticAchievements();
 
-    if ((result?.created || 0) > 0 && window.SeavState?.refresh) {
-      await window.SeavState.refresh();
+    if ((result?.created || 0) > 0) {
+      document.dispatchEvent(new CustomEvent("seav:data-updated"));
     }
 
     if (result?.newAchievements?.length) {
@@ -196,9 +196,27 @@
     runAchievementEvaluation
   };
 
+  const ACHIEVEMENT_EVAL_PAGES = new Set([
+    "dashboard.html",
+    "achievements.html",
+    "vessels.html",
+    "seatime.html",
+    "tenders.html",
+    "profile.html"
+  ]);
+
+  function shouldRunAchievementEval() {
+    const page = (location.pathname.split("/").pop() || "index.html")
+      .split("?")[0]
+      .split("#")[0]
+      .toLowerCase();
+    return ACHIEVEMENT_EVAL_PAGES.has(page);
+  }
+
   let achievementEvalStarted = false;
 
   document.addEventListener("seav:state-ready", () => {
+    if (!shouldRunAchievementEval()) return;
     if (achievementEvalStarted) return;
     achievementEvalStarted = true;
     runAchievementEvaluation();

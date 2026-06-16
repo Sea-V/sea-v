@@ -37,6 +37,48 @@
     bulkHydrateFiles = enabled === true;
   }
 
+  function keyToStateField(key) {
+    const K = window.SeavData?.KEYS;
+    if (!K) return null;
+    const map = {
+      [K.SEATIMES]: "seatimes",
+      [K.CERTS]: "certs",
+      [K.VESSELS]: "vessels",
+      [K.REFS]: "refs",
+      [K.ACHIEVEMENTS]: "achievements",
+      [K.NAVIGATION_AREAS]: "navigationAreas",
+      [K.TENDERS]: "tenders",
+      [K.ONBOARD_EXPERIENCES]: "onboardExperiences",
+      [K.HOBBIES_INTERESTS]: "hobbiesInterests",
+      [K.SPECIALIST_QUALIFICATIONS]: "specialistQualifications",
+      [K.PAYSLIPS]: "payslips"
+    };
+    return map[key] || null;
+  }
+
+  function getCachedArray(key) {
+    const field = keyToStateField(key);
+    if (!field || !window.SeavState?.ready) return null;
+    const items = window.SeavState.data?.[field];
+    return Array.isArray(items) ? items : null;
+  }
+
+  function writeCachedArray(key, items) {
+    const field = keyToStateField(key);
+    if (!field || !window.SeavState?.data) return items;
+    window.SeavState.data[field] = items;
+    window.SeavState.syncCache?.();
+    return items;
+  }
+
+  async function resolveArrayAfterMutation(key, mutator) {
+    const cached = getCachedArray(key);
+    if (cached) {
+      return writeCachedArray(key, mutator([...cached]));
+    }
+    return fetchArrayByKey(key, await resolveAuthUserId());
+  }
+
   async function fetchSupabaseArray(table, mapper, orderColumn, userId) {
     if (!window.SeavSupabase) return [];
 
@@ -285,42 +327,26 @@ const OWNER_PROFILE_COLUMNS = [
 async function fetchOwnerProfileRow(userId) {
   if (!window.SeavSupabase || !userId) return { data: null, error: null };
 
-  let result = await window.SeavSupabase
-    .from("profile")
-    .select(OWNER_PROFILE_COLUMNS)
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (!result.error && result.data) return result;
-
-  if (result.error) {
-    console.warn("[SEA-V] Profile fetch by id failed, retrying safe columns:", result.error.message);
-    result = await window.SeavSupabase
+  const [byId, byUserId] = await Promise.all([
+    window.SeavSupabase
       .from("profile")
-      .select(PUBLIC_PROFILE_COLUMNS)
+      .select(OWNER_PROFILE_COLUMNS)
       .eq("id", userId)
-      .maybeSingle();
-    if (!result.error && result.data) return result;
-  }
-
-  const byUserId = await window.SeavSupabase
-    .from("profile")
-    .select(OWNER_PROFILE_COLUMNS)
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (!byUserId.error && byUserId.data) return byUserId;
-
-  if (!byUserId.error && !byUserId.data) {
-    const byUserSafe = await window.SeavSupabase
+      .maybeSingle(),
+    window.SeavSupabase
       .from("profile")
-      .select(PUBLIC_PROFILE_COLUMNS)
+      .select(OWNER_PROFILE_COLUMNS)
       .eq("user_id", userId)
-      .maybeSingle();
-    if (!byUserSafe.error && byUserSafe.data) return byUserSafe;
+      .maybeSingle()
+  ]);
+
+  if (byId.error) {
+    console.warn("[SEA-V] Profile fetch by id failed:", byId.error.message);
   }
 
-  return result.error ? result : byUserId;
+  if (byId.data) return byId;
+  if (byUserId.data) return byUserId;
+  return byId.error ? byId : byUserId;
 }
 
 const SeavAPI = {
@@ -472,10 +498,8 @@ const SeavAPI = {
       return fetchArrayByKey(key, userId);
     },
 
-    async getItemById(key, id) {
-      const items = await this.getArray(key);
-      const index = findIndexById(items, id);
-      return index === -1 ? null : items[index];
+    async getArrayForUser(key, userId) {
+      return fetchArrayByKey(key, userId);
     },
 
     async upsertItemById(key, item) {
@@ -485,47 +509,92 @@ const SeavAPI = {
 
       if (isVesselKey(key)) {
         await upsertSupabaseItem("vessels", mapVesselToSupabase(item));
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       if (isSeatimeKey(key)) {
         await upsertSupabaseItem("seatimes", mapSeatimeToSupabase(item));
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       if (isCertKey(key)) {
         await upsertSupabaseItem("certificates", mapCertToSupabase(item));
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       if (isRefKey(key)) {
         await upsertSupabaseItem("sea_references", mapRefToSupabase(item));
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       if (isTenderKey(key)) {
         await upsertSupabaseItem("tenders", mapTenderToSupabase(item));
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       if (isAchievementKey(key)) {
         await upsertSupabaseItem("achievements", mapAchievementToSupabase(item));
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       if (isNavigationAreaKey(key)) {
         await upsertSupabaseItem("navigation_areas", mapNavigationAreaToSupabase(item));
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       if (isOnboardExperienceKey(key)) {
         await upsertSupabaseItem("onboard_experiences", mapOnboardExperienceToSupabase(item));
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       if (isHobbyInterestKey(key)) {
         await upsertSupabaseItem("hobbies_interests", mapHobbyInterestToSupabase(item));
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       if (isSpecialistQualificationKey(key)) {
@@ -533,83 +602,150 @@ const SeavAPI = {
           "specialist_qualifications",
           mapSpecialistQualificationToSupabase(item)
         );
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       if (isPayslipKey(key)) {
         await upsertSupabaseItem("payslips", mapPayslipToSupabase(item));
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
       }
 
       return [];
     },
 
     async updateItemById(key, id, updatedItem) {
+      const merged = { ...updatedItem, id };
+
       if (isVesselKey(key)) {
-        await updateSupabaseItem("vessels", id, mapVesselToSupabase({ ...updatedItem, id }));
-        return await this.getArray(key);
+        await updateSupabaseItem("vessels", id, mapVesselToSupabase(merged));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       if (isSeatimeKey(key)) {
-        await updateSupabaseItem("seatimes", id, mapSeatimeToSupabase({ ...updatedItem, id }));
-        return await this.getArray(key);
+        await updateSupabaseItem("seatimes", id, mapSeatimeToSupabase(merged));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       if (isCertKey(key)) {
-        await updateSupabaseItem("certificates", id, mapCertToSupabase({ ...updatedItem, id }));
-        return await this.getArray(key);
+        await updateSupabaseItem("certificates", id, mapCertToSupabase(merged));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       if (isRefKey(key)) {
-        await updateSupabaseItem("sea_references", id, mapRefToSupabase({ ...updatedItem, id }));
-        return await this.getArray(key);
+        await updateSupabaseItem("sea_references", id, mapRefToSupabase(merged));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       if (isTenderKey(key)) {
-        await updateSupabaseItem("tenders", id, mapTenderToSupabase({ ...updatedItem, id }));
-        return await this.getArray(key);
+        await updateSupabaseItem("tenders", id, mapTenderToSupabase(merged));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       if (isAchievementKey(key)) {
-        await updateSupabaseItem("achievements", id, mapAchievementToSupabase({ ...updatedItem, id }));
-        return await this.getArray(key);
+        await updateSupabaseItem("achievements", id, mapAchievementToSupabase(merged));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       if (isNavigationAreaKey(key)) {
-        await updateSupabaseItem("navigation_areas", id, mapNavigationAreaToSupabase({ ...updatedItem, id }));
-        return await this.getArray(key);
+        await updateSupabaseItem("navigation_areas", id, mapNavigationAreaToSupabase(merged));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       if (isOnboardExperienceKey(key)) {
         await updateSupabaseItem(
           "onboard_experiences",
           id,
-          mapOnboardExperienceToSupabase({ ...updatedItem, id })
+          mapOnboardExperienceToSupabase(merged)
         );
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       if (isHobbyInterestKey(key)) {
         await updateSupabaseItem(
           "hobbies_interests",
           id,
-          mapHobbyInterestToSupabase({ ...updatedItem, id })
+          mapHobbyInterestToSupabase(merged)
         );
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       if (isSpecialistQualificationKey(key)) {
         await updateSupabaseItem(
           "specialist_qualifications",
           id,
-          mapSpecialistQualificationToSupabase({ ...updatedItem, id })
+          mapSpecialistQualificationToSupabase(merged)
         );
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       if (isPayslipKey(key)) {
-        await updateSupabaseItem("payslips", id, mapPayslipToSupabase({ ...updatedItem, id }));
-        return await this.getArray(key);
+        await updateSupabaseItem("payslips", id, mapPayslipToSupabase(merged));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
       }
 
       return [];
@@ -619,63 +755,63 @@ const SeavAPI = {
       try {
         if (isVesselKey(key)) {
           await deleteSupabaseItem("vessels", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isSeatimeKey(key)) {
           await deleteSupabaseItem("seatimes", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isCertKey(key)) {
           await deleteSupabaseItem("certificates", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isRefKey(key)) {
           await deleteSupabaseItem("sea_references", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isTenderKey(key)) {
           await deleteSupabaseItem("tenders", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isAchievementKey(key)) {
           await deleteSupabaseItem("achievements", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isNavigationAreaKey(key)) {
           await deleteSupabaseItem("navigation_areas", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isOnboardExperienceKey(key)) {
           await deleteSupabaseItem("onboard_experiences", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isHobbyInterestKey(key)) {
           await deleteSupabaseItem("hobbies_interests", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isSpecialistQualificationKey(key)) {
           await deleteSupabaseItem("specialist_qualifications", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isPayslipKey(key)) {
           await deleteSupabaseItem("payslips", id);
-          return await this.getArray(key);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         return [];
       } catch (err) {
         notifyDeleteFailure(err);
-        return await this.getArray(key);
+        return resolveArrayAfterMutation(key, (items) => items);
       }
     },
 

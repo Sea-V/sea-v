@@ -30,46 +30,6 @@ const {
   getReferenceStatus
 } = window.SeavData;
 
-const DASH_NAV_TILE_URL =
-  "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-const DASH_NAV_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
-const DASH_NAV_COLORS = [
-  "#2563eb",
-  "#dc2626",
-  "#16a34a",
-  "#9333ea",
-  "#ea580c",
-  "#0891b2",
-  "#be123c",
-  "#4f46e5",
-  "#0f766e",
-  "#b45309",
-  "#7c3aed",
-  "#0284c7"
-];
-
-let dashNavigationChart = null;
-let dashNavigationLayer = null;
-
-function haversineNm(lat1, lng1, lat2, lng2) {
-  const toRad = (deg) => (deg * Math.PI) / 180;
-  const earthRadiusNm = 3440.065;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  return 2 * earthRadiusNm * Math.asin(Math.sqrt(a));
-}
-
-function formatNm(value) {
-  const miles = Number(value || 0);
-  if (miles >= 1000) return `${Math.round(miles).toLocaleString()} NM`;
-  if (miles >= 100) return `${Math.round(miles)} NM`;
-  return `${Math.round(miles * 10) / 10} NM`;
-}
-
   function getBadgeTone(badgeTier) {
     switch (String(badgeTier || "").toLowerCase()) {
       case "bronze":
@@ -91,10 +51,6 @@ function formatNm(value) {
     const definition = window.SeavBadges?.ACHIEVEMENTS?.[achievement?.code];
     return definition?.dashboardSection || "";
   }
-
-  function getAchievementSection(a) {
-  return a.dashboardSection || "";
-}
 
   function loadProfile() {
     return {
@@ -294,13 +250,19 @@ function updateProfileCompletion(profile) {
       S.renderHobbiesSnippet
     ];
 
-    for (const renderSnippet of snippetRenderers) {
-      try {
-        await renderSnippet();
-      } catch (err) {
-        console.error("[SEA-V] Dashboard snippet render failed:", renderSnippet.name || "anonymous", err);
-      }
-    }
+    await Promise.all(
+      snippetRenderers.map(async (renderSnippet) => {
+        try {
+          await renderSnippet();
+        } catch (err) {
+          console.error(
+            "[SEA-V] Dashboard snippet render failed:",
+            renderSnippet.name || "anonymous",
+            err
+          );
+        }
+      })
+    );
   }
 
   async function refresh() {
