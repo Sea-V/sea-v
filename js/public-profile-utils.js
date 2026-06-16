@@ -29,6 +29,23 @@
     additionalCerts: 8
   };
 
+  const SECTION_NAV = [
+    { id: "pp-section-overview", label: "Overview" },
+    { id: "ppCertSection", label: "Certificates" },
+    { id: "ppVesselSection", label: "Yachts" },
+    { id: "ppSeatimeSection", label: "Sea time" },
+    { id: "ppRefSection", label: "References" },
+    { id: "ppOperationsSection", label: "Operations" },
+    { id: "ppNavigationSection", label: "Navigation" },
+    { id: "ppSpecialistSection", label: "Skills" },
+    { id: "ppAchievementSection", label: "Highlights" },
+    { id: "ppHobbiesSection", label: "Interests" }
+  ];
+
+  let sectionNavObserver = null;
+  let publicCertToggleBound = false;
+  const expandedPublicCertIds = new Set();
+
   function haversineNm(lat1, lng1, lat2, lng2) {
     const toRad = (deg) => (deg * Math.PI) / 180;
     const earthRadiusNm = 3440.065;
