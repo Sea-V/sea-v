@@ -22,6 +22,7 @@ function readPublicEnabledFromRow(p) {
 function mapProfileFromSupabase(p) {
   return {
     id: p.id,
+    userId: p.user_id || p.userId || null,
     name: p.name || "",
     rank: p.rank || "",
     qualification: p.qualification || "",

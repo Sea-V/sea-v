@@ -378,7 +378,12 @@
       if (isProtectedPage()) redirectToLogin();
     } finally {
       ready = true;
-      document.documentElement.classList.remove("auth-pending");
+      const page = currentPage();
+      const redirectingFromAuthPage =
+        (page === "index.html" || page === "signup.html") && isAuthenticated();
+      if (!redirectingFromAuthPage) {
+        document.documentElement.classList.remove("auth-pending");
+      }
       document.dispatchEvent(new CustomEvent("seav:auth-ready"));
     }
   }

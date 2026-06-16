@@ -7,46 +7,50 @@
     return;
   }
 
+  if (!window.SeavPublicProfileUtils) {
+    console.warn("[SEA-V] Public profile utils missing.");
+    return;
+  }
+
+  const {
+    LIMITS,
+    buildCareerTagline,
+    renderTrustStrip,
+    isReferenceVerified,
+    getCertComplianceSummary,
+    computeNavigationTotalNm,
+    bindExpandToggles,
+    renderSectionNav,
+    bindPublicCertToggles
+  } = window.SeavPublicProfileUtils;
+
   const {
     KEYS,
     DEFAULT_PROFILE,
-    MANDATORY_CERTS,
-    RECOMMENDED_CERTS,
-    getReferenceStatus,
-    getCertExpiryInfo,
-    isCertNoExpiry,
     isProfilePublic,
-    formatDatePretty,
-    getOnboardCategoryLabel,
-    getHobbyInterestCategoryLabel,
-    getSpecialistCategoryLabel,
-    getSeatimeTotals,
-    renderMandatoryCertDetailHtml,
-    isSuppressedAdditionalCert
+    getSeatimeTotals
   } = window.SeavData;
 
-  const U = () => window.SeavPublicProfileUtils;
+  function getProfileOwnerUserId(profile) {
+    return profile?.userId || profile?.user_id || profile?.id || null;
+  }
 
-  const expandedPublicCertIds = new Set();
-  let publicCertToggleBound = false;
+  async function waitForSupabase(maxMs = 5000) {
+    if (window.SeavSupabase) return window.SeavSupabase;
+    const started = Date.now();
+    while (!window.SeavSupabase && Date.now() - started < maxMs) {
+      await new Promise((resolve) => window.setTimeout(resolve, 50));
+    }
+    return window.SeavSupabase || null;
+  }
 
-  const SECTION_NAV = [
-    { id: "pp-section-overview", label: "Overview" },
-    { id: "ppCertSection", label: "Certificates" },
-    { id: "ppVesselSection", label: "Yachts" },
-    { id: "ppSeatimeSection", label: "Sea time" },
-    { id: "ppRefSection", label: "References" },
-    { id: "ppOperationsSection", label: "Operations" },
-    { id: "ppNavigationSection", label: "Navigation" },
-    { id: "ppSpecialistSection", label: "Skills" },
-    { id: "ppAchievementSection", label: "Highlights" },
-    { id: "ppHobbiesSection", label: "Interests" }
-  ];
+  function wirePublicProfileNav() {
+    const brand = document.querySelector(".public-cv-brand");
+    if (!brand) return;
+    const goDashboard = window.SeavAuth?.isAuthenticated?.() === true;
+    brand.setAttribute("href", goDashboard ? "dashboard.html" : "index.html");
+  }
 
-  let sectionNavObserver = null;
-
-
-  const LIMITS = U()?.LIMITS || {};
   function renderHeaderProfile(profile, vessels, metrics) {
     const avatar = document.getElementById("ppAvatar");
     const nameEl = document.getElementById("pp_name");
@@ -116,8 +120,12 @@
       return { ...DEFAULT_PROFILE, publicEnabled: false };
     }
 
-    const profile = await SeavAPI.get(KEYS.PROFILE, DEFAULT_PROFILE);
-    return { ...DEFAULT_PROFILE, ...profile };
+    if (window.SeavAuth?.isAuthenticated?.()) {
+      const ownProfile = await SeavAPI.get(KEYS.PROFILE, DEFAULT_PROFILE);
+      return { ...DEFAULT_PROFILE, ...ownProfile };
+    }
+
+    return { ...DEFAULT_PROFILE, publicEnabled: false };
   }
 
   async function loadPublicData(profileId, key) {
@@ -147,7 +155,14 @@
       if (gate) gate.hidden = true;
       if (content) content.style.display = "block";
 
-      const ownerId = profile.id;
+      if (!window.SeavPublicProfileSections) {
+        throw new Error("Public profile sections module missing.");
+      }
+
+      const ownerId = getProfileOwnerUserId(profile);
+      if (!ownerId) {
+        throw new Error("Public profile owner id missing.");
+      }
 
       const [
         vessels,
@@ -210,9 +225,14 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+    if (window.SeavAuth?.whenReady) {
+      await window.SeavAuth.whenReady();
+    }
+    await waitForSupabase();
+    wirePublicProfileNav();
     bindPublicCertToggles();
-    refreshPublicProfileView();
+    await refreshPublicProfileView();
   });
   document.addEventListener("seav:data-updated", refreshPublicProfileView);
 })();

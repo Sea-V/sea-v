@@ -327,12 +327,19 @@ const SeavAPI = {
   async getPublicProfile(profileId) {
     if (!window.SeavSupabase || !profileId) return null;
 
-    const { data, error } = await window.SeavSupabase
-      .from("profile")
-      .select(PUBLIC_PROFILE_COLUMNS)
-      .eq("id", profileId)
-      .eq("public_enabled", true)
-      .maybeSingle();
+    const baseQuery = () =>
+      window.SeavSupabase
+        .from("profile")
+        .select(PUBLIC_PROFILE_COLUMNS)
+        .eq("public_enabled", true);
+
+    let { data, error } = await baseQuery().eq("id", profileId).maybeSingle();
+
+    if (!error && !data) {
+      const byUser = await baseQuery().eq("user_id", profileId).maybeSingle();
+      data = byUser.data;
+      error = byUser.error;
+    }
 
     if (error) {
       console.error("[SEA-V] Public profile fetch failed:", error);
