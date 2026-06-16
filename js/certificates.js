@@ -9,6 +9,9 @@
     KEYS,
     MANDATORY_CERTS,
     RECOMMENDED_CERTS,
+    getCertificateCatalogGroups,
+    getCertificateCatalog,
+    findCertificateCatalogItem,
     createId,
     getCertExpiryInfo,
     formatDatePretty
@@ -39,24 +42,16 @@
 
   function catalog() {
     return [
-      ...(MANDATORY_CERTS || []).map((t) => ({
-        code: t.code,
-        name: t.name,
-        isMandatory: true,
-        isTemplate: true
-      })),
-      ...(RECOMMENDED_CERTS || []).map((t) => ({
-        code: t.code,
-        name: t.name,
-        isMandatory: false,
-        isTemplate: true
-      })),
-      { code: CUSTOM, name: "Other certificate", isMandatory: false, isTemplate: false }
+      ...getCertificateCatalog(),
+      { code: CUSTOM, name: "Other certificate", isMandatory: false, isTemplate: false, group: "Other" }
     ];
   }
 
   function findCatalog(code) {
-    return catalog().find((item) => normCode(item.code) === normCode(code)) || null;
+    if (normCode(code) === normCode(CUSTOM)) {
+      return { code: CUSTOM, name: "Other certificate", isMandatory: false, isTemplate: false };
+    }
+    return findCertificateCatalogItem(code) || null;
   }
 
   function takenCodes(certs) {
@@ -92,11 +87,11 @@
   }
 
   function certCategoryLabel(cert) {
-    if ((MANDATORY_CERTS || []).some((t) => normCode(t.code) === normCode(cert?.code))) {
-      return "Mandatory";
-    }
     const item = findCatalog(cert?.code);
-    if (item && item.code !== CUSTOM) return "Recommended";
+    if (item?.group) return item.group;
+    if ((MANDATORY_CERTS || []).some((t) => normCode(t.code) === normCode(cert?.code))) {
+      return "Minimum mandatory";
+    }
     return "Other";
   }
 
@@ -259,15 +254,36 @@
 
     select.innerHTML = `<option value="">Choose a certificate…</option>`;
 
-    catalog().forEach((item) => {
+    function appendOption(groupEl, item) {
       if (item.code !== CUSTOM && taken.has(normCode(item.code)) && normCode(item.code) !== editCode) {
         return;
       }
       const label = item.code === CUSTOM ? item.name : `${item.name} (${item.code})`;
       const opt = new Option(label, item.code);
       if (normCode(item.code) === editCode) opt.selected = true;
-      select.appendChild(opt);
+      groupEl.appendChild(opt);
+    }
+
+    getCertificateCatalogGroups().forEach((group) => {
+      const available = (group.certs || []).filter(
+        (item) =>
+          item.code === CUSTOM ||
+          !taken.has(normCode(item.code)) ||
+          normCode(item.code) === editCode
+      );
+      if (!available.length) return;
+
+      const optgroup = document.createElement("optgroup");
+      optgroup.label = group.label;
+      available.forEach((item) => appendOption(optgroup, item));
+      select.appendChild(optgroup);
     });
+
+    if (!taken.has(normCode(CUSTOM)) || editCode === normCode(CUSTOM)) {
+      const opt = new Option("Other certificate", CUSTOM);
+      if (editCode === normCode(CUSTOM)) opt.selected = true;
+      select.appendChild(opt);
+    }
   }
 
   function onTypeChange() {

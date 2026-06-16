@@ -167,16 +167,134 @@
     }
   ];
 
-  /* Rank / role templates — seeded as recommended, not universal mandatory */
-  const RECOMMENDED_CERTS = [
-    { code: "PASSPORT", name: "Passport / Seafarer ID" },
-    { code: "STCW A-II/1", name: "Certificate of Competency (CoC)" },
-    { code: "GMDSS", name: "GMDSS General Operator Certificate" },
-    { code: "STCW A-VI/6-2", name: "Proficiency in Designated Security Duties (PDSD)" },
-    { code: "STCW A-VI/4-1", name: "Medical First Aid" },
-    { code: "STCW A-VI/3", name: "Advanced Fire Fighting" },
-    { code: "STCW A-VI/2", name: "Proficiency in Survival Craft & Rescue Boats" }
+  /* Yacht certificate catalog — grouped for dropdown; also drives RECOMMENDED_CERTS */
+  const CERT_CATALOG_GROUPS = [
+    {
+      label: "Identity & seafarer records",
+      certs: [
+        { code: "PASSPORT", name: "Passport / Seafarer Identity Document" },
+        { code: "DISCHARGE_BOOK", name: "Seaman's Discharge Book" },
+        { code: "SEAMAN_BOOK", name: "Seaman's Book / CDC" },
+        { code: "VISA_B1B2", name: "US B1/B2 Visa (crew)" }
+      ]
+    },
+    {
+      label: "STCW basic & combined training",
+      certs: [
+        { code: "STCW BST", name: "STCW Basic Safety Training (Full BST)" },
+        { code: "STCW A-VI/6-2", name: "Proficiency in Designated Security Duties (PDSD)" },
+        { code: "STCW A-VI/5", name: "Ship Security Officer (SSO)" }
+      ]
+    },
+    {
+      label: "CoC, rank & MCA yacht qualifications",
+      certs: [
+        { code: "STCW A-II/1", name: "Certificate of Competency (Deck CoC)" },
+        { code: "STCW A-III/1", name: "Certificate of Competency (Engineering CoC)" },
+        { code: "STCW A-III/6", name: "Electro-Technical Officer CoC" },
+        { code: "OOW YACHT", name: "Officer of the Watch (Yacht)" },
+        { code: "CHIEF MATE Y", name: "Chief Mate Yacht (MCA)" },
+        { code: "MASTER Y3000", name: "Master Yacht 3000GT (MCA)" },
+        { code: "MASTER Y500", name: "Master Yacht 500GT (MCA)" },
+        { code: "EDH", name: "Efficient Deck Hand (EDH)" },
+        { code: "RFPNW", name: "Rating Forming Part of a Navigational Watch" },
+        { code: "RFPEW", name: "Rating Forming Part of an Engineering Watch" },
+        { code: "AEC", name: "Approved Engine Course (AEC)" },
+        { code: "MEOL", name: "Motor Engineering Operational Level (MEOL)" },
+        { code: "Y1", name: "Yacht Engineer Y1 (MCA)" },
+        { code: "Y2", name: "Yacht Engineer Y2 (MCA)" },
+        { code: "Y3", name: "Yacht Engineer Y3 (MCA)" },
+        { code: "Y4", name: "Yacht Engineer Y4 (MCA)" }
+      ]
+    },
+    {
+      label: "Navigation, bridge & GMDSS",
+      certs: [
+        { code: "GMDSS GOC", name: "GMDSS General Operator's Certificate (GOC)" },
+        { code: "GMDSS ROC", name: "GMDSS Restricted Operator's Certificate (ROC)" },
+        { code: "ECDIS", name: "ECDIS Generic Training" },
+        { code: "ARPA", name: "Radar / ARPA Operational" },
+        { code: "HELM-O", name: "HELM Operational" },
+        { code: "HELM-M", name: "HELM Management" },
+        { code: "NAEST-O", name: "NAEST Operational" },
+        { code: "NAEST-M", name: "NAEST Management" },
+        { code: "BTM", name: "Bridge Team Management" },
+        { code: "BRM", name: "Bridge Resource Management" }
+      ]
+    },
+    {
+      label: "Advanced STCW (safety & medical)",
+      certs: [
+        { code: "STCW A-VI/4-1", name: "Medical First Aid (STCW A-VI/4-1)" },
+        { code: "STCW A-VI/4-2", name: "Medical Care (STCW A-VI/4-2)" },
+        { code: "STCW A-VI/3", name: "Advanced Fire Fighting (AFF)" },
+        { code: "STCW A-VI/2", name: "Proficiency in Survival Craft & Rescue Boats (PSCRB)" },
+        { code: "STCW A-VI/2-2", name: "Fast Rescue Boats (FRB)" },
+        { code: "STCW HV", name: "High Voltage Training" }
+      ]
+    },
+    {
+      label: "Passenger / large-yacht STCW",
+      certs: [
+        { code: "STCW CROWD", name: "Crowd Management Training" },
+        { code: "STCW CRISIS", name: "Crisis Management & Human Behaviour" },
+        { code: "STCW PASS SAF", name: "Passenger Safety, Cargo Safety & Hull Integrity" }
+      ]
+    },
+    {
+      label: "STCW refresher / update courses",
+      certs: [
+        { code: "PST UPDATE", name: "Personal Survival Techniques — Update" },
+        { code: "FPFF UPDATE", name: "Fire Prevention & Fire Fighting — Update" },
+        { code: "AFF UPDATE", name: "Advanced Fire Fighting — Update" },
+        { code: "PSCRB UPDATE", name: "Survival Craft & Rescue Boats — Update" },
+        { code: "FRB UPDATE", name: "Fast Rescue Boats — Update" }
+      ]
+    },
+    {
+      label: "Interior, galley & hospitality",
+      certs: [
+        { code: "SHIPS COOK", name: "Ship's Cook Certificate (MCA)" },
+        { code: "FOOD HYGIENE", name: "Food Hygiene Level 2 / 3" },
+        { code: "HACCP", name: "HACCP / Food Safety Management" },
+        { code: "WSET", name: "WSET Wine & Spirits Education" },
+        { code: "BARISTA", name: "Barista / Coffee Service Certificate" },
+        { code: "SILVER SVC", name: "Silver Service / Butler Training" }
+      ]
+    },
+    {
+      label: "RYA, watersports & diving",
+      certs: [
+        { code: "RYA PB2", name: "RYA Powerboat Level 2" },
+        { code: "RYA SRC", name: "RYA Short Range Certificate (VHF)" },
+        { code: "RYA DAY", name: "RYA Day Skipper" },
+        { code: "RYA COASTAL", name: "RYA Coastal Skipper" },
+        { code: "RYA YMC", name: "RYA Yachtmaster Coastal" },
+        { code: "RYA YMO", name: "RYA Yachtmaster Offshore" },
+        { code: "RYA YMOCEAN", name: "RYA Yachtmaster Ocean" },
+        { code: "RYA PWC", name: "RYA Personal Watercraft Proficiency (Jet Ski)" },
+        { code: "RYA WC", name: "RYA Windsurfing / Watercraft Instructor" },
+        { code: "PADI OW", name: "PADI Open Water Diver" },
+        { code: "PADI AOW", name: "PADI Advanced Open Water" },
+        { code: "PADI RESCUE", name: "PADI Rescue Diver" },
+        { code: "PADI DM", name: "PADI Divemaster" },
+        { code: "PADI INSTR", name: "PADI Dive Instructor" },
+        { code: "WAKE INSTR", name: "Wakeboard / Tow Sports Instructor" },
+        { code: "KITE L1", name: "Kitesurfing / Wing Instructor Level 1" }
+      ]
+    },
+    {
+      label: "Other common yacht documents",
+      certs: [
+        { code: "YELLOW FEVER", name: "Yellow Fever Vaccination Certificate" },
+        { code: "DRUG TEST", name: "Drug & Alcohol Test Certificate" },
+        { code: "STCW ML5", name: "ML5 / ENG1 Equivalent Medical" },
+        { code: "GMDSS", name: "GMDSS (legacy code — use GOC/ROC if possible)" }
+      ]
+    }
   ];
+
+  const RECOMMENDED_CERTS = CERT_CATALOG_GROUPS.flatMap((group) => group.certs || []);
 
   /* Legacy mandatory codes demoted on sync (frontend + optional SQL migration) */
   const DEPRECATED_MANDATORY_CODES = [
@@ -196,6 +314,41 @@
     return (
       MANDATORY_CERTS.find(
         (item) => normalizeCertCode(item.code) === normalizeCertCode(code)
+      ) || null
+    );
+  }
+
+  function getCertificateCatalogGroups() {
+    return [
+      {
+        label: "Minimum mandatory (yacht crew)",
+        isMandatory: true,
+        certs: MANDATORY_CERTS.map((item) => ({
+          code: item.code,
+          name: item.name
+        }))
+      },
+      ...CERT_CATALOG_GROUPS
+    ];
+  }
+
+  function getCertificateCatalog() {
+    return getCertificateCatalogGroups().flatMap((group) =>
+      (group.certs || []).map((cert) => ({
+        code: cert.code,
+        name: cert.name,
+        isMandatory: !!group.isMandatory,
+        isTemplate: true,
+        group: group.label
+      }))
+    );
+  }
+
+  function findCertificateCatalogItem(code) {
+    const normalized = normalizeCertCode(code);
+    return (
+      getCertificateCatalog().find(
+        (item) => normalizeCertCode(item.code) === normalized
       ) || null
     );
   }
@@ -793,6 +946,10 @@ window.SeavData = {
   KEYS,
   MANDATORY_CERTS,
   RECOMMENDED_CERTS,
+  CERT_CATALOG_GROUPS,
+  getCertificateCatalogGroups,
+  getCertificateCatalog,
+  findCertificateCatalogItem,
   DEPRECATED_MANDATORY_CODES,
   getMandatoryCertTemplate,
   renderMandatoryCertDetailHtml,
