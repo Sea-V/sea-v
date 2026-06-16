@@ -110,13 +110,20 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (!resendKey) {
+      return jsonResponse(
+        {
+          error:
+            "Email delivery is not configured. Set RESEND_API_KEY on the Edge Function."
+        },
+        503
+      );
+    }
+
     return jsonResponse({
       ok: true,
-      emailSent: !!resendKey,
-      message: resendKey
-        ? "Verification email sent"
-        : "Verification link created (email not configured)",
-      verifyUrl: resendKey ? undefined : data.verify_url
+      emailSent: true,
+      message: "Verification email sent"
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unexpected error";

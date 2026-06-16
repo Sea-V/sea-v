@@ -9,7 +9,8 @@
     "contact.html",
     "privacy.html",
     "terms.html",
-    "public-profile.html"
+    "public-profile.html",
+    "verify-reference.html"
   ]);
 
   const PROTECTED_PAGES = new Set([

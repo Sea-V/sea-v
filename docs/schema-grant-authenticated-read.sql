@@ -1,7 +1,8 @@
 -- =============================================================================
 -- Fix: signed-in users see empty dashboard (permission denied on SELECT)
 -- =============================================================================
--- Run once in Supabase SQL Editor after step1-profile-columns.sql hardening.
+-- Included in docs/schema-phase2-public-hardening.sql (Step 5).
+-- Run this file only if you applied Step 5 before that merge, or need to re-apply grants.
 -- Safe to re-run.
 -- =============================================================================
 

@@ -20,8 +20,10 @@ Phase 2 uses **Supabase Auth** — each user has their own profile, documents, a
 2. Enable **Email** auth in Supabase Dashboard
 3. Run **`docs/schema-phase2.sql`** (per-user RLS + private storage)
 4. Run **`docs/schema-phase2-public-hardening.sql`** (public profile privacy + storage lock-down)
-5. Optional: **`docs/schema-account-deletion.sql`** (self-service delete account)
-6. Verify: `node scripts/test-supabase.mjs --step all`
+5. Optional: **`docs/certificate-catalog.sql`** (certificate dropdown catalog in DB)
+6. Optional: **`docs/schema-reference-verification.sql`** + deploy Edge Function with `RESEND_API_KEY`
+7. Optional: **`docs/schema-account-deletion.sql`** (self-service delete account)
+8. Verify: `node scripts/test-supabase.mjs --step all`
 
 Guides: **[docs/SUPABASE-PHASE2.md](docs/SUPABASE-PHASE2.md)** · **[docs/SECURITY.md](docs/SECURITY.md)**
 

@@ -128,6 +128,41 @@ async function testTables(config) {
   return results;
 }
 
+async function testPayslipAnonWrite(config) {
+  const payslipInsert = await fetch(`${config.url}/rest/v1/payslips`, {
+    method: "POST",
+    headers: {
+      apikey: config.key,
+      Authorization: `Bearer ${config.key}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation"
+    },
+    body: JSON.stringify({
+      id: "00000000-0000-0000-0000-000000000099",
+      tax_year: "2099-00",
+      pay_period: "Smoke test",
+      payment_date: "2099-01-01"
+    })
+  }).then(async (res) => ({
+    ok: res.ok,
+    status: res.status,
+    body: await res.text()
+  }));
+
+  console.log(`\nAnon write test (payslips insert must be blocked):`);
+  if (!payslipInsert.ok) {
+    console.log(
+      `✓ payslips insert blocked  ${payslipInsert.status}  OK — payslip rows are owner-only`
+    );
+  } else {
+    console.log(
+      `✗ payslips insert allowed  ${payslipInsert.status}  FAIL — run docs/schema-phase2.sql`
+    );
+  }
+
+  return !payslipInsert.ok;
+}
+
 async function testProfileWrite(config) {
   const profileUpsert = await fetch(`${config.url}/rest/v1/profile`, {
     method: "POST",
@@ -291,12 +326,14 @@ async function main() {
 
   let failedTables = [];
   let profileWriteBlocked = true;
+  let payslipWriteBlocked = true;
   let columnSafe = false;
   let storageBlocked = false;
 
   if (step === "0" || step === "all") {
     failedTables = (await testTables(config)).filter((r) => !r.pass);
     profileWriteBlocked = await testProfileWrite(config);
+    payslipWriteBlocked = await testPayslipAnonWrite(config);
   }
 
   if (step === "1" || step === "all") {
@@ -323,6 +360,7 @@ async function main() {
   if (step === "0") {
     console.log(failedTables.length ? `${failedTables.length} table(s) failed.` : "Tables reachable.");
     console.log(profileWriteBlocked ? "Profile writes blocked (good)." : "Profile writes NOT blocked — run schema-phase2.sql");
+    console.log(payslipWriteBlocked ? "Payslip writes blocked (good)." : "Payslip writes NOT blocked — run schema-phase2.sql");
     console.log("Next: run docs/hardening-steps/step1-profile-columns.sql in Supabase, then --step 1");
   } else if (step === "1") {
     console.log(columnSafe ? "Step 1 passed." : "Step 1 not passed yet — run step1-profile-columns.sql");
@@ -339,6 +377,7 @@ async function main() {
   } else if (
     failedTables.length === 0 &&
     profileWriteBlocked &&
+    payslipWriteBlocked &&
     storageBlocked &&
     columnSafe
   ) {
@@ -349,6 +388,9 @@ async function main() {
     }
     if (!profileWriteBlocked) {
       console.log("→ Run docs/schema-phase2.sql for per-user RLS.");
+    }
+    if (!payslipWriteBlocked) {
+      console.log("→ Payslip writes are open to anon — run docs/schema-phase2.sql.");
     }
     if (!storageBlocked) {
       console.log("→ Run docs/hardening-steps/step3-storage-private.sql");

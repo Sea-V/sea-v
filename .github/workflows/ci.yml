@@ -21,6 +21,4 @@ jobs:
 
       - run: node scripts/test-site.mjs
 
-      - name: Supabase security smoke test
-        run: node scripts/test-supabase.mjs --step all
-        continue-on-error: true
+      - run: node scripts/test-supabase.mjs --step all

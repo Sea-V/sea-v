@@ -282,7 +282,19 @@
 
       const page = currentPageFile();
       const loadKeys = loadAllKeys ? ALL_STATE_KEYS : keysForPage(page);
-      const fetched = await Promise.all(loadKeys.map((key) => fetchStateKey(key, userId)));
+      const catalogPromise =
+        loadKeys.includes("certs") && window.SeavAPI?.fetchCertificateCatalog
+          ? window.SeavAPI.fetchCertificateCatalog()
+          : Promise.resolve(null);
+      const [fetched, catalogRows] = await Promise.all([
+        Promise.all(loadKeys.map((key) => fetchStateKey(key, userId))),
+        catalogPromise
+      ]);
+
+      if (catalogRows?.length && window.SeavData?.setCertificateCatalogFromDb) {
+        window.SeavData.setCertificateCatalogFromDb(catalogRows);
+      }
+
       const snapshot = {};
 
       loadKeys.forEach((key, index) => {

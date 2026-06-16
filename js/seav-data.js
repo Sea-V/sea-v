@@ -322,6 +322,39 @@
     return String(value || "").trim().toUpperCase();
   }
 
+  let certificateCatalogDbRows = null;
+
+  function setCertificateCatalogFromDb(rows) {
+    if (!Array.isArray(rows) || !rows.length) return;
+    certificateCatalogDbRows = rows;
+  }
+
+  function buildCatalogGroupsFromDb(rows) {
+    const groups = new Map();
+    const sorted = [...rows].sort(
+      (a, b) => Number(a.sort_order || 0) - Number(b.sort_order || 0)
+    );
+
+    for (const row of sorted) {
+      const label =
+        String(row.category || "Other certificates").trim() || "Other certificates";
+      if (!groups.has(label)) {
+        groups.set(label, { label, isMandatory: false, certs: [] });
+      }
+      const group = groups.get(label);
+      if (row.is_mandatory) group.isMandatory = true;
+      group.certs.push({ code: row.code, name: row.name });
+    }
+
+    const result = [...groups.values()];
+    result.sort((a, b) => {
+      if (a.isMandatory && !b.isMandatory) return -1;
+      if (!a.isMandatory && b.isMandatory) return 1;
+      return String(a.label).localeCompare(String(b.label));
+    });
+    return result;
+  }
+
   function getMandatoryCertTemplate(code) {
     return (
       MANDATORY_CERTS.find(
@@ -331,6 +364,10 @@
   }
 
   function getCertificateCatalogGroups() {
+    if (certificateCatalogDbRows?.length) {
+      return buildCatalogGroupsFromDb(certificateCatalogDbRows);
+    }
+
     return [
       {
         label: "Minimum mandatory (yacht crew)",
@@ -996,6 +1033,7 @@ window.SeavData = {
   CERT_CATALOG_GROUPS,
   getCertificateCatalogGroups,
   getCertificateCatalog,
+  setCertificateCatalogFromDb,
   findCertificateCatalogItem,
   isSavedCert,
   getSavedCertificates,

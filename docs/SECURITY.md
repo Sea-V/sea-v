@@ -58,16 +58,19 @@ Payslips must **never** appear on the public profile (the app already excludes t
 
 ## Your checklist before going live
 
-1. Run **`docs/schema-phase2.sql`** after **`docs/schema-full.sql`**, then **`docs/schema-phase2-public-hardening.sql`**
-2. Enable **Email** provider in Supabase → Authentication
-3. Confirm **RLS enabled** on every table (Supabase Table Editor → RLS)
-4. Confirm storage buckets are **private**; app uploads use `userId/entityId/file` paths
-5. Publish a **Privacy Policy** and **Terms of Use** — see `privacy.html` and `terms.html` (have a lawyer review before go-live)
-6. Add a **cookie/storage notice** if required in your markets
-7. Process **data subject requests** (access / delete) — Supabase lets you delete a user and cascade rows
-8. Use **HTTPS only** in production (Netlify/Vercel provide this)
-9. Never put the **service role key** in frontend code (only anon/publishable key)
-10. Consider **Cyber insurance** and a UK/EU **legal review** if storing payslips at scale
+1. Run **`docs/schema-full.sql`** after **`docs/schema-phase2.sql`**, then **`docs/schema-phase2-public-hardening.sql`** (includes authenticated table grants and legacy storage policy cleanup)
+2. Optional: run **`docs/certificate-catalog.sql`** so the certificates page reads the catalog from Supabase
+3. Enable **Email** provider in Supabase → Authentication
+4. Deploy **`reference-verification`** Edge Function and set **`RESEND_API_KEY`** before go-live
+5. Confirm **RLS enabled** on every table (Supabase Table Editor → RLS)
+6. Confirm storage buckets are **private**; app uploads use `userId/entityId/file` paths
+7. Publish a **Privacy Policy** and **Terms of Use** — see `privacy.html` and `terms.html` (have a lawyer review before go-live)
+8. Add a **cookie/storage notice** if required in your markets
+9. Process **data subject requests** (access / delete) — run **`docs/schema-account-deletion.sql`** for self-service delete
+10. Use **HTTPS only** in production (Netlify/Vercel provide this)
+11. Never put the **service role key** in frontend code (only anon/publishable key)
+12. Run **`node scripts/test-supabase.mjs --step all`** and treat failures as release blockers
+13. Consider **Cyber insurance** and a UK/EU **legal review** if storing payslips at scale
 
 ---
 

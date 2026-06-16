@@ -498,8 +498,20 @@ const SeavAPI = {
       return fetchArrayByKey(key, userId);
     },
 
-    async getArrayForUser(key, userId) {
-      return fetchArrayByKey(key, userId);
+    async fetchCertificateCatalog() {
+      if (!window.SeavSupabase) return null;
+
+      const { data, error } = await window.SeavSupabase
+        .from("certificate_catalog")
+        .select("code, name, category, is_mandatory, sort_order")
+        .order("sort_order", { ascending: true });
+
+      if (error) {
+        console.warn("[SEA-V] certificate_catalog fetch failed:", error.message);
+        return null;
+      }
+
+      return Array.isArray(data) && data.length ? data : null;
     },
 
     async upsertItemById(key, item) {

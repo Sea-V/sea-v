@@ -1,8 +1,7 @@
 -- SEA-V yacht certificate catalog (reference data)
--- Run once in Supabase SQL Editor.
--- This stores the master list for reporting/admin; the app dropdown reads js/seav-data.js today.
--- Keep this file in sync when adding certificates to CERT_CATALOG_GROUPS.
-
+-- Run once in Supabase SQL Editor (Step 6 in docs/SQL-SETUP-GUIDE.md).
+-- The certificates page loads this table when available; js/seav-data.js is the offline fallback.
+-- Re-run to refresh seed rows after editing this file.
 create table if not exists public.certificate_catalog (
   code text primary key,
   name text not null,

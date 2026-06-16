@@ -47,6 +47,7 @@
 /* Auth / Public */
 @import url("./css/pages/index.css");
 @import url("./css/pages/signup.css");
+@import url("./css/pages/auth.css");
 
 /* =========================================
    TYPOGRAPHY (after pages — wins over page rules)

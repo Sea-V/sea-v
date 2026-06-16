@@ -7,7 +7,15 @@
   const SIGNED_URL_SENSITIVE = C.SIGNED_URL_SENSITIVE_SEC ?? 3600;
 
   function signedUrlExpiry(bucket) {
-    const sensitive = C.SENSITIVE_BUCKETS || new Set(["payslip-files", "certificate-files", "reference-files"]);
+    const sensitive =
+      C.SENSITIVE_BUCKETS ||
+      new Set([
+        "payslip-files",
+        "certificate-files",
+        "reference-files",
+        "seatime-files",
+        "vessel-documents"
+      ]);
     return sensitive.has(bucket) ? SIGNED_URL_SENSITIVE : SIGNED_URL_DEFAULT;
   }
 

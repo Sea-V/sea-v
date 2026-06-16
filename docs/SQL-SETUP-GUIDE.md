@@ -75,9 +75,44 @@ This is the main “production” security step. **Your real profile lives here.
 |--|--|
 | **File** | `docs/schema-phase2-public-hardening.sql` |
 | **Save in SQL Editor as** | `5 - Public profile and storage hardening` |
-| **What it does** | Stops anon users reading email/phone/salary on public profiles; only shows verified refs, approved achievements, signed-off ops, and published hobbies; re-applies private storage so anonymous uploads fail. |
+| **What it does** | Stops anon users reading email/phone/salary on public profiles; only shows verified refs, approved achievements, signed-off ops, and published hobbies; re-applies private storage so anonymous uploads fail; drops legacy storage policies; restores authenticated CRUD grants. |
 | **When** | Before going live, or if `node scripts/test-supabase.mjs` reports anon storage uploads succeeding |
 | **Prerequisite** | Steps 1 and 2 done |
+
+---
+
+### Step 6 — Certificate catalog (optional, recommended)
+
+| | |
+|--|--|
+| **File** | `docs/certificate-catalog.sql` |
+| **Save in SQL Editor as** | `6 - Certificate catalog` |
+| **What it does** | Seeds the master certificate list; the app loads this on the certificates page (falls back to built-in list if not run). |
+| **When** | Before go-live if you want catalog updates without redeploying the site |
+| **Prerequisite** | Steps 1 and 2 done |
+
+---
+
+### Step 7 — Reference verification emails (optional, recommended for go-live)
+
+| | |
+|--|--|
+| **File** | `docs/schema-reference-verification.sql` |
+| **Save in SQL Editor as** | `7 - Reference verification` |
+| **What it does** | Token table + RPCs for referee email verification flow. |
+| **When** | Before enabling reference verification in production |
+| **Also** | Deploy `supabase/functions/reference-verification` and set `RESEND_API_KEY` |
+
+---
+
+### Step 8 — Account deletion (optional)
+
+| | |
+|--|--|
+| **File** | `docs/schema-account-deletion.sql` |
+| **Save in SQL Editor as** | `8 - Delete own account` |
+| **What it does** | Lets signed-in users delete their account and all data from the app. |
+| **When** | Before go-live if you need GDPR self-service delete |
 
 ---
 

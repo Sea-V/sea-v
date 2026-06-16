@@ -11,7 +11,18 @@
 -- ---------------------------------------------------------------------------
 revoke all on table public.profile from anon;
 
-grant select on table public.profile to authenticated;
+grant select, insert, update, delete on table public.profile to authenticated;
+grant select, insert, update, delete on table public.vessels to authenticated;
+grant select, insert, update, delete on table public.seatimes to authenticated;
+grant select, insert, update, delete on table public.certificates to authenticated;
+grant select, insert, update, delete on table public.sea_references to authenticated;
+grant select, insert, update, delete on table public.tenders to authenticated;
+grant select, insert, update, delete on table public.achievements to authenticated;
+grant select, insert, update, delete on table public.navigation_areas to authenticated;
+grant select, insert, update, delete on table public.onboard_experiences to authenticated;
+grant select, insert, update, delete on table public.hobbies_interests to authenticated;
+grant select, insert, update, delete on table public.specialist_qualifications to authenticated;
+grant select, insert, update, delete on table public.payslips to authenticated;
 
 grant select (
   id,
@@ -92,6 +103,25 @@ drop policy if exists payslips_public_read on public.payslips;
 -- ---------------------------------------------------------------------------
 -- 3. Storage — private buckets + owner-only paths (re-apply Phase 2 section 5)
 -- ---------------------------------------------------------------------------
+
+-- Drop legacy storage policies from standalone *-table.sql migrations (underscore names)
+drop policy if exists "onboard_experience_files_select" on storage.objects;
+drop policy if exists "onboard_experience_files_insert" on storage.objects;
+drop policy if exists "onboard_experience_files_update" on storage.objects;
+drop policy if exists "onboard_experience_files_delete" on storage.objects;
+drop policy if exists "payslip_files_select" on storage.objects;
+drop policy if exists "payslip_files_insert" on storage.objects;
+drop policy if exists "payslip_files_update" on storage.objects;
+drop policy if exists "payslip_files_delete" on storage.objects;
+drop policy if exists "hobbies_interest_photos_select" on storage.objects;
+drop policy if exists "hobbies_interest_photos_insert" on storage.objects;
+drop policy if exists "hobbies_interest_photos_update" on storage.objects;
+drop policy if exists "hobbies_interest_photos_delete" on storage.objects;
+drop policy if exists "specialist_qualification_files_select" on storage.objects;
+drop policy if exists "specialist_qualification_files_insert" on storage.objects;
+drop policy if exists "specialist_qualification_files_update" on storage.objects;
+drop policy if exists "specialist_qualification_files_delete" on storage.objects;
+
 update storage.buckets set public = false where id in (
   'profile-photos', 'vessel-photos', 'vessel-documents', 'certificate-files',
   'reference-files', 'seatime-files', 'achievement-files', 'tender-photos',
