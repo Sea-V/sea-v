@@ -61,18 +61,11 @@
   justify-content: flex-end;
 }
 
-.cert-section-foot {
-  display: flex;
-  flex-wrap: wrap;
+.cert-section-actions {
   justify-content: flex-end;
-  align-items: center;
-  gap: 12px;
-  padding: 28px 28px 32px;
+  margin-top: 28px;
+  padding-top: 24px;
   border-top: 1px solid rgba(255, 210, 90, 0.12);
-}
-
-.sq-section.cert-section {
-  padding-bottom: 8px;
 }
 
 /* Section uses sq-section / sq-kpi-row / sq-section-head from specialist-qualifications.css */
