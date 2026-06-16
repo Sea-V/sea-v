@@ -196,7 +196,11 @@
     runAchievementEvaluation
   };
 
+  let achievementEvalStarted = false;
+
   document.addEventListener("seav:state-ready", () => {
+    if (achievementEvalStarted) return;
+    achievementEvalStarted = true;
     runAchievementEvaluation();
   });
 })();

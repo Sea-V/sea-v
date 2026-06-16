@@ -11,6 +11,39 @@
     return sensitive.has(bucket) ? SIGNED_URL_SENSITIVE : SIGNED_URL_DEFAULT;
   }
 
+  const SIGNED_URL_CACHE_PREFIX = "seav_signed_url_v1:";
+
+  function signedUrlCacheKey(bucket, path) {
+    return `${bucket}:${path}`;
+  }
+
+  function readSignedUrlCache(bucket, path) {
+    try {
+      const raw = sessionStorage.getItem(SIGNED_URL_CACHE_PREFIX + signedUrlCacheKey(bucket, path));
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed?.url || !parsed?.expiresAt) return null;
+      if (Date.now() >= parsed.expiresAt - 60_000) return null;
+      return parsed.url;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeSignedUrlCache(bucket, path, url, expiresInSec) {
+    try {
+      sessionStorage.setItem(
+        SIGNED_URL_CACHE_PREFIX + signedUrlCacheKey(bucket, path),
+        JSON.stringify({
+          url,
+          expiresAt: Date.now() + Number(expiresInSec || 0) * 1000
+        })
+      );
+    } catch {
+      // sessionStorage full or unavailable
+    }
+  }
+
 const storage = window.localStorage;
 
   function vesselKey() {
@@ -112,12 +145,19 @@ async function resolveStorageFileUrl(fileMeta, bucket, expiresIn) {
   if (!fileMeta) return "";
   if (typeof fileMeta === "string") return fileMeta.trim();
   if (fileMeta.dataUrl) return fileMeta.dataUrl;
+  if (fileMeta.url && !fileMeta.path) return fileMeta.url;
   const storageBucket = fileMeta.bucket || bucket;
   if (fileMeta.path && window.SeavSupabase && storageBucket) {
+    const cachedUrl = readSignedUrlCache(storageBucket, fileMeta.path);
+    if (cachedUrl) return cachedUrl;
+
     const { data, error } = await window.SeavSupabase.storage
       .from(storageBucket)
       .createSignedUrl(fileMeta.path, expiresIn);
-    if (!error && data?.signedUrl) return data.signedUrl;
+    if (!error && data?.signedUrl) {
+      writeSignedUrlCache(storageBucket, fileMeta.path, data.signedUrl, expiresIn);
+      return data.signedUrl;
+    }
   }
   return fileMeta.url || fileMeta.publicUrl || "";
 }
@@ -177,8 +217,9 @@ async function hydrateEntityFiles(item, table) {
   return next;
 }
 
-async function hydrateArrayFiles(items, table) {
+async function hydrateArrayFiles(items, table, options = {}) {
   if (!Array.isArray(items) || !items.length) return items || [];
+  if (options.skipFiles) return items;
   return Promise.all(items.map((item) => hydrateEntityFiles(item, table)));
 }
 

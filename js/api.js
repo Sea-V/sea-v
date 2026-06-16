@@ -31,6 +31,12 @@
     mapPayslipFromSupabase, mapPayslipToSupabase
   } = M;
 
+  let bulkHydrateFiles = true;
+
+  function setBulkHydrateFiles(enabled) {
+    bulkHydrateFiles = enabled === true;
+  }
+
   async function fetchSupabaseArray(table, mapper, orderColumn, userId) {
     if (!window.SeavSupabase) return [];
 
@@ -56,7 +62,9 @@
       return [];
     }
 
-    return hydrateArrayFiles((data || []).map(mapper), table);
+    const mapped = (data || []).map(mapper);
+    if (!bulkHydrateFiles) return mapped;
+    return hydrateArrayFiles(mapped, table);
   }
 
   async function fetchArrayByKey(key, userId) {
@@ -394,7 +402,9 @@ const SeavAPI = {
       }
 
       const profile = mapProfileFromSupabase(data);
-      return profile ? hydrateProfilePhoto(profile) : fallback;
+      if (!profile) return fallback;
+      if (!bulkHydrateFiles) return profile;
+      return hydrateProfilePhoto(profile);
     }
 
     try {
@@ -689,7 +699,9 @@ const SeavAPI = {
       }
 
       return await this.deleteItemById(key, items[index].id);
-    }
+    },
+
+    setBulkHydrateFiles
   };
 
   

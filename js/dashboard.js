@@ -328,6 +328,7 @@ function updateProfileCompletion(profile) {
     }
 
     document.addEventListener("seav:data-updated", runRefresh);
+    document.addEventListener("seav:files-hydrated", runRefresh);
   }
 
   document.addEventListener("DOMContentLoaded", initDashboard);

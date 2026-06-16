@@ -14,9 +14,22 @@
 
   const { KEYS, DEFAULT_PROFILE } = window.SeavData;
   const CACHE_KEY_PREFIX = "seav_state_cache_v1_";
-  const CACHE_TTL_MS = 3 * 60 * 1000;
+  const CACHE_TTL_MS = 5 * 60 * 1000;
   const SETUP_CHECK_KEY = "seav_setup_checked_v1";
-  const PAGE_LOADER_MIN_MS = 500;
+  const PAGE_LOADER_MIN_MS = 0;
+
+  const FILE_HYDRATION_TABLES = [
+    { stateKey: "seatimes", table: "seatimes" },
+    { stateKey: "certs", table: "certificates" },
+    { stateKey: "vessels", table: "vessels" },
+    { stateKey: "refs", table: "sea_references" },
+    { stateKey: "achievements", table: "achievements" },
+    { stateKey: "tenders", table: "tenders" },
+    { stateKey: "onboardExperiences", table: "onboard_experiences" },
+    { stateKey: "hobbiesInterests", table: "hobbies_interests" },
+    { stateKey: "specialistQualifications", table: "specialist_qualifications" },
+    { stateKey: "payslips", table: "payslips" }
+  ];
 
   function safeArray(value) {
     return Array.isArray(value) ? value : [];
@@ -105,20 +118,24 @@
 
     async loadAll(options = {}) {
       const force = options.force === true;
+      const skipFileHydration = options.skipFileHydration === true;
 
       if (!force) {
         const cached = readCachedData();
         if (cached) {
           this.data = applyData(cached);
           this.ready = true;
+          if (!skipFileHydration) {
+            queueBackgroundFileHydration();
+          }
           return this.data;
         }
       }
 
       let userId = await window.SeavAPI?.resolveAuthUserId?.() || window.SeavAuth?.getUserId?.() || null;
       if (!userId) {
-        for (let attempt = 0; attempt < 8 && !userId; attempt += 1) {
-          await new Promise((resolve) => window.setTimeout(resolve, 250));
+        for (let attempt = 0; attempt < 4 && !userId; attempt += 1) {
+          await new Promise((resolve) => window.setTimeout(resolve, 150));
           userId = await window.SeavAPI?.resolveAuthUserId?.() || window.SeavAuth?.getUserId?.() || null;
         }
       }
@@ -136,6 +153,8 @@
       }
 
       try {
+      window.SeavAPI?.setBulkHydrateFiles?.(false);
+
       const [
         profile,
         seatimes,
@@ -164,6 +183,8 @@
         window.SeavAPI.getArray(KEYS.PAYSLIPS)
       ]);
 
+      window.SeavAPI?.setBulkHydrateFiles?.(true);
+
       this.data = applyData({
         profile: {
           ...(profile || {}),
@@ -183,7 +204,12 @@
       });
 
       writeCachedData(this.data);
+
+      if (!skipFileHydration) {
+        queueBackgroundFileHydration();
+      }
       } catch (loadErr) {
+        window.SeavAPI?.setBulkHydrateFiles?.(true);
         console.error("[SEA-V] loadAll failed:", loadErr);
         if (window.SeavFeedback?.error) {
           window.SeavFeedback.error(
@@ -200,7 +226,6 @@
     async refresh() {
       clearCachedData();
       await this.loadAll({ force: true });
-      document.dispatchEvent(new CustomEvent("seav:state-ready"));
       document.dispatchEvent(new CustomEvent("seav:data-updated"));
       return this.data;
     },
@@ -311,20 +336,115 @@
     return !hasProfile && !hasRecords;
   }
 
+  let fileHydrationQueued = false;
+
+  async function hydrateStoredFilesInBackground() {
+    if (hydrateStoredFilesInBackground._running) {
+      return hydrateStoredFilesInBackground._promise;
+    }
+
+    hydrateStoredFilesInBackground._running = true;
+    hydrateStoredFilesInBackground._promise = (async () => {
+      const core = window.SeavApiCore;
+      if (!core?.hydrateArrayFiles) return false;
+
+      let changed = false;
+
+      for (const { stateKey, table } of FILE_HYDRATION_TABLES) {
+        const items = state.data[stateKey];
+        if (!Array.isArray(items) || !items.length) continue;
+
+        const fields = core.ENTITY_FILE_FIELDS?.[table];
+        if (!fields?.length) continue;
+
+        const needsHydration = items.some((item) =>
+          fields.some((cfg) => {
+            if (cfg.isArray) {
+              const files = item[cfg.field];
+              return (
+                Array.isArray(files) &&
+                files.some((file) => file?.path && !file?.url && !file?.dataUrl)
+              );
+            }
+            const file = item[cfg.field];
+            return file?.path && !file?.url && !file?.dataUrl;
+          })
+        );
+
+        if (!needsHydration) continue;
+
+        state.data[stateKey] = await core.hydrateArrayFiles(items, table);
+        changed = true;
+      }
+
+      const profilePhoto = state.data.profile?.photo;
+      if (
+        profilePhoto?.path &&
+        !profilePhoto?.url &&
+        !profilePhoto?.dataUrl &&
+        core.hydrateProfilePhoto
+      ) {
+        state.data.profile = await core.hydrateProfilePhoto(state.data.profile);
+        changed = true;
+      }
+
+      if (changed) {
+        writeCachedData(state.data);
+        document.dispatchEvent(new CustomEvent("seav:files-hydrated"));
+        document.dispatchEvent(new CustomEvent("seav:data-updated"));
+      }
+
+      return changed;
+    })();
+
+    try {
+      return await hydrateStoredFilesInBackground._promise;
+    } finally {
+      hydrateStoredFilesInBackground._running = false;
+      hydrateStoredFilesInBackground._promise = null;
+    }
+  }
+
+  function queueBackgroundFileHydration() {
+    if (fileHydrationQueued) return;
+    fileHydrationQueued = true;
+
+    const run = () => {
+      hydrateStoredFilesInBackground()
+        .catch((err) => {
+          console.warn("[SEA-V] Background file hydration failed:", err);
+        })
+        .finally(() => {
+          fileHydrationQueued = false;
+        });
+    };
+
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(run, { timeout: 3000 });
+    } else {
+      window.setTimeout(run, 150);
+    }
+  }
+
   async function ensureUserDataLoaded(force = false) {
     if (!(await shouldLoadUserData())) return state.data;
     if (ensureUserDataLoaded._pending) return ensureUserDataLoaded._pending;
 
     ensureUserDataLoaded._pending = (async () => {
-      if (window.SeavAuth?.refreshSession) {
+      if (force && window.SeavAuth?.refreshSession) {
         await window.SeavAuth.refreshSession();
       }
 
-      if (force || !state.ready || isDataLikelyEmpty()) {
-        clearStateCacheForAllUsers();
-        await state.loadAll({ force: true });
-        document.dispatchEvent(new CustomEvent("seav:data-updated"));
+      if (!force && state.ready && !isDataLikelyEmpty()) {
+        queueBackgroundFileHydration();
+        return state.data;
       }
+
+      if (force) {
+        clearCachedData();
+      }
+
+      await state.loadAll({ force });
 
       return state.data;
     })();
@@ -384,7 +504,7 @@
 
     try {
       if (loadUserData) {
-        await ensureUserDataLoaded(true);
+        await ensureUserDataLoaded(false);
 
         if (window.SeavConfig?.SHOW_DEV_VERIFY_LINK && !sessionStorage.getItem("seav_local_hint_shown")) {
           sessionStorage.setItem("seav_local_hint_shown", "1");
@@ -395,13 +515,22 @@
         }
 
         if (!sessionStorage.getItem(SETUP_CHECK_KEY)) {
-          const setupIssues = await state.checkSetup();
-          if (setupIssues.length) {
-            document.dispatchEvent(
-              new CustomEvent("seav:setup-issues", { detail: { issues: setupIssues } })
-            );
+          const runSetupCheck = () => {
+            state.checkSetup().then((setupIssues) => {
+              if (setupIssues.length) {
+                document.dispatchEvent(
+                  new CustomEvent("seav:setup-issues", { detail: { issues: setupIssues } })
+                );
+              } else {
+                sessionStorage.setItem(SETUP_CHECK_KEY, "1");
+              }
+            });
+          };
+
+          if (typeof window.requestIdleCallback === "function") {
+            window.requestIdleCallback(runSetupCheck, { timeout: 5000 });
           } else {
-            sessionStorage.setItem(SETUP_CHECK_KEY, "1");
+            window.setTimeout(runSetupCheck, 2000);
           }
         }
 
@@ -427,6 +556,7 @@
   });
 
   document.addEventListener("seav:session-active", () => {
+    if (state.ready && !isDataLikelyEmpty()) return;
     ensureUserDataLoaded(true).catch((err) => {
       console.warn("[SEA-V] Session data reload failed:", err);
     });
@@ -434,6 +564,8 @@
 
   window.addEventListener("storage", async (ev) => {
     if (!ev.key || !ev.key.startsWith("seav_")) return;
+    if (ev.key.startsWith("seav_signed_url_v1:")) return;
+    if (ev.key.startsWith("seav_celebrated_badge_codes")) return;
     await state.refresh();
   });
 })();
