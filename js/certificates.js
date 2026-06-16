@@ -144,7 +144,6 @@
     }).length;
     const expiring = certs.filter((c) => statusFromCert(c).statusClass === "pill-warning").length;
     const expired = certs.filter((c) => statusFromCert(c).statusClass === "pill-expired").length;
-    const withFile = certs.filter((c) => c.attachment?.url || c.attachment?.dataUrl).length;
 
     row.innerHTML = `
       <div class="sq-kpi-box">
@@ -162,10 +161,6 @@
       <div class="sq-kpi-box">
         <div class="kpi-num">${expired}</div>
         <div class="kpi-label">Expired</div>
-      </div>
-      <div class="sq-kpi-box">
-        <div class="kpi-num">${withFile}</div>
-        <div class="kpi-label">With document</div>
       </div>
     `;
   }
