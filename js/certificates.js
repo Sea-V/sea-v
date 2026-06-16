@@ -79,25 +79,35 @@
   }
 
   function formatExpiry(expiry) {
-    if (!expiry) return "No expiry date";
+    if (!expiry) return "";
     const d = new Date(expiry);
     if (Number.isNaN(d.getTime())) return expiry;
     return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
   }
 
+  function expiryLabel(cert) {
+    if (cert.noExpiry || !cert.expiry) return "No expiry date";
+    const formatted = formatExpiry(cert.expiry);
+    return formatted ? `Expires ${formatted}` : "No expiry date";
+  }
+
+  function sortCerts(certs) {
+    return [...certs].sort((a, b) => {
+      const aTime = a.noExpiry || !a.expiry ? Infinity : new Date(a.expiry).getTime();
+      const bTime = b.noExpiry || !b.expiry ? Infinity : new Date(b.expiry).getTime();
+      if (aTime !== bTime) return aTime - bTime;
+      return String(a.name || "").localeCompare(String(b.name || ""));
+    });
+  }
+
   function renderList() {
     const list = document.getElementById("certsList");
-    const empty = document.getElementById("certsEmpty");
     if (!list) return;
 
-    const certs = [...getSavedCerts()].sort((a, b) =>
-      String(a.name || a.code || "").localeCompare(String(b.name || b.code || ""))
-    );
-
-    if (empty) empty.hidden = certs.length > 0;
+    const certs = sortCerts(getSavedCerts());
 
     if (!certs.length) {
-      list.innerHTML = "";
+      list.innerHTML = `<p class="cert-empty">No certificates added yet.</p>`;
       return;
     }
 
@@ -105,19 +115,25 @@
       .map((cert) => {
         const status = statusFromCert(cert);
         const fileUrl = cert.attachment?.url || cert.attachment?.dataUrl || "";
+        const id = Seav.escapeHtml(cert.id);
+
         return `
-          <article class="cert-row">
-            <div class="cert-row-main">
-              <div class="cert-row-title">${Seav.escapeHtml(cert.name || cert.code || "Certificate")}</div>
-              <div class="cert-row-sub">${Seav.escapeHtml(cert.code || "—")} · Expires ${Seav.escapeHtml(formatExpiry(cert.expiry))}</div>
+          <div class="cert-item">
+            <div class="cert-item-main">
+              <div class="cert-item-name">${Seav.escapeHtml(cert.name || "Certificate")}</div>
+              <div class="cert-item-date">${Seav.escapeHtml(expiryLabel(cert))}</div>
             </div>
-            <span class="cert-status-pill ${Seav.escapeHtml(status.statusClass)}">${Seav.escapeHtml(status.badge)}</span>
-            <div class="cert-row-actions">
-              ${fileUrl ? `<a class="btn-ghost2" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">View</a>` : ""}
-              ${Seav.seavAction("edit", "Edit", `data-edit-cert-id="${Seav.escapeHtml(cert.id)}"`)}
-              ${Seav.seavAction("delete", "Delete", `data-del-cert-id="${Seav.escapeHtml(cert.id)}"`)}
+            <span class="cert-pill ${Seav.escapeHtml(status.statusClass)}">${Seav.escapeHtml(status.badge)}</span>
+            <div class="cert-item-actions">
+              ${
+                fileUrl
+                  ? `<a class="cert-action-link" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">View</a>`
+                  : ""
+              }
+              ${Seav.seavAction("edit", "Edit", `data-edit-cert-id="${id}"`)}
+              ${Seav.seavAction("delete", "Delete", `data-del-cert-id="${id}"`)}
             </div>
-          </article>
+          </div>
         `;
       })
       .join("");

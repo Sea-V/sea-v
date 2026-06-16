@@ -21,8 +21,8 @@
   <script src="js/state.js?v=27" defer></script>
   <script src="js/achievements-engine.js" defer></script>
   <script src="js/badge-unlock.js" defer></script>
-  <script src="js/certificates.js?v=30" defer></script>
-  <script src="js/certificates-export.js?v=30" defer></script>
+  <script src="js/certificates.js?v=32" defer></script>
+  <script src="js/certificates-export.js?v=32" defer></script>
 </head>
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
 
@@ -31,42 +31,32 @@
   <main class="dash">
     <div id="sidebarMount"></div>
 
-    <section class="dash-content cert-page">
-      <div class="cert-page-stack">
+    <section class="dash-content">
+      <article class="cert-shell-card">
 
-        <article class="cert-shell-card">
-          <div class="cert-shell-head">
-            <div class="cert-shell-icon">
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="6.5" y="4.5" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M9 8h6M9 11h6M10 18.5l2-1.2 2 1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="cert-shell-title">
-              <h2>Certificate Library</h2>
-              <p>Add the certificates you hold. Nothing appears here until you save it.</p>
-            </div>
-            <div class="cert-shell-actions">
-              <a class="btn-blue" href="#" data-open="certModal">Add Certificate</a>
-            </div>
+        <header class="cert-shell-head">
+          <div class="cert-shell-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="6.5" y="4.5" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M9 8h6M9 11h6M10 18.5l2-1.2 2 1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </div>
-
-          <div class="cert-section">
-            <div class="cert-compact-list" id="certsList"></div>
-            <p class="cert-empty-msg" id="certsEmpty" hidden>No certificates yet. Click Add Certificate to get started.</p>
+          <div class="cert-shell-title">
+            <h2>Certificates</h2>
+            <p>Add each certificate once. Expiry date sets the status.</p>
           </div>
-        </article>
+          <a class="btn-blue" href="#" data-open="certModal">Add certificate</a>
+        </header>
 
-        <aside class="cert-notes-card">
-          <h3>Notes</h3>
-          <p>Status is worked out from your expiry date. Upload a PDF or image when you add each certificate.</p>
-          <div class="cert-notes-actions">
-            <a class="btn-ghost2" href="#" id="btnDownloadAllCerts">Download All</a>
-            <a class="btn-ghost2" href="#" id="btnShareAllCerts">Share All</a>
-          </div>
-        </aside>
+        <div class="cert-list" id="certsList"></div>
 
-      </div>
+        <footer class="cert-shell-foot">
+          <a class="cert-foot-link" href="#" id="btnDownloadAllCerts">Download all</a>
+          <span class="cert-foot-dot" aria-hidden="true">·</span>
+          <a class="cert-foot-link" href="#" id="btnShareAllCerts">Share all</a>
+        </footer>
+
+      </article>
     </section>
   </main>
 
@@ -77,7 +67,6 @@
         <button type="button" class="modal-x" data-close>&times;</button>
       </div>
       <div class="modal-form">
-        <p class="modal-intro">Download or share your certificate pack as a ZIP.</p>
         <div class="dash-actions">
           <a href="#" class="btn-blue" id="btnShareZipCerts">Share ZIP</a>
           <a href="#" class="btn-ghost2" id="btnEmailCertSummary">Email summary</a>
@@ -95,7 +84,7 @@
         <button type="button" class="modal-x" data-close>&times;</button>
       </div>
 
-      <form class="modal-form cert-modal-form" id="certForm">
+      <form class="modal-form" id="certForm">
         <input type="hidden" id="ct_edit_id" />
 
         <label id="ct_type_wrap">
@@ -104,18 +93,18 @@
         </label>
 
         <label id="ct_name_wrap" hidden>
-          Certificate name
-          <input id="ct_name" placeholder="Full name of the certificate" />
+          Name
+          <input id="ct_name" placeholder="Certificate name" />
         </label>
 
         <div data-date-field="ct_expiry" data-date-label="Expiry date" data-date-optional></div>
 
         <label>
-          Attachment (PDF / image, optional)
+          File (optional)
           <input type="file" id="ct_file" accept=".pdf,image/*" />
         </label>
 
-        <button class="btn-blue" type="submit">Save certificate</button>
+        <button class="btn-blue" type="submit">Save</button>
       </form>
     </div>
   </div>

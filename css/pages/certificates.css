@@ -1,239 +1,190 @@
 /* =========================================================
-   SEA-V • CERTIFICATES PAGE
+   SEA-V • CERTIFICATES PAGE (simple list)
 ========================================================= */
 
-/* =========================================================
-   PAGE STACK
-========================================================= */
-
-.cert-page-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.cert-notes-card {
+.cert-shell-card {
+  overflow: hidden;
   border-radius: 30px;
   border: 1px solid rgba(255, 210, 90, 0.24);
   background: var(--page-shell-bg);
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
-  padding: 28px 32px 32px;
 }
 
-.cert-notes-card h3 {
-  margin: 0 0 12px;
+.cert-shell-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 28px;
+  border-bottom: 1px solid rgba(255, 210, 90, 0.14);
+}
+
+.cert-shell-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 210, 90, 0.34);
+  background: rgba(255, 255, 255, 0.035);
+  color: #ffd25a;
+}
+
+.cert-shell-icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.cert-shell-title h2 {
+  margin: 0 0 6px;
   color: #ffffff;
-  font-size: 20px;
+  font-size: 24px;
+  line-height: 1.1;
   font-weight: 900;
 }
 
-.cert-notes-card p {
+.cert-shell-title p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 15px;
-  line-height: 1.65;
-  max-width: 72ch;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-.cert-notes-actions {
+.cert-list {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 22px;
-  border-top: 1px solid rgba(255, 210, 90, 0.16);
+  flex-direction: column;
 }
 
-/* =========================================================
-   SIMPLE CERT LIST ROWS
-========================================================= */
-
-.cert-row {
-  display: flex;
+.cert-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
-  gap: 14px 18px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 210, 90, 0.2);
-  background: rgba(255, 255, 255, 0.04);
+  gap: 16px 20px;
+  padding: 18px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.cert-row-main {
-  flex: 1;
+.cert-item:last-child {
+  border-bottom: 0;
+}
+
+.cert-item-main {
   min-width: 0;
 }
 
-.cert-row-title {
+.cert-item-name {
   color: #ffffff;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   line-height: 1.3;
 }
 
-.cert-row-sub {
+.cert-item-date {
   margin-top: 4px;
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 13px;
-  line-height: 1.45;
-  font-weight: 600;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 14px;
+  line-height: 1.4;
 }
 
-.cert-row-actions {
-  display: flex;
-  flex-wrap: wrap;
+.cert-pill {
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.cert-pill.pill-neutral {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cert-pill.pill-valid {
+  border: 1px solid rgba(92, 220, 120, 0.5);
+  background: rgba(46, 160, 67, 0.35);
+}
+
+.cert-pill.pill-warning {
+  border: 1px solid rgba(255, 210, 90, 0.34);
+  background: rgba(255, 210, 90, 0.16);
+}
+
+.cert-pill.pill-expired {
+  border: 1px solid rgba(255, 109, 125, 0.34);
+  background: rgba(255, 109, 125, 0.22);
+}
+
+.cert-item-actions {
+  display: flex;
+  align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
-.cert-empty-msg {
+.cert-action-link {
+  color: #5bbcff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.cert-action-link:hover {
+  text-decoration: underline;
+}
+
+.cert-empty {
   margin: 0;
-  padding: 18px 16px;
-  border-radius: 16px;
-  border: 1px dashed rgba(255, 210, 90, 0.24);
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 14px;
-  line-height: 1.55;
+  padding: 48px 28px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 15px;
   text-align: center;
 }
 
-.cert-modal-form {
-  display: grid;
-  gap: 16px;
-}
-
-/* =========================================================
-   SHELL
-========================================================= */
-
-.cert-shell-card {
-  padding: 0;
-  overflow: hidden;
-
-  border-radius: 30px;
-  border: 1px solid rgba(255,210,90,0.24);
-
-  background: var(--page-shell-bg);
-
-  box-shadow:
-    0 20px 48px rgba(0,0,0,0.28);
-}
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.cert-shell-head {
-  display: flex;
-  align-items: center;
-
-  gap: 20px;
-
-  padding: 28px;
-
-  border-bottom: 1px solid rgba(255,210,90,0.16);
-}
-
-.cert-shell-title {
-  flex: 1;
-  min-width: 0;
-}
-
-.cert-shell-actions {
-  margin-left: auto;
-
-  display: flex;
-  align-items: center;
-}
-
-.cert-shell-icon {
-  width: 72px;
-  height: 72px;
-
+.cert-shell-foot {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+  padding: 18px 28px 24px;
+  border-top: 1px solid rgba(255, 210, 90, 0.12);
+}
 
-  flex: 0 0 auto;
+.cert-foot-link {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
 
-  border-radius: 50%;
-  border: 1.5px solid rgba(255,210,90,0.34);
-
-  background: rgba(255,255,255,0.035);
-
+.cert-foot-link:hover {
   color: #ffd25a;
-
-  font-size: 34px;
+  text-decoration: underline;
 }
 
-.cert-shell-icon svg {
-  width: 34px;
-  height: 34px;
-  display: block;
+.cert-foot-dot {
+  color: rgba(255, 255, 255, 0.28);
 }
 
-.cert-shell-head h2 {
-  margin: 0 0 10px;
+@media (max-width: 700px) {
+  .cert-shell-head {
+    grid-template-columns: 1fr;
+  }
 
-  color: #ffffff;
+  .cert-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 
-  font-size: 22px;
-  font-weight: 900;
-}
-
-.cert-shell-head p {
-  margin: 0;
-
-  color: rgba(255,255,255,0.72);
-
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-.cert-shell-footer-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-
-  margin-top: 28px;
-  padding-top: 24px;
-
-  border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-/* =========================================================
-   SECTION
-========================================================= */
-
-.cert-section {
-  padding: 22px;
-}
-
-.cert-section + .cert-section {
-  padding-top: 0;
-}
-
-.cert-section-head {
-  margin-bottom: 14px;
-}
-
-.cert-section-head h3 {
-  margin: 0;
-
-  color: #ffffff;
-
-  font-size: 18px;
-  font-weight: 900;
-}
-
-.cert-section-head p {
-  margin: 6px 0 0;
-
-  color: rgba(255,255,255,0.62);
-
-  font-size: 14px;
+  .cert-item-actions {
+    flex-wrap: wrap;
+  }
 }
 
 .cert-section-group {
@@ -914,18 +865,7 @@
 }
 
 @media (max-width: 700px) {
-  .cert-shell-head,
-  .cert-modern-top {
-    flex-direction: column;
-  }
-
-  .cert-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .cert-row-actions {
-    width: 100%;
-    justify-content: flex-start;
+  .cert-compact-detail-grid {
+    grid-template-columns: 1fr;
   }
 }
