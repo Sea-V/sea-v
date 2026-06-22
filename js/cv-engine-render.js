@@ -193,26 +193,16 @@
     return renderSeav(document);
   }
 
-  window.SeavCvEngine = {
-    CV_TEMPLATE,
-    buildCvSource,
-    getVesselExperience,
-    getVesselRole,
-    buildAutoBullets,
-    buildAutoSummary,
-    buildAutoHeadline,
-    createDefaultDraft,
-    syncDraftWithSource,
-    loadDraft,
-    saveDraft,
-    resetDraftFromSource,
-    buildCvDocument,
-    renderCvHtml,
-    getDefaultSections,
-    formatCvDateRange
+  window.SeavCvRender = {
+    renderBrandMark,
+    renderPhoto,
+    renderBullets,
+    renderSeavSidebarBlock,
+    renderSeavContact,
+    renderSeavNationality,
+    renderSeavExperience,
+    renderSeavReferences,
+    renderSeav,
+    renderCvHtml
   };
-
-  window.SeavCvRender = { renderBrandMark, renderPhoto, renderBullets, renderSeavSidebarBlock,
-    renderSeavContact, renderSeavNationality, renderSeavExperience, renderSeavReferences,
-    renderSeav, renderCvHtml };
 })();
