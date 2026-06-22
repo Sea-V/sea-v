@@ -9,12 +9,13 @@
   const {
     STORAGE_KEY, populateTaxYearOptions, populateCurrencyOptions,
     populateMonthOptions, populateVesselOptions, renderKpis,
-    expandedPsIds, activeYearMonthFilters
+    expandedPsIds, activeYearMonthFilters, getEntries
   } = C;
   const { renderList } = R;
   const { downloadPayslipPack, sharePayslipPack } = X;
   const {
-    createId, normalizePayslipMonth, inferUkTaxYear, inferPayslipMonthFromDate
+    createId, normalizePayslipMonth, inferUkTaxYear, inferPayslipMonthFromDate,
+    getPayslipMonthsLogged, getPayslipMonthLabel
   } = window.SeavData;
   const Seav = window.Seav;
   function readForm() {
@@ -287,7 +288,7 @@
         populateTaxYearOptions("ps_tax_year", false);
         populateCurrencyOptions();
         populateVesselOptions();
-        Seav.mountDateFields();
+        Seav.populateDatePartSelects(document.getElementById("psModal") || document);
         populateMonthOptions(item.taxYear, item.id, normalizePayslipMonth(item));
         if (window.SeavModals?.openModal) window.SeavModals.openModal("psModal");
         return;
@@ -333,7 +334,7 @@
       populateMonthOptions(document.getElementById("ps_tax_year")?.value || "", null);
       populateCurrencyOptions();
       populateVesselOptions();
-      Seav.mountDateFields();
+      Seav.populateDatePartSelects(document.getElementById("psModal") || document);
     });
   }
 
