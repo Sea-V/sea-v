@@ -129,7 +129,8 @@
         const photoUrl = profile.photo?.url || profile.photo?.dataUrl || "";
 
       if (photoUrl) {
-          preview.photo.style.backgroundImage = `url(${photoUrl})`;
+          const safeUrl = String(photoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+          preview.photo.style.backgroundImage = `url("${safeUrl}")`;
           preview.photo.style.backgroundSize = "cover";
           preview.photo.style.backgroundPosition = "center";
           preview.photo.style.backgroundRepeat = "no-repeat";

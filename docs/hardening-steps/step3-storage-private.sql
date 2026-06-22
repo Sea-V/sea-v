@@ -60,21 +60,25 @@ begin
     'specialist-qualification-files', 'payslip-files'
   ]
   loop
+    execute format('drop policy if exists %I on storage.objects', bucket || '_owner_select');
     execute format(
       'create policy %I on storage.objects for select to authenticated
        using (bucket_id = %L and (storage.foldername(name))[1] = auth.uid()::text)',
       bucket || '_owner_select', bucket
     );
+    execute format('drop policy if exists %I on storage.objects', bucket || '_owner_insert');
     execute format(
       'create policy %I on storage.objects for insert to authenticated
        with check (bucket_id = %L and (storage.foldername(name))[1] = auth.uid()::text)',
       bucket || '_owner_insert', bucket
     );
+    execute format('drop policy if exists %I on storage.objects', bucket || '_owner_update');
     execute format(
       'create policy %I on storage.objects for update to authenticated
        using (bucket_id = %L and (storage.foldername(name))[1] = auth.uid()::text)',
       bucket || '_owner_update', bucket
     );
+    execute format('drop policy if exists %I on storage.objects', bucket || '_owner_delete');
     execute format(
       'create policy %I on storage.objects for delete to authenticated
        using (bucket_id = %L and (storage.foldername(name))[1] = auth.uid()::text)',

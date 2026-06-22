@@ -79,10 +79,64 @@
     return fetchArrayByKey(key, await resolveAuthUserId());
   }
 
-  async function fetchSupabaseArray(table, mapper, orderColumn, userId) {
-    if (!window.SeavSupabase) return [];
+  function clientForOptions(options = {}) {
+    return options.public === true
+      ? window.SeavPublicSupabase || window.SeavSupabase
+      : window.SeavSupabase;
+  }
 
-    let query = window.SeavSupabase.from(table).select("*");
+  const PUBLIC_ARRAY_COLUMNS = {
+    vessels: [
+      "id", "user_id", "name", "flag", "gt", "vessel_length", "builder", "vessel_role",
+      "vessel_type", "program", "experience_onboard", "date_from", "date_to", "photo",
+      "created_at", "updated_at"
+    ].join(","),
+    seatimes: [
+      "id", "user_id", "vessel_id", "flag", "gt", "capacity_served", "date_joined",
+      "date_left", "actual_sea_service_days", "standby_service_days", "yard_service_days",
+      "watchkeeping_days", "verification_status", "created_at", "updated_at"
+    ].join(","),
+    certificates: [
+      "id", "user_id", "code", "name", "expiry_date", "status", "attachment",
+      "is_mandatory", "is_template", "created_at", "updated_at"
+    ].join(","),
+    sea_references: [
+      "id", "user_id", "name", "title", "vessel_id", "role", "period", "reference_text",
+      "reference_date", "status", "attachment", "verification", "created_at", "updated_at"
+    ].join(","),
+    achievements: [
+      "id", "user_id", "code", "title", "category", "dashboard_section", "badge_key",
+      "badge_file_name", "badge_tier", "badge_label", "badge_image", "badge_locked_image",
+      "vessel_id", "vessel", "achievement_date", "status", "witness_name",
+      "witness_position", "description", "attachment", "auto_awarded", "created_at", "updated_at"
+    ].join(","),
+    navigation_areas: [
+      "id", "user_id", "country", "port", "from_country", "from_port", "from_lat",
+      "from_lng", "to_country", "to_port", "to_lat", "to_lng", "vessel_id",
+      "operation_type", "passage_name", "visited_date", "departure_date", "arrival_date",
+      "lat", "lng", "waypoints", "note", "created_at", "updated_at"
+    ].join(","),
+    onboard_experiences: [
+      "id", "user_id", "vessel_id", "category", "title", "description", "location_onboard",
+      "date_from", "date_to", "hours", "is_familiarisation", "status", "signoff",
+      "attachment", "created_at", "updated_at"
+    ].join(","),
+    hobbies_interests: [
+      "id", "user_id", "category", "title", "description", "date_from", "date_to",
+      "status", "photos", "created_at", "updated_at"
+    ].join(","),
+    specialist_qualifications: [
+      "id", "user_id", "category", "title", "issuing_body", "date_obtained", "expiry",
+      "status", "notes", "attachment", "created_at", "updated_at"
+    ].join(",")
+  };
+
+  async function fetchSupabaseArray(table, mapper, orderColumn, userId, options = {}) {
+    const client = clientForOptions(options);
+    if (!client) return [];
+
+    const columns = options.public ? PUBLIC_ARRAY_COLUMNS[table] || "id" : "*";
+    let query = client.from(table).select(columns);
 
     if (userId) {
       query = query.eq("user_id", userId);
@@ -96,54 +150,56 @@
 
     if (error) {
       console.error(`[SEA-V] Supabase fetch failed for ${table}:`, error);
-      document.dispatchEvent(
-        new CustomEvent("seav:fetch-error", {
-          detail: { table, message: error.message || String(error) }
-        })
-      );
+      if (!options.public) {
+        document.dispatchEvent(
+          new CustomEvent("seav:fetch-error", {
+            detail: { table, message: error.message || String(error) }
+          })
+        );
+      }
       return [];
     }
 
     const mapped = (data || []).map(mapper);
     if (!bulkHydrateFiles) return mapped;
-    return hydrateArrayFiles(mapped, table);
+    return hydrateArrayFiles(mapped, table, { client });
   }
 
-  async function fetchArrayByKey(key, userId) {
+  async function fetchArrayByKey(key, userId, options = {}) {
     if (isVesselKey(key)) {
-      return await fetchSupabaseArray("vessels", mapVesselFromSupabase, "date_from", userId);
+      return await fetchSupabaseArray("vessels", mapVesselFromSupabase, "date_from", userId, options);
     }
 
     if (isSeatimeKey(key)) {
-      return await fetchSupabaseArray("seatimes", mapSeatimeFromSupabase, "date_joined", userId);
+      return await fetchSupabaseArray("seatimes", mapSeatimeFromSupabase, "date_joined", userId, options);
     }
 
     if (isCertKey(key)) {
-      return await fetchSupabaseArray("certificates", mapCertFromSupabase, null, userId);
+      return await fetchSupabaseArray("certificates", mapCertFromSupabase, null, userId, options);
     }
 
     if (isRefKey(key)) {
-      return await fetchSupabaseArray("sea_references", mapRefFromSupabase, null, userId);
+      return await fetchSupabaseArray("sea_references", mapRefFromSupabase, null, userId, options);
     }
 
     if (isTenderKey(key)) {
-      return await fetchSupabaseArray("tenders", mapTenderFromSupabase, "created_at", userId);
+      return await fetchSupabaseArray("tenders", mapTenderFromSupabase, "created_at", userId, options);
     }
 
     if (isAchievementKey(key)) {
-      return await fetchSupabaseArray("achievements", mapAchievementFromSupabase, "achievement_date", userId);
+      return await fetchSupabaseArray("achievements", mapAchievementFromSupabase, "achievement_date", userId, options);
     }
 
     if (isNavigationAreaKey(key)) {
-      return await fetchSupabaseArray("navigation_areas", mapNavigationAreaFromSupabase, "visited_date", userId);
+      return await fetchSupabaseArray("navigation_areas", mapNavigationAreaFromSupabase, "visited_date", userId, options);
     }
 
     if (isOnboardExperienceKey(key)) {
-      return await fetchSupabaseArray("onboard_experiences", mapOnboardExperienceFromSupabase, "date_from", userId);
+      return await fetchSupabaseArray("onboard_experiences", mapOnboardExperienceFromSupabase, "date_from", userId, options);
     }
 
     if (isHobbyInterestKey(key)) {
-      return await fetchSupabaseArray("hobbies_interests", mapHobbyInterestFromSupabase, "date_from", userId);
+      return await fetchSupabaseArray("hobbies_interests", mapHobbyInterestFromSupabase, "date_from", userId, options);
     }
 
     if (isSpecialistQualificationKey(key)) {
@@ -151,12 +207,13 @@
         "specialist_qualifications",
         mapSpecialistQualificationFromSupabase,
         "date_obtained",
-        userId
+        userId,
+        options
       );
     }
 
     if (isPayslipKey(key)) {
-      return await fetchSupabaseArray("payslips", mapPayslipFromSupabase, "payment_date", userId);
+      return await fetchSupabaseArray("payslips", mapPayslipFromSupabase, "payment_date", userId, options);
     }
 
     return [];
@@ -180,10 +237,15 @@
       throw new Error("Supabase is not available.");
     }
 
-    const { error } = await window.SeavSupabase
+    let query = window.SeavSupabase
       .from(table)
       .update(withUserId(item))
       .eq("id", id);
+
+    const userId = getAuthUserId();
+    if (userId) query = query.eq("user_id", userId);
+
+    const { error } = await query;
 
     if (error) {
       console.error(`[SEA-V] Supabase update failed for ${table}:`, error);
@@ -221,11 +283,15 @@
   async function fetchSupabaseRowById(table, id) {
     if (!window.SeavSupabase || !id) return null;
 
-    const { data, error } = await window.SeavSupabase
+    let query = window.SeavSupabase
       .from(table)
       .select("*")
-      .eq("id", id)
-      .maybeSingle();
+      .eq("id", id);
+
+    const userId = getAuthUserId();
+    if (userId) query = query.eq("user_id", userId);
+
+    const { data, error } = await query.maybeSingle();
 
     if (error) {
       console.warn(`[SEA-V] Could not fetch ${table} row before delete:`, error);
@@ -264,10 +330,15 @@
       await removeStoragePaths(collectStoragePathsFromRow(table, row));
     }
 
-    const { error } = await window.SeavSupabase
+    let query = window.SeavSupabase
       .from(table)
       .delete()
       .eq("id", id);
+
+    const userId = getAuthUserId();
+    if (userId) query = query.eq("user_id", userId);
+
+    const { error } = await query;
 
     if (error) {
       console.error(`[SEA-V] Supabase delete failed for ${table}:`, error);
@@ -351,10 +422,11 @@ async function fetchOwnerProfileRow(userId) {
 
 const SeavAPI = {
   async getPublicProfile(profileId) {
-    if (!window.SeavSupabase || !profileId) return null;
+    const client = clientForOptions({ public: true });
+    if (!client || !profileId) return null;
 
     const baseQuery = () =>
-      window.SeavSupabase
+      client
         .from("profile")
         .select(PUBLIC_PROFILE_COLUMNS)
         .eq("public_enabled", true);
@@ -373,7 +445,7 @@ const SeavAPI = {
     }
 
     const profile = data ? mapProfileFromSupabase(data) : null;
-    return profile ? hydrateProfilePhoto(profile) : null;
+    return profile ? hydrateProfilePhoto(profile, { client }) : null;
   },
 
   async resolvePhotoUrl(photo, bucket = STORAGE_BUCKETS.PROFILE_PHOTOS) {
@@ -494,8 +566,8 @@ const SeavAPI = {
       return fetchArrayByKey(key, userId);
     },
 
-    async getArrayForUser(key, userId) {
-      return fetchArrayByKey(key, userId);
+    async getArrayForUser(key, userId, options = {}) {
+      return fetchArrayByKey(key, userId, options);
     },
 
     async fetchCertificateCatalog() {

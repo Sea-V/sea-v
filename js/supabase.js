@@ -18,6 +18,15 @@
     }
   });
 
+  // Public profile reads must remain anonymous even if the viewer is signed in.
+  window.SeavPublicSupabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      persistSession: false
+    }
+  });
+
   window.SeavSupabaseConfig = {
     url: supabaseUrl,
     anonKey: supabaseKey

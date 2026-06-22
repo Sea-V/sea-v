@@ -9,23 +9,97 @@ begin
     'profile-photos', 'vessel-photos', 'vessel-documents', 'certificate-files',
     'reference-files', 'seatime-files', 'achievement-files', 'tender-photos',
     'onboard-experience-files', 'hobbies-interest-photos',
-    'specialist-qualification-files'
+    'specialist-qualification-files', 'payslip-files'
   ]
   loop
     execute format('drop policy if exists %I on storage.objects', bucket || '_public_read');
-    execute format(
-      'create policy %I on storage.objects for select to anon
-       using (
-         bucket_id = %L
-         and exists (
-           select 1
-           from public.profile p
-           where p.public_enabled = true
-             and p.user_id::text = (storage.foldername(name))[1]
-         )
-       )',
-      bucket || '_public_read',
-      bucket
-    );
   end loop;
 end $$;
+
+drop policy if exists profile_photos_public_read on storage.objects;
+drop policy if exists vessel_photos_public_read on storage.objects;
+drop policy if exists certificate_files_public_read on storage.objects;
+drop policy if exists achievement_files_public_read on storage.objects;
+drop policy if exists onboard_experience_files_public_read on storage.objects;
+drop policy if exists hobbies_interest_photos_public_read on storage.objects;
+
+create policy profile_photos_public_read
+  on storage.objects for select to anon
+  using (
+    bucket_id = 'profile-photos'
+    and exists (
+      select 1 from public.profile p
+      where p.public_enabled = true
+        and p.user_id::text = (storage.foldername(storage.objects.name))[1]
+        and p.photo->>'path' = storage.objects.name
+    )
+  );
+
+create policy vessel_photos_public_read
+  on storage.objects for select to anon
+  using (
+    bucket_id = 'vessel-photos'
+    and exists (
+      select 1
+      from public.vessels v
+      join public.profile p on p.user_id = v.user_id
+      where p.public_enabled = true
+        and v.photo->>'path' = storage.objects.name
+    )
+  );
+
+create policy certificate_files_public_read
+  on storage.objects for select to anon
+  using (
+    bucket_id = 'certificate-files'
+    and exists (
+      select 1
+      from public.certificates c
+      join public.profile p on p.user_id = c.user_id
+      where p.public_enabled = true
+        and c.attachment->>'path' = storage.objects.name
+    )
+  );
+
+create policy achievement_files_public_read
+  on storage.objects for select to anon
+  using (
+    bucket_id = 'achievement-files'
+    and exists (
+      select 1
+      from public.achievements a
+      join public.profile p on p.user_id = a.user_id
+      where p.public_enabled = true
+        and a.status = 'Approved'
+        and a.attachment->>'path' = storage.objects.name
+    )
+  );
+
+create policy onboard_experience_files_public_read
+  on storage.objects for select to anon
+  using (
+    bucket_id = 'onboard-experience-files'
+    and exists (
+      select 1
+      from public.onboard_experiences oe
+      join public.profile p on p.user_id = oe.user_id
+      where p.public_enabled = true
+        and oe.status = 'Signed Off'
+        and oe.attachment->>'path' = storage.objects.name
+    )
+  );
+
+create policy hobbies_interest_photos_public_read
+  on storage.objects for select to anon
+  using (
+    bucket_id = 'hobbies-interest-photos'
+    and exists (
+      select 1
+      from public.hobbies_interests h
+      join public.profile p on p.user_id = h.user_id
+      cross join lateral jsonb_array_elements(coalesce(h.photos, '[]'::jsonb)) photo
+      where p.public_enabled = true
+        and h.status = 'Published'
+        and photo->>'path' = storage.objects.name
+    )
+  );

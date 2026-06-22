@@ -148,18 +148,19 @@ const ENTITY_FILE_FIELDS = {
   payslips: [{ field: "attachment", bucket: STORAGE_BUCKETS.PAYSLIP_FILES }]
 };
 
-async function resolveStorageFileUrl(fileMeta, bucket, expiresIn) {
+async function resolveStorageFileUrl(fileMeta, bucket, expiresIn, clientOverride = null) {
   if (expiresIn == null) expiresIn = signedUrlExpiry(bucket);
   if (!fileMeta) return "";
   if (typeof fileMeta === "string") return fileMeta.trim();
   if (fileMeta.dataUrl) return fileMeta.dataUrl;
   if (fileMeta.url && !fileMeta.path) return fileMeta.url;
   const storageBucket = fileMeta.bucket || bucket;
-  if (fileMeta.path && window.SeavSupabase && storageBucket) {
+  const client = clientOverride || window.SeavSupabase;
+  if (fileMeta.path && client && storageBucket) {
     const cachedUrl = readSignedUrlCache(storageBucket, fileMeta.path);
     if (cachedUrl) return cachedUrl;
 
-    const { data, error } = await window.SeavSupabase.storage
+    const { data, error } = await client.storage
       .from(storageBucket)
       .createSignedUrl(fileMeta.path, expiresIn);
     if (!error && data?.signedUrl) {
@@ -201,14 +202,14 @@ function buildUploadedFileMeta(bucket, filePath, file) {
   };
 }
 
-async function hydrateFileMeta(fileMeta, bucket) {
+async function hydrateFileMeta(fileMeta, bucket, clientOverride = null) {
   if (!fileMeta) return fileMeta;
-  const url = await resolveStorageFileUrl(fileMeta, bucket);
+  const url = await resolveStorageFileUrl(fileMeta, bucket, null, clientOverride);
   if (!url) return fileMeta;
   return { ...fileMeta, url };
 }
 
-async function hydrateEntityFiles(item, table) {
+async function hydrateEntityFiles(item, table, options = {}) {
   if (!item) return item;
   const fields = ENTITY_FILE_FIELDS[table];
   if (!fields?.length) return item;
@@ -217,9 +218,11 @@ async function hydrateEntityFiles(item, table) {
   for (const cfg of fields) {
     if (cfg.isArray) {
       const files = Array.isArray(next[cfg.field]) ? next[cfg.field] : [];
-      next[cfg.field] = await Promise.all(files.map((file) => hydrateFileMeta(file, cfg.bucket)));
+      next[cfg.field] = await Promise.all(
+        files.map((file) => hydrateFileMeta(file, cfg.bucket, options.client))
+      );
     } else if (next[cfg.field]) {
-      next[cfg.field] = await hydrateFileMeta(next[cfg.field], cfg.bucket);
+      next[cfg.field] = await hydrateFileMeta(next[cfg.field], cfg.bucket, options.client);
     }
   }
   return next;
@@ -228,12 +231,12 @@ async function hydrateEntityFiles(item, table) {
 async function hydrateArrayFiles(items, table, options = {}) {
   if (!Array.isArray(items) || !items.length) return items || [];
   if (options.skipFiles) return items;
-  return Promise.all(items.map((item) => hydrateEntityFiles(item, table)));
+  return Promise.all(items.map((item) => hydrateEntityFiles(item, table, options)));
 }
 
-async function hydrateProfilePhoto(profile) {
+async function hydrateProfilePhoto(profile, options = {}) {
   if (!profile?.photo) return profile;
-  const photo = await hydrateFileMeta(profile.photo, STORAGE_BUCKETS.PROFILE_PHOTOS);
+  const photo = await hydrateFileMeta(profile.photo, STORAGE_BUCKETS.PROFILE_PHOTOS, options.client);
   return { ...profile, photo };
 }
 

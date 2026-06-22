@@ -33,6 +33,7 @@
   let currentUser = null;
   let ready = false;
   let initPromise = null;
+  let redirectingToLogin = false;
   const profileBootstrapDone = new Set();
 
   function currentPage() {
@@ -209,12 +210,7 @@
     return err?.message || "Something went wrong. Please try again.";
   }
 
-  async function logout() {
-    const client = await waitForSupabase();
-    const { error } = await client.auth.signOut();
-    if (error) console.warn("[SEA-V] Sign out failed:", error);
-    currentUser = null;
-
+  function clearSessionCaches() {
     try {
       Object.keys(sessionStorage).forEach((key) => {
         if (key.startsWith("seav_state_cache_v1_")) {
@@ -225,6 +221,14 @@
     } catch (cacheErr) {
       console.warn("[SEA-V] Session cache clear failed:", cacheErr);
     }
+  }
+
+  async function logout() {
+    const client = await waitForSupabase();
+    const { error } = await client.auth.signOut();
+    if (error) console.warn("[SEA-V] Sign out failed:", error);
+    currentUser = null;
+    clearSessionCaches();
   }
 
   async function requestPasswordReset(email) {
@@ -302,6 +306,8 @@
   }
 
   function redirectToLogin() {
+    redirectingToLogin = true;
+    document.documentElement.classList.add("auth-pending");
     const page = currentPage();
     const params = new URLSearchParams();
     if (isProtectedPage(page)) params.set("redirect", page);
@@ -370,6 +376,12 @@
 
       window.SeavSupabase.auth.onAuthStateChange(async (event, session) => {
         currentUser = session?.user || null;
+        if (!currentUser && (event === "SIGNED_OUT" || event === "USER_DELETED")) {
+          clearSessionCaches();
+          document.dispatchEvent(new CustomEvent("seav:session-ended"));
+          await enforceRouteAccess();
+          return;
+        }
         if (session?.user && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
           document.dispatchEvent(new CustomEvent("seav:session-active"));
           try {
@@ -389,7 +401,7 @@
       const page = currentPage();
       const redirectingFromAuthPage =
         (page === "index.html" || page === "signup.html") && isAuthenticated();
-      if (!redirectingFromAuthPage) {
+      if (!redirectingFromAuthPage && !redirectingToLogin) {
         document.documentElement.classList.remove("auth-pending");
       }
       document.dispatchEvent(new CustomEvent("seav:auth-ready"));

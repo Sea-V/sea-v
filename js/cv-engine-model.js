@@ -418,9 +418,14 @@
 
   function loadDraft() {
     try {
-      const raw = localStorage.getItem(KEYS.CV_DRAFT);
+      const scopedKey = cvDraftStorageKey();
+      const raw = localStorage.getItem(scopedKey) || localStorage.getItem(KEYS.CV_DRAFT);
       if (!raw) return null;
-      return JSON.parse(raw);
+      const draft = JSON.parse(raw);
+      if (scopedKey !== KEYS.CV_DRAFT && !localStorage.getItem(scopedKey)) {
+        localStorage.setItem(scopedKey, JSON.stringify(draft));
+      }
+      return draft;
     } catch {
       return null;
     }
@@ -428,8 +433,13 @@
 
   function saveDraft(draft) {
     const payload = { ...draft, updatedAt: new Date().toISOString() };
-    localStorage.setItem(KEYS.CV_DRAFT, JSON.stringify(payload));
+    localStorage.setItem(cvDraftStorageKey(), JSON.stringify(payload));
     return payload;
+  }
+
+  function cvDraftStorageKey() {
+    const userId = window.SeavAuth?.getUserId?.();
+    return userId ? `${KEYS.CV_DRAFT}_${userId}` : KEYS.CV_DRAFT;
   }
 
   function resetDraftFromSource(source) {

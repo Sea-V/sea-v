@@ -37,6 +37,58 @@ const TABLES = [
   "payslips"
 ];
 
+const ANON_PRIVATE_TABLES = new Set(["tenders", "payslips"]);
+
+const PUBLIC_TABLE_SAFE_COLUMNS = {
+  profile: [
+    "id", "user_id", "name", "rank", "qualification", "nationality", "dob", "location",
+    "availability", "bio", "photo", "public_enabled", "created_at", "updated_at"
+  ].join(","),
+  vessels: [
+    "id", "user_id", "name", "flag", "gt", "vessel_length", "builder", "vessel_role",
+    "vessel_type", "program", "experience_onboard", "date_from", "date_to", "photo",
+    "created_at", "updated_at"
+  ].join(","),
+  seatimes: [
+    "id", "user_id", "vessel_id", "flag", "gt", "capacity_served", "date_joined",
+    "date_left", "actual_sea_service_days", "standby_service_days", "yard_service_days",
+    "watchkeeping_days", "verification_status", "created_at", "updated_at"
+  ].join(","),
+  certificates: [
+    "id", "user_id", "code", "name", "expiry_date", "status", "attachment",
+    "is_mandatory", "is_template", "created_at", "updated_at"
+  ].join(","),
+  sea_references: [
+    "id", "user_id", "name", "title", "vessel_id", "role", "period", "reference_text",
+    "reference_date", "status", "attachment", "verification", "created_at", "updated_at"
+  ].join(","),
+  achievements: [
+    "id", "user_id", "code", "title", "category", "dashboard_section", "badge_key",
+    "badge_file_name", "badge_tier", "badge_label", "badge_image", "badge_locked_image",
+    "vessel_id", "vessel", "achievement_date", "status", "witness_name",
+    "witness_position", "description", "attachment", "auto_awarded", "created_at", "updated_at"
+  ].join(","),
+  navigation_areas: [
+    "id", "user_id", "country", "port", "from_country", "from_port", "from_lat",
+    "from_lng", "to_country", "to_port", "to_lat", "to_lng", "vessel_id",
+    "operation_type", "passage_name", "visited_date", "departure_date", "arrival_date",
+    "lat", "lng", "waypoints", "note", "created_at", "updated_at"
+  ].join(","),
+  onboard_experiences: [
+    "id", "user_id", "vessel_id", "category", "title", "description", "location_onboard",
+    "date_from", "date_to", "hours", "is_familiarisation", "status", "signoff",
+    "attachment", "created_at", "updated_at"
+  ].join(","),
+  hobbies_interests: [
+    "id", "user_id", "category", "title", "description", "date_from", "date_to",
+    "status", "photos", "created_at", "updated_at"
+  ].join(","),
+  specialist_qualifications: [
+    "id", "user_id", "category", "title", "issuing_body", "date_obtained", "expiry",
+    "status", "notes", "attachment", "created_at", "updated_at"
+  ].join(",")
+};
+
 async function restGet(config, table, query = "select=*&limit=1") {
   const endpoint = `${config.url}/rest/v1/${table}?${query}`;
   const res = await fetch(endpoint, {
@@ -94,10 +146,7 @@ async function testTables(config) {
   const results = [];
 
   for (const table of TABLES) {
-    let query = "select=*&limit=1";
-    if (table === "profile") {
-      query = `select=${PUBLIC_PROFILE_SAFE_COLUMNS}&limit=1`;
-    }
+    let query = `select=${PUBLIC_TABLE_SAFE_COLUMNS[table] || "*"}&limit=1`;
 
     const result = await restGet(config, table, query);
     let pass = result.ok;
@@ -117,6 +166,12 @@ async function testTables(config) {
     } else if (table === "profile" && !pass && result.status === 401) {
       pass = true;
       detail = "OK — profile protected by column grants (use safe column select in app)";
+    } else if (!pass && result.status === 401 && ANON_PRIVATE_TABLES.has(table)) {
+      pass = true;
+      detail = "OK — table intentionally private to anon";
+    } else if (!pass && result.status === 401 && PUBLIC_TABLE_SAFE_COLUMNS[table]) {
+      pass = true;
+      detail = "OK — no public rows readable under current RLS";
     } else if (pass && Array.isArray(result.body)) {
       detail = `OK — ${result.body.length} row(s) sampled`;
     }
@@ -357,21 +412,27 @@ async function main() {
   }
 
   console.log("---");
+  let passed = true;
   if (step === "0") {
+    passed = failedTables.length === 0 && profileWriteBlocked && payslipWriteBlocked;
     console.log(failedTables.length ? `${failedTables.length} table(s) failed.` : "Tables reachable.");
     console.log(profileWriteBlocked ? "Profile writes blocked (good)." : "Profile writes NOT blocked — run schema-phase2.sql");
     console.log(payslipWriteBlocked ? "Payslip writes blocked (good)." : "Payslip writes NOT blocked — run schema-phase2.sql");
     console.log("Next: run docs/hardening-steps/step1-profile-columns.sql in Supabase, then --step 1");
   } else if (step === "1") {
+    passed = columnSafe;
     console.log(columnSafe ? "Step 1 passed." : "Step 1 not passed yet — run step1-profile-columns.sql");
     console.log("Next: run docs/hardening-steps/step2-status-rls.sql, then --step 2");
   } else if (step === "2") {
+    passed = true;
     console.log("Step 2 applied in SQL Editor?");
     console.log("Next: run docs/hardening-steps/step3-storage-private.sql, then --step 3");
   } else if (step === "3") {
+    passed = storageBlocked;
     console.log(storageBlocked ? "Step 3 passed — anon uploads blocked." : "Step 3 not passed yet — run step3b-drop-legacy-storage-policies.sql");
     console.log("Next: run docs/hardening-steps/step4-storage-public-read.sql, then --step 4");
   } else if (step === "4") {
+    passed = storageBlocked;
     console.log(storageBlocked ? "Anon uploads still blocked (good)." : "Storage still open — re-run step 3");
     console.log("Done. Run: node scripts/test-supabase.mjs --step all");
   } else if (
@@ -381,8 +442,10 @@ async function main() {
     storageBlocked &&
     columnSafe
   ) {
+    passed = true;
     console.log("All Phase 2 security checks passed.");
   } else {
+    passed = false;
     if (failedTables.length) {
       console.log(`${failedTables.length} table(s) unreachable. Run docs/schema-full.sql first.`);
     }
@@ -400,6 +463,9 @@ async function main() {
     }
   }
   console.log("");
+  if (!passed) {
+    process.exit(1);
+  }
 }
 
 main().catch((err) => {

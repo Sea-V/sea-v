@@ -14,9 +14,14 @@
   let introTimer = null;
   let openTimer = null;
 
+  function storageKey() {
+    const userId = window.SeavAuth?.getUserId?.();
+    return userId ? `${STORAGE_KEY}_${userId}` : STORAGE_KEY;
+  }
+
   function getCelebratedCodes() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(storageKey());
       return raw ? JSON.parse(raw) : [];
     } catch {
       return [];
@@ -28,7 +33,7 @@
     const codes = getCelebratedCodes();
     if (codes.includes(code)) return;
     codes.push(code);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(codes));
+    localStorage.setItem(storageKey(), JSON.stringify(codes));
   }
 
   function formatTier(tier) {

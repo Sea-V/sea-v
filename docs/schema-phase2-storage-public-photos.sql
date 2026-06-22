@@ -28,7 +28,7 @@ begin
            select 1
            from public.profile p
            where p.public_enabled = true
-             and p.user_id::text = (storage.foldername(name))[1]
+             and p.user_id::text = (storage.foldername(storage.objects.name))[1]
          )
        )',
       bucket || '_public_read',

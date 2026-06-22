@@ -37,7 +37,7 @@
   function rememberVerifyLink(refId, verifyUrl) {
     if (!refId || !verifyUrl) return;
     try {
-      sessionStorage.setItem(`${VERIFY_LINK_KEY_PREFIX}${refId}`, verifyUrl);
+      sessionStorage.setItem(verifyLinkStorageKey(refId), verifyUrl);
     } catch (err) {
       console.warn("[SEA-V] Could not store verification link:", err);
     }
@@ -46,10 +46,15 @@
   function readStoredVerifyLink(refId) {
     if (!refId) return "";
     try {
-      return sessionStorage.getItem(`${VERIFY_LINK_KEY_PREFIX}${refId}`) || "";
+      return sessionStorage.getItem(verifyLinkStorageKey(refId)) || "";
     } catch {
       return "";
     }
+  }
+
+  function verifyLinkStorageKey(refId) {
+    const userId = window.SeavAuth?.getUserId?.();
+    return `${VERIFY_LINK_KEY_PREFIX}${userId ? `${userId}_` : ""}${refId}`;
   }
 
   function getRefs() {
@@ -412,7 +417,14 @@ function readReferenceForm() {
         e.preventDefault();
 
         const formData = readReferenceForm();
-        if (!formData.name || !formData.text) return;
+        if (!formData.name || !formData.text) {
+          Seav.notify(
+            "error",
+            "Reference details missing",
+            "Add the referee name and reference text before saving."
+          );
+          return;
+        }
 
         const existingRef = formData.id
          ? getRefs().find((item) => item.id === formData.id) || null

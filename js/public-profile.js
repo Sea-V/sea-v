@@ -155,7 +155,7 @@
 
     async function loadPublicData(ownerUserId, key) {
       if (ownerUserId && SeavAPI.getArrayForUser) {
-        return SeavAPI.getArrayForUser(key, ownerUserId);
+        return SeavAPI.getArrayForUser(key, ownerUserId, { public: true });
       }
       return [];
     }

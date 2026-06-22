@@ -511,7 +511,10 @@ async function saveVesselData(vesselData) {
     e.preventDefault();
 
     const formData = readVesselForm();
-    if (!formData.name) return;
+    if (!formData.name) {
+      Seav.notify("error", "Vessel name required", "Add a vessel name before saving.");
+      return;
+    }
 
     const existingVessel = formData.id
       ? getVessels().find((item) => item.id === formData.id) || null

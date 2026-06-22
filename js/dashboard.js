@@ -137,7 +137,8 @@ function renderDashboardProfile() {
     const profilePhotoUrl = profile.photo?.url || profile.photo?.dataUrl || "";
 
    if (profilePhotoUrl) {
-  dashAvatar.style.backgroundImage = `url(${profilePhotoUrl})`;
+  const safeUrl = String(profilePhotoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  dashAvatar.style.backgroundImage = `url("${safeUrl}")`;
       dashAvatar.style.backgroundSize = "cover";
       dashAvatar.style.backgroundPosition = "center";
     } else {
