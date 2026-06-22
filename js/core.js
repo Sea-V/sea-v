@@ -59,6 +59,43 @@
     return window.confirm(message);
   }
 
+  const DATE_YEAR_MIN = 1950;
+  const DATE_YEAR_FUTURE = 15;
+
+  function getCurrentYear() {
+    return new Date().getFullYear();
+  }
+
+  function buildYearOptionsHtml() {
+    const now = getCurrentYear();
+    const options = ['<option value="">Year</option>'];
+
+    for (let year = now; year <= now + DATE_YEAR_FUTURE; year += 1) {
+      options.push(`<option value="${year}">${year}</option>`);
+    }
+
+    for (let year = now - 1; year >= DATE_YEAR_MIN; year -= 1) {
+      options.push(`<option value="${year}">${year}</option>`);
+    }
+
+    return options.join("");
+  }
+
+  function ensureYearSelectOption(yearEl, year) {
+    if (!yearEl || yearEl.tagName !== "SELECT") return;
+
+    const value = String(year ?? "").trim();
+    if (!value || !/^\d{4}$/.test(value)) return;
+
+    const exists = Array.from(yearEl.options).some((option) => option.value === value);
+    if (exists) return;
+
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    yearEl.appendChild(option);
+  }
+
   const DATE_MONTHS = [
     ["01", "January"],
     ["02", "February"],
@@ -100,7 +137,10 @@
     const monthEl = document.getElementById(`${prefix}_month`);
     const dayEl = document.getElementById(`${prefix}_day`);
 
-    if (yearEl) yearEl.value = parts.year;
+    if (yearEl) {
+      ensureYearSelectOption(yearEl, parts.year);
+      yearEl.value = parts.year;
+    }
     if (monthEl) monthEl.value = parts.month;
     if (dayEl) dayEl.value = parts.day;
   }
@@ -118,6 +158,13 @@
   }
 
   function populateDatePartSelects(root = document) {
+    root.querySelectorAll('select[data-date-part="year"]').forEach((select) => {
+      if (select.dataset.datePopulated === "true") return;
+
+      select.innerHTML = buildYearOptionsHtml();
+      select.dataset.datePopulated = "true";
+    });
+
     root.querySelectorAll('select[data-date-part="month"]').forEach((select) => {
       if (select.dataset.datePopulated === "true") return;
 
@@ -151,15 +198,7 @@
         <div class="modal-date-row">
           <div class="modal-date-field">
             <span class="modal-date-field-label">Year</span>
-            <input
-              type="number"
-              id="${escapeHtml(prefix)}_year"
-              min="1950"
-              max="2100"
-              placeholder="4-digit year"
-              inputmode="numeric"
-              ${requiredAttr}
-            />
+            <select id="${escapeHtml(prefix)}_year" data-date-part="year" ${requiredAttr}></select>
           </div>
           <div class="modal-date-field">
             <span class="modal-date-field-label">Month</span>
