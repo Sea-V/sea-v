@@ -2,13 +2,6 @@
    Landing / legal logos — compact, non-invasive
 ========================================================= */
 
-body.signup-page .signup-logo {
-  width: 114px;
-  max-width: 48%;
-  height: auto;
-  margin-bottom: 4px;
-}
-
 body.info-page .info-logo {
   width: 190px;
   max-width: 58%;
@@ -30,11 +23,6 @@ body.info-page .info-logo {
 }
 
 @media (max-width: 640px) {
-  body.signup-page .signup-logo {
-    width: 84px;
-    max-width: 44%;
-  }
-
   body.info-page .info-logo {
     width: 140px;
     max-width: 60%;

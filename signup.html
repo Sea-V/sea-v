@@ -22,16 +22,14 @@
   <div class="overlay"></div>
 
   <main class="signup-shell">
+    <div class="signup-container">
 
-    <div class="signup-panel">
+      <img src="img/logo.png?v=6" class="signup-logo" alt="SEA-V" width="64" height="65">
 
-      <img src="img/logo.png?v=6" class="logo signup-logo" alt="SEA-V" width="114" height="116">
+      <h1 class="signup-title">Create account</h1>
+      <p class="signup-lead">Build your profile. We’ll email a confirmation link before your first login.</p>
 
-      <h1 class="signup-title">Create your account</h1>
-      <p class="signup-subtitle">Start building your professional SEA-V profile</p>
-      <p class="signup-notice">You’ll receive a confirmation email before your first login.</p>
-
-      <form class="signup-form-modern" id="signupForm" novalidate>
+      <form class="signup-form" id="signupForm" novalidate>
 
         <input
           id="signupName"
@@ -71,18 +69,18 @@
           minlength="8"
         >
 
-        <label class="signup-show-password">
+        <label class="signup-check signup-show-password">
           <input type="checkbox" id="toggleSignupPassword">
-          Show passwords
+          <span>Show passwords</span>
         </label>
 
-        <label class="signup-legal-consent">
+        <label class="signup-check signup-legal-consent">
           <input type="checkbox" id="signupAcceptLegal" required>
           <span>
             I agree to the
-            <a href="terms.html" target="_blank" rel="noopener">Terms of Use</a>
+            <a href="terms.html" target="_blank" rel="noopener">Terms</a>
             and
-            <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.
+            <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>
           </span>
         </label>
 
@@ -92,19 +90,17 @@
 
         <p id="signupMsg" class="signup-msg" role="status" aria-live="polite"></p>
 
-        <button type="button" class="btn-ghost2" id="btnResendConfirm" hidden>
+        <button type="button" class="signup-resend-btn" id="btnResendConfirm" hidden>
           Resend confirmation email
         </button>
 
       </form>
 
-      <div class="signup-linkline">
-        Already have an account?
-        <a href="index.html">Log in</a>
-      </div>
+      <p class="signup-linkline">
+        Already have an account? <a href="index.html">Log in</a>
+      </p>
 
     </div>
-
   </main>
 
   <footer class="site-footer">

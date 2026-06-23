@@ -1,181 +1,163 @@
 /* =========================================================
-   SEA-V • AUTH PAGES
-   signup.html
+   SEA-V • SIGN UP — minimal, aligned with login page
 ========================================================= */
 
 body.signup-page .signup-shell {
   position: relative;
   z-index: 10;
-
-  width: 100%;
   min-height: 100vh;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  padding: 28px 20px 120px;
-
+  padding: 24px 20px 100px;
   box-sizing: border-box;
 }
 
-body.signup-page .signup-panel {
-  width: min(420px, 92vw);
-
+body.signup-page .signup-container {
+  position: relative;
+  width: min(280px, 88vw);
   display: flex;
   flex-direction: column;
   align-items: center;
-
   text-align: center;
+  gap: 16px;
+}
 
-  padding: 28px 26px 26px;
-
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-
-  background: rgba(15, 32, 52, 0.34);
-
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+body.signup-page .signup-logo {
+  width: 64px;
+  height: auto;
+  margin: 0;
 }
 
 body.signup-page .signup-title {
   margin: 0;
-
-  font-size: 26px;
-  line-height: 1.15;
-  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 600;
 }
 
-body.signup-page .signup-subtitle {
-  margin: 8px 0 0;
-
-  color: rgba(255, 255, 255, 0.72);
-
-  font-size: 14px;
-}
-
-body.signup-page .signup-notice {
-  max-width: 320px;
-  margin: 8px 0 14px;
-  padding: 8px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(114, 228, 255, 0.28);
-  background: rgba(18, 34, 56, 0.55);
-  color: rgba(215, 244, 255, 0.92);
+body.signup-page .signup-lead {
+  margin: -8px 0 0;
+  color: rgba(255, 255, 255, 0.62);
   font-size: 12px;
   line-height: 1.45;
 }
 
-body.signup-page .signup-form-modern {
+body.signup-page .signup-form {
   width: 100%;
-
   display: flex;
   flex-direction: column;
-
   gap: 10px;
 }
 
-body.signup-page .signup-form-modern input:not([type="checkbox"]) {
+body.signup-page .signup-form input:not([type="checkbox"]) {
   width: 100%;
-  height: 44px;
-
-  padding: 0 16px;
-
+  height: 40px;
+  padding: 0 14px;
   box-sizing: border-box;
-
-  border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
   background: rgba(255, 255, 255, 0.08);
-
   color: white;
   outline: none;
 }
 
-body.signup-page .signup-form-modern input:not([type="checkbox"])::placeholder {
-  color: rgba(255, 255, 255, 0.58);
+body.signup-page .signup-form input:not([type="checkbox"])::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
-body.signup-page .signup-form-modern input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  flex-shrink: 0;
-  accent-color: #5bbcff;
-  cursor: pointer;
-}
-
-body.signup-page .signup-show-password {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  margin: 2px 0 0;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 13px;
-  cursor: pointer;
-}
-
-body.signup-page .signup-legal-consent {
+body.signup-page .signup-check {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  margin: 4px 0 2px;
+  gap: 8px;
+  margin: 0;
   text-align: left;
   font-size: 12px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.78);
   cursor: pointer;
 }
 
-body.signup-page .signup-legal-consent input[type="checkbox"] {
-  margin-top: 2px;
+body.signup-page .signup-check input[type="checkbox"] {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  flex-shrink: 0;
+  accent-color: #5bbcff;
+  -webkit-appearance: checkbox;
+  appearance: checkbox;
+  cursor: pointer;
 }
 
-body.signup-page .signup-legal-consent a {
+body.signup-page .signup-check a {
   color: #5bbcff;
+  text-decoration: none;
+}
+
+body.signup-page .signup-check a:hover {
+  text-decoration: underline;
 }
 
 body.signup-page .signup-submit-btn {
-  height: 44px;
-  margin-top: 4px;
+  height: 40px;
+  margin-top: 2px;
   border: none;
-  border-radius: 22px;
+  border-radius: 20px;
   background: linear-gradient(135deg, #5bbcff, #2d7cff);
   color: white;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    opacity 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 body.signup-page .signup-submit-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 body.signup-page .signup-submit-btn:disabled {
-  opacity: 0.72;
+  opacity: 0.7;
   cursor: wait;
 }
 
-body.signup-page .signup-msg {
-  min-height: 20px;
-  margin: 4px 0 0;
+body.signup-page .signup-resend-btn {
+  width: 100%;
+  height: auto;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+body.signup-page .signup-resend-btn:hover {
+  border-color: rgba(91, 188, 255, 0.45);
   color: #5bbcff;
-  font-size: 13px;
+}
+
+body.signup-page .signup-msg {
+  min-height: 18px;
+  margin: 0;
+  color: #5bbcff;
+  font-size: 12px;
   font-weight: 600;
+  line-height: 1.4;
 }
 
 body.signup-page .signup-linkline {
-  margin-top: 10px;
+  margin: 0;
   color: rgba(255, 255, 255, 0.82);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 body.signup-page .signup-linkline a {
@@ -185,33 +167,18 @@ body.signup-page .signup-linkline a {
 
 @media (max-width: 640px) {
   body.signup-page .signup-shell {
-    padding-bottom: 108px;
+    padding-bottom: 92px;
   }
 
-  body.signup-page .signup-panel {
-    padding: 24px 18px 22px;
-    border-radius: 20px;
+  body.signup-page .signup-logo {
+    width: 56px;
   }
 
   body.signup-page .signup-title {
-    font-size: 22px;
+    font-size: 18px;
   }
 
-  body.signup-page .signup-subtitle {
-    font-size: 13px;
-  }
-
-  body.signup-page .signup-notice {
-    margin-bottom: 16px;
-    font-size: 11px;
-  }
-
-  body.signup-page .signup-form-modern input:not([type="checkbox"]),
-  body.signup-page .signup-submit-btn {
-    height: 42px;
-  }
-
-  body.signup-page .signup-linkline {
-    font-size: 13px;
+  body.signup-page .signup-container {
+    width: min(280px, 82vw);
   }
 }
