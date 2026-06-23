@@ -39,13 +39,6 @@ body.signup-page .container {
   padding: 20px;
 }
 
-body.index-page .logo,
-body.signup-page .logo {
-  width: 120px;
-  max-width: 60vw;
-  height: auto;
-}
-
 body.index-page .demo-notice,
 body.signup-page .demo-notice {
   max-width: 320px;
@@ -168,12 +161,6 @@ body.signup-page #signupMsg {
 }
 
 @media (max-width: 640px) {
-  body.index-page .logo,
-  body.signup-page .logo {
-    width: 95px;
-    max-width: 55vw;
-  }
-
   body.index-page .login-form,
   body.signup-page .login-form {
     width: min(260px, 82vw);

@@ -146,8 +146,6 @@
 }
 
 .brand img {
-  height: 61px;
-  width: auto;
   display: block;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.22));
 }
@@ -825,10 +823,6 @@ body.app-page::before {
 
     justify-content: center;
   }
-
-  body[data-topbar="public"] .brand img {
-    height: 29px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -840,10 +834,6 @@ body.app-page::before {
     padding: 0 14px;
 
     font-size: 12px;
-  }
-
-  body[data-topbar="public"] .brand img {
-    height: 26px;
   }
 }
 

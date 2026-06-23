@@ -35,6 +35,19 @@
   --logo-deep: #2a6eb8;
   --logo-navy: #1a4d8c;
 
+  /* Logo display sizes (half of original artboard scale) */
+  --seav-logo-auth: 120px;
+  --seav-logo-auth-mobile: 95px;
+  --seav-logo-topbar: 34px;
+  --seav-logo-topbar-public-md: 29px;
+  --seav-logo-topbar-public-sm: 26px;
+  --seav-logo-info: 95px;
+  --seav-logo-info-mobile: 70px;
+  --seav-logo-legal: 16px;
+  --seav-logo-public: 14px;
+  --seav-logo-verify: 27px;
+  --seav-logo-cv: 7.5mm;
+
   --accent-blue: #5bbcff;
   --accent-cyan: #72e4ff;
   --accent-ice: #d7f4ff;
