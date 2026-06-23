@@ -341,6 +341,9 @@ async function renderTenderSnippet() {
         const name = Seav.escapeHtml(tender.name || "Unnamed Tender");
         const vesselName = Seav.escapeHtml(linkedVessel?.name || "Standalone / Chase");
         const type = Seav.escapeHtml(tender.type || "—");
+        const proficiency = Seav.escapeHtml(
+          window.SeavData?.getTenderProficiencyLabel?.(tender.proficiencyLevel) || "—"
+        );
         const model = Seav.escapeHtml(tender.model || "—");
         const length = Seav.escapeHtml(tender.length || "—");
         const engine = Seav.escapeHtml(tender.engine || "—");
@@ -358,6 +361,10 @@ async function renderTenderSnippet() {
               </div>
 
               <div class="dash-mini-info-grid">
+                <div>
+                  <span>Proficiency</span>
+                  <strong>${proficiency}</strong>
+                </div>
                 <div>
                   <span>Type</span>
                   <strong>${type}</strong>

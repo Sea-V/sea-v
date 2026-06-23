@@ -116,6 +116,7 @@ create table if not exists public.tenders (
   engine text default '',
   capacity text default '',
   reg text default '',
+  proficiency_level text default '',
   description text default '',
   photo jsonb,
   created_at timestamptz default now(),

@@ -25,7 +25,8 @@
  const {
   KEYS,
   createId,
-  getSortedVesselOptions
+  getSortedVesselOptions,
+  getTenderProficiencyLabel
 } = window.SeavData;
 
   const STORAGE_KEY = KEYS.TENDERS;
@@ -68,6 +69,16 @@ function getVesselNameForTender(tender) {
   return vessel?.name || "Unknown Vessel";
 }
 
+function getProficiencyDisplay(level) {
+  const map = {
+    Familiarisation: { label: "Familiarisation", className: "pill-pending" },
+    Competent: { label: "Competent", className: "pill-neutral" },
+    Advanced: { label: "Advanced", className: "pill-valid" },
+    Coxswain: { label: "Coxswain", className: "pill-valid" }
+  };
+  return map[level] || null;
+}
+
   function buildTenderCard(tender) {
   const tenderId = tender.id || "";
   const photoUrl = tender.photo?.url || tender.photo?.dataUrl || "";
@@ -78,6 +89,10 @@ function getVesselNameForTender(tender) {
     : `<div class="vessel-photo-fallback">No Photo</div>`;
 
   const vesselName = getVesselNameForTender(tender);
+  const proficiency = getProficiencyDisplay(tender.proficiencyLevel);
+  const proficiencyHtml = proficiency
+    ? `<span class="pill tender-proficiency-pill ${proficiency.className}">${Seav.escapeHtml(proficiency.label)}</span>`
+    : "";
 
   return `
     <article class="vessel-card">
@@ -86,6 +101,7 @@ function getVesselNameForTender(tender) {
       <div class="vessel-body">
         <h3 class="vessel-title vessel-title-strong">
           ${Seav.escapeHtml(tender.name || "Unnamed Tender")}
+          ${proficiencyHtml}
         </h3>
 
         <div class="vessel-meta-grid">
@@ -93,6 +109,11 @@ function getVesselNameForTender(tender) {
           <div class="vessel-meta-item">
             <span class="vessel-meta-label">Vessel</span>
             <span class="vessel-meta-value">${Seav.escapeHtml(vesselName)}</span>
+          </div>
+
+          <div class="vessel-meta-item">
+            <span class="vessel-meta-label">Proficiency</span>
+            <span class="vessel-meta-value">${Seav.escapeHtml(getTenderProficiencyLabel(tender.proficiencyLevel))}</span>
           </div>
 
           <div class="vessel-meta-item">
@@ -168,6 +189,7 @@ function getVesselNameForTender(tender) {
   function fillTenderForm(tender) {
     document.getElementById("td_name").value = tender.name || "";
     document.getElementById("td_vessel").value = tender.vesselId || "";
+    document.getElementById("td_proficiency").value = tender.proficiencyLevel || "";
     document.getElementById("td_type").value = tender.type || "";
     document.getElementById("td_model").value = tender.model || "";
     document.getElementById("td_length").value = tender.length || "";
@@ -193,6 +215,9 @@ function getVesselNameForTender(tender) {
 
     const vesselSelect = document.getElementById("td_vessel");
     if (vesselSelect) vesselSelect.value = "";
+
+    const proficiencySelect = document.getElementById("td_proficiency");
+    if (proficiencySelect) proficiencySelect.value = "";
   }
 
 function readTenderForm() {
@@ -200,6 +225,7 @@ function readTenderForm() {
     id: document.getElementById("td_edit_id")?.value || "",
     name: document.getElementById("td_name")?.value.trim(),
     vesselId: document.getElementById("td_vessel")?.value || "",
+    proficiencyLevel: document.getElementById("td_proficiency")?.value || "",
     type: document.getElementById("td_type")?.value.trim() || "",
     model: document.getElementById("td_model")?.value.trim() || "",
     length: document.getElementById("td_length")?.value.trim() || "",
@@ -277,6 +303,7 @@ function readTenderForm() {
         engine: formData.engine,
         capacity: formData.capacity,
         reg: formData.reg,
+        proficiencyLevel: formData.proficiencyLevel,
         desc: formData.desc,
         photo,
         createdAt: existingTender?.createdAt || now,

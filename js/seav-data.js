@@ -71,6 +71,13 @@
     { value: "other", label: "Other interest" }
   ];
 
+  const TENDER_PROFICIENCY_LEVELS = [
+    { value: "Familiarisation", label: "Familiarisation" },
+    { value: "Competent", label: "Competent" },
+    { value: "Advanced", label: "Advanced" },
+    { value: "Coxswain", label: "Coxswain" }
+  ];
+
   const ONBOARD_EXPERIENCE_CATEGORIES = [
     { value: "familiarisation", label: "Vessel familiarisation" },
     { value: "paint_finish", label: "Paint & finishing" },
@@ -806,6 +813,11 @@ function formatMoneyAmount(value, currency = "GBP") {
   }
 }
 
+function getTenderProficiencyLabel(value) {
+  const match = TENDER_PROFICIENCY_LEVELS.find((item) => item.value === value);
+  return match?.label || value || "—";
+}
+
 function getEmptyTenderEntry() {
   return {
     id: createId("tender"),
@@ -818,6 +830,7 @@ function getEmptyTenderEntry() {
     engine: "",
     capacity: "",
     reg: "",
+    proficiencyLevel: "",
     desc: "",
     photo: null,
     createdAt: "",
@@ -1070,6 +1083,8 @@ window.SeavData = {
   getPayslipMonthsLogged,
   inferPayslipMonthFromDate,
   formatMoneyAmount,
+  TENDER_PROFICIENCY_LEVELS,
+  getTenderProficiencyLabel,
   getEmptyTenderEntry,
   toNumber,
   totalQualifyingDays,

@@ -240,6 +240,7 @@ function mapVesselToSupabase(item) {
     engine: t.engine || "",
     capacity: t.capacity || "",
     reg: t.reg || "",
+    proficiencyLevel: t.proficiency_level || "",
     desc: t.description || "",
     photo: t.photo || null,
     createdAt: t.created_at || "",
@@ -258,6 +259,7 @@ function mapTenderToSupabase(item) {
     engine: item.engine || "",
     capacity: item.capacity || "",
     reg: item.reg || "",
+    proficiency_level: item.proficiencyLevel || "",
     description: item.desc || "",
     photo: sanitizeFileForStorage(item.photo, STORAGE_BUCKETS.TENDER_PHOTOS),
     updated_at: new Date().toISOString()
