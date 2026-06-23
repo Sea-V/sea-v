@@ -6,11 +6,6 @@ body.legal-page {
   min-height: 100vh;
 }
 
-body.legal-page .ocean,
-body.legal-page .overlay {
-  z-index: 0;
-}
-
 /* --- Top bar --- */
 
 .legal-topbar {

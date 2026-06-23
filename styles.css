@@ -1,6 +1,7 @@
 @import url("./css/core/variables.css");
 @import url("./css/core/reset.css");
 @import url("./css/core/layout.css");
+@import url("./css/components/ocean-background.css");
 @import url("./css/components/topbar.css");
 @import url("./css/core/utilities.css");
 

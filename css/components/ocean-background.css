@@ -1,0 +1,45 @@
+/* =========================================================
+   Animated ocean background
+   index • signup • about • contact • privacy • terms • verify-reference
+========================================================= */
+
+:is(body.index-page, body.landing-page, body.legal-page) {
+  overflow-x: hidden;
+}
+
+:is(body.index-page, body.landing-page, body.legal-page) .ocean {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 200%;
+  height: 100%;
+  background-color: #0b1c2e;
+  background-image:
+    linear-gradient(180deg, rgba(8, 18, 35, 0.2) 0%, rgba(11, 28, 46, 0.85) 100%),
+    url("../../img/ocean.png");
+  background-size: cover, cover;
+  background-repeat: no-repeat, repeat-x;
+  animation: waveMove 60s linear infinite;
+}
+
+:is(body.index-page, body.landing-page, body.legal-page) .overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: rgba(8, 18, 35, 0.45);
+  pointer-events: none;
+}
+
+@keyframes waveMove {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
