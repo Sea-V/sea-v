@@ -54,7 +54,7 @@
 
 .app-topbar .brand img,
 .public-topbar .brand img {
-  height: 68px !important;
+  height: 34px !important;
   width: auto;
   display: block;
   filter: drop-shadow(0 2px 8px rgba(114, 228, 255, 0.18));

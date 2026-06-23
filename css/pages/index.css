@@ -41,7 +41,7 @@ body.signup-page .container {
 
 body.index-page .logo,
 body.signup-page .logo {
-  width: 240px;
+  width: 120px;
   max-width: 60vw;
   height: auto;
 }
@@ -170,7 +170,7 @@ body.signup-page #signupMsg {
 @media (max-width: 640px) {
   body.index-page .logo,
   body.signup-page .logo {
-    width: 190px;
+    width: 95px;
     max-width: 55vw;
   }
 

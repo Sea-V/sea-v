@@ -3,7 +3,7 @@
 ========================================================= */
 
 body.info-page .info-logo {
-  width: 190px;
+  width: 95px;
   max-width: 58%;
   height: auto;
   margin-bottom: 4px;
@@ -11,20 +11,20 @@ body.info-page .info-logo {
 
 .legal-brand img {
   display: block;
-  height: 32px;
+  height: 16px;
   width: auto;
 }
 
 .verify-reference-logo {
   display: block;
-  width: 54px;
+  width: 27px;
   height: auto;
   margin: 0 auto 18px;
 }
 
 @media (max-width: 640px) {
   body.info-page .info-logo {
-    width: 140px;
+    width: 70px;
     max-width: 60%;
   }
 }
