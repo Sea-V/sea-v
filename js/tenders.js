@@ -25,8 +25,7 @@
  const {
   KEYS,
   createId,
-  getSortedVesselOptions,
-  getTenderProficiencyLabel
+  getSortedVesselOptions
 } = window.SeavData;
 
   const STORAGE_KEY = KEYS.TENDERS;
@@ -90,9 +89,9 @@ function getProficiencyDisplay(level) {
 
   const vesselName = getVesselNameForTender(tender);
   const proficiency = getProficiencyDisplay(tender.proficiencyLevel);
-  const proficiencyHtml = proficiency
+  const proficiencyValueHtml = proficiency
     ? `<span class="pill tender-proficiency-pill ${proficiency.className}">${Seav.escapeHtml(proficiency.label)}</span>`
-    : "";
+    : "—";
 
   return `
     <article class="vessel-card">
@@ -101,7 +100,6 @@ function getProficiencyDisplay(level) {
       <div class="vessel-body">
         <h3 class="vessel-title vessel-title-strong">
           ${Seav.escapeHtml(tender.name || "Unnamed Tender")}
-          ${proficiencyHtml}
         </h3>
 
         <div class="vessel-meta-grid">
@@ -109,11 +107,6 @@ function getProficiencyDisplay(level) {
           <div class="vessel-meta-item">
             <span class="vessel-meta-label">Vessel</span>
             <span class="vessel-meta-value">${Seav.escapeHtml(vesselName)}</span>
-          </div>
-
-          <div class="vessel-meta-item">
-            <span class="vessel-meta-label">Proficiency</span>
-            <span class="vessel-meta-value">${Seav.escapeHtml(getTenderProficiencyLabel(tender.proficiencyLevel))}</span>
           </div>
 
           <div class="vessel-meta-item">
@@ -144,6 +137,11 @@ function getProficiencyDisplay(level) {
           <div class="vessel-meta-item">
             <span class="vessel-meta-label">Registration</span>
             <span class="vessel-meta-value">${Seav.escapeHtml(tender.reg || "—")}</span>
+          </div>
+
+          <div class="vessel-meta-item">
+            <span class="vessel-meta-label">Proficiency</span>
+            <span class="vessel-meta-value">${proficiencyValueHtml}</span>
           </div>
 
         </div>
