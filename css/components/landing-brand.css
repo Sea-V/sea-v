@@ -1,0 +1,36 @@
+/* =========================================================
+   Landing / legal logos — compact, non-invasive
+========================================================= */
+
+body.signup-page .signup-logo,
+body.info-page .info-logo {
+  width: 255px;
+  max-width: 72%;
+  height: auto;
+  margin-bottom: 8px;
+}
+
+.legal-brand img {
+  display: block;
+  height: 32px;
+  width: auto;
+}
+
+.verify-reference-logo {
+  display: block;
+  width: 54px;
+  height: auto;
+  margin: 0 auto 18px;
+}
+
+@media (max-width: 640px) {
+  body.signup-page .signup-logo {
+    width: 195px;
+    max-width: 74%;
+  }
+
+  body.info-page .info-logo {
+    width: 188px;
+    max-width: 74%;
+  }
+}

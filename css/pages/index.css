@@ -36,8 +36,7 @@ body.index-page .logo {
   height: auto;
 }
 
-body.index-page .demo-notice,
-body.signup-page .demo-notice {
+body.index-page .demo-notice {
   max-width: 320px;
   margin: -8px 0 0;
   padding: 8px 14px;
