@@ -1,21 +1,32 @@
 /* =========================================
-   INDEX PAGE
+   INDEX + SIGN UP (shared auth layout)
 ========================================= */
 
-body.index-page {
+body.index-page,
+body.signup-page {
   margin: 0;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: Arial, Helvetica, sans-serif;
   color: white;
+}
+
+body.index-page {
+  height: 100vh;
   overflow: hidden;
 }
 
-/* content container */
+body.signup-page {
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 20px 0 88px;
+  box-sizing: border-box;
+}
 
-body.index-page .container {
+body.index-page .container,
+body.signup-page .container {
   position: relative;
   text-align: center;
   z-index: 10;
@@ -28,15 +39,15 @@ body.index-page .container {
   padding: 20px;
 }
 
-/* logo */
-
-body.index-page .logo {
+body.index-page .logo,
+body.signup-page .logo {
   width: 240px;
   max-width: 60vw;
   height: auto;
 }
 
-body.index-page .demo-notice {
+body.index-page .demo-notice,
+body.signup-page .demo-notice {
   max-width: 320px;
   margin: -8px 0 0;
   padding: 8px 14px;
@@ -54,68 +65,81 @@ body.index-page .demo-muted {
   font-size: 12px;
 }
 
-/* login form */
-
-body.index-page .login-form {
+body.index-page .login-form,
+body.signup-page .login-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
   width: 260px;
 }
 
-body.index-page .login-form input {
+body.index-page .login-form input:not([type="checkbox"]),
+body.signup-page .login-form input:not([type="checkbox"]) {
+  width: 100%;
   height: 40px;
   padding: 0 14px;
-
+  box-sizing: border-box;
   border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.25);
-
-  background: rgba(255,255,255,0.08);
-
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
   color: white;
   outline: none;
 }
 
-body.index-page .login-form input::placeholder {
-  color: rgba(255,255,255,0.6);
+body.index-page .login-form input:not([type="checkbox"])::placeholder,
+body.signup-page .login-form input:not([type="checkbox"])::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
-body.index-page .login-btn {
+body.index-page .login-btn,
+body.signup-page .login-btn {
   height: 40px;
-
   border: none;
   border-radius: 20px;
-
   background: linear-gradient(135deg, #5bbcff, #2d7cff);
-
   color: white;
   font-weight: 600;
-
   cursor: pointer;
 }
 
-body.index-page .login-btn:hover {
+body.index-page .login-btn:hover,
+body.signup-page .login-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
-body.index-page .create-account {
+body.signup-page .login-btn:disabled {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+body.index-page .create-account,
+body.signup-page .create-account {
   font-size: 14px;
   opacity: 0.85;
 }
 
-body.index-page .create-account a {
+body.index-page .create-account a,
+body.signup-page .create-account a {
   color: #5bbcff;
   text-decoration: none;
 }
 
-body.index-page .show-password {
+body.index-page .show-password,
+body.signup-page .show-password {
   display: flex;
   align-items: center;
   gap: 6px;
-
   font-size: 13px;
   opacity: 0.8;
+}
+
+body.index-page .show-password input[type="checkbox"],
+body.signup-page .show-password input[type="checkbox"] {
+  width: auto;
+  height: auto;
+  margin: 0;
+  accent-color: #5bbcff;
 }
 
 body.index-page .login-help {
@@ -133,32 +157,30 @@ body.index-page .login-help a:hover {
   text-decoration: underline;
 }
 
-body.index-page #loginMsg {
+body.index-page #loginMsg,
+body.signup-page #signupMsg {
   min-height: 20px;
-
   margin-top: -4px;
-
   color: #5bbcff;
-
   font-size: 13px;
   font-weight: 600;
-
   text-align: center;
 }
 
-/* mobile */
-
 @media (max-width: 640px) {
-  body.index-page .logo {
+  body.index-page .logo,
+  body.signup-page .logo {
     width: 190px;
     max-width: 55vw;
   }
 
-  body.index-page .login-form {
+  body.index-page .login-form,
+  body.signup-page .login-form {
     width: min(260px, 82vw);
   }
 
-  body.index-page .create-account {
+  body.index-page .create-account,
+  body.signup-page .create-account {
     font-size: 13px;
   }
 }

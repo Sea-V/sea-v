@@ -16,92 +16,92 @@
   <script src="js/signup.js" defer></script>
 </head>
 
-<body class="landing-page signup-page">
+<body class="index-page signup-page">
 
   <div class="ocean"></div>
   <div class="overlay"></div>
 
-  <main class="signup-shell">
-    <div class="signup-container">
+  <div class="container">
 
-      <img src="img/logo.png?v=6" class="signup-logo" alt="SEA-V" width="64" height="65">
+    <img src="img/logo-full.png?v=6" class="logo" alt="SEA-V" width="520" height="528">
 
-      <h1 class="signup-title">Create account</h1>
-      <p class="signup-lead">Build your profile. We’ll email a confirmation link before your first login.</p>
+    <form class="login-form" id="signupForm" novalidate>
 
-      <form class="signup-form" id="signupForm" novalidate>
+      <input
+        id="signupName"
+        name="name"
+        type="text"
+        placeholder="Full name"
+        required
+        autocomplete="name"
+      >
 
-        <input
-          id="signupName"
-          name="name"
-          type="text"
-          placeholder="Full name"
-          required
-          autocomplete="name"
-        >
+      <input
+        id="signupEmail"
+        name="email"
+        type="email"
+        placeholder="Email address"
+        required
+        autocomplete="email"
+      >
 
-        <input
-          id="signupEmail"
-          name="email"
-          type="email"
-          placeholder="Email address"
-          required
-          autocomplete="email"
-        >
+      <input
+        id="signupPassword"
+        name="password"
+        type="password"
+        placeholder="Password (8+ characters)"
+        required
+        autocomplete="new-password"
+        minlength="8"
+      >
 
-        <input
-          id="signupPassword"
-          name="password"
-          type="password"
-          placeholder="Password (8+ characters)"
-          required
-          autocomplete="new-password"
-          minlength="8"
-        >
+      <input
+        id="signupPasswordConfirm"
+        name="password_confirm"
+        type="password"
+        placeholder="Confirm password"
+        required
+        autocomplete="new-password"
+        minlength="8"
+      >
 
-        <input
-          id="signupPasswordConfirm"
-          name="password_confirm"
-          type="password"
-          placeholder="Confirm password"
-          required
-          autocomplete="new-password"
-          minlength="8"
-        >
+      <label class="show-password">
+        <input type="checkbox" id="toggleSignupPassword">
+        Show passwords
+      </label>
 
-        <label class="signup-check signup-show-password">
-          <input type="checkbox" id="toggleSignupPassword">
-          <span>Show passwords</span>
-        </label>
+      <label class="legal-consent">
+        <input type="checkbox" id="signupAcceptLegal" required>
+        <span>
+          I agree to the
+          <a href="terms.html" target="_blank" rel="noopener">Terms of Use</a>
+          and
+          <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>
+        </span>
+      </label>
 
-        <label class="signup-check signup-legal-consent">
-          <input type="checkbox" id="signupAcceptLegal" required>
-          <span>
-            I agree to the
-            <a href="terms.html" target="_blank" rel="noopener">Terms</a>
-            and
-            <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>
-          </span>
-        </label>
+      <button class="login-btn" type="submit" id="signupSubmitBtn">
+        Create account
+      </button>
 
-        <button type="submit" class="signup-submit-btn" id="signupSubmitBtn">
-          Create account
-        </button>
-
-        <p id="signupMsg" class="signup-msg" role="status" aria-live="polite"></p>
-
-        <button type="button" class="signup-resend-btn" id="btnResendConfirm" hidden>
+      <p class="signup-help">
+        <button type="button" class="signup-resend-link" id="btnResendConfirm" hidden>
           Resend confirmation email
         </button>
-
-      </form>
-
-      <p class="signup-linkline">
-        Already have an account? <a href="index.html">Log in</a>
       </p>
 
+    </form>
+
+    <div id="signupMsg" role="status" aria-live="polite"></div>
+
+    <p class="demo-notice">You’ll receive a confirmation email before your first login.</p>
+
+    <div class="create-account">
+      Already have an account?
+      <a href="index.html">Log in</a>
     </div>
-  </main>
+
+  </div>
 
   <footer class="site-footer">
     <div class="footer-inner">
