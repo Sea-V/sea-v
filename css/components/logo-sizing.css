@@ -1,72 +1,59 @@
 /* =========================================================
-   Logo sizing — loaded last so it wins over page CSS
+   Logo sizing — loaded last; use px literals (not vw caps)
 ========================================================= */
 
-body.index-page .container > .logo,
-body.signup-page .container > .logo {
-  width: var(--seav-logo-auth) !important;
-  max-width: 55vw !important;
-  height: auto !important;
-}
-
 body.info-page .info-logo {
-  width: var(--seav-logo-info) !important;
-  max-width: 58% !important;
+  width: 95px !important;
+  max-width: 95px !important;
+  min-width: 0 !important;
   height: auto !important;
   margin-bottom: 4px;
 }
 
-.legal-brand img,
-.public-cv-brand img,
-.verify-reference-logo,
-.app-topbar .brand img,
-.public-topbar .brand img,
-.brand img {
-  width: auto !important;
-}
-
-.app-topbar .brand img,
-.public-topbar .brand img {
-  height: var(--seav-logo-topbar) !important;
-}
-
 .legal-brand img {
-  height: var(--seav-logo-legal) !important;
+  display: block;
+  width: auto !important;
+  height: 16px !important;
 }
 
 .public-cv-brand img {
-  height: var(--seav-logo-public) !important;
+  display: block;
+  width: auto !important;
+  height: 14px !important;
 }
 
 .verify-reference-logo {
   display: block;
-  width: var(--seav-logo-verify) !important;
+  width: 27px !important;
+  max-width: 27px !important;
+  min-width: 0 !important;
   height: auto !important;
   margin: 0 auto 18px;
 }
 
+.app-topbar .brand img,
+.public-topbar .brand img {
+  width: auto !important;
+  height: 34px !important;
+}
+
 .cv-brand-mark {
-  width: var(--seav-logo-cv) !important;
+  width: 7.5mm !important;
 }
 
 @media (max-width: 1000px) {
   body[data-topbar="public"] .brand img {
-    height: var(--seav-logo-topbar-public-md) !important;
+    height: 29px !important;
   }
 }
 
 @media (max-width: 640px) {
-  body.index-page .container > .logo,
-  body.signup-page .container > .logo {
-    width: var(--seav-logo-auth-mobile) !important;
-  }
-
   body.info-page .info-logo {
-    width: var(--seav-logo-info-mobile) !important;
-    max-width: 60% !important;
+    width: 70px !important;
+    max-width: 70px !important;
   }
 
   body[data-topbar="public"] .brand img {
-    height: var(--seav-logo-topbar-public-sm) !important;
+    height: 26px !important;
   }
 }
