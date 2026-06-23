@@ -50,11 +50,15 @@
   display: inline-flex;
   align-items: center;
   line-height: 0;
+  min-width: 0;
 }
 
 .app-topbar .brand img,
 .public-topbar .brand img {
-  width: auto;
+  width: auto !important;
+  height: 34px !important;
+  max-height: 34px !important;
+  min-width: 0;
   display: block;
   filter: drop-shadow(0 2px 8px rgba(114, 228, 255, 0.18));
 }

@@ -315,7 +315,13 @@ const app = {
           </nav>
 
           <a class="brand" href="index.html">
-            <img src="img/logo.png?v=6" alt="SEA-V" />
+            <img
+              src="img/logo.png?v=7"
+              class="seav-logo seav-logo--topbar"
+              alt="SEA-V"
+              width="34"
+              height="34"
+            />
           </a>
 
           <div class="nav-right">
@@ -337,7 +343,13 @@ const app = {
           </nav>
 
           <a class="brand" href="dashboard.html">
-            <img src="img/logo.png?v=6" alt="SEA-V" />
+            <img
+              src="img/logo.png?v=7"
+              class="seav-logo seav-logo--topbar"
+              alt="SEA-V"
+              width="34"
+              height="34"
+            />
           </a>
 
           <div class="nav-right">

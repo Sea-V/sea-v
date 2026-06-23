@@ -17,7 +17,7 @@
     getOnboardCategoryLabel
   } = window.SeavData;
 
-  const LOGO_SRC = "img/logo.png?v=6";
+  const LOGO_SRC = "img/logo.png?v=7";
 
   function normalizeCode(code) {
     return String(code || "")

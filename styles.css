@@ -63,6 +63,91 @@
 
 @import url("./css/responsive/mobile.css");
 
-/* Logo sizes — must load after page + typography rules */
-@import url("./css/components/logo-sizing.css");
+/* Logo sizes — embedded in styles.css (not @import) so cache cannot drop them */
+
+img.seav-logo--auth,
+body.index-page .container > .logo,
+body.signup-page .container > .logo {
+  width: 120px !important;
+  max-width: 120px !important;
+  min-width: 0 !important;
+  height: auto !important;
+}
+
+img.seav-logo--topbar,
+.app-topbar .brand img,
+.public-topbar .brand img {
+  width: auto !important;
+  height: 34px !important;
+  max-height: 34px !important;
+  min-width: 0 !important;
+}
+
+body.info-page img.seav-logo--info,
+body.info-page .info-logo {
+  width: 95px !important;
+  max-width: 95px !important;
+  min-width: 0 !important;
+  height: auto !important;
+  margin-bottom: 4px;
+}
+
+.legal-brand img,
+img.seav-logo--legal {
+  display: block;
+  width: auto !important;
+  height: 16px !important;
+  max-height: 16px !important;
+}
+
+.public-cv-brand img,
+img.seav-logo--public {
+  display: block;
+  width: auto !important;
+  height: 14px !important;
+  max-height: 14px !important;
+}
+
+.verify-reference-logo,
+img.seav-logo--verify {
+  display: block;
+  width: 27px !important;
+  max-width: 27px !important;
+  min-width: 0 !important;
+  height: auto !important;
+  margin: 0 auto 18px;
+}
+
+.cv-brand-mark {
+  width: 7.5mm !important;
+}
+
+@media (max-width: 1000px) {
+  body[data-topbar="public"] .brand img,
+  body[data-topbar="public"] img.seav-logo--topbar {
+    height: 29px !important;
+    max-height: 29px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  img.seav-logo--auth,
+  body.index-page .container > .logo,
+  body.signup-page .container > .logo {
+    width: 95px !important;
+    max-width: 95px !important;
+  }
+
+  body.info-page img.seav-logo--info,
+  body.info-page .info-logo {
+    width: 70px !important;
+    max-width: 70px !important;
+  }
+
+  body[data-topbar="public"] .brand img,
+  body[data-topbar="public"] img.seav-logo--topbar {
+    height: 26px !important;
+    max-height: 26px !important;
+  }
+}
 

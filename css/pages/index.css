@@ -40,11 +40,12 @@ body.signup-page .container {
 }
 
 body.index-page .container > .logo,
-body.signup-page .container > .logo {
-  width: 120px;
-  max-width: 120px;
-  min-width: 0;
-  height: auto;
+body.signup-page .container > .logo,
+img.seav-logo--auth {
+  width: 120px !important;
+  max-width: 120px !important;
+  min-width: 0 !important;
+  height: auto !important;
   flex-shrink: 0;
 }
 
@@ -171,9 +172,10 @@ body.signup-page #signupMsg {
 
 @media (max-width: 640px) {
   body.index-page .container > .logo,
-  body.signup-page .container > .logo {
-    width: 95px;
-    max-width: 95px;
+  body.signup-page .container > .logo,
+  img.seav-logo--auth {
+    width: 95px !important;
+    max-width: 95px !important;
   }
 
   body.index-page .login-form,
