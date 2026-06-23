@@ -59,7 +59,7 @@ body.signup-page .signup-subtitle {
 
 body.signup-page .signup-notice {
   max-width: 320px;
-  margin: 12px 0 18px;
+  margin: 8px 0 14px;
   padding: 8px 14px;
   border-radius: 12px;
   border: 1px solid rgba(114, 228, 255, 0.28);
@@ -78,7 +78,7 @@ body.signup-page .signup-form-modern {
   gap: 10px;
 }
 
-body.signup-page .signup-form-modern input {
+body.signup-page .signup-form-modern input:not([type="checkbox"]) {
   width: 100%;
   height: 44px;
 
@@ -95,25 +95,28 @@ body.signup-page .signup-form-modern input {
   outline: none;
 }
 
-body.signup-page .signup-form-modern input::placeholder {
+body.signup-page .signup-form-modern input:not([type="checkbox"])::placeholder {
   color: rgba(255, 255, 255, 0.58);
+}
+
+body.signup-page .signup-form-modern input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: #5bbcff;
+  cursor: pointer;
 }
 
 body.signup-page .signup-show-password {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   margin: 2px 0 0;
   color: rgba(255, 255, 255, 0.72);
   font-size: 13px;
   cursor: pointer;
-}
-
-body.signup-page .signup-show-password input {
-  width: auto;
-  height: auto;
-  margin: 0;
 }
 
 body.signup-page .signup-legal-consent {
@@ -125,13 +128,11 @@ body.signup-page .signup-legal-consent {
   font-size: 12px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
 }
 
-body.signup-page .signup-legal-consent input {
-  width: auto;
-  height: auto;
-  margin-top: 3px;
-  flex-shrink: 0;
+body.signup-page .signup-legal-consent input[type="checkbox"] {
+  margin-top: 2px;
 }
 
 body.signup-page .signup-legal-consent a {
@@ -205,7 +206,7 @@ body.signup-page .signup-linkline a {
     font-size: 11px;
   }
 
-  body.signup-page .signup-form-modern input,
+  body.signup-page .signup-form-modern input:not([type="checkbox"]),
   body.signup-page .signup-submit-btn {
     height: 42px;
   }

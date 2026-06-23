@@ -4,10 +4,10 @@
 
 body.signup-page .signup-logo,
 body.info-page .info-logo {
-  width: 255px;
-  max-width: 72%;
+  width: 190px;
+  max-width: 58%;
   height: auto;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .legal-brand img {
@@ -25,12 +25,12 @@ body.info-page .info-logo {
 
 @media (max-width: 640px) {
   body.signup-page .signup-logo {
-    width: 195px;
-    max-width: 74%;
+    width: 140px;
+    max-width: 60%;
   }
 
   body.info-page .info-logo {
-    width: 188px;
-    max-width: 74%;
+    width: 140px;
+    max-width: 60%;
   }
 }
