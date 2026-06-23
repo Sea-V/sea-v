@@ -315,7 +315,7 @@ const app = {
           </nav>
 
           <a class="brand" href="index.html">
-            <img src="img/logo.png?v=3" alt="SEA-V" />
+            <img src="img/logo.png?v=5" alt="SEA-V" />
           </a>
 
           <div class="nav-right">
@@ -337,7 +337,7 @@ const app = {
           </nav>
 
           <a class="brand" href="dashboard.html">
-            <img src="img/logo.png?v=3" alt="SEA-V" />
+            <img src="img/logo.png?v=5" alt="SEA-V" />
           </a>
 
           <div class="nav-right">
