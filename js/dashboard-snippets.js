@@ -818,14 +818,14 @@ async function renderHobbiesSnippet() {
 
 
   window.SeavDashboardSnippets = {
-    renderSeatimeSnippet,
-    renderCertSnippet,
     renderVesselSnippet,
-    renderTenderSnippet,
+    renderSeatimeSnippet,
     renderNavigationSnippet,
-    renderReferenceSnippet,
-    renderSpecialistSnippet,
+    renderTenderSnippet,
     renderOnboardSnippet,
+    renderSpecialistSnippet,
+    renderCertSnippet,
+    renderReferenceSnippet,
     renderHobbiesSnippet
   };
 })();

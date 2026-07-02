@@ -240,14 +240,14 @@ function updateProfileCompletion(profile) {
     if (!S) return;
 
     const snippetRenderers = [
-      S.renderSeatimeSnippet,
-      S.renderCertSnippet,
-      S.renderSpecialistSnippet,
       S.renderVesselSnippet,
-      S.renderTenderSnippet,
+      S.renderSeatimeSnippet,
       S.renderNavigationSnippet,
-      S.renderReferenceSnippet,
+      S.renderTenderSnippet,
       S.renderOnboardSnippet,
+      S.renderSpecialistSnippet,
+      S.renderCertSnippet,
+      S.renderReferenceSnippet,
       S.renderHobbiesSnippet
     ];
 
