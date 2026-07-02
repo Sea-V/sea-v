@@ -5,7 +5,7 @@
   if (!C || !window.Seav) return;
   const {
     getFilteredEntries, getVesselName, expandedPsIds, getEntries,
-    filterEntriesForYear, activeYearMonthFilters
+    filterEntriesForYear, activeYearMonthFilters, getMonthFilterOptionsHtml
   } = C;
   const {
     formatDatePretty, formatMoneyAmount, getPayslipMonthLabel, normalizePayslipMonth,

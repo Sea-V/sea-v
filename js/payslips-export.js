@@ -3,7 +3,8 @@
   "use strict";
   const C = window.SeavPayslipsCore;
   if (!C || !window.Seav) return;
-  const { getFilteredEntries } = C;
+  const { getFilteredEntries, getVesselName } = C;
+  const { getPayslipMonthLabel, normalizePayslipMonth } = window.SeavData;
   const Seav = window.Seav;
 
   function safeFileName(name) {
