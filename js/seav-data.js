@@ -413,7 +413,9 @@
     if (!cert) return false;
     if (cert.name && String(cert.name).trim()) {
       if (!cert.isTemplate) return true;
-      const hasFile = !!(cert.attachment?.url || cert.attachment?.dataUrl);
+      const hasFile =
+        window.SeavApiCore?.hasStoredFile?.(cert.attachment) ??
+        !!(cert.attachment?.url || cert.attachment?.dataUrl || cert.attachment?.path);
       if (cert.expiry || cert.noExpiry || hasFile) return true;
     }
     return false;

@@ -152,6 +152,22 @@ async function renderCertSnippet() {
   const certs = (window.SeavState?.certs || []).filter(
     (cert) => window.SeavData?.isSavedCert?.(cert) ?? !!cert?.name
   );
+
+  if (window.SeavApiCore?.hydrateFileMeta) {
+    await Promise.all(
+      certs.map(async (cert) => {
+        const attachment = cert?.attachment;
+        if (!attachment?.path || attachment.url || attachment.dataUrl) return;
+        cert.attachment = await window.SeavApiCore.hydrateFileMeta(
+          attachment,
+          attachment.bucket ||
+            window.SeavApiCore.STORAGE_BUCKETS?.CERTIFICATE_FILES ||
+            "certificate-files"
+        );
+      })
+    );
+  }
+
   const isExpiringOrExpired = window.SeavData?.isCertExpiringOrExpired;
   const attentionCerts = certs.filter((cert) =>
     isExpiringOrExpired?.(cert, DASH_CERT_WARNING_DAYS)
@@ -203,10 +219,12 @@ async function renderCertSnippet() {
         .map((cert) => {
           const statusInfo = getDashboardCertStatus(cert);
           const certFileUrl = cert.attachment?.url || cert.attachment?.dataUrl || "";
-          const hasFile = !!certFileUrl;
+          const hasFile =
+            window.SeavApiCore?.hasStoredFile?.(cert.attachment) ?? !!certFileUrl;
 
           const attachHtml = hasFile
-            ? `<div class="dash-cert-attachment">
+            ? certFileUrl
+              ? `<div class="dash-cert-attachment">
                <a class="cert-attachment-link" href="${Seav.escapeHtml(certFileUrl)}" target="_blank" rel="noopener">
                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                    <path d="M12 3v10m0 0l3.5-3.5M12 13l-3.5-3.5M5 15v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -214,6 +232,7 @@ async function renderCertSnippet() {
                  Download certificate
                </a>
              </div>`
+              : `<div class="dash-cert-attachment muted">${Seav.escapeHtml(cert.attachment?.filename || "Document")} uploaded</div>`
             : ``;
 
           return `

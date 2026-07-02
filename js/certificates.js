@@ -21,6 +21,50 @@
   const STORAGE_KEY = KEYS.CERTS;
   const CUSTOM = "__CUSTOM__";
   const expandedCertIds = new Set();
+  const CERT_FILE_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.CERTIFICATE_FILES || "certificate-files";
+
+  function hasAttachment(meta) {
+    return window.SeavApiCore?.hasStoredFile?.(meta) ??
+      !!(meta?.url || meta?.dataUrl || meta?.path);
+  }
+
+  async function hydrateAttachment(meta) {
+    if (!meta || !hasAttachment(meta)) return meta || null;
+    if (meta.url || meta.dataUrl) return meta;
+    if (!meta.path || !window.SeavApiCore?.hydrateFileMeta) return meta;
+
+    return window.SeavApiCore.hydrateFileMeta(
+      meta,
+      meta.bucket || CERT_FILE_BUCKET
+    );
+  }
+
+  async function ensureCertAttachmentsHydrated() {
+    const certs = window.SeavState?.certs;
+    if (!Array.isArray(certs) || !window.SeavApiCore?.hydrateFileMeta) return false;
+
+    let changed = false;
+
+    await Promise.all(
+      certs.map(async (cert) => {
+        const attachment = cert?.attachment;
+        if (!attachment?.path || attachment.url || attachment.dataUrl) return;
+
+        const hydrated = await hydrateAttachment(attachment);
+        if (hydrated && hydrated !== attachment) {
+          cert.attachment = hydrated;
+          changed = true;
+        }
+      })
+    );
+
+    if (changed) {
+      window.SeavState.syncCache?.();
+    }
+
+    return changed;
+  }
 
   function getCerts() {
     return window.SeavState?.certs || [];
@@ -169,7 +213,8 @@
     const certId = cert.id || "";
     const status = statusFromCert(cert);
     const fileUrl = cert.attachment?.url || cert.attachment?.dataUrl || "";
-    const hasFile = !!fileUrl;
+    const hasFile = hasAttachment(cert.attachment);
+    const fileLabel = cert.attachment?.filename || "View document";
     const isExpanded = expandedCertIds.has(certId);
     const typeLabel = certTypeLabel(cert);
     const categoryLabel = certCategoryLabel(cert);
@@ -229,12 +274,14 @@
               <div class="cert-compact-detail-value">
                 ${
                   hasFile
-                    ? `<a class="cert-attachment-link" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">
+                    ? fileUrl
+                      ? `<a class="cert-attachment-link" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                           <path d="M12 3v10m0 0l3.5-3.5M12 13l-3.5-3.5M5 15v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         View document
                       </a>`
+                      : `<span class="muted">${Seav.escapeHtml(fileLabel)} uploaded</span>`
                     : "No attachment uploaded"
                 }
               </div>
@@ -411,15 +458,17 @@
 
   async function uploadFile(file, existing, certId) {
     if (!file) return existing || null;
-    return (
-      window.SeavUpload?.uploadToStorage({
-        bucket: "certificate-files",
+    const uploaded =
+      (await window.SeavUpload?.uploadToStorage({
+        bucket: CERT_FILE_BUCKET,
         entityId: certId,
         file,
         existingMeta: existing,
         kind: "Certificate"
-      }) ?? null
-    );
+      })) ?? null;
+
+    if (!uploaded) return existing || null;
+    return hydrateAttachment(uploaded);
   }
 
   window.SeavCertificatesCore = {
@@ -432,8 +481,9 @@
     getDisplayStatus: statusFromCert
   };
 
-  function refreshView() {
+  async function refreshView() {
     try {
+      await ensureCertAttachmentsHydrated();
       renderKpis();
       renderList();
     } catch (err) {
@@ -447,8 +497,9 @@
   function init() {
     if (!document.getElementById("certsList")) return;
 
-    document.addEventListener("seav:state-ready", refreshView, { once: true });
-    document.addEventListener("seav:data-updated", refreshView);
+    document.addEventListener("seav:state-ready", () => refreshView(), { once: true });
+    document.addEventListener("seav:data-updated", () => refreshView());
+    document.addEventListener("seav:files-hydrated", () => refreshView());
     if (window.SeavState?.ready) refreshView();
 
     document.querySelectorAll('[data-open="certModal"]').forEach((btn) => {
@@ -495,8 +546,11 @@
             )
           : null;
         const certId = data.id || ghost?.id || createId("cert");
-        const attachment = await uploadFile(data.file, existing?.attachment || null, certId);
+        let attachment = await uploadFile(data.file, existing?.attachment || null, certId);
         if (data.file && !attachment) return;
+        if (!data.file && existing?.attachment) {
+          attachment = await hydrateAttachment(existing.attachment);
+        }
 
         await window.SeavAPI.upsertItemById(STORAGE_KEY, {
           id: certId,

@@ -162,6 +162,17 @@ function mapVesselToSupabase(item) {
     };
   }
 
+  function parseJsonField(value) {
+    if (!value) return null;
+    if (typeof value === "object") return value;
+    if (typeof value !== "string") return null;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+
   function mapCertFromSupabase(c) {
     return {
       id: c.id,
@@ -169,7 +180,7 @@ function mapVesselToSupabase(item) {
       name: c.name || "",
       expiry: c.expiry_date || "",
       status: c.status || "",
-      attachment: c.attachment || null,
+      attachment: parseJsonField(c.attachment),
       isMandatory: !!c.is_mandatory,
       isTemplate: !!c.is_template,
       noExpiry: !c.expiry_date,

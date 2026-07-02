@@ -171,6 +171,12 @@ async function resolveStorageFileUrl(fileMeta, bucket, expiresIn, clientOverride
   return fileMeta.url || fileMeta.publicUrl || "";
 }
 
+function hasStoredFile(fileMeta) {
+  if (!fileMeta) return false;
+  if (typeof fileMeta === "string") return !!fileMeta.trim();
+  return !!(fileMeta.url || fileMeta.dataUrl || fileMeta.path);
+}
+
 function sanitizeFileForStorage(fileMeta, defaultBucket = null) {
   if (!fileMeta) return null;
   if (fileMeta.path) {
@@ -330,7 +336,7 @@ function isPayslipKey(key) {
     isVesselKey, isSeatimeKey, isCertKey, isRefKey, isProfileKey,
     isTenderKey, isAchievementKey, isNavigationAreaKey, isOnboardExperienceKey,
     isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,
-    resolveStorageFileUrl, sanitizeFileForStorage, sanitizeFileArrayForStorage,
+    resolveStorageFileUrl, hasStoredFile, sanitizeFileForStorage, sanitizeFileArrayForStorage,
     buildUploadedFileMeta, hydrateFileMeta, hydrateEntityFiles, hydrateArrayFiles,
     hydrateProfilePhoto, sanitizePhotoForStorage, withUserId, findIndexById,
     signedUrlExpiry
