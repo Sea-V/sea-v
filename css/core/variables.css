@@ -122,6 +122,20 @@
   --pill-radius:
     14px;
 
+  --pill-height: 30px;
+  --pill-padding-x: 12px;
+  --pill-font-size: 12px;
+  --pill-font-weight: 800;
+  --pill-letter-spacing: 0.2px;
+  --pill-line-height: 1.2;
+
+  --pill-blue-bg: rgba(91, 188, 255, 0.14);
+  --pill-blue-border: rgba(91, 188, 255, 0.34);
+  --pill-blue-bg-hover: rgba(91, 188, 255, 0.22);
+  --pill-blue-border-hover: rgba(91, 188, 255, 0.5);
+  --pill-blue-solid: #5bbcff;
+  --pill-blue-solid-hover: #3aa8f5;
+
   /* =========================================================
      NEUTRAL SURFACES
   ========================================================= */

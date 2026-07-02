@@ -196,30 +196,7 @@
 }
 
 .cert-status-pill {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 26px;
   min-width: 0;
-  padding: 0 11px;
-  border-radius: 999px;
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.2px;
-  line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.cert-compact-card.is-expanded .cert-status-pill {
-  min-height: 30px;
-  padding: 0 13px;
-  font-size: 11px;
 }
 
 .cert-status-pill.pill-missing {
@@ -292,17 +269,17 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 32px;
+  min-height: var(--pill-height);
   margin-top: 4px;
-  padding: 0 14px;
+  padding: 0 calc(var(--pill-padding-x) + 2px);
   border-radius: 999px;
   border: 1px solid rgba(255, 210, 90, 0.38);
   background: rgba(255, 210, 90, 0.14);
   color: #ffffff;
   text-decoration: none;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.1px;
+  font-size: var(--pill-font-size);
+  font-weight: var(--pill-font-weight);
+  letter-spacing: var(--pill-letter-spacing);
   line-height: 1;
   white-space: nowrap;
   box-shadow:
@@ -418,15 +395,15 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 32px;
-  padding: 0 14px;
+  min-height: var(--pill-height);
+  padding: 0 calc(var(--pill-padding-x) + 2px);
   border-radius: 999px;
   border: 1px solid rgba(255, 210, 90, 0.38);
   background: rgba(255, 210, 90, 0.14);
   color: #ffffff;
   text-decoration: none;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--pill-font-size);
+  font-weight: var(--pill-font-weight);
 }
 
 .cert-compact-body .seav-actions {
@@ -724,23 +701,10 @@
    STATUS PILL
 ========================================================= */
 
+/* Legacy alias — sizing comes from css/components/pills.css */
 .cert-card .pill {
-  min-height: 26px !important;
-  height: 26px !important;
-
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
   align-self: flex-start !important;
   flex: 0 0 auto !important;
-
-  padding: 0 10px !important;
-
-  white-space: nowrap !important;
-
-  font-size: 10px !important;
-  line-height: 1 !important;
 }
 
 /* =========================================================

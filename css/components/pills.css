@@ -97,33 +97,49 @@
 }
 
 /* =========================================================
-   GENERIC PILL
+   UNIFIED PILL BASE
 ========================================================= */
 
-.pill {
-  min-height: 26px;
+.pill,
+.status-pill,
+.cert-status-pill,
+.sq-status-pill,
+.hi-status-pill,
+.hi-photo-count-pill,
+.onboard-status-pill,
+.onboard-familiarisation-pill,
+.onboard-familiarisation-pill-compact,
+.ps-amount-pill,
+.reference-verified-pill,
+.tender-proficiency-pill {
+  box-sizing: border-box;
+  flex-shrink: 0;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  padding: 0 10px;
+  min-height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
 
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.14);
 
   color: #ffffff;
-
   white-space: nowrap;
 
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.6px;
+  font-size: var(--pill-font-size);
+  font-weight: var(--pill-font-weight);
+  letter-spacing: var(--pill-letter-spacing);
+  line-height: var(--pill-line-height);
+  text-align: center;
 
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.05),
-    0 4px 10px rgba(0,0,0,0.10);
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pill {
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 /* =========================================================
@@ -171,8 +187,8 @@
 }
 
 .pill-pending {
-  background: rgba(91,188,255,0.18);
-  border-color: rgba(91,188,255,0.34);
+  background: var(--pill-blue-bg);
+  border-color: var(--pill-blue-border);
 }
 
 /* =========================================================

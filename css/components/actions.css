@@ -27,21 +27,22 @@
 }
 
 .seav-action {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  min-height: 30px;
-  padding: 0 12px;
+  min-height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
 
   border-radius: 999px;
   border: 1px solid transparent;
 
   color: #ffffff;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--pill-font-size);
+  font-weight: var(--pill-font-weight);
   line-height: 1;
-  letter-spacing: 0.1px;
+  letter-spacing: var(--pill-letter-spacing);
   text-transform: none;
   text-decoration: none;
   white-space: nowrap;
@@ -68,13 +69,13 @@
 }
 
 .seav-action--edit {
-  border-color: rgba(91, 188, 255, 0.34);
-  background: rgba(91, 188, 255, 0.14);
+  border-color: var(--pill-blue-border);
+  background: var(--pill-blue-bg);
 }
 
 .seav-action--edit:hover {
-  background: rgba(91, 188, 255, 0.22);
-  border-color: rgba(91, 188, 255, 0.5);
+  background: var(--pill-blue-bg-hover);
+  border-color: var(--pill-blue-border-hover);
 }
 
 .seav-action--delete {
@@ -107,17 +108,18 @@
 }
 
 .ui-actions a:not([class*="seav-action"]) {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 30px;
-  padding: 0 12px;
+  min-height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
   border-radius: 999px;
-  border: 1px solid rgba(91, 188, 255, 0.34);
-  background: rgba(91, 188, 255, 0.14);
+  border: 1px solid var(--pill-blue-border);
+  background: var(--pill-blue-bg);
   color: #ffffff;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--pill-font-size);
+  font-weight: var(--pill-font-weight);
   text-decoration: none;
 }
 
@@ -136,17 +138,18 @@
 }
 
 .row-actions a:not([class*="seav-action"]) {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 30px;
-  padding: 0 12px;
+  min-height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
   border-radius: 999px;
-  border: 1px solid rgba(91, 188, 255, 0.34);
-  background: rgba(91, 188, 255, 0.14);
+  border: 1px solid var(--pill-blue-border);
+  background: var(--pill-blue-bg);
   color: #ffffff;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--pill-font-size);
+  font-weight: var(--pill-font-weight);
   text-decoration: none;
 }
 
@@ -174,8 +177,8 @@ td.row-actions {
   }
 
   .seav-action {
-    min-height: 28px;
-    padding: 0 10px;
-    font-size: 11px;
+    min-height: var(--pill-height);
+    padding: 0 var(--pill-padding-x);
+    font-size: var(--pill-font-size);
   }
 }

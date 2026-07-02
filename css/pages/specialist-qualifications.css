@@ -210,22 +210,6 @@
   padding: 14px 18px 16px;
 }
 
-.sq-status-pill {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 26px;
-  padding: 0 11px;
-  border-radius: 999px;
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.2px;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
 .sq-status-pill.pill-neutral {
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.08);

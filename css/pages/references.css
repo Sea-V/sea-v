@@ -196,27 +196,27 @@
 }
 
 .reference-modern-attachment {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   margin-top: 10px;
 
-  min-height: 30px;
-
-  padding: 0 12px;
+  min-height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
 
   border-radius: 999px;
-  border: 1px solid rgba(91,188,255,0.28);
+  border: 1px solid var(--pill-blue-border);
 
-  background: rgba(91,188,255,0.12);
+  background: var(--pill-blue-bg);
 
   color: #ffffff;
 
   text-decoration: none;
 
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--pill-font-size);
+  font-weight: var(--pill-font-weight);
 
   transition:
     background 0.18s ease,
@@ -237,23 +237,9 @@
 ========================================================= */
 
 .reference-verified-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 32px;
-
-  padding: 0 12px;
-
-  border-radius: 999px;
   border: 1px solid rgba(209,107,255,0.30);
-
   background: rgba(209,107,255,0.10);
-
   color: #d16bff;
-
-  font-size: 12px;
-  font-weight: 900;
 }
 
 /* =========================================================

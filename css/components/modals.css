@@ -739,7 +739,13 @@
 .modal-form .dash-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
+}
+
+.modal-form .dash-actions .btn-blue,
+.modal-form .dash-actions .btn-ghost2 {
+  flex: 0 0 auto;
 }
 
 /* =========================================================
