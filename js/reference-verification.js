@@ -173,18 +173,14 @@
       return await sendViaEdgeFunction(referenceId);
     } catch (err) {
       console.warn("[SEA-V] Edge verification email failed, trying RPC fallback:", err);
-      try {
-        const fallback = await sendViaRpc(referenceId);
-        if (!fallback.emailSent) {
-          fallback.message =
-            fallback.message ||
-            "Email service unavailable. Share the verification link with the referee manually.";
-          fallback.error = fallback.error || String(err?.message || "Email service unavailable");
-        }
-        return fallback;
-      } catch (rpcErr) {
-        throw rpcErr;
+      const fallback = await sendViaRpc(referenceId);
+      if (!fallback.emailSent) {
+        fallback.message =
+          fallback.message ||
+          "Email service unavailable. Share the verification link with the referee manually.";
+        fallback.error = fallback.error || String(err?.message || "Email service unavailable");
       }
+      return fallback;
     }
   }
 

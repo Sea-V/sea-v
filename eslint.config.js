@@ -38,7 +38,14 @@ export default [
         JSZip: "readonly",
         // App globals assigned by earlier script tags (browser only).
         Seav: "readonly",
-        SeavAPI: "readonly"
+        SeavAPI: "readonly",
+        SeavPublicSupabase: "readonly",
+        SeavSupabase: "readonly",
+        SeavSupabaseConfig: "readonly",
+        SeavConfig: "readonly",
+        SeavAuth: "readonly",
+        SeavReferenceVerification: "readonly",
+        SeavFeedback: "readonly"
       }
     },
     rules: {
