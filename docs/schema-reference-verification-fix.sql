@@ -89,7 +89,7 @@ declare
   note_text text := trim(coalesce(p_payload->>'note', ''));
   signed_at text := trim(coalesce(p_payload->>'signedAt', ''));
   new_status text;
-  verification jsonb;
+  v_verification jsonb;
 begin
   if coalesce(trim(p_token), '') = '' then
     raise exception 'Missing token';
@@ -125,7 +125,7 @@ begin
 
   new_status := case when confirmed then 'Verified' else 'Declined' end;
 
-  verification := jsonb_build_object(
+  v_verification := jsonb_build_object(
     'confirmed', confirmed,
     'verifiedVia', 'email',
     'verifierEmail', token_row.sent_to_email,
@@ -140,7 +140,7 @@ begin
   update public.sea_references
   set
     status = new_status,
-    verification = verification,
+    verification = v_verification,
     updated_at = now()
   where id = ref_row.id;
 
