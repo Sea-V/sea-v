@@ -354,5 +354,9 @@ function readTenderForm() {
     document.addEventListener("seav:data-updated", runRefresh);
   }
 
+  window.SeavTenders = {
+    buildTenderCard
+  };
+
   document.addEventListener("DOMContentLoaded", initTenders);
 })();
