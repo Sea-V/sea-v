@@ -10,12 +10,9 @@
     error: document.getElementById("vrError"),
     errorText: document.getElementById("vrErrorText"),
     content: document.getElementById("vrContent"),
-    crewName: document.getElementById("vrCrewName"),
-    refereeName: document.getElementById("vrRefereeName"),
-    refereeTitle: document.getElementById("vrRefereeTitle"),
-    refereeTitleWrap: document.getElementById("vrRefereeTitleWrap"),
     metaGrid: document.getElementById("vrMetaGrid"),
-    referenceText: document.getElementById("vrReferenceText"),
+    avatar: document.getElementById("vrAvatar"),
+    intro: document.getElementById("vrIntro"),
     form: document.getElementById("vrForm"),
     confirmed: document.getElementById("vrConfirmed"),
     note: document.getElementById("vrNote"),
@@ -79,15 +76,50 @@
     });
   }
 
+  function getInitials(name) {
+    const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
+    }
+    return (parts[0]?.charAt(0) || "?").toUpperCase();
+  }
+
+  function renderMetaItem(item) {
+    const valueClass = item.excerpt ? "vessel-meta-value ref-meta-excerpt" : "vessel-meta-value";
+    const spanClass = item.full ? "vessel-meta-item ref-meta-span-full" : "vessel-meta-item";
+    const safeValue = escapeHtml(item.value);
+    const value = item.excerpt ? `“${safeValue}”` : safeValue;
+
+    return `
+      <div class="${spanClass}">
+        <span class="vessel-meta-label">${escapeHtml(item.label)}</span>
+        <span class="${valueClass}">${value}</span>
+      </div>
+    `;
+  }
+
   function renderMetaGrid(data) {
     if (!els.metaGrid) return;
 
-    const items = [
+    const items = [];
+
+    if (data.reference_text) {
+      items.push({
+        label: "Reference",
+        value: data.reference_text,
+        excerpt: true,
+        full: true
+      });
+    }
+
+    [
       { label: "Vessel", value: data.vessel_name },
       { label: "Role", value: data.crew_role },
       { label: "Period", value: data.service_period },
       { label: "Reference date", value: formatDatePretty(data.reference_date) }
-    ].filter((item) => item.value);
+    ].forEach((item) => {
+      if (item.value) items.push(item);
+    });
 
     if (!items.length) {
       els.metaGrid.innerHTML = "";
@@ -96,16 +128,24 @@
     }
 
     els.metaGrid.hidden = false;
-    els.metaGrid.innerHTML = items
-      .map(
-        (item) => `
-          <div class="verify-reference-meta-item">
-            <span class="verify-reference-meta-label">${escapeHtml(item.label)}</span>
-            <span class="verify-reference-meta-value">${escapeHtml(item.value)}</span>
-          </div>
-        `
-      )
-      .join("");
+    els.metaGrid.classList.toggle(
+      "verify-reference-meta-grid--quote-only",
+      items.length === 1 && items[0].full
+    );
+    els.metaGrid.innerHTML = items.map(renderMetaItem).join("");
+  }
+
+  function renderIntro(data) {
+    if (!els.intro) return;
+
+    const refereeName = escapeHtml(data.referee_name || "Referee");
+    const refereeTitle = String(data.referee_title || "").trim();
+    const crewName = escapeHtml(data.crew_name || "SEA-V member");
+    const titleBit = refereeTitle
+      ? `, <span>${escapeHtml(refereeTitle)}</span>`
+      : "";
+
+    els.intro.innerHTML = `<strong>${refereeName}</strong>${titleBit} — please confirm whether the reference below for <strong>${crewName}</strong> is accurate.`;
   }
 
   function todayIso() {
@@ -129,18 +169,12 @@
       if (els.loading) els.loading.hidden = true;
       if (els.content) els.content.hidden = false;
 
-      if (els.crewName) els.crewName.textContent = previewData.crew_name || "SEA-V member";
-      if (els.refereeName) els.refereeName.textContent = previewData.referee_name || "Referee";
-
-      const refereeTitle = String(previewData.referee_title || "").trim();
-      if (els.refereeTitle) els.refereeTitle.textContent = refereeTitle;
-      if (els.refereeTitleWrap) els.refereeTitleWrap.hidden = !refereeTitle;
-
-      renderMetaGrid(previewData);
-
-      if (els.referenceText) {
-        els.referenceText.textContent = previewData.reference_text || "—";
+      if (els.avatar) {
+        els.avatar.textContent = getInitials(previewData.referee_name);
       }
+
+      renderIntro(previewData);
+      renderMetaGrid(previewData);
       if (els.rank) {
         els.rank.value = previewData.referee_title || "";
       }

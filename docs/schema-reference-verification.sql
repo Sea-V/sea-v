@@ -112,11 +112,11 @@ begin
   token_hash := public.hash_reference_verification_token(plain_token);
   expires_at := now() + interval '14 days';
 
-  update public.reference_verification_tokens
+  update public.reference_verification_tokens t
   set used_at = now()
-  where reference_id = ref_row.id
-    and used_at is null
-    and expires_at > now();
+  where t.reference_id = ref_row.id
+    and t.used_at is null
+    and t.expires_at > now();
 
   insert into public.reference_verification_tokens (
     reference_id, user_id, token_hash, sent_to_email, expires_at

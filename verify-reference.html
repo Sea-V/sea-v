@@ -6,15 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SEA-V • Verify Reference</title>
 
-  <link rel="stylesheet" href="styles.css?v=52" />
+  <link rel="stylesheet" href="styles.css?v=53" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=52"></script>
-  <script src="js/supabase.js?v=52"></script>
-  <script src="js/feedback.js?v=52" defer></script>
-  <script src="js/core.js?v=52" defer></script>
-  <script src="js/reference-verification.js?v=52" defer></script>
-  <script src="js/verify-reference.js?v=52" defer></script>
+  <script src="js/seav-config.js?v=53"></script>
+  <script src="js/supabase.js?v=53"></script>
+  <script src="js/feedback.js?v=53" defer></script>
+  <script src="js/core.js?v=53" defer></script>
+  <script src="js/reference-verification.js?v=53" defer></script>
+  <script src="js/verify-reference.js?v=53" defer></script>
 </head>
 
 <body class="landing-page verify-reference-page">
@@ -24,91 +24,101 @@
 
   <main class="verify-reference-shell">
 
-    <div class="verify-reference-panel">
+    <article class="verify-reference-panel verify-reference-panel-card vessel-card ref-page-card">
 
-      <img src="img/logo.png?v=7" class="logo verify-reference-logo seav-logo seav-logo--verify" alt="SEA-V" width="27" height="27" />
+      <div class="vessel-body">
 
-      <div id="vrLoading" class="verify-reference-state">
-        <p class="verify-reference-loading">Loading verification request…</p>
-      </div>
-
-      <div id="vrError" class="verify-reference-state" hidden>
-        <h1 class="verify-reference-title">Link unavailable</h1>
-        <p id="vrErrorText" class="verify-reference-subtitle"></p>
-        <a class="btn-blue" href="index.html">Back to SEA-V</a>
-      </div>
-
-      <div id="vrSuccess" class="verify-reference-state" hidden>
-        <h1 id="vrSuccessTitle" class="verify-reference-title"></h1>
-        <p id="vrSuccessText" class="verify-reference-subtitle"></p>
-        <a class="btn-blue" href="index.html">Back to SEA-V</a>
-      </div>
-
-      <div id="vrContent" hidden>
-
-        <h1 class="verify-reference-title">Verify reference</h1>
-        <p class="verify-reference-subtitle">
-          <span id="vrRefereeName"></span><span id="vrRefereeTitleWrap" hidden>, <span id="vrRefereeTitle"></span></span>,
-          please confirm whether the reference below for
-          <strong id="vrCrewName"></strong> is accurate.
-        </p>
-
-        <div class="verify-reference-card">
-          <div class="verify-reference-meta-grid" id="vrMetaGrid"></div>
-          <blockquote class="verify-reference-quote" id="vrReferenceText"></blockquote>
+        <div class="verify-reference-brand">
+          <img src="img/logo.png?v=7" class="logo verify-reference-logo seav-logo seav-logo--verify" alt="SEA-V" width="34" height="34" />
         </div>
 
-        <form id="vrForm" class="verify-reference-form">
+        <div id="vrLoading" class="verify-reference-state">
+          <p class="verify-reference-loading">Loading verification request…</p>
+        </div>
 
-          <label class="modal-check">
-            <input type="checkbox" id="vrConfirmed" required />
-            <span>I confirm this reference is true and approved by me.</span>
-          </label>
+        <div id="vrError" class="verify-reference-state" hidden>
+          <h1 class="ref-card-title">Link unavailable</h1>
+          <p id="vrErrorText" class="verify-reference-subtitle ref-card-subtitle"></p>
+          <a class="btn-blue" href="index.html">Back to SEA-V</a>
+        </div>
 
-          <label>
-            Optional note
-            <textarea id="vrNote" rows="3" placeholder="Brief confirmation (optional)"></textarea>
-          </label>
+        <div id="vrSuccess" class="verify-reference-state" hidden>
+          <h1 id="vrSuccessTitle" class="ref-card-title"></h1>
+          <p id="vrSuccessText" class="verify-reference-subtitle ref-card-subtitle"></p>
+          <a class="btn-blue" href="index.html">Back to SEA-V</a>
+        </div>
 
-          <div class="modal-grid2">
-            <label>
-              Your rank / position
-              <input id="vrRank" placeholder="Captain, Chief Officer, etc." />
-            </label>
+        <div id="vrContent" hidden>
 
-            <label>
-              CoC number (optional)
-              <input id="vrCoc" placeholder="Certificate of competency" />
-            </label>
+          <div class="ref-card-head">
+            <div class="ref-card-avatar" id="vrAvatar" aria-hidden="true">?</div>
+            <div class="ref-card-head-text">
+              <div class="ref-card-title-row">
+                <h1 class="ref-card-title">Verify reference</h1>
+              </div>
+              <p class="ref-card-subtitle" id="vrIntro">
+                Please confirm whether the reference below is accurate.
+              </p>
+            </div>
           </div>
 
-          <div class="modal-grid2">
-            <label>
-              Signature (full name)
-              <input id="vrSignature" required placeholder="Type your full name to sign" />
-            </label>
+          <div class="vessel-meta-grid" id="vrMetaGrid"></div>
 
-            <label>
-              Date signed
-              <input type="date" id="vrSignedAt" />
-            </label>
+          <div class="verify-reference-form-section">
+            <form id="vrForm" class="verify-reference-form modal-form">
+
+              <label class="modal-check">
+                <input type="checkbox" id="vrConfirmed" required />
+                <span>I confirm this reference is true and approved by me.</span>
+              </label>
+
+              <label>
+                Optional note
+                <textarea id="vrNote" rows="3" placeholder="Brief confirmation (optional)"></textarea>
+              </label>
+
+              <div class="modal-grid2">
+                <label>
+                  Your rank / position
+                  <input id="vrRank" placeholder="Captain, Chief Officer, etc." />
+                </label>
+
+                <label>
+                  CoC number (optional)
+                  <input id="vrCoc" placeholder="Certificate of competency" />
+                </label>
+              </div>
+
+              <div class="modal-grid2">
+                <label>
+                  Signature (full name)
+                  <input id="vrSignature" required placeholder="Type your full name to sign" />
+                </label>
+
+                <label>
+                  Date signed
+                  <input type="date" id="vrSignedAt" />
+                </label>
+              </div>
+
+              <div class="verify-reference-actions">
+                <button class="btn-blue" type="submit" id="vrConfirmBtn">Confirm reference</button>
+                <button class="btn-ghost2" type="button" id="vrDeclineBtn">Decline</button>
+              </div>
+
+              <p class="verify-reference-footnote">
+                This link is single-use<span id="vrExpiryWrap" hidden> and expires on <strong id="vrExpiry"></strong></span>.
+                You do not need a SEA-V account.
+              </p>
+
+            </form>
           </div>
 
-          <div class="verify-reference-actions">
-            <button class="btn-blue" type="submit" id="vrConfirmBtn">Confirm reference</button>
-            <button class="btn-ghost2" type="button" id="vrDeclineBtn">Decline</button>
-          </div>
-
-          <p class="verify-reference-footnote">
-            This link is single-use<span id="vrExpiryWrap" hidden> and expires on <strong id="vrExpiry"></strong></span>.
-            You do not need a SEA-V account.
-          </p>
-
-        </form>
+        </div>
 
       </div>
 
-    </div>
+    </article>
 
   </main>
 

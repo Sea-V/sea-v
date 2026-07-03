@@ -13,38 +13,33 @@
   padding: 40px 20px;
 }
 
-.verify-reference-panel {
-  width: min(640px, 100%);
-
-  padding: 36px 32px 40px;
-
-  border-radius: 28px;
-  border: 1px solid rgba(209, 107, 255, 0.24);
-
-  background: rgba(8, 14, 28, 0.88);
+.verify-reference-panel-card {
   backdrop-filter: blur(18px);
-
-  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: blur(18px);
 }
 
-.verify-reference-title {
-  margin: 0 0 10px;
+.verify-reference-brand {
+  display: flex;
+  justify-content: center;
 
-  font-size: clamp(1.5rem, 4vw, 2rem);
-  font-weight: 800;
-  text-align: center;
+  margin-bottom: 18px;
 }
 
-.verify-reference-subtitle {
-  margin: 0 0 24px;
-
-  color: rgba(255, 255, 255, 0.78);
-  line-height: 1.55;
-  text-align: center;
+.verify-reference-logo {
+  display: block;
+  margin: 0;
 }
 
 .verify-reference-state {
   text-align: center;
+}
+
+.verify-reference-state .ref-card-title {
+  text-align: center;
+}
+
+.verify-reference-state .verify-reference-subtitle {
+  margin: 0 0 22px;
 }
 
 .verify-reference-loading {
@@ -53,105 +48,116 @@
   color: rgba(255, 255, 255, 0.72);
   font-size: 15px;
   line-height: 1.6;
+  text-align: center;
 }
 
-.verify-reference-logo {
-  display: block;
-  margin: 0 auto 22px;
+.verify-reference-form-section {
+  margin-top: 18px;
+  padding-top: 18px;
+
+  border-top: 1px solid rgba(209, 107, 255, 0.14);
 }
 
-.verify-reference-card {
-  margin-bottom: 24px;
-  padding: 20px;
-
-  border-radius: 18px;
-  border: 1px solid rgba(209, 107, 255, 0.18);
-
-  background: rgba(255, 255, 255, 0.03);
+.verify-reference-page .modal-form {
+  gap: 14px;
 }
 
-.verify-reference-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 16px;
+.verify-reference-page .modal-form label {
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
 }
 
-.verify-reference-meta-item {
+.verify-reference-page .modal-form input,
+.verify-reference-page .modal-form select,
+.verify-reference-page .modal-form textarea {
+  width: 100%;
+
+  margin-top: 8px;
+  padding: 12px 14px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  background: rgba(0, 0, 0, 0.22);
+
+  color: var(--field-value-color, rgba(255, 255, 255, 0.92));
+  caret-color: var(--field-value-color, rgba(255, 255, 255, 0.92));
+  color-scheme: dark;
+  -webkit-text-fill-color: var(--field-value-color, rgba(255, 255, 255, 0.92));
+
+  font-size: 14px;
+  line-height: 1.4;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.verify-reference-page .modal-form input::placeholder,
+.verify-reference-page .modal-form textarea::placeholder {
+  color: var(--field-hint-color, rgba(255, 255, 255, 0.42));
+  opacity: 1;
+}
+
+.verify-reference-page .modal-form input:focus,
+.verify-reference-page .modal-form select:focus,
+.verify-reference-page .modal-form textarea:focus {
+  outline: none;
+
+  border-color: rgba(209, 107, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(209, 107, 255, 0.12);
+}
+
+.verify-reference-page .modal-form input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+  opacity: 0.75;
+}
+
+.verify-reference-page .modal-check {
   padding: 12px 14px;
 
   border-radius: 14px;
-  border: 1px solid rgba(91, 188, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.verify-reference-meta-label {
-  display: block;
-  margin-bottom: 4px;
-
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-}
-
-.verify-reference-meta-value {
-  display: block;
-
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.verify-reference-meta {
-  margin-bottom: 14px;
-
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.62);
-}
-
-.verify-reference-quote {
-  margin: 0;
-
-  font-size: 1.05rem;
-  font-style: italic;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.verify-reference-form label {
-  display: block;
-  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .verify-reference-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .verify-reference-footnote {
-  margin: 18px 0 0;
+  margin: 16px 0 0;
 
   font-size: 12px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.52);
+  text-align: center;
+}
+
+.verify-reference-footnote strong {
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 700;
+}
+
+.seav-verify-link-dialog {
+  z-index: 13000;
 }
 
 @media (max-width: 560px) {
-  .verify-reference-panel {
-    padding: 28px 20px 32px;
+  .verify-reference-page .verify-reference-shell {
+    padding: 24px 14px;
   }
 
-  .verify-reference-meta-grid {
-    grid-template-columns: 1fr;
+  .verify-reference-panel-card .vessel-body {
+    padding: 18px 16px 20px;
   }
 
   .verify-reference-actions {
@@ -162,8 +168,8 @@
   .verify-reference-actions .btn-ghost2 {
     width: 100%;
   }
-}
 
-.seav-verify-link-dialog {
-  z-index: 13000;
+  .verify-reference-page .modal-grid2 {
+    grid-template-columns: 1fr;
+  }
 }
