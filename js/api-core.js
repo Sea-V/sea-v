@@ -167,6 +167,7 @@ async function resolveStorageFileUrl(fileMeta, bucket, expiresIn, clientOverride
       writeSignedUrlCache(storageBucket, fileMeta.path, data.signedUrl, expiresIn);
       return data.signedUrl;
     }
+    return "";
   }
   return fileMeta.url || fileMeta.publicUrl || "";
 }
@@ -186,6 +187,8 @@ function getStoredFileDisplayUrl(fileMeta, bucket = null) {
   if (fileMeta.path && storageBucket) {
     const cachedUrl = readSignedUrlCache(storageBucket, fileMeta.path);
     if (cachedUrl) return cachedUrl;
+    // Path-only metadata: never reuse embedded url (often an expired signed URL).
+    return "";
   }
   return fileMeta.url || fileMeta.publicUrl || "";
 }
@@ -263,6 +266,28 @@ async function hydrateArrayFiles(items, table, options = {}) {
   if (!Array.isArray(items) || !items.length) return items || [];
   if (options.skipFiles) return items;
   return Promise.all(items.map((item) => hydrateEntityFiles(item, table, options)));
+}
+
+/** Hydrate one file field on in-memory items before rendering (photos, attachments). */
+async function hydrateItemsFileField(items, field, bucket, options = {}) {
+  if (!Array.isArray(items) || !items.length) return items;
+  const client = options.client || window.SeavSupabase;
+
+  await Promise.all(
+    items.map(async (item) => {
+      if (!item) return;
+      const file = item[field];
+      if (!file || file.dataUrl || typeof file === "string") return;
+      if (!file.path) return;
+
+      const hasDisplayUrl = !!getStoredFileDisplayUrl(file, bucket);
+      if (!storedFileNeedsHydration(file, bucket) && hasDisplayUrl) return;
+
+      item[field] = await hydrateFileMeta(file, bucket, client);
+    })
+  );
+
+  return items;
 }
 
 async function hydrateProfilePhoto(profile, options = {}) {
@@ -364,6 +389,7 @@ function isPayslipKey(key) {
     resolveStorageFileUrl, getStoredFileDisplayUrl, storedFileNeedsHydration,
     hasStoredFile, sanitizeFileForStorage, sanitizeFileArrayForStorage,
     buildUploadedFileMeta, hydrateFileMeta, hydrateEntityFiles, hydrateArrayFiles,
+    hydrateItemsFileField,
     hydrateProfilePhoto, sanitizePhotoForStorage, withUserId, findIndexById,
     signedUrlExpiry
   };

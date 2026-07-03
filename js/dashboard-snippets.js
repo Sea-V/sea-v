@@ -331,6 +331,15 @@ async function renderTenderSnippet() {
 
   const latestThree = [...tenders].slice().reverse().slice(0, 3);
 
+  if (window.SeavApiCore?.hydrateItemsFileField) {
+    await window.SeavApiCore.hydrateItemsFileField(
+      latestThree,
+      "photo",
+      window.SeavApiCore.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos"
+    );
+    window.SeavState?.syncCache?.();
+  }
+
   dashTenderSnippet.innerHTML = `
     <div class="dash-mini-card-grid">
       ${latestThree.map((tender) => {
