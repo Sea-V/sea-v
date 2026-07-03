@@ -87,7 +87,6 @@ function buildVesselCard(v, options = {}) {
   const builder = v.builder ? Seav.escapeHtml(v.builder) : "—";
   const role = v.vessel_role || v.role ? Seav.escapeHtml(v.vessel_role || v.role) : "—";
   const type = v.vessel_type || v.type ? Seav.escapeHtml(v.vessel_type || v.type) : "—";
-  const historyMeta = builder !== "—" ? builder : type;
   const program = v.program ? Seav.escapeHtml(v.program) : "—";
   const experience = v.experience_onboard || v.desc || "";
   const experienceHtml = buildExperienceSection(experience);
@@ -122,18 +121,22 @@ function buildVesselCard(v, options = {}) {
           <div class="vessel-history-head">
             <span class="vessel-history-label">Previous vessel</span>
             <h3>${vesselName}</h3>
-            <p class="vessel-history-meta">${historyMeta} • ${flag}</p>
           </div>
 
           <div class="vessel-history-info-grid">
             <div>
-              <span>Role</span>
-              <strong>${role}</strong>
+              <span>Build</span>
+              <strong>${builder}</strong>
             </div>
 
             <div>
-              <span>Dates</span>
-              <strong>${dateLine}</strong>
+              <span>Flag state</span>
+              <strong>${flag}</strong>
+            </div>
+
+            <div>
+              <span>Role</span>
+              <strong>${role}</strong>
             </div>
 
             <div>
@@ -145,12 +148,17 @@ function buildVesselCard(v, options = {}) {
               <span>Length</span>
               <strong>${length}</strong>
             </div>
+
+            <div>
+              <span>Dates</span>
+              <strong>${dateLine}</strong>
+            </div>
           </div>
 
           <div class="vessel-history-counts">
-            <span>⚓ Sea Time ${linkedSeatimes.length}</span>
-            <span>🚤 Tenders ${linkedTenders.length}</span>
-            <span>📄 References ${linkedRefs.length}</span>
+            <span>Sea time ${linkedSeatimes.length}</span>
+            <span>Tenders ${linkedTenders.length}</span>
+            <span>References ${linkedRefs.length}</span>
           </div>
 
           <div class="seav-actions seav-actions--compact">
