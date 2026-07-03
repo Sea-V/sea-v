@@ -306,7 +306,7 @@ async function renderCertSnippet() {
 
               <div class="dash-mini-info-grid">
                 <div>
-                  <span>Builder</span>
+                  <span>Build</span>
                   <strong>${builder}</strong>
                 </div>
                 <div>

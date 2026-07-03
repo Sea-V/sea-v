@@ -210,7 +210,7 @@ function buildVesselCard(v, options = {}) {
           <div class="vessel-stats-grid">
             <div><span>GT</span><strong>${gt}</strong></div>
             <div><span>Length</span><strong>${length}</strong></div>
-            <div><span>Builder</span><strong>${builder}</strong></div>
+            <div><span>Build</span><strong>${builder}</strong></div>
           </div>
         </div>
       </div>
