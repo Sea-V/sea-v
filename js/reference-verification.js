@@ -203,7 +203,9 @@
       p_token: token,
       p_payload: payload
     });
-    if (error) throw error;
+    if (error) {
+      throw new Error(error.message || error.details || "Verification submit failed");
+    }
     return data;
   }
 

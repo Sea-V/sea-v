@@ -134,43 +134,43 @@
 }
 
 .seav-toast--error {
-  border-color: rgba(255, 109, 125, 0.28);
+  border-color: rgba(91, 188, 255, 0.28);
 }
 
 .seav-toast--error .seav-toast-icon {
-  border-color: rgba(255, 109, 125, 0.34);
-  background: rgba(255, 109, 125, 0.12);
-  color: #ff8fab;
+  border-color: rgba(91, 188, 255, 0.34);
+  background: rgba(91, 188, 255, 0.14);
+  color: #5bbcff;
 }
 
 .seav-toast--error .seav-toast-wave span {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 109, 125, 0.15),
-    rgba(255, 109, 125, 0.85),
-    rgba(255, 109, 125, 0.15),
+    rgba(91, 188, 255, 0.15),
+    rgba(91, 188, 255, 0.85),
+    rgba(91, 188, 255, 0.15),
     transparent
   );
 }
 
 .seav-toast--info {
-  border-color: rgba(255, 210, 90, 0.28);
+  border-color: rgba(114, 228, 255, 0.24);
 }
 
 .seav-toast--info .seav-toast-icon {
-  border-color: rgba(255, 210, 90, 0.34);
-  background: rgba(255, 210, 90, 0.12);
-  color: #ffd25a;
+  border-color: rgba(114, 228, 255, 0.28);
+  background: rgba(91, 188, 255, 0.12);
+  color: #72e4ff;
 }
 
 .seav-toast--info .seav-toast-wave span {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 210, 90, 0.15),
-    rgba(255, 210, 90, 0.85),
-    rgba(255, 210, 90, 0.15),
+    rgba(91, 188, 255, 0.15),
+    rgba(114, 228, 255, 0.85),
+    rgba(91, 188, 255, 0.15),
     transparent
   );
 }

@@ -134,7 +134,7 @@ begin
     'cocNumber', coc_number,
     'signatureName', signature_name,
     'signedAt', coalesce(nullif(signed_at, ''), to_char(now() at time zone 'UTC', 'YYYY-MM-DD')),
-    'completedAt', now()
+    'completedAt', to_char(now() at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
   );
 
   update public.sea_references
