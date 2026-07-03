@@ -1,0 +1,218 @@
+/* =========================================================
+   SEA-V • META-GRID CARDS
+   Shared tender-style labeled grid cards. Section accent = border only.
+   Tenders: green outline. References: purple outline. Same shell + cells.
+========================================================= */
+
+/* --- Card shell ---------------------------------------------------------- */
+
+#tendersGrid .vessel-card,
+#refsList .ref-page-card {
+  overflow: hidden;
+
+  border-radius: var(--seav-meta-card-radius);
+  background: var(--seav-meta-card-bg);
+  box-shadow: var(--seav-meta-card-shadow);
+}
+
+#tendersGrid .vessel-card {
+  border: 1px solid var(--seav-meta-card-border-green);
+}
+
+#refsList .ref-page-card {
+  border: 1px solid var(--seav-meta-card-border-purple);
+}
+
+#tendersGrid .vessel-body,
+#refsList .ref-page-card .vessel-body {
+  padding: 16px;
+}
+
+#refsList {
+  display: grid;
+  gap: 16px;
+}
+
+/* --- Reference card header (avatar + title) ------------------------------ */
+
+#refsList .ref-card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  margin-bottom: 14px;
+}
+
+#refsList .ref-card-avatar {
+  width: 48px;
+  height: 48px;
+
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: linear-gradient(145deg, #6f42ff, #d16bff);
+
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+#refsList .ref-card-head-text {
+  min-width: 0;
+  flex: 1;
+}
+
+#refsList .ref-card-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#refsList .ref-card-title {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+#refsList .ref-card-subtitle {
+  margin: 5px 0 0;
+
+  color: rgba(255, 255, 255, 0.70);
+
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+/* --- Meta grid ----------------------------------------------------------- */
+
+#tendersGrid .vessel-meta-grid,
+#refsList .ref-page-card .vessel-meta-grid {
+  display: grid;
+  gap: var(--seav-meta-grid-gap);
+}
+
+#tendersGrid .vessel-meta-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#refsList .ref-page-card .vessel-meta-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+#tendersGrid .vessel-meta-item,
+#refsList .ref-page-card .vessel-meta-item {
+  padding: var(--seav-meta-item-padding);
+
+  border-radius: var(--seav-meta-item-radius);
+  border: var(--seav-meta-item-border);
+
+  background: var(--seav-meta-item-bg);
+}
+
+#refsList .ref-page-card .ref-meta-span-full {
+  grid-column: 1 / -1;
+}
+
+#tendersGrid .vessel-meta-label,
+#refsList .ref-page-card .vessel-meta-label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: var(--seav-meta-label-color);
+
+  font-size: var(--seav-meta-label-size);
+  line-height: 1.2;
+  font-weight: var(--seav-meta-label-weight);
+}
+
+#tendersGrid .vessel-meta-value,
+#refsList .ref-page-card .vessel-meta-value {
+  display: block;
+
+  color: var(--seav-meta-value-color);
+
+  font-size: var(--seav-meta-value-size);
+  line-height: 1.45;
+  font-weight: var(--seav-meta-value-weight);
+}
+
+#refsList .ref-page-card .ref-meta-excerpt {
+  font-style: italic;
+  line-height: 1.55;
+}
+
+#refsList .ref-page-card .ref-meta-muted {
+  color: var(--seav-meta-muted-color);
+  font-weight: 500;
+}
+
+#refsList .ref-page-card .ref-meta-link {
+  color: var(--seav-meta-link-color);
+  text-decoration: none;
+  word-break: break-word;
+}
+
+#refsList .ref-page-card .ref-meta-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+#refsList .ref-page-card .vessel-meta-value:has(.reference-verified-pill),
+#refsList .ref-page-card .vessel-meta-value:has(.reference-sent-pill),
+#refsList .ref-page-card .vessel-meta-value:has(.reference-declined-pill) {
+  display: flex;
+  align-items: center;
+}
+
+#tendersGrid .vessel-body > .seav-actions,
+#refsList .ref-page-card .vessel-body > .seav-actions {
+  margin-top: 14px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+#refsList .ref-card-hint {
+  margin-top: 14px;
+  padding: var(--seav-meta-item-padding);
+
+  border-radius: var(--seav-meta-item-radius);
+  border: var(--seav-meta-item-border);
+
+  background: var(--seav-meta-item-bg);
+
+  color: var(--seav-meta-desc-color);
+  font-size: var(--seav-meta-value-size);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+#refsList .ref-card-hint--declined {
+  border-color: rgba(248, 113, 113, 0.28);
+}
+
+@media (max-width: 1100px) {
+  #refsList .ref-page-card .vessel-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  #refsList .ref-page-card .vessel-meta-grid {
+    grid-template-columns: 1fr;
+  }
+}

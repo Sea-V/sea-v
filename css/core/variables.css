@@ -58,6 +58,39 @@
   --accent-fuchsia: #e879f9;
 
   /* =========================================================
+     META-GRID CARDS (tenders, references, future list pages)
+     Shell uses shared navy gradient; accent border varies by section.
+  ========================================================= */
+
+  --seav-meta-card-radius: 24px;
+  --seav-meta-card-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+  --seav-meta-card-bg: linear-gradient(
+    180deg,
+    rgba(20, 38, 61, 0.82),
+    rgba(12, 28, 48, 0.76)
+  );
+  --seav-meta-card-border-green: rgba(76, 255, 184, 0.18);
+  --seav-meta-card-border-purple: rgba(209, 107, 255, 0.24);
+
+  --seav-meta-item-radius: 14px;
+  --seav-meta-item-border: 1px solid rgba(255, 255, 255, 0.07);
+  --seav-meta-item-bg: rgba(255, 255, 255, 0.035);
+  --seav-meta-item-padding: 10px;
+  --seav-meta-grid-gap: 10px;
+
+  --seav-meta-label-color: #5bbcff;
+  --seav-meta-label-size: 11px;
+  --seav-meta-label-weight: 800;
+
+  --seav-meta-value-color: rgba(255, 255, 255, 0.84);
+  --seav-meta-value-size: 14px;
+  --seav-meta-value-weight: 600;
+
+  --seav-meta-muted-color: rgba(255, 255, 255, 0.45);
+  --seav-meta-desc-color: rgba(255, 255, 255, 0.78);
+  --seav-meta-link-color: #9ddcff;
+
+  /* =========================================================
      GLASS SURFACES
   ========================================================= */
 

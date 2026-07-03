@@ -119,6 +119,14 @@
     return "";
   }
 
+  function getRefereeInitials(name) {
+    const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
+    }
+    return (parts[0]?.charAt(0) || "?").toUpperCase();
+  }
+
   function truncateText(text, max = 140) {
     const value = String(text || "").trim();
     if (!value) return "";
@@ -181,8 +189,11 @@
             : "Not sent";
 
     const attachValue = hasFile
-      ? `<a class="reference-meta-link" href="${Seav.escapeHtml(refFileUrl)}" target="_blank" rel="noopener">${Seav.escapeHtml(r.attachment?.filename || "View file")}</a>`
+      ? `<a class="ref-meta-link" href="${Seav.escapeHtml(refFileUrl)}" target="_blank" rel="noopener">${Seav.escapeHtml(r.attachment?.filename || "View file")}</a>`
       : "—";
+
+    const initials = getRefereeInitials(r.name);
+    const titleLine = Seav.escapeHtml(r.title || "—");
 
     const rankValue =
       status === "Verified" || verification.rank
@@ -224,16 +235,23 @@
     return `
     <article class="vessel-card ref-page-card">
       <div class="vessel-body">
-        <div class="vessel-meta-grid">
-          ${referenceMetaItem("Referee", Seav.escapeHtml(r.name || "—"))}
-          ${referenceMetaItem("Position", Seav.escapeHtml(r.title || "—"))}
+        <div class="ref-card-head">
+          <div class="ref-card-avatar" aria-hidden="true">${initials}</div>
+          <div class="ref-card-head-text">
+            <div class="ref-card-title-row">
+              <h3 class="ref-card-title">${Seav.escapeHtml(r.name || "—")}</h3>
+              ${statusValue}
+            </div>
+            <p class="ref-card-subtitle">${titleLine}</p>
+          </div>
+        </div>
 
+        <div class="vessel-meta-grid">
           <div class="vessel-meta-item ref-meta-span-full">
             <span class="vessel-meta-label">${Seav.escapeHtml(excerptLabel)}</span>
             <span class="vessel-meta-value ref-meta-excerpt">${excerptHtml}</span>
           </div>
 
-          ${referenceMetaItem("Status", statusValue)}
           ${referenceMetaItem("Verification", verificationDetail)}
 
           ${referenceMetaItem("Vessel", Seav.escapeHtml(vesselLabel || "—"))}

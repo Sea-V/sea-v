@@ -1,0 +1,65 @@
+---
+description: SEA-V meta-grid card layout — shared tender-style labeled grid cards across list pages
+alwaysApply: true
+---
+
+# Meta-grid card layout (SEA-V standard)
+
+Use this pattern for **list pages that show structured records in labeled grid cells** (tenders, references, and future similar pages).
+
+## Markup
+
+```html
+<article class="vessel-card ref-page-card">  <!-- or vessel-card only on tenders -->
+  <div class="vessel-body">
+    <div class="vessel-meta-grid">
+      <div class="vessel-meta-item">
+        <span class="vessel-meta-label">Label</span>
+        <span class="vessel-meta-value">Value</span>
+      </div>
+      <div class="vessel-meta-item ref-meta-span-full"><!-- full-width row --></div>
+    </div>
+    <!-- optional hint / desc -->
+    <!-- seav-actions seav-actions--compact -->
+  </div>
+</article>
+```
+
+- Container: `#tendersGrid` (tenders) or `#refsList` (references).
+- Full-width cells: class `ref-meta-span-full` (`grid-column: 1 / -1`).
+- **References header:** Outlook-style initials circle (`.ref-card-avatar`) + name title + position subtitle — not meta-grid boxes.
+- Status pill lives in the title row, not a grid cell.
+- Actions: `Seav.seavActions(..., "seav-actions--compact")` at bottom of `.vessel-body`.
+
+## Colors (shared shell, accent border only)
+
+**Do not invent new card backgrounds per page.** Use CSS variables from `css/core/variables.css`:
+
+| Token | Purpose |
+|--------|---------|
+| `--seav-meta-card-bg` | Navy gradient shell (same as tenders) |
+| `--seav-meta-card-border-green` | Tenders / green-accent sections |
+| `--seav-meta-card-border-purple` | References / purple-accent sections |
+| `--seav-meta-item-*` | Inner cell padding, border, background |
+| `--seav-meta-label-color` | Blue labels (`#5bbcff`) |
+| `--seav-meta-value-color` | White values |
+
+**References keep the purple outline** — only the border differs from tenders; shell and cells match.
+
+## CSS source of truth
+
+- Shared rules: `css/components/meta-grid-cards.css`
+- Critical layout also embedded in `styles.css` (cache-safe) — keep in sync when changing tokens.
+- Page-specific extras (photos, pills, hints) stay in `css/pages/<page>.css`.
+
+## Grid columns
+
+- **Tenders:** 2 columns per row (`#tendersGrid .vessel-meta-grid`).
+- **References:** 4 columns desktop → 2 @ 1100px → 1 @ 640px.
+
+## When adding a new section
+
+1. Reuse `vessel-card` + `vessel-meta-grid` + `vessel-meta-item` classes.
+2. Pick green or purple border token (or add a new `--seav-meta-card-border-*` — never a new background).
+3. Scope under a page list id (e.g. `#fooList`).
+4. Extend `meta-grid-cards.css` and the embedded block in `styles.css` if the section is production-critical.

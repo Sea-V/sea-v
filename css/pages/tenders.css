@@ -137,20 +137,9 @@
 
 #tendersGrid .vessel-card {
   overflow: hidden;
-
-  border-radius: 24px;
-  border: 1px solid rgba(76,255,184,0.18);
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(20,38,61,0.82),
-      rgba(12,28,48,0.76)
-    );
-
-  box-shadow:
-    0 12px 26px rgba(0,0,0,0.18);
 }
+
+/* Card shell, meta grid, labels — css/components/meta-grid-cards.css */
 
 /* =========================================================
    PHOTO
@@ -210,55 +199,13 @@
 }
 
 /* =========================================================
-   META GRID
-========================================================= */
-
-#tendersGrid .vessel-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0,1fr));
-
-  gap: 10px;
-}
-
-#tendersGrid .vessel-meta-item {
-  padding: 10px;
-
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.07);
-
-  background: rgba(255,255,255,0.035);
-}
-
-#tendersGrid .vessel-meta-label {
-  display: block;
-
-  margin-bottom: 5px;
-
-  color: #5bbcff;
-
-  font-size: 11px;
-  line-height: 1.2;
-  font-weight: 800;
-}
-
-#tendersGrid .vessel-meta-value {
-  display: block;
-
-  color: rgba(255,255,255,0.84);
-
-  font-size: 14px;
-  line-height: 1.45;
-  font-weight: 600;
-}
-
-/* =========================================================
    DESCRIPTION
 ========================================================= */
 
 #tendersGrid .vessel-desc {
   margin-top: 14px;
 
-  color: rgba(255,255,255,0.78);
+  color: var(--seav-meta-desc-color);
 
   font-size: 14px;
   line-height: 1.6;
