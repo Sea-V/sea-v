@@ -166,6 +166,8 @@
 
 .verify-reference-panel-card .verify-reference-attachment-card {
   grid-column: 1 / -1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .verify-reference-attachment-body {
@@ -173,6 +175,9 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 12px;
+
+  width: 100%;
+  min-width: 0;
 }
 
 .verify-reference-attachment-loading,
@@ -186,11 +191,10 @@
 
 .verify-reference-attachment-preview {
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: 200px;
   max-height: 200px;
   padding: 10px;
 
@@ -200,21 +204,27 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 
   background: rgba(0, 0, 0, 0.22);
+
+  line-height: 0;
+  text-align: center;
 }
 
 .verify-reference-attachment-image {
-  display: block;
+  display: inline-block;
 
   max-width: 100%;
   max-height: 180px;
   width: auto;
   height: auto;
+  min-width: 0;
 
   object-fit: contain;
   object-position: center;
+  vertical-align: middle;
 }
 
-.verify-reference-attachment-open {
+.verify-reference-page .verify-reference-attachment-open,
+.verify-reference-page a.reference-modern-attachment.verify-reference-attachment-open {
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
@@ -226,16 +236,18 @@
   padding: 0 var(--pill-padding-x, 14px);
 
   border-radius: 999px;
-  border: 1px solid var(--pill-blue-border, rgba(91, 188, 255, 0.28));
+  border: 1px solid rgba(91, 188, 255, 0.28);
 
-  background: var(--pill-blue-bg, rgba(91, 188, 255, 0.12));
+  background: rgba(91, 188, 255, 0.12);
 
-  color: #ffffff;
-  text-decoration: none;
+  color: #ffffff !important;
+  text-decoration: none !important;
 
-  font-size: var(--pill-font-size, 12px);
-  font-weight: var(--pill-font-weight, 800);
-  line-height: 1.2;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -247,10 +259,12 @@
     transform 0.18s ease;
 }
 
-.verify-reference-attachment-open:hover {
+.verify-reference-page .verify-reference-attachment-open:hover,
+.verify-reference-page a.reference-modern-attachment.verify-reference-attachment-open:hover {
   background: rgba(91, 188, 255, 0.2);
   border-color: rgba(91, 188, 255, 0.44);
-  color: #ffffff;
+  color: #ffffff !important;
+  text-decoration: none !important;
   transform: translateY(-1px);
 }
 

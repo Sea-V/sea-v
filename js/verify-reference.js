@@ -249,13 +249,13 @@
         <div class="verify-reference-attachment-preview">
           <img class="verify-reference-attachment-image" src="${safeUrl}" alt="${safeName}" loading="lazy" />
         </div>
-        <a class="verify-reference-attachment-open" href="${safeUrl}" target="_blank" rel="noopener">${openLabel}</a>
+        <a class="reference-modern-attachment verify-reference-attachment-open" href="${safeUrl}" target="_blank" rel="noopener">${openLabel}</a>
       `;
       return;
     }
 
     els.attachmentBody.innerHTML = `
-      <a class="verify-reference-attachment-open" href="${safeUrl}" target="_blank" rel="noopener">${openLabel}</a>
+      <a class="reference-modern-attachment verify-reference-attachment-open" href="${safeUrl}" target="_blank" rel="noopener">${openLabel}</a>
     `;
   }
 
