@@ -151,3 +151,22 @@ img.seav-logo--verify {
   }
 }
 
+/* Tender proficiency pills — embedded (not @import) so deploy/cache cannot drop alignment */
+#tendersGrid .vessel-meta-value:has(.tender-proficiency-pill) {
+  display: flex;
+  justify-content: center;
+}
+
+#tendersGrid .vessel-meta-value .tender-proficiency-pill {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100%;
+  min-height: var(--pill-height);
+  padding: 0 var(--pill-padding-x) !important;
+  font-size: var(--pill-font-size) !important;
+  font-weight: var(--pill-font-weight) !important;
+  line-height: 1 !important;
+  text-align: center !important;
+}
+

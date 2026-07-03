@@ -191,10 +191,21 @@
   font-weight: 900;
 }
 
+#tendersGrid .vessel-meta-value:has(.tender-proficiency-pill) {
+  display: flex;
+  justify-content: center;
+}
+
 #tendersGrid .vessel-meta-value .tender-proficiency-pill {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  min-height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
+  font-size: var(--pill-font-size);
+  font-weight: var(--pill-font-weight);
+  line-height: 1;
   text-align: center;
 }
 

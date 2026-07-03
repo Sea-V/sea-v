@@ -117,7 +117,6 @@ body.landing-page .info-title {
   .modal-title,
   .modal-sub,
   .field label,
-  .pill,
   .badge-label,
   .table-head,
   .achievement-card-title,
@@ -142,6 +141,26 @@ body.landing-page .info-title {
 ) {
   font-family: inherit !important;
   font-size: var(--font-body) !important;
+}
+
+/* Status pills keep compact sizing — generic span rule above would force 14px */
+body.app-page :where(
+  .pill,
+  .status-pill,
+  .cert-status-pill,
+  .sq-status-pill,
+  .hi-status-pill,
+  .hi-photo-count-pill,
+  .onboard-status-pill,
+  .onboard-familiarisation-pill,
+  .onboard-familiarisation-pill-compact,
+  .ps-amount-pill,
+  .reference-verified-pill,
+  .tender-proficiency-pill
+) {
+  font-size: var(--pill-font-size) !important;
+  font-weight: var(--pill-font-weight) !important;
+  line-height: var(--pill-line-height) !important;
 }
 
 /* Section / card headings match body size (not page titles) */
