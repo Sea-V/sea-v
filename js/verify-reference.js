@@ -11,6 +11,8 @@
     errorText: document.getElementById("vrErrorText"),
     content: document.getElementById("vrContent"),
     metaGrid: document.getElementById("vrMetaGrid"),
+    attachmentWrap: document.getElementById("vrAttachmentWrap"),
+    attachmentBody: document.getElementById("vrAttachmentBody"),
     avatar: document.getElementById("vrAvatar"),
     intro: document.getElementById("vrIntro"),
     form: document.getElementById("vrForm"),
@@ -152,6 +154,94 @@
     return new Date().toISOString().slice(0, 10);
   }
 
+  const REF_FILES_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.REFERENCE_FILES || "reference-files";
+
+  function hasAttachment(attachment) {
+    if (!attachment || typeof attachment !== "object") return false;
+    return !!(attachment.path || attachment.url || attachment.dataUrl);
+  }
+
+  function isImageAttachment(attachment, url) {
+    const mime = String(attachment?.mime || attachment?.mimetype || "").toLowerCase();
+    const name = String(attachment?.filename || attachment?.name || url || "").toLowerCase();
+    if (mime.startsWith("image/")) return true;
+    return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
+  }
+
+  async function resolveAttachmentUrl(attachment) {
+    if (!hasAttachment(attachment)) return "";
+
+    if (attachment.dataUrl) return attachment.dataUrl;
+    if (attachment.url && !attachment.path) return attachment.url;
+
+    const bucket = attachment.bucket || REF_FILES_BUCKET;
+    const client = window.SeavPublicSupabase || window.SeavSupabase;
+
+    if (window.SeavApiCore?.resolveStorageFileUrl) {
+      return (
+        (await window.SeavApiCore.resolveStorageFileUrl(
+          attachment,
+          bucket,
+          window.SeavApiCore.signedUrlExpiry?.(bucket) ?? 3600,
+          client
+        )) || ""
+      );
+    }
+
+    if (attachment.path && client) {
+      const { data, error } = await client.storage
+        .from(bucket)
+        .createSignedUrl(attachment.path, 3600);
+      if (!error && data?.signedUrl) return data.signedUrl;
+    }
+
+    return attachment.url || attachment.publicUrl || "";
+  }
+
+  async function renderAttachment(attachment) {
+    if (!els.attachmentWrap || !els.attachmentBody) return;
+
+    if (!hasAttachment(attachment)) {
+      els.attachmentWrap.hidden = true;
+      els.attachmentBody.innerHTML = "";
+      return;
+    }
+
+    els.attachmentWrap.hidden = false;
+    els.attachmentBody.innerHTML =
+      '<p class="verify-reference-attachment-loading">Loading attachment…</p>';
+
+    const filename = attachment.filename || attachment.name || "Reference attachment";
+    const url = await resolveAttachmentUrl(attachment);
+
+    if (!url) {
+      els.attachmentBody.innerHTML = `
+        <p class="verify-reference-attachment-missing">
+          ${escapeHtml(filename)} could not be loaded. Ask the crew member to resend the verification link.
+        </p>
+      `;
+      return;
+    }
+
+    const safeUrl = escapeHtml(url);
+    const safeName = escapeHtml(filename);
+
+    if (isImageAttachment(attachment, url)) {
+      els.attachmentBody.innerHTML = `
+        <a class="verify-reference-attachment-link" href="${safeUrl}" target="_blank" rel="noopener">
+          <img class="verify-reference-attachment-image" src="${safeUrl}" alt="${safeName}" loading="lazy" />
+        </a>
+        <a class="ref-meta-link verify-reference-attachment-open" href="${safeUrl}" target="_blank" rel="noopener">Open ${safeName}</a>
+      `;
+      return;
+    }
+
+    els.attachmentBody.innerHTML = `
+      <a class="ref-meta-link verify-reference-attachment-open" href="${safeUrl}" target="_blank" rel="noopener">Open ${safeName}</a>
+    `;
+  }
+
   async function loadPreview() {
     if (!token) {
       showError("Missing verification token. Check the link in your email.");
@@ -175,6 +265,7 @@
 
       renderIntro(previewData);
       renderMetaGrid(previewData);
+      await renderAttachment(previewData.attachment);
       if (els.rank) {
         els.rank.value = previewData.referee_title || "";
       }

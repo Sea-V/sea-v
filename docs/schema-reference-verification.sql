@@ -215,6 +215,7 @@ begin
     'service_period', ref_row.period,
     'reference_text', ref_row.reference_text,
     'reference_date', ref_row.reference_date,
+    'attachment', ref_row.attachment,
     'expires_at', token_row.expires_at
   );
 end;

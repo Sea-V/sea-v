@@ -62,7 +62,7 @@
   gap: 14px;
 }
 
-.verify-reference-page .modal-form label {
+.verify-reference-page .modal-form label:not(.modal-check) {
   color: rgba(255, 255, 255, 0.78);
 
   font-size: 11px;
@@ -71,7 +71,7 @@
   letter-spacing: 0.55px;
 }
 
-.verify-reference-page .modal-form input,
+.verify-reference-page .modal-form input:not([type="checkbox"]):not([type="radio"]),
 .verify-reference-page .modal-form select,
 .verify-reference-page .modal-form textarea {
   width: 100%;
@@ -103,7 +103,7 @@
   opacity: 1;
 }
 
-.verify-reference-page .modal-form input:focus,
+.verify-reference-page .modal-form input:not([type="checkbox"]):not([type="radio"]):focus,
 .verify-reference-page .modal-form select:focus,
 .verify-reference-page .modal-form textarea:focus {
   outline: none;
@@ -118,12 +118,96 @@
 }
 
 .verify-reference-page .modal-check {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 12px;
+
   padding: 12px 14px;
 
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.07);
 
   background: rgba(255, 255, 255, 0.035);
+
+  color: rgba(255, 255, 255, 0.86) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.verify-reference-page .modal-check input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px;
+  min-width: 18px;
+  margin: 2px 0 0;
+  padding: 0;
+  flex: 0 0 auto;
+
+  border-radius: 4px;
+  accent-color: #5bbcff;
+}
+
+.verify-reference-page .modal-check span {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.55;
+}
+
+.verify-reference-attachment-wrap {
+  margin-top: 10px;
+}
+
+.verify-reference-panel-card .verify-reference-attachment-card {
+  grid-column: 1 / -1;
+}
+
+.verify-reference-attachment-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.verify-reference-attachment-loading,
+.verify-reference-attachment-missing {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.verify-reference-attachment-link {
+  display: block;
+  overflow: hidden;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.verify-reference-attachment-image {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.verify-reference-attachment-open {
+  display: inline-block;
+  word-break: break-word;
+}
+
+.verify-reference-panel-card .ref-meta-link {
+  color: #9ddcff;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.verify-reference-panel-card .ref-meta-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
 }
 
 .verify-reference-actions {

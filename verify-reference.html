@@ -6,15 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SEA-V • Verify Reference</title>
 
-  <link rel="stylesheet" href="styles.css?v=55" />
+  <link rel="stylesheet" href="styles.css?v=56" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=55"></script>
-  <script src="js/supabase.js?v=55"></script>
-  <script src="js/feedback.js?v=55" defer></script>
-  <script src="js/core.js?v=55" defer></script>
-  <script src="js/reference-verification.js?v=55" defer></script>
-  <script src="js/verify-reference.js?v=55" defer></script>
+  <script src="js/seav-config.js?v=56"></script>
+  <script src="js/supabase.js?v=56"></script>
+  <script src="js/feedback.js?v=56" defer></script>
+  <script src="js/core.js?v=56" defer></script>
+  <script src="js/api-core.js?v=56" defer></script>
+  <script src="js/reference-verification.js?v=56" defer></script>
+  <script src="js/verify-reference.js?v=56" defer></script>
 </head>
 
 <body class="landing-page verify-reference-page">
@@ -63,6 +64,13 @@
           </div>
 
           <div class="vessel-meta-grid" id="vrMetaGrid"></div>
+
+          <div id="vrAttachmentWrap" class="verify-reference-attachment-wrap" hidden>
+            <div class="vessel-meta-item ref-meta-span-full verify-reference-attachment-card">
+              <span class="vessel-meta-label">Attachment</span>
+              <div id="vrAttachmentBody" class="verify-reference-attachment-body"></div>
+            </div>
+          </div>
 
           <div class="verify-reference-form-section">
             <form id="vrForm" class="verify-reference-form modal-form">
