@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  const DEFAULT_BACKGROUND = "#0b121c";
+  const DEFAULT_BACKGROUND = "#ffffff";
 
   function getPointerPoint(canvas, event) {
     const rect = canvas.getBoundingClientRect();
@@ -60,7 +60,7 @@
       };
     }
 
-    return { r: 11, g: 18, b: 28 };
+    return { r: 255, g: 255, b: 255 };
   }
 
   function mount(container, options = {}) {

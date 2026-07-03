@@ -42,9 +42,9 @@
     signaturePad?.destroy?.();
     signaturePad = window.SeavSignaturePad.mount(els.signaturePadMount, {
       height: 168,
-      penColor: "#ffffff",
+      penColor: "#0b121c",
       penWidth: 2.6,
-      background: "#0b121c",
+      background: "#ffffff",
       ariaLabel: "Draw your signature to confirm this reference"
     });
 
