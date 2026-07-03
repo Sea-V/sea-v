@@ -275,15 +275,15 @@
           ${referenceMetaItem("Vessel", Seav.escapeHtml(vesselLabel || "—"))}
           ${referenceMetaItem("Your role", Seav.escapeHtml(r.role || "—"))}
           ${referenceMetaItem("Period", Seav.escapeHtml(r.period || "—"))}
+          ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
 
           ${referenceMetaItem("Referee email", Seav.escapeHtml(r.email || "—"))}
           ${referenceMetaItem("Rank", rankValue)}
           ${referenceMetaItem("CoC", cocValue)}
-          ${referenceMetaItem("Signature", signatureValue)}
 
-          ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
           ${referenceMetaItem("Signed", signedValue)}
           ${referenceMetaItem("Attachment", attachValue)}
+          ${referenceMetaItem("Signature", signatureValue)}
         </div>
 
         ${Seav.seavActions(
