@@ -934,9 +934,12 @@
 }
 
 /* Mini cards inside vessel / tender snippets */
-.dashboard-shell-card .dash-card-accent-vessels .dash-mini-card,
+.dashboard-shell-card .dash-card-accent-vessels .dash-mini-card {
+  border-color: rgba(214, 226, 238, 0.22);
+}
+
 .dashboard-shell-card .dash-card-accent-tenders .dash-mini-card {
-  border-color: rgba(91, 188, 255, 0.22);
+  border-color: rgba(76, 255, 184, 0.22);
 }
 
 .dashboard-shell-card .dash-card-accent-tenders .dash-mini-info-cell--proficiency {
