@@ -1,4 +1,4 @@
-@import url("./css/core/variables.css?v=49");
+@import url("./css/core/variables.css?v=50");
 @import url("./css/core/reset.css");
 @import url("./css/core/layout.css");
 @import url("./css/components/ocean-background.css");
@@ -17,7 +17,7 @@
 @import url("./css/components/pills.css");
 @import url("./css/components/lists.css");
 @import url("./css/components/actions.css");
-@import url("./css/components/meta-grid-cards.css?v=49");
+@import url("./css/components/meta-grid-cards.css?v=50");
 @import url("./css/components/tables.css");
 @import url("./css/components/badges.css");
 @import url("./css/components/badge-unlock.css");
@@ -32,7 +32,7 @@
 @import url("./css/pages/profile.css");
 @import url("./css/pages/certificates.css");
 @import url("./css/pages/seatime.css");
-@import url("./css/pages/references.css?v=49");
+@import url("./css/pages/references.css?v=50");
 @import url("./css/pages/vessels.css");
 @import url("./css/pages/tenders.css");
 @import url("./css/pages/achievements.css");

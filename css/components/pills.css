@@ -111,6 +111,8 @@
 .onboard-familiarisation-pill-compact,
 .ps-amount-pill,
 .reference-verified-pill,
+.reference-sent-pill,
+.reference-declined-pill,
 .tender-proficiency-pill {
   box-sizing: border-box;
   flex-shrink: 0;

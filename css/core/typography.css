@@ -156,6 +156,8 @@ body.app-page :where(
   .onboard-familiarisation-pill-compact,
   .ps-amount-pill,
   .reference-verified-pill,
+  .reference-sent-pill,
+  .reference-declined-pill,
   .tender-proficiency-pill
 ) {
   font-size: var(--pill-font-size) !important;

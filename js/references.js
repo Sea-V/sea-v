@@ -215,23 +215,6 @@
       ? `“${Seav.escapeHtml(truncateText(excerpt))}”`
       : `<span class="ref-meta-muted">—</span>`;
 
-    const pendingHint =
-      status === "Sent for Verification"
-        ? `<p class="ref-card-hint">${
-            showOpenLink
-              ? "Waiting for referee confirmation — use <em>Open verify link</em> to test as the referee."
-              : canSend
-                ? "Waiting for referee confirmation — resend email if needed."
-                : "Add a referee email, save, then send for verification."
-          }</p>`
-        : status === "Declined"
-          ? `<p class="ref-card-hint ref-card-hint--declined">This reference was declined by the referee.${
-              verification.note
-                ? ` “${Seav.escapeHtml(truncateText(verification.note, 100))}”`
-                : ""
-            }</p>`
-          : "";
-
     return `
     <article class="vessel-card ref-page-card">
       <div class="vessel-body">
@@ -265,8 +248,6 @@
           ${referenceMetaItem("CoC", cocValue)}
           ${referenceMetaItem("Signed", signedValue)}
         </div>
-
-        ${pendingHint}
 
         ${Seav.seavActions(
           `${Seav.seavAction("edit", "Edit", `data-edit-ref-id="${Seav.escapeHtml(refId)}"`)}${
