@@ -189,20 +189,31 @@
   }
 
   async function preview(token) {
-    const client = await getClient();
+    const client = window.SeavPublicSupabase || (await getClient());
     const { data, error } = await client.rpc("preview_reference_verification", {
       p_token: token
     });
-    if (error) throw error;
+    if (error) {
+      throw new Error(error.message || error.details || "Could not load verification request");
+    }
     return data;
   }
 
   async function complete(token, payload) {
-    const client = await getClient();
-    const { data, error } = await client.rpc("complete_reference_verification", {
-      p_token: token,
-      p_payload: payload
+    const client = window.SeavPublicSupabase || (await getClient());
+    const request = { token, payload };
+
+    let { data, error } = await client.rpc("complete_reference_verification_v2", {
+      p_request: request
     });
+
+    if (error && /could not find the function|404|42883/i.test(String(error.message || ""))) {
+      ({ data, error } = await client.rpc("complete_reference_verification", {
+        p_token: token,
+        p_payload: payload
+      }));
+    }
+
     if (error) {
       throw new Error(error.message || error.details || "Verification submit failed");
     }
