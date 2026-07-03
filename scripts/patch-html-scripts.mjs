@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 50;
+const ASSET_VERSION = 52;
 
 function bumpAssetVersions(html) {
   let next = html.replace(
@@ -124,6 +124,8 @@ function patchPublicProfile(html) {
   return bumpAssetVersions(next);
 }
 
+const PUBLIC_PAGES = ["verify-reference.html"];
+
 let changed = 0;
 
 for (const file of APP_PAGES) {
@@ -144,6 +146,18 @@ if (ppPatched !== ppOriginal) {
   fs.writeFileSync(ppPath, ppPatched);
   changed += 1;
   console.log("patched public-profile.html");
+}
+
+for (const file of PUBLIC_PAGES) {
+  const filePath = path.join(root, file);
+  if (!fs.existsSync(filePath)) continue;
+  const original = fs.readFileSync(filePath, "utf8");
+  const patched = bumpAssetVersions(original);
+  if (patched !== original) {
+    fs.writeFileSync(filePath, patched);
+    changed += 1;
+    console.log("patched", file);
+  }
 }
 
 console.log(changed ? `Updated ${changed} file(s).` : "All HTML files already up to date.");

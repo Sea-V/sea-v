@@ -173,7 +173,9 @@
       status === "Sent for Verification" ? "Resend email" : "Send email";
     const storedVerifyLink = readStoredVerifyLink(refId);
     const showOpenLink =
-      status === "Sent for Verification" && !!storedVerifyLink;
+      window.SeavConfig?.SHOW_DEV_VERIFY_LINK &&
+      status === "Sent for Verification" &&
+      !!storedVerifyLink;
 
     const statusValue =
       referenceStatusPill(status) ||
@@ -614,29 +616,53 @@ function readReferenceForm() {
         let sendResult = null;
         await Seav.withSaving(async () => {
           sendResult = await window.SeavReferenceVerification.sendRequest(refId);
+        }, {
+          sub: "Sending verification email",
+          errorTitle: "Verification failed"
+        });
 
-          Seav.notify(
-            "success",
-            sendResult.emailSent ? "Email sent" : "Verification requested",
-            sendResult.message ||
-              (sendResult.emailSent
-                ? "The referee will receive a secure link by email."
-                : "Use the verification link dialog to open the page as the referee.")
-          );
+        if (!sendResult) return;
 
-          if (window.Seav.app?.refreshAll) {
-            await window.Seav.app.refreshAll();
-          } else {
-            await renderRefs();
-          }
-        }, { sub: "Sending verification email" });
+        const notifyType = sendResult.emailSent
+          ? "success"
+          : sendResult.error
+            ? "info"
+            : "success";
+        const notifyTitle = sendResult.emailSent
+          ? "Email sent"
+          : sendResult.error
+            ? "Email not delivered"
+            : "Verification link ready";
+
+        Seav.notify(
+          notifyType,
+          notifyTitle,
+          sendResult.message ||
+            (sendResult.emailSent
+              ? "The referee will receive a secure link by email."
+              : "Use the verification link dialog to share the link with the referee.")
+        );
 
         if (sendResult?.verifyUrl) {
           rememberVerifyLink(refId, sendResult.verifyUrl);
         }
 
         if (sendResult?.verifyUrl && !sendResult.emailSent) {
-          window.SeavReferenceVerification.showVerifyLinkDialog(sendResult.verifyUrl);
+          window.SeavReferenceVerification.showVerifyLinkDialog(sendResult.verifyUrl, {
+            refereeEmail: sendResult.refereeEmail || ref.email,
+            emailFailed: !!sendResult.error
+          });
+        }
+
+        try {
+          if (window.Seav.app?.refreshAll) {
+            await window.Seav.app.refreshAll();
+          } else {
+            await renderRefs();
+          }
+        } catch (refreshErr) {
+          console.warn("[SEA-V] Refresh after verification send failed:", refreshErr);
+          await renderRefs();
         }
 
         return;
@@ -656,7 +682,10 @@ function readReferenceForm() {
           return;
         }
         if (window.SeavReferenceVerification?.showVerifyLinkDialog) {
-          window.SeavReferenceVerification.showVerifyLinkDialog(verifyUrl);
+          const ref = getRefs().find((item) => item.id === refId);
+          window.SeavReferenceVerification.showVerifyLinkDialog(verifyUrl, {
+            refereeEmail: ref?.email || ""
+          });
         } else {
           window.open(verifyUrl, "_blank", "noopener");
         }

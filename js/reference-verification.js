@@ -25,11 +25,42 @@
     }
   }
 
-  function showVerifyLinkDialog(verifyUrl) {
+  function normalizeSendResult(body = {}, defaults = {}) {
+    const verifyUrl = localizeVerifyUrl(body.verifyUrl || body.verify_url || defaults.verifyUrl || "");
+    const refereeEmail = body.refereeEmail || body.referee_email || defaults.refereeEmail || "";
+    const emailSent = !!body.emailSent;
+    const message =
+      body.message ||
+      defaults.message ||
+      (emailSent
+        ? refereeEmail
+          ? `Verification email sent to ${refereeEmail}.`
+          : "Verification email sent."
+        : "Verification link created.");
+
+    return {
+      ok: body.ok !== false,
+      emailSent,
+      verifyUrl: verifyUrl || null,
+      refereeEmail,
+      message,
+      error: body.error || null
+    };
+  }
+
+  function showVerifyLinkDialog(verifyUrl, options = {}) {
     if (!verifyUrl) return;
 
     const existing = document.getElementById("seavVerifyLinkDialog");
     if (existing) existing.remove();
+
+    const refereeEmail = options.refereeEmail || "";
+    const emailFailed = !!options.emailFailed;
+    const intro = emailFailed
+      ? `The email could not be delivered${refereeEmail ? ` to ${refereeEmail}` : ""}. Share this secure link with the referee instead:`
+      : refereeEmail
+        ? `Email is not configured yet. Share this secure link with ${refereeEmail} (incognito is fine):`
+        : "Email is not configured yet. Open this link as the referee (incognito is fine):";
 
     const overlay = document.createElement("div");
     overlay.id = "seavVerifyLinkDialog";
@@ -38,13 +69,11 @@
     overlay.innerHTML = `
       <div class="modal-card modal-card--purple" style="max-width:560px;">
         <div class="modal-head">
-          <h3>Verification link</h3>
+          <h3>${emailFailed ? "Share verification link" : "Verification link"}</h3>
           <button type="button" class="modal-x" data-close-verify-link>&times;</button>
         </div>
         <div class="modal-form">
-          <p class="modal-intro">
-            Email is not configured yet. Open this link as the referee (incognito is fine):
-          </p>
+          <p class="modal-intro">${intro}</p>
           <input type="text" readonly id="seavVerifyLinkField" />
           <div class="verify-reference-actions">
             <button type="button" class="btn-blue" id="seavVerifyLinkCopy">Copy link</button>
@@ -90,15 +119,17 @@
       p_reference_id: referenceId
     });
 
-    if (error) throw error;
-    const verifyUrl = localizeVerifyUrl(data?.verify_url || null);
-    return {
-      ok: true,
-      message: "Verification link created",
-      emailSent: false,
-      verifyUrl,
-      data
-    };
+    if (error) {
+      throw new Error(error.message || error.details || "Verification request failed");
+    }
+
+    return normalizeSendResult(data, {
+      verifyUrl: data?.verify_url,
+      refereeEmail: data?.referee_email,
+      message: data?.referee_email
+        ? `Verification link ready for ${data.referee_email}.`
+        : "Verification link created."
+    });
   }
 
   async function sendViaEdgeFunction(referenceId) {
@@ -119,27 +150,42 @@
     });
 
     const body = await res.json().catch(() => ({}));
+
     if (!res.ok) {
+      if (body.verifyUrl || body.verify_url) {
+        return normalizeSendResult(body, { emailFailed: true });
+      }
       throw new Error(body.error || body.message || "Failed to send verification email");
     }
 
-    return {
-      ok: true,
-      message: body.message || "Verification email sent",
-      emailSent: !!body.emailSent,
-      verifyUrl: localizeVerifyUrl(body.verifyUrl || null)
-    };
+    return normalizeSendResult(body);
   }
 
   async function sendRequest(referenceId) {
     const edgeUrl = functionUrl();
     const useEdge = edgeUrl && !window.SeavConfig?.SHOW_DEV_VERIFY_LINK;
 
-    const result = useEdge
-      ? await sendViaEdgeFunction(referenceId)
-      : await sendViaRpc(referenceId);
+    if (!useEdge) {
+      return sendViaRpc(referenceId);
+    }
 
-    return result;
+    try {
+      return await sendViaEdgeFunction(referenceId);
+    } catch (err) {
+      console.warn("[SEA-V] Edge verification email failed, trying RPC fallback:", err);
+      try {
+        const fallback = await sendViaRpc(referenceId);
+        if (!fallback.emailSent) {
+          fallback.message =
+            fallback.message ||
+            "Email service unavailable. Share the verification link with the referee manually.";
+          fallback.error = fallback.error || String(err?.message || "Email service unavailable");
+        }
+        return fallback;
+      } catch (rpcErr) {
+        throw rpcErr;
+      }
+    }
   }
 
   async function preview(token) {

@@ -12,7 +12,9 @@
     content: document.getElementById("vrContent"),
     crewName: document.getElementById("vrCrewName"),
     refereeName: document.getElementById("vrRefereeName"),
-    meta: document.getElementById("vrMeta"),
+    refereeTitle: document.getElementById("vrRefereeTitle"),
+    refereeTitleWrap: document.getElementById("vrRefereeTitleWrap"),
+    metaGrid: document.getElementById("vrMetaGrid"),
     referenceText: document.getElementById("vrReferenceText"),
     form: document.getElementById("vrForm"),
     confirmed: document.getElementById("vrConfirmed"),
@@ -25,11 +27,21 @@
     declineBtn: document.getElementById("vrDeclineBtn"),
     success: document.getElementById("vrSuccess"),
     successTitle: document.getElementById("vrSuccessTitle"),
-    successText: document.getElementById("vrSuccessText")
+    successText: document.getElementById("vrSuccessText"),
+    expiry: document.getElementById("vrExpiry"),
+    expiryWrap: document.getElementById("vrExpiryWrap")
   };
 
   let previewData = null;
   let submitting = false;
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
 
   function showError(message) {
     if (els.loading) els.loading.hidden = true;
@@ -56,12 +68,44 @@
     }
   }
 
-  function formatMeta(data) {
-    const parts = [];
-    if (data.vessel_name) parts.push(data.vessel_name);
-    if (data.crew_role) parts.push(data.crew_role);
-    if (data.service_period) parts.push(data.service_period);
-    return parts.join(" • ") || "—";
+  function formatDatePretty(value) {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return String(value);
+    return d.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+  function renderMetaGrid(data) {
+    if (!els.metaGrid) return;
+
+    const items = [
+      { label: "Vessel", value: data.vessel_name },
+      { label: "Role", value: data.crew_role },
+      { label: "Period", value: data.service_period },
+      { label: "Reference date", value: formatDatePretty(data.reference_date) }
+    ].filter((item) => item.value);
+
+    if (!items.length) {
+      els.metaGrid.innerHTML = "";
+      els.metaGrid.hidden = true;
+      return;
+    }
+
+    els.metaGrid.hidden = false;
+    els.metaGrid.innerHTML = items
+      .map(
+        (item) => `
+          <div class="verify-reference-meta-item">
+            <span class="verify-reference-meta-label">${escapeHtml(item.label)}</span>
+            <span class="verify-reference-meta-value">${escapeHtml(item.value)}</span>
+          </div>
+        `
+      )
+      .join("");
   }
 
   function todayIso() {
@@ -87,15 +131,30 @@
 
       if (els.crewName) els.crewName.textContent = previewData.crew_name || "SEA-V member";
       if (els.refereeName) els.refereeName.textContent = previewData.referee_name || "Referee";
-      if (els.meta) els.meta.textContent = formatMeta(previewData);
+
+      const refereeTitle = String(previewData.referee_title || "").trim();
+      if (els.refereeTitle) els.refereeTitle.textContent = refereeTitle;
+      if (els.refereeTitleWrap) els.refereeTitleWrap.hidden = !refereeTitle;
+
+      renderMetaGrid(previewData);
+
       if (els.referenceText) {
         els.referenceText.textContent = previewData.reference_text || "—";
       }
       if (els.rank) {
         els.rank.value = previewData.referee_title || "";
       }
+      if (els.signature && previewData.referee_name) {
+        els.signature.placeholder = `Type your full name (${previewData.referee_name})`;
+      }
       if (els.signedAt) {
         els.signedAt.value = todayIso();
+      }
+
+      const expiryLabel = formatDatePretty(previewData.expires_at);
+      if (expiryLabel && els.expiry && els.expiryWrap) {
+        els.expiry.textContent = expiryLabel;
+        els.expiryWrap.hidden = false;
       }
     } catch (err) {
       showError(err?.message || "Could not load this verification request.");
@@ -105,6 +164,16 @@
   async function submitVerification(confirmed) {
     if (submitting || !token) return;
     submitting = true;
+
+    if (confirmed && els.confirmed && !els.confirmed.checked) {
+      submitting = false;
+      if (window.Seav?.notify) {
+        Seav.notify("error", "Confirmation required", "Tick the box to confirm this reference.");
+      } else {
+        alert("Please confirm the reference before submitting.");
+      }
+      return;
+    }
 
     const signatureName = els.signature?.value?.trim() || "";
     if (confirmed && !signatureName) {

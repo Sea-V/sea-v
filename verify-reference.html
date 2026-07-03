@@ -6,15 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SEA-V • Verify Reference</title>
 
-  <link rel="stylesheet" href="styles.css?v=43" />
+  <link rel="stylesheet" href="styles.css?v=52" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=43"></script>
-  <script src="js/supabase.js?v=43"></script>
-  <script src="js/feedback.js?v=43" defer></script>
-  <script src="js/core.js?v=43" defer></script>
-  <script src="js/reference-verification.js?v=43" defer></script>
-  <script src="js/verify-reference.js?v=43" defer></script>
+  <script src="js/seav-config.js?v=52"></script>
+  <script src="js/supabase.js?v=52"></script>
+  <script src="js/feedback.js?v=52" defer></script>
+  <script src="js/core.js?v=52" defer></script>
+  <script src="js/reference-verification.js?v=52" defer></script>
+  <script src="js/verify-reference.js?v=52" defer></script>
 </head>
 
 <body class="landing-page verify-reference-page">
@@ -48,12 +48,13 @@
 
         <h1 class="verify-reference-title">Verify reference</h1>
         <p class="verify-reference-subtitle">
-          <span id="vrRefereeName"></span>, please confirm whether the reference below for
+          <span id="vrRefereeName"></span><span id="vrRefereeTitleWrap" hidden>, <span id="vrRefereeTitle"></span></span>,
+          please confirm whether the reference below for
           <strong id="vrCrewName"></strong> is accurate.
         </p>
 
         <div class="verify-reference-card">
-          <div class="verify-reference-meta" id="vrMeta"></div>
+          <div class="verify-reference-meta-grid" id="vrMetaGrid"></div>
           <blockquote class="verify-reference-quote" id="vrReferenceText"></blockquote>
         </div>
 
@@ -99,7 +100,8 @@
           </div>
 
           <p class="verify-reference-footnote">
-            This link is single-use and expires after 14 days. You do not need a SEA-V account.
+            This link is single-use<span id="vrExpiryWrap" hidden> and expires on <strong id="vrExpiry"></strong></span>.
+            You do not need a SEA-V account.
           </p>
 
         </form>
