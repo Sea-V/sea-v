@@ -192,7 +192,42 @@
     if (error) {
       throw new Error(error.message || error.details || "Could not load verification request");
     }
-    return data;
+    return normalizePreviewData(data);
+  }
+
+  function normalizeAttachment(raw) {
+    if (!raw) return null;
+    if (typeof raw === "string") {
+      try {
+        raw = JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+
+    const path = raw.path || raw.filePath || raw.storagePath || "";
+    const url = raw.url || raw.publicUrl || raw.signedUrl || "";
+    const dataUrl = raw.dataUrl || "";
+
+    if (!path && !url && !dataUrl) return null;
+
+    return {
+      ...raw,
+      path: path || null,
+      bucket: raw.bucket || "reference-files",
+      filename: raw.filename || raw.name || null,
+      url: url || null,
+      dataUrl: dataUrl || null
+    };
+  }
+
+  function normalizePreviewData(data) {
+    if (!data || typeof data !== "object") return data;
+    return {
+      ...data,
+      attachment: normalizeAttachment(data.attachment)
+    };
   }
 
   async function complete(token, payload) {

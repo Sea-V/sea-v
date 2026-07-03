@@ -1,5 +1,9 @@
 -- Reference verification — referee attachment access + preview field
 -- Run in Supabase SQL Editor (safe to re-run)
+--
+-- Fixes:
+-- 1. Preview RPC returns attachment metadata for the reference
+-- 2. Storage read for referees (security definer helper — anon cannot read token table directly)
 
 create or replace function public.preview_reference_verification(p_token text)
 returns jsonb
@@ -73,21 +77,34 @@ $$;
 revoke all on function public.preview_reference_verification(text) from public;
 grant execute on function public.preview_reference_verification(text) to anon, authenticated;
 
--- Allow referees with a valid verification link to read the linked attachment file
+-- Security definer: storage RLS runs as anon and cannot read token rows directly.
+create or replace function public.reference_verification_allows_file_read(p_object_path text)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1
+    from public.reference_verification_tokens t
+    join public.sea_references r on r.id = t.reference_id
+    where t.used_at is null
+      and t.expires_at > now()
+      and coalesce(r.attachment->>'path', '') = p_object_path
+  );
+$$;
+
+revoke all on function public.reference_verification_allows_file_read(text) from public;
+grant execute on function public.reference_verification_allows_file_read(text) to anon, authenticated;
+
 drop policy if exists reference_files_verification_read on storage.objects;
 
 create policy reference_files_verification_read
   on storage.objects for select to anon, authenticated
   using (
     bucket_id = 'reference-files'
-    and exists (
-      select 1
-      from public.reference_verification_tokens t
-      join public.sea_references r on r.id = t.reference_id
-      where t.used_at is null
-        and t.expires_at > now()
-        and coalesce(r.attachment->>'path', '') = storage.objects.name
-    )
+    and public.reference_verification_allows_file_read(name)
   );
 
 notify pgrst, 'reload schema';

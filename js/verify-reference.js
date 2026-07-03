@@ -159,7 +159,17 @@
 
   function hasAttachment(attachment) {
     if (!attachment || typeof attachment !== "object") return false;
-    return !!(attachment.path || attachment.url || attachment.dataUrl);
+    return !!(
+      attachment.path ||
+      attachment.filePath ||
+      attachment.storagePath ||
+      attachment.url ||
+      attachment.dataUrl
+    );
+  }
+
+  function getPublicSupabaseClient() {
+    return window.SeavPublicSupabase || window.SeavSupabase || null;
   }
 
   function isImageAttachment(attachment, url) {
@@ -172,31 +182,37 @@
   async function resolveAttachmentUrl(attachment) {
     if (!hasAttachment(attachment)) return "";
 
-    if (attachment.dataUrl) return attachment.dataUrl;
-    if (attachment.url && !attachment.path) return attachment.url;
+    const normalized = {
+      ...attachment,
+      path: attachment.path || attachment.filePath || attachment.storagePath || null,
+      bucket: attachment.bucket || REF_FILES_BUCKET
+    };
 
-    const bucket = attachment.bucket || REF_FILES_BUCKET;
-    const client = window.SeavPublicSupabase || window.SeavSupabase;
+    if (normalized.dataUrl) return normalized.dataUrl;
+    if (normalized.url && !normalized.path) return normalized.url;
+
+    const bucket = normalized.bucket;
+    const client = getPublicSupabaseClient();
 
     if (window.SeavApiCore?.resolveStorageFileUrl) {
-      return (
-        (await window.SeavApiCore.resolveStorageFileUrl(
-          attachment,
-          bucket,
-          window.SeavApiCore.signedUrlExpiry?.(bucket) ?? 3600,
-          client
-        )) || ""
+      const url = await window.SeavApiCore.resolveStorageFileUrl(
+        normalized,
+        bucket,
+        window.SeavApiCore.signedUrlExpiry?.(bucket) ?? 3600,
+        client
       );
+      if (url) return url;
     }
 
-    if (attachment.path && client) {
+    if (normalized.path && client) {
       const { data, error } = await client.storage
         .from(bucket)
-        .createSignedUrl(attachment.path, 3600);
+        .createSignedUrl(normalized.path, 3600);
       if (!error && data?.signedUrl) return data.signedUrl;
+      console.warn("[SEA-V] Verify reference attachment signed URL failed:", error);
     }
 
-    return attachment.url || attachment.publicUrl || "";
+    return normalized.url || normalized.publicUrl || "";
   }
 
   async function renderAttachment(attachment) {
