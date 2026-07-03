@@ -938,109 +938,6 @@
   border-color: rgba(91, 188, 255, 0.22);
 }
 
-/* Compact tender cards — same markup as tenders page, mini scale for dashboard row */
-#dashTenderSnippet .dash-tender-snippet-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-card {
-  overflow: hidden;
-  border-radius: 16px;
-  border: 1px solid rgba(76, 255, 184, 0.18);
-  background: linear-gradient(180deg, rgba(20, 38, 61, 0.82), rgba(12, 28, 48, 0.76));
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-photo {
-  aspect-ratio: 16 / 10;
-  height: auto;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.22);
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-photo img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-photo-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  min-height: 72px;
-  color: rgba(255, 255, 255, 0.45);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-body {
-  padding: 10px 11px 11px;
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-title {
-  margin: 0 0 8px;
-  color: #ffffff;
-  font-size: 13px;
-  line-height: 1.15;
-  font-weight: 900;
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-meta-item {
-  padding: 6px 7px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.035);
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-meta-label {
-  display: block;
-  margin-bottom: 3px;
-  color: #5bbcff;
-  font-size: 9px;
-  line-height: 1.1;
-  font-weight: 800;
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-meta-value {
-  display: block;
-  color: rgba(255, 255, 255, 0.84);
-  font-size: 11px;
-  line-height: 1.25;
-  font-weight: 700;
-  word-break: break-word;
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .vessel-meta-value:has(.tender-proficiency-pill) {
-  display: flex;
-  justify-content: center;
-}
-
-#dashTenderSnippet .dash-tender-snippet-grid .tender-proficiency-pill {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 24px;
-  padding: 0 8px;
-  font-size: 10px !important;
-  font-weight: 800 !important;
-  line-height: 1 !important;
-  text-align: center !important;
-}
-
 
 /* =========================================================
    TABLE FIXES
@@ -1099,8 +996,7 @@
 ========================================================= */
 
 @media (max-width: 900px) {
-  .dash-mini-card-grid,
-  #dashTenderSnippet .dash-tender-snippet-grid {
+  .dash-mini-card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1159,7 +1055,6 @@
 
 @media (max-width: 560px) {
   .dash-mini-card-grid,
-  #dashTenderSnippet .dash-tender-snippet-grid,
   .kpi-row-grid,
   .dashboard-info-grid {
     grid-template-columns: 1fr;
