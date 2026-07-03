@@ -131,7 +131,7 @@
 
 const DASH_CERT_WARNING_DAYS = 90;
 
-function updateCertCardCompleteState(attentionCount) {
+function updateCertCardCompleteState(displayCount, attentionCount) {
   const container = document.getElementById("dashCertSnippet");
   const badge = document.getElementById("dashboardCertCompleteBadge");
   const card = container?.closest(".dash-card");
@@ -139,7 +139,7 @@ function updateCertCardCompleteState(attentionCount) {
 
   if (heading) {
     heading.textContent =
-      attentionCount > 0 ? `Certificates (${attentionCount})` : "Certificates";
+      displayCount > 0 ? `Certificates (${displayCount})` : "Certificates";
   }
 
   if (badge) badge.hidden = attentionCount > 0;
@@ -168,17 +168,28 @@ async function renderCertSnippet() {
     );
   }
 
+  const isNoExpiry = window.SeavData?.isCertNoExpiry;
   const isExpiringOrExpired = window.SeavData?.isCertExpiringOrExpired;
-  const attentionCerts = certs.filter((cert) =>
+
+  const expiryCerts = certs.filter((cert) => {
+    if (isNoExpiry?.(cert)) return false;
+    return !!String(cert.expiry || "").trim();
+  });
+
+  const attentionCerts = expiryCerts.filter((cert) =>
     isExpiringOrExpired?.(cert, DASH_CERT_WARNING_DAYS)
   );
 
-  updateCertCardCompleteState(attentionCerts.length);
+  updateCertCardCompleteState(expiryCerts.length, attentionCerts.length);
 
-  if (!attentionCerts.length) {
+  if (!expiryCerts.length) {
     dashCertSnippet.innerHTML = `
       <p class="dashboard-cert-attention-note muted">
-        No certificates expiring within 3 months or already expired. Only certificates due for renewal appear here.
+        ${
+          certs.length
+            ? "No certificates with expiry dates yet. Add expiry dates on the certificates page to track renewals here."
+            : "No certificates yet."
+        }
       </p>
     `;
     return;
@@ -188,7 +199,7 @@ async function renderCertSnippet() {
     return getCertExpiryInfo(cert.expiry, { warningDays: DASH_CERT_WARNING_DAYS });
   }
 
-  const sortedCerts = [...attentionCerts].sort((a, b) => {
+  const sortedCerts = [...expiryCerts].sort((a, b) => {
     const aInfo = getDashboardCertStatus(a);
     const bInfo = getDashboardCertStatus(b);
 
@@ -210,10 +221,6 @@ async function renderCertSnippet() {
   });
 
   dashCertSnippet.innerHTML = `
-    <p class="dashboard-cert-attention-note muted">
-      Showing certificates expiring within 3 months or already expired.
-    </p>
-
     <div class="list">
       ${sortedCerts
         .map((cert) => {
@@ -221,6 +228,7 @@ async function renderCertSnippet() {
           const certFileUrl = cert.attachment?.url || cert.attachment?.dataUrl || "";
           const hasFile =
             window.SeavApiCore?.hasStoredFile?.(cert.attachment) ?? !!certFileUrl;
+          const expiryDisplay = cert.expiry ? formatDatePretty(cert.expiry) : "—";
 
           const attachHtml = hasFile
             ? certFileUrl
@@ -242,7 +250,7 @@ async function renderCertSnippet() {
                   ${Seav.escapeHtml(cert.code || "—")} • ${Seav.escapeHtml(cert.name || "—")}
                 </div>
                 <div class="list-sub">
-                  Expiry: ${Seav.escapeHtml(cert.expiry || "—")} • ${Seav.escapeHtml(statusInfo.label)}
+                  Expiry: ${Seav.escapeHtml(expiryDisplay)} • ${Seav.escapeHtml(statusInfo.label)}
                 </div>
                 ${attachHtml}
               </div>
