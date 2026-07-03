@@ -66,7 +66,7 @@
   function mount(container, options = {}) {
     if (!container) throw new Error("Signature pad container required");
 
-    const penColor = options.penColor || "#ffffff";
+    const penColor = options.penColor || "#0b121c";
     const penWidth = options.penWidth || 2.6;
     const background = options.background || DEFAULT_BACKGROUND;
     const height = options.height || 168;
@@ -74,9 +74,15 @@
     container.innerHTML = "";
     container.classList.add("seav-signature-pad");
 
+    const surface = document.createElement("div");
+    surface.className = "seav-signature-pad-surface";
+    surface.style.height = `${height}px`;
+
     const canvas = document.createElement("canvas");
     canvas.className = "seav-signature-pad-canvas";
     canvas.setAttribute("aria-label", options.ariaLabel || "Draw your signature");
+
+    surface.appendChild(canvas);
 
     const actions = document.createElement("div");
     actions.className = "seav-signature-pad-actions";
@@ -87,7 +93,7 @@
     clearBtn.textContent = options.clearLabel || "Clear signature";
 
     actions.appendChild(clearBtn);
-    container.appendChild(canvas);
+    container.appendChild(surface);
     container.appendChild(actions);
 
     const ctx = canvas.getContext("2d");
@@ -98,6 +104,8 @@
     let lastCanvasWidth = 0;
     let resizeFrame = 0;
 
+    let pixelRatio = 1;
+
     function applyBrushSettings() {
       ctx.strokeStyle = penColor;
       ctx.lineWidth = penWidth;
@@ -107,6 +115,7 @@
 
     function paintBackground() {
       ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalCompositeOperation = "source-over";
       ctx.fillStyle = background;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -115,22 +124,29 @@
     }
 
     function resizeCanvas() {
-      const width = Math.max(Math.floor(container.clientWidth), 280);
-      if (width === lastCanvasWidth && canvas.width > 0) return;
+      const displayWidth = Math.max(Math.floor(surface.clientWidth), 1);
+      const displayHeight = height;
+      if (displayWidth <= 1) return;
+      if (displayWidth === lastCanvasWidth && canvas.width > 0) return;
 
       const snapshot = hasStroke || canvasHasInk(ctx, canvas.width, canvas.height, background)
         ? canvas.toDataURL("image/png")
         : null;
 
-      lastCanvasWidth = width;
-      canvas.width = width;
-      canvas.height = height;
+      pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+
+      lastCanvasWidth = displayWidth;
+      canvas.width = Math.floor(displayWidth * pixelRatio);
+      canvas.height = Math.floor(displayHeight * pixelRatio);
+      canvas.style.width = `${displayWidth}px`;
+      canvas.style.height = `${displayHeight}px`;
+      ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
       paintBackground();
 
       if (snapshot) {
         const img = new Image();
         img.onload = () => {
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, displayWidth, displayHeight);
           applyBrushSettings();
           hasStroke = canvasHasInk(ctx, canvas.width, canvas.height, background);
         };
@@ -221,7 +237,7 @@
 
     if (typeof ResizeObserver !== "undefined") {
       resizeObserver = new ResizeObserver(() => scheduleResize());
-      resizeObserver.observe(container);
+      resizeObserver.observe(surface);
     } else {
       window.addEventListener("resize", scheduleResize);
     }

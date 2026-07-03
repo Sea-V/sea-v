@@ -216,7 +216,7 @@
       const name = Seav.escapeHtml(verification.signatureName || r.name || "—");
 
       if (sigUrl) {
-        return `<div class="ref-signature-wrap ref-signature-wrap--meta"><img class="seav-signature-display" src="${Seav.escapeHtml(sigUrl)}" alt="Referee signature" loading="lazy" /><span class="ref-signature-name">${name}</span></div>`;
+        return `<div class="ref-signature-wrap ref-signature-wrap--meta"><div class="ref-signature-frame"><img class="seav-signature-display" src="${Seav.escapeHtml(sigUrl)}" alt="Referee signature" loading="lazy" /></div><span class="ref-signature-name">${name}</span></div>`;
       }
 
       if (verification.signatureName) return name;
