@@ -197,20 +197,31 @@
 
     const verificationDetail =
       status === "Verified"
-        ? (() => {
-            const sig = verification.signatureImage;
-            const sigUrl = sig ? Seav.getFileDisplayUrl(sig, REF_FILES_BUCKET) : "";
-            const name = Seav.escapeHtml(verification.signatureName || r.name || "—");
-            if (sigUrl) {
-              return `<div class="ref-signature-wrap"><img class="seav-signature-display" src="${Seav.escapeHtml(sigUrl)}" alt="Referee signature" loading="lazy" /><span class="ref-signature-name">${name}</span></div>`;
-            }
-            return name;
-          })()
+        ? referenceStatusPill(status) || `<span class="ref-meta-muted">Verified</span>`
         : status === "Sent for Verification"
           ? "Awaiting referee"
           : status === "Declined"
             ? Seav.escapeHtml(verification.signatureName || r.name || "Declined")
             : "Not sent";
+
+    const signatureValue = (() => {
+      if (status !== "Verified") {
+        return status === "Sent for Verification"
+          ? `<span class="ref-meta-muted">Pending</span>`
+          : `<span class="ref-meta-muted">—</span>`;
+      }
+
+      const sig = verification.signatureImage;
+      const sigUrl = sig ? Seav.getFileDisplayUrl(sig, REF_FILES_BUCKET) : "";
+      const name = Seav.escapeHtml(verification.signatureName || r.name || "—");
+
+      if (sigUrl) {
+        return `<div class="ref-signature-wrap ref-signature-wrap--meta"><img class="seav-signature-display" src="${Seav.escapeHtml(sigUrl)}" alt="Referee signature" loading="lazy" /><span class="ref-signature-name">${name}</span></div>`;
+      }
+
+      if (verification.signatureName) return name;
+      return `<span class="ref-meta-muted">—</span>`;
+    })();
 
     const attachValue = hasFile
       ? `<a class="ref-meta-link" href="${Seav.escapeHtml(refFileUrl)}" target="_blank" rel="noopener">${Seav.escapeHtml(r.attachment?.filename || "View file")}</a>`
@@ -264,11 +275,13 @@
           ${referenceMetaItem("Vessel", Seav.escapeHtml(vesselLabel || "—"))}
           ${referenceMetaItem("Your role", Seav.escapeHtml(r.role || "—"))}
           ${referenceMetaItem("Period", Seav.escapeHtml(r.period || "—"))}
-          ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
 
           ${referenceMetaItem("Referee email", Seav.escapeHtml(r.email || "—"))}
           ${referenceMetaItem("Rank", rankValue)}
           ${referenceMetaItem("CoC", cocValue)}
+          ${referenceMetaItem("Signature", signatureValue)}
+
+          ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
           ${referenceMetaItem("Signed", signedValue)}
           ${referenceMetaItem("Attachment", attachValue)}
         </div>

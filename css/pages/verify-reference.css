@@ -162,6 +162,7 @@
 
 .verify-signature-field {
   display: block;
+  min-width: 0;
 }
 
 .verify-signature-label {

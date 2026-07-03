@@ -22,7 +22,7 @@
 @import url("./css/components/badges.css");
 @import url("./css/components/badge-unlock.css");
 @import url("./css/components/feedback.css?v=54");
-@import url("./css/components/signature-pad.css");
+@import url("./css/components/signature-pad.css?v=65");
 /* progress bar styles live in css/components/pills.css */
 
 /* =========================================
@@ -43,7 +43,7 @@
 @import url("./css/pages/specialist-qualifications.css");
 @import url("./css/pages/payslips.css");
 @import url("./css/pages/public-profile.css");
-@import url("./css/pages/verify-reference.css?v=60");
+@import url("./css/pages/verify-reference.css?v=65");
 @import url("./css/pages/cv-generator.css");
 @import url("./css/pages/info.css");
 @import url("./css/pages/legal.css");
