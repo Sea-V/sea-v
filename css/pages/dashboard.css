@@ -940,7 +940,6 @@
 }
 
 .dashboard-shell-card .dash-card-accent-tenders .dash-mini-info-cell--proficiency {
-  grid-column: 2;
   display: flex;
   flex-direction: column;
   align-items: stretch;

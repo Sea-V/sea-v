@@ -378,11 +378,14 @@ async function renderTenderSnippet() {
               <div class="dash-mini-head">
                 <div>
                   <h4>${name}</h4>
-                  <p>${vesselName}</p>
                 </div>
               </div>
 
               <div class="dash-mini-info-grid">
+                <div>
+                  <span>Vessel</span>
+                  <strong>${vesselName}</strong>
+                </div>
                 <div>
                   <span>Type</span>
                   <strong>${type}</strong>
