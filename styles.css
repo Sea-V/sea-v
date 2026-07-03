@@ -292,3 +292,29 @@ img.seav-logo--verify {
   }
 }
 
+/* Verify reference confirm checkbox — embedded so cache cannot drop layout fix */
+.verify-reference-page .modal-check {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.verify-reference-page .modal-check input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
+  flex: 0 0 18px !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.verify-reference-page .modal-form input:not([type="checkbox"]):not([type="radio"]),
+.verify-reference-page .modal-form select,
+.verify-reference-page .modal-form textarea {
+  width: 100%;
+}
+

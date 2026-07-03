@@ -406,7 +406,7 @@
   letter-spacing: 0.55px;
 }
 
-.modal-form input,
+.modal-form input:not([type="checkbox"]):not([type="radio"]),
 .modal-form select,
 .modal-form textarea {
   width: 100%;
@@ -569,8 +569,18 @@
 }
 
 .modal-check input[type="checkbox"] {
-  width: auto;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  max-width: 18px;
   margin: 0;
+  padding: 0;
+  flex: 0 0 18px;
+
+  border: none;
+  background: transparent;
+  box-shadow: none;
+
   accent-color: var(--accent-blue);
 }
 

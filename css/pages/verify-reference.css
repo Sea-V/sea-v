@@ -138,11 +138,16 @@
 
 .verify-reference-page .modal-check input[type="checkbox"] {
   width: 18px !important;
-  height: 18px;
-  min-width: 18px;
-  margin: 2px 0 0;
-  padding: 0;
-  flex: 0 0 auto;
+  height: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
+  flex: 0 0 18px !important;
+
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 
   border-radius: 4px;
   accent-color: #5bbcff;
@@ -152,6 +157,7 @@
   flex: 1;
   min-width: 0;
   line-height: 1.55;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .verify-reference-attachment-wrap {
