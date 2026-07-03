@@ -360,9 +360,12 @@ async function renderTenderSnippet() {
         const name = Seav.escapeHtml(tender.name || "Unnamed Tender");
         const vesselName = Seav.escapeHtml(linkedVessel?.name || "Standalone / Chase");
         const type = Seav.escapeHtml(tender.type || "—");
-        const proficiency = Seav.escapeHtml(
-          window.SeavData?.getTenderProficiencyLabel?.(tender.proficiencyLevel) || "—"
+        const proficiency = window.SeavData?.getTenderProficiencyDisplay?.(
+          tender.proficiencyLevel
         );
+        const proficiencyHtml = proficiency
+          ? `<span class="pill tender-proficiency-pill ${proficiency.className}">${Seav.escapeHtml(proficiency.label)}</span>`
+          : `<strong>—</strong>`;
         const model = Seav.escapeHtml(tender.model || "—");
         const length = Seav.escapeHtml(tender.length || "—");
         const engine = Seav.escapeHtml(tender.engine || "—");
@@ -380,9 +383,9 @@ async function renderTenderSnippet() {
               </div>
 
               <div class="dash-mini-info-grid">
-                <div>
+                <div class="dash-mini-info-cell dash-mini-info-cell--proficiency">
                   <span>Proficiency</span>
-                  <strong>${proficiency}</strong>
+                  ${proficiencyHtml}
                 </div>
                 <div>
                   <span>Type</span>

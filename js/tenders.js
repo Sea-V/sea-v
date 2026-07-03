@@ -68,16 +68,6 @@ function getVesselNameForTender(tender) {
   return vessel?.name || "Unknown Vessel";
 }
 
-function getProficiencyDisplay(level) {
-  const map = {
-    Familiarisation: { label: "Familiarisation", className: "pill-pending" },
-    Competent: { label: "Competent", className: "pill-neutral" },
-    Advanced: { label: "Advanced", className: "pill-valid" },
-    Coxswain: { label: "Coxswain", className: "pill-valid" }
-  };
-  return map[level] || null;
-}
-
   function buildTenderCard(tender) {
   const tenderId = tender.id || "";
   const photoUrl = tender.photo?.url || tender.photo?.dataUrl || "";
@@ -88,7 +78,7 @@ function getProficiencyDisplay(level) {
     : `<div class="vessel-photo-fallback">No Photo</div>`;
 
   const vesselName = getVesselNameForTender(tender);
-  const proficiency = getProficiencyDisplay(tender.proficiencyLevel);
+  const proficiency = window.SeavData?.getTenderProficiencyDisplay?.(tender.proficiencyLevel);
   const proficiencyValueHtml = proficiency
     ? `<span class="pill tender-proficiency-pill ${proficiency.className}">${Seav.escapeHtml(proficiency.label)}</span>`
     : "—";

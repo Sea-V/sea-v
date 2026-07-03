@@ -820,6 +820,21 @@ function getTenderProficiencyLabel(value) {
   return match?.label || value || "—";
 }
 
+function getTenderProficiencyDisplay(level) {
+  const classNames = {
+    Familiarisation: "pill-pending",
+    Competent: "pill-neutral",
+    Advanced: "pill-valid",
+    Coxswain: "pill-valid"
+  };
+  const label = getTenderProficiencyLabel(level);
+  if (!level || label === "—") return null;
+  return {
+    label,
+    className: classNames[level] || "pill-neutral"
+  };
+}
+
 function getEmptyTenderEntry() {
   return {
     id: createId("tender"),
@@ -1087,6 +1102,7 @@ window.SeavData = {
   formatMoneyAmount,
   TENDER_PROFICIENCY_LEVELS,
   getTenderProficiencyLabel,
+  getTenderProficiencyDisplay,
   getEmptyTenderEntry,
   toNumber,
   totalQualifyingDays,
