@@ -242,6 +242,35 @@
   color: #d16bff;
 }
 
+.reference-sent-pill {
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+
+.reference-declined-pill {
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.10);
+  color: #fca5a5;
+}
+
+.reference-verified-pill,
+.reference-sent-pill,
+.reference-declined-pill {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
+
+  border-radius: 999px;
+
+  font-size: var(--pill-font-size);
+  font-weight: var(--pill-font-weight);
+  line-height: 1;
+  white-space: nowrap;
+}
+
 /* =========================================================
    ACTIONS
 ========================================================= */
@@ -306,6 +335,22 @@
   line-height: 1.6;
 }
 
+.reference-modern-quote {
+  margin-top: 18px;
+
+  font-style: italic;
+}
+
+.reference-verifier-note {
+  margin-top: 12px;
+
+  color: rgba(255,255,255,0.78);
+  font-size: 13px;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.55;
+}
+
 .reference-pending-verify {
   margin-top: 16px;
   padding: 14px 16px;
@@ -322,6 +367,66 @@
 
 .reference-pending-verify strong {
   color: rgba(255, 255, 255, 0.95);
+}
+
+.reference-declined-notice {
+  margin-top: 16px;
+  padding: 14px 16px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(248, 113, 113, 0.24);
+
+  background: rgba(248, 113, 113, 0.08);
+
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.reference-declined-notice strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.reference-section-summary {
+  margin-top: 10px;
+
+  color: rgba(255,255,255,0.58);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.reference-form-attachment {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: -4px;
+  margin-bottom: 4px;
+  padding: 12px 14px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(209,107,255,0.18);
+
+  background: rgba(255,255,255,0.03);
+}
+
+.reference-form-attachment-label {
+  color: rgba(255,255,255,0.62);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.dash-ref-quote {
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.5;
+  margin-top: 8px;
+  color: rgba(255,255,255,0.78);
+  font-weight: 600;
 }
 
 /* =========================================================

@@ -172,12 +172,20 @@
   }
 
   function getReferenceItems(source) {
+    const vesselMap = new Map((source.vessels || []).map((v) => [v.id, v.name || ""]));
     return (source.refs || [])
       .filter((ref) => ref?.name)
       .slice(0, 8)
       .map((ref) => ({
         name: ref.name,
-        detail: [ref.title, ref.role, ref.vessel].filter(Boolean).join(" | "),
+        detail: [
+          ref.title,
+          ref.role,
+          ref.vessel || vesselMap.get(ref.vesselId) || "",
+          ref.period
+        ]
+          .filter(Boolean)
+          .join(" | "),
         email: ref.email || ""
       }));
   }

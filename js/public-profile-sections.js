@@ -792,11 +792,12 @@
     section.hidden = false;
   }
 
-  function renderReferences(refs) {
+  function renderReferences(refs, vessels = []) {
     const box = document.getElementById("ppRefSnippet");
     const section = document.getElementById("ppRefSection");
     if (!box || !section) return;
 
+    const vesselMap = new Map((vessels || []).map((v) => [v.id, v.name || ""]));
     const verifiedRefs = refs.filter(isReferenceVerified);
 
     if (!verifiedRefs.length) {
@@ -817,9 +818,17 @@
     const buildRef = (ref) => {
       const status = getReferenceStatus(ref);
       const verification = ref.verification || {};
+      const vesselName = ref.vessel || vesselMap.get(ref.vesselId) || "";
+      const maskedCoc = verification.cocNumber
+        ? (() => {
+            const raw = String(verification.cocNumber).trim();
+            if (raw.length <= 4) return raw;
+            return `${"*".repeat(Math.max(0, raw.length - 4))}${raw.slice(-4)}`;
+          })()
+        : "";
       const verifierMeta = [
         verification.rank,
-        verification.cocNumber ? `CoC ${verification.cocNumber}` : "",
+        maskedCoc ? `CoC ${maskedCoc}` : "",
         verification.signedAt ? formatExpiryShort(verification.signedAt) : ""
       ]
         .filter(Boolean)
@@ -837,8 +846,8 @@
           <div class="public-cv-ref-meta">
             ${Seav.escapeHtml(ref.title || "—")}
             ${
-              ref.vessel || ref.role || ref.period
-                ? ` • ${Seav.escapeHtml([ref.vessel, ref.role, ref.period].filter(Boolean).join(" • "))}`
+              vesselName || ref.role || ref.period
+                ? ` • ${Seav.escapeHtml([vesselName, ref.role, ref.period].filter(Boolean).join(" • "))}`
                 : ""
             }
           </div>

@@ -645,6 +645,19 @@ async function renderNavigationSnippet() {
   }, 80);
 }
 
+  function truncateText(text, max = 140) {
+    const value = String(text || "").trim();
+    if (value.length <= max) return value;
+    return `${value.slice(0, max).trim()}…`;
+  }
+
+  function referenceSnippetPillClass(status) {
+    if (status === "Verified") return "reference-verified-pill";
+    if (status === "Sent for Verification") return "reference-sent-pill";
+    if (status === "Declined") return "reference-declined-pill";
+    return "pill";
+  }
+
   async function renderReferenceSnippet() {
     const dashRefSnippet = document.getElementById("dashRefSnippet");
     if (!dashRefSnippet) return;
@@ -668,16 +681,21 @@ async function renderNavigationSnippet() {
     dashRefSnippet.innerHTML = `
       <div class="list">
         ${latestThree.map((ref) => {
+          const status = getReferenceStatus(ref);
+          const pillClass = referenceSnippetPillClass(status);
+          const quote = truncateText(ref.text, 140);
           return `
             <div class="list-row">
               <div style="min-width:0;">
-                <div class="list-title">${Seav.escapeHtml(ref.name)} <span class="muted">(${Seav.escapeHtml(getReferenceStatus(ref))})</span></div>
-                <div class="list-sub">${Seav.escapeHtml(ref.title || "—")} • ${Seav.escapeHtml(ref.date || "—")}</div>
-                <div class="list-sub" style="text-transform:none;letter-spacing:0;line-height:1.5;margin-top:8px;color:rgba(255,255,255,0.78);font-weight:600;">
-                  “${Seav.escapeHtml(ref.text)}”
-                </div>
+                <div class="list-title">${Seav.escapeHtml(ref.name || "—")}</div>
+                <div class="list-sub">${Seav.escapeHtml(ref.title || "—")} • ${Seav.escapeHtml(formatDatePretty(ref.date))}</div>
+                ${
+                  quote
+                    ? `<div class="list-sub dash-ref-quote">“${Seav.escapeHtml(quote)}”</div>`
+                    : ``
+                }
               </div>
-              <span class="pill">${Seav.escapeHtml(getReferenceStatus(ref))}</span>
+              <span class="${pillClass}">${Seav.escapeHtml(status)}</span>
             </div>
           `;
         }).join("")}

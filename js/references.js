@@ -22,17 +22,17 @@
     return;
   }
 
-  const { KEYS, createId, getSortedVesselOptions, formatDatePretty } = window.SeavData;
+  const {
+    KEYS,
+    createId,
+    getSortedVesselOptions,
+    formatDatePretty,
+    getReferenceStatus
+  } = window.SeavData;
   const STORAGE_KEY = KEYS.REFS;
   const VERIFY_LINK_KEY_PREFIX = "seav_ref_verify_url_";
-
-  function normalizeRefStatus(status) {
-    const value = String(status || "Draft").trim().toLowerCase();
-    if (value === "verified") return "Verified";
-    if (value === "declined") return "Declined";
-    if (value.startsWith("sent")) return "Sent for Verification";
-    return String(status || "Draft").trim() || "Draft";
-  }
+  const REF_FILES_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.REFERENCE_FILES || "reference-files";
 
   function rememberVerifyLink(refId, verifyUrl) {
     if (!refId || !verifyUrl) return;
@@ -94,84 +94,103 @@
   }
 }
 
-  function renderRefs() {
-    const refsList = document.getElementById("refsList");
-    if (!refsList && !document.getElementById("refForm")) return;
-    if (!refsList) return;
+  async function hydrateReferenceAttachments(refs) {
+    if (!window.SeavApiCore?.hydrateItemsFileField) return refs;
+    return window.SeavApiCore.hydrateItemsFileField(
+      refs,
+      "attachment",
+      REF_FILES_BUCKET
+    );
+  }
 
-    const refs = getRefs();
-
-    if (refs.length === 0) {
-      refsList.innerHTML = `
-        <div class="list-row">
-          <div>
-            <div class="list-title">No references yet</div>
-            <div class="list-sub">Add one from a Captain or Senior Officer.</div>
-          </div>
-          <span class="pill">Draft</span>
-        </div>
-      `;
-      return;
+  function referenceStatusPill(status) {
+    if (status === "Verified") {
+      return `<span class="reference-verified-pill">Verified</span>`;
     }
+    if (status === "Sent for Verification") {
+      return `<span class="reference-sent-pill">Sent for verification</span>`;
+    }
+    if (status === "Declined") {
+      return `<span class="reference-declined-pill">Declined</span>`;
+    }
+    if (status !== "Draft") {
+      return `<span class="pill">${Seav.escapeHtml(status)}</span>`;
+    }
+    return "";
+  }
 
-    refsList.innerHTML = refs
-      .map((r) => {
-        const refId = r.id || "";
-        const refFileUrl = r.attachment?.url || r.attachment?.dataUrl || "";
-        const hasFile = !!refFileUrl;
-        const attachHtml = hasFile
-          ? `<div class="row-actions" style="margin-top:10px;">
-              <a href="${Seav.escapeHtml(refFileUrl)}" target="_blank">
-             Download attachment${r.attachment?.filename ? ` (${Seav.escapeHtml(r.attachment.filename)})` : ""}
-            </a>
-          </div>`
-          : `<div class="muted" style="margin-top:10px;font-size:12px;text-transform:uppercase;letter-spacing:0.6px;font-weight:800;">
-               No attachment
-             </div>`;
+  function buildVerificationBox(status, ref, verification) {
+    if (status === "Verified") {
+      const signedBy = verification.signatureName || ref.name || "—";
+      return `
+        Verified by: ${Seav.escapeHtml(signedBy)}<br>
+        Rank: ${Seav.escapeHtml(verification.rank || "—")}
+      `;
+    }
+    if (status === "Sent for Verification") {
+      return `
+        Pending confirmation<br>
+        Sent to: ${Seav.escapeHtml(ref.email || "—")}
+      `;
+    }
+    if (status === "Declined") {
+      const signedBy = verification.signatureName || ref.name || "—";
+      return `
+        Declined by: ${Seav.escapeHtml(signedBy)}<br>
+        ${verification.signedAt ? `Date: ${Seav.escapeHtml(formatDatePretty(verification.signedAt))}` : "Response recorded"}
+      `;
+    }
+    if (ref.email) {
+      return `
+        Ready to send<br>
+        Referee: ${Seav.escapeHtml(ref.email)}
+      `;
+    }
+    return `Add referee email, save, then Send email.`;
+  }
 
-       const vessel = getVessels().find((v) => v.id === r.vesselId);
-       const vesselLabel = vessel?.name || "";
+  function buildCertificationBox(status, verification) {
+    if (status === "Verified") {
+      return `
+        CoC: ${Seav.escapeHtml(maskCoc(verification.cocNumber))}<br>
+        Signed: ${Seav.escapeHtml(
+          verification.signedAt ? formatDatePretty(verification.signedAt) : "—"
+        )}
+      `;
+    }
+    if (status === "Declined" && verification.note) {
+      return `“${Seav.escapeHtml(verification.note)}”`;
+    }
+    return "—";
+  }
 
-       const vesselLine =
-          vesselLabel || r.role || r.period
-         ? `<div class="list-sub">${Seav.escapeHtml(vesselLabel || "—")} • ${Seav.escapeHtml(r.role || "—")} • ${Seav.escapeHtml(r.period || "—")}</div>`
-        : "";
+  function buildReferenceCard(r) {
+    const refId = r.id || "";
+    const refFileUrl = Seav.getFileDisplayUrl(r.attachment, REF_FILES_BUCKET);
+    const hasFile = !!refFileUrl;
+    const attachLabel = r.attachment?.filename
+      ? `Download (${Seav.escapeHtml(r.attachment.filename)})`
+      : "Download attachment";
 
-        const verification = r.verification || {};
-        const status = normalizeRefStatus(r.status);
-        const verifiedHtml =
-          status === "Verified"
-            ? `
-          <div class="list-sub" style="margin-top:10px;text-transform:none;letter-spacing:0;line-height:1.5;">
-            <strong>Verified by:</strong> ${Seav.escapeHtml(r.name || "—")}<br>
-            <strong>Rank:</strong> ${Seav.escapeHtml(verification.rank || "—")}<br>
-            <strong>CoC:</strong> ${Seav.escapeHtml(maskCoc(verification.cocNumber))}<br>
-            <strong>Signed:</strong> ${Seav.escapeHtml(verification.signedAt || "—")}
-          </div>
-          ${
-            verification.note
-              ? `
-            <div class="list-sub" style="margin-top:8px;text-transform:none;letter-spacing:0;line-height:1.5;color:rgba(255,255,255,0.78);font-weight:600;">
-              “${Seav.escapeHtml(verification.note)}”
-            </div>
-          `
-              : ``
-          }
-        `
-            : "";
+    const vessel = getVessels().find((v) => v.id === r.vesselId);
+    const vesselLabel = vessel?.name || "";
+    const hasServiceContext = !!(vesselLabel || r.role || r.period);
 
-        const canSend =
-          !!r.email &&
-          status !== "Verified" &&
-          status !== "Declined" &&
-          (status === "Draft" || status === "Sent for Verification");
-        const sendLabel =
-          status === "Sent for Verification" ? "Resend email" : "Send email";
-        const storedVerifyLink = readStoredVerifyLink(refId);
-        const showOpenLink =
-          status === "Sent for Verification" && !!storedVerifyLink;
+    const verification = r.verification || {};
+    const status = getReferenceStatus(r);
 
- return `
+    const canSend =
+      !!r.email &&
+      status !== "Verified" &&
+      status !== "Declined" &&
+      (status === "Draft" || status === "Sent for Verification");
+    const sendLabel =
+      status === "Sent for Verification" ? "Resend email" : "Send email";
+    const storedVerifyLink = readStoredVerifyLink(refId);
+    const showOpenLink =
+      status === "Sent for Verification" && !!storedVerifyLink;
+
+    return `
   <div class="reference-modern-card ui-card ui-card-hover ui-accent-purple">
 
     <div class="reference-modern-top">
@@ -188,16 +207,7 @@
             <h3 class="reference-modern-name">
               ${Seav.escapeHtml(r.name)}
             </h3>
-
-            ${
-              status === "Verified"
-                ? `<span class="reference-verified-pill">Verified</span>`
-                : status === "Sent for Verification"
-                  ? `<span class="pill">Sent for verification</span>`
-                  : status === "Declined"
-                    ? `<span class="pill">Declined</span>`
-                    : ``
-            }
+            ${referenceStatusPill(status)}
           </div>
 
           <div class="reference-modern-meta">
@@ -205,7 +215,7 @@
           </div>
 
           ${
-            vesselLine
+            hasServiceContext
               ? `<div class="reference-modern-meta" style="margin-top:6px;">
                   ${Seav.escapeHtml(vesselLabel || "—")} •
                   ${Seav.escapeHtml(r.role || "—")} •
@@ -215,11 +225,18 @@
           }
 
           <div
-            class="reference-modern-value"
-            style="margin-top:18px;font-style:italic;"
+            class="reference-modern-value reference-modern-quote"
           >
             “${Seav.escapeHtml(r.text)}”
           </div>
+
+          ${
+            status === "Verified" && verification.note
+              ? `<div class="reference-verifier-note">
+                  “${Seav.escapeHtml(verification.note)}”
+                </div>`
+              : ``
+          }
 
           ${
             status === "Sent for Verification"
@@ -231,6 +248,19 @@
                       : canSend
                         ? ` Click <em>Resend email</em> to generate a new link.`
                         : ` Add a referee email, save, then resend.`
+                  }
+                </div>`
+              : ``
+          }
+
+          ${
+            status === "Declined"
+              ? `<div class="reference-declined-notice">
+                  <strong>This reference was declined by the referee.</strong>
+                  ${
+                    verification.note
+                      ? ` Note: “${Seav.escapeHtml(verification.note)}”`
+                      : ``
                   }
                 </div>`
               : ``
@@ -264,47 +294,33 @@
 
     <div class="reference-modern-grid">
 
-<div class="reference-modern-box">
-  <div class="reference-modern-label">
-    Attachment
-  </div>
-
-  <div class="reference-modern-value">
-    ${
-      hasFile
-        ? `
-          <a
-            class="reference-modern-attachment"
-            href="${Seav.escapeHtml(refFileUrl)}"
-            target="_blank"
-          >
-            Download Attachment
-          </a>
-        `
-        : `No attachment`
-    }
-  </div>
-</div>
-
       <div class="reference-modern-box">
-        <div class="reference-modern-label">
-          Verification
-        </div>
-
+        <div class="reference-modern-label">Attachment</div>
         <div class="reference-modern-value">
-          Verified by: ${Seav.escapeHtml(r.name || "—")}<br>
-          Rank: ${Seav.escapeHtml(verification.rank || "—")}
+          ${
+            hasFile
+              ? `<a
+                  class="reference-modern-attachment"
+                  href="${Seav.escapeHtml(refFileUrl)}"
+                  target="_blank"
+                  rel="noopener"
+                >${attachLabel}</a>`
+              : `No attachment`
+          }
         </div>
       </div>
 
       <div class="reference-modern-box">
-        <div class="reference-modern-label">
-          Certification
-        </div>
-
+        <div class="reference-modern-label">Verification</div>
         <div class="reference-modern-value">
-          CoC: ${Seav.escapeHtml(maskCoc(verification.cocNumber))}<br>
-          Signed: ${Seav.escapeHtml(verification.signedAt || "—")}
+          ${buildVerificationBox(status, r, verification)}
+        </div>
+      </div>
+
+      <div class="reference-modern-box">
+        <div class="reference-modern-label">Certification</div>
+        <div class="reference-modern-value">
+          ${buildCertificationBox(status, verification)}
         </div>
       </div>
 
@@ -312,11 +328,121 @@
 
   </div>
 `;
-      })
-      .join("");
   }
 
-  function fillReferenceForm(ref) {
+  async function renderRefs() {
+    const refsList = document.getElementById("refsList");
+    if (!refsList && !document.getElementById("refForm")) return;
+    if (!refsList) return;
+
+    const refs = getRefs();
+
+    if (refs.length === 0) {
+      refsList.innerHTML = `
+        <div class="list-row">
+          <div>
+            <div class="list-title">No references yet</div>
+            <div class="list-sub">Add one from a Captain or Senior Officer.</div>
+          </div>
+          <span class="pill">Draft</span>
+        </div>
+      `;
+      updateReferencesSummary(refs);
+      return;
+    }
+
+    const sorted = [...refs].sort((a, b) => {
+      const da = a.date ? new Date(a.date) : new Date(0);
+      const db = b.date ? new Date(b.date) : new Date(0);
+      return db - da;
+    });
+
+    await hydrateReferenceAttachments(sorted);
+    window.SeavState?.syncCache?.();
+
+    refsList.innerHTML = sorted.map((r) => buildReferenceCard(r)).join("");
+    updateReferencesSummary(refs);
+  }
+
+  function updateReferencesSummary(refs) {
+    const el = document.getElementById("refsSummary");
+    if (!el) return;
+
+    if (!refs.length) {
+      el.textContent = "";
+      return;
+    }
+
+    const verified = refs.filter((r) => getReferenceStatus(r) === "Verified").length;
+    const pending = refs.filter(
+      (r) => getReferenceStatus(r) === "Sent for Verification"
+    ).length;
+    const declined = refs.filter((r) => getReferenceStatus(r) === "Declined").length;
+
+    const parts = [`${refs.length} reference${refs.length === 1 ? "" : "s"}`];
+    if (verified) parts.push(`${verified} verified`);
+    if (pending) parts.push(`${pending} pending`);
+    if (declined) parts.push(`${declined} declined`);
+
+    el.textContent = parts.join(" · ");
+  }
+
+  function clearFormFieldLocks() {
+    ["rf_name", "rf_text", "rf_email"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.readOnly = false;
+    });
+  }
+
+  function applyReferenceFormLocks(ref) {
+    const status = getReferenceStatus(ref);
+    const locked = status === "Verified" || status === "Declined";
+
+    const nameField = document.getElementById("rf_name");
+    const textField = document.getElementById("rf_text");
+    const emailField = document.getElementById("rf_email");
+
+    if (nameField) nameField.readOnly = locked;
+    if (textField) textField.readOnly = locked;
+    if (emailField) emailField.readOnly = locked;
+  }
+
+  async function renderFormAttachmentPreview(attachment) {
+    const preview = document.getElementById("rf_attachment_preview");
+    if (!preview) return;
+
+    if (!attachment?.path && !attachment?.url && !attachment?.dataUrl) {
+      preview.hidden = true;
+      preview.innerHTML = "";
+      return;
+    }
+
+    let hydrated = attachment;
+    if (attachment?.path && window.SeavApiCore?.hydrateFileMeta) {
+      hydrated = await window.SeavApiCore.hydrateFileMeta(
+        attachment,
+        REF_FILES_BUCKET
+      );
+    }
+
+    const url = Seav.getFileDisplayUrl(hydrated, REF_FILES_BUCKET);
+    const filename = attachment.filename || "View attachment";
+
+    preview.hidden = false;
+    preview.innerHTML = url
+      ? `
+        <span class="reference-form-attachment-label">Current attachment</span>
+        <a
+          class="reference-modern-attachment"
+          href="${Seav.escapeHtml(url)}"
+          target="_blank"
+          rel="noopener"
+        >${Seav.escapeHtml(filename)}</a>
+      `
+      : `<span class="muted">Attachment saved — preview unavailable</span>`;
+  }
+
+  async function fillReferenceForm(ref) {
   const editId = document.getElementById("rf_edit_id");
   if (editId) editId.value = ref.id || "";
 
@@ -336,13 +462,18 @@
 
   const statusField = document.getElementById("rf_status");
   if (statusField) {
-    statusField.value = ref.status || "Draft";
+    const status = getReferenceStatus(ref);
+    statusField.value = status;
     const locked =
-      ref.status === "Verified" ||
-      ref.status === "Declined" ||
-      ref.status === "Sent for Verification";
+      status === "Verified" ||
+      status === "Declined" ||
+      status === "Sent for Verification";
     statusField.disabled = locked;
   }
+
+  clearFormFieldLocks();
+  applyReferenceFormLocks(ref);
+  await renderFormAttachmentPreview(ref.attachment || null);
 
   if (window.SeavModals?.openModal) window.SeavModals.openModal("refModal");
 }
@@ -359,6 +490,13 @@ function resetReferenceForm(form) {
   if (statusField) {
     statusField.value = "Draft";
     statusField.disabled = false;
+  }
+
+  clearFormFieldLocks();
+  const preview = document.getElementById("rf_attachment_preview");
+  if (preview) {
+    preview.hidden = true;
+    preview.innerHTML = "";
   }
 }
 
@@ -400,10 +538,10 @@ function readReferenceForm() {
       !document.getElementById("refForm")
     ) return;
 
-    const runRefresh = () => {
-  populateReferenceVesselOptions();
-  renderRefs();
-};
+    const runRefresh = async () => {
+      populateReferenceVesselOptions();
+      await renderRefs();
+    };
 
     Seav.bindStateRefresh(runRefresh, { label: "References refresh" });
 
@@ -428,11 +566,11 @@ function readReferenceForm() {
 
         if (
           existingRef &&
-          (existingRef.status === "Verified" ||
-            existingRef.status === "Sent for Verification" ||
-            existingRef.status === "Declined")
+          (getReferenceStatus(existingRef) === "Verified" ||
+            getReferenceStatus(existingRef) === "Sent for Verification" ||
+            getReferenceStatus(existingRef) === "Declined")
         ) {
-          formData.status = existingRef.status;
+          formData.status = getReferenceStatus(existingRef);
         }
 
         await Seav.withSaving(async () => {
@@ -479,7 +617,7 @@ function readReferenceForm() {
         if (window.Seav.app?.refreshAll) {
           await window.Seav.app.refreshAll();
         } else {
-          renderRefs();
+          await renderRefs();
         }
         }, { sub: "Saving reference" });
       });
@@ -492,7 +630,7 @@ function readReferenceForm() {
         const refId = editBtn.getAttribute("data-edit-ref-id");
         const ref = getRefs().find((item) => item.id === refId);
         if (!ref) return;
-        fillReferenceForm(ref);
+        await fillReferenceForm(ref);
         return;
       }
 
@@ -533,12 +671,15 @@ function readReferenceForm() {
           if (window.Seav.app?.refreshAll) {
             await window.Seav.app.refreshAll();
           } else {
-            renderRefs();
+            await renderRefs();
           }
         }, { sub: "Sending verification email" });
 
-        if (sendResult?.verifyUrl && !sendResult.emailSent) {
+        if (sendResult?.verifyUrl) {
           rememberVerifyLink(refId, sendResult.verifyUrl);
+        }
+
+        if (sendResult?.verifyUrl && !sendResult.emailSent) {
           window.SeavReferenceVerification.showVerifyLinkDialog(sendResult.verifyUrl);
         }
 
@@ -597,7 +738,7 @@ function readReferenceForm() {
         if (window.Seav.app?.refreshAll) {
           await window.Seav.app.refreshAll();
         } else {
-          renderRefs();
+          await renderRefs();
         }
       }
     });

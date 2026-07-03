@@ -239,7 +239,7 @@
         sections.renderHobbiesInterests(hobbyEntries);
         sections.renderCertificates(certs);
         sections.renderSpecialistQualifications(specialistEntries);
-        sections.renderReferences(refs);
+        sections.renderReferences(refs, vessels);
         sections.renderAchievements(achievements);
 
         bindExpandToggles(document.getElementById("ppContent"));

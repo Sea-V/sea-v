@@ -47,6 +47,19 @@
   text-align: center;
 }
 
+.verify-reference-loading {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.verify-reference-logo {
+  display: block;
+  margin: 0 auto 22px;
+}
+
 .verify-reference-card {
   margin-bottom: 24px;
   padding: 20px;

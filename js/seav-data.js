@@ -1048,7 +1048,12 @@ function getSortedVesselOptions(vessels = []) {
 
   function getReferenceStatus(ref) {
     if (!ref) return "Draft";
-    return ref.status || ref.verified || "Draft";
+    const raw = ref.status || ref.verified || "Draft";
+    const value = String(raw).trim().toLowerCase();
+    if (value === "verified") return "Verified";
+    if (value === "declined") return "Declined";
+    if (value.startsWith("sent")) return "Sent for Verification";
+    return String(raw).trim() || "Draft";
   }
 
   /* =========================================================
