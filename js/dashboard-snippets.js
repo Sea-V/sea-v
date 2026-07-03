@@ -284,7 +284,7 @@ async function renderCertSnippet() {
           : `<div class="dash-mini-fallback">No Photo</div>`;
 
         const name = Seav.escapeHtml(vessel.name || "Unnamed Vessel");
-        const type = Seav.escapeHtml(vessel.vessel_type || vessel.type || "—");
+        const builder = Seav.escapeHtml(vessel.builder || "—");
         const flag = Seav.escapeHtml(vessel.flag || "—");
         const gt = Seav.escapeHtml(vessel.gt || "—");
         const role = Seav.escapeHtml(vessel.vessel_role || vessel.role || "—");
@@ -300,12 +300,19 @@ async function renderCertSnippet() {
               <div class="dash-mini-head">
                 <div>
                   <h4>${name}</h4>
-                  <p>${type} • ${flag}</p>
                 </div>
                 ${!vessel.to ? `<span class="dash-mini-status">Current</span>` : ``}
               </div>
 
               <div class="dash-mini-info-grid">
+                <div>
+                  <span>Builder</span>
+                  <strong>${builder}</strong>
+                </div>
+                <div>
+                  <span>Flag state</span>
+                  <strong>${flag}</strong>
+                </div>
                 <div>
                   <span>Role</span>
                   <strong>${role}</strong>
