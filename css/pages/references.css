@@ -129,16 +129,16 @@
    GRID + CARD (tender-style meta layout)
 ========================================================= */
 
-#refsList.refs-grid {
+#refsList {
   display: grid;
   gap: 16px;
 }
 
-#refsList .reference-card {
+#refsList .ref-page-card {
   overflow: hidden;
 
   border-radius: 24px;
-  border: 1px solid rgba(209,107,255,0.20);
+  border: 1px solid rgba(209,107,255,0.22);
 
   background:
     linear-gradient(
@@ -151,18 +151,18 @@
     0 12px 26px rgba(0,0,0,0.18);
 }
 
-#refsList .reference-card-body {
+#refsList .ref-page-card .vessel-body {
   padding: 16px;
 }
 
-#refsList .vessel-meta-grid {
+#refsList .ref-page-card .vessel-meta-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 10px;
 }
 
-#refsList .vessel-meta-item {
+#refsList .ref-page-card .vessel-meta-item {
   padding: 10px;
 
   border-radius: 14px;
@@ -171,11 +171,11 @@
   background: rgba(255,255,255,0.035);
 }
 
-#refsList .reference-meta-span-full {
+#refsList .ref-page-card .ref-meta-span-full {
   grid-column: 1 / -1;
 }
 
-#refsList .vessel-meta-label {
+#refsList .ref-page-card .vessel-meta-label {
   display: block;
 
   margin-bottom: 5px;
@@ -187,7 +187,7 @@
   font-weight: 800;
 }
 
-#refsList .vessel-meta-value {
+#refsList .ref-page-card .vessel-meta-value {
   display: block;
 
   color: rgba(255,255,255,0.84);
@@ -197,41 +197,44 @@
   font-weight: 600;
 }
 
-#refsList .reference-meta-excerpt {
+#refsList .ref-page-card .ref-meta-excerpt {
   font-style: italic;
   line-height: 1.55;
 }
 
+#refsList .ref-page-card .ref-meta-muted,
 #refsList .reference-meta-muted {
   color: rgba(255,255,255,0.45);
   font-weight: 500;
 }
 
+#refsList .ref-page-card .ref-meta-link,
 #refsList .reference-meta-link {
   color: #9ddcff;
   text-decoration: none;
   word-break: break-word;
 }
 
+#refsList .ref-page-card .ref-meta-link:hover,
 #refsList .reference-meta-link:hover {
   color: #ffffff;
   text-decoration: underline;
 }
 
-#refsList .vessel-meta-value:has(.reference-verified-pill),
-#refsList .vessel-meta-value:has(.reference-sent-pill),
-#refsList .vessel-meta-value:has(.reference-declined-pill) {
+#refsList .ref-page-card .vessel-meta-value:has(.reference-verified-pill),
+#refsList .ref-page-card .vessel-meta-value:has(.reference-sent-pill),
+#refsList .ref-page-card .vessel-meta-value:has(.reference-declined-pill) {
   display: flex;
   align-items: center;
 }
 
-#refsList .reference-card-body > .seav-actions {
+#refsList .ref-page-card .vessel-body > .seav-actions {
   margin-top: 14px;
   padding-top: 0;
   border-top: 0;
 }
 
-#refsList .reference-card-hint {
+#refsList .ref-card-hint {
   margin: 12px 0 0;
 
   padding: 12px 14px;
@@ -246,7 +249,7 @@
   line-height: 1.55;
 }
 
-#refsList .reference-card-hint--declined {
+#refsList .ref-card-hint--declined {
   border-color: rgba(248, 113, 113, 0.24);
   background: rgba(248, 113, 113, 0.08);
 }
@@ -366,13 +369,6 @@
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 1100px) {
-
-  #refsList .vessel-meta-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 900px) {
 
   .reference-shell-head {
@@ -382,7 +378,7 @@
 
 @media (max-width: 640px) {
 
-  #refsList .vessel-meta-grid {
+  #refsList .ref-page-card .vessel-meta-grid {
     grid-template-columns: 1fr;
   }
 }

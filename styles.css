@@ -31,7 +31,7 @@
 @import url("./css/pages/profile.css");
 @import url("./css/pages/certificates.css");
 @import url("./css/pages/seatime.css");
-@import url("./css/pages/references.css");
+@import url("./css/pages/references.css?v=45");
 @import url("./css/pages/vessels.css");
 @import url("./css/pages/tenders.css");
 @import url("./css/pages/achievements.css");
@@ -170,5 +170,113 @@ img.seav-logo--verify {
   line-height: 1 !important;
   letter-spacing: 0 !important;
   text-align: center !important;
+}
+
+/* References page cards — embedded (not @import-only) so deploy/cache cannot drop grid layout */
+#refsList {
+  display: grid;
+  gap: 16px;
+}
+
+#refsList .ref-page-card {
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(209, 107, 255, 0.22);
+  background: linear-gradient(180deg, rgba(36, 18, 58, 0.82), rgba(20, 12, 36, 0.76));
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+}
+
+#refsList .ref-page-card .vessel-body {
+  padding: 16px;
+}
+
+#refsList .ref-page-card .vessel-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+#refsList .ref-page-card .vessel-meta-item {
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+#refsList .ref-page-card .ref-meta-span-full {
+  grid-column: 1 / -1;
+}
+
+#refsList .ref-page-card .vessel-meta-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #5bbcff;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+#refsList .ref-page-card .vessel-meta-value {
+  display: block;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+#refsList .ref-page-card .ref-meta-excerpt {
+  font-style: italic;
+  line-height: 1.55;
+}
+
+#refsList .ref-page-card .ref-meta-muted {
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 500;
+}
+
+#refsList .ref-page-card .ref-meta-link {
+  color: #9ddcff;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+#refsList .ref-page-card .ref-meta-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+#refsList .ref-page-card .vessel-meta-value:has(.reference-verified-pill),
+#refsList .ref-page-card .vessel-meta-value:has(.reference-sent-pill),
+#refsList .ref-page-card .vessel-meta-value:has(.reference-declined-pill) {
+  display: flex;
+  align-items: center;
+}
+
+#refsList .ref-page-card .vessel-body > .seav-actions {
+  margin-top: 14px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+#refsList .ref-card-hint {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(209, 107, 255, 0.22);
+  background: rgba(209, 107, 255, 0.08);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+#refsList .ref-card-hint--declined {
+  border-color: rgba(248, 113, 113, 0.24);
+  background: rgba(248, 113, 113, 0.08);
+}
+
+@media (max-width: 640px) {
+  #refsList .ref-page-card .vessel-meta-grid {
+    grid-template-columns: 1fr;
+  }
 }
 

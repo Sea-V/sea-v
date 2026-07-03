@@ -169,7 +169,7 @@
 
     const statusValue =
       referenceStatusPill(status) ||
-      `<span class="reference-meta-muted">Draft</span>`;
+      `<span class="ref-meta-muted">Draft</span>`;
 
     const verificationDetail =
       status === "Verified"
@@ -202,11 +202,11 @@
 
     const excerptHtml = excerpt
       ? `“${Seav.escapeHtml(truncateText(excerpt))}”`
-      : `<span class="reference-meta-muted">—</span>`;
+      : `<span class="ref-meta-muted">—</span>`;
 
     const pendingHint =
       status === "Sent for Verification"
-        ? `<p class="reference-card-hint">${
+        ? `<p class="ref-card-hint">${
             showOpenLink
               ? "Waiting for referee confirmation — use <em>Open verify link</em> to test as the referee."
               : canSend
@@ -214,7 +214,7 @@
                 : "Add a referee email, save, then send for verification."
           }</p>`
         : status === "Declined"
-          ? `<p class="reference-card-hint reference-card-hint--declined">This reference was declined by the referee.${
+          ? `<p class="ref-card-hint ref-card-hint--declined">This reference was declined by the referee.${
               verification.note
                 ? ` “${Seav.escapeHtml(truncateText(verification.note, 100))}”`
                 : ""
@@ -222,15 +222,15 @@
           : "";
 
     return `
-    <article class="reference-card">
-      <div class="reference-card-body">
-        <div class="vessel-meta-grid reference-meta-grid">
+    <article class="vessel-card ref-page-card">
+      <div class="vessel-body">
+        <div class="vessel-meta-grid">
           ${referenceMetaItem("Referee", Seav.escapeHtml(r.name || "—"))}
           ${referenceMetaItem("Position", Seav.escapeHtml(r.title || "—"))}
 
-          <div class="vessel-meta-item reference-meta-span-full">
+          <div class="vessel-meta-item ref-meta-span-full">
             <span class="vessel-meta-label">${Seav.escapeHtml(excerptLabel)}</span>
-            <span class="vessel-meta-value reference-meta-excerpt">${excerptHtml}</span>
+            <span class="vessel-meta-value ref-meta-excerpt">${excerptHtml}</span>
           </div>
 
           ${referenceMetaItem("Status", statusValue)}
@@ -302,11 +302,23 @@
       return db - da;
     });
 
-    await hydrateReferenceAttachments(sorted);
-    window.SeavState?.syncCache?.();
+    try {
+      await hydrateReferenceAttachments(sorted);
+      window.SeavState?.syncCache?.();
 
-    refsList.innerHTML = sorted.map((r) => buildReferenceCard(r)).join("");
-    updateReferencesSummary(refs);
+      refsList.innerHTML = sorted.map((r) => buildReferenceCard(r)).join("");
+      updateReferencesSummary(refs);
+    } catch (err) {
+      console.error("[SEA-V] References render failed:", err);
+      refsList.innerHTML = `
+      <div class="list-row">
+        <div>
+          <div class="list-title">Could not display references</div>
+          <div class="list-sub">${Seav.escapeHtml(err?.message || "Refresh the page and try again.")}</div>
+        </div>
+      </div>
+    `;
+    }
   }
 
   function updateReferencesSummary(refs) {
