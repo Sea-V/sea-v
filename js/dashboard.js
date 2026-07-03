@@ -106,47 +106,45 @@
     updateProfileCompletion(profile);
   }
 
-  function getProfileCompletion(profile) {
-    const fields = [
-      profile.name,
-      profile.rank,
-      profile.qualification,
-      profile.nationality,
-      profile.dob,
-      profile.location,
-      profile.email,
-      profile.phone,
-      profile.passportsHeld,
-      profile.visasHeld,
-      profile.bio
+  function profileHasPhoto(profile) {
+    const photo = profile?.photo;
+    if (window.SeavApiCore?.hasStoredFile?.(photo)) return true;
+    return !!Seav.getFileDisplayUrl(
+      photo,
+      window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
+    );
+  }
+
+  function getProfileCompletionChecks(profile) {
+    const p = profile || {};
+    const has = (value) => value !== undefined && value !== null && String(value).trim() !== "";
+
+    return [
+      { label: "Name", done: has(p.name) },
+      { label: "Rank", done: has(p.rank) },
+      { label: "Qualification", done: has(p.qualification) },
+      { label: "Nationality", done: has(p.nationality) },
+      { label: "Date of Birth", done: has(p.dob) },
+      { label: "Location", done: has(p.location) },
+      { label: "Email", done: has(p.email) },
+      { label: "Phone", done: has(p.phone) },
+      { label: "Passports", done: has(p.passportsHeld) },
+      { label: "Visas", done: has(p.visasHeld) },
+      { label: "Career overview", done: has(p.bio) },
+      { label: "Profile Photo", done: profileHasPhoto(p) }
     ];
+  }
 
-    const completed = fields.filter((field) => {
-      return field !== undefined && field !== null && String(field).trim() !== "";
-    }).length;
-
-    return Math.round((completed / fields.length) * 100);
+  function getProfileCompletion(profile) {
+    const checks = getProfileCompletionChecks(profile);
+    const completed = checks.filter((check) => check.done).length;
+    return Math.round((completed / checks.length) * 100);
   }
 
   function getMissingProfileFields(profile) {
-    const checks = [
-      { key: profile.name, label: "Name" },
-      { key: profile.rank, label: "Rank" },
-      { key: profile.qualification, label: "Qualification" },
-      { key: profile.nationality, label: "Nationality" },
-      { key: profile.dob, label: "Date of Birth" },
-      { key: profile.location, label: "Location" },
-      { key: profile.email, label: "Email" },
-      { key: profile.phone, label: "Phone" },
-      { key: profile.passportsHeld, label: "Passports" },
-      { key: profile.visasHeld, label: "Visas" },
-      { key: profile.bio, label: "Career overview" },
-      { key: profile.photo?.url || profile.photo?.dataUrl, label: "Profile Photo" }
-    ];
-
-    return checks
-      .filter((item) => !item.key || String(item.key).trim() === "")
-      .map((item) => item.label);
+    return getProfileCompletionChecks(profile)
+      .filter((check) => !check.done)
+      .map((check) => check.label);
   }
 
   function getProgressClass(percent) {
