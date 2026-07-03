@@ -383,10 +383,6 @@ async function renderTenderSnippet() {
               </div>
 
               <div class="dash-mini-info-grid">
-                <div class="dash-mini-info-cell dash-mini-info-cell--proficiency">
-                  <span>Proficiency</span>
-                  ${proficiencyHtml}
-                </div>
                 <div>
                   <span>Type</span>
                   <strong>${type}</strong>
@@ -402,6 +398,10 @@ async function renderTenderSnippet() {
                 <div>
                   <span>Engine</span>
                   <strong>${engine}</strong>
+                </div>
+                <div class="dash-mini-info-cell dash-mini-info-cell--proficiency">
+                  <span>Proficiency</span>
+                  ${proficiencyHtml}
                 </div>
               </div>
             </div>
