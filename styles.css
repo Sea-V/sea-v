@@ -1,4 +1,4 @@
-@import url("./css/core/variables.css");
+@import url("./css/core/variables.css?v=49");
 @import url("./css/core/reset.css");
 @import url("./css/core/layout.css");
 @import url("./css/components/ocean-background.css");
@@ -17,7 +17,7 @@
 @import url("./css/components/pills.css");
 @import url("./css/components/lists.css");
 @import url("./css/components/actions.css");
-@import url("./css/components/meta-grid-cards.css");
+@import url("./css/components/meta-grid-cards.css?v=49");
 @import url("./css/components/tables.css");
 @import url("./css/components/badges.css");
 @import url("./css/components/badge-unlock.css");
@@ -32,7 +32,7 @@
 @import url("./css/pages/profile.css");
 @import url("./css/pages/certificates.css");
 @import url("./css/pages/seatime.css");
-@import url("./css/pages/references.css?v=48");
+@import url("./css/pages/references.css?v=49");
 @import url("./css/pages/vessels.css");
 @import url("./css/pages/tenders.css");
 @import url("./css/pages/achievements.css");
@@ -177,17 +177,20 @@ img.seav-logo--verify {
 #tendersGrid .vessel-card,
 #refsList .ref-page-card {
   overflow: hidden;
-  border-radius: var(--seav-meta-card-radius);
-  background: var(--seav-meta-card-bg);
-  box-shadow: var(--seav-meta-card-shadow);
+  border-radius: var(--seav-meta-card-radius, 24px);
+  background: var(
+    --seav-meta-card-bg,
+    linear-gradient(180deg, rgba(20, 38, 61, 0.82), rgba(12, 28, 48, 0.76))
+  );
+  box-shadow: var(--seav-meta-card-shadow, 0 12px 26px rgba(0, 0, 0, 0.18));
 }
 
 #tendersGrid .vessel-card {
-  border: 1px solid var(--seav-meta-card-border-green);
+  border: 1px solid var(--seav-meta-card-border-green, rgba(76, 255, 184, 0.18));
 }
 
 #refsList .ref-page-card {
-  border: 1px solid var(--seav-meta-card-border-purple);
+  border: 1px solid var(--seav-meta-card-border-purple, rgba(209, 107, 255, 0.24));
 }
 
 #refsList .ref-card-head {
@@ -235,7 +238,7 @@ img.seav-logo--verify {
 #tendersGrid .vessel-meta-grid,
 #refsList .ref-page-card .vessel-meta-grid {
   display: grid;
-  gap: var(--seav-meta-grid-gap);
+  gap: var(--seav-meta-grid-gap, 10px);
 }
 
 #tendersGrid .vessel-meta-grid {
@@ -248,10 +251,10 @@ img.seav-logo--verify {
 
 #tendersGrid .vessel-meta-item,
 #refsList .ref-page-card .vessel-meta-item {
-  padding: var(--seav-meta-item-padding);
-  border-radius: var(--seav-meta-item-radius);
-  border: var(--seav-meta-item-border);
-  background: var(--seav-meta-item-bg);
+  padding: var(--seav-meta-item-padding, 10px);
+  border-radius: var(--seav-meta-item-radius, 14px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 #refsList .ref-page-card .ref-meta-span-full {
@@ -262,19 +265,19 @@ img.seav-logo--verify {
 #refsList .ref-page-card .vessel-meta-label {
   display: block;
   margin-bottom: 5px;
-  color: var(--seav-meta-label-color);
-  font-size: var(--seav-meta-label-size);
+  color: var(--seav-meta-label-color, #5bbcff);
+  font-size: var(--seav-meta-label-size, 11px);
   line-height: 1.2;
-  font-weight: var(--seav-meta-label-weight);
+  font-weight: var(--seav-meta-label-weight, 800);
 }
 
 #tendersGrid .vessel-meta-value,
 #refsList .ref-page-card .vessel-meta-value {
   display: block;
-  color: var(--seav-meta-value-color);
-  font-size: var(--seav-meta-value-size);
+  color: var(--seav-meta-value-color, rgba(255, 255, 255, 0.84));
+  font-size: var(--seav-meta-value-size, 14px);
   line-height: 1.45;
-  font-weight: var(--seav-meta-value-weight);
+  font-weight: var(--seav-meta-value-weight, 600);
 }
 
 @media (max-width: 1100px) {

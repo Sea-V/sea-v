@@ -10,17 +10,20 @@
 #refsList .ref-page-card {
   overflow: hidden;
 
-  border-radius: var(--seav-meta-card-radius);
-  background: var(--seav-meta-card-bg);
-  box-shadow: var(--seav-meta-card-shadow);
+  border-radius: var(--seav-meta-card-radius, 24px);
+  background: var(
+    --seav-meta-card-bg,
+    linear-gradient(180deg, rgba(20, 38, 61, 0.82), rgba(12, 28, 48, 0.76))
+  );
+  box-shadow: var(--seav-meta-card-shadow, 0 12px 26px rgba(0, 0, 0, 0.18));
 }
 
 #tendersGrid .vessel-card {
-  border: 1px solid var(--seav-meta-card-border-green);
+  border: 1px solid var(--seav-meta-card-border-green, rgba(76, 255, 184, 0.18));
 }
 
 #refsList .ref-page-card {
-  border: 1px solid var(--seav-meta-card-border-purple);
+  border: 1px solid var(--seav-meta-card-border-purple, rgba(209, 107, 255, 0.24));
 }
 
 #tendersGrid .vessel-body,
@@ -102,7 +105,7 @@
 #tendersGrid .vessel-meta-grid,
 #refsList .ref-page-card .vessel-meta-grid {
   display: grid;
-  gap: var(--seav-meta-grid-gap);
+  gap: var(--seav-meta-grid-gap, 10px);
 }
 
 #tendersGrid .vessel-meta-grid {
@@ -115,12 +118,12 @@
 
 #tendersGrid .vessel-meta-item,
 #refsList .ref-page-card .vessel-meta-item {
-  padding: var(--seav-meta-item-padding);
+  padding: var(--seav-meta-item-padding, 10px);
 
-  border-radius: var(--seav-meta-item-radius);
-  border: var(--seav-meta-item-border);
+  border-radius: var(--seav-meta-item-radius, 14px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 
-  background: var(--seav-meta-item-bg);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 #refsList .ref-page-card .ref-meta-span-full {
@@ -133,22 +136,22 @@
 
   margin-bottom: 5px;
 
-  color: var(--seav-meta-label-color);
+  color: var(--seav-meta-label-color, #5bbcff);
 
-  font-size: var(--seav-meta-label-size);
+  font-size: var(--seav-meta-label-size, 11px);
   line-height: 1.2;
-  font-weight: var(--seav-meta-label-weight);
+  font-weight: var(--seav-meta-label-weight, 800);
 }
 
 #tendersGrid .vessel-meta-value,
 #refsList .ref-page-card .vessel-meta-value {
   display: block;
 
-  color: var(--seav-meta-value-color);
+  color: var(--seav-meta-value-color, rgba(255, 255, 255, 0.84));
 
-  font-size: var(--seav-meta-value-size);
+  font-size: var(--seav-meta-value-size, 14px);
   line-height: 1.45;
-  font-weight: var(--seav-meta-value-weight);
+  font-weight: var(--seav-meta-value-weight, 600);
 }
 
 #refsList .ref-page-card .ref-meta-excerpt {
@@ -157,12 +160,12 @@
 }
 
 #refsList .ref-page-card .ref-meta-muted {
-  color: var(--seav-meta-muted-color);
+  color: var(--seav-meta-muted-color, rgba(255, 255, 255, 0.45));
   font-weight: 500;
 }
 
 #refsList .ref-page-card .ref-meta-link {
-  color: var(--seav-meta-link-color);
+  color: var(--seav-meta-link-color, #9ddcff);
   text-decoration: none;
   word-break: break-word;
 }
@@ -188,15 +191,15 @@
 
 #refsList .ref-card-hint {
   margin-top: 14px;
-  padding: var(--seav-meta-item-padding);
+  padding: var(--seav-meta-item-padding, 10px);
 
-  border-radius: var(--seav-meta-item-radius);
-  border: var(--seav-meta-item-border);
+  border-radius: var(--seav-meta-item-radius, 14px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 
-  background: var(--seav-meta-item-bg);
+  background: rgba(255, 255, 255, 0.035);
 
-  color: var(--seav-meta-desc-color);
-  font-size: var(--seav-meta-value-size);
+  color: var(--seav-meta-desc-color, rgba(255, 255, 255, 0.78));
+  font-size: var(--seav-meta-value-size, 14px);
   line-height: 1.6;
   font-weight: 500;
 }
