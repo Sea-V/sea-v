@@ -116,124 +116,143 @@
   line-height: 1.55;
 }
 
+.reference-section-summary {
+  margin-top: 10px;
+
+  color: rgba(255,255,255,0.58);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
 /* =========================================================
-   REFERENCE CARD
+   GRID + CARD (tender-style meta layout)
 ========================================================= */
 
-.reference-modern-card {
-  padding: 22px;
+#refsList.refs-grid {
+  display: grid;
+  gap: 16px;
+}
+
+#refsList .reference-card {
+  overflow: hidden;
 
   border-radius: 24px;
   border: 1px solid rgba(209,107,255,0.20);
 
-  background: rgba(255,255,255,0.04);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.05),
-    0 12px 28px rgba(0,0,0,0.14);
-}
-
-/* =========================================================
-   TOP
-========================================================= */
-
-.reference-modern-top {
-  display: flex;
-  justify-content: space-between;
-
-  gap: 28px;
-}
-
-.reference-modern-left {
-  display: flex;
-  gap: 18px;
-
-  min-width: 0;
-}
-
-.reference-avatar {
-  width: 76px;
-  height: 76px;
-
-  flex: 0 0 auto;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
   background:
     linear-gradient(
-      145deg,
-      #6f42ff,
-      #d16bff
+      180deg,
+      rgba(36, 18, 58, 0.82),
+      rgba(20, 12, 36, 0.76)
     );
 
-  color: white;
-
-  font-size: 30px;
-  font-weight: 900;
+  box-shadow:
+    0 12px 26px rgba(0,0,0,0.18);
 }
 
-.reference-modern-name {
-  margin: 0;
-
-  color: #ffffff;
-
-  font-size: 20px;
-  line-height: 1.15;
-  font-weight: 900;
+#refsList .reference-card-body {
+  padding: 16px;
 }
 
-.reference-modern-meta {
-  margin-top: 8px;
+#refsList .vessel-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 
-  color: rgba(255,255,255,0.70);
+  gap: 10px;
+}
+
+#refsList .vessel-meta-item {
+  padding: 10px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.07);
+
+  background: rgba(255,255,255,0.035);
+}
+
+#refsList .reference-meta-span-full {
+  grid-column: 1 / -1;
+}
+
+#refsList .vessel-meta-label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #5bbcff;
+
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+#refsList .vessel-meta-value {
+  display: block;
+
+  color: rgba(255,255,255,0.84);
 
   font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+#refsList .reference-meta-excerpt {
+  font-style: italic;
   line-height: 1.55;
 }
 
-.reference-modern-attachment {
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-top: 10px;
-
-  min-height: var(--pill-height);
-  padding: 0 var(--pill-padding-x);
-
-  border-radius: 999px;
-  border: 1px solid var(--pill-blue-border);
-
-  background: var(--pill-blue-bg);
-
-  color: #ffffff;
-
-  text-decoration: none;
-
-  font-size: var(--pill-font-size);
-  font-weight: var(--pill-font-weight);
-
-  transition:
-    background 0.18s ease,
-    border-color 0.18s ease,
-    transform 0.18s ease;
+#refsList .reference-meta-muted {
+  color: rgba(255,255,255,0.45);
+  font-weight: 500;
 }
 
-.reference-modern-attachment:hover {
-  background: rgba(91,188,255,0.20);
+#refsList .reference-meta-link {
+  color: #9ddcff;
+  text-decoration: none;
+  word-break: break-word;
+}
 
-  border-color: rgba(91,188,255,0.44);
+#refsList .reference-meta-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
 
-  transform: translateY(-1px);
+#refsList .vessel-meta-value:has(.reference-verified-pill),
+#refsList .vessel-meta-value:has(.reference-sent-pill),
+#refsList .vessel-meta-value:has(.reference-declined-pill) {
+  display: flex;
+  align-items: center;
+}
+
+#refsList .reference-card-body > .seav-actions {
+  margin-top: 14px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+#refsList .reference-card-hint {
+  margin: 12px 0 0;
+
+  padding: 12px 14px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(209, 107, 255, 0.22);
+
+  background: rgba(209, 107, 255, 0.08);
+
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+#refsList .reference-card-hint--declined {
+  border-color: rgba(248, 113, 113, 0.24);
+  background: rgba(248, 113, 113, 0.08);
 }
 
 /* =========================================================
-   VERIFIED PILL
+   STATUS PILLS
 ========================================================= */
 
 .reference-verified-pill {
@@ -272,128 +291,42 @@
 }
 
 /* =========================================================
-   ACTIONS
+   FORM ATTACHMENT PREVIEW
 ========================================================= */
 
-.reference-modern-top > .seav-actions {
-  flex: 0 0 auto;
-  flex-direction: column;
-  align-items: stretch;
-  align-self: flex-start;
-
-  min-width: 118px;
-  margin-top: 0;
-  padding-top: 0;
-
-  border-top: 0;
-}
-
-.reference-modern-top > .seav-actions .seav-action {
+.reference-modern-attachment {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+
+  min-height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
+
+  border-radius: 999px;
+  border: 1px solid var(--pill-blue-border);
+
+  background: var(--pill-blue-bg);
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: var(--pill-font-size);
+  font-weight: var(--pill-font-weight);
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
 }
 
-/* =========================================================
-   LOWER GRID
-========================================================= */
+.reference-modern-attachment:hover {
+  background: rgba(91,188,255,0.20);
 
-.reference-modern-grid {
-  display: grid;
+  border-color: rgba(91,188,255,0.44);
 
-  grid-template-columns:
-    1.4fr
-    1fr
-    1fr;
-
-  gap: 18px;
-
-  margin-top: 24px;
-  padding-top: 22px;
-
-  border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-.reference-modern-box {
-  min-width: 0;
-}
-
-.reference-modern-label {
-  margin-bottom: 8px;
-
-  color: #5bbcff;
-
-  font-size: 11px;
-  font-weight: 850;
-
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-}
-
-.reference-modern-value {
-  color: rgba(255,255,255,0.84);
-
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.reference-modern-quote {
-  margin-top: 18px;
-
-  font-style: italic;
-}
-
-.reference-verifier-note {
-  margin-top: 12px;
-
-  color: rgba(255,255,255,0.78);
-  font-size: 13px;
-  font-weight: 600;
-  font-style: italic;
-  line-height: 1.55;
-}
-
-.reference-pending-verify {
-  margin-top: 16px;
-  padding: 14px 16px;
-
-  border-radius: 14px;
-  border: 1px solid rgba(209, 107, 255, 0.22);
-
-  background: rgba(209, 107, 255, 0.08);
-
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.reference-pending-verify strong {
-  color: rgba(255, 255, 255, 0.95);
-}
-
-.reference-declined-notice {
-  margin-top: 16px;
-  padding: 14px 16px;
-
-  border-radius: 14px;
-  border: 1px solid rgba(248, 113, 113, 0.24);
-
-  background: rgba(248, 113, 113, 0.08);
-
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.reference-declined-notice strong {
-  color: rgba(255, 255, 255, 0.95);
-}
-
-.reference-section-summary {
-  margin-top: 10px;
-
-  color: rgba(255,255,255,0.58);
-  font-size: 13px;
-  font-weight: 650;
-  line-height: 1.5;
+  transform: translateY(-1px);
 }
 
 .reference-form-attachment {
@@ -433,40 +366,23 @@
    RESPONSIVE
 ========================================================= */
 
+@media (max-width: 1100px) {
+
+  #refsList .vessel-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 900px) {
 
   .reference-shell-head {
-    grid-template-columns: 1fr;
-  }
-
-  .reference-modern-top {
-    flex-direction: column;
-  }
-
-  .reference-modern-actions {
-    flex-direction: row;
-    min-width: 0;
-  }
-
-  .reference-modern-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 640px) {
 
-  .reference-modern-left {
-    flex-direction: column;
-  }
-
-  .reference-avatar {
-    width: 66px;
-    height: 66px;
-
-    font-size: 24px;
-  }
-
-  .reference-modern-name {
-    font-size: 18px;
+  #refsList .vessel-meta-grid {
+    grid-template-columns: 1fr;
   }
 }

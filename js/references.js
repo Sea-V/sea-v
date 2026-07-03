@@ -119,65 +119,42 @@
     return "";
   }
 
-  function buildVerificationBox(status, ref, verification) {
-    if (status === "Verified") {
-      const signedBy = verification.signatureName || ref.name || "—";
-      return `
-        Verified by: ${Seav.escapeHtml(signedBy)}<br>
-        Rank: ${Seav.escapeHtml(verification.rank || "—")}
-      `;
-    }
-    if (status === "Sent for Verification") {
-      return `
-        Pending confirmation<br>
-        Sent to: ${Seav.escapeHtml(ref.email || "—")}
-      `;
-    }
-    if (status === "Declined") {
-      const signedBy = verification.signatureName || ref.name || "—";
-      return `
-        Declined by: ${Seav.escapeHtml(signedBy)}<br>
-        ${verification.signedAt ? `Date: ${Seav.escapeHtml(formatDatePretty(verification.signedAt))}` : "Response recorded"}
-      `;
-    }
-    if (ref.email) {
-      return `
-        Ready to send<br>
-        Referee: ${Seav.escapeHtml(ref.email)}
-      `;
-    }
-    return `Add referee email, save, then Send email.`;
+  function truncateText(text, max = 140) {
+    const value = String(text || "").trim();
+    if (!value) return "";
+    if (value.length <= max) return value;
+    return `${value.slice(0, max).trim()}…`;
   }
 
-  function buildCertificationBox(status, verification) {
-    if (status === "Verified") {
-      return `
-        CoC: ${Seav.escapeHtml(maskCoc(verification.cocNumber))}<br>
-        Signed: ${Seav.escapeHtml(
-          verification.signedAt ? formatDatePretty(verification.signedAt) : "—"
-        )}
-      `;
-    }
-    if (status === "Declined" && verification.note) {
-      return `“${Seav.escapeHtml(verification.note)}”`;
-    }
-    return "—";
+  function getReferenceExcerpt(ref, verification) {
+    if (verification.note) return verification.note;
+    return ref.text || "";
+  }
+
+  function referenceMetaItem(label, valueHtml) {
+    return `
+      <div class="vessel-meta-item">
+        <span class="vessel-meta-label">${Seav.escapeHtml(label)}</span>
+        <span class="vessel-meta-value">${valueHtml}</span>
+      </div>
+    `;
   }
 
   function buildReferenceCard(r) {
     const refId = r.id || "";
     const refFileUrl = Seav.getFileDisplayUrl(r.attachment, REF_FILES_BUCKET);
     const hasFile = !!refFileUrl;
-    const attachLabel = r.attachment?.filename
-      ? `Download (${Seav.escapeHtml(r.attachment.filename)})`
-      : "Download attachment";
 
     const vessel = getVessels().find((v) => v.id === r.vesselId);
     const vesselLabel = vessel?.name || "";
-    const hasServiceContext = !!(vesselLabel || r.role || r.period);
 
     const verification = r.verification || {};
     const status = getReferenceStatus(r);
+    const excerpt = getReferenceExcerpt(r, verification);
+    const excerptLabel =
+      verification.note && (status === "Verified" || status === "Declined")
+        ? "Captain's confirmation"
+        : "Reference";
 
     const canSend =
       !!r.email &&
@@ -190,144 +167,112 @@
     const showOpenLink =
       status === "Sent for Verification" && !!storedVerifyLink;
 
+    const statusValue =
+      referenceStatusPill(status) ||
+      `<span class="reference-meta-muted">Draft</span>`;
+
+    const verificationDetail =
+      status === "Verified"
+        ? Seav.escapeHtml(verification.signatureName || r.name || "—")
+        : status === "Sent for Verification"
+          ? "Awaiting referee"
+          : status === "Declined"
+            ? Seav.escapeHtml(verification.signatureName || r.name || "Declined")
+            : "Not sent";
+
+    const attachValue = hasFile
+      ? `<a class="reference-meta-link" href="${Seav.escapeHtml(refFileUrl)}" target="_blank" rel="noopener">${Seav.escapeHtml(r.attachment?.filename || "View file")}</a>`
+      : "—";
+
+    const rankValue =
+      status === "Verified" || verification.rank
+        ? Seav.escapeHtml(verification.rank || "—")
+        : status === "Sent for Verification"
+          ? "Pending"
+          : "—";
+
+    const cocValue =
+      status === "Verified" && verification.cocNumber
+        ? Seav.escapeHtml(maskCoc(verification.cocNumber))
+        : "—";
+
+    const signedValue = verification.signedAt
+      ? Seav.escapeHtml(formatDatePretty(verification.signedAt))
+      : "—";
+
+    const excerptHtml = excerpt
+      ? `“${Seav.escapeHtml(truncateText(excerpt))}”`
+      : `<span class="reference-meta-muted">—</span>`;
+
+    const pendingHint =
+      status === "Sent for Verification"
+        ? `<p class="reference-card-hint">${
+            showOpenLink
+              ? "Waiting for referee confirmation — use <em>Open verify link</em> to test as the referee."
+              : canSend
+                ? "Waiting for referee confirmation — resend email if needed."
+                : "Add a referee email, save, then send for verification."
+          }</p>`
+        : status === "Declined"
+          ? `<p class="reference-card-hint reference-card-hint--declined">This reference was declined by the referee.${
+              verification.note
+                ? ` “${Seav.escapeHtml(truncateText(verification.note, 100))}”`
+                : ""
+            }</p>`
+          : "";
+
     return `
-  <div class="reference-modern-card ui-card ui-card-hover ui-accent-purple">
+    <article class="reference-card">
+      <div class="reference-card-body">
+        <div class="vessel-meta-grid reference-meta-grid">
+          ${referenceMetaItem("Referee", Seav.escapeHtml(r.name || "—"))}
+          ${referenceMetaItem("Position", Seav.escapeHtml(r.title || "—"))}
 
-    <div class="reference-modern-top">
-
-      <div class="reference-modern-left">
-
-        <div class="reference-avatar">
-          ${(r.name || "?").charAt(0).toUpperCase()}
-        </div>
-
-        <div>
-
-          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <h3 class="reference-modern-name">
-              ${Seav.escapeHtml(r.name)}
-            </h3>
-            ${referenceStatusPill(status)}
+          <div class="vessel-meta-item reference-meta-span-full">
+            <span class="vessel-meta-label">${Seav.escapeHtml(excerptLabel)}</span>
+            <span class="vessel-meta-value reference-meta-excerpt">${excerptHtml}</span>
           </div>
 
-          <div class="reference-modern-meta">
-            ${Seav.escapeHtml(r.title || "—")} • ${formatDatePretty(r.date)}
-          </div>
+          ${referenceMetaItem("Status", statusValue)}
+          ${referenceMetaItem("Verification", verificationDetail)}
 
-          ${
-            hasServiceContext
-              ? `<div class="reference-modern-meta" style="margin-top:6px;">
-                  ${Seav.escapeHtml(vesselLabel || "—")} •
-                  ${Seav.escapeHtml(r.role || "—")} •
-                  ${Seav.escapeHtml(r.period || "—")}
-                </div>`
-              : ``
-          }
+          ${referenceMetaItem("Vessel", Seav.escapeHtml(vesselLabel || "—"))}
+          ${referenceMetaItem("Your role", Seav.escapeHtml(r.role || "—"))}
+          ${referenceMetaItem("Period", Seav.escapeHtml(r.period || "—"))}
+          ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
 
-          <div
-            class="reference-modern-value reference-modern-quote"
-          >
-            “${Seav.escapeHtml(r.text)}”
-          </div>
-
-          ${
-            status === "Verified" && verification.note
-              ? `<div class="reference-verifier-note">
-                  “${Seav.escapeHtml(verification.note)}”
-                </div>`
-              : ``
-          }
-
-          ${
-            status === "Sent for Verification"
-              ? `<div class="reference-pending-verify">
-                  <strong>Waiting for referee confirmation.</strong>
-                  ${
-                    showOpenLink
-                      ? ` Use <em>Open verify link</em> below to complete the test as the referee.`
-                      : canSend
-                        ? ` Click <em>Resend email</em> to generate a new link.`
-                        : ` Add a referee email, save, then resend.`
-                  }
-                </div>`
-              : ``
-          }
-
-          ${
-            status === "Declined"
-              ? `<div class="reference-declined-notice">
-                  <strong>This reference was declined by the referee.</strong>
-                  ${
-                    verification.note
-                      ? ` Note: “${Seav.escapeHtml(verification.note)}”`
-                      : ``
-                  }
-                </div>`
-              : ``
-          }
-
+          ${referenceMetaItem("Referee email", Seav.escapeHtml(r.email || "—"))}
+          ${referenceMetaItem("Attachment", attachValue)}
+          ${referenceMetaItem("Rank", rankValue)}
+          ${referenceMetaItem("CoC", cocValue)}
+          ${referenceMetaItem("Signed", signedValue)}
         </div>
 
+        ${pendingHint}
+
+        ${Seav.seavActions(
+          `${Seav.seavAction("edit", "Edit", `data-edit-ref-id="${Seav.escapeHtml(refId)}"`)}${
+            canSend
+              ? Seav.seavAction(
+                  "secondary",
+                  sendLabel,
+                  `data-send-ref-id="${Seav.escapeHtml(refId)}"`
+                )
+              : ""
+          }${
+            showOpenLink
+              ? Seav.seavAction(
+                  "secondary",
+                  "Open verify link",
+                  `data-open-verify-link="${Seav.escapeHtml(refId)}"`
+                )
+              : ""
+          }${Seav.seavAction("delete", "Delete", `data-del-ref-id="${Seav.escapeHtml(refId)}"`)}`,
+          "seav-actions--compact"
+        )}
       </div>
-
-      ${Seav.seavActions(
-        `${Seav.seavAction("edit", "Edit", `data-edit-ref-id="${Seav.escapeHtml(refId)}"`)}${
-          canSend
-            ? Seav.seavAction(
-                "secondary",
-                sendLabel,
-                `data-send-ref-id="${Seav.escapeHtml(refId)}"`
-              )
-            : ""
-        }${
-          showOpenLink
-            ? Seav.seavAction(
-                "secondary",
-                "Open verify link",
-                `data-open-verify-link="${Seav.escapeHtml(refId)}"`
-              )
-            : ""
-        }${Seav.seavAction("delete", "Delete", `data-del-ref-id="${Seav.escapeHtml(refId)}"`)}`
-      )}
-
-    </div>
-
-    <div class="reference-modern-grid">
-
-      <div class="reference-modern-box">
-        <div class="reference-modern-label">Attachment</div>
-        <div class="reference-modern-value">
-          ${
-            hasFile
-              ? `<a
-                  class="reference-modern-attachment"
-                  href="${Seav.escapeHtml(refFileUrl)}"
-                  target="_blank"
-                  rel="noopener"
-                >${attachLabel}</a>`
-              : `No attachment`
-          }
-        </div>
-      </div>
-
-      <div class="reference-modern-box">
-        <div class="reference-modern-label">Verification</div>
-        <div class="reference-modern-value">
-          ${buildVerificationBox(status, r, verification)}
-        </div>
-      </div>
-
-      <div class="reference-modern-box">
-        <div class="reference-modern-label">Certification</div>
-        <div class="reference-modern-value">
-          ${buildCertificationBox(status, verification)}
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-`;
+    </article>
+  `;
   }
 
   async function renderRefs() {
