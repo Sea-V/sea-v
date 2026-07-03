@@ -164,9 +164,11 @@ img.seav-logo--verify {
   width: 100%;
   min-height: var(--pill-height);
   padding: 0 var(--pill-padding-x) !important;
+  color: #ffffff !important;
   font-size: var(--pill-font-size) !important;
   font-weight: var(--pill-font-weight) !important;
   line-height: 1 !important;
+  letter-spacing: 0 !important;
   text-align: center !important;
 }
 

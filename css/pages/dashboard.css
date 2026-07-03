@@ -850,7 +850,7 @@
   font-weight: 900;
 }
 
-.dash-mini-info-grid span {
+.dash-mini-info-grid span:not(.tender-proficiency-pill) {
   display: block;
 
   margin-bottom: 4px;
@@ -947,14 +947,19 @@
 }
 
 .dashboard-shell-card .dash-card-accent-tenders .dash-mini-info-cell--proficiency .tender-proficiency-pill {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   width: 100%;
   margin-top: 2px;
+  min-height: 24px;
+  padding: 0 10px !important;
+  color: #ffffff !important;
   font-size: var(--pill-font-size) !important;
   font-weight: var(--pill-font-weight) !important;
   line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
   text-align: center !important;
 }
 
@@ -1119,7 +1124,7 @@
 /* All small labels / metadata labels */
 .dashboard-shell-card .dashboard-info-label,
 .dashboard-shell-card .kpi-label,
-.dashboard-shell-card .dash-mini-info-grid span,
+.dashboard-shell-card .dash-mini-info-grid span:not(.tender-proficiency-pill),
 .dashboard-shell-card th,
 .dashboard-shell-card .cert-stat-label,
 .dashboard-shell-card .cert-mini-label {
