@@ -242,19 +242,20 @@
 
     const safeUrl = escapeHtml(url);
     const safeName = escapeHtml(filename);
+    const openLabel = escapeHtml(`Open ${filename}`);
 
     if (isImageAttachment(attachment, url)) {
       els.attachmentBody.innerHTML = `
-        <a class="verify-reference-attachment-link" href="${safeUrl}" target="_blank" rel="noopener">
+        <div class="verify-reference-attachment-preview">
           <img class="verify-reference-attachment-image" src="${safeUrl}" alt="${safeName}" loading="lazy" />
-        </a>
-        <a class="ref-meta-link verify-reference-attachment-open" href="${safeUrl}" target="_blank" rel="noopener">Open ${safeName}</a>
+        </div>
+        <a class="verify-reference-attachment-open" href="${safeUrl}" target="_blank" rel="noopener">${openLabel}</a>
       `;
       return;
     }
 
     els.attachmentBody.innerHTML = `
-      <a class="ref-meta-link verify-reference-attachment-open" href="${safeUrl}" target="_blank" rel="noopener">Open ${safeName}</a>
+      <a class="verify-reference-attachment-open" href="${safeUrl}" target="_blank" rel="noopener">${openLabel}</a>
     `;
   }
 
