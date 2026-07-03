@@ -68,7 +68,8 @@ function getVesselNameForTender(tender) {
   return vessel?.name || "Unknown Vessel";
 }
 
-  function buildTenderCard(tender) {
+  function buildTenderCard(tender, options = {}) {
+  const compact = !!options.compact;
   const tenderId = tender.id || "";
   const photoUrl = tender.photo?.url || tender.photo?.dataUrl || "";
   const hasPhoto = !!photoUrl;
@@ -84,7 +85,7 @@ function getVesselNameForTender(tender) {
     : "—";
 
   return `
-    <article class="vessel-card">
+    <article class="vessel-card${compact ? " vessel-card--dash-snippet" : ""}">
       <div class="vessel-photo">${photoHtml}</div>
 
       <div class="vessel-body">
@@ -137,12 +138,15 @@ function getVesselNameForTender(tender) {
         </div>
 
         ${
-          tender.desc
+          !compact && tender.desc
             ? `<div class="vessel-desc vessel-desc-soft">${Seav.escapeHtml(tender.desc)}</div>`
             : ``
         }
 
-        ${Seav.seavActions(
+        ${
+          compact
+            ? ``
+            : Seav.seavActions(
           `${Seav.seavAction(
             "edit",
             "Edit",
@@ -153,7 +157,8 @@ function getVesselNameForTender(tender) {
             `data-del-tender-id="${Seav.escapeHtml(tenderId)}"`
           )}`,
           "seav-actions--compact"
-        )}
+        )
+        }
       </div>
     </article>
   `;

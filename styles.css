@@ -152,12 +152,12 @@ img.seav-logo--verify {
 }
 
 /* Tender proficiency pills — embedded (not @import) so deploy/cache cannot drop alignment */
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-meta-value:has(.tender-proficiency-pill) {
+#tendersGrid .vessel-meta-value:has(.tender-proficiency-pill) {
   display: flex;
   justify-content: center;
 }
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-meta-value .tender-proficiency-pill {
+#tendersGrid .vessel-meta-value .tender-proficiency-pill {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;

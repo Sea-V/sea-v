@@ -352,8 +352,8 @@ async function renderTenderSnippet() {
   const latestThree = [...tenders].slice().reverse().slice(0, 3);
 
   dashTenderSnippet.innerHTML = `
-    <div class="vessel-grid">
-      ${latestThree.map((tender) => buildCard(tender)).join("")}
+    <div class="vessel-grid dash-tender-snippet-grid">
+      ${latestThree.map((tender) => buildCard(tender, { compact: true })).join("")}
     </div>
   `;
 }
