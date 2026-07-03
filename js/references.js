@@ -170,7 +170,7 @@
       status !== "Declined" &&
       (status === "Draft" || status === "Sent for Verification");
     const sendLabel =
-      status === "Sent for Verification" ? "Resend email" : "Send email";
+      status === "Sent for Verification" ? "New link" : "Share link";
     const storedVerifyLink = readStoredVerifyLink(refId);
     const showOpenLink =
       window.SeavConfig?.SHOW_DEV_VERIFY_LINK &&
@@ -245,10 +245,10 @@
           ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
 
           ${referenceMetaItem("Referee email", Seav.escapeHtml(r.email || "—"))}
-          ${referenceMetaItem("Attachment", attachValue)}
           ${referenceMetaItem("Rank", rankValue)}
           ${referenceMetaItem("CoC", cocValue)}
           ${referenceMetaItem("Signed", signedValue)}
+          ${referenceMetaItem("Attachment", attachValue)}
         </div>
 
         ${Seav.seavActions(
@@ -264,7 +264,7 @@
             showOpenLink
               ? Seav.seavAction(
                   "secondary",
-                  "Open verify link",
+                  "Copy link",
                   `data-open-verify-link="${Seav.escapeHtml(refId)}"`
                 )
               : ""
@@ -600,7 +600,7 @@ function readReferenceForm() {
         if (!ref) return;
 
         if (!ref.email) {
-          Seav.notify("error", "Email required", "Add the referee email before sending.");
+          Seav.notify("error", "Email required", "Add the referee email before sharing a link.");
           return;
         }
 
@@ -617,42 +617,33 @@ function readReferenceForm() {
         await Seav.withSaving(async () => {
           sendResult = await window.SeavReferenceVerification.sendRequest(refId);
         }, {
-          sub: "Sending verification email",
+          sub: "Preparing verification link",
           errorTitle: "Verification failed"
         });
 
         if (!sendResult) return;
 
-        const notifyType = sendResult.emailSent
-          ? "success"
-          : sendResult.error
-            ? "info"
-            : "success";
-        const notifyTitle = sendResult.emailSent
-          ? "Email sent"
-          : sendResult.error
-            ? "Email not delivered"
-            : "Verification link ready";
-
-        Seav.notify(
-          notifyType,
-          notifyTitle,
-          sendResult.message ||
-            (sendResult.emailSent
-              ? "The referee will receive a secure link by email."
-              : "Use the verification link dialog to share the link with the referee.")
-        );
-
         if (sendResult?.verifyUrl) {
           rememberVerifyLink(refId, sendResult.verifyUrl);
         }
 
-        if (sendResult?.verifyUrl && !sendResult.emailSent) {
+        const vessel = getVessels().find((item) => item.id === ref.vesselId);
+        const crewName = String(window.SeavState?.profile?.name || "").trim();
+
+        if (sendResult?.verifyUrl) {
           window.SeavReferenceVerification.showVerifyLinkDialog(sendResult.verifyUrl, {
             refereeEmail: sendResult.refereeEmail || ref.email,
-            emailFailed: !!sendResult.error
+            refereeName: ref.name,
+            crewName: crewName || "A SEA-V member",
+            vesselName: vessel?.name || ""
           });
         }
+
+        Seav.notify(
+          "success",
+          "Link ready",
+          sendResult.message || "Copy the suggested email and send it from your own account."
+        );
 
         try {
           if (window.Seav.app?.refreshAll) {
@@ -677,14 +668,19 @@ function readReferenceForm() {
           Seav.notify(
             "info",
             "No saved link",
-            "Click Resend email to generate a new verification link."
+            "Click New link to generate a fresh verification link."
           );
           return;
         }
         if (window.SeavReferenceVerification?.showVerifyLinkDialog) {
           const ref = getRefs().find((item) => item.id === refId);
+          const vessel = getVessels().find((item) => item.id === ref?.vesselId);
+          const crewName = String(window.SeavState?.profile?.name || "").trim();
           window.SeavReferenceVerification.showVerifyLinkDialog(verifyUrl, {
-            refereeEmail: ref?.email || ""
+            refereeEmail: ref?.email || "",
+            refereeName: ref?.name || "",
+            crewName: crewName || "A SEA-V member",
+            vesselName: vessel?.name || ""
           });
         } else {
           window.open(verifyUrl, "_blank", "noopener");
@@ -698,7 +694,7 @@ function readReferenceForm() {
         Seav.notify(
           "info",
           "Page update required",
-          "Hard refresh this page (Cmd+Shift+R), then use Send email — not Verify."
+          "Hard refresh this page (Cmd+Shift+R), then use Share link."
         );
         return;
       }

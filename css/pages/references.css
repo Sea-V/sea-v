@@ -246,6 +246,84 @@
 }
 
 /* =========================================================
+   SHARE VERIFICATION LINK DIALOG
+========================================================= */
+
+.seav-verify-link-dialog {
+  z-index: 13000;
+}
+
+.seav-verify-link-card {
+  max-width: 620px;
+}
+
+.seav-verify-link-intro {
+  margin: 0 0 14px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.seav-verify-link-form {
+  gap: 12px;
+}
+
+.seav-verify-link-field {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
+}
+
+.seav-verify-link-field textarea,
+.seav-verify-link-field input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.seav-verify-link-field textarea {
+  min-height: 220px;
+  resize: vertical;
+  font-family: inherit;
+  white-space: pre-wrap;
+}
+
+.seav-verify-link-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.seav-verify-link-actions .btn-blue,
+.seav-verify-link-actions .btn-ghost2 {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 560px) {
+  .seav-verify-link-actions {
+    flex-direction: column;
+  }
+
+  .seav-verify-link-actions .btn-blue,
+  .seav-verify-link-actions .btn-ghost2 {
+    width: 100%;
+  }
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 

@@ -1,4 +1,4 @@
-// /js/reference-verification.js — email reference verification (RPC + optional Edge Function)
+// /js/reference-verification.js — reference verification (share link via personal email)
 (function () {
   "use strict";
 
@@ -15,6 +15,10 @@
     return String(window.SeavConfig?.REFERENCE_VERIFICATION_FUNCTION_URL || "").trim();
   }
 
+  function useEdgeEmail() {
+    return !!functionUrl() && window.SeavConfig?.REFERENCE_VERIFICATION_USE_EDGE_EMAIL === true;
+  }
+
   function localizeVerifyUrl(url) {
     if (!url || !window.SeavConfig?.SHOW_DEV_VERIFY_LINK) return url;
     try {
@@ -29,22 +33,52 @@
     const verifyUrl = localizeVerifyUrl(body.verifyUrl || body.verify_url || defaults.verifyUrl || "");
     const refereeEmail = body.refereeEmail || body.referee_email || defaults.refereeEmail || "";
     const emailSent = !!body.emailSent;
-    const message =
-      body.message ||
-      defaults.message ||
-      (emailSent
-        ? refereeEmail
-          ? `Verification email sent to ${refereeEmail}.`
-          : "Verification email sent."
-        : "Verification link created.");
 
     return {
       ok: body.ok !== false,
       emailSent,
       verifyUrl: verifyUrl || null,
       refereeEmail,
-      message,
+      message:
+        body.message ||
+        defaults.message ||
+        (emailSent
+          ? `Verification email sent to ${refereeEmail || "the referee"}.`
+          : "Copy the suggested email and send it from your own account."),
       error: body.error || null
+    };
+  }
+
+  function buildVerificationEmailDraft(options = {}) {
+    const verifyUrl = String(options.verifyUrl || "").trim();
+    const refereeName = String(options.refereeName || "there").trim() || "there";
+    const refereeEmail = String(options.refereeEmail || "").trim();
+    const crewName = String(options.crewName || "A SEA-V member").trim() || "A SEA-V member";
+    const vesselName = String(options.vesselName || "").trim();
+
+    const subject = `Reference verification request — ${crewName}`;
+    const vesselLine = vesselName ? `\nVessel: ${vesselName}` : "";
+
+    const body = [
+      `Dear ${refereeName},`,
+      "",
+      `I am updating my professional profile on SEA-V and would be grateful if you could confirm the reference I have listed for you.${vesselLine}`,
+      "",
+      "Please open this secure one-time link to review the details and confirm or decline:",
+      verifyUrl,
+      "",
+      "The link expires in 14 days and does not require a SEA-V account.",
+      "",
+      "Thank you,",
+      crewName
+    ].join("\n");
+
+    const header = refereeEmail ? `To: ${refereeEmail}\nSubject: ${subject}\n\n` : `Subject: ${subject}\n\n`;
+
+    return {
+      subject,
+      body,
+      fullText: `${header}${body}`
     };
   }
 
@@ -55,29 +89,44 @@
     if (existing) existing.remove();
 
     const refereeEmail = options.refereeEmail || "";
-    const emailFailed = !!options.emailFailed;
-    const intro = emailFailed
-      ? `The email could not be delivered${refereeEmail ? ` to ${refereeEmail}` : ""}. Share this secure link with the referee instead:`
-      : refereeEmail
-        ? `Email is not configured yet. Share this secure link with ${refereeEmail} (incognito is fine):`
-        : "Email is not configured yet. Open this link as the referee (incognito is fine):";
+    const draft = buildVerificationEmailDraft({
+      verifyUrl,
+      refereeEmail,
+      refereeName: options.refereeName,
+      crewName: options.crewName,
+      vesselName: options.vesselName
+    });
 
     const overlay = document.createElement("div");
     overlay.id = "seavVerifyLinkDialog";
     overlay.className = "modal seav-verify-link-dialog";
     overlay.style.zIndex = "13000";
     overlay.innerHTML = `
-      <div class="modal-card modal-card--purple" style="max-width:560px;">
+      <div class="modal-card modal-card--purple seav-verify-link-card">
         <div class="modal-head">
-          <h3>${emailFailed ? "Share verification link" : "Verification link"}</h3>
-          <button type="button" class="modal-x" data-close-verify-link>&times;</button>
+          <h3>Share with your referee</h3>
+          <button type="button" class="modal-x" data-close-verify-link aria-label="Close">&times;</button>
         </div>
-        <div class="modal-form">
-          <p class="modal-intro">${intro}</p>
-          <input type="text" readonly id="seavVerifyLinkField" />
-          <div class="verify-reference-actions">
-            <button type="button" class="btn-blue" id="seavVerifyLinkCopy">Copy link</button>
-            <a class="btn-ghost2" id="seavVerifyLinkOpen" target="_blank" rel="noopener">Open link</a>
+        <div class="modal-form seav-verify-link-form">
+          <p class="modal-intro seav-verify-link-intro">
+            For a personal touch, email your referee from your own account. Copy the message below, paste it into your email client, and send it to
+            ${refereeEmail ? `<strong>${escapeHtml(refereeEmail)}</strong>` : "the referee"}.
+          </p>
+
+          <label class="seav-verify-link-field">
+            Suggested email
+            <textarea readonly id="seavVerifyEmailDraft" rows="12">${escapeHtml(draft.fullText)}</textarea>
+          </label>
+
+          <label class="seav-verify-link-field">
+            Verification link only
+            <input type="text" readonly id="seavVerifyLinkField" value="${escapeHtml(verifyUrl)}" />
+          </label>
+
+          <div class="seav-verify-link-actions">
+            <button type="button" class="btn-blue" id="seavVerifyEmailCopy">Copy email</button>
+            <button type="button" class="btn-ghost2" id="seavVerifyLinkCopy">Copy link</button>
+            <a class="btn-ghost2" id="seavVerifyLinkOpen" target="_blank" rel="noopener">Preview link</a>
           </div>
         </div>
       </div>
@@ -87,7 +136,7 @@
     document.body.appendChild(overlay);
 
     const field = overlay.querySelector("#seavVerifyLinkField");
-    if (field) field.value = verifyUrl;
+    const draftField = overlay.querySelector("#seavVerifyEmailDraft");
 
     const openLink = overlay.querySelector("#seavVerifyLinkOpen");
     if (openLink) openLink.href = verifyUrl;
@@ -96,21 +145,38 @@
       overlay.remove();
     });
 
+    overlay.querySelector("#seavVerifyEmailCopy")?.addEventListener("click", async () => {
+      await copyText(draft.fullText, draftField, "Email copied", "Select the email text and copy it.");
+    });
+
     overlay.querySelector("#seavVerifyLinkCopy")?.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(verifyUrl);
-        if (window.Seav?.notify) {
-          Seav.notify("success", "Copied", "Verification link copied.");
-        }
-      } catch {
-        field?.select?.();
-        if (window.Seav?.notify) {
-          Seav.notify("info", "Copy manually", "Select the link and copy it.");
-        }
-      }
+      await copyText(verifyUrl, field, "Link copied", "Select the link and copy it.");
     });
 
     console.info("[SEA-V] Reference verification link:", verifyUrl);
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  async function copyText(text, fieldEl, successTitle, fallbackDetail) {
+    try {
+      await navigator.clipboard.writeText(text);
+      if (window.Seav?.notify) {
+        Seav.notify("success", successTitle, "Paste into your email app.");
+      }
+    } catch {
+      fieldEl?.focus?.();
+      fieldEl?.select?.();
+      if (window.Seav?.notify) {
+        Seav.notify("info", "Copy manually", fallbackDetail);
+      }
+    }
   }
 
   async function sendViaRpc(referenceId) {
@@ -126,9 +192,7 @@
     return normalizeSendResult(data, {
       verifyUrl: data?.verify_url,
       refereeEmail: data?.referee_email,
-      message: data?.referee_email
-        ? `Verification link ready for ${data.referee_email}.`
-        : "Verification link created."
+      message: "Send the suggested email from your own account."
     });
   }
 
@@ -162,24 +226,17 @@
   }
 
   async function sendRequest(referenceId) {
-    const edgeUrl = functionUrl();
-    const useEdge = edgeUrl && !window.SeavConfig?.SHOW_DEV_VERIFY_LINK;
-
-    if (!useEdge) {
+    if (!useEdgeEmail()) {
       return sendViaRpc(referenceId);
     }
 
     try {
       return await sendViaEdgeFunction(referenceId);
     } catch (err) {
-      console.warn("[SEA-V] Edge verification email failed, trying RPC fallback:", err);
+      console.warn("[SEA-V] Edge verification email failed, using share-link flow:", err);
       const fallback = await sendViaRpc(referenceId);
-      if (!fallback.emailSent) {
-        fallback.message =
-          fallback.message ||
-          "Email service unavailable. Share the verification link with the referee manually.";
-        fallback.error = fallback.error || String(err?.message || "Email service unavailable");
-      }
+      fallback.message = "Send the suggested email from your own account.";
+      fallback.error = fallback.error || String(err?.message || "Automated email unavailable");
       return fallback;
     }
   }
@@ -255,6 +312,7 @@
     sendRequest,
     preview,
     complete,
-    showVerifyLinkDialog
+    showVerifyLinkDialog,
+    buildVerificationEmailDraft
   };
 })();

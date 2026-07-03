@@ -9,7 +9,7 @@
 
   window.SeavConfig = {
     /** Bump when deploying JS/CSS changes — keep HTML ?v= in sync (see scripts/patch-html-scripts.mjs). */
-    ASSET_VERSION: 61,
+    ASSET_VERSION: 62,
 
     /** Allow base64 dataUrl fallback when Supabase upload fails (local dev only). */
     ALLOW_DATAURL_FALLBACK: isLocal,
@@ -29,13 +29,16 @@
     ]),
 
     /**
-     * Supabase Edge Function URL for sending verification emails.
-     * Leave empty to call RPC directly (dev: link copied to console on localhost).
+     * Optional Supabase Edge Function for automated verification emails.
+     * Leave empty (default) — crew share the link from their own email instead.
      */
     REFERENCE_VERIFICATION_FUNCTION_URL:
       "https://bnjtrwmwyulvmsautssd.supabase.co/functions/v1/reference-verification",
 
-    /** Show verification link in UI when email is not sent (localhost only). */
+    /** Set true only if you deploy the edge function and want SEA-V to email referees. */
+    REFERENCE_VERIFICATION_USE_EDGE_EMAIL: false,
+
+    /** Rewrite production verify URLs to localhost when testing locally. */
     SHOW_DEV_VERIFY_LINK: isLocal
   };
 })();
