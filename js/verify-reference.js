@@ -44,7 +44,12 @@
       height: 168,
       penColor: "#ffffff",
       penWidth: 2.6,
+      background: "#0b121c",
       ariaLabel: "Draw your signature to confirm this reference"
+    });
+
+    requestAnimationFrame(() => {
+      signaturePad?.refreshLayout?.();
     });
   }
 

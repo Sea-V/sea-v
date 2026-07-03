@@ -29,6 +29,7 @@
 .seav-signature-pad-clear {
   min-height: 32px;
   padding: 0 14px;
+  pointer-events: auto;
 }
 
 .seav-signature-display {
