@@ -126,7 +126,10 @@
       if (preview.bio) preview.bio.textContent = profile.bio || "—";
 
       if (preview.photo) {
-        const photoUrl = profile.photo?.url || profile.photo?.dataUrl || "";
+        const photoUrl = Seav.getFileDisplayUrl(
+          profile.photo,
+          window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
+        );
 
       if (photoUrl) {
           const safeUrl = String(photoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
@@ -374,13 +377,7 @@
       refreshProfileView();
     };
 
-    if (window.SeavState?.ready) {
-      runRefresh();
-    } else {
-      document.addEventListener("seav:state-ready", runRefresh, { once: true });
-    }
-
-    document.addEventListener("seav:data-updated", runRefresh);
+    Seav.bindStateRefresh(runRefresh, { label: "Profile refresh" });
 
     const deleteBtn = document.getElementById("btnDeleteAccount");
     if (deleteBtn) {

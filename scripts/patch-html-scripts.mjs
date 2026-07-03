@@ -6,6 +6,21 @@ import { fileURLToPath } from "url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+/** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
+const ASSET_VERSION = 39;
+
+function bumpAssetVersions(html) {
+  let next = html.replace(
+    /((?:href|src)="(?:styles\.css|js\/[^"?]+))\?v=\d+/g,
+    `$1?v=${ASSET_VERSION}`
+  );
+  next = next.replace(
+    /((?:href|src)="(styles\.css|js\/[^"]+\.js))(?!\?v=)/g,
+    `$1?v=${ASSET_VERSION}`
+  );
+  return next;
+}
+
 const APP_PAGES = [
   "dashboard.html",
   "profile.html",
@@ -92,6 +107,10 @@ function patchAppPage(html) {
   return next;
 }
 
+function finalizeAppPage(html) {
+  return bumpAssetVersions(patchAppPage(html));
+}
+
 function patchPublicProfile(html) {
   let next = patchAppPage(html);
 
@@ -102,7 +121,7 @@ function patchPublicProfile(html) {
     );
   }
 
-  return next;
+  return bumpAssetVersions(next);
 }
 
 let changed = 0;
@@ -110,7 +129,7 @@ let changed = 0;
 for (const file of APP_PAGES) {
   const filePath = path.join(root, file);
   const original = fs.readFileSync(filePath, "utf8");
-  const patched = patchAppPage(original);
+  const patched = finalizeAppPage(original);
   if (patched !== original) {
     fs.writeFileSync(filePath, patched);
     changed += 1;

@@ -543,11 +543,11 @@
               const files = item[cfg.field];
               return (
                 Array.isArray(files) &&
-                files.some((file) => file?.path && !file?.url && !file?.dataUrl)
+                files.some((file) => core.storedFileNeedsHydration?.(file, cfg.bucket))
               );
             }
             const file = item[cfg.field];
-            return file?.path && !file?.url && !file?.dataUrl;
+            return core.storedFileNeedsHydration?.(file, cfg.bucket);
           })
         );
 
@@ -559,9 +559,10 @@
 
       const profilePhoto = state.data.profile?.photo;
       if (
-        profilePhoto?.path &&
-        !profilePhoto?.url &&
-        !profilePhoto?.dataUrl &&
+        core.storedFileNeedsHydration?.(
+          profilePhoto,
+          core.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
+        ) &&
         core.hydrateProfilePhoto
       ) {
         state.data.profile = await core.hydrateProfilePhoto(state.data.profile);

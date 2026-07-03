@@ -49,7 +49,11 @@
     await Promise.all(
       certs.map(async (cert) => {
         const attachment = cert?.attachment;
-        if (!attachment?.path || attachment.url || attachment.dataUrl) return;
+        const bucket =
+          attachment?.bucket ||
+          window.SeavApiCore?.STORAGE_BUCKETS?.CERTIFICATE_FILES ||
+          "certificate-files";
+        if (!window.SeavApiCore?.storedFileNeedsHydration?.(attachment, bucket)) return;
 
         const hydrated = await hydrateAttachment(attachment);
         if (hydrated && hydrated !== attachment) {
@@ -497,10 +501,7 @@
   function init() {
     if (!document.getElementById("certsList")) return;
 
-    document.addEventListener("seav:state-ready", () => refreshView(), { once: true });
-    document.addEventListener("seav:data-updated", () => refreshView());
-    document.addEventListener("seav:files-hydrated", () => refreshView());
-    if (window.SeavState?.ready) refreshView();
+    Seav.bindStateRefresh(() => refreshView(), { label: "Certificates refresh" });
 
     document.querySelectorAll('[data-open="certModal"]').forEach((btn) => {
       btn.addEventListener("click", (e) => {

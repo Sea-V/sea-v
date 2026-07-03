@@ -177,6 +177,31 @@ function hasStoredFile(fileMeta) {
   return !!(fileMeta.url || fileMeta.dataUrl || fileMeta.path);
 }
 
+/** Sync display URL — uses session signed-url cache when state only has path metadata. */
+function getStoredFileDisplayUrl(fileMeta, bucket = null) {
+  if (!fileMeta) return "";
+  if (typeof fileMeta === "string") return fileMeta.trim();
+  if (fileMeta.dataUrl) return fileMeta.dataUrl;
+  const storageBucket = fileMeta.bucket || bucket;
+  if (fileMeta.path && storageBucket) {
+    const cachedUrl = readSignedUrlCache(storageBucket, fileMeta.path);
+    if (cachedUrl) return cachedUrl;
+  }
+  return fileMeta.url || fileMeta.publicUrl || "";
+}
+
+/** True when a fresh signed URL should be fetched (path present, cache miss/expired). */
+function storedFileNeedsHydration(fileMeta, bucket = null) {
+  if (!fileMeta) return false;
+  if (typeof fileMeta === "string") return false;
+  if (fileMeta.dataUrl) return false;
+  if (!fileMeta.path) return false;
+  const storageBucket = fileMeta.bucket || bucket;
+  if (!storageBucket) return !fileMeta.url;
+  if (readSignedUrlCache(storageBucket, fileMeta.path)) return false;
+  return true;
+}
+
 function sanitizeFileForStorage(fileMeta, defaultBucket = null) {
   if (!fileMeta) return null;
   if (fileMeta.path) {
@@ -336,7 +361,8 @@ function isPayslipKey(key) {
     isVesselKey, isSeatimeKey, isCertKey, isRefKey, isProfileKey,
     isTenderKey, isAchievementKey, isNavigationAreaKey, isOnboardExperienceKey,
     isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,
-    resolveStorageFileUrl, hasStoredFile, sanitizeFileForStorage, sanitizeFileArrayForStorage,
+    resolveStorageFileUrl, getStoredFileDisplayUrl, storedFileNeedsHydration,
+    hasStoredFile, sanitizeFileForStorage, sanitizeFileArrayForStorage,
     buildUploadedFileMeta, hydrateFileMeta, hydrateEntityFiles, hydrateArrayFiles,
     hydrateProfilePhoto, sanitizePhotoForStorage, withUserId, findIndexById,
     signedUrlExpiry

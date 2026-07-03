@@ -77,8 +77,14 @@ function buildVesselCard(v, options = {}) {
   const isCompact = !!options.compact;
   const vesselId = v.id || "";
 
-  const photoUrl = v.photo?.url || v.photo?.dataUrl || "";
-  const seaUrl = v.sea_attachment?.url || v.seaAttachment?.url || v.sea_attachment?.dataUrl || v.seaAttachment?.dataUrl || "";
+  const photoUrl = Seav.getFileDisplayUrl(
+    v.photo,
+    window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos"
+  );
+  const seaUrl = Seav.getFileDisplayUrl(
+    v.sea_attachment || v.seaAttachment,
+    window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_DOCUMENTS || "vessel-documents"
+  );
 
   const vesselName = Seav.escapeHtml(v.name || "Unnamed Vessel");
   const flag = v.flag ? Seav.escapeHtml(v.flag) : "—";
@@ -496,11 +502,7 @@ async function saveVesselData(vesselData) {
       renderVessels();
     };
 
-    if (window.SeavState?.ready) {
-      runRefresh();
-    } else {
-      document.addEventListener("seav:state-ready", runRefresh, { once: true });
-    }
+    Seav.bindStateRefresh(runRefresh, { label: "Vessels refresh" });
 
     const vesselForm = document.getElementById("vesselForm");
     const currentCheckbox = document.getElementById("vs_current");
@@ -627,7 +629,6 @@ async function saveVesselData(vesselData) {
   }
 });
 
-    document.addEventListener("seav:data-updated", runRefresh);
   }
 
   document.addEventListener("DOMContentLoaded", initVessels);

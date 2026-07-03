@@ -354,11 +354,7 @@
       renderSeatimes();
     };
 
-    if (window.SeavState?.ready) {
-      runRefresh();
-    } else {
-      document.addEventListener("seav:state-ready", runRefresh, { once: true });
-    }
+    Seav.bindStateRefresh(runRefresh, { label: "Sea time refresh" });
 
     const exportBtn = document.getElementById("btnExportSeatimeCsv");
     if (exportBtn) {
@@ -503,7 +499,6 @@
       }
     });
 
-    document.addEventListener("seav:data-updated", runRefresh);
   }
 
   document.addEventListener("DOMContentLoaded", initSeatime);

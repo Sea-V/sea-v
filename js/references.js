@@ -405,11 +405,7 @@ function readReferenceForm() {
   renderRefs();
 };
 
-    if (window.SeavState?.ready) {
-      runRefresh();
-    } else {
-      document.addEventListener("seav:state-ready", runRefresh, { once: true });
-    }
+    Seav.bindStateRefresh(runRefresh, { label: "References refresh" });
 
     const refForm = document.getElementById("refForm");
     if (refForm) {
@@ -606,7 +602,6 @@ function readReferenceForm() {
       }
     });
 
-    document.addEventListener("seav:data-updated", runRefresh);
   }
 
   document.addEventListener("DOMContentLoaded", initReferences);

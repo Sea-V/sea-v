@@ -8,6 +8,9 @@
     location.protocol === "file:";
 
   window.SeavConfig = {
+    /** Bump when deploying JS/CSS changes — keep HTML ?v= in sync (see scripts/patch-html-scripts.mjs). */
+    ASSET_VERSION: 39,
+
     /** Allow base64 dataUrl fallback when Supabase upload fails (local dev only). */
     ALLOW_DATAURL_FALLBACK: isLocal,
 

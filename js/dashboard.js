@@ -88,7 +88,10 @@
     if (dashProfileAvailability) dashProfileAvailability.textContent = profile.availability || "—";
 
     if (dashAvatar) {
-      const profilePhotoUrl = profile.photo?.url || profile.photo?.dataUrl || "";
+      const profilePhotoUrl = Seav.getFileDisplayUrl(
+        profile.photo,
+        window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
+      );
 
       if (profilePhotoUrl) {
         const safeUrl = String(profilePhotoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
@@ -236,14 +239,7 @@
       await refresh();
     };
 
-    if (window.SeavState?.ready) {
-      runRefresh();
-    } else {
-      document.addEventListener("seav:state-ready", runRefresh, { once: true });
-    }
-
-    document.addEventListener("seav:data-updated", runRefresh);
-    document.addEventListener("seav:files-hydrated", runRefresh);
+    Seav.bindStateRefresh(runRefresh, { label: "Dashboard refresh" });
   }
 
   document.addEventListener("DOMContentLoaded", initDashboard);

@@ -418,11 +418,7 @@
     populateAchievementOptions();
     updateAchievementBadgePreview();
 
-    if (window.SeavState?.ready) {
-      runRefresh();
-    } else {
-      document.addEventListener("seav:state-ready", runRefresh, { once: true });
-    }
+    Seav.bindStateRefresh(runRefresh, { label: "Achievements refresh" });
 
     const achievementSelect = document.getElementById("ach_code");
     if (achievementSelect) {
@@ -557,7 +553,6 @@
     }
     });
 
-    document.addEventListener("seav:data-updated", runRefresh);
   }
 
   document.addEventListener("DOMContentLoaded", initAchievements);

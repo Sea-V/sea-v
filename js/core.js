@@ -862,6 +862,44 @@ function renderSidebarAchievements() {
      PUBLIC API
   ========================================================= */
 
+  function getFileDisplayUrl(fileMeta, bucket = null) {
+    const url = window.SeavApiCore?.getStoredFileDisplayUrl?.(fileMeta, bucket);
+    if (url) return url;
+    if (!fileMeta) return "";
+    if (typeof fileMeta === "string") return fileMeta.trim();
+    return fileMeta.url || fileMeta.dataUrl || fileMeta.publicUrl || "";
+  }
+
+  /**
+   * Wire a page refresh to state-ready (once) and seav:data-updated.
+   * Hydration dispatches data-updated, so file URLs refresh without a separate listener.
+   */
+  function bindStateRefresh(callback, options = {}) {
+    const label = options.label || "State refresh";
+    const run = () => {
+      try {
+        const result = callback();
+        if (result && typeof result.then === "function") {
+          result.catch((err) => {
+            console.error(`[SEA-V] ${label} failed:`, err);
+          });
+        }
+      } catch (err) {
+        console.error(`[SEA-V] ${label} failed:`, err);
+      }
+    };
+
+    if (window.SeavState?.ready) {
+      run();
+    } else {
+      document.addEventListener("seav:state-ready", run, { once: true });
+    }
+
+    if (options.onDataUpdated !== false) {
+      document.addEventListener("seav:data-updated", run);
+    }
+  }
+
   window.Seav = {
     app,
     MAX_UPLOAD_BYTES,
@@ -883,6 +921,8 @@ function renderSidebarAchievements() {
     setActiveSidebarLink,
     initModals,
     mountSharedLayout,
+    getFileDisplayUrl,
+    bindStateRefresh,
     notify(type, title, message) {
       if (window.SeavFeedback?.[type]) {
         window.SeavFeedback[type](title, message);

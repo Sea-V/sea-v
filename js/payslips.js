@@ -106,13 +106,7 @@
 
     const runRefresh = () => refreshView();
 
-    if (window.SeavState?.ready) {
-      runRefresh();
-    } else {
-      document.addEventListener("seav:state-ready", runRefresh, { once: true });
-    }
-
-    document.addEventListener("seav:data-updated", runRefresh);
+    Seav.bindStateRefresh(runRefresh, { label: "Payslips refresh" });
 
     const downloadBtn = document.getElementById("btnDownloadPayslipPack");
     const shareBtn = document.getElementById("btnSharePayslipPack");

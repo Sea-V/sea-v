@@ -367,13 +367,7 @@
 
     const runRefresh = () => refreshView();
 
-    if (window.SeavState?.ready) {
-      runRefresh();
-    } else {
-      document.addEventListener("seav:state-ready", runRefresh, { once: true });
-    }
-
-    document.addEventListener("seav:data-updated", runRefresh);
+    Seav.bindStateRefresh(runRefresh, { label: "Onboard experience refresh" });
 
     const form = document.getElementById("oeForm");
     if (form) {

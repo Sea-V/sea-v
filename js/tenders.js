@@ -70,7 +70,10 @@ function getVesselNameForTender(tender) {
 
   function buildTenderCard(tender) {
   const tenderId = tender.id || "";
-  const photoUrl = tender.photo?.url || tender.photo?.dataUrl || "";
+  const photoUrl = Seav.getFileDisplayUrl(
+    tender.photo,
+    window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos"
+  );
   const hasPhoto = !!photoUrl;
 
   const photoHtml = hasPhoto
@@ -250,11 +253,7 @@ function readTenderForm() {
       renderTenders();
     };
 
-    if (window.SeavState?.ready) {
-      runRefresh();
-    } else {
-      document.addEventListener("seav:state-ready", runRefresh, { once: true });
-    }
+    Seav.bindStateRefresh(runRefresh, { label: "Tenders refresh" });
 
     const tenderForm = document.getElementById("tenderForm");
     if (tenderForm) {
@@ -350,8 +349,6 @@ function readTenderForm() {
         }
       }
     });
-
-    document.addEventListener("seav:data-updated", runRefresh);
   }
 
   document.addEventListener("DOMContentLoaded", initTenders);

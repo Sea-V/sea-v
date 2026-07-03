@@ -254,7 +254,10 @@ async function renderCertSnippet() {
   dashVesselSnippet.innerHTML = `
     <div class="dash-mini-card-grid">
       ${latestThree.map((vessel) => {
-        const photoUrl = vessel.photo?.url || vessel.photo?.dataUrl || "";
+        const photoUrl = Seav.getFileDisplayUrl(
+          vessel.photo,
+          window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos"
+        );
         const photoHtml = photoUrl
           ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(vessel.name || "Vessel")}" />`
           : `<div class="dash-mini-fallback">No Photo</div>`;
@@ -331,7 +334,10 @@ async function renderTenderSnippet() {
   dashTenderSnippet.innerHTML = `
     <div class="dash-mini-card-grid">
       ${latestThree.map((tender) => {
-        const photoUrl = tender.photo?.url || tender.photo?.dataUrl || "";
+        const photoUrl = Seav.getFileDisplayUrl(
+          tender.photo,
+          window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos"
+        );
         const photoHtml = photoUrl
           ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(tender.name || "Tender")}" />`
           : `<div class="dash-mini-fallback">No Photo</div>`;
@@ -653,16 +659,6 @@ async function renderNavigationSnippet() {
     dashRefSnippet.innerHTML = `
       <div class="list">
         ${latestThree.map((ref) => {
-          const refFileUrl = ref.attachment?.url || ref.attachment?.dataUrl || "";
-          const hasFile = !!refFileUrl;
-          const attachHtml = hasFile
-          ? `<div class="row-actions" style="margin-top:10px;">
-               <a href="${Seav.escapeHtml(refFileUrl)}" target="_blank">
-               Download attachment${ref.attachment?.filename ? ` (${Seav.escapeHtml(ref.attachment.filename)})` : ""}
-             </a>
-          </div>`
-        : ``;
-
           return `
             <div class="list-row">
               <div style="min-width:0;">
@@ -671,7 +667,6 @@ async function renderNavigationSnippet() {
                 <div class="list-sub" style="text-transform:none;letter-spacing:0;line-height:1.5;margin-top:8px;color:rgba(255,255,255,0.78);font-weight:600;">
                   “${Seav.escapeHtml(ref.text)}”
                 </div>
-                ${attachHtml}
               </div>
               <span class="pill">${Seav.escapeHtml(getReferenceStatus(ref))}</span>
             </div>
