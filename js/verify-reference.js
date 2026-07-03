@@ -21,6 +21,7 @@
     rank: document.getElementById("vrRank"),
     coc: document.getElementById("vrCoc"),
     signature: document.getElementById("vrSignature"),
+    signaturePadMount: document.getElementById("vrSignaturePadMount"),
     signedAt: document.getElementById("vrSignedAt"),
     confirmBtn: document.getElementById("vrConfirmBtn"),
     declineBtn: document.getElementById("vrDeclineBtn"),
@@ -33,6 +34,19 @@
 
   let previewData = null;
   let submitting = false;
+  let signaturePad = null;
+
+  function initSignaturePad() {
+    if (!els.signaturePadMount || !window.SeavSignaturePad?.mount) return;
+
+    signaturePad?.destroy?.();
+    signaturePad = window.SeavSignaturePad.mount(els.signaturePadMount, {
+      height: 168,
+      penColor: "#ffffff",
+      penWidth: 2.6,
+      ariaLabel: "Draw your signature to confirm this reference"
+    });
+  }
 
   function escapeHtml(value) {
     return String(value || "")
@@ -293,6 +307,8 @@
         els.signedAt.value = todayIso();
       }
 
+      initSignaturePad();
+
       const expiryLabel = formatDatePretty(previewData.expires_at);
       if (expiryLabel && els.expiry && els.expiryWrap) {
         els.expiry.textContent = expiryLabel;
@@ -328,6 +344,16 @@
       return;
     }
 
+    if (confirmed && signaturePad?.isEmpty?.()) {
+      submitting = false;
+      if (window.Seav?.notify) {
+        Seav.notify("error", "Signature required", "Draw your signature in the box above.");
+      } else {
+        alert("Please draw your signature before confirming.");
+      }
+      return;
+    }
+
     const payload = {
       confirmed,
       note: els.note?.value?.trim() || "",
@@ -341,6 +367,20 @@
     if (els.declineBtn) els.declineBtn.disabled = true;
 
     try {
+      if (confirmed && signaturePad && !signaturePad.isEmpty()) {
+        const blob = await signaturePad.toBlob("image/png");
+        if (!blob) {
+          throw new Error("Could not export signature image.");
+        }
+        if (!window.SeavReferenceVerification?.uploadSignatureImage) {
+          throw new Error("Signature upload is unavailable.");
+        }
+        payload.signatureImage = await window.SeavReferenceVerification.uploadSignatureImage(
+          token,
+          blob
+        );
+      }
+
       await window.SeavReferenceVerification.complete(token, payload);
       showSuccess(confirmed);
     } catch (err) {

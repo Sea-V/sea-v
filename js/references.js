@@ -96,11 +96,25 @@
 
   async function hydrateReferenceAttachments(refs) {
     if (!window.SeavApiCore?.hydrateItemsFileField) return refs;
-    return window.SeavApiCore.hydrateItemsFileField(
-      refs,
-      "attachment",
-      REF_FILES_BUCKET
+    await window.SeavApiCore.hydrateItemsFileField(refs, "attachment", REF_FILES_BUCKET);
+
+    if (!window.SeavApiCore?.hydrateFileMeta) return refs;
+
+    await Promise.all(
+      refs.map(async (ref) => {
+        const signatureImage = ref.verification?.signatureImage;
+        if (!signatureImage?.path || signatureImage.url || signatureImage.dataUrl) return;
+        const hydrated = await window.SeavApiCore.hydrateFileMeta(
+          signatureImage,
+          REF_FILES_BUCKET
+        );
+        if (hydrated) {
+          ref.verification = { ...ref.verification, signatureImage: hydrated };
+        }
+      })
     );
+
+    return refs;
   }
 
   function referenceStatusPill(status) {
@@ -183,7 +197,15 @@
 
     const verificationDetail =
       status === "Verified"
-        ? Seav.escapeHtml(verification.signatureName || r.name || "—")
+        ? (() => {
+            const sig = verification.signatureImage;
+            const sigUrl = sig ? Seav.getFileDisplayUrl(sig, REF_FILES_BUCKET) : "";
+            const name = Seav.escapeHtml(verification.signatureName || r.name || "—");
+            if (sigUrl) {
+              return `<div class="ref-signature-wrap"><img class="seav-signature-display" src="${Seav.escapeHtml(sigUrl)}" alt="Referee signature" loading="lazy" /><span class="ref-signature-name">${name}</span></div>`;
+            }
+            return name;
+          })()
         : status === "Sent for Verification"
           ? "Awaiting referee"
           : status === "Declined"

@@ -4,11 +4,11 @@ Captains and senior officers verify references via a secure email link — no SE
 
 ## Architecture
 
-1. **Crew** saves a reference with the referee’s email and clicks **Send email** on References.
+1. **Crew** saves a reference with the referee’s email and clicks **Share link** on References.
 2. **`request_reference_verification` RPC** creates a single-use token (SHA-256 hash stored), sets status to `Sent for Verification`, returns a verify URL.
-3. **Edge Function** (production) sends the link via [Resend](https://resend.com). On **localhost**, the RPC runs directly and the link is logged to the browser console.
-4. **Referee** opens `verify-reference.html?token=…`, reviews the reference, confirms or declines, and signs.
-5. **`complete_reference_verification` RPC** writes `verification` JSON + status (`Verified` / `Declined`). Verified references appear on the public profile automatically.
+3. **Crew** copies the suggested email and sends it from their **personal email** (recommended). Optional: Edge Function + Resend for automated email (`REFERENCE_VERIFICATION_USE_EDGE_EMAIL: true`).
+4. **Referee** opens `verify-reference.html?token=…`, reviews the reference, draws a signature, confirms or declines.
+5. **`complete_reference_verification_v3` RPC** (or v2) writes `verification` JSON + status. Verified references appear on the public profile automatically.
 
 ## Setup
 
@@ -18,6 +18,9 @@ In **Supabase → SQL Editor**, run:
 
 ```
 docs/schema-reference-verification.sql
+docs/schema-reference-verification-v2-complete.sql
+docs/schema-reference-verification-attachment.sql
+docs/schema-reference-verification-signature.sql
 ```
 
 Optional — set production site URL for links:
@@ -90,4 +93,5 @@ On **localhost**, the app skips the Edge Function and calls the RPC directly (`S
 | `supabase/functions/reference-verification/` | Resend email sender |
 | `js/reference-verification.js` | Client API |
 | `verify-reference.html` + `js/verify-reference.js` | Public referee page |
-| `js/references.js` | Send / resend wiring |
+| `docs/schema-reference-verification-signature.sql` | Drawn signature upload + complete v3 |
+| `js/seav-signature-pad.js` | Reusable canvas signature pad |

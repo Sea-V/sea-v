@@ -1,0 +1,58 @@
+/* =========================================================
+   SEA-V • SIGNATURE PAD (reusable)
+========================================================= */
+
+.seav-signature-pad {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.seav-signature-pad-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+  cursor: crosshair;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.seav-signature-pad-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.seav-signature-pad-clear {
+  min-height: 32px;
+  padding: 0 14px;
+}
+
+.seav-signature-display {
+  display: block;
+  max-width: 220px;
+  max-height: 72px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.ref-signature-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ref-signature-name {
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}

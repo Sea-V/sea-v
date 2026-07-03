@@ -287,19 +287,70 @@
     };
   }
 
+  async function prepareSignatureUpload(token) {
+    const client = window.SeavPublicSupabase || (await getClient());
+    const { data, error } = await client.rpc("prepare_reference_verification_signature", {
+      p_token: token
+    });
+    if (error) {
+      throw new Error(error.message || error.details || "Could not prepare signature upload");
+    }
+    return data;
+  }
+
+  async function uploadSignatureImage(token, blob) {
+    if (!blob) return null;
+
+    const slot = await prepareSignatureUpload(token);
+    const bucket = slot?.bucket || "reference-files";
+    const path = slot?.path;
+    if (!path) throw new Error("Could not allocate signature storage path");
+
+    const client = window.SeavPublicSupabase || (await getClient());
+    const { error } = await client.storage.from(bucket).upload(path, blob, {
+      upsert: true,
+      contentType: "image/png",
+      cacheControl: "3600"
+    });
+
+    if (error) {
+      throw new Error(error.message || "Could not upload signature");
+    }
+
+    return {
+      bucket,
+      path,
+      filename: "signature.png",
+      mime: "image/png",
+      uploadedAt: new Date().toISOString()
+    };
+  }
+
   async function complete(token, payload) {
     const client = window.SeavPublicSupabase || (await getClient());
     const request = { token, payload };
 
-    let { data, error } = await client.rpc("complete_reference_verification_v2", {
+    let { data, error } = await client.rpc("complete_reference_verification_v3", {
       p_request: request
     });
 
     if (error && /could not find the function|404|42883/i.test(String(error.message || ""))) {
-      ({ data, error } = await client.rpc("complete_reference_verification", {
-        p_token: token,
-        p_payload: payload
+      if (payload?.signatureImage) {
+        throw new Error(
+          "Drawn signatures require the verification signature SQL migration. Run docs/schema-reference-verification-signature.sql in Supabase."
+        );
+      }
+
+      ({ data, error } = await client.rpc("complete_reference_verification_v2", {
+        p_request: request
       }));
+
+      if (error && /could not find the function|404|42883/i.test(String(error.message || ""))) {
+        ({ data, error } = await client.rpc("complete_reference_verification", {
+          p_token: token,
+          p_payload: payload
+        }));
+      }
     }
 
     if (error) {
@@ -312,6 +363,7 @@
     sendRequest,
     preview,
     complete,
+    uploadSignatureImage,
     showVerifyLinkDialog,
     buildVerificationEmailDraft
   };
