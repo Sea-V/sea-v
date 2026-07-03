@@ -124,7 +124,7 @@
    GRID
 ========================================================= */
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) {
+#tendersGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 
@@ -135,7 +135,7 @@
    CARD
 ========================================================= */
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-card {
+#tendersGrid .vessel-card {
   overflow: hidden;
 
   border-radius: 24px;
@@ -156,7 +156,7 @@
    PHOTO
 ========================================================= */
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-photo {
+#tendersGrid .vessel-photo {
   height: 190px;
 
   overflow: hidden;
@@ -164,7 +164,7 @@
   background: rgba(0,0,0,0.24);
 }
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-photo img {
+#tendersGrid .vessel-photo img {
   width: 100%;
   height: 100%;
 
@@ -177,11 +177,11 @@
    BODY
 ========================================================= */
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-body {
+#tendersGrid .vessel-body {
   padding: 16px;
 }
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-title {
+#tendersGrid .vessel-title {
   margin: 0 0 14px;
 
   color: #ffffff;
@@ -191,12 +191,12 @@
   font-weight: 900;
 }
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-meta-value:has(.tender-proficiency-pill) {
+#tendersGrid .vessel-meta-value:has(.tender-proficiency-pill) {
   display: flex;
   justify-content: center;
 }
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-meta-value .tender-proficiency-pill {
+#tendersGrid .vessel-meta-value .tender-proficiency-pill {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -213,14 +213,14 @@
    META GRID
 ========================================================= */
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-meta-grid {
+#tendersGrid .vessel-meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0,1fr));
 
   gap: 10px;
 }
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-meta-item {
+#tendersGrid .vessel-meta-item {
   padding: 10px;
 
   border-radius: 14px;
@@ -229,7 +229,7 @@
   background: rgba(255,255,255,0.035);
 }
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-meta-label {
+#tendersGrid .vessel-meta-label {
   display: block;
 
   margin-bottom: 5px;
@@ -241,7 +241,7 @@
   font-weight: 800;
 }
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-meta-value {
+#tendersGrid .vessel-meta-value {
   display: block;
 
   color: rgba(255,255,255,0.84);
@@ -255,7 +255,7 @@
    DESCRIPTION
 ========================================================= */
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-desc {
+#tendersGrid .vessel-desc {
   margin-top: 14px;
 
   color: rgba(255,255,255,0.78);
@@ -269,11 +269,11 @@
    ACTIONS
 ========================================================= */
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-foot {
+#tendersGrid .vessel-foot {
   margin-top: 14px;
 }
 
-:is(#tendersGrid, #dashTenderSnippet .vessel-grid) .vessel-foot .seav-actions {
+#tendersGrid .vessel-foot .seav-actions {
   margin-top: 0;
   padding-top: 0;
   border-top: 0;
@@ -293,13 +293,13 @@
     margin-left: 0;
   }
 
-  :is(#tendersGrid, #dashTenderSnippet .vessel-grid) {
+  #tendersGrid {
     grid-template-columns: repeat(2, minmax(0,1fr));
   }
 }
 
 @media (max-width: 640px) {
-  :is(#tendersGrid, #dashTenderSnippet .vessel-grid) {
+  #tendersGrid {
     grid-template-columns: 1fr;
   }
 }

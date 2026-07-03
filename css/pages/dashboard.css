@@ -933,9 +933,28 @@
   text-decoration: none;
 }
 
-/* Mini cards inside vessel snippets */
-.dashboard-shell-card .dash-card-accent-vessels .dash-mini-card {
+/* Mini cards inside vessel / tender snippets */
+.dashboard-shell-card .dash-card-accent-vessels .dash-mini-card,
+.dashboard-shell-card .dash-card-accent-tenders .dash-mini-card {
   border-color: rgba(91, 188, 255, 0.22);
+}
+
+.dashboard-shell-card .dash-card-accent-tenders .dash-mini-info-cell--proficiency {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.dashboard-shell-card .dash-card-accent-tenders .dash-mini-info-cell--proficiency .tender-proficiency-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 2px;
+  font-size: var(--pill-font-size) !important;
+  font-weight: var(--pill-font-weight) !important;
+  line-height: 1 !important;
+  text-align: center !important;
 }
 
 
