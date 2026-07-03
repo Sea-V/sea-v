@@ -153,21 +153,6 @@ async function renderCertSnippet() {
     (cert) => window.SeavData?.isSavedCert?.(cert) ?? !!cert?.name
   );
 
-  if (window.SeavApiCore?.hydrateFileMeta) {
-    await Promise.all(
-      certs.map(async (cert) => {
-        const attachment = cert?.attachment;
-        if (!attachment?.path || attachment.url || attachment.dataUrl) return;
-        cert.attachment = await window.SeavApiCore.hydrateFileMeta(
-          attachment,
-          attachment.bucket ||
-            window.SeavApiCore.STORAGE_BUCKETS?.CERTIFICATE_FILES ||
-            "certificate-files"
-        );
-      })
-    );
-  }
-
   const isNoExpiry = window.SeavData?.isCertNoExpiry;
   const isExpiringOrExpired = window.SeavData?.isCertExpiringOrExpired;
 
@@ -225,23 +210,7 @@ async function renderCertSnippet() {
       ${sortedCerts
         .map((cert) => {
           const statusInfo = getDashboardCertStatus(cert);
-          const certFileUrl = cert.attachment?.url || cert.attachment?.dataUrl || "";
-          const hasFile =
-            window.SeavApiCore?.hasStoredFile?.(cert.attachment) ?? !!certFileUrl;
           const expiryDisplay = cert.expiry ? formatDatePretty(cert.expiry) : "—";
-
-          const attachHtml = hasFile
-            ? certFileUrl
-              ? `<div class="dash-cert-attachment">
-               <a class="cert-attachment-link" href="${Seav.escapeHtml(certFileUrl)}" target="_blank" rel="noopener">
-                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                   <path d="M12 3v10m0 0l3.5-3.5M12 13l-3.5-3.5M5 15v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                 </svg>
-                 Download certificate
-               </a>
-             </div>`
-              : `<div class="dash-cert-attachment muted">${Seav.escapeHtml(cert.attachment?.filename || "Document")} uploaded</div>`
-            : ``;
 
           return `
             <div class="list-row">
@@ -252,7 +221,6 @@ async function renderCertSnippet() {
                 <div class="list-sub">
                   Expiry: ${Seav.escapeHtml(expiryDisplay)} • ${Seav.escapeHtml(statusInfo.label)}
                 </div>
-                ${attachHtml}
               </div>
               <span class="${statusInfo.statusClass}">${Seav.escapeHtml(statusInfo.badge)}</span>
             </div>
