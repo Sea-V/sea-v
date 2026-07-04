@@ -1064,45 +1064,43 @@
     const visible = approved.slice(0, LIMITS.achievements);
     const hidden = approved.slice(LIMITS.achievements);
     const moreId = "ppAchievementMore";
+    const countLabel = `${approved.length} verified highlight${approved.length === 1 ? "" : "s"}`;
 
-    const buildHighlight = (item) => {
-      const badgeUrl =
-        window.SeavBadges?.resolveItemBadgeImage?.(item) ||
-        item.badgeImage ||
-        "";
+    const buildHighlightRow = (item, isMoreItem = false) => {
       const witness = [item.witnessName, item.witnessPosition].filter(Boolean).join(" • ");
       const title = item.title || "Achievement";
+      const meta = witness || (item.description ? truncate(item.description, 48) : "");
 
       return `
-        <article class="public-cv-highlight-card" data-pp-more-item>
-          <div class="public-cv-highlight-badge" aria-hidden="true">
-            ${
-              badgeUrl
-                ? `<img src="${Seav.escapeHtml(badgeUrl)}" alt="" />`
-                : `<span class="public-cv-highlight-badge-fallback">${Seav.escapeHtml(title.slice(0, 1))}</span>`
-            }
-          </div>
-          <div class="public-cv-highlight-body">
-            <h3 class="public-cv-highlight-title">${Seav.escapeHtml(title)}</h3>
-            ${item.description ? `<p class="public-cv-highlight-desc">${Seav.escapeHtml(item.description)}</p>` : ""}
-            ${witness ? `<p class="public-cv-highlight-witness">${Seav.escapeHtml(witness)}</p>` : ""}
-          </div>
+        <article class="public-cv-highlight-row"${isMoreItem ? " data-pp-more-item" : ""}>
+          <span class="public-cv-highlight-row-dot" aria-hidden="true"></span>
+          <span class="public-cv-highlight-row-title" title="${Seav.escapeHtml(title)}">${Seav.escapeHtml(title)}</span>
+          ${meta ? `<span class="public-cv-highlight-row-meta">${Seav.escapeHtml(meta)}</span>` : ""}
         </article>
       `;
     };
 
     box.innerHTML = `
-      <div class="public-cv-highlight-list">
-        ${visible.map((item) => buildHighlight(item).replace(" data-pp-more-item", "")).join("")}
-        ${
-          hidden.length
-            ? `<div class="public-cv-more-block public-cv-highlight-list" id="${moreId}" hidden>
-                ${hidden.map(buildHighlight).join("")}
-              </div>`
-            : ""
-        }
-      </div>
-      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "highlights") : ""}
+      <details class="public-cv-achievements-details">
+        <summary class="public-cv-achievements-summary">
+          <span class="public-cv-achievements-summary-label">Career highlights</span>
+          <span class="public-cv-achievements-summary-meta">${Seav.escapeHtml(countLabel)}</span>
+        </summary>
+        <div class="public-cv-achievements-panel">
+          <p class="public-cv-achievements-note">Optional detail for recruiters — verified milestones from SEA-V.</p>
+          <div class="public-cv-highlight-list public-cv-highlight-list--compact">
+            ${visible.map((item) => buildHighlightRow(item)).join("")}
+            ${
+              hidden.length
+                ? `<div class="public-cv-more-block public-cv-highlight-list public-cv-highlight-list--compact" id="${moreId}" hidden>
+                    ${hidden.map((item) => buildHighlightRow(item, true)).join("")}
+                  </div>`
+                : ""
+            }
+          </div>
+          ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "highlights") : ""}
+        </div>
+      </details>
     `;
 
     section.hidden = false;

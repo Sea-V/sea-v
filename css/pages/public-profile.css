@@ -610,8 +610,76 @@
 }
 
 /* =========================================================
-   HIGHLIGHTS (achievements)
+   HIGHLIGHTS (achievements) — compact recruiter dropdown
 ========================================================= */
+
+.public-profile-achievements-card {
+  padding: 10px 12px !important;
+}
+
+.public-cv-achievements-details {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+}
+
+.public-cv-achievements-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 11px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.public-cv-achievements-summary::-webkit-details-marker {
+  display: none;
+}
+
+.public-cv-achievements-summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-right: 1.5px solid rgba(91, 188, 255, 0.85);
+  border-bottom: 1.5px solid rgba(91, 188, 255, 0.85);
+  transform: rotate(45deg);
+  transition: transform 0.18s ease;
+}
+
+.public-cv-achievements-details[open] .public-cv-achievements-summary::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+
+.public-cv-achievements-summary-label {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+}
+
+.public-cv-achievements-summary-meta {
+  color: rgba(91, 188, 255, 0.72);
+  font-size: 10px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.public-cv-achievements-panel {
+  padding: 0 10px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.public-cv-achievements-note {
+  margin: 8px 0 6px;
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 9px;
+  line-height: 1.35;
+  font-weight: 650;
+}
 
 .public-cv-highlight-list {
   display: flex;
@@ -619,11 +687,77 @@
   gap: 8px;
 }
 
+.public-cv-highlight-list--compact {
+  gap: 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
 .public-cv-highlight-list.public-cv-more-block:not([hidden]) {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 8px;
+}
+
+.public-cv-highlight-list--compact.public-cv-more-block:not([hidden]) {
+  gap: 0;
+  margin-top: 0;
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+}
+
+.public-cv-highlight-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 0.85fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.public-cv-highlight-row:first-child {
+  border-top: 0;
+}
+
+.public-cv-highlight-row-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(91, 188, 255, 0.75);
+  flex-shrink: 0;
+}
+
+.public-cv-highlight-row-title {
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  line-height: 1.25;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.public-cv-highlight-row-meta {
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 9px;
+  line-height: 1.2;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+.public-profile-achievements-card .public-cv-show-more {
+  margin-top: 6px;
+  padding: 5px 8px;
+  font-size: 9px;
 }
 
 .public-cv-highlight-card {
@@ -1076,5 +1210,13 @@
   .public-profile-page .dashboard-navigation-chart,
   .public-profile-page .dashboard-navigation-chart .leaflet-container {
     min-height: 280px;
+  }
+
+  .public-cv-highlight-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .public-cv-highlight-row-meta {
+    display: none;
   }
 }
