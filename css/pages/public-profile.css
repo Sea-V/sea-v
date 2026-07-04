@@ -7,11 +7,17 @@
   background: var(--page-bg, #0a121f);
 }
 
-.public-profile-dash {
+.public-profile-main {
+  display: block;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
   padding: 14px 16px 32px;
+  box-sizing: border-box;
 }
 
 .public-profile-content {
+  width: 100%;
   max-width: 980px;
   margin: 0 auto;
 }
@@ -214,33 +220,6 @@
 
 .public-profile-footer-cta:hover {
   color: #ffffff;
-}
-
-/* No sidebar on public profile — use full viewport width */
-.public-profile-page .dash,
-.public-profile-page .public-profile-dash {
-  display: block;
-  grid-template-columns: 1fr;
-  min-height: auto;
-  overflow: visible;
-  padding: 0;
-}
-
-.public-profile-page .dash-content,
-.public-profile-page .public-profile-content {
-  width: 100%;
-  max-width: none;
-  margin-top: 0;
-  padding-bottom: 32px;
-}
-
-.public-profile-page .public-profile-shell,
-.public-profile-page .dashboard-shell-card {
-  width: 100%;
-}
-
-.public-page:not(.public-profile-page) .dash {
-  grid-template-columns: 1fr;
 }
 
 /* Legacy alias — section renderers still use public-cv-* content classes */
@@ -1048,7 +1027,7 @@
 }
 
 @media (max-width: 480px) {
-  .public-profile-dash {
+  .public-profile-main {
     padding: 10px 12px 24px;
   }
 }
