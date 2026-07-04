@@ -32,7 +32,7 @@
     computeNavigationTotalNm,
     bindExpandToggles, getCertPublicStatus, findCertByCode, findSavedCertByCode, isMandatoryCert,
     isRecommendedCert, normalizeCode, formatExpiryShort, getComplianceClass,
-    renderVerificationBadge, isReferenceVerified,
+    renderVerificationBadge, isReferenceVerified, getCertComplianceSummary,
     resolvePublicCertKey, getPublicCertTypeLabel, isPublicCertExpanded
   } = U;
 
