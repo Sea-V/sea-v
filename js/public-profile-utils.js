@@ -19,6 +19,7 @@
 
   const LIMITS = {
     vessels: 6,
+    tenders: 6,
     navigationRegions: 10,
     navigationPorts: 8,
     seatimes: 6,
@@ -32,13 +33,14 @@
 
   const SECTION_NAV = [
     { id: "pp-section-overview", label: "Overview" },
-    { id: "ppCertSection", label: "Certificates" },
     { id: "ppVesselSection", label: "Yachts" },
+    { id: "ppTenderSection", label: "Tenders" },
     { id: "ppSeatimeSection", label: "Sea time" },
-    { id: "ppRefSection", label: "References" },
-    { id: "ppOperationsSection", label: "Operations" },
     { id: "ppNavigationSection", label: "Navigation" },
+    { id: "ppOperationsSection", label: "Operations" },
     { id: "ppSpecialistSection", label: "Skills" },
+    { id: "ppCertSection", label: "Certificates" },
+    { id: "ppRefSection", label: "References" },
     { id: "ppAchievementSection", label: "Highlights" },
     { id: "ppHobbiesSection", label: "Interests" }
   ];
@@ -441,7 +443,7 @@
   }
 
   function getSectionNavOffset() {
-    const topbar = document.querySelector(".public-cv-topbar");
+    const topbar = document.querySelector(".public-profile-topbar");
     const nav = document.getElementById("ppSectionNav");
     const topbarHeight = topbar ? topbar.offsetHeight : 0;
     const navHeight = nav && !nav.hidden ? nav.offsetHeight : 0;
@@ -534,7 +536,7 @@
         ({ id, label }) => `
           <a
             href="#${Seav.escapeHtml(id)}"
-            class="public-cv-section-nav-link"
+            class="public-profile-section-nav-link"
             data-pp-nav-target="${Seav.escapeHtml(id)}"
           >${Seav.escapeHtml(label)}</a>
         `
@@ -549,6 +551,7 @@
 
   function renderTrustStrip(metrics) {
     const strip = document.getElementById("ppTrustStrip");
+    const kpiCard = document.getElementById("ppKpiCard");
     if (!strip) return;
 
     const items = [];
@@ -576,23 +579,25 @@
     }
 
     if (!items.length) {
-      strip.hidden = true;
       strip.innerHTML = "";
+      strip.hidden = true;
+      if (kpiCard) kpiCard.hidden = true;
       return;
     }
 
     strip.innerHTML = items
       .map(
         (item) => `
-          <div class="public-cv-trust-stat">
-            <span class="public-cv-trust-stat-value">${Seav.escapeHtml(item.value)}</span>
-            <span class="public-cv-trust-stat-label">${Seav.escapeHtml(item.label)}</span>
+          <div class="kpi-box">
+            <div class="kpi-num">${Seav.escapeHtml(item.value)}</div>
+            <div class="kpi-label">${Seav.escapeHtml(item.label)}</div>
           </div>
         `
       )
       .join("");
 
     strip.hidden = false;
+    if (kpiCard) kpiCard.hidden = false;
   }
 
 

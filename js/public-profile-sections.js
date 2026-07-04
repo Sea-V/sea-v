@@ -20,7 +20,8 @@
     isRankRoleCert,
     MANDATORY_CERTS,
     getSeatimeTotals,
-    formatDatePretty
+    formatDatePretty,
+    getTenderProficiencyDisplay
   } = window.SeavData;
 
   const U = window.SeavPublicProfileUtils || {};
@@ -47,57 +48,66 @@
       .filter(Boolean);
   }
 
-  function buildVesselCard(v, onboardEntries, seatimeGroups, highlight = false) {
+  function buildVesselCard(v, onboardEntries, seatimeGroups) {
     const role = getVesselRole(v);
-    const type = getVesselType(v);
-    const size = getVesselLength(v) || "—";
-    const experience = getVesselExperience(v);
-    const highlights = buildVesselHighlights(v, onboardEntries);
-    const seatimeGroup = seatimeGroups.find((group) => group.vesselId === v.id);
-    const metaParts = [role, type, size !== "—" ? `${size}` : "", v.flag, v.program, v.builder]
-      .filter(Boolean)
-      .map((part) => String(part).trim())
-      .filter(Boolean);
+    const photoUrl =
+      window.Seav?.getFileDisplayUrl?.(
+        v.photo,
+        window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos"
+      ) ||
+      v.photo?.url ||
+      v.photo?.dataUrl ||
+      "";
+    const photoHtml = photoUrl
+      ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(v.name || "Vessel")}" loading="lazy" />`
+      : `<div class="dash-mini-fallback">No Photo</div>`;
 
-    const photoUrl = v.photo?.url || v.photo?.dataUrl || "";
+    const name = Seav.escapeHtml(v.name || "Unnamed Vessel");
+    const builder = Seav.escapeHtml(v.builder || "—");
+    const flag = Seav.escapeHtml(v.flag || "—");
+    const gt = Seav.escapeHtml(v.gt || "—");
+    const length = Seav.escapeHtml(getVesselLength(v) || "—");
+    const vesselRole = Seav.escapeHtml(role || "—");
+    const from = v.from ? formatDatePretty(v.from) : "—";
+    const to = v.to ? formatDatePretty(v.to) : "Present";
 
     return `
-      <article class="public-cv-vessel-card${highlight ? " public-cv-vessel-card--highlight" : ""}" data-pp-more-item>
-        <div class="public-cv-vessel-card-head">
-          <div class="public-cv-vessel-card-title-wrap">
-            ${
-              photoUrl
-                ? `<div class="public-cv-vessel-thumb" style="background-image:url(${Seav.escapeHtml(photoUrl)})" aria-hidden="true"></div>`
-                : ""
-            }
+      <article class="dash-mini-card" data-pp-more-item>
+        <div class="dash-mini-photo">${photoHtml}</div>
+        <div class="dash-mini-body">
+          <div class="dash-mini-head">
             <div>
-              <h3 class="public-cv-vessel-card-name">${Seav.escapeHtml(v.name || "Yacht")}</h3>
-              <p class="public-cv-vessel-card-dates">${Seav.escapeHtml(formatDates(v.from, v.to))}</p>
+              <h4>${name}</h4>
+            </div>
+            ${!v.to ? `<span class="dash-mini-status">Current</span>` : ``}
+          </div>
+          <div class="dash-mini-info-grid">
+            <div>
+              <span>Build</span>
+              <strong>${builder}</strong>
+            </div>
+            <div>
+              <span>Flag state</span>
+              <strong>${flag}</strong>
+            </div>
+            <div>
+              <span>Role</span>
+              <strong>${vesselRole}</strong>
+            </div>
+            <div>
+              <span>GT</span>
+              <strong>${gt}</strong>
+            </div>
+            <div>
+              <span>Length</span>
+              <strong>${length}</strong>
+            </div>
+            <div>
+              <span>Dates</span>
+              <strong>${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}</strong>
             </div>
           </div>
-          ${
-            seatimeGroup?.totals?.total
-              ? `<span class="public-cv-vessel-card-days">${Seav.escapeHtml(String(seatimeGroup.totals.total))} days logged</span>`
-              : ""
-          }
         </div>
-        ${
-          metaParts.length
-            ? `<p class="public-cv-vessel-card-meta">${Seav.escapeHtml(metaParts.join(" • "))}</p>`
-            : ""
-        }
-        ${
-          experience
-            ? `<p class="public-cv-vessel-card-story">${Seav.escapeHtml(truncate(experience, 280))}</p>`
-            : ""
-        }
-        ${
-          highlights.length
-            ? `<ul class="public-cv-vessel-card-highlights">${highlights
-                .map((item) => `<li>${Seav.escapeHtml(item)}</li>`)
-                .join("")}</ul>`
-            : ""
-        }
       </article>
     `;
   }
@@ -145,12 +155,12 @@
     };
 
     box.innerHTML = `
-      <div class="public-cv-seatime-totals">
-        <div class="public-cv-seatime-total"><span>${Seav.escapeHtml(String(totals.sea))}</span><small>Sea</small></div>
-        <div class="public-cv-seatime-total"><span>${Seav.escapeHtml(String(totals.watchkeeping))}</span><small>Watchkeeping</small></div>
-        <div class="public-cv-seatime-total"><span>${Seav.escapeHtml(String(totals.yard))}</span><small>Yard</small></div>
-        <div class="public-cv-seatime-total"><span>${Seav.escapeHtml(String(totals.standby))}</span><small>Standby</small></div>
-        <div class="public-cv-seatime-total public-cv-seatime-total--accent"><span>${Seav.escapeHtml(String(totals.total))}</span><small>Total</small></div>
+      <div class="kpi-row-grid kpi-row-grid-5 public-profile-seatime-kpis">
+        <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.sea))}</div><div class="kpi-label">Actual sea service</div></div>
+        <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.yard))}</div><div class="kpi-label">Yard service</div></div>
+        <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.standby))}</div><div class="kpi-label">Standby service</div></div>
+        <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.watchkeeping))}</div><div class="kpi-label">Watchkeeping</div></div>
+        <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.total))}</div><div class="kpi-label">Total qualifying service</div></div>
       </div>
       <div class="public-cv-mini-list">
         ${visibleGroups.map((group) => buildGroupRow(group).replace(" data-pp-more-item", "")).join("")}
@@ -192,30 +202,129 @@
     const moreId = "ppVesselMore";
 
     vesselBox.innerHTML = `
-      <div class="public-cv-vessel-list">
+      <div class="dash-mini-card-grid">
         ${visible
-          .map((v, index) =>
-            buildVesselCard(v, onboardEntries, seatimeGroups, index === 0).replace(
-              " data-pp-more-item",
-              ""
-            )
-          )
+          .map((v) => buildVesselCard(v, onboardEntries, seatimeGroups).replace(" data-pp-more-item", ""))
           .join("")}
-        ${
-          hidden.length
-            ? `<div class="public-cv-more-block" id="${moreId}" hidden>
-                ${hidden
-                  .map((v) => buildVesselCard(v, onboardEntries, seatimeGroups))
-                  .join("")}
-              </div>`
-            : ""
-        }
       </div>
+      ${
+        hidden.length
+          ? `<div class="public-cv-more-block dash-mini-card-grid" id="${moreId}" hidden>
+              ${hidden.map((v) => buildVesselCard(v, onboardEntries, seatimeGroups)).join("")}
+            </div>`
+          : ""
+      }
       ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "yachts") : ""}
     `;
 
     setSectionCount("ppVesselCount", sorted.length);
     if (section) section.hidden = false;
+  }
+
+  function buildTenderCard(tender, vessels) {
+    const photoUrl =
+      window.Seav?.getFileDisplayUrl?.(
+        tender.photo,
+        window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos"
+      ) ||
+      tender.photo?.url ||
+      tender.photo?.dataUrl ||
+      "";
+    const photoHtml = photoUrl
+      ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(tender.name || "Tender")}" loading="lazy" />`
+      : `<div class="dash-mini-fallback">No Photo</div>`;
+
+    const linkedVessel = vessels.find((v) => v.id === tender.vesselId);
+    const name = Seav.escapeHtml(tender.name || "Unnamed Tender");
+    const vesselName = Seav.escapeHtml(linkedVessel?.name || "Standalone / Chase");
+    const type = Seav.escapeHtml(tender.type || "—");
+    const proficiency = getTenderProficiencyDisplay?.(tender.proficiencyLevel);
+    const proficiencyHtml = proficiency
+      ? `<span class="pill tender-proficiency-pill ${proficiency.className}">${Seav.escapeHtml(proficiency.label)}</span>`
+      : `<strong>—</strong>`;
+    const model = Seav.escapeHtml(tender.model || "—");
+    const length = Seav.escapeHtml(tender.length || "—");
+    const engine = Seav.escapeHtml(tender.engine || "—");
+
+    return `
+      <article class="dash-mini-card" data-pp-more-item>
+        <div class="dash-mini-photo">${photoHtml}</div>
+        <div class="dash-mini-body">
+          <div class="dash-mini-head">
+            <div>
+              <h4>${name}</h4>
+            </div>
+          </div>
+          <div class="dash-mini-info-grid">
+            <div>
+              <span>Vessel</span>
+              <strong>${vesselName}</strong>
+            </div>
+            <div>
+              <span>Type</span>
+              <strong>${type}</strong>
+            </div>
+            <div>
+              <span>Model</span>
+              <strong>${model}</strong>
+            </div>
+            <div>
+              <span>Length</span>
+              <strong>${length}</strong>
+            </div>
+            <div>
+              <span>Engine</span>
+              <strong>${engine}</strong>
+            </div>
+            <div class="dash-mini-info-cell dash-mini-info-cell--proficiency">
+              <span>Proficiency</span>
+              ${proficiencyHtml}
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderTenders(tenders, vessels) {
+    const tenderBox = document.getElementById("ppTenderSnippet");
+    const section = document.getElementById("ppTenderSection");
+    if (!tenderBox || !section) return;
+
+    if (!tenders.length) {
+      section.hidden = true;
+      setSectionCount("ppTenderCount", 0);
+      return;
+    }
+
+    const sorted = [...tenders].sort((a, b) => {
+      const da = a.createdAt ? new Date(a.createdAt) : new Date(0);
+      const db = b.createdAt ? new Date(b.createdAt) : new Date(0);
+      return db - da;
+    });
+
+    const visible = sorted.slice(0, LIMITS.tenders);
+    const hidden = sorted.slice(LIMITS.tenders);
+    const moreId = "ppTenderMore";
+
+    tenderBox.innerHTML = `
+      <div class="dash-mini-card-grid">
+        ${visible
+          .map((t) => buildTenderCard(t, vessels).replace(" data-pp-more-item", ""))
+          .join("")}
+      </div>
+      ${
+        hidden.length
+          ? `<div class="public-cv-more-block dash-mini-card-grid" id="${moreId}" hidden>
+              ${hidden.map((t) => buildTenderCard(t, vessels)).join("")}
+            </div>`
+          : ""
+      }
+      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "tenders") : ""}
+    `;
+
+    setSectionCount("ppTenderCount", sorted.length);
+    section.hidden = false;
   }
 
   function formatNavigationRouteLabel(item) {
@@ -942,6 +1051,7 @@
     buildVesselCard,
     renderSeatime,
     renderVessels,
+    renderTenders,
     formatNavigationRouteLabel,
     renderNavigation,
     buildOperationRow,

@@ -5,175 +5,230 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SEA-V • Public Profile</title>
 
-  <link rel="stylesheet" href="styles.css?v=70" />
-  <script src="js/feedback.js?v=70" defer></script>
-  <script src="js/core.js?v=70" defer></script>
-  <script src="js/seav-upload.js?v=70" defer></script>
-  <script src="js/seav-data.js?v=70" defer></script>
-  <script src="js/seav-badges.js?v=70" defer></script>
+  <link rel="stylesheet" href="styles.css?v=73" />
+  <script src="js/feedback.js?v=73" defer></script>
+  <script src="js/core.js?v=73" defer></script>
+  <script src="js/seav-upload.js?v=73" defer></script>
+  <script src="js/seav-data.js?v=73" defer></script>
+  <script src="js/seav-badges.js?v=73" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=70"></script>
-  <script src="js/supabase.js?v=70" defer></script>
-  <script src="js/auth.js?v=70"></script>
-  <script src="js/api-core.js?v=70" defer></script>
-  <script src="js/api-mappers.js?v=70" defer></script>
-  <script src="js/api.js?v=70" defer></script>
-  <script src="js/public-profile-utils.js?v=70" defer></script>
-  <script src="js/public-profile-sections.js?v=70" defer></script>
-  <script src="js/public-profile.js?v=70" defer></script>
+  <script src="js/seav-config.js?v=73"></script>
+  <script src="js/supabase.js?v=73" defer></script>
+  <script src="js/auth.js?v=73"></script>
+  <script src="js/api-core.js?v=73" defer></script>
+  <script src="js/api-mappers.js?v=73" defer></script>
+  <script src="js/api.js?v=73" defer></script>
+  <script src="js/public-profile-utils.js?v=73" defer></script>
+  <script src="js/public-profile-sections.js?v=73" defer></script>
+  <script src="js/public-profile.js?v=73" defer></script>
 </head>
 
 <body class="public-page public-profile-page">
 
-  <header class="public-cv-topbar">
-    <div class="public-cv-topbar-inner">
-      <a class="public-cv-brand" href="index.html">
+  <header class="public-profile-topbar">
+    <div class="public-profile-topbar-inner">
+      <a class="public-profile-brand" href="index.html">
         <img src="img/logo.png?v=7" class="seav-logo seav-logo--public" alt="SEA-V" width="14" height="14" />
       </a>
-      <nav class="public-cv-topbar-links" aria-label="SEA-V">
+      <nav class="public-profile-topbar-links" aria-label="SEA-V">
         <a href="about.html">About</a>
         <a href="privacy.html">Privacy</a>
-        <a href="index.html" class="public-cv-topbar-cta">Create yours</a>
+        <a href="index.html" class="public-profile-topbar-cta">Create yours</a>
       </nav>
     </div>
   </header>
 
-  <main class="public-cv-main">
+  <main class="dash public-profile-dash">
 
-    <div class="public-cv-shell">
+    <section class="dash-content public-profile-content">
 
-      <article class="dash-card public-cv-state-card" id="ppLoading">
-        <p class="muted" style="margin:0;">Loading public profile…</p>
-      </article>
+      <article class="dashboard-shell-card public-profile-shell" id="ppShell">
 
-      <article class="dash-card public-cv-state-card" id="ppGate" hidden>
-        <h3>Profile not public</h3>
-        <p class="muted" style="margin-top:8px;">
-          This profile is currently set to private.
-        </p>
-        <div class="dash-actions" style="margin-top:14px;">
-          <a class="btn-blue" href="index.html">Back to SEA-V</a>
-        </div>
-      </article>
-
-      <div id="ppContent" class="public-cv-page" style="display:none;">
-
-        <nav
-          class="public-cv-section-nav"
-          id="ppSectionNav"
-          hidden
-          aria-label="Jump to profile section"
-        ></nav>
-
-        <article class="public-cv-hero" id="pp-section-overview">
-          <div class="public-cv-hero-top">
-            <div
-              class="avatar avatar-large public-cv-avatar"
-              id="ppAvatar"
-              aria-label="Profile photo"
-            ></div>
-            <div class="public-cv-headline">
-              <p class="public-cv-kicker">Verified yacht career profile</p>
-              <h1 class="public-cv-name" id="pp_name">Demo User</h1>
-              <p class="public-cv-rank" id="pp_rank">—</p>
-              <p class="public-cv-tagline" id="pp_tagline" hidden></p>
-              <div class="public-cv-facts-inline" id="ppFactsInline"></div>
-            </div>
-          </div>
-
-          <div class="public-cv-trust-strip" id="ppTrustStrip" hidden></div>
-
-          <div class="public-cv-career-overview" id="ppCareerOverview" hidden>
-            <p class="public-cv-section-kicker">Career overview</p>
-            <p class="public-bio" id="pp_bio"></p>
-          </div>
-        </article>
-
-        <div class="public-cv-sections">
-
-          <article class="public-cv-section public-cv-section--compact" id="ppCertSection">
-            <div class="public-cv-section-head">
-              <h2>Certificates</h2>
-              <span class="public-cv-section-count" id="ppCertSummary" hidden></span>
-            </div>
-            <p class="public-cv-section-note">Compliance status at a glance — full documents available on request.</p>
-            <div id="ppCertSnippet"></div>
-          </article>
-
-          <article class="public-cv-section public-cv-section--compact" id="ppVesselSection">
-            <div class="public-cv-section-head">
-              <h2>Yacht experience</h2>
-              <span class="public-cv-section-count" id="ppVesselCount" hidden></span>
-            </div>
-            <p class="public-cv-section-note">Roles, programs, and onboard highlights — cross-check with sea time and references below.</p>
-            <div id="ppVesselSnippet"></div>
-          </article>
-
-          <article class="public-cv-section public-cv-section--compact" id="ppSeatimeSection" hidden>
-            <div class="public-cv-section-head">
-              <h2>Sea service record</h2>
-              <span class="public-cv-section-badge public-cv-section-badge--trust">Auditable</span>
-            </div>
-            <p class="public-cv-section-note">Formal sea time logged in SEA-V — helps employers verify experience claims.</p>
-            <div id="ppSeatimeSnippet"></div>
-          </article>
-
-          <article class="public-cv-section public-cv-section--compact" id="ppRefSection" hidden>
-            <div class="public-cv-section-head">
-              <h2>Verified references</h2>
-              <span class="public-cv-section-badge public-cv-section-badge--trust">Confirmed</span>
-            </div>
-            <p class="public-cv-section-note">Only references with confirmed verification are shown publicly.</p>
-            <div id="ppRefSnippet"></div>
-          </article>
-
-          <article class="public-cv-section public-cv-section--compact" id="ppOperationsSection" hidden>
-            <div class="public-cv-section-head">
-              <h2>Signed-off operations</h2>
-              <span class="public-cv-section-badge public-cv-section-badge--trust">Verified</span>
-            </div>
-            <div id="ppOperationsSnippet"></div>
-          </article>
-
-          <article class="public-cv-section public-cv-section--compact" id="ppNavigationSection" hidden>
-            <div class="public-cv-section-head">
-              <h2>Areas navigated</h2>
-            </div>
-            <div id="ppNavigationSnippet"></div>
-          </article>
-
-          <article class="public-cv-section public-cv-section--compact" id="ppSpecialistSection" hidden>
-            <div class="public-cv-section-head">
-              <h2>Specialist skills</h2>
-            </div>
-            <div id="ppSpecialistSnippet"></div>
-          </article>
-
-          <article class="public-cv-section public-cv-section--compact public-cv-section--muted" id="ppAchievementSection" hidden>
-            <div class="public-cv-section-head">
-              <h2>Highlights</h2>
-            </div>
-            <div id="ppAchievementSnippet"></div>
-          </article>
-
-          <article class="public-cv-section public-cv-section--compact" id="ppHobbiesSection" hidden>
-            <div class="public-cv-section-head">
-              <h2>Hobbies & interests</h2>
-            </div>
-            <div id="ppHobbiesSnippet"></div>
-          </article>
-
+        <div class="dashboard-shell-section public-profile-state-wrap" id="ppLoading">
+          <p class="muted" style="margin:0;">Loading public profile…</p>
         </div>
 
-        <footer class="public-cv-footer">
-          <p class="public-cv-footer-note" id="ppFooterNote" hidden>
-            Profile powered by SEA-V — structured maritime records employers can trust.
+        <div class="dashboard-shell-section public-profile-state-wrap" id="ppGate" hidden>
+          <h3>Profile not public</h3>
+          <p class="muted" style="margin-top:8px;">
+            This profile is currently set to private.
           </p>
-          <a class="public-cv-footer-cta" href="signup.html">Build your own SEA-V profile</a>
-        </footer>
+          <div class="dash-actions" style="margin-top:14px;">
+            <a class="btn-blue" href="index.html">Back to SEA-V</a>
+          </div>
+        </div>
 
-      </div>
-    </div>
+        <div id="ppContent" hidden>
+
+          <div class="dashboard-shell-head">
+            <div class="dashboard-shell-icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M12 8.5l2.8 2.8-4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="dashboard-shell-copy">
+              <h2 id="ppShellTitle">Public profile</h2>
+              <p id="ppShellSubtitle">
+                Verified yacht career overview — qualifications, service history, vessels, and professional records.
+              </p>
+            </div>
+          </div>
+
+          <section class="dashboard-shell-section">
+
+            <nav
+              class="public-profile-section-nav"
+              id="ppSectionNav"
+              hidden
+              aria-label="Jump to profile section"
+            ></nav>
+
+            <div class="dash-top">
+
+              <article class="dash-card dash-card-accent-profile dash-profile" id="pp-section-overview">
+                <div class="dashboard-profile-wrap">
+                  <div class="dashboard-profile-top">
+                    <div class="dashboard-profile-left">
+                      <div
+                        class="avatar avatar-large dashboard-avatar-modern"
+                        id="ppAvatar"
+                        aria-label="Profile photo"
+                      ></div>
+                    </div>
+                    <div class="dashboard-profile-heading">
+                      <h3 class="profile-name dashboard-profile-name" id="pp_name">Seafarer</h3>
+                      <p class="public-profile-tagline" id="pp_tagline" hidden></p>
+                      <div class="dashboard-profile-fields">
+                        <div class="dashboard-info-box">
+                          <span class="dashboard-info-label">Current qualification</span>
+                          <span class="dashboard-info-value" id="ppProfileQualification">—</span>
+                        </div>
+                        <div class="dashboard-info-box">
+                          <span class="dashboard-info-label">Rank</span>
+                          <span class="dashboard-info-value" id="ppProfileRank">—</span>
+                        </div>
+                        <div class="dashboard-info-box">
+                          <span class="dashboard-info-label">Availability</span>
+                          <span class="dashboard-info-value" id="ppProfileAvailability">—</span>
+                        </div>
+                        <div class="dashboard-info-box">
+                          <span class="dashboard-info-label">Nationality</span>
+                          <span class="dashboard-info-value" id="ppProfileNationality">—</span>
+                        </div>
+                        <div class="dashboard-info-box">
+                          <span class="dashboard-info-label">Location</span>
+                          <span class="dashboard-info-value" id="ppProfileLocation">—</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="dashboard-bio-under dashboard-profile-bio" id="ppCareerOverview" hidden>
+                    <span class="dashboard-info-label">Career overview</span>
+                    <p class="dashboard-summary-text" id="pp_bio"></p>
+                  </div>
+                </div>
+              </article>
+
+              <article class="dash-card dash-card-accent-seatime dash-kpis-row" id="ppKpiCard" hidden>
+                <h3 class="kpi-title">Career snapshot</h3>
+                <div class="kpi-row-grid kpi-row-grid-5" id="ppTrustStrip"></div>
+              </article>
+
+            </div>
+
+            <div class="dashboard-stack public-profile-stack">
+
+              <article class="dash-card dash-card-accent-vessels" id="ppVesselSection">
+                <div class="dashboard-card-headline">
+                  <h3>Yacht experience</h3>
+                  <span class="public-profile-section-count" id="ppVesselCount" hidden></span>
+                </div>
+                <div id="ppVesselSnippet"></div>
+              </article>
+
+              <article class="dash-card dash-card-accent-tenders" id="ppTenderSection" hidden>
+                <div class="dashboard-card-headline">
+                  <h3>Tenders</h3>
+                  <span class="public-profile-section-count" id="ppTenderCount" hidden></span>
+                </div>
+                <div id="ppTenderSnippet"></div>
+              </article>
+
+              <article class="dash-card dash-card-accent-seatime" id="ppSeatimeSection" hidden>
+                <div class="dashboard-card-headline">
+                  <h3>Sea service record</h3>
+                </div>
+                <p class="public-profile-section-note">Formal sea time logged in SEA-V.</p>
+                <div id="ppSeatimeSnippet"></div>
+              </article>
+
+              <article class="dash-card dash-card-accent-navigation" id="ppNavigationSection" hidden>
+                <div class="dashboard-card-headline">
+                  <h3>Areas navigated</h3>
+                </div>
+                <div id="ppNavigationSnippet"></div>
+              </article>
+
+              <article class="dash-card dash-card-accent-onboard" id="ppOperationsSection" hidden>
+                <div class="dashboard-card-headline">
+                  <h3>Signed-off operations</h3>
+                </div>
+                <div id="ppOperationsSnippet"></div>
+              </article>
+
+              <article class="dash-card dash-card-accent-specialist" id="ppSpecialistSection" hidden>
+                <div class="dashboard-card-headline">
+                  <h3>Specialist qualifications</h3>
+                </div>
+                <div id="ppSpecialistSnippet"></div>
+              </article>
+
+              <article class="dash-card dash-card-accent-certificates dash-card-certs" id="ppCertSection">
+                <div class="dashboard-card-headline">
+                  <h3>Certificates</h3>
+                  <span class="public-profile-section-count" id="ppCertSummary" hidden></span>
+                </div>
+                <p class="public-profile-section-note">Compliance status at a glance.</p>
+                <div id="ppCertSnippet"></div>
+              </article>
+
+              <article class="dash-card dash-card-accent-references" id="ppRefSection" hidden>
+                <div class="dashboard-card-headline">
+                  <h3>Verified references</h3>
+                </div>
+                <p class="public-profile-section-note">Only confirmed verifications are shown.</p>
+                <div id="ppRefSnippet"></div>
+              </article>
+
+              <article class="dash-card dash-card-accent-hobbies" id="ppAchievementSection" hidden>
+                <div class="dashboard-card-headline">
+                  <h3>Highlights</h3>
+                </div>
+                <div id="ppAchievementSnippet"></div>
+              </article>
+
+              <article class="dash-card dash-card-accent-hobbies" id="ppHobbiesSection" hidden>
+                <div class="dashboard-card-headline">
+                  <h3>Hobbies &amp; interests</h3>
+                </div>
+                <div id="ppHobbiesSnippet"></div>
+              </article>
+
+            </div>
+
+            <footer class="public-profile-footer">
+              <p class="public-profile-footer-note" id="ppFooterNote" hidden>
+                Profile powered by SEA-V — structured maritime records employers can trust.
+              </p>
+              <a class="public-profile-footer-cta" href="signup.html">Build your own SEA-V profile</a>
+            </footer>
+
+          </section>
+        </div>
+      </article>
+
+    </section>
   </main>
 </body>
 </html>

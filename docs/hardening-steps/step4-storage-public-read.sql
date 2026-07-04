@@ -22,6 +22,20 @@ drop policy if exists certificate_files_public_read on storage.objects;
 drop policy if exists achievement_files_public_read on storage.objects;
 drop policy if exists onboard_experience_files_public_read on storage.objects;
 drop policy if exists hobbies_interest_photos_public_read on storage.objects;
+drop policy if exists tender_photos_public_read on storage.objects;
+
+create policy tender_photos_public_read
+  on storage.objects for select to anon
+  using (
+    bucket_id = 'tender-photos'
+    and exists (
+      select 1
+      from public.tenders t
+      join public.profile p on p.user_id = t.user_id
+      where p.public_enabled = true
+        and t.photo->>'path' = storage.objects.name
+    )
+  );
 
 create policy profile_photos_public_read
   on storage.objects for select to anon

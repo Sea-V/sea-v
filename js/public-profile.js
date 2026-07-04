@@ -22,7 +22,7 @@
     const content = document.getElementById("ppContent");
 
     if (loading) loading.hidden = true;
-    if (content) content.style.display = "none";
+    if (content) content.hidden = true;
     if (!gate) return;
 
     gate.hidden = false;
@@ -65,11 +65,15 @@
     } = SeavData;
 
     function getProfileOwnerUserId(profile) {
-      return profile?.userId || profile?.user_id || profile?.id || null;
+      const userId = profile?.userId || profile?.user_id;
+      if (userId) return userId;
+      const id = profile?.id;
+      if (!id || id === "default-profile") return null;
+      return id;
     }
 
     function wirePublicProfileNav() {
-      const brand = document.querySelector(".public-cv-brand");
+      const brand = document.querySelector(".public-profile-brand");
       if (!brand) return;
       const goDashboard = window.SeavAuth?.isAuthenticated?.() === true;
       brand.setAttribute("href", goDashboard ? "dashboard.html" : "index.html");
@@ -78,38 +82,33 @@
     function renderHeaderProfile(profile, vessels, metrics) {
       const avatar = document.getElementById("ppAvatar");
       const nameEl = document.getElementById("pp_name");
-      const rankEl = document.getElementById("pp_rank");
       const taglineEl = document.getElementById("pp_tagline");
-      const factsEl = document.getElementById("ppFactsInline");
+      const qualificationEl = document.getElementById("ppProfileQualification");
+      const rankEl = document.getElementById("ppProfileRank");
+      const availabilityEl = document.getElementById("ppProfileAvailability");
+      const nationalityEl = document.getElementById("ppProfileNationality");
+      const locationEl = document.getElementById("ppProfileLocation");
       const bioEl = document.getElementById("pp_bio");
       const overviewWrap = document.getElementById("ppCareerOverview");
       const footerNote = document.getElementById("ppFooterNote");
+      const shellTitle = document.getElementById("ppShellTitle");
 
-      const rank = profile.rank || "";
-      const qualification = profile.qualification || "";
       const displayName = profile.name || "Seafarer";
 
       if (nameEl) nameEl.textContent = displayName;
       document.title = `${displayName} · Yacht CV · SEA-V`;
+      if (shellTitle) shellTitle.textContent = `${displayName} — public profile`;
 
-      if (rankEl) {
-        rankEl.textContent =
-          qualification && rank
-            ? `${rank} • ${qualification}`
-            : rank || qualification || "—";
-      }
+      if (qualificationEl) qualificationEl.textContent = profile.qualification || "—";
+      if (rankEl) rankEl.textContent = profile.rank || "—";
+      if (availabilityEl) availabilityEl.textContent = profile.availability || "—";
+      if (nationalityEl) nationalityEl.textContent = profile.nationality || "—";
+      if (locationEl) locationEl.textContent = profile.location || "—";
 
       const tagline = buildCareerTagline(vessels);
       if (taglineEl) {
         taglineEl.textContent = tagline;
         taglineEl.hidden = !tagline;
-      }
-
-      if (factsEl) {
-        const facts = [profile.nationality, profile.location, profile.availability].filter(
-          Boolean
-        );
-        factsEl.textContent = facts.length ? facts.join(" • ") : "—";
       }
 
       if (bioEl && overviewWrap) {
@@ -122,7 +121,14 @@
       if (footerNote) footerNote.hidden = false;
 
       if (avatar) {
-        const photoUrl = profile.photo?.url || profile.photo?.dataUrl || "";
+        const photoUrl =
+          Seav.getFileDisplayUrl?.(
+            profile.photo,
+            window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
+          ) ||
+          profile.photo?.url ||
+          profile.photo?.dataUrl ||
+          "";
         if (photoUrl) {
           const safeUrl = String(photoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
           avatar.style.backgroundImage = `url("${safeUrl}")`;
@@ -175,7 +181,7 @@
 
         if (!isPublic) {
           if (gate) gate.hidden = false;
-          if (content) content.style.display = "none";
+          if (content) content.hidden = true;
           if (gate) {
             const title = gate.querySelector("h3");
             const message = gate.querySelector("p");
@@ -189,7 +195,7 @@
         }
 
         if (gate) gate.hidden = true;
-        if (content) content.style.display = "block";
+        if (content) content.hidden = false;
 
         const ownerId = getProfileOwnerUserId(profile);
         if (!ownerId) {
@@ -198,6 +204,7 @@
 
         const [
           vessels,
+          tenders,
           certs,
           refs,
           navigationAreas,
@@ -208,6 +215,7 @@
           seatimes
         ] = await Promise.all([
           loadPublicData(ownerId, KEYS.VESSELS),
+          loadPublicData(ownerId, KEYS.TENDERS),
           loadPublicData(ownerId, KEYS.CERTS),
           loadPublicData(ownerId, KEYS.REFS),
           loadPublicData(ownerId, KEYS.NAVIGATION_AREAS),
@@ -230,6 +238,7 @@
         renderHeaderProfile(profile, vessels, metrics);
         sections.renderSeatime(seatimes, vessels);
         sections.renderVessels(vessels, onboardEntries, seatimes);
+        sections.renderTenders(tenders, vessels);
         sections.renderNavigation(navigationAreas);
         sections.renderOperations(onboardEntries, vessels);
         sections.renderHobbiesInterests(hobbyEntries);
@@ -243,7 +252,7 @@
       } catch (err) {
         console.error("[SEA-V] Public profile render failed:", err);
         if (loading) loading.hidden = true;
-        if (content) content.style.display = "none";
+        if (content) content.hidden = true;
         if (gate) {
           gate.hidden = false;
           const title = gate.querySelector("h3");
