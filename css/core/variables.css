@@ -86,6 +86,11 @@
   --seav-meta-value-size: 14px;
   --seav-meta-value-weight: 600;
 
+  /* Entity names (vessel, tender, yacht) vs fill-in field labels/values */
+  --seav-entity-name-color: #ffffff;
+  --seav-field-label-color: var(--seav-meta-label-color);
+  --seav-field-value-color: #ffffff;
+
   --seav-meta-muted-color: rgba(255, 255, 255, 0.45);
   --seav-meta-desc-color: rgba(255, 255, 255, 0.78);
   --seav-meta-link-color: #9ddcff;

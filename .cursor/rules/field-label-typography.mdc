@@ -1,0 +1,34 @@
+---
+description: SEA-V field label typography — white entity names, blue labels, white values
+alwaysApply: true
+---
+
+# Field label typography (SEA-V standard)
+
+When styling **named entities** (vessels, tenders, yachts) and **labeled data fields**, use these tokens from `css/core/variables.css`:
+
+| Role | Token | Color | Examples |
+|------|--------|-------|----------|
+| **Entity name** | `--seav-entity-name-color` | White `#ffffff` | Vessel/tender/yacht name in card head, overview `h2`, `dash-mini-head h4` |
+| **Field label** | `--seav-field-label-color` | Blue `#5bbcff` | "Build", "Flag", "Type", section labels, meta-grid `vessel-meta-label`, `dash-mini-info-grid span` |
+| **Field value** | `--seav-field-value-color` | White `#ffffff` | Filled-in data: `strong`, `dashboard-info-value`, `vessel-meta-value` |
+
+## Rules
+
+1. **Never color entity names blue** — boat/yacht/tender titles stay `--seav-entity-name-color`.
+2. **Labels for fill-in fields are always blue** — use `--seav-field-label-color`, not page accent silver/green/purple for label *text* (accents belong on borders/outlines only).
+3. **Values are white** — use `--seav-field-value-color` or `--seav-meta-value-color` for body values.
+4. **Vessels page** — silver `--vessel-accent` is for **borders/dividers/icons**, not field label text. Label text follows the blue standard above.
+5. **Public profile** inherits dashboard shell rules via `dashboard-shell-card`; do not add page-specific overrides for boat names or labels unless fixing a proven cascade bug.
+
+## Markup patterns
+
+- **Mini cards (dashboard / public profile):** `dash-mini-head h4` = name; `dash-mini-info-grid span` = label; `dash-mini-info-grid strong` = value.
+- **Meta-grid cards (tenders, references):** `vessel-meta-label` / `vessel-meta-value` — see `meta-grid-card-layout.mdc`.
+- **Vessels shell:** `vessel-section-label`, `vessel-main-item span` = label; `strong` = value; `vessel-overview-head h2` = name.
+
+## When changing CSS
+
+- Prefer tokens over hardcoded `#5bbcff` / `#ffffff` for labels and values.
+- Do not swap label colors to page accent variables (e.g. `--vessel-accent`) without explicit user request.
+- After edits, check vessels page, public profile yacht cards, and dashboard vessel snippet visually.

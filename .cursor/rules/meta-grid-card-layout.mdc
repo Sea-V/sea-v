@@ -41,8 +41,9 @@ Use this pattern for **list pages that show structured records in labeled grid c
 | `--seav-meta-card-border-green` | Tenders / green-accent sections |
 | `--seav-meta-card-border-purple` | References / purple-accent sections |
 | `--seav-meta-item-*` | Inner cell padding, border, background |
-| `--seav-meta-label-color` | Blue labels (`#5bbcff`) |
-| `--seav-meta-value-color` | White values |
+| `--seav-meta-label-color` | Blue field labels (`#5bbcff`) — see `field-label-typography.mdc` |
+| `--seav-meta-value-color` | White field values |
+| `--seav-entity-name-color` | White vessel/tender/yacht names |
 
 **References keep the purple outline** — only the border differs from tenders; shell and cells match.
 

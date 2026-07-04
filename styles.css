@@ -1,4 +1,4 @@
-@import url("./css/core/variables.css?v=50");
+@import url("./css/core/variables.css?v=51");
 @import url("./css/core/reset.css");
 @import url("./css/core/layout.css");
 @import url("./css/components/ocean-background.css?v=81");
@@ -29,12 +29,12 @@
    PAGE STYLES
 ========================================= */
 
-@import url("./css/pages/dashboard.css");
+@import url("./css/pages/dashboard.css?v=63");
 @import url("./css/pages/profile.css");
 @import url("./css/pages/certificates.css");
 @import url("./css/pages/seatime.css");
 @import url("./css/pages/references.css?v=50");
-@import url("./css/pages/vessels.css?v=62");
+@import url("./css/pages/vessels.css?v=63");
 @import url("./css/pages/tenders.css");
 @import url("./css/pages/achievements.css");
 @import url("./css/pages/navigation.css");
@@ -42,7 +42,7 @@
 @import url("./css/pages/hobbies-interests.css");
 @import url("./css/pages/specialist-qualifications.css");
 @import url("./css/pages/payslips.css");
-@import url("./css/pages/public-profile.css?v=83");
+@import url("./css/pages/public-profile.css?v=84");
 @import url("./css/pages/verify-reference.css?v=65");
 @import url("./css/pages/cv-generator.css");
 @import url("./css/pages/info.css");

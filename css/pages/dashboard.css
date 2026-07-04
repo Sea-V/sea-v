@@ -820,7 +820,7 @@
 .dash-mini-head h4 {
   margin: 0;
 
-  color: #ffffff;
+  color: var(--seav-entity-name-color, #ffffff);
 
   font-size: 13px;
   line-height: 1.15;
@@ -855,7 +855,7 @@
 
   margin-bottom: 4px;
 
-  color: #5bbcff;
+  color: var(--seav-field-label-color, #5bbcff);
 
   font-size: 10px;
   font-weight: 800;
@@ -864,7 +864,7 @@
 .dash-mini-info-grid strong {
   display: block;
 
-  color: #ffffff;
+  color: var(--seav-field-value-color, #ffffff);
 
   font-size: 12px;
   line-height: 1.2;
@@ -934,10 +934,6 @@
 }
 
 /* Mini cards inside vessel / tender snippets */
-.dashboard-shell-card .dash-card-accent-vessels .dash-mini-head h4 {
-  color: #5bbcff;
-}
-
 .dashboard-shell-card .dash-card-accent-vessels .dash-mini-card {
   border-color: rgba(214, 226, 238, 0.22);
 }
@@ -1134,7 +1130,7 @@
 .dashboard-shell-card th,
 .dashboard-shell-card .cert-stat-label,
 .dashboard-shell-card .cert-mini-label {
-  color: #5bbcff;
+  color: var(--seav-field-label-color, #5bbcff);
 
   font-size: var(--font-label);
   line-height: 1.1;
@@ -1153,6 +1149,7 @@
   font-size: var(--font-value);
   line-height: 1.4;
   font-weight: 700;
+  color: var(--seav-field-value-color, #ffffff);
 }
 
 /* KPI numbers */
@@ -1171,6 +1168,7 @@
   font-weight: 850;
   letter-spacing: 0.4px;
   text-transform: uppercase;
+  color: var(--seav-entity-name-color, #ffffff);
 }
 
 /* Secondary/sub text */

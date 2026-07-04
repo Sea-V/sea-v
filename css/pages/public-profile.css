@@ -202,19 +202,6 @@ body.public-profile-page .overlay {
   scroll-margin-top: 108px;
 }
 
-.public-profile-page .dashboard-shell-card .dash-card-accent-vessels .dash-mini-head h4,
-.public-profile-page .dashboard-shell-card .dash-card-accent-tenders .dash-mini-head h4 {
-  color: #5bbcff;
-}
-
-.public-profile-page .dashboard-shell-card .dash-mini-info-grid span:not(.tender-proficiency-pill) {
-  color: #5bbcff;
-  font-size: var(--font-label, 10px);
-  font-weight: 850;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
 .public-profile-tagline {
   margin: 4px 0 0;
   color: rgba(255, 255, 255, 0.5);
