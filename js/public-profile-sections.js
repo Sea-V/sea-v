@@ -48,33 +48,45 @@
   let ppNavigationLayer = null;
 
   function destroyPublicNavigationChart() {
-    if (ppNavigationChart) {
+    if (!ppNavigationChart) return;
+    try {
       ppNavigationChart.remove();
-      ppNavigationChart = null;
-      ppNavigationLayer = null;
+    } catch (error) {
+      console.warn("[SEA-V] Public nav chart cleanup:", error);
     }
+    ppNavigationChart = null;
+    ppNavigationLayer = null;
   }
 
   function initPublicNavigationChart(container) {
-    if (ppNavigationChart || !container || typeof L === "undefined") return;
+    if (!container || typeof L === "undefined") return false;
 
-    ppNavigationChart = L.map(container, {
-      center: [25, 0],
-      zoom: 1,
-      minZoom: 1,
-      zoomControl: false,
-      attributionControl: true,
-      dragging: true,
-      scrollWheelZoom: false
-    });
+    destroyPublicNavigationChart();
 
-    L.tileLayer(PP_NAV_TILE_URL, {
-      attribution: PP_NAV_ATTRIBUTION,
-      subdomains: "abcd",
-      maxZoom: 18
-    }).addTo(ppNavigationChart);
+    try {
+      ppNavigationChart = L.map(container, {
+        center: [25, 0],
+        zoom: 2,
+        minZoom: 1,
+        zoomControl: true,
+        attributionControl: true,
+        dragging: true,
+        scrollWheelZoom: false
+      });
 
-    ppNavigationLayer = L.layerGroup().addTo(ppNavigationChart);
+      L.tileLayer(PP_NAV_TILE_URL, {
+        attribution: PP_NAV_ATTRIBUTION,
+        subdomains: "abcd",
+        maxZoom: 18
+      }).addTo(ppNavigationChart);
+
+      ppNavigationLayer = L.layerGroup().addTo(ppNavigationChart);
+      return true;
+    } catch (error) {
+      console.error("[SEA-V] Public nav chart init failed:", error);
+      destroyPublicNavigationChart();
+      return false;
+    }
   }
 
   function waitForLeaflet(maxMs = 10000) {
@@ -114,7 +126,7 @@
         lineJoin: "round"
       });
 
-      line.bindTooltip(`${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`, { sticky: true });
+      line.bindTooltip(`${from} → ${to}`, { sticky: true });
       ppNavigationLayer.addLayer(line);
       coords.forEach((coord) => bounds.push(coord));
     });
@@ -133,6 +145,60 @@
         ppNavigationChart?.invalidateSize();
       }, 200);
     }, 120);
+  }
+
+  function buildNavigationFallbackList(navigationAreas) {
+    const portEntries = [...navigationAreas]
+      .filter(
+        (item) =>
+          item.fromPort ||
+          item.toPort ||
+          item.port ||
+          item.fromCountry ||
+          item.toCountry ||
+          item.country
+      )
+      .sort((a, b) => {
+        const da = a.visitedDate ? new Date(a.visitedDate) : new Date(0);
+        const db = b.visitedDate ? new Date(b.visitedDate) : new Date(0);
+        return db - da;
+      })
+      .slice(0, LIMITS.navigationPorts);
+
+    if (!portEntries.length) {
+      return `<div class="muted">Passages logged — add port coordinates in SEA-V to show the chart.</div>`;
+    }
+
+    return `
+      <div class="public-cv-port-list">
+        ${portEntries
+          .map((item) => {
+            const from = item.fromPort
+              ? [item.fromPort, item.fromCountry].filter(Boolean).join(", ")
+              : "";
+            const to = [item.toPort || item.port, item.toCountry || item.country]
+              .filter(Boolean)
+              .join(", ");
+            const label = from && to ? `${from} → ${to}` : to || from || "Passage";
+            return `<div class="public-cv-port-row"><span>${Seav.escapeHtml(label)}</span></div>`;
+          })
+          .join("")}
+      </div>
+    `;
+  }
+
+  function schedulePublicNavigationChartPaint(container, stats, vessels) {
+    const paint = () => {
+      if (!initPublicNavigationChart(container)) return;
+      paintPublicNavigationChart(stats, vessels);
+    };
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        paint();
+        window.setTimeout(paint, 250);
+      });
+    });
   }
 
   function buildVesselHighlights(vessel, onboardEntries) {
@@ -435,11 +501,16 @@
     }
 
     const stats = buildPublicNavigationStats(navigationAreas, vessels);
+    const hasPlottableRoutes = stats.routes.length > 0;
 
     box.innerHTML = `
       <div class="dashboard-navigation-layout">
         <div class="dashboard-navigation-chart-shell">
-          <div class="dashboard-navigation-chart" id="ppNavigationChart"></div>
+          ${
+            hasPlottableRoutes
+              ? `<div class="dashboard-navigation-chart" id="ppNavigationChart"></div>`
+              : `<div class="dashboard-navigation-chart public-profile-navigation-fallback">${buildNavigationFallbackList(navigationAreas)}</div>`
+          }
         </div>
         <div class="dashboard-navigation-stats">
           <div class="dashboard-navigation-stat">
@@ -484,18 +555,19 @@
 
     section.hidden = false;
 
+    if (!hasPlottableRoutes) return;
+
     const leafletReady = await waitForLeaflet();
     const container = document.getElementById("ppNavigationChart");
     if (!leafletReady || !container) {
       const chartShell = box.querySelector(".dashboard-navigation-chart-shell");
       if (chartShell) {
-        chartShell.innerHTML = `<div class="muted">Map loading… refresh if this persists.</div>`;
+        chartShell.innerHTML = `<div class="dashboard-navigation-chart public-profile-navigation-fallback">${buildNavigationFallbackList(navigationAreas)}<p class="muted" style="margin-top:10px;">Map unavailable — passage list shown instead.</p></div>`;
       }
       return;
     }
 
-    initPublicNavigationChart(container);
-    paintPublicNavigationChart(stats, vessels);
+    schedulePublicNavigationChartPaint(container, stats, vessels);
   }
 
   function renderOnboardExperience(onboardEntries, vessels) {
