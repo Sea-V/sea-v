@@ -934,6 +934,10 @@
 }
 
 /* Mini cards inside vessel / tender snippets */
+.dashboard-shell-card .dash-card-accent-vessels .dash-mini-head h4 {
+  color: #5bbcff;
+}
+
 .dashboard-shell-card .dash-card-accent-vessels .dash-mini-card {
   border-color: rgba(214, 226, 238, 0.22);
 }
