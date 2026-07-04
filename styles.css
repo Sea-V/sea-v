@@ -42,7 +42,7 @@
 @import url("./css/pages/hobbies-interests.css");
 @import url("./css/pages/specialist-qualifications.css");
 @import url("./css/pages/payslips.css");
-@import url("./css/pages/public-profile.css?v=75");
+@import url("./css/pages/public-profile.css?v=76");
 @import url("./css/pages/verify-reference.css?v=65");
 @import url("./css/pages/cv-generator.css");
 @import url("./css/pages/info.css");
@@ -370,13 +370,15 @@ img.seav-logo--verify {
   text-transform: none !important;
 }
 
-/* Public profile — never use dashboard sidebar grid (embedded for cache safety) */
+/* Public profile — full-width guest layout over animated ocean */
 body.public-profile-page .public-profile-main {
   display: block !important;
+  position: relative !important;
+  z-index: 2 !important;
   width: 100% !important;
-  max-width: 1100px !important;
-  margin: 0 auto !important;
-  padding: 14px 16px 32px !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 14px 20px 32px !important;
   box-sizing: border-box !important;
   min-height: auto !important;
   overflow: visible !important;
@@ -385,8 +387,8 @@ body.public-profile-page .public-profile-main {
 body.public-profile-page .public-profile-content {
   display: block !important;
   width: 100% !important;
-  max-width: 980px !important;
-  margin: 0 auto !important;
+  max-width: none !important;
+  margin: 0 !important;
 }
 
 body.public-profile-page .public-profile-shell,

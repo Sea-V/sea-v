@@ -1,13 +1,13 @@
 /* =========================================================
    Animated ocean background
-   index • signup • about • contact • privacy • terms • verify-reference
+   index • signup • about • contact • privacy • terms • verify-reference • public-profile
 ========================================================= */
 
-:is(body.index-page, body.landing-page, body.legal-page) {
+:is(body.index-page, body.landing-page, body.legal-page, body.public-profile-page) {
   overflow-x: hidden;
 }
 
-:is(body.index-page, body.landing-page, body.legal-page) .ocean {
+:is(body.index-page, body.landing-page, body.legal-page, body.public-profile-page) .ocean {
   position: fixed;
   top: 0;
   left: 0;
@@ -23,7 +23,7 @@
   animation: waveMove 60s linear infinite;
 }
 
-:is(body.index-page, body.landing-page, body.legal-page) .overlay {
+:is(body.index-page, body.landing-page, body.legal-page, body.public-profile-page) .overlay {
   position: fixed;
   top: 0;
   left: 0;

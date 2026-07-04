@@ -4,22 +4,24 @@
 
 .public-profile-page {
   min-height: 100vh;
-  background: var(--page-bg, #0a121f);
+  background: transparent;
 }
 
 .public-profile-main {
+  position: relative;
+  z-index: 2;
   display: block;
   width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 14px 16px 32px;
+  max-width: none;
+  margin: 0;
+  padding: 14px 20px 32px;
   box-sizing: border-box;
 }
 
 .public-profile-content {
   width: 100%;
-  max-width: 980px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
 }
 
 .public-profile-shell {
@@ -45,9 +47,10 @@
 }
 
 .public-profile-topbar-inner {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 10px 16px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
