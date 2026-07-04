@@ -30,6 +30,7 @@
     getVesselRole, getVesselType, getVesselLength, getVesselExperience,
     formatDates, truncate, setSectionCount, buildShowMoreButton,
     groupSeatimeByVessel, formatNm, getPublicVesselColor, buildPublicNavigationStats,
+    getNavigationEndpointMarkers, hasPlottableNavigationData,
     bindExpandToggles, getCertPublicStatus, findCertByCode, findSavedCertByCode, isMandatoryCert,
     isRecommendedCert, normalizeCode, formatExpiryShort, getComplianceClass,
     renderVerificationBadge, isReferenceVerified, getCertComplianceSummary,
@@ -58,38 +59,7 @@
     ppNavigationLayer = null;
   }
 
-  function initPublicNavigationChart(container) {
-    if (!container || typeof L === "undefined") return false;
-
-    destroyPublicNavigationChart();
-
-    try {
-      ppNavigationChart = L.map(container, {
-        center: [25, 0],
-        zoom: 2,
-        minZoom: 1,
-        zoomControl: true,
-        attributionControl: true,
-        dragging: true,
-        scrollWheelZoom: false
-      });
-
-      L.tileLayer(PP_NAV_TILE_URL, {
-        attribution: PP_NAV_ATTRIBUTION,
-        subdomains: "abcd",
-        maxZoom: 18
-      }).addTo(ppNavigationChart);
-
-      ppNavigationLayer = L.layerGroup().addTo(ppNavigationChart);
-      return true;
-    } catch (error) {
-      console.error("[SEA-V] Public nav chart init failed:", error);
-      destroyPublicNavigationChart();
-      return false;
-    }
-  }
-
-  function waitForLeaflet(maxMs = 10000) {
+  function destroyPublicNavigationChart() {
     return new Promise((resolve) => {
       const started = Date.now();
       const tick = () => {
@@ -107,13 +77,53 @@
     });
   }
 
-  function paintPublicNavigationChart(stats, vessels) {
+  function whenChartContainerReady(container, callback) {
+    const attempt = () => {
+      if (!container?.isConnected) return false;
+      const rect = container.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        callback();
+        return true;
+      }
+      return false;
+    };
+
+    if (attempt()) return;
+
+    window.requestAnimationFrame(() => {
+      if (attempt()) return;
+      window.requestAnimationFrame(() => {
+        if (attempt()) return;
+        window.setTimeout(callback, 300);
+      });
+    });
+  }
+
+  function settlePublicNavigationChart(bounds) {
+    if (!ppNavigationChart) return;
+
+    ppNavigationChart.invalidateSize(true);
+
+    if (bounds.length) {
+      ppNavigationChart.fitBounds(L.latLngBounds(bounds), {
+        padding: [52, 52],
+        maxZoom: 5,
+        animate: false
+      });
+    } else {
+      ppNavigationChart.setView([25, 0], 2, { animate: false });
+    }
+  }
+
+  function paintPublicNavigationChart(stats, vessels, navigationAreas) {
     if (!ppNavigationChart || !ppNavigationLayer) return;
 
     ppNavigationLayer.clearLayers();
     const bounds = [];
+    const routedEntryIds = new Set();
 
     stats.routes.forEach(({ entry, coords }) => {
+      routedEntryIds.add(entry.id);
       const vesselId = entry.vesselId || entry.vessel_id || "";
       const color = getPublicVesselColor(vesselId, vessels);
       const from = entry.fromPort || entry.from_port || "Departure";
@@ -131,20 +141,63 @@
       coords.forEach((coord) => bounds.push(coord));
     });
 
-    window.setTimeout(() => {
-      if (!ppNavigationChart) return;
-      ppNavigationChart.invalidateSize();
-      if (bounds.length) {
-        ppNavigationChart.fitBounds(L.latLngBounds(bounds), {
-          padding: [52, 52],
-          maxZoom: 2,
-          animate: false
+    navigationAreas.forEach((entry) => {
+      if (routedEntryIds.has(entry.id)) return;
+
+      const vesselId = entry.vesselId || entry.vessel_id || "";
+      const color = getPublicVesselColor(vesselId, vessels);
+      getNavigationEndpointMarkers(entry).forEach(({ coord, label }) => {
+        const marker = L.circleMarker(coord, {
+          radius: 6,
+          color,
+          fillColor: color,
+          fillOpacity: 0.88,
+          weight: 2
         });
-      }
-      window.setTimeout(() => {
-        ppNavigationChart?.invalidateSize();
-      }, 200);
-    }, 120);
+        marker.bindTooltip(label, { sticky: true });
+        ppNavigationLayer.addLayer(marker);
+        bounds.push(coord);
+      });
+    });
+
+    whenChartContainerReady(ppNavigationChart.getContainer(), () => {
+      settlePublicNavigationChart(bounds);
+      window.setTimeout(() => settlePublicNavigationChart(bounds), 250);
+    });
+  }
+
+  function mountPublicNavigationMap(container, stats, vessels, navigationAreas) {
+    if (!container || typeof L === "undefined") return false;
+
+    destroyPublicNavigationChart();
+    container.replaceChildren();
+
+    try {
+      ppNavigationChart = L.map(container, {
+        center: [25, 0],
+        zoom: 2,
+        minZoom: 1,
+        zoomControl: true,
+        attributionControl: true,
+        dragging: true,
+        scrollWheelZoom: false,
+        preferCanvas: true
+      });
+
+      L.tileLayer(PP_NAV_TILE_URL, {
+        attribution: PP_NAV_ATTRIBUTION,
+        subdomains: "abcd",
+        maxZoom: 18
+      }).addTo(ppNavigationChart);
+
+      ppNavigationLayer = L.layerGroup().addTo(ppNavigationChart);
+      paintPublicNavigationChart(stats, vessels, navigationAreas);
+      return true;
+    } catch (error) {
+      console.error("[SEA-V] Public nav chart init failed:", error);
+      destroyPublicNavigationChart();
+      return false;
+    }
   }
 
   function buildNavigationFallbackList(navigationAreas) {
@@ -187,17 +240,9 @@
     `;
   }
 
-  function schedulePublicNavigationChartPaint(container, stats, vessels) {
-    const paint = () => {
-      if (!initPublicNavigationChart(container)) return;
-      paintPublicNavigationChart(stats, vessels);
-    };
-
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        paint();
-        window.setTimeout(paint, 250);
-      });
+  function schedulePublicNavigationChartPaint(container, stats, vessels, navigationAreas) {
+    whenChartContainerReady(container, () => {
+      mountPublicNavigationMap(container, stats, vessels, navigationAreas);
     });
   }
 
@@ -501,15 +546,16 @@
     }
 
     const stats = buildPublicNavigationStats(navigationAreas, vessels);
-    const hasPlottableRoutes = stats.routes.length > 0;
+    const canPlotMap = hasPlottableNavigationData(navigationAreas);
 
     box.innerHTML = `
       <div class="dashboard-navigation-layout">
         <div class="dashboard-navigation-chart-shell">
+          <div class="dashboard-navigation-chart" id="ppNavigationChart"></div>
           ${
-            hasPlottableRoutes
-              ? `<div class="dashboard-navigation-chart" id="ppNavigationChart"></div>`
-              : `<div class="dashboard-navigation-chart public-profile-navigation-fallback">${buildNavigationFallbackList(navigationAreas)}</div>`
+            !canPlotMap
+              ? `<div class="public-profile-navigation-map-note muted">Passage ports logged — map shows once coordinates are available.</div>`
+              : ""
           }
         </div>
         <div class="dashboard-navigation-stats">
@@ -555,8 +601,6 @@
 
     section.hidden = false;
 
-    if (!hasPlottableRoutes) return;
-
     const leafletReady = await waitForLeaflet();
     const container = document.getElementById("ppNavigationChart");
     if (!leafletReady || !container) {
@@ -567,7 +611,7 @@
       return;
     }
 
-    schedulePublicNavigationChartPaint(container, stats, vessels);
+    schedulePublicNavigationChartPaint(container, stats, vessels, navigationAreas);
   }
 
   function renderOnboardExperience(onboardEntries, vessels) {

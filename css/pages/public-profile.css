@@ -236,23 +236,49 @@ body.public-profile-page .overlay {
 }
 
 /* Leaflet map inside public profile cards */
+.public-profile-page .dashboard-navigation-chart-shell {
+  position: relative;
+  isolation: isolate;
+  height: 380px;
+  min-height: 380px;
+}
+
 .public-profile-page .dashboard-navigation-chart {
   position: relative;
   z-index: 1;
+  width: 100%;
+  height: 380px;
   min-height: 380px;
 }
 
 .public-profile-page .dashboard-navigation-chart .leaflet-container {
-  width: 100%;
-  height: 100%;
-  min-height: 380px;
+  width: 100% !important;
+  height: 380px !important;
+  min-height: 380px !important;
   background: rgba(8, 16, 28, 0.55);
 }
 
 .public-profile-page .dashboard-navigation-chart .leaflet-pane,
+.public-profile-page .dashboard-navigation-chart .leaflet-tile-pane,
+.public-profile-page .dashboard-navigation-chart .leaflet-overlay-pane,
 .public-profile-page .dashboard-navigation-chart .leaflet-top,
 .public-profile-page .dashboard-navigation-chart .leaflet-bottom {
-  z-index: 2;
+  z-index: 1;
+}
+
+.public-profile-navigation-map-note {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 5;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 16, 28, 0.82);
+  font-size: 10px;
+  line-height: 1.35;
+  pointer-events: none;
 }
 
 .public-profile-navigation-fallback {
@@ -1249,8 +1275,10 @@ body.public-profile-page .overlay {
     grid-template-columns: 1fr;
   }
 
+  .public-profile-page .dashboard-navigation-chart-shell,
   .public-profile-page .dashboard-navigation-chart,
   .public-profile-page .dashboard-navigation-chart .leaflet-container {
+    height: 280px;
     min-height: 280px;
   }
 

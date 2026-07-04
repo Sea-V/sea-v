@@ -82,21 +82,90 @@
       .filter((wp) => hasNavCoord(wp.lat, wp.lng));
   }
 
+  function normalizePortText(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function findPublicPort(country, port) {
+    const ports = window.SeavNavigationPorts?.PORTS || [];
+    if (!country && !port) return null;
+    const normCountry = normalizePortText(country);
+    const normPort = normalizePortText(port);
+    return (
+      ports.find(
+        (item) =>
+          normalizePortText(item.country) === normCountry &&
+          normalizePortText(item.port) === normPort
+      ) || null
+    );
+  }
+
+  function resolveNavPoint(lat, lng, country, port) {
+    if (hasNavCoord(lat, lng)) return [Number(lat), Number(lng)];
+    const found = findPublicPort(country, port);
+    if (found && hasNavCoord(found.lat, found.lng)) return [Number(found.lat), Number(found.lng)];
+    return null;
+  }
+
   function getNavigationRouteCoords(entry) {
-    const fromLat = Number(entry.fromLat ?? entry.from_lat ?? 0);
-    const fromLng = Number(entry.fromLng ?? entry.from_lng ?? 0);
-    const toLat = Number(entry.toLat ?? entry.lat ?? entry.to_lat ?? 0);
-    const toLng = Number(entry.toLng ?? entry.lng ?? entry.to_lng ?? 0);
+    const from = resolveNavPoint(
+      entry.fromLat ?? entry.from_lat,
+      entry.fromLng ?? entry.from_lng,
+      entry.fromCountry || entry.from_country,
+      entry.fromPort || entry.from_port
+    );
+    const to = resolveNavPoint(
+      entry.toLat ?? entry.lat ?? entry.to_lat,
+      entry.toLng ?? entry.lng ?? entry.to_lng,
+      entry.toCountry || entry.to_country || entry.country,
+      entry.toPort || entry.port
+    );
     const waypoints = normalizeNavWaypoints(entry.waypoints);
 
-    if (!hasNavCoord(fromLat, fromLng) || !hasNavCoord(toLat, toLng)) return [];
-    if (fromLat === toLat && fromLng === toLng && !waypoints.length) return [];
+    if (!from || !to) return [];
+    if (from[0] === to[0] && from[1] === to[1] && !waypoints.length) return [];
 
-    return [
-      [fromLat, fromLng],
-      ...waypoints.map((wp) => [wp.lat, wp.lng]),
-      [toLat, toLng]
-    ];
+    return [from, ...waypoints.map((wp) => [wp.lat, wp.lng]), to];
+  }
+
+  function getNavigationEndpointMarkers(entry) {
+    const markers = [];
+    const fromLabel = [entry.fromPort || entry.from_port, entry.fromCountry || entry.from_country]
+      .filter(Boolean)
+      .join(", ");
+    const toLabel = [
+      entry.toPort || entry.port,
+      entry.toCountry || entry.to_country || entry.country
+    ]
+      .filter(Boolean)
+      .join(", ");
+    const from = resolveNavPoint(
+      entry.fromLat ?? entry.from_lat,
+      entry.fromLng ?? entry.from_lng,
+      entry.fromCountry || entry.from_country,
+      entry.fromPort || entry.from_port
+    );
+    const to = resolveNavPoint(
+      entry.toLat ?? entry.lat ?? entry.to_lat,
+      entry.toLng ?? entry.lng ?? entry.to_lng,
+      entry.toCountry || entry.to_country || entry.country,
+      entry.toPort || entry.port
+    );
+
+    if (from) markers.push({ coord: from, label: fromLabel || "Departure" });
+    if (to) markers.push({ coord: to, label: toLabel || "Arrival" });
+    return markers;
+  }
+
+  function hasPlottableNavigationData(entries) {
+    return (entries || []).some((entry) => {
+      if (getNavigationRouteCoords(entry).length >= 2) return true;
+      return getNavigationEndpointMarkers(entry).length > 0;
+    });
   }
 
   function getNavigationRouteDistance(coords) {
@@ -671,6 +740,7 @@
     LIMITS,
     haversineNm, formatNm, hasNavCoord, normalizeNavWaypoints,
     getNavigationRouteCoords, getNavigationRouteDistance, computeNavigationTotalNm,
+    getNavigationEndpointMarkers, hasPlottableNavigationData,
     getPublicVesselName, getPublicVesselColor, buildPublicNavigationStats,
     getVesselRole, getVesselType, getVesselLength, getVesselExperience,
     isReferenceVerified, isTrustedVerificationStatus, getCertComplianceSummary,
