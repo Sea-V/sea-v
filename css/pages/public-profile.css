@@ -7,6 +7,48 @@
   background: transparent;
 }
 
+/* Animated ocean — duplicated here so cache-busted public-profile CSS always applies */
+body.public-profile-page .ocean {
+  display: block;
+  position: fixed;
+  inset: 0;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 200%;
+  height: 100%;
+  min-height: 100vh;
+  pointer-events: none;
+  background-color: #0b1c2e;
+  background-image:
+    linear-gradient(180deg, rgba(8, 18, 35, 0.2) 0%, rgba(11, 28, 46, 0.85) 100%),
+    url("/img/ocean.png");
+  background-size: cover, cover;
+  background-repeat: no-repeat, repeat-x;
+  animation: publicProfileWaveMove 60s linear infinite;
+}
+
+body.public-profile-page .overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  pointer-events: none;
+  background: rgba(8, 18, 35, 0.45);
+}
+
+@keyframes publicProfileWaveMove {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .public-profile-main {
   position: relative;
   z-index: 2;
