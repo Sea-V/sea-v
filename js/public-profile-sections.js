@@ -77,6 +77,24 @@
     ppNavigationLayer = L.layerGroup().addTo(ppNavigationChart);
   }
 
+  function waitForLeaflet(maxMs = 10000) {
+    return new Promise((resolve) => {
+      const started = Date.now();
+      const tick = () => {
+        if (typeof L !== "undefined") {
+          resolve(true);
+          return;
+        }
+        if (Date.now() - started >= maxMs) {
+          resolve(false);
+          return;
+        }
+        window.setTimeout(tick, 50);
+      };
+      tick();
+    });
+  }
+
   function paintPublicNavigationChart(stats, vessels) {
     if (!ppNavigationChart || !ppNavigationLayer) return;
 
@@ -102,6 +120,7 @@
     });
 
     window.setTimeout(() => {
+      if (!ppNavigationChart) return;
       ppNavigationChart.invalidateSize();
       if (bounds.length) {
         ppNavigationChart.fitBounds(L.latLngBounds(bounds), {
@@ -110,7 +129,10 @@
           animate: false
         });
       }
-    }, 80);
+      window.setTimeout(() => {
+        ppNavigationChart?.invalidateSize();
+      }, 200);
+    }, 120);
   }
 
   function buildVesselHighlights(vessel, onboardEntries) {
@@ -400,7 +422,7 @@
     section.hidden = false;
   }
 
-  function renderNavigation(navigationAreas, vessels) {
+  async function renderNavigation(navigationAreas, vessels) {
     const box = document.getElementById("ppNavigationSnippet");
     const section = document.getElementById("ppNavigationSection");
     if (!box || !section) return;
@@ -462,11 +484,12 @@
 
     section.hidden = false;
 
+    const leafletReady = await waitForLeaflet();
     const container = document.getElementById("ppNavigationChart");
-    if (!container || typeof L === "undefined") {
+    if (!leafletReady || !container) {
       const chartShell = box.querySelector(".dashboard-navigation-chart-shell");
       if (chartShell) {
-        chartShell.innerHTML = `<div class="muted">Chart preview unavailable.</div>`;
+        chartShell.innerHTML = `<div class="muted">Map loading… refresh if this persists.</div>`;
       }
       return;
     }
@@ -480,13 +503,11 @@
     const section = document.getElementById("ppOperationsSection");
     if (!box || !section) return;
 
-    const entries = [...(onboardEntries || [])]
-      .filter((entry) => entry.status === "Signed Off")
-      .sort((a, b) => {
-        const da = a.dateFrom ? new Date(a.dateFrom) : new Date(0);
-        const db = b.dateFrom ? new Date(b.dateFrom) : new Date(0);
-        return db - da;
-      });
+    const entries = [...(onboardEntries || [])].sort((a, b) => {
+      const da = a.dateFrom ? new Date(a.dateFrom) : new Date(0);
+      const db = b.dateFrom ? new Date(b.dateFrom) : new Date(0);
+      return db - da;
+    });
 
     if (!entries.length) {
       section.hidden = true;
@@ -509,7 +530,7 @@
               ${entry.isFamiliarisation ? " • Familiarisation" : ""}
             </div>
           </div>
-          <span class="pill">${Seav.escapeHtml(entry.status || "Signed Off")}</span>
+          <span class="pill">${Seav.escapeHtml(entry.status || "—")}</span>
         </div>
       `;
     };

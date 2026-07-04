@@ -128,6 +128,10 @@
     specialist_qualifications: [
       "id", "user_id", "category", "title", "issuing_body", "date_obtained", "expiry",
       "status", "notes", "attachment", "created_at", "updated_at"
+    ].join(","),
+    tenders: [
+      "id", "user_id", "name", "vessel_id", "type", "model", "length", "engine", "capacity",
+      "reg", "proficiency_level", "description", "photo", "created_at", "updated_at"
     ].join(",")
   };
 

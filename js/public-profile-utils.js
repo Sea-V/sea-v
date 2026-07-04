@@ -39,7 +39,6 @@
     { id: "ppNavigationSection", label: "Navigation" },
     { id: "ppOperationsSection", label: "Onboard" },
     { id: "ppSpecialistSection", label: "Skills" },
-    { id: "ppCertSection", label: "Certificates" },
     { id: "ppRefSection", label: "References" },
     { id: "ppAchievementSection", label: "Highlights" },
     { id: "ppHobbiesSection", label: "Interests" }
@@ -643,12 +642,6 @@
     }
     if (metrics.signedOps > 0) {
       items.push({ value: String(metrics.signedOps), label: "Signed ops" });
-    }
-    if (metrics.certSummary.total > 0) {
-      items.push({
-        value: `${metrics.certSummary.valid}/${metrics.certSummary.total}`,
-        label: "Core certs valid"
-      });
     }
 
     if (!items.length) {

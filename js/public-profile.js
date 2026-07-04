@@ -50,11 +50,9 @@
       buildCareerTagline,
       renderTrustStrip,
       isReferenceVerified,
-      getCertComplianceSummary,
       computeNavigationTotalNm,
       bindExpandToggles,
-      renderSectionNav,
-      bindPublicCertToggles
+      renderSectionNav
     } = utils;
 
     const {
@@ -159,11 +157,23 @@
       return { ...DEFAULT_PROFILE, publicEnabled: false };
     }
 
-    async function loadPublicData(ownerUserId, key) {
-      if (ownerUserId && SeavAPI.getArrayForUser) {
-        return SeavAPI.getArrayForUser(key, ownerUserId, { public: true });
-      }
-      return [];
+    function isOwnProfilePreview(ownerUserId, profile) {
+      const authId = window.SeavAuth?.getUserId?.();
+      if (!authId || !ownerUserId) return false;
+      if (authId === ownerUserId) return true;
+      if (profile?.userId === authId || profile?.user_id === authId) return true;
+      if (profile?.id === authId) return true;
+      return false;
+    }
+
+    async function loadPublicData(ownerUserId, key, profile) {
+      if (!ownerUserId || !SeavAPI.getArrayForUser) return [];
+      const useOwnerAccess = isOwnProfilePreview(ownerUserId, profile);
+      return SeavAPI.getArrayForUser(
+        key,
+        ownerUserId,
+        useOwnerAccess ? {} : { public: true }
+      );
     }
 
     async function refreshPublicProfileView() {
@@ -205,7 +215,6 @@
         const [
           vessels,
           tenders,
-          certs,
           refs,
           navigationAreas,
           onboardEntries,
@@ -214,16 +223,15 @@
           achievements,
           seatimes
         ] = await Promise.all([
-          loadPublicData(ownerId, KEYS.VESSELS),
-          loadPublicData(ownerId, KEYS.TENDERS),
-          loadPublicData(ownerId, KEYS.CERTS),
-          loadPublicData(ownerId, KEYS.REFS),
-          loadPublicData(ownerId, KEYS.NAVIGATION_AREAS),
-          loadPublicData(ownerId, KEYS.ONBOARD_EXPERIENCES),
-          loadPublicData(ownerId, KEYS.HOBBIES_INTERESTS),
-          loadPublicData(ownerId, KEYS.SPECIALIST_QUALIFICATIONS),
-          loadPublicData(ownerId, KEYS.ACHIEVEMENTS),
-          loadPublicData(ownerId, KEYS.SEATIMES)
+          loadPublicData(ownerId, KEYS.VESSELS, profile),
+          loadPublicData(ownerId, KEYS.TENDERS, profile),
+          loadPublicData(ownerId, KEYS.REFS, profile),
+          loadPublicData(ownerId, KEYS.NAVIGATION_AREAS, profile),
+          loadPublicData(ownerId, KEYS.ONBOARD_EXPERIENCES, profile),
+          loadPublicData(ownerId, KEYS.HOBBIES_INTERESTS, profile),
+          loadPublicData(ownerId, KEYS.SPECIALIST_QUALIFICATIONS, profile),
+          loadPublicData(ownerId, KEYS.ACHIEVEMENTS, profile),
+          loadPublicData(ownerId, KEYS.SEATIMES, profile)
         ]);
 
         const metrics = {
@@ -231,7 +239,6 @@
           vessels: vessels.length,
           verifiedRefs: refs.filter(isReferenceVerified).length,
           signedOps: onboardEntries.filter((entry) => entry.status === "Signed Off").length,
-          certSummary: getCertComplianceSummary(certs),
           navigationNm: computeNavigationTotalNm(navigationAreas)
         };
 
@@ -239,10 +246,9 @@
         sections.renderSeatime(seatimes, vessels);
         sections.renderVessels(vessels, onboardEntries, seatimes);
         sections.renderTenders(tenders, vessels);
-        sections.renderNavigation(navigationAreas, vessels);
+        await sections.renderNavigation(navigationAreas, vessels);
         sections.renderOnboardExperience(onboardEntries, vessels);
         sections.renderHobbiesInterests(hobbyEntries);
-        sections.renderCertificates(certs);
         sections.renderSpecialistQualifications(specialistEntries);
         sections.renderReferences(refs, vessels);
         sections.renderAchievements(achievements);
@@ -271,7 +277,6 @@
       await window.SeavAuth.whenReady();
     }
     wirePublicProfileNav();
-    bindPublicCertToggles();
     await refreshPublicProfileView();
 
     document.addEventListener("seav:data-updated", refreshPublicProfileView);
