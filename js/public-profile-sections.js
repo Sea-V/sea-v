@@ -59,7 +59,7 @@
     ppNavigationLayer = null;
   }
 
-  function destroyPublicNavigationChart() {
+  function waitForLeaflet(maxMs = 10000) {
     return new Promise((resolve) => {
       const started = Date.now();
       const tick = () => {
