@@ -216,6 +216,29 @@
   color: #ffffff;
 }
 
+/* No sidebar on public profile — use full viewport width */
+.public-profile-page .dash,
+.public-profile-page .public-profile-dash {
+  display: block;
+  grid-template-columns: 1fr;
+  min-height: auto;
+  overflow: visible;
+  padding: 0;
+}
+
+.public-profile-page .dash-content,
+.public-profile-page .public-profile-content {
+  width: 100%;
+  max-width: none;
+  margin-top: 0;
+  padding-bottom: 32px;
+}
+
+.public-profile-page .public-profile-shell,
+.public-profile-page .dashboard-shell-card {
+  width: 100%;
+}
+
 .public-page:not(.public-profile-page) .dash {
   grid-template-columns: 1fr;
 }
