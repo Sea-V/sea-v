@@ -161,7 +161,8 @@
     }
 
     const mapped = (data || []).map(mapper);
-    if (!bulkHydrateFiles) return mapped;
+    const shouldHydrateFiles = bulkHydrateFiles || options.public === true;
+    if (!shouldHydrateFiles) return mapped;
     return hydrateArrayFiles(mapped, table, { client });
   }
 

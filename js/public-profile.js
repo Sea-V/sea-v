@@ -196,8 +196,6 @@
           throw new Error("Public profile owner id missing.");
         }
 
-        SeavAPI.setBulkHydrateFiles?.(false);
-
         const [
           vessels,
           certs,
@@ -219,8 +217,6 @@
           loadPublicData(ownerId, KEYS.ACHIEVEMENTS),
           loadPublicData(ownerId, KEYS.SEATIMES)
         ]);
-
-        SeavAPI.setBulkHydrateFiles?.(true);
 
         const metrics = {
           seaDays: getSeatimeTotals(seatimes).sea,
@@ -246,7 +242,6 @@
         renderSectionNav();
       } catch (err) {
         console.error("[SEA-V] Public profile render failed:", err);
-        SeavAPI.setBulkHydrateFiles?.(true);
         if (loading) loading.hidden = true;
         if (content) content.style.display = "none";
         if (gate) {

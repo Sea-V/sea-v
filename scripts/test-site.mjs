@@ -75,6 +75,13 @@ const SCRIPT_CHAINS = {
     "js/cv-engine-model.js",
     "js/cv-engine-render.js",
     "js/cv-engine.js"
+  ],
+  "public-profile.html": [
+    "js/seav-data.js",
+    "js/api.js",
+    "js/public-profile-utils.js",
+    "js/public-profile-sections.js",
+    "js/public-profile.js"
   ]
 };
 
