@@ -239,8 +239,8 @@
         sections.renderSeatime(seatimes, vessels);
         sections.renderVessels(vessels, onboardEntries, seatimes);
         sections.renderTenders(tenders, vessels);
-        sections.renderNavigation(navigationAreas);
-        sections.renderOperations(onboardEntries, vessels);
+        sections.renderNavigation(navigationAreas, vessels);
+        sections.renderOnboardExperience(onboardEntries, vessels);
         sections.renderHobbiesInterests(hobbyEntries);
         sections.renderCertificates(certs);
         sections.renderSpecialistQualifications(specialistEntries);

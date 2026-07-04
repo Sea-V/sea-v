@@ -29,8 +29,7 @@
     LIMITS,
     getVesselRole, getVesselType, getVesselLength, getVesselExperience,
     formatDates, truncate, setSectionCount, buildShowMoreButton,
-    groupSeatimeByVessel, formatNm, hasNavCoord, getNavigationRouteCoords,
-    computeNavigationTotalNm,
+    groupSeatimeByVessel, formatNm, getPublicVesselColor, buildPublicNavigationStats,
     bindExpandToggles, getCertPublicStatus, findCertByCode, findSavedCertByCode, isMandatoryCert,
     isRecommendedCert, normalizeCode, formatExpiryShort, getComplianceClass,
     renderVerificationBadge, isReferenceVerified, getCertComplianceSummary,
@@ -39,6 +38,80 @@
 
   const Seav = window.Seav;
   const escapeHtml = Seav.escapeHtml.bind(Seav);
+
+  const PP_NAV_TILE_URL =
+    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+  const PP_NAV_ATTRIBUTION =
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+  let ppNavigationChart = null;
+  let ppNavigationLayer = null;
+
+  function destroyPublicNavigationChart() {
+    if (ppNavigationChart) {
+      ppNavigationChart.remove();
+      ppNavigationChart = null;
+      ppNavigationLayer = null;
+    }
+  }
+
+  function initPublicNavigationChart(container) {
+    if (ppNavigationChart || !container || typeof L === "undefined") return;
+
+    ppNavigationChart = L.map(container, {
+      center: [25, 0],
+      zoom: 1,
+      minZoom: 1,
+      zoomControl: false,
+      attributionControl: true,
+      dragging: true,
+      scrollWheelZoom: false
+    });
+
+    L.tileLayer(PP_NAV_TILE_URL, {
+      attribution: PP_NAV_ATTRIBUTION,
+      subdomains: "abcd",
+      maxZoom: 18
+    }).addTo(ppNavigationChart);
+
+    ppNavigationLayer = L.layerGroup().addTo(ppNavigationChart);
+  }
+
+  function paintPublicNavigationChart(stats, vessels) {
+    if (!ppNavigationChart || !ppNavigationLayer) return;
+
+    ppNavigationLayer.clearLayers();
+    const bounds = [];
+
+    stats.routes.forEach(({ entry, coords }) => {
+      const vesselId = entry.vesselId || entry.vessel_id || "";
+      const color = getPublicVesselColor(vesselId, vessels);
+      const from = entry.fromPort || entry.from_port || "Departure";
+      const to = entry.toPort || entry.to_port || entry.port || "Arrival";
+      const line = L.polyline(coords, {
+        color,
+        weight: 4,
+        opacity: 0.94,
+        lineCap: "round",
+        lineJoin: "round"
+      });
+
+      line.bindTooltip(`${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`, { sticky: true });
+      ppNavigationLayer.addLayer(line);
+      coords.forEach((coord) => bounds.push(coord));
+    });
+
+    window.setTimeout(() => {
+      ppNavigationChart.invalidateSize();
+      if (bounds.length) {
+        ppNavigationChart.fitBounds(L.latLngBounds(bounds), {
+          padding: [52, 52],
+          maxZoom: 2,
+          animate: false
+        });
+      }
+    }, 80);
+  }
 
   function buildVesselHighlights(vessel, onboardEntries) {
     return onboardEntries
@@ -327,204 +400,87 @@
     section.hidden = false;
   }
 
-  function formatNavigationRouteLabel(item) {
-    const from = item.fromPort
-      ? [item.fromPort, item.fromCountry].filter(Boolean).join(", ")
-      : "";
-    const to = [item.toPort || item.port, item.toCountry || item.country]
-      .filter(Boolean)
-      .join(", ");
-
-    if (from && to) return `${from} → ${to}`;
-    return to || from || "Passage";
-  }
-
-  function renderNavigation(navigationAreas) {
+  function renderNavigation(navigationAreas, vessels) {
     const box = document.getElementById("ppNavigationSnippet");
     const section = document.getElementById("ppNavigationSection");
     if (!box || !section) return;
+
+    destroyPublicNavigationChart();
 
     if (!navigationAreas.length) {
       section.hidden = true;
       return;
     }
 
-    const countries = [
-      ...new Set(
-        navigationAreas.flatMap((item) =>
-          [item.fromCountry, item.toCountry, item.country].filter(Boolean)
-        )
-      )
-    ].sort((a, b) => a.localeCompare(b));
-
-    const ports = new Set(
-      navigationAreas.flatMap((item) => {
-        const labels = [];
-        if (item.fromPort) {
-          labels.push([item.fromPort, item.fromCountry].filter(Boolean).join(", "));
-        }
-        const arrival = [item.toPort || item.port, item.toCountry || item.country]
-          .filter(Boolean)
-          .join(", ");
-        if (arrival) labels.push(arrival);
-        return labels;
-      })
-    );
-
-    const visibleCountries = countries.slice(0, LIMITS.navigationRegions);
-    const hiddenCountries = countries.slice(LIMITS.navigationRegions);
-    const moreId = "ppNavMore";
-
-    const portEntries = [...navigationAreas]
-      .filter(
-        (item) =>
-          item.fromPort ||
-          item.toPort ||
-          item.port ||
-          item.fromCountry ||
-          item.toCountry ||
-          item.country
-      )
-      .sort((a, b) => {
-        const da = a.visitedDate ? new Date(a.visitedDate) : new Date(0);
-        const db = b.visitedDate ? new Date(b.visitedDate) : new Date(0);
-        return db - da;
-      });
-
-    const visiblePorts = portEntries.slice(0, LIMITS.navigationPorts);
-    const hiddenPorts = portEntries.slice(LIMITS.navigationPorts);
-    const portsMoreId = "ppPortsMore";
-
-    const summaryParts = [];
-    const totalNm = computeNavigationTotalNm(navigationAreas);
-    if (totalNm > 0) {
-      summaryParts.push(`${formatNm(totalNm)} navigated`);
-    }
-    if (countries.length) {
-      summaryParts.push(
-        `${countries.length} ${countries.length === 1 ? "country" : "countries"}`
-      );
-    }
-    if (ports.size) {
-      summaryParts.push(
-        `${ports.size} ${ports.size === 1 ? "port" : "ports"} logged`
-      );
-    }
+    const stats = buildPublicNavigationStats(navigationAreas, vessels);
 
     box.innerHTML = `
-      ${
-        summaryParts.length
-          ? `<p class="public-cv-nav-summary">${Seav.escapeHtml(summaryParts.join(" • "))}</p>`
-          : ""
-      }
-      <div class="public-cv-chip-row">
-        ${visibleCountries
-          .map(
-            (country) =>
-              `<span class="public-cv-chip public-cv-chip--soft">${Seav.escapeHtml(country)}</span>`
-          )
-          .join("")}
+      <div class="dashboard-navigation-layout">
+        <div class="dashboard-navigation-chart-shell">
+          <div class="dashboard-navigation-chart" id="ppNavigationChart"></div>
+        </div>
+        <div class="dashboard-navigation-stats">
+          <div class="dashboard-navigation-stat">
+            <span>Total distance</span>
+            <strong>${Seav.escapeHtml(formatNm(stats.totalNm))}</strong>
+          </div>
+          <div class="dashboard-navigation-stat">
+            <span>Passages</span>
+            <strong>${Seav.escapeHtml(String(stats.routes.length))}</strong>
+          </div>
+          <div class="dashboard-navigation-stat">
+            <span>Countries</span>
+            <strong>${Seav.escapeHtml(String(stats.countries))}</strong>
+          </div>
+          <div class="dashboard-navigation-stat">
+            <span>Vessels</span>
+            <strong>${Seav.escapeHtml(String(stats.vessels))}</strong>
+          </div>
+          <div class="dashboard-navigation-vessel-list">
+            ${
+              stats.vesselRows.length
+                ? stats.vesselRows
+                    .map(
+                      (row) => `
+                  <div class="dashboard-navigation-vessel-row">
+                    <i style="background:${Seav.escapeHtml(getPublicVesselColor(row.id, vessels))}"></i>
+                    <span>${Seav.escapeHtml(row.name)}</span>
+                    <b>${row.passages} / ${row.countries.size} countries</b>
+                  </div>
+                `
+                    )
+                    .join("")
+                : `<div class="muted">No vessel-linked passages yet.</div>`
+            }
+          </div>
+        </div>
       </div>
-      ${
-        hiddenCountries.length
-          ? `<div class="public-cv-chip-row public-cv-more-block" id="${moreId}" hidden>
-              ${hiddenCountries
-                .map(
-                  (country) =>
-                    `<span class="public-cv-chip public-cv-chip--soft" data-pp-more-item>${Seav.escapeHtml(country)}</span>`
-                )
-                .join("")}
-            </div>
-            ${buildShowMoreButton(moreId, hiddenCountries.length, "regions")}`
-          : ""
-      }
-      ${
-        visiblePorts.length
-          ? `<div class="public-cv-port-list">
-              ${visiblePorts
-                .map((item) => {
-                  const label = formatNavigationRouteLabel(item);
-                  const dep = item.departureDate || item.visitedDate || "";
-                  const arr = item.arrivalDate || "";
-                  const when = dep && arr
-                    ? `${formatExpiryShort(dep)} → ${formatExpiryShort(arr)}`
-                    : dep || arr
-                    ? formatExpiryShort(dep || arr)
-                    : "";
-                  return `
-                    <div class="public-cv-port-row">
-                      <span>${Seav.escapeHtml(label)}</span>
-                      ${when ? `<span class="public-cv-port-when">${Seav.escapeHtml(when)}</span>` : ""}
-                    </div>
-                  `;
-                })
-                .join("")}
-              ${
-                hiddenPorts.length
-                  ? `<div class="public-cv-more-block" id="${portsMoreId}" hidden>
-                      ${hiddenPorts
-                        .map((item) => {
-                          const label = formatNavigationRouteLabel(item);
-                          return `<div class="public-cv-port-row" data-pp-more-item><span>${Seav.escapeHtml(label)}</span></div>`;
-                        })
-                        .join("")}
-                    </div>
-                    ${buildShowMoreButton(portsMoreId, hiddenPorts.length, "ports")}`
-                  : ""
-              }
-            </div>`
-          : ""
-      }
+      <div class="dashboard-navigation-foot">
+        <span>${navigationAreas.length} passage${navigationAreas.length === 1 ? "" : "s"} logged</span>
+      </div>
     `;
 
     section.hidden = false;
+
+    const container = document.getElementById("ppNavigationChart");
+    if (!container || typeof L === "undefined") {
+      const chartShell = box.querySelector(".dashboard-navigation-chart-shell");
+      if (chartShell) {
+        chartShell.innerHTML = `<div class="muted">Chart preview unavailable.</div>`;
+      }
+      return;
+    }
+
+    initPublicNavigationChart(container);
+    paintPublicNavigationChart(stats, vessels);
   }
 
-  function buildOperationRow(entry, vessels) {
-    const vessel = vessels.find((v) => v.id === entry.vesselId);
-    const meta = [
-      getOnboardCategoryLabel(entry.category),
-      vessel?.name || null,
-      entry.dateFrom ? formatExpiryShort(entry.dateFrom) : null
-    ]
-      .filter(Boolean)
-      .join(" • ");
-
-    const signoff = entry.signoff || {};
-    const signoffLine =
-      signoff.signatoryName || signoff.confirmed
-        ? [
-            signoff.signatoryName,
-            signoff.signatoryRank,
-            signoff.signedAt ? formatExpiryShort(signoff.signedAt) : null
-          ]
-            .filter(Boolean)
-            .join(" • ")
-        : "";
-
-    return `
-      <div class="public-cv-mini-row public-cv-mini-row--stacked" data-pp-more-item>
-        <div class="public-cv-mini-main">
-          <span class="public-cv-mini-title">${Seav.escapeHtml(entry.title || "Onboard operation")}</span>
-          <span class="public-cv-mini-meta">${Seav.escapeHtml(meta)}</span>
-          ${entry.description ? `<p class="public-cv-op-desc">${Seav.escapeHtml(truncate(entry.description, 160))}</p>` : ""}
-          ${
-            signoffLine
-              ? `<p class="public-cv-signoff-line">Signed off by ${Seav.escapeHtml(signoffLine)}</p>`
-              : ""
-          }
-        </div>
-        ${renderVerificationBadge(entry.status, "Signed off")}
-      </div>
-    `;
-  }
-
-  function renderOperations(onboardEntries, vessels) {
+  function renderOnboardExperience(onboardEntries, vessels) {
     const box = document.getElementById("ppOperationsSnippet");
     const section = document.getElementById("ppOperationsSection");
     if (!box || !section) return;
 
-    const signed = onboardEntries
+    const entries = [...(onboardEntries || [])]
       .filter((entry) => entry.status === "Signed Off")
       .sort((a, b) => {
         const da = a.dateFrom ? new Date(a.dateFrom) : new Date(0);
@@ -532,33 +488,47 @@
         return db - da;
       });
 
-    if (!signed.length) {
+    if (!entries.length) {
       section.hidden = true;
+      setSectionCount("ppOnboardCount", 0);
       return;
     }
 
-    const visible = signed.slice(0, LIMITS.operations);
-    const hidden = signed.slice(LIMITS.operations);
-    const moreId = "ppOpsMore";
+    const visible = entries.slice(0, LIMITS.operations);
+    const hidden = entries.slice(LIMITS.operations);
+    const moreId = "ppOnboardMore";
+
+    const buildRow = (entry) => {
+      const vessel = vessels.find((v) => v.id === entry.vesselId);
+      return `
+        <div class="list-row" data-pp-more-item>
+          <div style="min-width:0;">
+            <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
+            <div class="list-sub">
+              ${Seav.escapeHtml(vessel?.name || "—")} • ${Seav.escapeHtml(getOnboardCategoryLabel(entry.category))}
+              ${entry.isFamiliarisation ? " • Familiarisation" : ""}
+            </div>
+          </div>
+          <span class="pill">${Seav.escapeHtml(entry.status || "Signed Off")}</span>
+        </div>
+      `;
+    };
 
     box.innerHTML = `
-      <div class="public-cv-mini-list">
-        ${visible
-          .map((entry) =>
-            buildOperationRow(entry, vessels).replace(" data-pp-more-item", "")
-          )
-          .join("")}
+      <div class="list">
+        ${visible.map((entry) => buildRow(entry).replace(" data-pp-more-item", "")).join("")}
         ${
           hidden.length
             ? `<div class="public-cv-more-block" id="${moreId}" hidden>
-                ${hidden.map((entry) => buildOperationRow(entry, vessels)).join("")}
+                <div class="list">${hidden.map(buildRow).join("")}</div>
               </div>`
             : ""
         }
       </div>
-      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "operations") : ""}
+      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "entries") : ""}
     `;
 
+    setSectionCount("ppOnboardCount", entries.length);
     section.hidden = false;
   }
 
@@ -1052,10 +1022,8 @@
     renderSeatime,
     renderVessels,
     renderTenders,
-    formatNavigationRouteLabel,
     renderNavigation,
-    buildOperationRow,
-    renderOperations,
+    renderOnboardExperience,
     renderHobbiesInterests,
     getCertStatusPillClass,
     buildPublicCertRow,

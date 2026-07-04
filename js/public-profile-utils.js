@@ -37,7 +37,7 @@
     { id: "ppTenderSection", label: "Tenders" },
     { id: "ppSeatimeSection", label: "Sea time" },
     { id: "ppNavigationSection", label: "Navigation" },
-    { id: "ppOperationsSection", label: "Operations" },
+    { id: "ppOperationsSection", label: "Onboard" },
     { id: "ppSpecialistSection", label: "Skills" },
     { id: "ppCertSection", label: "Certificates" },
     { id: "ppRefSection", label: "References" },
@@ -116,6 +116,79 @@
       if (coords.length < 2) return sum;
       return sum + getNavigationRouteDistance(coords);
     }, 0);
+  }
+
+  const PUBLIC_NAV_COLORS = [
+    "#2563eb",
+    "#dc2626",
+    "#16a34a",
+    "#9333ea",
+    "#ea580c",
+    "#0891b2",
+    "#be123c",
+    "#4f46e5",
+    "#0f766e",
+    "#b45309",
+    "#7c3aed",
+    "#0284c7"
+  ];
+
+  function getPublicVesselName(vesselId, vessels) {
+    if (!vesselId) return "Unassigned";
+    return (vessels || []).find((v) => v.id === vesselId)?.name || "Unnamed vessel";
+  }
+
+  function getPublicVesselColor(vesselId, vessels) {
+    if (!vesselId) return "#64748b";
+    const sorted = [...(vessels || [])].sort((a, b) =>
+      String(a.name || "").localeCompare(String(b.name || ""))
+    );
+    const index = sorted.findIndex((v) => v.id === vesselId);
+    return PUBLIC_NAV_COLORS[(index >= 0 ? index : 0) % PUBLIC_NAV_COLORS.length];
+  }
+
+  function buildPublicNavigationStats(entries, vessels) {
+    const routeEntries = (entries || [])
+      .map((entry) => ({ entry, coords: getNavigationRouteCoords(entry) }))
+      .filter((item) => item.coords.length >= 2);
+    const countries = new Set();
+    const vesselMap = new Map();
+    let totalNm = 0;
+
+    routeEntries.forEach(({ entry, coords }) => {
+      totalNm += getNavigationRouteDistance(coords);
+
+      const fromCountry = entry.fromCountry || entry.from_country || "";
+      const toCountry = entry.toCountry || entry.to_country || entry.country || "";
+      if (fromCountry) countries.add(fromCountry);
+      if (toCountry) countries.add(toCountry);
+
+      const vesselId = entry.vesselId || entry.vessel_id || "";
+      if (!vesselMap.has(vesselId)) {
+        vesselMap.set(vesselId, {
+          id: vesselId,
+          name: getPublicVesselName(vesselId, vessels),
+          passages: 0,
+          countries: new Set()
+        });
+      }
+      const vessel = vesselMap.get(vesselId);
+      vessel.passages += 1;
+      if (fromCountry) vessel.countries.add(fromCountry);
+      if (toCountry) vessel.countries.add(toCountry);
+    });
+
+    const vesselRows = [...vesselMap.values()]
+      .sort((a, b) => b.passages - a.passages || a.name.localeCompare(b.name))
+      .slice(0, 4);
+
+    return {
+      routes: routeEntries,
+      totalNm,
+      countries: countries.size,
+      vessels: vesselMap.size,
+      vesselRows
+    };
   }
 
   function getVesselRole(v) {
@@ -605,6 +678,7 @@
     LIMITS,
     haversineNm, formatNm, hasNavCoord, normalizeNavWaypoints,
     getNavigationRouteCoords, getNavigationRouteDistance, computeNavigationTotalNm,
+    getPublicVesselName, getPublicVesselColor, buildPublicNavigationStats,
     getVesselRole, getVesselType, getVesselLength, getVesselExperience,
     isReferenceVerified, isTrustedVerificationStatus, getCertComplianceSummary,
     groupSeatimeByVessel, toNumber, renderVerificationBadge,
