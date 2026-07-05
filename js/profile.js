@@ -48,8 +48,7 @@
       salary: el("pf_salary"),
       availability: el("pf_availability"),
       bio: el("pf_bio"),
-      photo: el("pf_photo"),
-      publicEnabled: el("pf_publicEnabled")
+      photo: el("pf_photo")
     };
 
     const preview = {
@@ -68,9 +67,6 @@
       bio: el("previewBio"),
       photo: el("profilePreviewPhoto")
     };
-
-    const viewPublicBtn = document.getElementById("btnViewPublicProfile");
-    const copyPublicBtn = document.getElementById("btnCopyPublicUrl");
 
     function loadProfile() {
       return {
@@ -162,8 +158,7 @@
         salary: fields.salary?.value.trim() || "",
         availability: fields.availability?.value || "Available Immediately",
         bio: fields.bio?.value.trim() || "",
-        file: fields.photo?.files?.[0] || null,
-        publicEnabled: !!fields.publicEnabled?.checked
+        file: fields.photo?.files?.[0] || null
       };
     }
 
@@ -195,9 +190,6 @@
       if (fields.salary) fields.salary.value = profile.salary || "";
       if (fields.availability) fields.availability.value = profile.availability || "Available Immediately";
       if (fields.bio) fields.bio.value = profile.bio || "";
-      if (fields.publicEnabled) {
-        fields.publicEnabled.checked = !!profile.publicEnabled;
-      }
     }
 
     let previewObjectUrl = null;
@@ -284,7 +276,7 @@
         salary: formData.salary,
         availability: formData.availability,
         bio: formData.bio,
-        publicEnabled: formData.publicEnabled,
+        publicEnabled: !!existingProfile.publicEnabled,
         photo
       };
 
@@ -315,72 +307,10 @@
         Seav.notify(
           "error",
           "Could not save profile",
-          "Check the browser console (F12) for details. If public profile never turns on, verify the public_enabled column in Supabase."
+          "Check the browser console (F12) for details."
         );
       }
     });
-
-    if (viewPublicBtn) {
-      viewPublicBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-
-        const newTab = window.open("about:blank", "_blank");
-
-        try {
-          const profile = await saveProfileFromForm();
-
-          if (!window.SeavData?.isProfilePublic(profile)) {
-            if (newTab) newTab.close();
-            Seav.notify(
-              "info",
-              "Public profile hidden",
-              "Tick “Make my public profile visible” and try again, or click Save Profile first."
-            );
-            return;
-          }
-
-          const publicUrl = new URL(
-            profile.id
-              ? `public-profile.html?p=${encodeURIComponent(profile.id)}`
-              : "public-profile.html",
-            window.location.href
-          ).href;
-
-          if (newTab) {
-            newTab.location.replace(publicUrl);
-          } else {
-            window.open(publicUrl, "_blank", "noopener");
-          }
-        } catch (err) {
-          if (newTab) newTab.close();
-          console.error("[SEA-V] Profile save failed:", err);
-          Seav.notify(
-            "error",
-            "Could not open public profile",
-            "Save your profile first. See the browser console (F12) for details."
-          );
-        }
-      });
-    }
-
-    if (copyPublicBtn) {
-      copyPublicBtn.addEventListener("click", async () => {
-        const profileId = window.SeavAuth?.getUserId?.() || window.SeavState?.profile?.id;
-        if (!profileId) {
-          Seav.notify("error", "Not signed in", "Save your profile after logging in.");
-          return;
-        }
-
-        const publicUrl = new URL(`public-profile.html?p=${encodeURIComponent(profileId)}`, window.location.href).href;
-
-        try {
-          await navigator.clipboard.writeText(publicUrl);
-          Seav.notify("success", "Link copied", "Public profile URL copied to clipboard.");
-        } catch (err) {
-          window.prompt("Copy your public profile link:", publicUrl);
-        }
-      });
-    }
 
     const runRefresh = () => {
       refreshProfileView();
