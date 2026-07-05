@@ -9,6 +9,7 @@
   const Seav = window.Seav;
   const {
     getVesselColor, getVesselName, loadNavEntries, hasCoord, normalizeNavEntry,
+    normalizeWaypointList,
     haversineNm, formatNm, formatRouteLabel, entryHasRoute, buildRouteForEntry, buildPassagePaths,
     roundCoord
   } = { ...H, buildPassagePaths: P.buildPassagePaths };
@@ -17,6 +18,54 @@
   function filterEntries(entries) {
     if (!S.activeVesselFilter) return entries;
     return entries.filter((entry) => entry.vesselId === S.activeVesselFilter);
+  }
+
+  function buildEndpointMarker(coord, role, options = {}) {
+    const isStart = role === "departure" || role === "from";
+    const marker = L.marker([coord.lat, coord.lng], {
+      draggable: !!options.draggable,
+      keyboard: false,
+      icon: L.divIcon({
+        className: `nav-endpoint-marker ${isStart ? "nav-start-marker" : "nav-finish-marker"}`,
+        html: `<span>${isStart ? "S" : "F"}</span>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+      })
+    });
+
+    if (options.draggable && typeof options.onDrag === "function") {
+      marker.on("dragend", () => {
+        options.onDrag(marker.getLatLng());
+      });
+    }
+
+    marker.bindTooltip(isStart ? "Departure start point" : "Arrival finish point", {
+      direction: "top"
+    });
+    return marker;
+  }
+
+  function buildWaypointMarker(wp, index, options = {}) {
+    const marker = L.marker([wp.lat, wp.lng], {
+      draggable: !!options.draggable,
+      keyboard: false,
+      icon: L.divIcon({
+        className: "nav-waypoint-marker",
+        html: `<span>${index + 1}</span>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      })
+    });
+
+    if (options.draggable && typeof options.onDrag === "function") {
+      marker.on("dragend", () => {
+        options.onDrag(marker.getLatLng());
+      });
+    }
+
+    const label = wp.label ? `${index + 1}: ${wp.label}` : `Waypoint ${index + 1}`;
+    marker.bindTooltip(label, { direction: "top" });
+    return marker;
   }
 
   function buildMapPoints(entries) {
@@ -55,6 +104,16 @@
         "arrival",
         `${entry.toPort || "Arrival"}${entry.toCountry ? `, ${entry.toCountry}` : ""}`
       );
+
+      normalizeWaypointList(entry.waypoints).forEach((wp, index) => {
+        addPoint(
+          wp.lat,
+          wp.lng,
+          entry,
+          `waypoint-${index + 1}`,
+          wp.label || `Waypoint ${index + 1}`
+        );
+      });
     });
 
     return points;
@@ -145,11 +204,18 @@
   function buildPointPopup(point) {
     const entry = point.entry;
     const vesselName = getVesselName(entry.vesselId);
-    const roleLabel = point.role === "departure" ? "Departure" : "Arrival";
+    const roleLabel =
+      point.role === "departure"
+        ? "Departure"
+        : point.role === "arrival"
+          ? "Arrival"
+          : "Waypoint";
     const roleDate =
       point.role === "departure"
         ? entry.departureDate || entry.visitedDate || ""
-        : entry.arrivalDate || "";
+        : point.role === "arrival"
+          ? entry.arrivalDate || ""
+          : "";
     const lines = [
       `<strong>${Seav.escapeHtml(roleLabel)}</strong>`,
       Seav.escapeHtml(point.label || ""),
@@ -199,13 +265,27 @@
       });
 
       points.forEach((point) => {
-        const marker = L.circleMarker([point.lat, point.lng], {
-          radius: point.role === "departure" ? 5 : 7,
-          color: "#ffffff",
-          weight: 1.5,
-          fillColor: point.color,
-          fillOpacity: 0.95
-        });
+        let marker;
+        if (point.role === "departure" || point.role === "arrival") {
+          marker = buildEndpointMarker(
+            { lat: point.lat, lng: point.lng },
+            point.role
+          );
+        } else if (String(point.role || "").startsWith("waypoint-")) {
+          const index = Number(String(point.role).replace("waypoint-", "")) - 1;
+          marker = buildWaypointMarker(
+            { lat: point.lat, lng: point.lng, label: point.label },
+            index
+          );
+        } else {
+          marker = L.circleMarker([point.lat, point.lng], {
+            radius: 6,
+            color: "#ffffff",
+            weight: 1.5,
+            fillColor: point.color,
+            fillOpacity: 0.95
+          });
+        }
         marker.bindPopup(buildPointPopup(point));
         S.pointLayer.addLayer(marker);
       });
@@ -292,6 +372,7 @@
   window.SeavNavigationMap = {
     filterEntries, buildMapPoints, collectVisitedCountries, buildNavigationStats,
     renderStats, fitMapToData, formatDateRange, buildPathPopup, buildPointPopup,
+    buildEndpointMarker, buildWaypointMarker,
     refreshMap, initNavigationMap
   };
 })();

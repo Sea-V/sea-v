@@ -446,11 +446,14 @@ function normalizeDashboardWaypoints(value) {
 }
 
 function getDashboardRouteCoords(entry) {
-  const fromLat = Number(entry.fromLat ?? entry.from_lat ?? 0);
-  const fromLng = Number(entry.fromLng ?? entry.from_lng ?? 0);
-  const toLat = Number(entry.toLat ?? entry.lat ?? entry.to_lat ?? 0);
-  const toLng = Number(entry.toLng ?? entry.lng ?? entry.to_lng ?? 0);
-  const waypoints = normalizeDashboardWaypoints(entry.waypoints);
+  const normalized = window.SeavNavigationHelpers?.normalizeNavEntry
+    ? window.SeavNavigationHelpers.normalizeNavEntry(entry)
+    : entry;
+  const fromLat = Number(normalized.fromLat ?? normalized.from_lat ?? 0);
+  const fromLng = Number(normalized.fromLng ?? normalized.from_lng ?? 0);
+  const toLat = Number(normalized.toLat ?? normalized.lat ?? normalized.to_lat ?? 0);
+  const toLng = Number(normalized.toLng ?? normalized.lng ?? normalized.to_lng ?? 0);
+  const waypoints = normalizeDashboardWaypoints(normalized.waypoints);
 
   if (!hasDashboardCoord(fromLat, fromLng) || !hasDashboardCoord(toLat, toLng)) return [];
   if (fromLat === toLat && fromLng === toLng && !waypoints.length) return [];

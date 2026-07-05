@@ -52,6 +52,7 @@
   const setNavFormMode = (v) => F.setNavFormMode(v);
   const readEndpointDetails = F.readEndpointDetails;
   const resolveEndpointCoord = F.resolveEndpointCoord;
+  const getEndpointLocationInput = F.getEndpointLocationInput;
   const normalizeText = H.normalizeText;
   const formatRouteLabel = H.formatRouteLabel;
   const formatNm = H.formatNm;
@@ -83,6 +84,7 @@
 
     fromCountry.addEventListener("change", () => {
       syncLocationFromPort("from");
+      renderWorkingRoute();
     });
     fromPort.addEventListener("change", () => {
       syncLocationFromPort("from");
@@ -90,10 +92,20 @@
     });
     toCountry.addEventListener("change", () => {
       syncLocationFromPort("to");
+      renderWorkingRoute();
     });
     toPort.addEventListener("change", () => {
       syncLocationFromPort("to");
       updateEndpointFromPort("to");
+    });
+
+    getEndpointLocationInput("from")?.addEventListener("input", () => {
+      renderEndpointStatus();
+      renderWorkingRoute();
+    });
+    getEndpointLocationInput("to")?.addEventListener("input", () => {
+      renderEndpointStatus();
+      renderWorkingRoute();
     });
 
     if (!H.getCountryList().length) {

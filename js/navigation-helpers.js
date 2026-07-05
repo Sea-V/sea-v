@@ -117,7 +117,7 @@
     const departureDate = entry.departureDate || entry.visitedDate || "";
     const arrivalDate = entry.arrivalDate || "";
 
-    return {
+    return resolveNavEntryCoords({
       ...entry,
       passageName: entry.passageName || "",
       seatimeId: entry.seatimeId || "",
@@ -137,7 +137,7 @@
       port: toPort,
       lat: toLat,
       lng: toLng
-    };
+    });
   }
 
   function normalizeText(value) {
@@ -154,6 +154,44 @@
         normalizeText(item.country) === normalizeText(country) &&
         normalizeText(item.port) === normalizeText(port)
     );
+  }
+
+  function lookupPortByName(name, country = "") {
+    const trimmed = String(name || "").trim();
+    if (!trimmed) return null;
+
+    if (country) {
+      const exact = findPort(country, trimmed);
+      if (exact) return exact;
+    }
+
+    return (
+      getPortList().find((item) => normalizeText(item.port) === normalizeText(trimmed)) || null
+    );
+  }
+
+  function resolveNavEntryCoords(entry) {
+    const resolved = { ...entry };
+
+    if (!hasCoord(resolved.fromLat, resolved.fromLng) && resolved.fromPort) {
+      const found = lookupPortByName(resolved.fromPort, resolved.fromCountry);
+      if (found) {
+        resolved.fromLat = found.lat;
+        resolved.fromLng = found.lng;
+        if (!resolved.fromCountry) resolved.fromCountry = found.country;
+      }
+    }
+
+    if (!hasCoord(resolved.toLat, resolved.toLng) && resolved.toPort) {
+      const found = lookupPortByName(resolved.toPort, resolved.toCountry);
+      if (found) {
+        resolved.toLat = found.lat;
+        resolved.toLng = found.lng;
+        if (!resolved.toCountry) resolved.toCountry = found.country;
+      }
+    }
+
+    return resolved;
   }
 
   function haversineNm(lat1, lng1, lat2, lng2) {
@@ -211,6 +249,7 @@
     getPortList, getCountryList, getCountryGeoNames, roundCoord,
     getVessels, getSeatimes, getVesselName, getVesselColor, loadNavEntries,
     hasCoord, normalizeWaypointList, normalizeNavEntry, normalizeText, findPort,
+    lookupPortByName, resolveNavEntryCoords,
     haversineNm, formatNm, formatRouteLabel, entryHasRoute, pathLengthNm
   };
 })();

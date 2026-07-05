@@ -10,7 +10,7 @@
   const Seav = window.Seav;
   const {
     getPortList, getCountryList, roundCoord, getVessels, getSeatimes, getVesselName,
-    normalizeText, findPort, normalizeWaypointList, normalizeNavEntry, hasCoord
+    normalizeText, findPort, lookupPortByName, normalizeWaypointList, normalizeNavEntry, hasCoord
   } = H;
   const buildRecommendedPassageWaypoints = P.buildRecommendedPassageWaypoints;
   const buildRouteThroughAnchors = P.buildRouteThroughAnchors;
@@ -263,6 +263,12 @@
       if (found) return { lat: found.lat, lng: found.lng };
     }
 
+    const manual = details?.manualName || details?.portName || "";
+    if (manual) {
+      const found = lookupPortByName(manual, details?.country || "");
+      if (found) return { lat: found.lat, lng: found.lng };
+    }
+
     return null;
   }
 
@@ -344,7 +350,36 @@
     if (adjusted && Number.isFinite(adjusted.lat) && Number.isFinite(adjusted.lng)) {
       return { lat: adjusted.lat, lng: adjusted.lng };
     }
-    return selected;
+    if (selected) return selected;
+
+    const manual = getEndpointLocationInput(role)?.value.trim() || "";
+    const country =
+      document.getElementById(role === "from" ? "navFromCountry" : "navToCountry")?.value.trim() ||
+      "";
+    const found = lookupPortByName(manual, country);
+    return found ? { lat: found.lat, lng: found.lng } : null;
+  }
+
+  function syncEndpointCoordsFromPorts() {
+    ["from", "to"].forEach((role) => {
+      const existing = S.formEndpointCoords[role];
+      if (existing && Number.isFinite(existing.lat) && Number.isFinite(existing.lng)) {
+        return;
+      }
+
+      const coord = getFormPortCoord(
+        role === "from" ? "navFromCountry" : "navToCountry",
+        role === "from" ? "navFromPort" : "navToPort"
+      );
+      if (coord) {
+        S.formEndpointCoords[role] = {
+          lat: roundCoord(coord.lat),
+          lng: roundCoord(coord.lng)
+        };
+      }
+    });
+    renderEndpointStatus();
+    renderWorkingRoute();
   }
 
   function resetEndpointToPort(role) {
@@ -399,32 +434,17 @@
   }
 
   function buildEndpointMarker(role, coord) {
-    const isStart = role === "from";
-    const marker = L.marker([coord.lat, coord.lng], {
+    return M.buildEndpointMarker(coord, role, {
       draggable: true,
-      keyboard: false,
-      icon: L.divIcon({
-        className: `nav-endpoint-marker ${isStart ? "nav-start-marker" : "nav-finish-marker"}`,
-        html: `<span>${isStart ? "S" : "F"}</span>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14]
-      })
+      onDrag: (ll) => {
+        S.formEndpointCoords[role] = {
+          lat: roundCoord(ll.lat),
+          lng: roundCoord(ll.lng)
+        };
+        renderEndpointStatus();
+        renderWorkingRoute();
+      }
     });
-
-    marker.on("dragend", () => {
-      const ll = marker.getLatLng();
-      S.formEndpointCoords[role] = {
-        lat: roundCoord(ll.lat),
-        lng: roundCoord(ll.lng)
-      };
-      renderEndpointStatus();
-      renderWorkingRoute();
-    });
-
-    marker.bindTooltip(isStart ? "Departure start point" : "Arrival finish point", {
-      direction: "top"
-    });
-    return marker;
   }
 
   function renderWaypointList() {
@@ -473,29 +493,19 @@
     renderEndpointStatus();
 
     S.formWaypoints.forEach((wp, index) => {
-      const marker = L.marker([wp.lat, wp.lng], {
+      const marker = M.buildWaypointMarker(wp, index, {
         draggable: true,
-        keyboard: false,
-        icon: L.divIcon({
-          className: "nav-waypoint-marker",
-          html: `<span>${index + 1}</span>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12]
-        })
+        onDrag: (ll) => {
+          S.formWaypoints[index] = {
+            ...S.formWaypoints[index],
+            lat: roundCoord(ll.lat),
+            lng: roundCoord(ll.lng)
+          };
+          renderWaypointList();
+          renderWorkingRoute();
+        }
       });
 
-      marker.on("dragend", () => {
-        const ll = marker.getLatLng();
-        S.formWaypoints[index] = {
-          ...S.formWaypoints[index],
-          lat: roundCoord(ll.lat),
-          lng: roundCoord(ll.lng)
-        };
-        renderWaypointList();
-        renderWorkingRoute();
-      });
-
-      marker.bindTooltip(`Waypoint ${index + 1}`, { direction: "top" });
       S.workingLayer.addLayer(marker);
     });
 
@@ -882,6 +892,9 @@
         ? { lat: roundCoord(normalized.toLat), lng: roundCoord(normalized.toLng) }
         : null
     };
+    if (!S.formEndpointCoords.from || !S.formEndpointCoords.to) {
+      syncEndpointCoordsFromPorts();
+    }
     setPickMode(false);
     setEndpointPickMode(null);
     renderEndpointStatus();
@@ -901,7 +914,8 @@
     wireRouteSelects, populateVesselOptions, buildSeatimeLabel, getLinkedSeatimeIds,
     populateSeatimeOptions, applySeatimeLink, resetRouteForm, setNavFormMode,
     prefillFromSeatimeParam, getEndpointLocationInput, readEndpointDetails,
-    resolveEndpointCoord, syncLocationFromPort, renderEndpointStatus, renderWaypointList,
+    resolveEndpointCoord, syncLocationFromPort, syncEndpointCoordsFromPorts,
+    getEndpointLocationInput, renderEndpointStatus, renderWaypointList, renderWaypointList,
     renderWorkingRoute, addWaypoint, applyRecommendedPassage, importRouteFile,
     removeWaypoint, moveWaypoint, setEndpointPickMode, setPickMode,
     clearNavEditForm, fillNavForm
