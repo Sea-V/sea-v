@@ -152,8 +152,11 @@
 }
 
 .navigation-map-wrap {
-  position: relative;
   margin-top: 4px;
+}
+
+.navigation-map-stage {
+  position: relative;
 }
 
 .navigation-map,
