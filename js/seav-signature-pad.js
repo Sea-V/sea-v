@@ -6,12 +6,17 @@
 
   function getPointerPoint(canvas, event) {
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    if (!rect.width || !rect.height) {
+      return { x: 0, y: 0 };
+    }
+
+    // Return CSS pixel coordinates — ctx.setTransform(devicePixelRatio) handles sharpness.
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
 
     return {
-      x: (event.clientX - rect.left) * scaleX,
-      y: (event.clientY - rect.top) * scaleY
+      x: Math.max(0, Math.min(rect.width, x)),
+      y: Math.max(0, Math.min(rect.height, y))
     };
   }
 
