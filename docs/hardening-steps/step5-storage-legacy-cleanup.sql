@@ -162,6 +162,18 @@ update public.certificates
 set attachment = attachment || '{"bucket":"certificate-files"}'::jsonb
 where attachment ? 'path' and coalesce(attachment->>'bucket', '') = '';
 
+update public.vessels
+set photo = photo || '{"bucket":"vessel-photos"}'::jsonb
+where photo ? 'path' and coalesce(photo->>'bucket', '') = '';
+
+update public.tenders
+set photo = photo || '{"bucket":"tender-photos"}'::jsonb
+where photo ? 'path' and coalesce(photo->>'bucket', '') = '';
+
+update public.profile
+set photo = photo || '{"bucket":"profile-photos"}'::jsonb
+where photo ? 'path' and coalesce(photo->>'bucket', '') = '';
+
 -- ---------------------------------------------------------------------------
 -- 5. Assign orphaned Phase 1 rows to primary account (applied 2026-06-15)
 -- Run docs/schema-migrate-default-profile.sql per additional user if needed.

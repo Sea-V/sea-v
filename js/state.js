@@ -661,6 +661,7 @@
 
   window.SeavState = state;
   window.SeavState.ensureUserDataLoaded = ensureUserDataLoaded;
+  window.SeavState.hydrateStoredFiles = hydrateStoredFilesInBackground;
   window.SeavState.isDataLikelyEmpty = isDataLikelyEmpty;
   window.SeavState.clearStateCache = clearStateCacheForAllUsers;
 

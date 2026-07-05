@@ -251,16 +251,28 @@ async function renderCertSnippet() {
     })
     .slice(0, 3);
 
+  const vesselPhotoBucket =
+    window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos";
+  if (window.SeavApiCore?.hydrateItemsFileField) {
+    await window.SeavApiCore.hydrateItemsFileField(
+      latestThree,
+      "photo",
+      vesselPhotoBucket
+    );
+    window.SeavState?.syncCache?.();
+  }
+
   dashVesselSnippet.innerHTML = `
     <div class="dash-mini-card-grid">
       ${latestThree.map((vessel) => {
-        const photoUrl = Seav.getFileDisplayUrl(
-          vessel.photo,
-          window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos"
-        );
+        const photoUrl = Seav.getFileDisplayUrl(vessel.photo, vesselPhotoBucket);
+        const hasPhoto =
+          window.SeavApiCore?.hasStoredFile?.(vessel.photo) ?? !!photoUrl;
         const photoHtml = photoUrl
-          ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(vessel.name || "Vessel")}" />`
-          : `<div class="dash-mini-fallback">No Photo</div>`;
+          ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(vessel.name || "Vessel")}" loading="lazy" />`
+          : hasPhoto
+            ? `<div class="dash-mini-fallback muted">Loading…</div>`
+            : `<div class="dash-mini-fallback">No Photo</div>`;
 
         const name = Seav.escapeHtml(vessel.name || "Unnamed Vessel");
         const builder = Seav.escapeHtml(vessel.builder || "—");
@@ -343,13 +355,16 @@ async function renderTenderSnippet() {
   dashTenderSnippet.innerHTML = `
     <div class="dash-mini-card-grid">
       ${latestThree.map((tender) => {
-        const photoUrl = Seav.getFileDisplayUrl(
-          tender.photo,
-          window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos"
-        );
+        const tenderPhotoBucket =
+          window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos";
+        const photoUrl = Seav.getFileDisplayUrl(tender.photo, tenderPhotoBucket);
+        const hasPhoto =
+          window.SeavApiCore?.hasStoredFile?.(tender.photo) ?? !!photoUrl;
         const photoHtml = photoUrl
-          ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(tender.name || "Tender")}" />`
-          : `<div class="dash-mini-fallback">No Photo</div>`;
+          ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(tender.name || "Tender")}" loading="lazy" />`
+          : hasPhoto
+            ? `<div class="dash-mini-fallback muted">Loading…</div>`
+            : `<div class="dash-mini-fallback">No Photo</div>`;
 
         const linkedVessel = (window.SeavState?.vessels || []).find(
           (v) => v.id === tender.vesselId

@@ -27,6 +27,16 @@
     };
   }
 
+  async function ensureDashboardPhotosHydrated() {
+    if (window.SeavState?.hydrateStoredFiles) {
+      try {
+        await window.SeavState.hydrateStoredFiles("dashboard.html");
+      } catch (err) {
+        console.warn("[SEA-V] Dashboard photo hydration failed:", err);
+      }
+    }
+  }
+
   async function updateDayTypeKpis() {
     const kpiSea = document.getElementById("kpiSea");
     const kpiPort = document.getElementById("kpiPort");
@@ -220,6 +230,7 @@
   }
 
   async function refresh() {
+    await ensureDashboardPhotosHydrated();
     await updateDayTypeKpis();
     await renderDashboardProfile();
     await renderDashboardSnippets();
