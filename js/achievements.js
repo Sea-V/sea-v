@@ -422,7 +422,7 @@
           <article class="ach-recent-item">
             <img class="ach-recent-badge" src="${Seav.escapeHtml(imagePath)}" alt="" />
             <div class="ach-recent-copy">
-              <strong>${Seav.escapeHtml(item.title || "Achievement")}</strong>
+              <strong>${Seav.escapeHtml(item.title || "Milestone")}</strong>
               <span>${Seav.escapeHtml(item.vessel || (item.autoAwarded ? "Career-wide" : "Logged milestone"))} · ${Seav.escapeHtml(formatAchievementDate(item.date))}</span>
             </div>
             ${item.autoAwarded ? `<span class="pill pill-neutral">Auto</span>` : `<span class="pill pill-valid">Logged</span>`}

@@ -1114,7 +1114,7 @@
 
     const buildHighlightRow = (item, isMoreItem = false) => {
       const vessel = item.vessel ? item.vessel : "";
-      const title = item.title || "Achievement";
+      const title = item.title || "Milestone";
       const meta =
         vessel ||
         (item.description ? truncate(item.description, 48) : "");

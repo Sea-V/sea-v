@@ -107,7 +107,7 @@ window.SeavPageColors = {
       "pill": "#c4a0ff"
     },
     "achievements": {
-      "label": "Achievements",
+      "label": "Milestones",
       "href": "achievements.html",
       "sidebar": "#ffb347",
       "fill": [

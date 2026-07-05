@@ -38,7 +38,7 @@
 
   function formatTier(tier) {
     const value = String(tier || "default").trim();
-    if (!value || value === "default") return "Achievement";
+    if (!value || value === "default") return "Milestone";
     return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
@@ -87,7 +87,7 @@
       >
         <div class="badge-unlock-glow" aria-hidden="true"></div>
 
-        <p class="badge-unlock-kicker">Achievement unlocked</p>
+        <p class="badge-unlock-kicker">Milestone unlocked</p>
         <h2 class="badge-unlock-heading" id="badgeUnlockTitle">Congratulations</h2>
         <p class="badge-unlock-subheading">You earned a new career badge</p>
 
@@ -117,7 +117,7 @@
           data-badge-unlock-action="reveal"
           disabled
         >
-          Preparing your achievement…
+          Preparing your milestone…
         </button>
         <button
           type="button"

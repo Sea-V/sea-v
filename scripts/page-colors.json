@@ -56,7 +56,7 @@
     "pill": "#c4a0ff"
   },
   "achievements": {
-    "label": "Achievements",
+    "label": "Milestones",
     "href": "achievements.html",
     "sidebar": "#ffb347",
     "fill": ["#8a5518", "#b87322"],

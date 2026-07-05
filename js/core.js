@@ -460,7 +460,7 @@ function renderAppSidebar() {
           ${renderSidebarGroup(
             "Highlights",
             [
-              renderSidebarLink("achievements.html", "Achievements", iconAchievements),
+              renderSidebarLink("achievements.html", "Milestones", iconAchievements),
               renderSidebarLink("hobbies-interests.html", "Hobbies &amp; Interests", iconHobbies)
             ].join("")
           )}
@@ -492,7 +492,7 @@ function renderAppSidebar() {
       </aside>
 
       <aside class="dash-sidebar sidebar-badge-panel">
-        <h3 class="sidebar-badge-title">Achievements</h3>
+        <h3 class="sidebar-badge-title">Milestones</h3>
         <div class="sidebar-badge-grid" id="sidebarAchievements"></div>
       </aside>
     </div>
@@ -554,12 +554,12 @@ function renderSidebarAchievements() {
   container.innerHTML = grouped
     .map(({ instances, item, image }) => {
       const tier = item.badgeTier || "default";
-      const label = item.badgeLabel || item.title || "Achievement";
+      const label = item.badgeLabel || item.title || "Milestone";
       const vessels = instances.map((entry) => entry.vessel).filter(Boolean);
       const meta =
         vessels.length > 1
           ? `${vessels.length} vessels: ${vessels.slice(0, 3).join(", ")}${vessels.length > 3 ? "…" : ""}`
-          : vessels[0] || item.category || "Achievement";
+          : vessels[0] || item.category || "Milestone";
 
       return `
     <div class="sidebar-badge-item seav-badge-wrap tooltip-above" data-tier="${window.Seav.escapeHtml(tier)}">
