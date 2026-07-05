@@ -1,42 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="100 BRIDGE DAYS" data-source-page="seatime" data-tier="gold">
   <defs>
-    <linearGradient id="ring-p6qpi9" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-xr7apg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#5a7ae6"/>
       <stop offset="50%" stop-color="#829eff"/>
       <stop offset="100%" stop-color="#b8c8ff"/>
     </linearGradient>
-    <radialGradient id="disc-p6qpi9" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-xr7apg" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#b8c8ff"/>
       <stop offset="100%" stop-color="#829eff"/>
     </radialGradient>
-    <linearGradient id="shine-p6qpi9" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-xr7apg" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-p6qpi9" x="-20%" y="-15%" width="140%" height="150%">
+    <clipPath id="txt-xr7apg">
+      <path d="M 60.00 19.00 L 92.04 37.50 L 92.04 74.50 L 60.00 93.00 L 27.96 74.50 L 27.96 37.50 Z"/>
+    </clipPath>
+    <filter id="sh-xr7apg" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-p6qpi9)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-p6qpi9)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-p6qpi9)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-p6qpi9)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-p6qpi9)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-p6qpi9)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-p6qpi9)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-p6qpi9)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-p6qpi9)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-p6qpi9)"/>
+  <g filter="url(#sh-xr7apg)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-xr7apg)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-xr7apg)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-xr7apg)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-xr7apg)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-xr7apg)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-xr7apg)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-xr7apg)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-xr7apg)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-xr7apg)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
+  <g clip-path="url(#txt-xr7apg)">
+
   <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
-    <text x="60" y="23.0" font-size="6.4" font-weight="800" letter-spacing="1.8" fill="#829eff">WATCH</text>
-    <text font-size="32" font-weight="900" letter-spacing="1.2" fill="#0F172A"><tspan x="60" y="33.0">100</tspan></text>
-    <text font-size="8.8" font-weight="700" letter-spacing="1.3" fill="#0F172A" opacity="0.76"><tspan x="60" y="68.5">BRIDGE DAYS</tspan></text>
-    <line x1="36" y1="87.0" x2="84" y2="87.0" stroke="#829eff" stroke-width="2" stroke-linecap="round" opacity="0.42"/>
+    <text x="60" y="39.0" font-size="4.6" font-weight="800" letter-spacing="1.1" fill="#829eff">WATCH</text>
+    <text font-size="16.5" font-weight="900" letter-spacing="0.8" fill="#0F172A"><tspan x="60" y="55.7">100</tspan></text>
+    <text font-size="6.2" font-weight="700" letter-spacing="0.7" fill="#0F172A" opacity="0.78"><tspan x="60" y="71.2">BRIDGE</tspan><tspan x="60" dy="7.5">DAYS</tspan></text>
+    <line x1="42" y1="70.5" x2="78" y2="70.5" stroke="#829eff" stroke-width="1.6" stroke-linecap="round" opacity="0.38"/>
+  </g>
   </g>
   
 </svg>

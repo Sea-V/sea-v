@@ -1,42 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="WATER SPORTS OPS" data-source-page="onboard-experience" data-tier="silver">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="WATER SPORTS" data-source-page="onboard-experience" data-tier="silver">
   <defs>
-    <linearGradient id="ring-upn2cl" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-putt4k" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#e06a88"/>
       <stop offset="50%" stop-color="#ff8fab"/>
       <stop offset="100%" stop-color="#ffb8c9"/>
     </linearGradient>
-    <radialGradient id="disc-upn2cl" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-putt4k" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#ffb8c9"/>
       <stop offset="100%" stop-color="#ff8fab"/>
     </radialGradient>
-    <linearGradient id="shine-upn2cl" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-putt4k" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-upn2cl" x="-20%" y="-15%" width="140%" height="150%">
+    <clipPath id="txt-putt4k">
+      <path d="M 60.00 19.00 L 92.04 37.50 L 92.04 74.50 L 60.00 93.00 L 27.96 74.50 L 27.96 37.50 Z"/>
+    </clipPath>
+    <filter id="sh-putt4k" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-upn2cl)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-upn2cl)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-upn2cl)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-upn2cl)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-upn2cl)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-upn2cl)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-upn2cl)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-upn2cl)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-upn2cl)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-upn2cl)"/>
+  <g filter="url(#sh-putt4k)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-putt4k)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-putt4k)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-putt4k)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-putt4k)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-putt4k)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-putt4k)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-putt4k)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-putt4k)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-putt4k)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
+  <g clip-path="url(#txt-putt4k)">
+
   <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
-    <text x="60" y="28.5" font-size="6.4" font-weight="800" letter-spacing="1.8" fill="#ff8fab">ONBOARD</text>
-    <text font-size="20" font-weight="900" letter-spacing="1.2" fill="#0F172A"><tspan x="60" y="38.5">WATER</tspan></text>
-    <text font-size="8.8" font-weight="700" letter-spacing="1.3" fill="#0F172A" opacity="0.76"><tspan x="60" y="63.0">SPORTS OPS</tspan></text>
-    <line x1="36" y1="81.5" x2="84" y2="81.5" stroke="#ff8fab" stroke-width="2" stroke-linecap="round" opacity="0.42"/>
+    <text x="60" y="43.9" font-size="5.2" font-weight="800" letter-spacing="1.1" fill="#ff8fab">ONBOARD</text>
+    <text font-size="14" font-weight="900" letter-spacing="0.6" fill="#0F172A"><tspan x="60" y="58.9">WATER</tspan></text>
+    <text font-size="6.8" font-weight="700" letter-spacing="0.7" fill="#0F172A" opacity="0.78"><tspan x="60" y="72.4">SPORTS</tspan></text>
+    <line x1="42" y1="70.5" x2="78" y2="70.5" stroke="#ff8fab" stroke-width="1.6" stroke-linecap="round" opacity="0.38"/>
+  </g>
   </g>
   
 </svg>

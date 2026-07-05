@@ -1,44 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="LOCKED MILESTONE" data-source-page="achievements" data-tier="silver">
   <defs>
-    <linearGradient id="ring-k86gps" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-kcms0r" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#d9923a"/>
       <stop offset="50%" stop-color="#ffb347"/>
       <stop offset="100%" stop-color="#ffd08a"/>
     </linearGradient>
-    <radialGradient id="disc-k86gps" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-kcms0r" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#ffd08a"/>
       <stop offset="100%" stop-color="#ffb347"/>
     </radialGradient>
-    <linearGradient id="shine-k86gps" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-kcms0r" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-k86gps" x="-20%" y="-15%" width="140%" height="150%">
+    <clipPath id="txt-kcms0r">
+      <path d="M 60.00 19.00 L 92.04 37.50 L 92.04 74.50 L 60.00 93.00 L 27.96 74.50 L 27.96 37.50 Z"/>
+    </clipPath>
+    <filter id="sh-kcms0r" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-k86gps)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-k86gps)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-k86gps)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-k86gps)"/>
+  <g filter="url(#sh-kcms0r)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-kcms0r)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-kcms0r)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-kcms0r)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-kcms0r)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-kcms0r)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-kcms0r)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-kcms0r)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-kcms0r)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-kcms0r)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
+  <g clip-path="url(#txt-kcms0r)">
+
   <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
-    <text x="60" y="30.4" font-size="6.4" font-weight="800" letter-spacing="1.8" fill="#ffb347">SEA-V</text>
-    <text font-size="16" font-weight="900" letter-spacing="0.5" fill="#0F172A"><tspan x="60" y="40.4">LOCKED</tspan></text>
-    <text font-size="8.8" font-weight="700" letter-spacing="1.3" fill="#0F172A" opacity="0.76"><tspan x="60" y="61.1">MILESTONE</tspan></text>
-    <line x1="36" y1="79.6" x2="84" y2="79.6" stroke="#ffb347" stroke-width="2" stroke-linecap="round" opacity="0.42"/>
+    <text x="60" y="44.7" font-size="5.2" font-weight="800" letter-spacing="1.1" fill="#ffb347">SEA-V</text>
+    <text font-size="12" font-weight="900" letter-spacing="0.35" fill="#0F172A"><tspan x="60" y="58.2">LOCKED</tspan></text>
+    <text font-size="6.8" font-weight="700" letter-spacing="0.7" fill="#0F172A" opacity="0.78"><tspan x="60" y="70.0">MILESTONE</tspan></text>
+    <line x1="42" y1="70.5" x2="78" y2="70.5" stroke="#ffb347" stroke-width="1.6" stroke-linecap="round" opacity="0.38"/>
+  </g>
   </g>
   
   <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="#F1F5F9" opacity="0.82"/>
-  <text x="60" y="58" text-anchor="middle" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" font-weight="800" letter-spacing="1.4" fill="#64748B">LOCKED</text>
+  <text x="60" y="56" text-anchor="middle" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="800" letter-spacing="1.2" fill="#64748B">LOCKED</text>
 </svg>

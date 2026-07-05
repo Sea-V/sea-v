@@ -18,6 +18,8 @@ const BADGE_DEFS = JSON.parse(fs.readFileSync(BADGE_COPY_PATH, "utf8"));
 
 const CX = 60;
 const CY = 56;
+const TEXT_CY = 54;
+const MAX_TEXT_WIDTH = 50;
 const TEXT = "#0F172A";
 const FONT =
   "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
@@ -39,45 +41,103 @@ function esc(text) {
     .replace(/>/g, "&gt;");
 }
 
-function heroFontSize(hero) {
-  const h = String(hero);
-  if (/^\d/.test(h)) {
-    if (h.length <= 2) return 38;
-    if (h.length <= 3) return 32;
-    return 26;
-  }
-  if (h.length <= 3) return 28;
-  if (h.length <= 5) return 20;
-  if (h.length <= 7) return 16;
-  return 13;
+function estimateWidth(text, fontSize, tracking = 0.4) {
+  return text.length * (fontSize * 0.55 + tracking);
 }
 
-function splitWords(text, maxLen = 11) {
-  if (text.length <= maxLen) return [text];
-  const words = text.split(" ");
-  if (words.length >= 2) {
-    const mid = Math.ceil(words.length / 2);
-    return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+function fitFontSize(text, maxWidth, startSize, minSize = 7.5) {
+  let size = startSize;
+  while (size > minSize) {
+    if (estimateWidth(text, size) <= maxWidth) return Math.round(size * 10) / 10;
+    size -= 0.5;
   }
-  const mid = Math.ceil(text.length / 2);
-  return [text.slice(0, mid), text.slice(mid)];
+  return minSize;
+}
+
+function wrapLines(text, maxChars = 8) {
+  const value = String(text).trim();
+  if (!value) return [""];
+  if (value.length <= maxChars) return [value];
+  const words = value.split(" ");
+  if (words.length >= 2) {
+    const lines = [];
+    let current = words[0];
+    for (const word of words.slice(1)) {
+      const candidate = `${current} ${word}`;
+      if (candidate.length <= maxChars) current = candidate;
+      else {
+        lines.push(current);
+        current = word;
+      }
+    }
+    lines.push(current);
+    return lines.slice(0, 2);
+  }
+  return [value];
+}
+
+function heroBaseSize(hero) {
+  const h = String(hero);
+  if (/^\d/.test(h)) {
+    if (/m/i.test(h)) return 22;
+    if (h.length <= 2) return 26;
+    if (h.length <= 3) return 22;
+    return 18;
+  }
+  if (h.length <= 3) return 20;
+  if (h.length <= 5) return 14;
+  if (h.length <= 7) return 12;
+  return 10.5;
+}
+
+function heroTracking(hero) {
+  const h = String(hero);
+  if (h.length > 7) return 0.15;
+  if (h.length > 5) return 0.35;
+  if (/^\d/.test(h)) return 0.8;
+  return 0.6;
 }
 
 function renderTypography({ hero, sub, tag, theme }) {
-  const heroLines = splitWords(hero, 9);
-  const subLines = splitWords(sub, 13);
-  const heroSize = heroFontSize(heroLines[0]);
-  const heroLineH = heroSize * 0.92;
-  const subSize = subLines.some((l) => l.length > 12) ? 7.6 : 8.8;
-  const subLineH = 10.5;
+  const heroLines = wrapLines(hero, 8);
+  const subLines = wrapLines(sub, 9);
 
-  const heroBlockH = heroLines.length * heroLineH;
-  const subBlockH = subLines.length * subLineH;
-  const totalH = 8 + heroBlockH + 6 + subBlockH;
-  const tagY = 50 - totalH / 2;
-  const heroStartY = tagY + 10;
-  const subStartY = heroStartY + heroBlockH + 6;
-  const accentY = subStartY + subBlockH + 8;
+  let heroSize = heroBaseSize(heroLines[0]);
+  for (const line of heroLines) {
+    heroSize = Math.min(heroSize, fitFontSize(line, MAX_TEXT_WIDTH, heroSize, 8.5));
+  }
+
+  let subSize = 6.8;
+  for (const line of subLines) {
+    subSize = Math.min(subSize, fitFontSize(line, MAX_TEXT_WIDTH, 6.8, 6.2));
+  }
+
+  let tagSize = fitFontSize(tag, MAX_TEXT_WIDTH, 5.2, 4.6);
+  let heroLineH = Math.max(heroSize * 0.82, 8.5);
+  let subLineH = 8;
+  let tagH = tagSize + 2;
+  const gap = 2;
+
+  let blockH =
+    tagH + gap + heroLines.length * heroLineH + gap + subLines.length * subLineH;
+  const maxBlock = 34;
+  if (blockH > maxBlock) {
+    const scale = maxBlock / blockH;
+    heroSize = Math.max(8.5, Math.round(heroSize * scale * 10) / 10);
+    subSize = Math.max(6.2, Math.round(subSize * scale * 10) / 10);
+    tagSize = Math.max(4.6, Math.round(tagSize * scale * 10) / 10);
+    heroLineH = Math.max(heroSize * 0.82, 7.5);
+    subLineH = 7.5;
+    tagH = tagSize + 2;
+    blockH =
+      tagH + gap + heroLines.length * heroLineH + gap + subLines.length * subLineH;
+  }
+
+  const topY = TEXT_CY - blockH / 2;
+  const tagY = topY + tagSize;
+  const heroStartY = tagY + tagH * 0.35 + gap + heroSize * 0.75;
+  const subStartY = heroStartY + heroLines.length * heroLineH + gap;
+  const accentY = Math.min(subStartY + subLines.length * subLineH + 2.5, 70.5);
 
   const heroTspans = heroLines
     .map(
@@ -95,10 +155,10 @@ function renderTypography({ hero, sub, tag, theme }) {
 
   return `
   <g font-family="${FONT}" text-anchor="middle">
-    <text x="60" y="${tagY.toFixed(1)}" font-size="6.4" font-weight="800" letter-spacing="1.8" fill="${theme.sidebar}">${esc(tag)}</text>
-    <text font-size="${heroSize}" font-weight="900" letter-spacing="${hero.length > 5 ? 0.5 : 1.2}" fill="${TEXT}">${heroTspans}</text>
-    <text font-size="${subSize}" font-weight="700" letter-spacing="1.3" fill="${TEXT}" opacity="0.76">${subTspans}</text>
-    <line x1="36" y1="${accentY.toFixed(1)}" x2="84" y2="${accentY.toFixed(1)}" stroke="${theme.sidebar}" stroke-width="2" stroke-linecap="round" opacity="0.42"/>
+    <text x="60" y="${tagY.toFixed(1)}" font-size="${tagSize}" font-weight="800" letter-spacing="1.1" fill="${theme.sidebar}">${esc(tag)}</text>
+    <text font-size="${heroSize}" font-weight="900" letter-spacing="${heroTracking(hero)}" fill="${TEXT}">${heroTspans}</text>
+    <text font-size="${subSize}" font-weight="700" letter-spacing="0.7" fill="${TEXT}" opacity="0.78">${subTspans}</text>
+    <line x1="42" y1="${accentY.toFixed(1)}" x2="78" y2="${accentY.toFixed(1)}" stroke="${theme.sidebar}" stroke-width="1.6" stroke-linecap="round" opacity="0.38"/>
   </g>`;
 }
 
@@ -133,11 +193,12 @@ function buildSvg({ file, tier, hero, sub, tag, page, locked = false }) {
   const outerHex = hexPath(CX, CY, 50);
   const innerHex = hexPath(CX, CY, 40);
   const clip = hexPath(CX, CY, 40);
+  const textClip = hexPath(CX, CY, 37);
 
   const lockOverlay = locked
     ? `
   <path d="${innerHex}" fill="#F1F5F9" opacity="0.82"/>
-  <text x="60" y="58" text-anchor="middle" font-family="${FONT}" font-size="11" font-weight="800" letter-spacing="1.4" fill="#64748B">LOCKED</text>`
+  <text x="60" y="56" text-anchor="middle" font-family="${FONT}" font-size="10" font-weight="800" letter-spacing="1.2" fill="#64748B">LOCKED</text>`
     : "";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -156,6 +217,9 @@ function buildSvg({ file, tier, hero, sub, tag, page, locked = false }) {
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
+    <clipPath id="txt-${uid}">
+      <path d="${textClip}"/>
+    </clipPath>
     <filter id="sh-${uid}" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
@@ -169,7 +233,9 @@ function buildSvg({ file, tier, hero, sub, tag, page, locked = false }) {
     <path d="${innerHex}" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
+  <g clip-path="url(#txt-${uid})">
   ${renderTypography({ hero, sub, tag, theme })}
+  </g>
 
   ${lockOverlay}
 </svg>`;

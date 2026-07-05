@@ -1,42 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="FIRST VESSEL" data-source-page="vessels" data-tier="bronze">
   <defs>
-    <linearGradient id="ring-vquk2i" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-z8tppl" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#8fa3b8"/>
       <stop offset="50%" stop-color="#d6e2ee"/>
       <stop offset="100%" stop-color="#eef3f8"/>
     </linearGradient>
-    <radialGradient id="disc-vquk2i" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-z8tppl" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#eef3f8"/>
       <stop offset="100%" stop-color="#d6e2ee"/>
     </radialGradient>
-    <linearGradient id="shine-vquk2i" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-z8tppl" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-vquk2i" x="-20%" y="-15%" width="140%" height="150%">
+    <clipPath id="txt-z8tppl">
+      <path d="M 60.00 19.00 L 92.04 37.50 L 92.04 74.50 L 60.00 93.00 L 27.96 74.50 L 27.96 37.50 Z"/>
+    </clipPath>
+    <filter id="sh-z8tppl" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-vquk2i)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-vquk2i)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-vquk2i)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-vquk2i)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-vquk2i)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-vquk2i)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-vquk2i)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-vquk2i)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-vquk2i)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-vquk2i)"/>
+  <g filter="url(#sh-z8tppl)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-z8tppl)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-z8tppl)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-z8tppl)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-z8tppl)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-z8tppl)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-z8tppl)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-z8tppl)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-z8tppl)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-z8tppl)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
+  <g clip-path="url(#txt-z8tppl)">
+
   <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
-    <text x="60" y="28.5" font-size="6.4" font-weight="800" letter-spacing="1.8" fill="#d6e2ee">FLEET</text>
-    <text font-size="20" font-weight="900" letter-spacing="1.2" fill="#0F172A"><tspan x="60" y="38.5">FIRST</tspan></text>
-    <text font-size="8.8" font-weight="700" letter-spacing="1.3" fill="#0F172A" opacity="0.76"><tspan x="60" y="63.0">VESSEL</tspan></text>
-    <line x1="36" y1="81.5" x2="84" y2="81.5" stroke="#d6e2ee" stroke-width="2" stroke-linecap="round" opacity="0.42"/>
+    <text x="60" y="43.9" font-size="5.2" font-weight="800" letter-spacing="1.1" fill="#d6e2ee">FLEET</text>
+    <text font-size="14" font-weight="900" letter-spacing="0.6" fill="#0F172A"><tspan x="60" y="58.9">FIRST</tspan></text>
+    <text font-size="6.8" font-weight="700" letter-spacing="0.7" fill="#0F172A" opacity="0.78"><tspan x="60" y="72.4">VESSEL</tspan></text>
+    <line x1="42" y1="70.5" x2="78" y2="70.5" stroke="#d6e2ee" stroke-width="1.6" stroke-linecap="round" opacity="0.38"/>
+  </g>
   </g>
   
 </svg>

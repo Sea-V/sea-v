@@ -19,6 +19,8 @@ with open(BADGE_COPY_PATH, encoding="utf-8") as f:
     BADGE_DEFS = json.load(f)
 
 CX, CY = 60, 56
+TEXT_CY = 54
+MAX_TEXT_WIDTH = 50
 TEXT = "#0F172A"
 FONT = "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
 
@@ -42,49 +44,106 @@ def page_inner(page):
     return {"fill": [b, c], "pill": [a, c]}
 
 
-def hero_font_size(hero):
+def estimate_width(text, font_size, tracking=0.4):
+    return len(text) * (font_size * 0.55 + tracking)
+
+
+def fit_font_size(text, max_width, start_size, min_size=7.5):
+    size = float(start_size)
+    while size > min_size:
+        if estimate_width(text, size) <= max_width:
+            return round(size, 1)
+        size -= 0.5
+    return min_size
+
+
+def wrap_lines(text, max_chars=8):
+    text = str(text).strip()
+    if not text:
+        return [""]
+    if len(text) <= max_chars:
+        return [text]
+    words = text.split()
+    if len(words) >= 2:
+        lines = []
+        current = words[0]
+        for word in words[1:]:
+            candidate = f"{current} {word}"
+            if len(candidate) <= max_chars:
+                current = candidate
+            else:
+                lines.append(current)
+                current = word
+        lines.append(current)
+        return lines[:2]
+    return [text]
+
+
+def hero_base_size(hero):
     h = str(hero)
     if h and h[0].isdigit():
+        if "m" in h.lower():
+            return 22
         if len(h) <= 2:
-            return 38
+            return 26
         if len(h) <= 3:
-            return 32
-        return 26
+            return 22
+        return 18
     if len(h) <= 3:
-        return 28
-    if len(h) <= 5:
         return 20
+    if len(h) <= 5:
+        return 14
     if len(h) <= 7:
-        return 16
-    return 13
+        return 12
+    return 10.5
 
 
-def split_words(text, max_len=11):
-    if len(text) <= max_len:
-        return [text]
-    words = text.split(" ")
-    if len(words) >= 2:
-        mid = math.ceil(len(words) / 2)
-        return [" ".join(words[:mid]), " ".join(words[mid:])]
-    mid = math.ceil(len(text) / 2)
-    return [text[:mid], text[mid:]]
+def hero_tracking(hero):
+    h = str(hero)
+    if len(h) > 7:
+        return 0.15
+    if len(h) > 5:
+        return 0.35
+    if h and h[0].isdigit():
+        return 0.8
+    return 0.6
 
 
 def render_typography(hero, sub, tag, theme):
-    hero_lines = split_words(hero, 9)
-    sub_lines = split_words(sub, 13)
-    hero_size = hero_font_size(hero_lines[0])
-    hero_line_h = hero_size * 0.92
-    sub_size = 7.6 if any(len(l) > 12 for l in sub_lines) else 8.8
-    sub_line_h = 10.5
+    hero_lines = wrap_lines(hero, 8)
+    sub_lines = wrap_lines(sub, 9)
 
-    hero_block_h = len(hero_lines) * hero_line_h
-    sub_block_h = len(sub_lines) * sub_line_h
-    total_h = 8 + hero_block_h + 6 + sub_block_h
-    tag_y = 50 - total_h / 2
-    hero_start_y = tag_y + 10
-    sub_start_y = hero_start_y + hero_block_h + 6
-    accent_y = sub_start_y + sub_block_h + 8
+    hero_size = hero_base_size(hero_lines[0])
+    for line in hero_lines:
+        hero_size = min(hero_size, fit_font_size(line, MAX_TEXT_WIDTH, hero_size, 8.5))
+
+    sub_size = 6.8
+    for line in sub_lines:
+        sub_size = min(sub_size, fit_font_size(line, MAX_TEXT_WIDTH, 6.8, 6.2))
+
+    tag_size = fit_font_size(tag, MAX_TEXT_WIDTH, 5.2, 4.6)
+    hero_line_h = max(hero_size * 0.82, 8.5)
+    sub_line_h = 8.0
+    tag_h = tag_size + 2
+    gap = 2
+
+    block_h = tag_h + gap + len(hero_lines) * hero_line_h + gap + len(sub_lines) * sub_line_h
+    max_block = 34
+    if block_h > max_block:
+        scale = max_block / block_h
+        hero_size = max(8.5, round(hero_size * scale, 1))
+        sub_size = max(6.2, round(sub_size * scale, 1))
+        tag_size = max(4.6, round(tag_size * scale, 1))
+        hero_line_h = max(hero_size * 0.82, 7.5)
+        sub_line_h = 7.5
+        tag_h = tag_size + 2
+        block_h = tag_h + gap + len(hero_lines) * hero_line_h + gap + len(sub_lines) * sub_line_h
+
+    top_y = TEXT_CY - block_h / 2
+    tag_y = top_y + tag_size
+    hero_start_y = tag_y + tag_h * 0.35 + gap + hero_size * 0.75
+    sub_start_y = hero_start_y + len(hero_lines) * hero_line_h + gap
+    accent_y = min(sub_start_y + len(sub_lines) * sub_line_h + 2.5, 70.5)
 
     hero_tspans = []
     for i, line in enumerate(hero_lines):
@@ -108,15 +167,15 @@ def render_typography(hero, sub, tag, theme):
                 f'<tspan x="60" dy="{sub_line_h:.1f}">{esc(line)}</tspan>'
             )
 
-    tracking = "0.5" if len(hero) > 5 else "1.2"
     sidebar = theme["sidebar"]
+    h_track = hero_tracking(hero)
 
     return f"""
   <g font-family="{FONT}" text-anchor="middle">
-    <text x="60" y="{tag_y:.1f}" font-size="6.4" font-weight="800" letter-spacing="1.8" fill="{sidebar}">{esc(tag)}</text>
-    <text font-size="{hero_size}" font-weight="900" letter-spacing="{tracking}" fill="{TEXT}">{''.join(hero_tspans)}</text>
-    <text font-size="{sub_size}" font-weight="700" letter-spacing="1.3" fill="{TEXT}" opacity="0.76">{''.join(sub_tspans)}</text>
-    <line x1="36" y1="{accent_y:.1f}" x2="84" y2="{accent_y:.1f}" stroke="{sidebar}" stroke-width="2" stroke-linecap="round" opacity="0.42"/>
+    <text x="60" y="{tag_y:.1f}" font-size="{tag_size}" font-weight="800" letter-spacing="1.1" fill="{sidebar}">{esc(tag)}</text>
+    <text font-size="{hero_size}" font-weight="900" letter-spacing="{h_track}" fill="{TEXT}">{''.join(hero_tspans)}</text>
+    <text font-size="{sub_size}" font-weight="700" letter-spacing="0.7" fill="{TEXT}" opacity="0.78">{''.join(sub_tspans)}</text>
+    <line x1="42" y1="{accent_y:.1f}" x2="78" y2="{accent_y:.1f}" stroke="{sidebar}" stroke-width="1.6" stroke-linecap="round" opacity="0.38"/>
   </g>"""
 
 
@@ -166,12 +225,13 @@ def build_svg(definition, locked=False):
     outer_hex = hex_path(CX, CY, 50)
     inner_hex = hex_path(CX, CY, 40)
     clip = hex_path(CX, CY, 40)
+    text_clip = hex_path(CX, CY, 37)
 
     lock = ""
     if locked:
         lock = f"""
   <path d="{inner_hex}" fill="#F1F5F9" opacity="0.82"/>
-  <text x="60" y="58" text-anchor="middle" font-family="{FONT}" font-size="11" font-weight="800" letter-spacing="1.4" fill="#64748B">LOCKED</text>"""
+  <text x="60" y="56" text-anchor="middle" font-family="{FONT}" font-size="10" font-weight="800" letter-spacing="1.2" fill="#64748B">LOCKED</text>"""
 
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="{esc(f'{hero} {sub}')}" data-source-page="{page}" data-tier="{tier}">
@@ -189,6 +249,9 @@ def build_svg(definition, locked=False):
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
+    <clipPath id="txt-{u}">
+      <path d="{text_clip}"/>
+    </clipPath>
     <filter id="sh-{u}" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
@@ -201,7 +264,10 @@ def build_svg(definition, locked=False):
     <path d="{clip}" fill="url(#shine-{u})"/>
     <path d="{inner_hex}" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
+
+  <g clip-path="url(#txt-{u})">
 {render_typography(hero, sub, tag, theme)}
+  </g>
   {lock}
 </svg>"""
 
