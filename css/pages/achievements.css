@@ -298,10 +298,12 @@
   object-fit: contain;
   position: relative;
   z-index: 1;
+  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.22));
 }
 
 .ach-trophy.is-locked .ach-trophy-badge {
-  filter: grayscale(0.85) brightness(0.75);
+  filter: grayscale(0.35) brightness(0.92) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+  opacity: 0.78;
 }
 
 .ach-trophy-count {
@@ -361,6 +363,12 @@
   color: var(--seav-field-value-color, #fff);
   font-size: 13px;
   font-weight: 700;
+}
+
+.ach-trophy-vessel--career {
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+  font-style: italic;
 }
 
 .ach-trophy-date {

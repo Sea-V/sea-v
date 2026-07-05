@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="bg-zgbxpq" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a1829"/>
-      <stop offset="100%" stop-color="#152a42"/>
+    <linearGradient id="fill-ro3eb1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="100%" stop-color="#fde68a"/>
     </linearGradient>
-    <linearGradient id="rim-zgbxpq" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffe08a"/>
-      <stop offset="100%" stop-color="#ffd25a"/>
+    <linearGradient id="rim-ro3eb1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f5d76e"/>
+      <stop offset="100%" stop-color="#d4a017"/>
     </linearGradient>
-    <filter id="glow-zgbxpq" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#ffd25a" flood-opacity="0.45"/>
+    <pattern id="grain-ro3eb1" width="6" height="6" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.65" fill="#d4a017" opacity="0.07"/>
+      <circle cx="4" cy="4" r="0.55" fill="#d4a017" opacity="0.05"/>
+    </pattern>
+    <filter id="shadow-ro3eb1" x="-20%" y="-10%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#1e3a5f" flood-opacity="0.18"/>
     </filter>
   </defs>
   <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#bg-zgbxpq)"
-    stroke="url(#rim-zgbxpq)"
-    stroke-width="2.8"
-    filter="url(#glow-zgbxpq)"/>
+    fill="url(#fill-ro3eb1)"
+    stroke="url(#rim-ro3eb1)"
+    stroke-width="3"
+    filter="url(#shadow-ro3eb1)"/>
+  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
+    fill="url(#grain-ro3eb1)"
+    stroke="none"/>
   <path d="M60 14 L100 31 L100 71 L60 104 L20 71 L20 31 Z"
     fill="none"
-    stroke="#ffd25a"
-    stroke-width="1"
-    opacity="0.22"/>
-  <g transform="translate(60,56)" fill="none" stroke="#ffd25a" stroke-linecap="round" stroke-linejoin="round" color="#ffd25a">
-    <rect x="-16" y="-14" width="10" height="10" rx="2" stroke-width="1.8"/><rect x="-2" y="-14" width="10" height="10" rx="2" stroke-width="1.8"/><rect x="12" y="-14" width="10" height="10" rx="2" stroke-width="1.8"/><rect x="-9" y="0" width="10" height="10" rx="2" stroke-width="1.8"/><rect x="5" y="0" width="10" height="10" rx="2" stroke-width="1.8"/>
+    stroke="#d4a017"
+    stroke-width="1.2"
+    opacity="0.35"/>
+  <g transform="translate(60,56)" fill="none" stroke="#92680f" stroke-linecap="round" stroke-linejoin="round" color="#92680f">
+    <rect x="-16" y="-14" width="10" height="10" rx="2" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/><rect x="-2" y="-14" width="10" height="10" rx="2" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/><rect x="12" y="-14" width="10" height="10" rx="2" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/><rect x="-9" y="0" width="10" height="10" rx="2" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/><rect x="5" y="0" width="10" height="10" rx="2" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/>
   </g>
-  <circle cx="60" cy="100" r="3.5" fill="#ffd25a" opacity="0.85"/>
-  
+  <circle cx="60" cy="100" r="4" fill="#e8c547" opacity="0.9"/>
 </svg>

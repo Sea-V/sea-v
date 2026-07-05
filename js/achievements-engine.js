@@ -64,17 +64,53 @@
   }
 
   function hasLargeVessel(minMeters) {
-    return getVessels().some((v) => {
+    return getVessels().find((v) => {
       return parseMeters(v.length || v.size || v.name || v.desc) >= minMeters;
-    });
+    }) || null;
   }
 
   function hasVesselType(value) {
-    return getVessels().some((v) => {
+    return getVessels().find((v) => {
       return normalize(v.type).includes(normalize(value)) ||
         normalize(v.program).includes(normalize(value)) ||
         normalize(v.desc).includes(normalize(value));
+    }) || null;
+  }
+
+  function vesselContextFromRecord(vessel) {
+    if (!vessel) {
+      return { vesselId: "", vessel: "" };
+    }
+    return {
+      vesselId: vessel.id || "",
+      vessel: vessel.name || "Unnamed vessel"
+    };
+  }
+
+  function resolveVesselContext(definition) {
+    const trigger = definition.trigger || {};
+    const vessels = getVessels().sort((a, b) => {
+      const da = a.from ? new Date(a.from) : new Date(0);
+      const db = b.from ? new Date(b.from) : new Date(0);
+      return db - da;
     });
+
+    switch (trigger.type) {
+      case "vessel_count":
+      case "vessel_type_count":
+        return vesselContextFromRecord(vessels[0] || null);
+      case "vessel_size":
+        return vesselContextFromRecord(hasLargeVessel(Number(trigger.minMeters || 0)));
+      case "vessel_type_match":
+        return vesselContextFromRecord(hasVesselType(trigger.value));
+      case "tender_count": {
+        const tender = getTenders()[0];
+        if (!tender?.vesselId) return { vesselId: "", vessel: "" };
+        return vesselContextFromRecord(vessels.find((v) => v.id === tender.vesselId) || null);
+      }
+      default:
+        return { vesselId: "", vessel: "" };
+    }
   }
 
   function isTriggerMet(achievement) {
@@ -94,10 +130,10 @@
         return getVesselTypeCount() >= Number(trigger.minCount || 0);
 
       case "vessel_size":
-        return hasLargeVessel(Number(trigger.minMeters || 0));
+        return !!hasLargeVessel(Number(trigger.minMeters || 0));
 
       case "vessel_type_match":
-        return hasVesselType(trigger.value);
+        return !!hasVesselType(trigger.value);
 
       case "tender_count":
         return getTenders().length >= Number(trigger.minCount || 0);
@@ -119,6 +155,7 @@
   }
 
   function buildAutoAchievement(definition) {
+    const ctx = resolveVesselContext(definition);
     return {
       id: createId("achievement"),
       code: definition.code,
@@ -130,8 +167,8 @@
       badgeLabel: definition.badge?.label || "",
       badgeImage: definition.badge?.image || "",
       badgeLockedImage: definition.badge?.lockedImage || "",
-      vesselId: "",
-      vessel: "",
+      vesselId: ctx.vesselId,
+      vessel: ctx.vessel,
       date: new Date().toISOString().slice(0, 10),
       status: "Approved",
       witnessName: "",
@@ -153,16 +190,47 @@
     });
 
     const newAchievements = [];
+    const removeIds = [];
+    const refreshAchievements = [];
 
     for (const definition of autoDefinitions) {
-      if (hasAchievement(existing, definition.code)) continue;
-      if (!isTriggerMet(definition)) continue;
+      const met = isTriggerMet(definition);
+      const autoRecords = existing.filter(
+        (item) => item.code === definition.code && item.autoAwarded
+      );
 
-      const fullDefinition = getAchievementWithBadge(definition.code);
-      if (!fullDefinition) continue;
-
-      newAchievements.push(buildAutoAchievement(fullDefinition));
+      if (met) {
+        if (!hasAchievement(existing, definition.code)) {
+          const fullDefinition = getAchievementWithBadge(definition.code);
+          if (fullDefinition) {
+            newAchievements.push(buildAutoAchievement(fullDefinition));
+          }
+        } else {
+          autoRecords.forEach((record) => {
+            const ctx = resolveVesselContext(definition);
+            if (!ctx.vesselId || (record.vesselId && record.vessel)) return;
+            if (!ctx.vesselId) return;
+            refreshAchievements.push({
+              ...record,
+              vesselId: ctx.vesselId,
+              vessel: ctx.vessel
+            });
+          });
+        }
+      } else {
+        autoRecords.forEach((record) => {
+          if (record.id) removeIds.push(record.id);
+        });
+      }
     }
+
+    await Promise.all(
+      removeIds.map((id) => SeavAPI.deleteItemById(KEYS.ACHIEVEMENTS, id))
+    );
+
+    await Promise.all(
+      refreshAchievements.map((achievement) => SeavAPI.upsertItemById(KEYS.ACHIEVEMENTS, achievement))
+    );
 
     await Promise.all(
       newAchievements.map((achievement) => SeavAPI.upsertItemById(KEYS.ACHIEVEMENTS, achievement))
@@ -170,7 +238,8 @@
 
     return {
       created: newAchievements.length,
-      removed: 0,
+      removed: removeIds.length,
+      refreshed: refreshAchievements.length,
       newAchievements
     };
   }
@@ -178,8 +247,12 @@
   async function runAchievementEvaluation() {
     const result = await evaluateAutomaticAchievements();
 
-    if ((result?.created || 0) > 0) {
+    if ((result?.created || 0) > 0 || (result?.removed || 0) > 0 || (result?.refreshed || 0) > 0) {
+      suppressEvalOnUpdate = true;
       document.dispatchEvent(new CustomEvent("seav:data-updated"));
+      window.setTimeout(() => {
+        suppressEvalOnUpdate = false;
+      }, 800);
     }
 
     if (result?.newAchievements?.length) {
@@ -241,13 +314,13 @@
       }
       case "vessel_size": {
         const minMeters = Number(trigger.minMeters || 0);
-        const current = hasLargeVessel(minMeters) ? minMeters : 0;
+        const matched = hasLargeVessel(minMeters);
         return {
-          current,
+          current: matched ? minMeters : 0,
           target: minMeters,
-          percent: hasLargeVessel(minMeters) ? 100 : 0,
-          label: hasLargeVessel(minMeters)
-            ? `50m+ vessel logged`
+          percent: matched ? 100 : 0,
+          label: matched
+            ? `${minMeters}m+ vessel logged`
             : `Log a ${minMeters}m+ vessel`
         };
       }
@@ -318,10 +391,19 @@
     "vessels.html",
     "seatime.html",
     "tenders.html",
-    "profile.html"
+    "profile.html",
+    "navigation.html",
+    "certificates.html",
+    "hobbies-interests.html",
+    "onboard-experience.html",
+    "references.html",
+    "specialist-qualifications.html",
+    "payslips.html",
+    "cv-generator.html"
   ]);
 
   function shouldRunAchievementEval() {
+    if (!document.body.classList.contains("app-page")) return false;
     const page = (location.pathname.split("/").pop() || "index.html")
       .split("?")[0]
       .split("#")[0]
@@ -329,12 +411,33 @@
     return ACHIEVEMENT_EVAL_PAGES.has(page);
   }
 
-  let achievementEvalStarted = false;
+  let evalTimer = null;
+  let evalRunning = false;
+  let suppressEvalOnUpdate = false;
+
+  async function scheduleAchievementEvaluation() {
+    if (!shouldRunAchievementEval()) return;
+
+    clearTimeout(evalTimer);
+    evalTimer = window.setTimeout(async () => {
+      if (evalRunning) return;
+      evalRunning = true;
+      try {
+        await runAchievementEvaluation();
+      } catch (err) {
+        console.warn("[SEA-V] Achievement evaluation failed:", err);
+      } finally {
+        evalRunning = false;
+      }
+    }, 450);
+  }
 
   document.addEventListener("seav:state-ready", () => {
-    if (!shouldRunAchievementEval()) return;
-    if (achievementEvalStarted) return;
-    achievementEvalStarted = true;
-    runAchievementEvaluation();
+    scheduleAchievementEvaluation();
+  });
+
+  document.addEventListener("seav:data-updated", () => {
+    if (suppressEvalOnUpdate) return;
+    scheduleAchievementEvaluation();
   });
 })();

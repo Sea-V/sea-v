@@ -287,7 +287,9 @@
         : instances.length === 1
           ? primary.vessel
             ? `On ${primary.vessel}`
-            : "Career milestone"
+            : primary.autoAwarded
+              ? "Career-wide milestone"
+              : "Logged milestone"
           : `${instances.length} vessels`;
 
     const instanceList =
@@ -306,7 +308,7 @@
       instances.length === 1
         ? `
           <p class="ach-trophy-meta">
-            ${primary.vessel ? `<span class="ach-trophy-vessel">${Seav.escapeHtml(primary.vessel)}</span>` : ""}
+            ${primary.vessel ? `<span class="ach-trophy-vessel">${Seav.escapeHtml(primary.vessel)}</span>` : `<span class="ach-trophy-vessel ach-trophy-vessel--career">${primary.autoAwarded ? "Career-wide" : "—"}</span>`}
             <span class="ach-trophy-date">${Seav.escapeHtml(formatAchievementDate(primary.date))}</span>
           </p>
           ${
@@ -419,7 +421,7 @@
             <img class="ach-recent-badge" src="${Seav.escapeHtml(imagePath)}" alt="" />
             <div class="ach-recent-copy">
               <strong>${Seav.escapeHtml(item.title || "Achievement")}</strong>
-              <span>${Seav.escapeHtml(item.vessel || "Career milestone")} · ${Seav.escapeHtml(formatAchievementDate(item.date))}</span>
+              <span>${Seav.escapeHtml(item.vessel || (item.autoAwarded ? "Career-wide" : "Logged milestone"))} · ${Seav.escapeHtml(formatAchievementDate(item.date))}</span>
             </div>
             ${item.autoAwarded ? `<span class="pill pill-neutral">Auto</span>` : `<span class="pill pill-valid">Logged</span>`}
           </article>

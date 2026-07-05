@@ -1,33 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="bg-c23ub4" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a1829"/>
-      <stop offset="100%" stop-color="#152a42"/>
+    <linearGradient id="fill-ohin63" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f6f8fc"/>
+      <stop offset="100%" stop-color="#e3eaf5"/>
     </linearGradient>
-    <linearGradient id="rim-c23ub4" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#eef6ff"/>
-      <stop offset="100%" stop-color="#b8c9dc"/>
+    <linearGradient id="rim-ohin63" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c8d6e8"/>
+      <stop offset="100%" stop-color="#9eb3cc"/>
     </linearGradient>
-    <filter id="glow-c23ub4" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#b8c9dc" flood-opacity="0.45"/>
+    <pattern id="grain-ohin63" width="6" height="6" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.65" fill="#9eb3cc" opacity="0.07"/>
+      <circle cx="4" cy="4" r="0.55" fill="#9eb3cc" opacity="0.05"/>
+    </pattern>
+    <filter id="shadow-ohin63" x="-20%" y="-10%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#1e3a5f" flood-opacity="0.18"/>
     </filter>
   </defs>
   <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#bg-c23ub4)"
-    stroke="url(#rim-c23ub4)"
-    stroke-width="2.8"
-    filter="url(#glow-c23ub4)"/>
+    fill="url(#fill-ohin63)"
+    stroke="url(#rim-ohin63)"
+    stroke-width="3"
+    filter="url(#shadow-ohin63)"/>
+  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
+    fill="url(#grain-ohin63)"
+    stroke="none"/>
   <path d="M60 14 L100 31 L100 71 L60 104 L20 71 L20 31 Z"
     fill="none"
-    stroke="#b8c9dc"
-    stroke-width="1"
-    opacity="0.22"/>
-  
-  <circle cx="60" cy="100" r="3.5" fill="#b8c9dc" opacity="0.85"/>
-  
-  <rect width="120" height="120" rx="8" fill="#0a1522" opacity="0.72"/>
-  <g transform="translate(60,58)" stroke="#8fa8c4" fill="none" stroke-width="2.2" stroke-linecap="round">
+    stroke="#9eb3cc"
+    stroke-width="1.2"
+    opacity="0.35"/>
+  <circle cx="60" cy="100" r="4" fill="#a8bdd4" opacity="0.9"/>
+  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z" fill="#eef2f7" opacity="0.82"/>
+  <g transform="translate(60,58)" stroke="#8fa3bc" fill="none" stroke-width="2.2" stroke-linecap="round">
     <rect x="-11" y="-8" width="22" height="18" rx="3"/>
     <path d="M-6 6v6a6 6 0 0 0 12 0v-6"/>
     <path d="M-14-2h28"/>

@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="bg-fw3md5" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a1829"/>
-      <stop offset="100%" stop-color="#152a42"/>
+    <linearGradient id="fill-bzr2wo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ecfeff"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
     </linearGradient>
-    <linearGradient id="rim-fw3md5" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#d7f4ff"/>
-      <stop offset="100%" stop-color="#72e4ff"/>
+    <linearGradient id="rim-bzr2wo" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7dd3fc"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
     </linearGradient>
-    <filter id="glow-fw3md5" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#72e4ff" flood-opacity="0.45"/>
+    <pattern id="grain-bzr2wo" width="6" height="6" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.65" fill="#38bdf8" opacity="0.07"/>
+      <circle cx="4" cy="4" r="0.55" fill="#38bdf8" opacity="0.05"/>
+    </pattern>
+    <filter id="shadow-bzr2wo" x="-20%" y="-10%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#1e3a5f" flood-opacity="0.18"/>
     </filter>
   </defs>
   <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#bg-fw3md5)"
-    stroke="url(#rim-fw3md5)"
-    stroke-width="2.8"
-    filter="url(#glow-fw3md5)"/>
+    fill="url(#fill-bzr2wo)"
+    stroke="url(#rim-bzr2wo)"
+    stroke-width="3"
+    filter="url(#shadow-bzr2wo)"/>
+  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
+    fill="url(#grain-bzr2wo)"
+    stroke="none"/>
   <path d="M60 14 L100 31 L100 71 L60 104 L20 71 L20 31 Z"
     fill="none"
-    stroke="#72e4ff"
-    stroke-width="1"
-    opacity="0.22"/>
-  <g transform="translate(60,56)" fill="none" stroke="#72e4ff" stroke-linecap="round" stroke-linejoin="round" color="#72e4ff">
-    <path d="M0-18L4-4h14L6 4l4 14-4-10H-6L-10 4l-14-8h14z" stroke-width="1.8" fill="none"/><circle cx="0" cy="0" r="3" fill="currentColor" stroke="none"/>
+    stroke="#38bdf8"
+    stroke-width="1.2"
+    opacity="0.35"/>
+  <g transform="translate(60,56)" fill="none" stroke="#0369a1" stroke-linecap="round" stroke-linejoin="round" color="#0369a1">
+    <path d="M0-18L4-4h14L6 4l4 14-4-10H-6L-10 4l-14-8h14z" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/>
   </g>
-  <circle cx="60" cy="100" r="3.5" fill="#72e4ff" opacity="0.85"/>
-  
+  <circle cx="60" cy="100" r="4" fill="#67cddd" opacity="0.9"/>
 </svg>
