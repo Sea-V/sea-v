@@ -21,24 +21,24 @@
     return window.SeavNavigationPorts?.COUNTRY_GEO_NAMES || {};
   }
 
-  const VESSEL_COLORS = [
-    "#2563eb", // ocean blue
-    "#dc2626", // port red
-    "#16a34a", // starboard green
-    "#9333ea", // royal purple
-    "#ea580c", // sunset orange
-    "#0891b2", // deep cyan
-    "#be123c", // raspberry
-    "#4f46e5", // indigo
-    "#0f766e", // teal
-    "#b45309", // amber brown
-    "#7c3aed", // violet
-    "#0284c7", // sky blue
-    "#65a30d", // olive
-    "#c026d3", // magenta
-    "#b91c1c", // deep red
-    "#0369a1" // harbour blue
+  const VESSEL_COLORS = window.SeavData?.VESSEL_COLORS || [
+    "#2563eb", "#dc2626", "#16a34a", "#9333ea", "#ea580c", "#0891b2",
+    "#be123c", "#4f46e5", "#0f766e", "#b45309", "#7c3aed", "#0284c7",
+    "#65a30d", "#c026d3", "#b91c1c", "#0369a1"
   ];
+
+  function getVesselColor(vesselId) {
+    if (window.SeavData?.getVesselColor) {
+      return window.SeavData.getVesselColor(vesselId);
+    }
+    if (!vesselId) return "#64748b";
+
+    let hash = 0;
+    for (let i = 0; i < vesselId.length; i += 1) {
+      hash = vesselId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return VESSEL_COLORS[Math.abs(hash) % VESSEL_COLORS.length];
+  }
 
   function roundCoord(value) {
     return Math.round(Number(value) * 10000) / 10000;
@@ -55,16 +55,6 @@
   function getVesselName(vesselId) {
     if (!vesselId) return "Unassigned";
     return getVessels().find((v) => v.id === vesselId)?.name || "Unnamed vessel";
-  }
-
-  function getVesselColor(vesselId) {
-    if (!vesselId) return "#64748b";
-
-    let hash = 0;
-    for (let i = 0; i < vesselId.length; i += 1) {
-      hash = vesselId.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return VESSEL_COLORS[Math.abs(hash) % VESSEL_COLORS.length];
   }
 
   async function loadNavEntries() {

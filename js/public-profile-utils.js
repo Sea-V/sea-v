@@ -186,33 +186,13 @@
     }, 0);
   }
 
-  const PUBLIC_NAV_COLORS = [
-    "#2563eb",
-    "#dc2626",
-    "#16a34a",
-    "#9333ea",
-    "#ea580c",
-    "#0891b2",
-    "#be123c",
-    "#4f46e5",
-    "#0f766e",
-    "#b45309",
-    "#7c3aed",
-    "#0284c7"
-  ];
-
   function getPublicVesselName(vesselId, vessels) {
     if (!vesselId) return "Unassigned";
     return (vessels || []).find((v) => v.id === vesselId)?.name || "Unnamed vessel";
   }
 
-  function getPublicVesselColor(vesselId, vessels) {
-    if (!vesselId) return "#64748b";
-    const sorted = [...(vessels || [])].sort((a, b) =>
-      String(a.name || "").localeCompare(String(b.name || ""))
-    );
-    const index = sorted.findIndex((v) => v.id === vesselId);
-    return PUBLIC_NAV_COLORS[(index >= 0 ? index : 0) % PUBLIC_NAV_COLORS.length];
+  function getPublicVesselColor(vesselId) {
+    return window.SeavData?.getVesselColor?.(vesselId) || "#64748b";
   }
 
   function buildPublicNavigationStats(entries, vessels) {

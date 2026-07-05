@@ -87,9 +87,7 @@
   function populateVesselOptions() {
     const formSelect = document.getElementById("navVessel");
     const filterSelect = document.getElementById("navMapVesselFilter");
-    const vessels = [...getVessels()].sort((a, b) =>
-      String(a.name || "").localeCompare(String(b.name || ""))
-    );
+    const vessels = window.SeavData?.getSortedVesselOptions?.(getVessels()) || [];
 
     if (formSelect) {
       const currentValue = formSelect.value || "";

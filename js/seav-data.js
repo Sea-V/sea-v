@@ -1042,6 +1042,35 @@ function getSortedVesselOptions(vessels = []) {
     }));
 }
 
+  const VESSEL_COLORS = [
+    "#2563eb",
+    "#dc2626",
+    "#16a34a",
+    "#9333ea",
+    "#ea580c",
+    "#0891b2",
+    "#be123c",
+    "#4f46e5",
+    "#0f766e",
+    "#b45309",
+    "#7c3aed",
+    "#0284c7",
+    "#65a30d",
+    "#c026d3",
+    "#b91c1c",
+    "#0369a1"
+  ];
+
+  function getVesselColor(vesselId) {
+    if (!vesselId) return "#64748b";
+
+    let hash = 0;
+    for (let i = 0; i < vesselId.length; i += 1) {
+      hash = vesselId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return VESSEL_COLORS[Math.abs(hash) % VESSEL_COLORS.length];
+  }
+
   /* =========================================================
      REFERENCE HELPERS
   ========================================================= */
@@ -1118,6 +1147,7 @@ window.SeavData = {
   getCurrentVesselIndex,
   getVesselHistory,
   getSortedVesselOptions,
+  getVesselColor,
   getReferenceStatus,
   isProfilePublic,
   formatDatePretty

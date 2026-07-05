@@ -19,20 +19,6 @@
     "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
   const DASH_NAV_ATTRIBUTION =
     '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
-  const DASH_NAV_COLORS = [
-    "#2563eb",
-    "#dc2626",
-    "#16a34a",
-    "#9333ea",
-    "#ea580c",
-    "#0891b2",
-    "#be123c",
-    "#4f46e5",
-    "#0f766e",
-    "#b45309",
-    "#7c3aed",
-    "#0284c7"
-  ];
 
   let dashNavigationChart = null;
   let dashNavigationLayer = null;
@@ -434,13 +420,7 @@ function getDashboardVesselName(vesselId) {
 }
 
 function getDashboardVesselColor(vesselId) {
-  if (!vesselId) return "#64748b";
-  const vessels = [...(window.SeavState?.vessels || [])].sort((a, b) =>
-    String(a.name || "").localeCompare(String(b.name || ""))
-  );
-  const index = vessels.findIndex((v) => v.id === vesselId);
-  if (index >= 0) return DASH_NAV_COLORS[index % DASH_NAV_COLORS.length];
-  return DASH_NAV_COLORS[0];
+  return window.SeavData?.getVesselColor?.(vesselId) || "#64748b";
 }
 
 function hasDashboardCoord(lat, lng) {
