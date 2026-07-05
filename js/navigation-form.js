@@ -10,7 +10,8 @@
   const Seav = window.Seav;
   const {
     getPortList, getCountryList, roundCoord, getVessels, getSeatimes, getVesselName,
-    normalizeText, findPort, lookupPortByName, normalizeWaypointList, normalizeNavEntry, hasCoord
+    normalizeText, findPort, lookupPortByName, normalizeWaypointList, normalizeNavEntry, hasCoord,
+    getVesselColor
   } = H;
   const buildRecommendedPassageWaypoints = P.buildRecommendedPassageWaypoints;
   const buildRouteThroughAnchors = P.buildRouteThroughAnchors;
@@ -511,6 +512,9 @@
 
     if (!from || !to) return;
 
+    const vesselId = document.getElementById("navVessel")?.value || "";
+    const trackColor = getVesselColor(vesselId);
+
     const route = await buildRouteThroughAnchors([
       from,
       ...S.formWaypoints.map((wp) => ({ lat: wp.lat, lng: wp.lng })),
@@ -523,10 +527,10 @@
     const preview = L.polyline(
       route.coords.map((point) => [point[0], point[1]]),
       {
-        color: "#b45309",
+        color: trackColor,
         weight: 3,
         opacity: 0.95,
-        dashArray: "6 7",
+        dashArray: "8 6",
         lineJoin: "round"
       }
     );
@@ -915,6 +919,7 @@
     populateSeatimeOptions, applySeatimeLink, resetRouteForm, setNavFormMode,
     prefillFromSeatimeParam, getEndpointLocationInput, readEndpointDetails,
     resolveEndpointCoord, syncLocationFromPort, syncEndpointCoordsFromPorts,
+    resetEndpointToPort, updateEndpointFromPort,
     renderEndpointStatus, renderWaypointList,
     renderWorkingRoute, addWaypoint, applyRecommendedPassage, importRouteFile,
     removeWaypoint, moveWaypoint, setEndpointPickMode, setPickMode,

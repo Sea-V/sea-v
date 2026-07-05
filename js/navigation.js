@@ -121,6 +121,7 @@
 
     vesselInput?.addEventListener("change", () => {
       populateSeatimeOptions();
+      renderWorkingRoute();
     });
 
     document.getElementById("navSeatime")?.addEventListener("change", (event) => {

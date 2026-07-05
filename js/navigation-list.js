@@ -10,7 +10,7 @@
 
   const Seav = window.Seav;
   const {
-    loadNavEntries, getVesselName, getSeatimes, formatNm, formatRouteLabel, entryHasRoute
+    loadNavEntries, getVesselName, getVesselColor, getSeatimes, formatNm, formatRouteLabel, entryHasRoute
   } = H;
   const { formatDateRange } = M;
   const buildRouteForEntry = P.buildRouteForEntry;
@@ -75,10 +75,15 @@
           ? getSeatimes().find((item) => item.id === entry.seatimeId)
           : null;
 
+        const vesselColor = getVesselColor(entry.vesselId);
+
         return `
           <div class="list-row navigation-log-row">
             <div class="navigation-log-main">
-              <div class="list-title">${Seav.escapeHtml(title)}</div>
+              <div class="list-title navigation-log-title">
+                <span class="navigation-log-color" style="background:${Seav.escapeHtml(vesselColor)}"></span>
+                ${Seav.escapeHtml(title)}
+              </div>
               ${
                 entry.passageName
                   ? `<div class="list-sub navigation-log-route">${Seav.escapeHtml(routeLabel)}</div>`

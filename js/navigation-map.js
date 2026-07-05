@@ -8,9 +8,8 @@
 
   const Seav = window.Seav;
   const {
-    getVesselColor, getVesselName, loadNavEntries, hasCoord, normalizeNavEntry,
-    normalizeWaypointList,
-    haversineNm, formatNm, formatRouteLabel, entryHasRoute, buildRouteForEntry, buildPassagePaths,
+    getVesselColor, getVesselName, loadNavEntries, hasCoord,
+    formatNm, entryHasRoute, buildPassagePaths,
     roundCoord
   } = { ...H, buildPassagePaths: P.buildPassagePaths };
   const { MAP_TILE_URL, MAP_TILE_ATTRIBUTION, MAP_DEFAULT_VIEW } = H;
@@ -68,6 +67,79 @@
     return marker;
   }
 
+  function buildSavedTrackLine(path) {
+    const latlngs = (path.coords || []).map((point) => [point[0], point[1]]);
+    if (latlngs.length < 2) return null;
+
+    const color = path.color || getVesselColor(path.vesselId);
+    const baseOpacity = 0.92;
+
+    const halo = L.polyline(latlngs, {
+      color: "#ffffff",
+      weight: 7,
+      opacity: 0.16,
+      lineJoin: "round",
+      lineCap: "round",
+      interactive: false
+    });
+
+    const line = L.polyline(latlngs, {
+      color,
+      weight: 4,
+      opacity: baseOpacity,
+      lineJoin: "round",
+      lineCap: "round"
+    });
+
+    line.bindPopup(buildPathPopup(path));
+    line.bindTooltip(
+      `${Seav.escapeHtml(getVesselName(path.vesselId))}: ${Seav.escapeHtml(path.fromPort || "")} → ${Seav.escapeHtml(path.toPort || "")}`,
+      { sticky: true }
+    );
+
+    line.on("mouseover", () => {
+      line.setStyle({ weight: 5.5, opacity: 1 });
+    });
+    line.on("mouseout", () => {
+      line.setStyle({ weight: 4, opacity: baseOpacity });
+    });
+
+    return L.layerGroup([halo, line]);
+  }
+
+  function renderVesselLegend(entries) {
+    const legend = document.getElementById("navVesselLegend");
+    if (!legend) return;
+
+    const vessels = new Map();
+    entries.filter(entryHasRoute).forEach((entry) => {
+      if (!entry.vesselId || vessels.has(entry.vesselId)) return;
+      vessels.set(entry.vesselId, {
+        name: getVesselName(entry.vesselId),
+        color: getVesselColor(entry.vesselId)
+      });
+    });
+
+    const rows = [...vessels.values()].sort((a, b) => a.name.localeCompare(b.name));
+    if (!rows.length) {
+      legend.innerHTML = "";
+      legend.hidden = true;
+      return;
+    }
+
+    legend.hidden = false;
+    legend.innerHTML = rows
+      .map(
+        (vessel) => `
+          <span class="navigation-vessel-legend-item">
+            <i style="background:${Seav.escapeHtml(vessel.color)}"></i>
+            <span>${Seav.escapeHtml(vessel.name)}</span>
+          </span>
+        `
+      )
+      .join("");
+  }
+
   function buildMapPoints(entries) {
     const points = [];
     const seen = new Set();
@@ -81,7 +153,6 @@
       points.push({
         lat,
         lng,
-        size: role === "departure" ? 0.38 : 0.48,
         color: getVesselColor(entry.vesselId),
         entry,
         role,
@@ -104,16 +175,6 @@
         "arrival",
         `${entry.toPort || "Arrival"}${entry.toCountry ? `, ${entry.toCountry}` : ""}`
       );
-
-      normalizeWaypointList(entry.waypoints).forEach((wp, index) => {
-        addPoint(
-          wp.lat,
-          wp.lng,
-          entry,
-          `waypoint-${index + 1}`,
-          wp.label || `Waypoint ${index + 1}`
-        );
-      });
     });
 
     return points;
@@ -237,61 +298,21 @@
     S.refreshMapPromise = (async () => {
       const entries = filterEntries(await loadNavEntries());
       const paths = await buildPassagePaths(entries);
-      const points = buildMapPoints(entries);
       const stats = buildNavigationStats(entries, paths);
 
       renderStats(stats);
+      renderVesselLegend(entries);
 
       if (S.pathLayer) S.pathLayer.clearLayers();
       if (S.pointLayer) S.pointLayer.clearLayers();
 
       paths.forEach((path) => {
-        const latlngs = (path.coords || []).map((point) => [point[0], point[1]]);
-        if (latlngs.length < 2) return;
-
-        const line = L.polyline(latlngs, {
-          color: path.color,
-          weight: 4,
-          opacity: 0.94,
-          lineJoin: "round",
-          lineCap: "round"
-        });
-        line.bindPopup(buildPathPopup(path));
-        line.bindTooltip(
-          `${Seav.escapeHtml(path.fromPort || "")} → ${Seav.escapeHtml(path.toPort || "")}`,
-          { sticky: true }
-        );
-        S.pathLayer.addLayer(line);
+        const track = buildSavedTrackLine(path);
+        if (track) S.pathLayer.addLayer(track);
       });
 
-      points.forEach((point) => {
-        let marker;
-        if (point.role === "departure" || point.role === "arrival") {
-          marker = buildEndpointMarker(
-            { lat: point.lat, lng: point.lng },
-            point.role
-          );
-        } else if (String(point.role || "").startsWith("waypoint-")) {
-          const index = Number(String(point.role).replace("waypoint-", "")) - 1;
-          marker = buildWaypointMarker(
-            { lat: point.lat, lng: point.lng, label: point.label },
-            index
-          );
-        } else {
-          marker = L.circleMarker([point.lat, point.lng], {
-            radius: 6,
-            color: "#ffffff",
-            weight: 1.5,
-            fillColor: point.color,
-            fillOpacity: 0.95
-          });
-        }
-        marker.bindPopup(buildPointPopup(point));
-        S.pointLayer.addLayer(marker);
-      });
-
-      if (paths.length || points.length) {
-        fitMapToData(paths, points);
+      if (paths.length) {
+        fitMapToData(paths, []);
       }
     })()
       .catch((error) => {
@@ -371,8 +392,8 @@
 
   window.SeavNavigationMap = {
     filterEntries, buildMapPoints, collectVisitedCountries, buildNavigationStats,
-    renderStats, fitMapToData, formatDateRange, buildPathPopup, buildPointPopup,
-    buildEndpointMarker, buildWaypointMarker,
+    renderStats, renderVesselLegend, fitMapToData, formatDateRange, buildPathPopup, buildPointPopup,
+    buildEndpointMarker, buildWaypointMarker, buildSavedTrackLine,
     refreshMap, initNavigationMap
   };
 })();
