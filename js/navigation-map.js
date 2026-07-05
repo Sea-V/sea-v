@@ -8,7 +8,7 @@
 
   const Seav = window.Seav;
   const {
-    getVesselColor, getVesselName, loadNavEntries, hasCoord,
+    getVesselColor, getVesselName, getVessels, loadNavEntries, hasCoord,
     formatNm, entryHasRoute, buildPassagePaths,
     roundCoord
   } = { ...H, buildPassagePaths: P.buildPassagePaths };
@@ -313,7 +313,11 @@
       const stats = buildNavigationStats(entries, paths);
 
       renderStats(stats);
-      renderVesselLegend(entries);
+      try {
+        renderVesselLegend(entries);
+      } catch (legendError) {
+        console.warn("[SEA-V] Vessel legend render failed:", legendError);
+      }
 
       if (S.pathLayer) S.pathLayer.clearLayers();
       if (S.pointLayer) S.pointLayer.clearLayers();
@@ -352,11 +356,14 @@
       return;
     }
 
+    const mapMaxBounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
+
     S.map = L.map(container, {
       center: [MAP_DEFAULT_VIEW.lat, MAP_DEFAULT_VIEW.lng],
       zoom: MAP_DEFAULT_VIEW.zoom,
       minZoom: 2,
-      worldCopyJump: true,
+      maxBounds: mapMaxBounds,
+      maxBoundsViscosity: 1,
       zoomControl: true,
       attributionControl: true,
       preferCanvas: true
@@ -366,6 +373,8 @@
       attribution: MAP_TILE_ATTRIBUTION,
       subdomains: "abcd",
       maxZoom: 18,
+      noWrap: true,
+      bounds: mapMaxBounds,
       keepBuffer: 2,
       updateWhenIdle: true
     }).addTo(S.map);
@@ -400,6 +409,13 @@
     window.setTimeout(() => {
       if (S.map) S.map.invalidateSize();
     }, 200);
+
+    if (S.pendingMapRefresh) {
+      S.pendingMapRefresh = false;
+      refreshMap().catch((error) => {
+        console.warn("[SEA-V] Pending map refresh failed:", error);
+      });
+    }
 
     if (!S.resizeListenerBound) {
       S.resizeListenerBound = true;
