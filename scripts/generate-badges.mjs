@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generates SEA-V achievement badges — modern gradient medallions.
+ * Generates SEA-V achievement badges — modern flat-top hex badges.
  * Run: node scripts/generate-badges.mjs
  */
 import fs from "fs";
@@ -10,16 +10,19 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(__dirname, "../img/badges");
 
-/** Tier ring gradients (outer bezel) */
+const CX = 60;
+const CY = 56;
+
+/** Tier border gradients */
 const TIERS = {
-  bronze: { a: "#FDBA74", b: "#C2410C", c: "#FED7AA", ticks: 5 },
-  silver: { a: "#E2E8F0", b: "#64748B", c: "#F8FAFC", ticks: 6 },
-  gold: { a: "#FDE68A", b: "#D97706", c: "#FFFBEB", ticks: 8 },
-  platinum: { a: "#67E8F9", b: "#0891B2", c: "#ECFEFF", ticks: 10 },
-  default: { a: "#93C5FD", b: "#2563EB", c: "#EFF6FF", ticks: 6 }
+  bronze: { a: "#FDBA74", b: "#C2410C", c: "#FED7AA" },
+  silver: { a: "#E2E8F0", b: "#64748B", c: "#F8FAFC" },
+  gold: { a: "#FDE68A", b: "#D97706", c: "#FFFBEB" },
+  platinum: { a: "#67E8F9", b: "#0891B2", c: "#ECFEFF" },
+  default: { a: "#93C5FD", b: "#2563EB", c: "#EFF6FF" }
 };
 
-/** Category inner disc + icon accent */
+/** Category fills + icon accent */
 const CATEGORIES = {
   sea: { inner: ["#0C4A6E", "#0369A1"], accent: "#7DD3FC", glow: "#38BDF8" },
   vessel: { inner: ["#7C2D12", "#C2410C"], accent: "#FDBA74", glow: "#FB923C" },
@@ -28,10 +31,10 @@ const CATEGORIES = {
   polar: { inner: ["#164E63", "#0891B2"], accent: "#E0F2FE", glow: "#67E8F9" },
   watch: { inner: ["#312E81", "#4338CA"], accent: "#C7D2FE", glow: "#818CF8" },
   career: { inner: ["#14532D", "#15803D"], accent: "#BBF7D0", glow: "#4ADE80" },
-  ops: { inner: ["#713F12", "#B45309"], accent: "#FEF3C7", glow: "#FBBF24" }
+  ops: { inner: ["#713F12", "#B45309"], accent: "#FEF3C7", glow: "#FBBF24" },
+  helm: { inner: ["#0F2744", "#D97706"], accent: "#FDE68A", glow: "#FBBF24" }
 };
 
-/** Large illustrated icons — centered in medallion */
 const ICONS = {
   sea: `
     <path d="M34 52c6-4 12-4 18 0s12 4 18 0 12-4 18 0" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/>
@@ -60,6 +63,25 @@ const ICONS = {
     <path d="M46 52h28" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
     <circle cx="60" cy="49" r="6" stroke="currentColor" stroke-width="1.8" fill="none"/>
     <path d="M60 46v4l2.5 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/>`,
+  helm: `
+    <g transform="translate(60,50)" stroke-linecap="round">
+      <circle r="26" fill="none" stroke="currentColor" stroke-width="3"/>
+      <circle r="20" fill="none" stroke="currentColor" stroke-width="1.8" opacity="0.55"/>
+      <g stroke="currentColor" stroke-width="2.6">
+        <line x1="0" y1="-22" x2="0" y2="22"/>
+        <line x1="-22" y1="0" x2="22" y2="0"/>
+        <line x1="-15.6" y1="-15.6" x2="15.6" y2="15.6"/>
+        <line x1="15.6" y1="-15.6" x2="-15.6" y2="15.6"/>
+      </g>
+      <g fill="currentColor" stroke="#FFFBEB" stroke-width="1">
+        <circle cy="-25" r="2.8"/><circle cy="25" r="2.8"/>
+        <circle cx="-25" r="2.8"/><circle cx="25" r="2.8"/>
+        <circle cx="-17.7" cy="-17.7" r="2.6"/><circle cx="17.7" cy="-17.7" r="2.6"/>
+        <circle cx="-17.7" cy="17.7" r="2.6"/><circle cx="17.7" cy="17.7" r="2.6"/>
+      </g>
+      <circle r="6" fill="#0F2744" stroke="currentColor" stroke-width="2"/>
+      <circle r="2.5" fill="currentColor"/>
+    </g>`,
   career: `
     <path d="M48 38h24v6H48z" fill="currentColor" opacity="0.55"/>
     <path d="M44 44h32v6H44z" fill="currentColor" opacity="0.75"/>
@@ -94,7 +116,14 @@ const BADGE_DEFS = [
   { file: "first-watchkeeping", tier: "bronze", main: "1ST", label: "WATCH", cat: "watch" },
   { file: "watchkeeping-100-days", tier: "gold", main: "100", label: "BRIDGE DAYS", cat: "watch" },
   { file: "oow-level", tier: "gold", main: "OOW", label: "DECK OFFICER", cat: "watch" },
-  { file: "bridge-leader", tier: "platinum", main: "LEAD", label: "BRIDGE", cat: "watch" },
+  {
+    file: "bridge-leader",
+    tier: "platinum",
+    main: "LEAD",
+    label: "BRIDGE LEADER",
+    cat: "helm",
+    split: true
+  },
   { file: "first-promotion", tier: "silver", main: "UP", label: "PROMOTION", cat: "career" },
   { file: "senior-crew", tier: "gold", main: "SNR", label: "SENIOR CREW", cat: "career" },
   { file: "officer-rank", tier: "gold", main: "OFC", label: "OFFICER", cat: "career" },
@@ -104,6 +133,18 @@ const BADGE_DEFS = [
   { file: "crane-operations", tier: "gold", main: "LIFT", label: "CRANE OPS", cat: "ops" },
   { file: "helicopter-operations", tier: "platinum", main: "HELO", label: "FLIGHT OPS", cat: "ops" }
 ];
+
+function hexPoints(cx, cy, r, startDeg = -90) {
+  return Array.from({ length: 6 }, (_, i) => {
+    const a = ((startDeg + i * 60) * Math.PI) / 180;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  });
+}
+
+function hexPath(cx, cy, r, startDeg = -90) {
+  const pts = hexPoints(cx, cy, r, startDeg);
+  return `M ${pts.map((p) => p.map((n) => n.toFixed(2)).join(" ")).join(" L ")} Z`;
+}
 
 function mainFontSize(main) {
   const len = String(main).length;
@@ -117,35 +158,48 @@ function labelFontSize(label) {
   return label.length > 12 ? 5.2 : 5.8;
 }
 
-function tickMarks(tier, uid) {
-  const t = TIERS[tier] || TIERS.default;
-  const count = t.ticks;
-  const marks = [];
-  for (let i = 0; i < count; i++) {
-    const angle = (i / count) * Math.PI * 2 - Math.PI / 2;
-    const x1 = 60 + Math.cos(angle) * 48;
-    const y1 = 60 + Math.sin(angle) * 48;
-    const x2 = 60 + Math.cos(angle) * 52;
-    const y2 = 60 + Math.sin(angle) * 52;
-    marks.push(
-      `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="url(#ring-${uid})" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>`
-    );
-  }
-  return marks.join("\n    ");
+function vertexTicks(uid) {
+  const outer = hexPoints(CX, CY, 48);
+  const inner = hexPoints(CX, CY, 44);
+  return outer
+    .map(
+      (p, i) =>
+        `<line x1="${inner[i][0].toFixed(2)}" y1="${inner[i][1].toFixed(2)}" x2="${p[0].toFixed(2)}" y2="${p[1].toFixed(2)}" stroke="url(#ring-${uid})" stroke-width="2.4" stroke-linecap="round"/>`
+    )
+    .join("\n    ");
 }
 
-function buildSvg({ tier, main, label, cat, locked = false }) {
+function innerFill(uid, c, split) {
+  const clip = hexPath(CX, CY, 40);
+  if (split) {
+    return `
+    <clipPath id="hex-inner-${uid}"><path d="${clip}"/></clipPath>
+    <g clip-path="url(#hex-inner-${uid})">
+      <rect x="0" y="0" width="${CX}" height="120" fill="${c.inner[0]}"/>
+      <rect x="${CX}" y="0" width="${CX}" height="120" fill="${c.inner[1]}"/>
+    </g>`;
+  }
+  return `
+    <path d="${clip}" fill="url(#disc-${uid})"/>
+    <path d="${clip}" fill="url(#shine-${uid})"/>`;
+}
+
+function buildSvg({ tier, main, label, cat, split = false, locked = false }) {
   const t = TIERS[tier] || TIERS.default;
   const c = CATEGORIES[cat] || CATEGORIES.sea;
   const uid = Math.random().toString(36).slice(2, 8);
   const icon = ICONS[cat] || ICONS.sea;
   const mainSize = mainFontSize(main);
   const labelSize = labelFontSize(label);
+  const outerHex = hexPath(CX, CY, 50);
+  const innerHex = hexPath(CX, CY, 40);
+  const pillFill = split ? c.inner[0] : c.glow;
+  const pillText = split ? c.accent : "#0F172A";
 
   const lockOverlay = locked
     ? `
-  <circle cx="60" cy="60" r="38" fill="#F1F5F9" opacity="0.72"/>
-  <g transform="translate(60,58)" stroke="#64748B" fill="none" stroke-width="2.2" stroke-linecap="round">
+  <path d="${innerHex}" fill="#F1F5F9" opacity="0.78"/>
+  <g transform="translate(60,54)" stroke="#64748B" fill="none" stroke-width="2.2" stroke-linecap="round">
     <rect x="-11" y="-4" width="22" height="18" rx="4" fill="#E2E8F0" stroke="#64748B"/>
     <path d="M-6 6v6a6 6 0 0 0 12 0v-6"/>
     <path d="M-14 -2h28"/>
@@ -165,46 +219,40 @@ function buildSvg({ tier, main, label, cat, locked = false }) {
       <stop offset="100%" stop-color="${c.inner[0]}"/>
     </radialGradient>
     <linearGradient id="shine-${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.28"/>
-      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
     <filter id="sh-${uid}" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
     <filter id="glow-${uid}" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feGaussianBlur stdDeviation="2" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
-  <ellipse cx="60" cy="108" rx="28" ry="5" fill="#0F172A" opacity="0.12"/>
-
   <g filter="url(#sh-${uid})">
-    <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ring-${uid})" stroke-width="5.5"/>
-    ${tickMarks(tier, uid)}
-    <circle cx="60" cy="60" r="42" fill="url(#disc-${uid})"/>
-    <circle cx="60" cy="60" r="42" fill="url(#shine-${uid})"/>
-    <circle cx="60" cy="60" r="42" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
+    <path d="${outerHex}" fill="none" stroke="url(#ring-${uid})" stroke-width="5" stroke-linejoin="round"/>
+    ${vertexTicks(uid)}
+    ${innerFill(uid, c, split)}
+    <path d="${innerHex}" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
-  <g color="${c.accent}" filter="url(#glow-${uid})" transform="translate(0,-2)">
+  <g color="${c.accent}" filter="url(#glow-${uid})">
     ${icon}
   </g>
 
-  <rect x="28" y="82" width="64" height="18" rx="9" fill="#0F172A" opacity="0.82"/>
-  <rect x="29" y="83" width="62" height="16" rx="8" fill="${c.glow}" opacity="0.95"/>
+  <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
+  <rect x="27" y="83" width="66" height="16" rx="3" fill="${pillFill}" opacity="0.96"/>
   <text x="60" y="94.5" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="${mainSize}" font-weight="800" letter-spacing="0.6"
-    fill="#0F172A">${main}</text>
+    fill="${pillText}">${main}</text>
 
   <text x="60" y="108" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="${labelSize}" font-weight="700" letter-spacing="0.9"
     fill="#64748B">${label}</text>
-
-  <circle cx="60" cy="22" r="4" fill="url(#ring-${uid})"/>
-  <path d="M60 18 L57 24 L63 24 Z" fill="#FFFFFF" opacity="0.9"/>
 
   ${lockOverlay}
 </svg>`;
@@ -218,23 +266,12 @@ for (const def of BADGE_DEFS) {
 
 fs.writeFileSync(
   path.join(OUT, "locked.svg"),
-  buildSvg({
-    tier: "silver",
-    main: "—",
-    label: "LOCKED",
-    cat: "sea",
-    locked: true
-  })
+  buildSvg({ tier: "silver", main: "—", label: "LOCKED", cat: "sea", locked: true })
 );
 
 fs.writeFileSync(
   path.join(OUT, "default.svg"),
-  buildSvg({
-    tier: "default",
-    main: "SV",
-    label: "SEA-V CREW",
-    cat: "sea"
-  })
+  buildSvg({ tier: "default", main: "SV", label: "SEA-V CREW", cat: "sea" })
 );
 
-console.log(`Generated ${BADGE_DEFS.length + 2} modern medallion badges in ${OUT}`);
+console.log(`Generated ${BADGE_DEFS.length + 2} hex badges in ${OUT}`);

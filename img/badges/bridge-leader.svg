@@ -1,61 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Bridge Leader">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="bl-ring" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1E3A5F"/>
-      <stop offset="50%" stop-color="#D97706"/>
-      <stop offset="100%" stop-color="#FBBF24"/>
+    <linearGradient id="ring-90kv72" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67E8F9"/>
+      <stop offset="50%" stop-color="#0891B2"/>
+      <stop offset="100%" stop-color="#ECFEFF"/>
     </linearGradient>
-    <filter id="bl-sh" x="-20%" y="-15%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="4" stdDeviation="3.5" flood-color="#0F172A" flood-opacity="0.35"/>
+    <radialGradient id="disc-90kv72" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#0F2744"/>
+    </radialGradient>
+    <linearGradient id="shine-90kv72" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="sh-90kv72" x="-20%" y="-15%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
+    </filter>
+    <filter id="glow-90kv72" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
-  <ellipse cx="60" cy="106" rx="30" ry="5" fill="#0F172A" opacity="0.14"/>
+  <g filter="url(#sh-90kv72)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-90kv72)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-90kv72)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-90kv72)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-90kv72)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-90kv72)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-90kv72)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-90kv72)" stroke-width="2.4" stroke-linecap="round"/>
 
-  <g filter="url(#bl-sh)">
-    <!-- outer ring -->
-    <circle cx="60" cy="56" r="50" fill="none" stroke="url(#bl-ring)" stroke-width="5"/>
-
-    <!-- half navy / half gold disc -->
-    <path d="M60 6 A50 50 0 0 0 60 106 L60 6 Z" fill="#0F2744"/>
-    <path d="M60 6 A50 50 0 0 1 60 106 L60 6 Z" fill="#D97706"/>
-
-    <!-- subtle shine -->
-    <circle cx="60" cy="56" r="50" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="1"/>
+    <clipPath id="hex-inner-90kv72"><path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z"/></clipPath>
+    <g clip-path="url(#hex-inner-90kv72)">
+      <rect x="0" y="0" width="60" height="120" fill="#0F2744"/>
+      <rect x="60" y="0" width="60" height="120" fill="#D97706"/>
+    </g>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
-  <!-- helm wheel -->
-  <g transform="translate(60,54)" stroke-linecap="round">
-    <circle r="30" fill="none" stroke="#FDE68A" stroke-width="3.5"/>
-    <circle r="24" fill="none" stroke="#FDE68A" stroke-width="2" opacity="0.55"/>
-
-    <g stroke="#FFFBEB" stroke-width="3">
-      <line x1="0" y1="-26" x2="0" y2="26"/>
-      <line x1="-26" y1="0" x2="26" y2="0"/>
-      <line x1="-18.4" y1="-18.4" x2="18.4" y2="18.4"/>
-      <line x1="18.4" y1="-18.4" x2="-18.4" y2="18.4"/>
+  <g color="#FDE68A" filter="url(#glow-90kv72)">
+    
+    <g transform="translate(60,50)" stroke-linecap="round">
+      <circle r="26" fill="none" stroke="currentColor" stroke-width="3"/>
+      <circle r="20" fill="none" stroke="currentColor" stroke-width="1.8" opacity="0.55"/>
+      <g stroke="currentColor" stroke-width="2.6">
+        <line x1="0" y1="-22" x2="0" y2="22"/>
+        <line x1="-22" y1="0" x2="22" y2="0"/>
+        <line x1="-15.6" y1="-15.6" x2="15.6" y2="15.6"/>
+        <line x1="15.6" y1="-15.6" x2="-15.6" y2="15.6"/>
+      </g>
+      <g fill="currentColor" stroke="#FFFBEB" stroke-width="1">
+        <circle cy="-25" r="2.8"/><circle cy="25" r="2.8"/>
+        <circle cx="-25" r="2.8"/><circle cx="25" r="2.8"/>
+        <circle cx="-17.7" cy="-17.7" r="2.6"/><circle cx="17.7" cy="-17.7" r="2.6"/>
+        <circle cx="-17.7" cy="17.7" r="2.6"/><circle cx="17.7" cy="17.7" r="2.6"/>
+      </g>
+      <circle r="6" fill="#0F2744" stroke="currentColor" stroke-width="2"/>
+      <circle r="2.5" fill="currentColor"/>
     </g>
-
-    <!-- handles -->
-    <g fill="#FBBF24" stroke="#FFFBEB" stroke-width="1.2">
-      <circle cy="-30" r="3.2"/>
-      <circle cy="30" r="3.2"/>
-      <circle cx="-30" r="3.2"/>
-      <circle cx="30" r="3.2"/>
-      <circle cx="-21.2" cy="-21.2" r="3"/>
-      <circle cx="21.2" cy="-21.2" r="3"/>
-      <circle cx="-21.2" cy="21.2" r="3"/>
-      <circle cx="21.2" cy="21.2" r="3"/>
-    </g>
-
-    <circle r="7" fill="#0F2744" stroke="#FDE68A" stroke-width="2.5"/>
-    <circle r="3" fill="#FBBF24"/>
   </g>
 
-  <rect x="24" y="84" width="72" height="20" rx="10" fill="#0F2744" opacity="0.9"/>
-  <text x="60" y="97.5" text-anchor="middle"
+  <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
+  <rect x="27" y="83" width="66" height="16" rx="3" fill="#0F2744" opacity="0.96"/>
+  <text x="60" y="94.5" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
-    font-size="11" font-weight="800" letter-spacing="1.1" fill="#FDE68A">BRIDGE LEADER</text>
+    font-size="12" font-weight="800" letter-spacing="0.6"
+    fill="#FDE68A">LEAD</text>
 
+  <text x="60" y="108" text-anchor="middle"
+    font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="5.2" font-weight="700" letter-spacing="0.9"
+    fill="#64748B">BRIDGE LEADER</text>
+
+  
 </svg>

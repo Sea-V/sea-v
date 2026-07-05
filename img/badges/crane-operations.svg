@@ -1,46 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="ring-9fzf87" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-0thmjw" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FDE68A"/>
       <stop offset="50%" stop-color="#D97706"/>
       <stop offset="100%" stop-color="#FFFBEB"/>
     </linearGradient>
-    <radialGradient id="disc-9fzf87" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-0thmjw" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#B45309"/>
       <stop offset="100%" stop-color="#713F12"/>
     </radialGradient>
-    <linearGradient id="shine-9fzf87" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.28"/>
-      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0"/>
+    <linearGradient id="shine-0thmjw" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-9fzf87" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-0thmjw" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
-    <filter id="glow-9fzf87" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="2.5" result="b"/>
+    <filter id="glow-0thmjw" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
-  <ellipse cx="60" cy="108" rx="28" ry="5" fill="#0F172A" opacity="0.12"/>
+  <g filter="url(#sh-0thmjw)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-0thmjw)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-0thmjw)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-0thmjw)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-0thmjw)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-0thmjw)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-0thmjw)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-0thmjw)" stroke-width="2.4" stroke-linecap="round"/>
 
-  <g filter="url(#sh-9fzf87)">
-    <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ring-9fzf87)" stroke-width="5.5"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-9fzf87)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
-    <line x1="93.94" y1="26.06" x2="96.77" y2="23.23" stroke="url(#ring-9fzf87)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
-    <line x1="108.00" y1="60.00" x2="112.00" y2="60.00" stroke="url(#ring-9fzf87)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
-    <line x1="93.94" y1="93.94" x2="96.77" y2="96.77" stroke="url(#ring-9fzf87)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
-    <line x1="60.00" y1="108.00" x2="60.00" y2="112.00" stroke="url(#ring-9fzf87)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
-    <line x1="26.06" y1="93.94" x2="23.23" y2="96.77" stroke="url(#ring-9fzf87)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
-    <line x1="12.00" y1="60.00" x2="8.00" y2="60.00" stroke="url(#ring-9fzf87)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
-    <line x1="26.06" y1="26.06" x2="23.23" y2="23.23" stroke="url(#ring-9fzf87)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
-    <circle cx="60" cy="60" r="42" fill="url(#disc-9fzf87)"/>
-    <circle cx="60" cy="60" r="42" fill="url(#shine-9fzf87)"/>
-    <circle cx="60" cy="60" r="42" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-0thmjw)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-0thmjw)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
-  <g color="#FEF3C7" filter="url(#glow-9fzf87)" transform="translate(0,-2)">
+  <g color="#FEF3C7" filter="url(#glow-0thmjw)">
     
     <circle cx="48" cy="48" r="8" stroke="currentColor" stroke-width="2" fill="none"/>
     <circle cx="72" cy="48" r="8" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -48,8 +45,8 @@
     <path d="M60 56v6M52 60h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
   </g>
 
-  <rect x="28" y="82" width="64" height="18" rx="9" fill="#0F172A" opacity="0.82"/>
-  <rect x="29" y="83" width="62" height="16" rx="8" fill="#FBBF24" opacity="0.95"/>
+  <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
+  <rect x="27" y="83" width="66" height="16" rx="3" fill="#FBBF24" opacity="0.96"/>
   <text x="60" y="94.5" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="12" font-weight="800" letter-spacing="0.6"
@@ -59,9 +56,6 @@
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="5.8" font-weight="700" letter-spacing="0.9"
     fill="#64748B">CRANE OPS</text>
-
-  <circle cx="60" cy="22" r="4" fill="url(#ring-9fzf87)"/>
-  <path d="M60 18 L57 24 L63 24 Z" fill="#FFFFFF" opacity="0.9"/>
 
   
 </svg>

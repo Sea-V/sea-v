@@ -287,8 +287,8 @@
 .ach-trophy-glow {
   position: absolute;
   inset: -10px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.28), transparent 72%);
+  clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  background: radial-gradient(circle at 50% 40%, rgba(56, 189, 248, 0.32), transparent 70%);
   pointer-events: none;
 }
 
