@@ -13,7 +13,7 @@
   }
 
   const { KEYS, DEFAULT_PROFILE } = window.SeavData;
-  const CACHE_KEY_PREFIX = "seav_state_cache_v1_";
+  const CACHE_KEY_PREFIX = "seav_state_cache_v102_";
   const CACHE_TTL_MS = 5 * 60 * 1000;
   const SETUP_CHECK_KEY = "seav_setup_checked_v1";
   const PAGE_LOADER_MIN_MS = 0;

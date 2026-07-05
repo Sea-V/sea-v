@@ -60,12 +60,6 @@
   function getVesselColor(vesselId) {
     if (!vesselId) return "#64748b";
 
-    const vessels = [...getVessels()].sort((a, b) =>
-      String(a.name || "").localeCompare(String(b.name || ""))
-    );
-    const index = vessels.findIndex((v) => v.id === vesselId);
-    if (index >= 0) return VESSEL_COLORS[index % VESSEL_COLORS.length];
-
     let hash = 0;
     for (let i = 0; i < vesselId.length; i += 1) {
       hash = vesselId.charCodeAt(i) + ((hash << 5) - hash);

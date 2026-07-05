@@ -321,7 +321,23 @@ function buildVesselCard(v, options = {}) {
   `;
 }
 
-function renderVessels() {
+  const VESSEL_PHOTO_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos";
+  const VESSEL_DOC_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_DOCUMENTS || "vessel-documents";
+
+  async function hydrateVesselFiles(vessels) {
+    if (!window.SeavApiCore?.hydrateItemsFileField || !vessels.length) return vessels;
+    await window.SeavApiCore.hydrateItemsFileField(vessels, "photo", VESSEL_PHOTO_BUCKET);
+    await window.SeavApiCore.hydrateItemsFileField(
+      vessels,
+      "sea_attachment",
+      VESSEL_DOC_BUCKET
+    );
+    return vessels;
+  }
+
+async function renderVessels() {
   const currentVesselCard = document.getElementById("currentVesselCard");
   const vesselsGrid = document.getElementById("vesselsGrid");
 
@@ -340,6 +356,9 @@ function renderVessels() {
 
     return;
   }
+
+  await hydrateVesselFiles(vessels);
+  window.SeavState?.syncCache?.();
 
   const sortedVessels = [...vessels].sort((a, b) => {
     const da = a.from ? new Date(a.from) : new Date(0);
