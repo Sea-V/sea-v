@@ -136,6 +136,10 @@ body.public-profile-page .overlay {
   overflow: visible;
 }
 
+.public-profile-page .dashboard-shell-head {
+  grid-template-columns: 1fr;
+}
+
 /* =========================================================
    STICKY SECTION NAV
 ========================================================= */
