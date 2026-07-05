@@ -224,8 +224,9 @@
     if (milesEl) milesEl.textContent = formatNm(stats.totalNm);
   }
 
-  function fitMapToData(paths, points) {
+  function fitMapToData(paths, points, options = {}) {
     if (!S.map) return;
+    if (options.skipIfUserView && S.userAdjustedView) return;
 
     const coords = [];
     paths.forEach((path) => {
@@ -311,8 +312,11 @@
         if (track) S.pathLayer.addLayer(track);
       });
 
-      if (paths.length) {
+      if (paths.length && !S.userAdjustedView && !S.initialBoundsFit) {
         fitMapToData(paths, []);
+        S.initialBoundsFit = true;
+      } else if (paths.length && S.activeVesselFilter) {
+        fitMapToData(paths, [], { skipIfUserView: false });
       }
     })()
       .catch((error) => {
@@ -332,19 +336,27 @@
       return;
     }
 
+    if (S.map) {
+      window.setTimeout(() => S.map.invalidateSize(), 100);
+      return;
+    }
+
     S.map = L.map(container, {
       center: [MAP_DEFAULT_VIEW.lat, MAP_DEFAULT_VIEW.lng],
       zoom: MAP_DEFAULT_VIEW.zoom,
       minZoom: 2,
       worldCopyJump: true,
       zoomControl: true,
-      attributionControl: true
+      attributionControl: true,
+      preferCanvas: true
     });
 
     L.tileLayer(MAP_TILE_URL, {
       attribution: MAP_TILE_ATTRIBUTION,
       subdomains: "abcd",
-      maxZoom: 19
+      maxZoom: 18,
+      keepBuffer: 2,
+      updateWhenIdle: true
     }).addTo(S.map);
 
     S.pathLayer = L.layerGroup().addTo(S.map);
@@ -352,6 +364,10 @@
     S.workingLayer = L.layerGroup().addTo(S.map);
 
     S.mapReady = true;
+
+    S.map.on("dragend zoomend", () => {
+      S.userAdjustedView = true;
+    });
 
     S.map.on("click", (event) => {
       const form = window.SeavNavigationForm;
@@ -374,19 +390,14 @@
       if (S.map) S.map.invalidateSize();
     }, 200);
 
-    refreshMap().then(() => {
-      if (S.pendingMapRefresh) {
-        S.pendingMapRefresh = false;
-        refreshMap();
-      }
-      window.SeavNavigationForm?.renderWorkingRoute?.();
-    });
-
-    window.addEventListener("resize", () => {
-      if (!S.map) return;
-      window.clearTimeout(S.resizeTimer);
-      S.resizeTimer = window.setTimeout(() => S.map.invalidateSize(), 150);
-    });
+    if (!S.resizeListenerBound) {
+      S.resizeListenerBound = true;
+      window.addEventListener("resize", () => {
+        if (!S.map) return;
+        window.clearTimeout(S.resizeTimer);
+        S.resizeTimer = window.setTimeout(() => S.map.invalidateSize(), 150);
+      });
+    }
   }
 
 

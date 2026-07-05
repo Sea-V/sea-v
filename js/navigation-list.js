@@ -13,7 +13,7 @@
     loadNavEntries, getVesselName, getVesselColor, getSeatimes, formatNm, formatRouteLabel, entryHasRoute
   } = H;
   const { formatDateRange } = M;
-  const buildRouteForEntry = P.buildRouteForEntry;
+  const getEntryRoute = P.getEntryRoute;
   const buildSeatimeLabel = F.buildSeatimeLabel;
 
   async function buildDistanceMap(entries) {
@@ -21,7 +21,7 @@
 
     await Promise.all(
       entries.filter(entryHasRoute).map(async (entry) => {
-        const route = await buildRouteForEntry(entry);
+        const route = await getEntryRoute(entry);
         if (route?.distanceNm) {
           distances.set(entry.id, route.distanceNm);
         }

@@ -11,6 +11,11 @@
   } = H;
 
   async function buildLegRoute(a, b) {
+    const cacheKey = `${roundCoord(a.lat)},${roundCoord(a.lng)}|${roundCoord(b.lat)},${roundCoord(b.lng)}`;
+    if (buildLegRoute._cache?.has(cacheKey)) {
+      return buildLegRoute._cache.get(cacheKey);
+    }
+
     let coords = null;
 
     if (window.SeavNavigationRouting?.buildSeaRoute) {
@@ -37,6 +42,14 @@
     if (!last || last[0] !== b.lat || last[1] !== b.lng) {
       coords.push([b.lat, b.lng]);
     }
+
+    if (!buildLegRoute._cache) {
+      buildLegRoute._cache = new Map();
+    }
+    if (buildLegRoute._cache.size > 200) {
+      buildLegRoute._cache.clear();
+    }
+    buildLegRoute._cache.set(cacheKey, coords);
 
     return coords;
   }
@@ -340,33 +353,75 @@
     return buildRouteThroughAnchors(anchors);
   }
 
-  async function buildPassagePaths(entries) {
-    const routedEntries = entries.filter(entryHasRoute);
-    const paths = [];
+  const entryRouteCache = new Map();
+  const MAX_ENTRY_ROUTE_CACHE = 64;
 
-    for (const entry of routedEntries) {
-      const route = await buildRouteForEntry(entry);
-      if (!route?.coords?.length) continue;
+  function buildEntryRouteKey(entry) {
+    const wps = normalizeWaypointList(entry.waypoints);
+    return [
+      entry.id || "",
+      roundCoord(entry.fromLat),
+      roundCoord(entry.fromLng),
+      roundCoord(entry.toLat),
+      roundCoord(entry.toLng),
+      wps.map((wp) => `${roundCoord(wp.lat)},${roundCoord(wp.lng)}`).join("|")
+    ].join(";");
+  }
 
-      const color = getVesselColor(entry.vesselId);
-      paths.push({
-        coords: route.coords,
-        color,
-        distanceNm: route.distanceNm,
-        vesselId: entry.vesselId,
-        vesselName: getVesselName(entry.vesselId),
-        fromPort: entry.fromPort,
-        toPort: entry.toPort,
-        fromCountry: entry.fromCountry,
-        toCountry: entry.toCountry,
-        passageName: entry.passageName,
-        visitedDate: entry.visitedDate,
-        departureDate: entry.departureDate,
-        arrivalDate: entry.arrivalDate
-      });
+  function trimEntryRouteCache() {
+    if (entryRouteCache.size <= MAX_ENTRY_ROUTE_CACHE) return;
+    const keys = [...entryRouteCache.keys()];
+    keys.slice(0, keys.length - MAX_ENTRY_ROUTE_CACHE).forEach((key) => {
+      entryRouteCache.delete(key);
+    });
+  }
+
+  async function getEntryRoute(entry) {
+    if (!entryHasRoute(entry)) return null;
+
+    const key = buildEntryRouteKey(entry);
+    if (entryRouteCache.has(key)) {
+      return entryRouteCache.get(key);
     }
 
-    return paths;
+    const route = await buildRouteForEntry(entry);
+    entryRouteCache.set(key, route);
+    trimEntryRouteCache();
+    return route;
+  }
+
+  function clearEntryRouteCache() {
+    entryRouteCache.clear();
+    if (buildLegRoute._cache) buildLegRoute._cache.clear();
+  }
+
+  async function buildPassagePaths(entries) {
+    const routedEntries = entries.filter(entryHasRoute);
+
+    const paths = await Promise.all(
+      routedEntries.map(async (entry) => {
+        const route = await getEntryRoute(entry);
+        if (!route?.coords?.length) return null;
+
+        return {
+          coords: route.coords,
+          color: getVesselColor(entry.vesselId),
+          distanceNm: route.distanceNm,
+          vesselId: entry.vesselId,
+          vesselName: getVesselName(entry.vesselId),
+          fromPort: entry.fromPort,
+          toPort: entry.toPort,
+          fromCountry: entry.fromCountry,
+          toCountry: entry.toCountry,
+          passageName: entry.passageName,
+          visitedDate: entry.visitedDate,
+          departureDate: entry.departureDate,
+          arrivalDate: entry.arrivalDate
+        };
+      })
+    );
+
+    return paths.filter(Boolean);
   }
 
 
@@ -376,6 +431,8 @@
     buildRecommendedPassageWaypoints,
     buildRouteThroughAnchors,
     buildRouteForEntry,
+    getEntryRoute,
+    clearEntryRouteCache,
     buildPassagePaths,
     RECOMMENDED_PASSAGE_POINTS
   };

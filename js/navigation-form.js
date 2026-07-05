@@ -127,34 +127,22 @@
     return `${vesselName} · ${role} · ${dates}`;
   }
 
-  function getLinkedSeatimeIds(currentNavId = "") {
-    return new Set(
-      (window.SeavState?.navigationAreas || [])
-        .filter((entry) => entry.id !== currentNavId)
-        .map((entry) => entry.seatimeId || entry.seatime_id || "")
-        .filter(Boolean)
-    );
-  }
-
   function populateSeatimeOptions(selectedValue = "") {
     const select = document.getElementById("navSeatime");
     if (!select) return;
 
     const selectedVesselId = document.getElementById("navVessel")?.value || "";
-    const currentNavId = document.getElementById("nav_edit_id")?.value.trim() || "";
-    const linkedSeatimeIds = getLinkedSeatimeIds(currentNavId);
     const seatimes = [...getSeatimes()].sort((a, b) => {
       const da = a.dateJoined ? new Date(a.dateJoined) : new Date(0);
       const db = b.dateJoined ? new Date(b.dateJoined) : new Date(0);
       return db - da;
     }).filter((entry) => {
-      if (selectedVesselId && entry.vesselId !== selectedVesselId) return false;
-      if (entry.id === selectedValue) return true;
-      return !linkedSeatimeIds.has(entry.id);
+      if (!selectedVesselId) return true;
+      return entry.vesselId === selectedVesselId || entry.id === selectedValue;
     });
 
     select.innerHTML = `
-      <option value="">${selectedVesselId ? "No linked sea time entry" : "Choose a vessel first, or select any unlinked entry"}</option>
+      <option value="">${selectedVesselId ? "No linked sea time entry" : "Choose a vessel first, or select any sea time entry"}</option>
       ${seatimes
         .map(
           (entry) =>
@@ -218,16 +206,6 @@
     const entry = getSeatimes().find((item) => item.id === seatimeId);
     if (!entry) {
       Seav.notify("info", "Sea time not found", "That sea time entry could not be linked.");
-      return;
-    }
-
-    const alreadyLinked = getLinkedSeatimeIds().has(seatimeId);
-    if (alreadyLinked) {
-      Seav.notify(
-        "info",
-        "Already linked",
-        "That sea time entry already has a linked passage plan."
-      );
       return;
     }
 
@@ -915,7 +893,7 @@
 
   window.SeavNavigationForm = {
     buildCountryOptions, buildPortOptions, populateCountrySelect, populatePortSelect,
-    wireRouteSelects, populateVesselOptions, buildSeatimeLabel, getLinkedSeatimeIds,
+    wireRouteSelects, populateVesselOptions, buildSeatimeLabel,
     populateSeatimeOptions, applySeatimeLink, resetRouteForm, setNavFormMode,
     prefillFromSeatimeParam, getEndpointLocationInput, readEndpointDetails,
     resolveEndpointCoord, syncLocationFromPort, syncEndpointCoordsFromPorts,

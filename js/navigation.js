@@ -61,7 +61,36 @@
   const normalizeNavEntry = H.normalizeNavEntry;
   const Seav = window.Seav;
 
+  let navRefreshTimer = null;
+  let navRefreshPromise = null;
+
+  async function refreshNavigationView() {
+    if (navRefreshPromise) return navRefreshPromise;
+
+    navRefreshPromise = (async () => {
+      populateVesselOptions();
+      populateSeatimeOptions(document.getElementById("navSeatime")?.value || "");
+      await refreshMap();
+      await renderNavEntriesList();
+    })().finally(() => {
+      navRefreshPromise = null;
+    });
+
+    return navRefreshPromise;
+  }
+
+  function scheduleNavigationRefresh(delayMs = 120) {
+    window.clearTimeout(navRefreshTimer);
+    navRefreshTimer = window.setTimeout(() => {
+      refreshNavigationView().catch((error) => {
+        console.warn("[SEA-V] Navigation refresh failed:", error);
+      });
+    }, delayMs);
+  }
+
   function initForm() {
+    if (S.formBound) return;
+
     const form = document.getElementById("navForm");
     const fromCountry = document.getElementById("navFromCountry");
     const fromPort = document.getElementById("navFromPort");
@@ -75,6 +104,8 @@
     const cancelEditBtn = document.getElementById("navCancelEditBtn");
 
     if (!form || !fromCountry || !fromPort || !toCountry || !toPort) return;
+
+    S.formBound = true;
 
     clearNavEditForm();
     populateVesselOptions();
@@ -116,6 +147,7 @@
 
     filterSelect?.addEventListener("change", async () => {
       S.activeVesselFilter = filterSelect.value || "";
+      S.userAdjustedView = false;
       await refreshMap();
     });
 
@@ -303,22 +335,19 @@
         populateVesselOptions();
         populateSeatimeOptions();
 
-        if (window.SeavState?.refresh) {
+        window.SeavNavigationPassage?.clearEntryRouteCache?.();
+
+        if (window.Seav.app?.refreshAll) {
+          await window.Seav.app.refreshAll();
+        } else if (window.SeavState?.refresh) {
           await window.SeavState.refresh();
         }
-
-        await refreshMap();
-        await renderNavEntriesList();
 
         Seav.notify(
           "success",
           editId ? "Passage updated" : "Passage logged",
           `${fromDetails.portName} → ${toDetails.portName} ${editId ? "updated on" : "added to"} your chart.`
         );
-
-        if (window.Seav.app?.refreshAll) {
-          await window.Seav.app.refreshAll();
-        }
         }, { sub: editId ? "Updating navigation passage" : "Logging navigation passage" });
       } catch (error) {
         console.error("[SEA-V] Navigation passage save failed:", error);
@@ -380,11 +409,12 @@
         populateVesselOptions();
       }
 
-      await refreshMap();
-      await renderNavEntriesList();
+      window.SeavNavigationPassage?.clearEntryRouteCache?.();
 
       if (window.Seav.app?.refreshAll) {
         await window.Seav.app.refreshAll();
+      } else if (window.SeavState?.refresh) {
+        await window.SeavState.refresh();
       }
     });
   }
@@ -393,8 +423,8 @@
     populateVesselOptions();
     populateSeatimeOptions();
     prefillFromSeatimeParam();
-    await refreshMap();
-    await renderNavEntriesList();
+    await refreshNavigationView();
+    window.SeavNavigationForm?.renderWorkingRoute?.();
   }
 
   async function initNavigationPage() {
@@ -442,11 +472,8 @@
     initNavigationPage();
   });
 
-  document.addEventListener("seav:data-updated", async () => {
-    populateVesselOptions();
-    populateSeatimeOptions(document.getElementById("navSeatime")?.value || "");
-    await refreshMap();
-    await renderNavEntriesList();
+  document.addEventListener("seav:data-updated", () => {
+    scheduleNavigationRefresh();
   });
 
 
