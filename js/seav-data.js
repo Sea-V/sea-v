@@ -1061,8 +1061,13 @@ function getSortedVesselOptions(vessels = []) {
     "#0369a1"
   ];
 
-  function getVesselColor(vesselId) {
+  function getVesselColor(vesselId, vesselsInput) {
     if (!vesselId) return "#64748b";
+
+    const vessels = vesselsInput ?? window.SeavState?.vessels ?? [];
+    const sorted = getSortedVesselOptions(vessels);
+    const index = sorted.findIndex((v) => v.id === vesselId);
+    if (index >= 0) return VESSEL_COLORS[index % VESSEL_COLORS.length];
 
     let hash = 0;
     for (let i = 0; i < vesselId.length; i += 1) {

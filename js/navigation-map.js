@@ -115,12 +115,23 @@
     entries.filter(entryHasRoute).forEach((entry) => {
       if (!entry.vesselId || vessels.has(entry.vesselId)) return;
       vessels.set(entry.vesselId, {
+        id: entry.vesselId,
         name: getVesselName(entry.vesselId),
         color: getVesselColor(entry.vesselId)
       });
     });
 
-    const rows = [...vessels.values()].sort((a, b) => a.name.localeCompare(b.name));
+    const sortedIds = (window.SeavData?.getSortedVesselOptions?.(getVessels()) || []).map(
+      (v) => v.id
+    );
+    const rows = [...vessels.values()].sort((a, b) => {
+      const ai = sortedIds.indexOf(a.id);
+      const bi = sortedIds.indexOf(b.id);
+      if (ai >= 0 && bi >= 0) return ai - bi;
+      if (ai >= 0) return -1;
+      if (bi >= 0) return 1;
+      return a.name.localeCompare(b.name);
+    });
     if (!rows.length) {
       legend.innerHTML = "";
       legend.hidden = true;
