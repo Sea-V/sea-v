@@ -1,37 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="fill-inho8l" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f6f8fc"/>
-      <stop offset="100%" stop-color="#e3eaf5"/>
-    </linearGradient>
-    <linearGradient id="rim-inho8l" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#c8d6e8"/>
-      <stop offset="100%" stop-color="#9eb3cc"/>
-    </linearGradient>
-    <pattern id="grain-inho8l" width="6" height="6" patternUnits="userSpaceOnUse">
-      <circle cx="1" cy="1" r="0.65" fill="#9eb3cc" opacity="0.07"/>
-      <circle cx="4" cy="4" r="0.55" fill="#9eb3cc" opacity="0.05"/>
-    </pattern>
-    <filter id="shadow-inho8l" x="-20%" y="-10%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#1e3a5f" flood-opacity="0.18"/>
+    <filter id="sh-02535x" x="-15%" y="-10%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#263238" flood-opacity="0.22"/>
     </filter>
   </defs>
-  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#fill-inho8l)"
-    stroke="url(#rim-inho8l)"
-    stroke-width="3"
-    filter="url(#shadow-inho8l)"/>
-  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#grain-inho8l)"
-    stroke="none"/>
-  <path d="M60 14 L100 31 L100 71 L60 104 L20 71 L20 31 Z"
-    fill="none"
-    stroke="#9eb3cc"
-    stroke-width="1.2"
-    opacity="0.35"/>
-  <g transform="translate(60,56)" fill="none" stroke="#5a718a" stroke-linecap="round" stroke-linejoin="round" color="#5a718a">
-    <rect x="-14" y="-8" width="28" height="16" rx="2" stroke-width="2.2" fill="currentColor" fill-opacity="0.1"/>
+  <g filter="url(#sh-02535x)">
+    <path d="M24 38 L60 18 L96 38 L60 48 Z" fill="#CE93D8"/>
+    <g color="#F3E5F5"><path d="M38 34h24l-3-8H41l-3 8z" fill="currentColor" opacity="0.9"/><path d="M34 38c4-2 8-2 12 0s8 2 12 0 8 2 12 0" stroke="currentColor" stroke-width="1.4" fill="none" opacity="0.7"/></g>
+    <path d="M24 38 L60 48 L60 98 L24 78 Z" fill="#546E7A"/>
+    <path d="M60 48 L96 38 L96 78 L60 98 Z" fill="#AB47BC"/>
+    <path d="M24 38 L60 18 L96 38" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.2"/>
+    <path d="M60 48 L60 98" fill="none" stroke="#000000" stroke-opacity="0.12" stroke-width="1"/>
   </g>
-  <circle cx="60" cy="100" r="4" fill="#a8bdd4" opacity="0.9"/>
+  <text x="36" y="62" transform="rotate(-90 36 62)" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="800"
+    letter-spacing="1.2" fill="#FFFFFF" opacity="0.92">TRADE</text>
+  <text x="36" y="74" transform="rotate(-90 36 74)" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="6.5" font-weight="700"
+    letter-spacing="0.8" fill="#FFFFFF" opacity="0.65">VES</text>
+  <text x="78" y="66" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="900"
+    fill="#FFFFFF">COM</text>
+  <path d="M60 100 L54 106 L60 112 L66 106 Z" fill="#FFFFFF" opacity="0.92"/>
+  <path d="M60 104 L57 107 L63 107 Z" fill="#AB47BC"/>
+  
 </svg>

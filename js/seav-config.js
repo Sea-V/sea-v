@@ -9,10 +9,10 @@
 
   window.SeavConfig = {
     /** Bump when deploying JS/CSS changes — keep HTML ?v= in sync (see scripts/patch-html-scripts.mjs). */
-    ASSET_VERSION: 74,
+    ASSET_VERSION: 75,
 
     /** Bump when regenerating img/badges/*.svg (cache-bust on badge image URLs). */
-    BADGE_ASSET_VERSION: 2,
+    BADGE_ASSET_VERSION: 3,
 
     /** Allow base64 dataUrl fallback when Supabase upload fails (local dev only). */
     ALLOW_DATAURL_FALLBACK: isLocal,

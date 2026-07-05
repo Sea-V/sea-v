@@ -1,37 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="fill-stuh2b" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fffbeb"/>
-      <stop offset="100%" stop-color="#fde68a"/>
-    </linearGradient>
-    <linearGradient id="rim-stuh2b" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#f5d76e"/>
-      <stop offset="100%" stop-color="#d4a017"/>
-    </linearGradient>
-    <pattern id="grain-stuh2b" width="6" height="6" patternUnits="userSpaceOnUse">
-      <circle cx="1" cy="1" r="0.65" fill="#d4a017" opacity="0.07"/>
-      <circle cx="4" cy="4" r="0.55" fill="#d4a017" opacity="0.05"/>
-    </pattern>
-    <filter id="shadow-stuh2b" x="-20%" y="-10%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#1e3a5f" flood-opacity="0.18"/>
+    <filter id="sh-6l4rxy" x="-15%" y="-10%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#263238" flood-opacity="0.22"/>
     </filter>
   </defs>
-  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#fill-stuh2b)"
-    stroke="url(#rim-stuh2b)"
-    stroke-width="3"
-    filter="url(#shadow-stuh2b)"/>
-  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#grain-stuh2b)"
-    stroke="none"/>
-  <path d="M60 14 L100 31 L100 71 L60 104 L20 71 L20 31 Z"
-    fill="none"
-    stroke="#d4a017"
-    stroke-width="1.2"
-    opacity="0.35"/>
-  <g transform="translate(60,56)" fill="none" stroke="#92680f" stroke-linecap="round" stroke-linejoin="round" color="#92680f">
-    <path d="M0-14l4 10h12l-10 7 4 10-10-7-10 7 4-10-10-7h12z" stroke-width="1.8" fill="currentColor" fill-opacity="0.1"/>
+  <g filter="url(#sh-6l4rxy)">
+    <path d="M24 38 L60 18 L96 38 L60 48 Z" fill="#FFD54F"/>
+    <g color="#FFF8E1"><path d="M60 22v14M52 30h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M52 36l8-6 8 6" stroke="currentColor" stroke-width="1.8" fill="none"/></g>
+    <path d="M24 38 L60 48 L60 98 L24 78 Z" fill="#455A64"/>
+    <path d="M60 48 L96 38 L96 78 L60 98 Z" fill="#FFA000"/>
+    <path d="M24 38 L60 18 L96 38" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.2"/>
+    <path d="M60 48 L60 98" fill="none" stroke="#000000" stroke-opacity="0.12" stroke-width="1"/>
   </g>
-  <circle cx="60" cy="100" r="4" fill="#e8c547" opacity="0.9"/>
+  <text x="36" y="62" transform="rotate(-90 36 62)" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="800"
+    letter-spacing="1.2" fill="#FFFFFF" opacity="0.92">CREW</text>
+  <text x="36" y="74" transform="rotate(-90 36 74)" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="6.5" font-weight="700"
+    letter-spacing="0.8" fill="#FFFFFF" opacity="0.65">RANK</text>
+  <text x="78" y="66" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="900"
+    fill="#FFFFFF">SNR</text>
+  <path d="M60 100 L54 106 L60 112 L66 106 Z" fill="#FFFFFF" opacity="0.92"/>
+  <path d="M60 104 L57 107 L63 107 Z" fill="#FFA000"/>
+  
 </svg>

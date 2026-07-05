@@ -1,37 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="fill-6osy17" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#eff8ff"/>
-      <stop offset="100%" stop-color="#dbeafe"/>
-    </linearGradient>
-    <linearGradient id="rim-6osy17" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#93c5fd"/>
-      <stop offset="100%" stop-color="#3b82f6"/>
-    </linearGradient>
-    <pattern id="grain-6osy17" width="6" height="6" patternUnits="userSpaceOnUse">
-      <circle cx="1" cy="1" r="0.65" fill="#3b82f6" opacity="0.07"/>
-      <circle cx="4" cy="4" r="0.55" fill="#3b82f6" opacity="0.05"/>
-    </pattern>
-    <filter id="shadow-6osy17" x="-20%" y="-10%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#1e3a5f" flood-opacity="0.18"/>
+    <filter id="sh-0skg1z" x="-15%" y="-10%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#263238" flood-opacity="0.22"/>
     </filter>
   </defs>
-  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#fill-6osy17)"
-    stroke="url(#rim-6osy17)"
-    stroke-width="3"
-    filter="url(#shadow-6osy17)"/>
-  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#grain-6osy17)"
-    stroke="none"/>
-  <path d="M60 14 L100 31 L100 71 L60 104 L20 71 L20 31 Z"
-    fill="none"
-    stroke="#3b82f6"
-    stroke-width="1.2"
-    opacity="0.35"/>
-  <g transform="translate(60,56)" fill="none" stroke="#1d4ed8" stroke-linecap="round" stroke-linejoin="round" color="#1d4ed8">
-    <path d="M-20 10c6-8 12-8 20 0s14 8 20 0" stroke-width="2.4"/><path d="M-20 16c6-6 12-6 20 0s14 6 20 0" stroke-width="1.8" opacity="0.45"/><text x="0" y="-2" text-anchor="middle" font-family="Georgia,serif" font-size="14" font-weight="700" fill="currentColor" stroke="none">30</text>
+  <g filter="url(#sh-0skg1z)">
+    <path d="M24 38 L60 18 L96 38 L60 48 Z" fill="#64B5F6"/>
+    <g color="#E3F2FD"><path d="M18 30c8-5 14-5 22 0s14 5 22 0" stroke="currentColor" stroke-width="2" fill="none" opacity="0.85"/><path d="M18 36c8-4 14-4 22 0s14 4 22 0" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.55"/></g>
+    <path d="M24 38 L60 48 L60 98 L24 78 Z" fill="#37474F"/>
+    <path d="M60 48 L96 38 L96 78 L60 98 Z" fill="#1E88E5"/>
+    <path d="M24 38 L60 18 L96 38" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.2"/>
+    <path d="M60 48 L60 98" fill="none" stroke="#000000" stroke-opacity="0.12" stroke-width="1"/>
   </g>
-  <circle cx="60" cy="100" r="4" fill="#60a5fa" opacity="0.9"/>
+  <text x="36" y="62" transform="rotate(-90 36 62)" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="800"
+    letter-spacing="1.2" fill="#FFFFFF" opacity="0.92">DAYS</text>
+  <text x="36" y="74" transform="rotate(-90 36 74)" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="6.5" font-weight="700"
+    letter-spacing="0.8" fill="#FFFFFF" opacity="0.65">SEA</text>
+  <text x="78" y="66" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="900"
+    fill="#FFFFFF">30</text>
+  <path d="M60 100 L54 106 L60 112 L66 106 Z" fill="#FFFFFF" opacity="0.92"/>
+  <path d="M60 104 L57 107 L63 107 Z" fill="#1E88E5"/>
+  
 </svg>

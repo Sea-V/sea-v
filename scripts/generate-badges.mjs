@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generates SEA-V achievement badge SVGs — pastel retro hex (Strava-inspired).
+ * Generates SEA-V achievement badges — Strava-style 3D split-face hex.
  * Run: node scripts/generate-badges.mjs
  */
 import fs from "fs";
@@ -10,167 +10,163 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(__dirname, "../img/badges");
 
-/** Pastel enamel-pin palette per tier */
+/** Split-face palettes: dark left + poppy right + bright top (Strava-inspired) */
 const TIERS = {
   bronze: {
-    fillTop: "#fff1e8",
-    fillBottom: "#ffd9c2",
-    rim: "#e09a6a",
-    rimLight: "#f5c9a8",
-    icon: "#a65d32",
-    dot: "#e8a878"
+    left: "#6D4C41",
+    right: "#FF7043",
+    top: "#FFAB91",
+    ink: "#FFFFFF",
+    motif: "#FFE0B2"
   },
   silver: {
-    fillTop: "#f6f8fc",
-    fillBottom: "#e3eaf5",
-    rim: "#9eb3cc",
-    rimLight: "#c8d6e8",
-    icon: "#5a718a",
-    dot: "#a8bdd4"
+    left: "#546E7A",
+    right: "#AB47BC",
+    top: "#CE93D8",
+    ink: "#FFFFFF",
+    motif: "#F3E5F5"
   },
   gold: {
-    fillTop: "#fffbeb",
-    fillBottom: "#fde68a",
-    rim: "#d4a017",
-    rimLight: "#f5d76e",
-    icon: "#92680f",
-    dot: "#e8c547"
+    left: "#455A64",
+    right: "#FFA000",
+    top: "#FFD54F",
+    ink: "#FFFFFF",
+    motif: "#FFF8E1"
   },
   platinum: {
-    fillTop: "#ecfeff",
-    fillBottom: "#bae6fd",
-    rim: "#38bdf8",
-    rimLight: "#7dd3fc",
-    icon: "#0369a1",
-    dot: "#67cddd"
+    left: "#37474F",
+    right: "#00ACC1",
+    top: "#4DD0E1",
+    ink: "#FFFFFF",
+    motif: "#E0F7FA"
   },
   default: {
-    fillTop: "#eff8ff",
-    fillBottom: "#dbeafe",
-    rim: "#3b82f6",
-    rimLight: "#93c5fd",
-    icon: "#1d4ed8",
-    dot: "#60a5fa"
+    left: "#37474F",
+    right: "#1E88E5",
+    top: "#64B5F6",
+    ink: "#FFFFFF",
+    motif: "#E3F2FD"
   }
 };
 
-const ICONS = {
-  sea_days: (n) => `
-    <path d="M-20 10c6-8 12-8 20 0s14 8 20 0" stroke-width="2.4"/>
-    <path d="M-20 16c6-6 12-6 20 0s14 6 20 0" stroke-width="1.8" opacity="0.45"/>
-    <text x="0" y="-2" text-anchor="middle" font-family="Georgia,serif" font-size="14" font-weight="700" fill="currentColor" stroke="none">${n}</text>`,
-  sea_year: (n) => `
-    <circle cx="0" cy="-2" r="11" stroke-width="2.2"/>
-    <path d="M0-13v4M0 7v4M-11-2h4M7-2h4" stroke-width="1.8"/>
-    <text x="0" y="2" text-anchor="middle" font-family="Georgia,serif" font-size="10" font-weight="700" fill="currentColor" stroke="none">${n}</text>`,
-  vessel_one: `<path d="M-16 8h32l-4-10H-12L-16 8z" stroke-width="2.2" fill="currentColor" fill-opacity="0.12"/><path d="M-22 14c4-3 8-3 12 0s8 3 12 0 8 3 12 0" stroke-width="1.8"/>`,
-  vessel_three: `<path d="M-18 10h12l-2-6H-16z M-2 8h12l-2-6H0z M14 10h12l-2-6H16z" stroke-width="1.8" fill="currentColor" fill-opacity="0.1"/><path d="M-22 16c3-2 6-2 9 0" stroke-width="1.5" opacity="0.5"/>`,
-  vessel_types: `<rect x="-16" y="-14" width="10" height="10" rx="2" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/><rect x="-2" y="-14" width="10" height="10" rx="2" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/><rect x="12" y="-14" width="10" height="10" rx="2" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/><rect x="-9" y="0" width="10" height="10" rx="2" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/><rect x="5" y="0" width="10" height="10" rx="2" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/>`,
-  yacht_large: `<path d="M-18 6h36l-5-12H-13L-18 6z" stroke-width="2.2" fill="currentColor" fill-opacity="0.12"/><path d="M-8-6h16" stroke-width="1.6"/><path d="M-22 12c5-3 10-3 15 0s10 3 15 0" stroke-width="1.6"/>`,
-  explorer: `<path d="M-16 8h32l-6-14H-10L-16 8z" stroke-width="2.2" fill="currentColor" fill-opacity="0.1"/><path d="M-6-4l6-8 6 8" stroke-width="1.6"/><circle cx="14" cy="-8" r="2.2" fill="currentColor" stroke="none"/>`,
-  commercial: `<rect x="-14" y="-8" width="28" height="16" rx="2" stroke-width="2.2" fill="currentColor" fill-opacity="0.1"/><path d="M-10-8V-14h8v6M2-8V-16h8v8" stroke-width="1.6"/>`,
-  passage: (nm) => `
-    <circle cx="-12" cy="4" r="3.2" stroke-width="1.8" fill="currentColor" fill-opacity="0.15"/>
-    <circle cx="12" cy="-6" r="3.2" stroke-width="1.8" fill="currentColor" fill-opacity="0.15"/>
-    <path d="M-9 2c8-6 16-6 21-8" stroke-width="2.2" stroke-dasharray="4 3"/>
-    <text x="0" y="18" text-anchor="middle" font-family="Georgia,serif" font-size="8" font-weight="700" fill="currentColor" stroke="none">${nm}</text>`,
-  atlantic: `<path d="M-18 0c6-10 12-10 18 0M-18 6c6 10 12 10 18 0" stroke-width="1.8" opacity="0.45"/><text x="0" y="4" text-anchor="middle" font-family="Georgia,serif" font-size="11" font-weight="700" fill="currentColor" stroke="none">ATL</text>`,
-  pacific: `<path d="M-20-4c8 0 8 16 0 16s-8-16 0-16" stroke-width="2.2"/><text x="0" y="4" text-anchor="middle" font-family="Georgia,serif" font-size="10" font-weight="700" fill="currentColor" stroke="none">PAC</text>`,
-  polar: `<path d="M0-18L4-4h14L6 4l4 14-4-10H-6L-10 4l-14-8h14z" stroke-width="1.8" fill="currentColor" fill-opacity="0.08"/><circle cx="0" cy="0" r="3" fill="currentColor" stroke="none"/>`,
-  watch_first: `<circle cx="0" cy="0" r="14" stroke-width="2.2" fill="currentColor" fill-opacity="0.08"/><path d="M0-8v8l6 4" stroke-width="2.2"/>`,
-  watch_100: `<circle cx="0" cy="0" r="14" stroke-width="2.2" fill="currentColor" fill-opacity="0.08"/><path d="M0 0L0-10M0 0l8 5" stroke-width="2.2"/><text x="0" y="20" text-anchor="middle" font-family="Georgia,serif" font-size="9" font-weight="700" fill="currentColor" stroke="none">100</text>`,
-  oow: `<path d="M-16 10h32M-12-10h24" stroke-width="2.2"/><circle cx="0" cy="0" r="5" stroke-width="1.8" fill="currentColor" fill-opacity="0.12"/>`,
-  bridge: `<path d="M-18 8h36M-14-8h28M-8-8v16M8-8v16" stroke-width="2.2"/><path d="M0-14L8-2H-8z" stroke-width="1.6" fill="currentColor" fill-opacity="0.1"/>`,
-  promotion: `<path d="M0 14V-6M0-6l-10 8M0-6l10 8" stroke-width="2.4"/>`,
-  senior: `<path d="M0-14l4 10h12l-10 7 4 10-10-7-10 7 4-10-10-7h12z" stroke-width="1.8" fill="currentColor" fill-opacity="0.1"/>`,
-  officer: `<path d="M-16 10h32M-16 2h32M-16-6h32" stroke-width="2.2"/><rect x="-4" y="-14" width="8" height="6" rx="1" stroke-width="1.6" fill="currentColor" fill-opacity="0.12"/>`,
-  command: `<path d="M-8-12h16v8H-8z M-12 4h24v8H-12z" stroke-width="2.2" fill="currentColor" fill-opacity="0.1"/><path d="M0-12V-18" stroke-width="2"/>`,
-  tender: `<path d="M-14 6h28l-3-8H-11L-14 6z" stroke-width="2.2" fill="currentColor" fill-opacity="0.12"/><path d="M-18 10c3-2 6-2 9 0s6 2 9 0" stroke-width="1.6"/>`,
-  watersports: `<path d="M-20 8c5-6 10-6 15 0M-20 14c5-4 10-4 15 0" stroke-width="2.2"/><circle cx="0" cy="-6" r="4" stroke-width="1.8" fill="currentColor" fill-opacity="0.12"/>`,
-  crane: `<path d="M-16 12V-12h8v6h12" stroke-width="2.2"/><path d="M4-6v10M0 4h8" stroke-width="2"/><path d="M4 4l6 6" stroke-width="1.8"/>`,
-  helicopter: `<ellipse cx="0" cy="-8" rx="16" ry="4" stroke-width="2.2"/><path d="M0-8v14M-6 6h12" stroke-width="2.2"/><path d="M-14-8h28" stroke-width="1.6" opacity="0.45"/>`
+const TOP_MOTIFS = {
+  sea: `
+    <path d="M18 30c8-5 14-5 22 0s14 5 22 0" stroke="currentColor" stroke-width="2" fill="none" opacity="0.85"/>
+    <path d="M18 36c8-4 14-4 22 0s14 4 22 0" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.55"/>`,
+  vessel: `
+    <path d="M38 34h24l-3-8H41l-3 8z" fill="currentColor" opacity="0.9"/>
+    <path d="M34 38c4-2 8-2 12 0s8 2 12 0 8 2 12 0" stroke="currentColor" stroke-width="1.4" fill="none" opacity="0.7"/>`,
+  passage: `
+    <circle cx="42" cy="32" r="2.5" fill="currentColor"/>
+    <circle cx="78" cy="28" r="2.5" fill="currentColor"/>
+    <path d="M45 31c10-6 20-6 32-4" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3 2" fill="none"/>`,
+  mountain: `
+    <path d="M30 38L48 22L62 34L78 18L90 38Z" fill="currentColor" opacity="0.85"/>
+    <path d="M48 22L52 38M62 34L66 38" stroke="#455A64" stroke-width="1" opacity="0.35"/>`,
+  polar: `
+    <path d="M48 20L52 34H68L56 42L60 56L48 42L36 34H52Z" fill="currentColor" opacity="0.9"/>`,
+  watch: `
+    <circle cx="60" cy="32" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
+    <path d="M60 27v6l4 2" stroke="currentColor" stroke-width="1.8" fill="none"/>`,
+  career: `
+    <path d="M60 22v14M52 30h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M52 36l8-6 8 6" stroke="currentColor" stroke-width="1.8" fill="none"/>`,
+  ops: `
+    <rect x="44" y="24" width="32" height="14" rx="2" stroke="currentColor" stroke-width="1.8" fill="none"/>
+    <path d="M48 31h24" stroke="currentColor" stroke-width="1.5"/>`
 };
 
 const BADGE_DEFS = [
-  { file: "sea-30-days", tier: "default", icon: ICONS.sea_days("30") },
-  { file: "sea-100-days", tier: "default", icon: ICONS.sea_days("100") },
-  { file: "sea-250-days", tier: "silver", icon: ICONS.sea_days("250") },
-  { file: "sea-500-days", tier: "gold", icon: ICONS.sea_days("500") },
-  { file: "sea-1-year", tier: "gold", icon: ICONS.sea_year("1Y") },
-  { file: "sea-3-years", tier: "platinum", icon: ICONS.sea_year("3Y") },
-  { file: "first-vessel-logged", tier: "bronze", icon: ICONS.vessel_one },
-  { file: "vessels-3-served", tier: "silver", icon: ICONS.vessel_three },
-  { file: "vessel-types-5", tier: "gold", icon: ICONS.vessel_types },
-  { file: "large-yacht-50m", tier: "silver", icon: ICONS.yacht_large },
-  { file: "explorer-vessel", tier: "silver", icon: ICONS.explorer },
-  { file: "commercial-vessel", tier: "silver", icon: ICONS.commercial },
-  { file: "offshore-100nm", tier: "bronze", icon: ICONS.passage("100nm") },
-  { file: "passage-500nm", tier: "silver", icon: ICONS.passage("500") },
-  { file: "passage-1000nm", tier: "gold", icon: ICONS.passage("1000") },
-  { file: "atlantic-crossing", tier: "gold", icon: ICONS.atlantic },
-  { file: "pacific-crossing", tier: "platinum", icon: ICONS.pacific },
-  { file: "polar-navigation", tier: "platinum", icon: ICONS.polar },
-  { file: "first-watchkeeping", tier: "bronze", icon: ICONS.watch_first },
-  { file: "watchkeeping-100-days", tier: "gold", icon: ICONS.watch_100 },
-  { file: "oow-level", tier: "gold", icon: ICONS.oow },
-  { file: "bridge-leader", tier: "platinum", icon: ICONS.bridge },
-  { file: "first-promotion", tier: "silver", icon: ICONS.promotion },
-  { file: "senior-crew", tier: "gold", icon: ICONS.senior },
-  { file: "officer-rank", tier: "gold", icon: ICONS.officer },
-  { file: "command-experience", tier: "platinum", icon: ICONS.command },
-  { file: "tender-operations", tier: "silver", icon: ICONS.tender },
-  { file: "watersports-operations", tier: "silver", icon: ICONS.watersports },
-  { file: "crane-operations", tier: "gold", icon: ICONS.crane },
-  { file: "helicopter-operations", tier: "platinum", icon: ICONS.helicopter }
+  { file: "sea-30-days", tier: "default", main: "30", side: "DAYS", sub: "SEA", motif: "sea" },
+  { file: "sea-100-days", tier: "default", main: "100", side: "DAYS", sub: "SEA", motif: "sea" },
+  { file: "sea-250-days", tier: "silver", main: "250", side: "DAYS", sub: "SEA", motif: "sea" },
+  { file: "sea-500-days", tier: "gold", main: "500", side: "DAYS", sub: "SEA", motif: "sea" },
+  { file: "sea-1-year", tier: "gold", main: "1Y", side: "SEA", sub: "TIME", motif: "sea" },
+  { file: "sea-3-years", tier: "platinum", main: "3Y", side: "SEA", sub: "TIME", motif: "sea" },
+  { file: "first-vessel-logged", tier: "bronze", main: "1st", side: "YACHT", sub: "VES", motif: "vessel" },
+  { file: "vessels-3-served", tier: "silver", main: "3", side: "YACHT", sub: "VES", motif: "vessel" },
+  { file: "vessel-types-5", tier: "gold", main: "5", side: "TYPE", sub: "VES", motif: "vessel" },
+  { file: "large-yacht-50m", tier: "silver", main: "50m", side: "PLUS", sub: "YACHT", motif: "vessel" },
+  { file: "explorer-vessel", tier: "silver", main: "EXP", side: "HULL", sub: "VES", motif: "vessel" },
+  { file: "commercial-vessel", tier: "silver", main: "COM", side: "TRADE", sub: "VES", motif: "vessel" },
+  { file: "offshore-100nm", tier: "bronze", main: "100", side: "NM", sub: "OFF", motif: "passage" },
+  { file: "passage-500nm", tier: "silver", main: "500", side: "NM", sub: "PASS", motif: "passage" },
+  { file: "passage-1000nm", tier: "gold", main: "1K", side: "NM", sub: "PASS", motif: "passage" },
+  { file: "atlantic-crossing", tier: "gold", main: "ATL", side: "OCEAN", sub: "XING", motif: "mountain" },
+  { file: "pacific-crossing", tier: "platinum", main: "PAC", side: "OCEAN", sub: "XING", motif: "mountain" },
+  { file: "polar-navigation", tier: "platinum", main: "POL", side: "ICE", sub: "NAV", motif: "polar" },
+  { file: "first-watchkeeping", tier: "bronze", main: "1st", side: "W/K", sub: "BRIDGE", motif: "watch" },
+  { file: "watchkeeping-100-days", tier: "gold", main: "100", side: "W/K", sub: "BRIDGE", motif: "watch" },
+  { file: "oow-level", tier: "gold", main: "OOW", side: "DECK", sub: "RANK", motif: "watch" },
+  { file: "bridge-leader", tier: "platinum", main: "BRG", side: "LEAD", sub: "DECK", motif: "watch" },
+  { file: "first-promotion", tier: "silver", main: "UP", side: "RANK", sub: "CREW", motif: "career" },
+  { file: "senior-crew", tier: "gold", main: "SNR", side: "CREW", sub: "RANK", motif: "career" },
+  { file: "officer-rank", tier: "gold", main: "OFC", side: "RANK", sub: "DECK", motif: "career" },
+  { file: "command-experience", tier: "platinum", main: "CMD", side: "MASTER", sub: "RANK", motif: "career" },
+  { file: "tender-operations", tier: "silver", main: "TDR", side: "OPS", sub: "DECK", motif: "ops" },
+  { file: "watersports-operations", tier: "silver", main: "H2O", side: "OPS", sub: "TOYS", motif: "ops" },
+  { file: "crane-operations", tier: "gold", main: "LIFT", side: "OPS", sub: "DECK", motif: "ops" },
+  { file: "helicopter-operations", tier: "platinum", main: "HELO", side: "OPS", sub: "FLIGHT", motif: "ops" }
 ];
 
-function buildSvg({ tier, icon, locked = false }) {
+function mainFontSize(main) {
+  const len = String(main).length;
+  if (len >= 4) return 16;
+  if (len === 3) return 20;
+  return 26;
+}
+
+function buildSvg({ tier, main, side, sub, motif, locked = false }) {
   const t = TIERS[tier] || TIERS.default;
   const uid = Math.random().toString(36).slice(2, 8);
+  const motifSvg = TOP_MOTIFS[motif] || TOP_MOTIFS.sea;
+  const mainSize = mainFontSize(main);
+
+  const lockOverlay = locked
+    ? `
+  <path d="M24 38 L60 48 L60 98 L24 78 Z" fill="#ECEFF1" opacity="0.55"/>
+  <path d="M60 48 L96 38 L96 78 L60 98 Z" fill="#CFD8DC" opacity="0.65"/>
+  <g transform="translate(60,66)" stroke="#78909C" fill="none" stroke-width="2" stroke-linecap="round">
+    <rect x="-10" y="-7" width="20" height="16" rx="3"/>
+    <path d="M-5 5v5a5 5 0 0 0 10 0v-5"/>
+    <path d="M-12 1h24"/>
+  </g>`
+    : "";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="fill-${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="${t.fillTop}"/>
-      <stop offset="100%" stop-color="${t.fillBottom}"/>
-    </linearGradient>
-    <linearGradient id="rim-${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="${t.rimLight}"/>
-      <stop offset="100%" stop-color="${t.rim}"/>
-    </linearGradient>
-    <pattern id="grain-${uid}" width="6" height="6" patternUnits="userSpaceOnUse">
-      <circle cx="1" cy="1" r="0.65" fill="${t.rim}" opacity="0.07"/>
-      <circle cx="4" cy="4" r="0.55" fill="${t.rim}" opacity="0.05"/>
-    </pattern>
-    <filter id="shadow-${uid}" x="-20%" y="-10%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#1e3a5f" flood-opacity="0.18"/>
+    <filter id="sh-${uid}" x="-15%" y="-10%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#263238" flood-opacity="0.22"/>
     </filter>
   </defs>
-  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#fill-${uid})"
-    stroke="url(#rim-${uid})"
-    stroke-width="3"
-    filter="url(#shadow-${uid})"/>
-  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z"
-    fill="url(#grain-${uid})"
-    stroke="none"/>
-  <path d="M60 14 L100 31 L100 71 L60 104 L20 71 L20 31 Z"
-    fill="none"
-    stroke="${t.rim}"
-    stroke-width="1.2"
-    opacity="0.35"/>
-  <g transform="translate(60,56)" fill="none" stroke="${t.icon}" stroke-linecap="round" stroke-linejoin="round" color="${t.icon}">
-    ${icon}
+  <g filter="url(#sh-${uid})">
+    <!-- top face -->
+    <path d="M24 38 L60 18 L96 38 L60 48 Z" fill="${t.top}"/>
+    <g color="${t.motif}" transform="translate(0,0)">${motifSvg}</g>
+    <!-- left face -->
+    <path d="M24 38 L60 48 L60 98 L24 78 Z" fill="${t.left}"/>
+    <!-- right face -->
+    <path d="M60 48 L96 38 L96 78 L60 98 Z" fill="${t.right}"/>
+    <!-- edge highlights -->
+    <path d="M24 38 L60 18 L96 38" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.2"/>
+    <path d="M60 48 L60 98" fill="none" stroke="#000000" stroke-opacity="0.12" stroke-width="1"/>
   </g>
-  <circle cx="60" cy="100" r="4" fill="${t.dot}" opacity="0.9"/>
-  ${locked ? `
-  <path d="M60 6 L108 26 L108 74 L60 114 L12 74 L12 26 Z" fill="#eef2f7" opacity="0.82"/>
-  <g transform="translate(60,58)" stroke="#8fa3bc" fill="none" stroke-width="2.2" stroke-linecap="round">
-    <rect x="-11" y="-8" width="22" height="18" rx="3"/>
-    <path d="M-6 6v6a6 6 0 0 0 12 0v-6"/>
-    <path d="M-14-2h28"/>
-  </g>` : ""}
+  <!-- vertical side label (left face) -->
+  <text x="36" y="62" transform="rotate(-90 36 62)" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="800"
+    letter-spacing="1.2" fill="${t.ink}" opacity="0.92">${side}</text>
+  <text x="36" y="74" transform="rotate(-90 36 74)" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="6.5" font-weight="700"
+    letter-spacing="0.8" fill="${t.ink}" opacity="0.65">${sub}</text>
+  <!-- main metric (right face) -->
+  <text x="78" y="66" text-anchor="middle"
+    font-family="Arial,Helvetica,sans-serif" font-size="${mainSize}" font-weight="900"
+    fill="${t.ink}">${main}</text>
+  <!-- SEA-V chevron mark -->
+  <path d="M60 100 L54 106 L60 112 L66 106 Z" fill="${t.ink}" opacity="0.92"/>
+  <path d="M60 104 L57 107 L63 107 Z" fill="${t.right}"/>
+  ${lockOverlay}
 </svg>`;
 }
 
@@ -182,12 +178,25 @@ for (const def of BADGE_DEFS) {
 
 fs.writeFileSync(
   path.join(OUT, "locked.svg"),
-  buildSvg({ tier: "silver", icon: "", locked: true })
+  buildSvg({
+    tier: "silver",
+    main: "—",
+    side: "LOCK",
+    sub: "SEA-V",
+    motif: "sea",
+    locked: true
+  })
 );
 
 fs.writeFileSync(
   path.join(OUT, "default.svg"),
-  buildSvg({ tier: "default", icon: ICONS.vessel_one })
+  buildSvg({
+    tier: "default",
+    main: "SV",
+    side: "SEA-V",
+    sub: "CREW",
+    motif: "sea"
+  })
 );
 
-console.log(`Generated ${BADGE_DEFS.length + 2} pastel retro badge SVGs in ${OUT}`);
+console.log(`Generated ${BADGE_DEFS.length + 2} Strava-style split hex badges in ${OUT}`);
