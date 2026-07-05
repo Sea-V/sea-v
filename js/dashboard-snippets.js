@@ -19,6 +19,19 @@
     "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
   const DASH_NAV_ATTRIBUTION =
     '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+  const DASH_WRAP_LNG_OFFSETS = [-360, 0, 360];
+
+  function shiftDashboardLatLngs(latlngs, lngOffset) {
+    return latlngs.map(([lat, lng]) => [lat, lng + lngOffset]);
+  }
+
+  function addDashboardWrappingPolylines(layer, latlngs, options, onEachLine) {
+    DASH_WRAP_LNG_OFFSETS.forEach((offset) => {
+      const line = L.polyline(shiftDashboardLatLngs(latlngs, offset), options);
+      if (typeof onEachLine === "function") onEachLine(line, offset);
+      layer.addLayer(line);
+    });
+  }
 
   let dashNavigationChart = null;
   let dashNavigationLayer = null;
@@ -516,19 +529,26 @@ function initDashboardNavigationChart(container) {
   if (dashNavigationChart || !container || typeof L === "undefined") return;
 
   dashNavigationChart = L.map(container, {
-    center: [25, 0],
-    zoom: 1,
-    minZoom: 1,
+    center: [30, 0],
+    zoom: 2,
+    minZoom: 2,
     zoomControl: false,
     attributionControl: true,
-    dragging: true,
-    scrollWheelZoom: false
+    dragging: false,
+    touchZoom: false,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    keyboard: false,
+    preferCanvas: true
   });
 
   L.tileLayer(DASH_NAV_TILE_URL, {
     attribution: DASH_NAV_ATTRIBUTION,
     subdomains: "abcd",
-    maxZoom: 18
+    maxZoom: 18,
+    keepBuffer: 2,
+    updateWhenIdle: true
   }).addTo(dashNavigationChart);
 
   dashNavigationLayer = L.layerGroup().addTo(dashNavigationChart);
@@ -614,19 +634,21 @@ async function renderNavigationSnippet() {
     const color = getDashboardVesselColor(vesselId);
     const from = entry.fromPort || entry.from_port || "Departure";
     const to = entry.toPort || entry.to_port || entry.port || "Arrival";
-    const line = L.polyline(coords, {
+    const lineStyle = {
       color,
       weight: 4,
       opacity: 0.94,
       lineCap: "round",
       lineJoin: "round"
-    });
+    };
+    const bindLine = (line) => {
+      line.bindTooltip(`${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`, { sticky: true });
+      line.bindPopup(
+        `<strong>${Seav.escapeHtml(entry.passageName || entry.passage_name || getDashboardVesselName(vesselId))}</strong><br/>${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`
+      );
+    };
 
-    line.bindTooltip(`${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`, { sticky: true });
-    line.bindPopup(
-      `<strong>${Seav.escapeHtml(entry.passageName || entry.passage_name || getDashboardVesselName(vesselId))}</strong><br/>${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`
-    );
-    dashNavigationLayer.addLayer(line);
+    addDashboardWrappingPolylines(dashNavigationLayer, coords, lineStyle, bindLine);
 
     coords.forEach((coord) => bounds.push(coord));
   });
@@ -636,7 +658,7 @@ async function renderNavigationSnippet() {
     if (bounds.length) {
       dashNavigationChart.fitBounds(L.latLngBounds(bounds), {
         padding: [52, 52],
-        maxZoom: 2,
+        maxZoom: 9,
         animate: false
       });
     }
