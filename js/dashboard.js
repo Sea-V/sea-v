@@ -119,20 +119,81 @@
     }
 
     updateProfileCompletion(profile);
-    syncDashboardPublicToggle(profile);
+    syncDashboardPublicPanel(profile);
   }
 
-  function syncDashboardPublicToggle(profile) {
+  function resolveDashboardPublicProfileUrl() {
+    const profileId = loadProfile().id || window.SeavState?.profile?.id || "";
+    const path = profileId
+      ? `public-profile.html?p=${encodeURIComponent(profileId)}`
+      : "public-profile.html";
+    return new URL(path, window.location.href).href;
+  }
+
+  function resolveDashboardPublicProfilePath() {
+    const profileId = loadProfile().id || window.SeavState?.profile?.id || "";
+    if (!profileId) return "public-profile.html";
+    return `public-profile.html?p=${profileId}`;
+  }
+
+  async function copyDashboardPublicProfileLink() {
+    const url = resolveDashboardPublicProfileUrl();
+
+    try {
+      await navigator.clipboard.writeText(url);
+      Seav.notify("success", "Link copied", "Share your public profile with employers and recruiters.");
+      return;
+    } catch (err) {
+      console.warn("[SEA-V] Dashboard public link clipboard copy failed:", err);
+    }
+
+    const urlEl = document.getElementById("dashPublicLinkUrl");
+    if (urlEl) {
+      urlEl.focus();
+      const selection = window.getSelection?.();
+      const range = document.createRange?.();
+      if (selection && range) {
+        range.selectNodeContents(urlEl);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
+
+    Seav.notify("info", "Copy manually", "Select the link and copy it.");
+  }
+
+  function syncDashboardPublicPanel(profile) {
+    const currentProfile = profile || loadProfile();
     const checkbox = document.getElementById("dashPublicEnabled");
-    if (!checkbox) return;
-    checkbox.checked = !!(profile || loadProfile()).publicEnabled;
+    const linkWrap = document.getElementById("dashPublicLinkWrap");
+    const urlEl = document.getElementById("dashPublicLinkUrl");
+
+    if (checkbox) {
+      checkbox.checked = !!currentProfile.publicEnabled;
+    }
+
+    if (!linkWrap || !urlEl) return;
+
+    const enabled = !!currentProfile.publicEnabled;
+    const url = resolveDashboardPublicProfileUrl();
+    const path = resolveDashboardPublicProfilePath();
+
+    linkWrap.hidden = !enabled;
+    urlEl.href = url;
+    urlEl.textContent = path;
+    urlEl.title = url;
   }
 
   function initDashboardPublicToggle() {
     const checkbox = document.getElementById("dashPublicEnabled");
+    const copyBtn = document.getElementById("dashPublicLinkCopy");
     if (!checkbox) return;
 
-    syncDashboardPublicToggle();
+    syncDashboardPublicPanel();
+
+    copyBtn?.addEventListener("click", () => {
+      copyDashboardPublicProfileLink();
+    });
 
     checkbox.addEventListener("change", async () => {
       const previous = !checkbox.checked;
@@ -149,6 +210,8 @@
           }
         }, { sub: "Updating public profile" });
 
+        syncDashboardPublicPanel(updated);
+
         Seav.notify(
           "success",
           "Public profile updated",
@@ -158,6 +221,7 @@
         );
       } catch (err) {
         checkbox.checked = previous;
+        syncDashboardPublicPanel(profile);
         console.error("[SEA-V] Dashboard public profile toggle failed:", err);
         Seav.notify("error", "Could not update public profile", err?.message || "Try again.");
       }
