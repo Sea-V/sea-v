@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" data-source-page="seatime" data-tier="silver">
   <defs>
-    <linearGradient id="ring-0fbllb" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-bhdy4m" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#5a7ae6"/>
       <stop offset="50%" stop-color="#829eff"/>
       <stop offset="100%" stop-color="#b8c8ff"/>
     </linearGradient>
-    <radialGradient id="disc-0fbllb" cx="38%" cy="32%" r="68%">
-      <stop offset="0%" stop-color="#6B7788"/>
-      <stop offset="100%" stop-color="#3d4654"/>
+    <radialGradient id="disc-bhdy4m" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#b8c8ff"/>
+      <stop offset="100%" stop-color="#829eff"/>
     </radialGradient>
-    <linearGradient id="pill-0fbllb" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#8E99A8"/>
-      <stop offset="100%" stop-color="#C0C8D4"/>
+    <linearGradient id="pill-bhdy4m" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5a7ae6"/>
+      <stop offset="100%" stop-color="#b8c8ff"/>
     </linearGradient>
-    <linearGradient id="shine-0fbllb" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-bhdy4m" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-0fbllb" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-bhdy4m" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-0fbllb)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-0fbllb)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-0fbllb)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-0fbllb)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-0fbllb)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-0fbllb)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-0fbllb)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-0fbllb)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-0fbllb)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-0fbllb)"/>
+  <g filter="url(#sh-bhdy4m)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-bhdy4m)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-bhdy4m)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-bhdy4m)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-bhdy4m)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-bhdy4m)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-bhdy4m)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-bhdy4m)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-bhdy4m)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-bhdy4m)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
 
   <g shape-rendering="geometricPrecision">
-    <g color="#0F172A" opacity="0.38" transform="translate(0, 2)"><g transform="translate(60,44)"><path d="M-12 8h24v-4c0-8-6-14-12-14s-12 6-12 14v4z" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linejoin="round"/><path d="M-14 8h28" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><circle cx="0" cy="-2" r="2.5" fill="currentColor"/></g><path d="M28 58c8-3 16-3 24 0s16 3 24 0" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/></g>
-    <g color="#FFFFFF" stroke="#0F172A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill"><g transform="translate(60,44)"><path d="M-12 8h24v-4c0-8-6-14-12-14s-12 6-12 14v4z" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linejoin="round"/><path d="M-14 8h28" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><circle cx="0" cy="-2" r="2.5" fill="currentColor"/></g><path d="M28 58c8-3 16-3 24 0s16 3 24 0" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/></g>
+    <g color="#0F172A" opacity="0.32" transform="translate(0, 2)"><g transform="translate(60,48)"><path d="M0-6c-10-2-14 6-6 10 6 4 12-2 10-8-2-6-10-8-14-4z" fill="currentColor"/><path d="M-6 4v10M-3 12h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M-14-4L-20-10v5l8 3M14-4l6-6v5l-8 3" fill="currentColor"/></g></g>
+    <g color="#FFFFFF" stroke="#0F172A" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill"><g transform="translate(60,48)"><path d="M0-6c-10-2-14 6-6 10 6 4 12-2 10-8-2-6-10-8-14-4z" fill="currentColor"/><path d="M-6 4v10M-3 12h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M-14-4L-20-10v5l8 3M14-4l6-6v5l-8 3" fill="currentColor"/></g></g>
   </g>
 
   <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
-  <rect x="27" y="83" width="66" height="16" rx="3" fill="url(#pill-0fbllb)" opacity="0.98"/>
+  <rect x="27" y="83" width="66" height="16" rx="3" fill="url(#pill-bhdy4m)" opacity="0.98"/>
   <text x="60" y="94.5" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="13" font-weight="800" letter-spacing="0.6"

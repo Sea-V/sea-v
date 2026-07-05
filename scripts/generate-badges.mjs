@@ -21,43 +21,20 @@ const CY = 56;
 const ICON_OUTLINE = "#0F172A";
 const ICON_ACCENT = "#FFFFFF";
 
-/** Inner hex + pill — tier level within each page (border stays page-colored) */
-const TIER_INNER = {
-  bronze: {
-    fill: ["#4a3020", "#7A4E2A"],
-    pill: ["#A0622E", "#CD7F32"],
-    pillText: "#FFF8F0"
-  },
-  silver: {
-    fill: ["#3d4654", "#6B7788"],
-    pill: ["#8E99A8", "#C0C8D4"],
+/** Inner fill + pill — lighter tints of the page border color (ring palette) */
+function pageInner(page) {
+  const [a, b, c] = page.ring;
+  return {
+    fill: [b, c],
+    pill: [a, c],
     pillText: ICON_OUTLINE
-  },
-  gold: {
-    fill: ["#5c4510", "#9A7518"],
-    pill: ["#C8941A", "#E8BE3A"],
-    pillText: ICON_OUTLINE
-  },
-  platinum: {
-    fill: ["#1a3d4a", "#2A6B7A"],
-    pill: ["#5EC4D8", "#B9F2FF"],
-    pillText: ICON_OUTLINE
-  },
-  default: {
-    fill: ["#2e3a48", "#4A5868"],
-    pill: ["#64748B", "#94A3B8"],
-    pillText: "#F8FAFC"
-  }
-};
+  };
+}
 
 /** Outer ring always uses the page sidebar palette */
 function pageRing(page) {
   const [a, b, c] = page.ring;
   return { a, b, c };
-}
-
-function tierInner(tier) {
-  return TIER_INNER[tier] || TIER_INNER.default;
 }
 
 /** page = sidebar section key from scripts/page-colors.json (matches achievement sourcePage) */
@@ -139,15 +116,15 @@ function innerFill(uid) {
 function renderIcon(icon) {
   return `
   <g shape-rendering="geometricPrecision">
-    <g color="${ICON_OUTLINE}" opacity="0.38" transform="translate(0, 2)">${icon}</g>
-    <g color="${ICON_ACCENT}" stroke="${ICON_OUTLINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">${icon}</g>
+    <g color="${ICON_OUTLINE}" opacity="0.32" transform="translate(0, 2)">${icon}</g>
+    <g color="${ICON_ACCENT}" stroke="${ICON_OUTLINE}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">${icon}</g>
   </g>`;
 }
 
 function buildSvg({ file, tier, main, label, page, locked = false }) {
   const theme = PAGES[page] || PAGES.seatime;
   const ring = pageRing(theme);
-  const inner = tierInner(tier);
+  const inner = pageInner(theme);
   const uid = Math.random().toString(36).slice(2, 8);
   const icon = BADGE_ICONS[file] || BADGE_ICONS.default;
   const mainSize = mainFontSize(main);
@@ -216,7 +193,7 @@ function buildSvg({ file, tier, main, label, page, locked = false }) {
 }
 
 function syncPageColorsJs() {
-  const payload = { pages: PAGES, tierInner: TIER_INNER };
+  const payload = { pages: PAGES };
   const body = `/* Auto-generated from scripts/page-colors.json — run scripts/generate-badges.mjs */\nwindow.SeavPageColors = ${JSON.stringify(payload, null, 2)};\n`;
   fs.writeFileSync(PAGE_COLORS_JS, body);
 }

@@ -22,42 +22,18 @@ CX, CY = 60, 56
 ICON_OUTLINE = "#0F172A"
 ICON_ACCENT = "#FFFFFF"
 
-TIER_INNER = {
-    "bronze": {
-        "fill": ["#4a3020", "#7A4E2A"],
-        "pill": ["#A0622E", "#CD7F32"],
-        "pillText": "#FFF8F0",
-    },
-    "silver": {
-        "fill": ["#3d4654", "#6B7788"],
-        "pill": ["#8E99A8", "#C0C8D4"],
-        "pillText": ICON_OUTLINE,
-    },
-    "gold": {
-        "fill": ["#5c4510", "#9A7518"],
-        "pill": ["#C8941A", "#E8BE3A"],
-        "pillText": ICON_OUTLINE,
-    },
-    "platinum": {
-        "fill": ["#1a3d4a", "#2A6B7A"],
-        "pill": ["#5EC4D8", "#B9F2FF"],
-        "pillText": ICON_OUTLINE,
-    },
-    "default": {
-        "fill": ["#2e3a48", "#4A5868"],
-        "pill": ["#64748B", "#94A3B8"],
-        "pillText": "#F8FAFC",
-    },
-}
-
-
 def page_ring(page):
     a, b, c = page["ring"]
     return a, b, c
 
 
-def tier_inner(tier):
-    return TIER_INNER.get(tier, TIER_INNER["default"])
+def page_inner(page):
+    a, b, c = page["ring"]
+    return {
+        "fill": [b, c],
+        "pill": [a, c],
+        "pillText": ICON_OUTLINE,
+    }
 
 
 BADGE_DEFS = [
@@ -141,15 +117,15 @@ def vertex_ticks(u):
 def render_icon(icon):
     return f"""
   <g shape-rendering="geometricPrecision">
-    <g color="{ICON_OUTLINE}" opacity="0.38" transform="translate(0, 2)">{icon}</g>
-    <g color="{ICON_ACCENT}" stroke="{ICON_OUTLINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">{icon}</g>
+    <g color="{ICON_OUTLINE}" opacity="0.32" transform="translate(0, 2)">{icon}</g>
+    <g color="{ICON_ACCENT}" stroke="{ICON_OUTLINE}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">{icon}</g>
   </g>"""
 
 
 def build_svg(file, tier, main, label, page, locked=False):
     theme = PAGES.get(page, PAGES["seatime"])
     ra, rb, rc = page_ring(theme)
-    inner = tier_inner(tier)
+    inner = page_inner(theme)
     u = uid()
     icon = BADGE_ICONS.get(file, BADGE_ICONS["default"])
     main_size = main_font_size(main)
@@ -218,7 +194,7 @@ def build_svg(file, tier, main, label, page, locked=False):
 
 
 def sync_page_colors_js():
-    payload = {"pages": PAGES, "tierInner": TIER_INNER}
+    payload = {"pages": PAGES}
     body = (
         "/* Auto-generated from scripts/page-colors.json — run scripts/generate-badges.py */\n"
         f"window.SeavPageColors = {json.dumps(payload, indent=2)};\n"
