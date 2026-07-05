@@ -504,8 +504,13 @@ function resolveSidebarBadgeImage(item) {
     return window.SeavBadges.resolveItemBadgeImage(item);
   }
 
+  if (!item?.badgeKey && (!item?.badgeImage || item.status === "Declined")) return "";
+  if (item?.badgeKey && window.SeavBadges?.resolveBadgeImage) {
+    return window.SeavBadges.resolveBadgeImage(item.badgeKey, item.status !== "Declined");
+  }
   if (!item?.badgeImage || item.status === "Declined") return "";
-  return String(item.badgeImage).replace(/\.png(\?.*)?$/i, ".svg$1");
+  const bust = window.SeavBadges?.withBadgeCacheBust?.(item.badgeImage);
+  return bust || String(item.badgeImage).replace(/\.png(\?.*)?$/i, ".svg$1");
 }
 
 function groupSidebarAchievements(records) {

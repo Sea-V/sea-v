@@ -605,35 +605,46 @@ helicopter_ops: {
     return Object.values(BADGES);
   }
 
+  function badgeAssetVersion() {
+    return Number(window.SeavConfig?.BADGE_ASSET_VERSION ?? window.SeavConfig?.ASSET_VERSION ?? 1);
+  }
+
   function normalizeBadgePath(imagePath) {
     if (!imagePath) return "";
-    return String(imagePath).replace(/\.png(\?.*)?$/i, ".svg$1");
+    return String(imagePath).replace(/\.png(\?.*)?$/i, ".svg$1").split("?")[0];
+  }
+
+  function withBadgeCacheBust(imagePath) {
+    const base = normalizeBadgePath(imagePath);
+    if (!base) return "";
+    return `${base}?v=${badgeAssetVersion()}`;
   }
 
   function resolveBadgeImage(badgeKey, unlocked = true) {
     const badge = getBadge(badgeKey);
-    if (!badge) return normalizeBadgePath(DEFAULT_IMAGE);
+    if (!badge) return withBadgeCacheBust(DEFAULT_IMAGE);
     const path = unlocked ? badge.image : (badge.lockedImage || badge.image);
-    return normalizeBadgePath(path);
+    return withBadgeCacheBust(path);
   }
 
   function resolveItemBadgeImage(item) {
     if (!item) return "";
-    if (!item.badgeImage && !item.badgeKey) return "";
 
     const unlocked = item.status !== "Declined";
 
-    const normalized = normalizeBadgePath(item.badgeImage);
-
-    if (!normalized && item.badgeKey) {
+    if (item.badgeKey) {
       return resolveBadgeImage(item.badgeKey, unlocked);
     }
+
+    if (!item.badgeImage) return "";
+
+    const normalized = withBadgeCacheBust(item.badgeImage);
 
     if (!normalized) return "";
 
     return unlocked
       ? normalized
-      : normalizeBadgePath(item.badgeLockedImage || normalized);
+      : withBadgeCacheBust(item.badgeLockedImage || item.badgeImage);
   }
 
   window.SeavBadges = {
@@ -647,6 +658,7 @@ helicopter_ops: {
     listAchievements,
     listBadges,
     normalizeBadgePath,
+    withBadgeCacheBust,
     resolveBadgeImage,
     resolveItemBadgeImage
   };
