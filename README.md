@@ -41,6 +41,22 @@ Manual walkthrough: **[docs/TEST-PLAN.md](docs/TEST-PLAN.md)**
 
 Brand mark lives at **`img/logo.png`**. Replace that file to use your own logo (keep the same path, or update references in `js/core.js`, `js/cv-engine.js`, and the public HTML pages).
 
+Favicons for browser tabs and Google search are generated from the logo (`favicon.ico`, `img/favicon-48.png`, etc.). After changing the logo, regenerate them:
+
+```bash
+sips -z 48 48 img/logo.png --out img/favicon-48.png
+sips -z 96 96 img/logo.png --out img/favicon-96.png
+sips -z 192 192 img/logo.png --out img/favicon-192.png
+sips -z 180 180 img/logo.png --out img/apple-touch-icon.png
+python3 -c "from PIL import Image; Image.open('img/logo.png').convert('RGBA').resize((48,48)).save('favicon.ico', format='ICO', sizes=[(48,48)])"
+```
+
+## SEO (Google logo & indexing)
+
+- **`robots.txt`** and **`sitemap.xml`** at the repo root — submit the sitemap in [Google Search Console](https://search.google.com/search-console) for `www.sea-v.com`.
+- Favicon / theme tags are on every HTML page (see `partials/head-brand.html`; re-run `node scripts/inject-seo-head.mjs` after adding new pages).
+- Organization schema on `index.html` helps Google associate your brand logo long term.
+
 ## Project layout
 
 | Path | Purpose |
