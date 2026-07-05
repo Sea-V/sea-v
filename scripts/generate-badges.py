@@ -10,9 +10,13 @@ ROOT = os.path.dirname(__file__)
 OUT = os.path.join(ROOT, "..", "img", "badges")
 PAGE_COLORS_PATH = os.path.join(ROOT, "page-colors.json")
 PAGE_COLORS_JS = os.path.join(ROOT, "..", "js", "seav-page-colors.js")
+BADGE_ICONS_PATH = os.path.join(ROOT, "badge-icons.json")
 
 with open(PAGE_COLORS_PATH, encoding="utf-8") as f:
     PAGES = json.load(f)
+
+with open(BADGE_ICONS_PATH, encoding="utf-8") as f:
+    BADGE_ICONS = json.load(f)
 
 CX, CY = 60, 56
 ICON_OUTLINE = "#0F172A"
@@ -55,64 +59,6 @@ def page_ring(page):
 def tier_inner(tier):
     return TIER_INNER.get(tier, TIER_INNER["default"])
 
-ICONS = {
-    "sea": """
-    <path d="M34 52c6-4 12-4 18 0s12 4 18 0 12-4 18 0" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-    <path d="M30 58c6-3 12-3 18 0s12 3 18 0 12-3 18 0" stroke="currentColor" stroke-width="2.2" fill="none" opacity="0.7" stroke-linecap="round"/>
-    <circle cx="60" cy="42" r="11" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <path d="M60 35v7l5 3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>""",
-    "vessel": """
-    <path d="M36 56h48l-7-16H43l-7 16z" fill="currentColor"/>
-    <path d="M30 59c9-3 18-3 27 0s18 3 27 0" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-    <path d="M50 40h20v10H50z" fill="currentColor" opacity="0.55"/>
-    <path d="M54 35h12v5H54z" fill="currentColor"/>""",
-    "passage": """
-    <circle cx="40" cy="46" r="5" fill="currentColor"/>
-    <circle cx="80" cy="40" r="5" fill="currentColor"/>
-    <path d="M45 45c14-9 28-9 34-6" stroke="currentColor" stroke-width="2.6" stroke-dasharray="5 3" fill="none" stroke-linecap="round"/>
-    <path d="M52 54l7-9 7 6 9-11" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>""",
-    "ocean": """
-    <circle cx="60" cy="48" r="20" stroke="currentColor" stroke-width="2.4" fill="none" opacity="0.45"/>
-    <path d="M40 48c7-11 16-11 20 0s16 11 20 0" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-    <path d="M46 58h28l-5-10H51l-5 10z" fill="currentColor"/>""",
-    "polar": """
-    <path d="M60 32l5 14h14l-11 8 4 14-12-8-12 8 4-14-11-8h14z" fill="currentColor"/>
-    <path d="M42 60h36" stroke="currentColor" stroke-width="2" opacity="0.5"/>""",
-    "watch": """
-    <rect x="40" y="36" width="40" height="24" rx="3" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <path d="M44 52h32" stroke="currentColor" stroke-width="2" opacity="0.55"/>
-    <circle cx="60" cy="48" r="7" stroke="currentColor" stroke-width="2.2" fill="none"/>
-    <path d="M60 44v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>""",
-    "helm": f"""
-    <g transform="translate(60,48)" shape-rendering="geometricPrecision">
-      <circle r="28" fill="none" stroke="currentColor" stroke-width="3.5"/>
-      <circle r="22" fill="none" stroke="currentColor" stroke-width="2.2" opacity="0.65"/>
-      <g stroke="currentColor" stroke-width="3.2" fill="none">
-        <line x1="0" y1="-24" x2="0" y2="24"/>
-        <line x1="-24" y1="0" x2="24" y2="0"/>
-        <line x1="-17" y1="-17" x2="17" y2="17"/>
-        <line x1="17" y1="-17" x2="-17" y2="17"/>
-      </g>
-      <g fill="currentColor" stroke="currentColor" stroke-width="1.2">
-        <circle cy="-28" r="3"/><circle cy="28" r="3"/>
-        <circle cx="-28" r="3"/><circle cx="28" r="3"/>
-        <circle cx="-20" cy="-20" r="3"/><circle cx="20" cy="-20" r="3"/>
-        <circle cx="-20" cy="20" r="3"/><circle cx="20" cy="20" r="3"/>
-      </g>
-      <circle r="7" fill="{ICON_OUTLINE}" stroke="currentColor" stroke-width="2.4"/>
-      <circle r="3" fill="currentColor"/>
-    </g>""",
-    "career": """
-    <path d="M46 36h28v7H46z" fill="currentColor" opacity="0.65"/>
-    <path d="M42 43h36v7H42z" fill="currentColor" opacity="0.85"/>
-    <path d="M38 50h44v7H38z" fill="currentColor"/>
-    <path d="M52 57h16v5H52z" fill="currentColor"/>""",
-    "ops": """
-    <circle cx="46" cy="48" r="9" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <circle cx="74" cy="48" r="9" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <path d="M53 48h14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-    <path d="M60 58v7M50 63h20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>""",
-}
 
 BADGE_DEFS = [
     ("sea-30-days", "default", "30", "DAYS AT SEA", "sea", "seatime"),
@@ -200,12 +146,12 @@ def render_icon(icon):
   </g>"""
 
 
-def build_svg(tier, main, label, cat, page, locked=False):
+def build_svg(file, tier, main, label, page, locked=False):
     theme = PAGES.get(page, PAGES["seatime"])
     ra, rb, rc = page_ring(theme)
     inner = tier_inner(tier)
     u = uid()
-    icon = ICONS.get(cat, ICONS["sea"])
+    icon = BADGE_ICONS.get(file, BADGE_ICONS["default"])
     main_size = main_font_size(main)
     label_size = label_font_size(label)
     outer_hex = hex_path(CX, CY, 50)
@@ -286,11 +232,11 @@ def main():
     sync_page_colors_js()
     for file, tier, main, label, cat, page in BADGE_DEFS:
         with open(os.path.join(OUT, f"{file}.svg"), "w", encoding="utf-8") as f:
-            f.write(build_svg(tier, main, label, cat, page))
+            f.write(build_svg(file, tier, main, label, page))
     with open(os.path.join(OUT, "locked.svg"), "w", encoding="utf-8") as f:
-        f.write(build_svg("silver", "—", "LOCKED", "sea", "achievements", locked=True))
+        f.write(build_svg("locked", "silver", "—", "LOCKED", "achievements", locked=True))
     with open(os.path.join(OUT, "default.svg"), "w", encoding="utf-8") as f:
-        f.write(build_svg("default", "SV", "SEA-V CREW", "sea", "achievements"))
+        f.write(build_svg("default", "default", "SV", "SEA-V CREW", "achievements"))
     print(f"Generated {len(BADGE_DEFS) + 2} page-colored hex badges in {OUT}")
 
 

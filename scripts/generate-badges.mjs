@@ -11,8 +11,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(__dirname, "../img/badges");
 const PAGE_COLORS_PATH = path.join(__dirname, "page-colors.json");
 const PAGE_COLORS_JS = path.join(__dirname, "../js/seav-page-colors.js");
+const BADGE_ICONS_PATH = path.join(__dirname, "badge-icons.json");
 
 const PAGES = JSON.parse(fs.readFileSync(PAGE_COLORS_PATH, "utf8"));
+const BADGE_ICONS = JSON.parse(fs.readFileSync(BADGE_ICONS_PATH, "utf8"));
 
 const CX = 60;
 const CY = 56;
@@ -57,65 +59,6 @@ function pageRing(page) {
 function tierInner(tier) {
   return TIER_INNER[tier] || TIER_INNER.default;
 }
-
-const ICONS = {
-  sea: `
-    <path d="M34 52c6-4 12-4 18 0s12 4 18 0 12-4 18 0" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-    <path d="M30 58c6-3 12-3 18 0s12 3 18 0 12-3 18 0" stroke="currentColor" stroke-width="2.2" fill="none" opacity="0.7" stroke-linecap="round"/>
-    <circle cx="60" cy="42" r="11" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <path d="M60 35v7l5 3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>`,
-  vessel: `
-    <path d="M36 56h48l-7-16H43l-7 16z" fill="currentColor"/>
-    <path d="M30 59c9-3 18-3 27 0s18 3 27 0" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-    <path d="M50 40h20v10H50z" fill="currentColor" opacity="0.55"/>
-    <path d="M54 35h12v5H54z" fill="currentColor"/>`,
-  passage: `
-    <circle cx="40" cy="46" r="5" fill="currentColor"/>
-    <circle cx="80" cy="40" r="5" fill="currentColor"/>
-    <path d="M45 45c14-9 28-9 34-6" stroke="currentColor" stroke-width="2.6" stroke-dasharray="5 3" fill="none" stroke-linecap="round"/>
-    <path d="M52 54l7-9 7 6 9-11" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
-  ocean: `
-    <circle cx="60" cy="48" r="20" stroke="currentColor" stroke-width="2.4" fill="none" opacity="0.45"/>
-    <path d="M40 48c7-11 16-11 20 0s16 11 20 0" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-    <path d="M46 58h28l-5-10H51l-5 10z" fill="currentColor"/>`,
-  polar: `
-    <path d="M60 32l5 14h14l-11 8 4 14-12-8-12 8 4-14-11-8h14z" fill="currentColor"/>
-    <path d="M42 60h36" stroke="currentColor" stroke-width="2" opacity="0.5"/>`,
-  watch: `
-    <rect x="40" y="36" width="40" height="24" rx="3" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <path d="M44 52h32" stroke="currentColor" stroke-width="2" opacity="0.55"/>
-    <circle cx="60" cy="48" r="7" stroke="currentColor" stroke-width="2.2" fill="none"/>
-    <path d="M60 44v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>`,
-  helm: `
-    <g transform="translate(60,48)" shape-rendering="geometricPrecision">
-      <circle r="28" fill="none" stroke="currentColor" stroke-width="3.5"/>
-      <circle r="22" fill="none" stroke="currentColor" stroke-width="2.2" opacity="0.65"/>
-      <g stroke="currentColor" stroke-width="3.2" fill="none">
-        <line x1="0" y1="-24" x2="0" y2="24"/>
-        <line x1="-24" y1="0" x2="24" y2="0"/>
-        <line x1="-17" y1="-17" x2="17" y2="17"/>
-        <line x1="17" y1="-17" x2="-17" y2="17"/>
-      </g>
-      <g fill="currentColor" stroke="currentColor" stroke-width="1.2">
-        <circle cy="-28" r="3"/><circle cy="28" r="3"/>
-        <circle cx="-28" r="3"/><circle cx="28" r="3"/>
-        <circle cx="-20" cy="-20" r="3"/><circle cx="20" cy="-20" r="3"/>
-        <circle cx="-20" cy="20" r="3"/><circle cx="20" cy="20" r="3"/>
-      </g>
-      <circle r="7" fill="${ICON_OUTLINE}" stroke="currentColor" stroke-width="2.4"/>
-      <circle r="3" fill="currentColor"/>
-    </g>`,
-  career: `
-    <path d="M46 36h28v7H46z" fill="currentColor" opacity="0.65"/>
-    <path d="M42 43h36v7H42z" fill="currentColor" opacity="0.85"/>
-    <path d="M38 50h44v7H38z" fill="currentColor"/>
-    <path d="M52 57h16v5H52z" fill="currentColor"/>`,
-  ops: `
-    <circle cx="46" cy="48" r="9" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <circle cx="74" cy="48" r="9" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <path d="M53 48h14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-    <path d="M60 58v7M50 63h20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>`
-};
 
 /** page = sidebar section key from scripts/page-colors.json (matches achievement sourcePage) */
 const BADGE_DEFS = [
@@ -201,12 +144,12 @@ function renderIcon(icon) {
   </g>`;
 }
 
-function buildSvg({ tier, main, label, cat, page, locked = false }) {
+function buildSvg({ file, tier, main, label, page, locked = false }) {
   const theme = PAGES[page] || PAGES.seatime;
   const ring = pageRing(theme);
   const inner = tierInner(tier);
   const uid = Math.random().toString(36).slice(2, 8);
-  const icon = ICONS[cat] || ICONS.sea;
+  const icon = BADGE_ICONS[file] || BADGE_ICONS.default;
   const mainSize = mainFontSize(main);
   const labelSize = labelFontSize(label);
   const outerHex = hexPath(CX, CY, 50);
@@ -287,12 +230,12 @@ for (const def of BADGE_DEFS) {
 
 fs.writeFileSync(
   path.join(OUT, "locked.svg"),
-  buildSvg({ tier: "silver", main: "—", label: "LOCKED", cat: "sea", page: "achievements", locked: true })
+  buildSvg({ file: "locked", tier: "silver", main: "—", label: "LOCKED", page: "achievements", locked: true })
 );
 
 fs.writeFileSync(
   path.join(OUT, "default.svg"),
-  buildSvg({ tier: "default", main: "SV", label: "SEA-V CREW", cat: "sea", page: "achievements" })
+  buildSvg({ file: "default", tier: "default", main: "SV", label: "SEA-V CREW", page: "achievements" })
 );
 
 console.log(`Generated ${BADGE_DEFS.length + 2} hex badges (page-colored) in ${OUT}`);

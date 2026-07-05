@@ -1,57 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" data-source-page="onboard-experience" data-tier="silver">
   <defs>
-    <linearGradient id="ring-oi0k1o" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-amzuk3" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#e06a88"/>
       <stop offset="50%" stop-color="#ff8fab"/>
       <stop offset="100%" stop-color="#ffb8c9"/>
     </linearGradient>
-    <radialGradient id="disc-oi0k1o" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-amzuk3" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#6B7788"/>
       <stop offset="100%" stop-color="#3d4654"/>
     </radialGradient>
-    <linearGradient id="pill-oi0k1o" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="pill-amzuk3" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#8E99A8"/>
       <stop offset="100%" stop-color="#C0C8D4"/>
     </linearGradient>
-    <linearGradient id="shine-oi0k1o" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-amzuk3" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-oi0k1o" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-amzuk3" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-oi0k1o)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-oi0k1o)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-oi0k1o)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-oi0k1o)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-oi0k1o)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-oi0k1o)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-oi0k1o)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-oi0k1o)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-oi0k1o)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-oi0k1o)"/>
+  <g filter="url(#sh-amzuk3)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-amzuk3)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-amzuk3)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-amzuk3)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-amzuk3)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-amzuk3)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-amzuk3)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-amzuk3)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-amzuk3)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-amzuk3)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
 
   <g shape-rendering="geometricPrecision">
-    <g color="#0F172A" opacity="0.38" transform="translate(0, 2)">
-    <circle cx="46" cy="48" r="9" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <circle cx="74" cy="48" r="9" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <path d="M53 48h14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-    <path d="M60 58v7M50 63h20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></g>
-    <g color="#FFFFFF" stroke="#0F172A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">
-    <circle cx="46" cy="48" r="9" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <circle cx="74" cy="48" r="9" stroke="currentColor" stroke-width="2.6" fill="none"/>
-    <path d="M53 48h14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-    <path d="M60 58v7M50 63h20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></g>
+    <g color="#0F172A" opacity="0.38" transform="translate(0, 2)"><path d="M34 56c10-4 20-4 30 0s20 4 30 0" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M52 38c6 8 10 14 16 18" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="68" cy="56" r="4" fill="currentColor"/><path d="M58 50l10 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></g>
+    <g color="#FFFFFF" stroke="#0F172A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill"><path d="M34 56c10-4 20-4 30 0s20 4 30 0" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M52 38c6 8 10 14 16 18" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="68" cy="56" r="4" fill="currentColor"/><path d="M58 50l10 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></g>
   </g>
 
   <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
-  <rect x="27" y="83" width="66" height="16" rx="3" fill="url(#pill-oi0k1o)" opacity="0.98"/>
+  <rect x="27" y="83" width="66" height="16" rx="3" fill="url(#pill-amzuk3)" opacity="0.98"/>
   <text x="60" y="94.5" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="13" font-weight="800" letter-spacing="0.6"
