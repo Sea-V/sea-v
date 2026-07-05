@@ -6,7 +6,7 @@
   <title>SEA-V Dashboard</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=109" />
+  <link rel="stylesheet" href="styles.css?v=110" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -82,7 +82,7 @@
     </div>
 
     <section class="dashboard-public-share" id="dashPublicShare" aria-labelledby="dashPublicShareTitle">
-      <div class="dashboard-public-share-head">
+      <div class="dashboard-public-share-row">
         <div class="dashboard-public-share-brand">
           <span class="dashboard-public-share-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none">
@@ -95,23 +95,21 @@
             <p>Share a read-only career view with employers</p>
           </div>
         </div>
-        <span class="dashboard-public-share-status is-private" id="dashPublicStatus">Private</span>
-      </div>
 
-      <label class="dashboard-public-share-toggle" for="dashPublicEnabled">
-        <span class="dashboard-public-share-toggle-copy">
-          <strong>Visible to anyone with the link</strong>
-          <small>Recruiters can view your public SEA-V profile</small>
-        </span>
-        <input type="checkbox" id="dashPublicEnabled" class="dashboard-public-share-switch" />
-      </label>
+        <div class="dashboard-public-share-controls">
+          <span class="dashboard-public-share-status is-private" id="dashPublicStatus">Private</span>
+          <label class="dashboard-public-share-toggle" for="dashPublicEnabled">
+            <span class="dashboard-public-share-toggle-label">Visible</span>
+            <input type="checkbox" id="dashPublicEnabled" class="dashboard-public-share-switch" />
+          </label>
+        </div>
+      </div>
 
       <p class="dashboard-public-share-hint" id="dashPublicLinkHint">
         Enable visibility to activate your share link.
       </p>
 
       <div class="dashboard-public-share-link" id="dashPublicLinkWrap" hidden>
-        <label class="dashboard-public-share-link-label" for="dashPublicLinkUrl">Share link</label>
         <div class="dashboard-public-share-link-row">
           <input
             type="text"
