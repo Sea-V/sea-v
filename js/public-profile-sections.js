@@ -425,7 +425,7 @@
             </div>`
           : ""
       }
-      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "yachts") : ""}
+      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "vessels") : ""}
     `;
 
     setSectionCount("ppVesselCount", sorted.length);
@@ -1139,7 +1139,7 @@
     box.innerHTML = `
       <details class="public-cv-achievements-details">
         <summary class="public-cv-achievements-summary">
-          <span class="public-cv-achievements-summary-label">Career highlights</span>
+          <span class="public-cv-achievements-summary-label">Milestones</span>
           <span class="public-cv-achievements-summary-meta">${Seav.escapeHtml(countLabel)}</span>
         </summary>
         <div class="public-cv-achievements-panel">

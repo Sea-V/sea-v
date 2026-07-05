@@ -132,6 +132,10 @@ body.public-profile-page .overlay {
   background: rgba(91, 188, 255, 0.2);
 }
 
+.public-profile-shell.dashboard-shell-card {
+  overflow: visible;
+}
+
 /* =========================================================
    STICKY SECTION NAV
 ========================================================= */
@@ -141,17 +145,14 @@ body.public-profile-page .overlay {
   top: 49px;
   z-index: 30;
   display: flex;
-  gap: 6px;
+  gap: 8px;
   overflow-x: auto;
-  padding: 10px 2px 12px;
-  margin: 0 0 4px;
+  padding: 0 28px 12px;
+  margin: 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
   border-bottom: 1px solid rgba(91, 188, 255, 0.14);
-  background: rgba(8, 16, 28, 0.94);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  background: transparent;
 }
 
 .public-profile-section-nav::-webkit-scrollbar {
@@ -160,11 +161,11 @@ body.public-profile-page .overlay {
 
 .public-profile-section-nav-link {
   flex: 0 0 auto;
-  padding: 6px 11px;
+  padding: 7px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(91, 188, 255, 0.18);
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(255, 255, 255, 0.74);
   font-size: 11px;
   font-weight: 800;
   text-decoration: none;
@@ -177,7 +178,8 @@ body.public-profile-page .overlay {
 
 .public-profile-section-nav-link:hover {
   color: #ffffff;
-  border-color: rgba(91, 188, 255, 0.28);
+  border-color: rgba(91, 188, 255, 0.32);
+  background: rgba(91, 188, 255, 0.08);
 }
 
 .public-profile-section-nav-link.is-active {
@@ -199,7 +201,7 @@ body.public-profile-page .overlay {
 
 .public-profile-page .dash-card,
 .public-profile-page #pp-section-overview {
-  scroll-margin-top: 108px;
+  scroll-margin-top: 118px;
 }
 
 .public-profile-tagline {
@@ -1221,7 +1223,11 @@ body.public-profile-page .overlay {
 
   .public-profile-page .dash-card,
   .public-profile-page #pp-section-overview {
-    scroll-margin-top: 102px;
+    scroll-margin-top: 112px;
+  }
+
+  .public-profile-section-nav {
+    padding: 0 16px 12px;
   }
 
   .public-profile-seatime-kpis.kpi-row-grid-5 {

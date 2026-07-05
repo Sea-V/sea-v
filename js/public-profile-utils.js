@@ -33,15 +33,15 @@
 
   const SECTION_NAV = [
     { id: "pp-section-overview", label: "Overview" },
-    { id: "ppVesselSection", label: "Yachts" },
+    { id: "ppVesselSection", label: "Vessels" },
     { id: "ppTenderSection", label: "Tenders" },
-    { id: "ppSeatimeSection", label: "Sea time" },
+    { id: "ppSeatimeSection", label: "Sea Time" },
     { id: "ppNavigationSection", label: "Navigation" },
-    { id: "ppOperationsSection", label: "Onboard" },
-    { id: "ppSpecialistSection", label: "Skills" },
+    { id: "ppOperationsSection", label: "Onboard Experience" },
+    { id: "ppSpecialistSection", label: "Specialist Qualifications" },
     { id: "ppRefSection", label: "References" },
-    { id: "ppAchievementSection", label: "Highlights" },
-    { id: "ppHobbiesSection", label: "Interests" }
+    { id: "ppAchievementSection", label: "Milestones" },
+    { id: "ppHobbiesSection", label: "Hobbies & Interests" }
   ];
 
   let sectionNavObserver = null;
@@ -429,7 +429,7 @@
 
     const parts = [];
     parts.push(
-      `${vessels.length} yacht${vessels.length === 1 ? "" : "s"}`
+      `${vessels.length} vessel${vessels.length === 1 ? "" : "s"}`
     );
 
     const lengths = vessels
@@ -576,6 +576,13 @@
     const target = document.getElementById(sectionId);
     if (!target) return;
 
+    setActiveSectionNavLink(sectionId);
+
+    if (typeof target.scrollIntoView === "function") {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
     const offset = getSectionNavOffset();
     const top = window.scrollY + target.getBoundingClientRect().top - offset;
     window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
@@ -598,15 +605,18 @@
 
   function bindSectionNav() {
     const nav = document.getElementById("ppSectionNav");
-    if (!nav || nav.dataset.ppNavBound === "true") return;
-    nav.dataset.ppNavBound = "true";
+    if (!nav) return;
 
-    nav.addEventListener("click", (event) => {
-      const link = event.target.closest("[data-pp-nav-target]");
-      if (!link) return;
-      event.preventDefault();
-      scrollToSection(link.getAttribute("data-pp-nav-target"));
-    });
+    if (nav.dataset.ppNavBound !== "true") {
+      nav.dataset.ppNavBound = "true";
+
+      nav.addEventListener("click", (event) => {
+        const link = event.target.closest("[data-pp-nav-target]");
+        if (!link) return;
+        event.preventDefault();
+        scrollToSection(link.getAttribute("data-pp-nav-target"));
+      });
+    }
 
     if (sectionNavObserver) {
       sectionNavObserver.disconnect();
@@ -666,7 +676,6 @@
       .join("");
 
     nav.hidden = false;
-    delete nav.dataset.ppNavBound;
     bindSectionNav();
     setActiveSectionNavLink(visible[0].id);
   }
@@ -685,7 +694,7 @@
       items.push({ value: formatNm(metrics.navigationNm), label: "Miles navigated" });
     }
     if (metrics.vessels > 0) {
-      items.push({ value: String(metrics.vessels), label: "Yachts" });
+      items.push({ value: String(metrics.vessels), label: "Vessels" });
     }
     if (metrics.verifiedRefs > 0) {
       items.push({ value: String(metrics.verifiedRefs), label: "Verified refs" });

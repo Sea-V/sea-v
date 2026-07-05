@@ -11,7 +11,7 @@
 
   <title>SEA-V • Public Profile</title>
 
-  <link rel="stylesheet" href="styles.css?v=100" />
+  <link rel="stylesheet" href="styles.css?v=111" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -36,9 +36,9 @@
   <script src="js/api-mappers.js?v=100" defer></script>
   <script src="js/api.js?v=100" defer></script>
   <script src="js/navigation-ports.js?v=100" defer></script>
-  <script src="js/public-profile-utils.js?v=101" defer></script>
-  <script src="js/public-profile-sections.js?v=100" defer></script>
-  <script src="js/public-profile.js?v=100" defer></script>
+  <script src="js/public-profile-utils.js?v=102" defer></script>
+  <script src="js/public-profile-sections.js?v=101" defer></script>
+  <script src="js/public-profile.js?v=101" defer></script>
 </head>
 
 <body class="public-page public-profile-page">
@@ -96,14 +96,14 @@
             </div>
           </div>
 
-          <section class="dashboard-shell-section">
+          <nav
+            class="public-profile-section-nav"
+            id="ppSectionNav"
+            hidden
+            aria-label="Jump to profile section"
+          ></nav>
 
-            <nav
-              class="public-profile-section-nav"
-              id="ppSectionNav"
-              hidden
-              aria-label="Jump to profile section"
-            ></nav>
+          <section class="dashboard-shell-section">
 
             <div class="dash-top">
 
@@ -162,7 +162,7 @@
 
               <article class="dash-card dash-card-accent-vessels" id="ppVesselSection">
                 <div class="dashboard-card-headline">
-                  <h3>Yacht experience</h3>
+                  <h3>Vessels</h3>
                   <span class="public-profile-section-count" id="ppVesselCount" hidden></span>
                 </div>
                 <div id="ppVesselSnippet"></div>
@@ -178,7 +178,7 @@
 
               <article class="dash-card dash-card-accent-seatime" id="ppSeatimeSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Sea service record</h3>
+                  <h3>Sea Time</h3>
                 </div>
                 <p class="public-profile-section-note">Formal sea time logged in SEA-V.</p>
                 <div id="ppSeatimeSnippet"></div>
@@ -186,7 +186,7 @@
 
               <article class="dash-card dash-card-accent-navigation dashboard-navigation-card" id="ppNavigationSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Navigation chart</h3>
+                  <h3>Navigation</h3>
                 </div>
                 <div id="ppNavigationSnippet"></div>
               </article>
@@ -202,14 +202,14 @@
 
               <article class="dash-card dash-card-accent-specialist" id="ppSpecialistSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Specialist qualifications</h3>
+                  <h3>Specialist Qualifications</h3>
                 </div>
                 <div id="ppSpecialistSnippet"></div>
               </article>
 
               <article class="dash-card dash-card-accent-references" id="ppRefSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Verified references</h3>
+                  <h3>References</h3>
                 </div>
                 <p class="public-profile-section-note">Only confirmed verifications are shown.</p>
                 <div id="ppRefSnippet"></div>
@@ -221,7 +221,7 @@
 
               <article class="dash-card dash-card-accent-hobbies" id="ppHobbiesSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Hobbies &amp; interests</h3>
+                  <h3>Hobbies &amp; Interests</h3>
                 </div>
                 <div id="ppHobbiesSnippet"></div>
               </article>
