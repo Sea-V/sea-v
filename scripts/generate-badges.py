@@ -18,6 +18,43 @@ CX, CY = 60, 56
 ICON_OUTLINE = "#0F172A"
 ICON_ACCENT = "#FFFFFF"
 
+TIER_INNER = {
+    "bronze": {
+        "fill": ["#4a3020", "#7A4E2A"],
+        "pill": ["#A0622E", "#CD7F32"],
+        "pillText": "#FFF8F0",
+    },
+    "silver": {
+        "fill": ["#3d4654", "#6B7788"],
+        "pill": ["#8E99A8", "#C0C8D4"],
+        "pillText": ICON_OUTLINE,
+    },
+    "gold": {
+        "fill": ["#5c4510", "#9A7518"],
+        "pill": ["#C8941A", "#E8BE3A"],
+        "pillText": ICON_OUTLINE,
+    },
+    "platinum": {
+        "fill": ["#1a3d4a", "#2A6B7A"],
+        "pill": ["#5EC4D8", "#B9F2FF"],
+        "pillText": ICON_OUTLINE,
+    },
+    "default": {
+        "fill": ["#2e3a48", "#4A5868"],
+        "pill": ["#64748B", "#94A3B8"],
+        "pillText": "#F8FAFC",
+    },
+}
+
+
+def page_ring(page):
+    a, b, c = page["ring"]
+    return a, b, c
+
+
+def tier_inner(tier):
+    return TIER_INNER.get(tier, TIER_INNER["default"])
+
 ICONS = {
     "sea": """
     <path d="M34 52c6-4 12-4 18 0s12 4 18 0 12-4 18 0" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round"/>
@@ -115,19 +152,6 @@ def uid():
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
 
 
-def tier_ring(page, tier):
-    r = page["ring"]
-    stops = {
-        "bronze": [page["fill"][1], r[0], r[1]],
-        "silver": r,
-        "gold": [r[0], r[1], page["pill"]],
-        "platinum": [r[1], page["sidebar"], "#ffffff"],
-        "default": r,
-    }
-    a, b, c = stops.get(tier, stops["default"])
-    return a, b, c
-
-
 def hex_points(cx, cy, r, start_deg=-90):
     return [
         (cx + r * math.cos(math.radians(start_deg + i * 60)), cy + r * math.sin(math.radians(start_deg + i * 60)))
@@ -178,7 +202,8 @@ def render_icon(icon):
 
 def build_svg(tier, main, label, cat, page, locked=False):
     theme = PAGES.get(page, PAGES["seatime"])
-    ra, rb, rc = tier_ring(theme, tier)
+    ra, rb, rc = page_ring(theme)
+    inner = tier_inner(tier)
     u = uid()
     icon = ICONS.get(cat, ICONS["sea"])
     main_size = main_font_size(main)
@@ -196,7 +221,7 @@ def build_svg(tier, main, label, cat, page, locked=False):
     <path d="M-14 -2h28"/>
   </g>"""
     return f"""<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" data-source-page="{page}">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" data-source-page="{page}" data-tier="{tier}">
   <defs>
     <linearGradient id="ring-{u}" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="{ra}"/>
@@ -204,9 +229,13 @@ def build_svg(tier, main, label, cat, page, locked=False):
       <stop offset="100%" stop-color="{rc}"/>
     </linearGradient>
     <radialGradient id="disc-{u}" cx="38%" cy="32%" r="68%">
-      <stop offset="0%" stop-color="{theme['fill'][1]}"/>
-      <stop offset="100%" stop-color="{theme['fill'][0]}"/>
+      <stop offset="0%" stop-color="{inner['fill'][1]}"/>
+      <stop offset="100%" stop-color="{inner['fill'][0]}"/>
     </radialGradient>
+    <linearGradient id="pill-{u}" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="{inner['pill'][0]}"/>
+      <stop offset="100%" stop-color="{inner['pill'][1]}"/>
+    </linearGradient>
     <linearGradient id="shine-{u}" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
@@ -227,11 +256,11 @@ def build_svg(tier, main, label, cat, page, locked=False):
 {render_icon(icon)}
 
   <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
-  <rect x="27" y="83" width="66" height="16" rx="3" fill="{theme['pill']}" opacity="0.96"/>
+  <rect x="27" y="83" width="66" height="16" rx="3" fill="url(#pill-{u})" opacity="0.98"/>
   <text x="60" y="94.5" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="{main_size}" font-weight="800" letter-spacing="0.6"
-    fill="{ICON_OUTLINE}">{main}</text>
+    fill="{inner['pillText']}">{main}</text>
 
   <text x="60" y="108" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
@@ -243,9 +272,10 @@ def build_svg(tier, main, label, cat, page, locked=False):
 
 
 def sync_page_colors_js():
+    payload = {"pages": PAGES, "tierInner": TIER_INNER}
     body = (
         "/* Auto-generated from scripts/page-colors.json — run scripts/generate-badges.py */\n"
-        f"window.SeavPageColors = {json.dumps(PAGES, indent=2)};\n"
+        f"window.SeavPageColors = {json.dumps(payload, indent=2)};\n"
     )
     with open(PAGE_COLORS_JS, "w", encoding="utf-8") as f:
         f.write(body)

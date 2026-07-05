@@ -1,198 +1,257 @@
 /* Auto-generated from scripts/page-colors.json — run scripts/generate-badges.py */
 window.SeavPageColors = {
-  "dashboard": {
-    "label": "Dashboard",
-    "href": "dashboard.html",
-    "sidebar": "#5bbcff",
-    "fill": [
-      "#1a4d8c",
-      "#2a6eb8"
-    ],
-    "ring": [
-      "#3d8fd4",
-      "#5bbcff",
-      "#9ddcff"
-    ],
-    "pill": "#5bbcff"
+  "pages": {
+    "dashboard": {
+      "label": "Dashboard",
+      "href": "dashboard.html",
+      "sidebar": "#5bbcff",
+      "fill": [
+        "#1a4d8c",
+        "#2a6eb8"
+      ],
+      "ring": [
+        "#3d8fd4",
+        "#5bbcff",
+        "#9ddcff"
+      ],
+      "pill": "#5bbcff"
+    },
+    "profile": {
+      "label": "Profile",
+      "href": "profile.html",
+      "sidebar": "#42d6b5",
+      "fill": [
+        "#156b59",
+        "#1f9a82"
+      ],
+      "ring": [
+        "#2bb896",
+        "#42d6b5",
+        "#8aedcf"
+      ],
+      "pill": "#42d6b5"
+    },
+    "seatime": {
+      "label": "Sea Time",
+      "href": "seatime.html",
+      "sidebar": "#829eff",
+      "fill": [
+        "#2a4589",
+        "#3d5fbf"
+      ],
+      "ring": [
+        "#5a7ae6",
+        "#829eff",
+        "#b8c8ff"
+      ],
+      "pill": "#829eff"
+    },
+    "vessels": {
+      "label": "Vessels",
+      "href": "vessels.html",
+      "sidebar": "#d6e2ee",
+      "fill": [
+        "#3d5266",
+        "#5a7185"
+      ],
+      "ring": [
+        "#8fa3b8",
+        "#d6e2ee",
+        "#eef3f8"
+      ],
+      "pill": "#b8c9d9"
+    },
+    "tenders": {
+      "label": "Tenders",
+      "href": "tenders.html",
+      "sidebar": "#4cffb8",
+      "fill": [
+        "#14805a",
+        "#1db57a"
+      ],
+      "ring": [
+        "#2ee89a",
+        "#4cffb8",
+        "#9dffdb"
+      ],
+      "pill": "#4cffb8"
+    },
+    "certificates": {
+      "label": "Certificates",
+      "href": "certificates.html",
+      "sidebar": "#ffd25a",
+      "fill": [
+        "#8a6a1a",
+        "#b89022"
+      ],
+      "ring": [
+        "#d4ad3a",
+        "#ffd25a",
+        "#ffe699"
+      ],
+      "pill": "#ffd25a"
+    },
+    "specialist-qualifications": {
+      "label": "Specialist Qualifications",
+      "href": "specialist-qualifications.html",
+      "sidebar": "#c4a0ff",
+      "fill": [
+        "#5c3d99",
+        "#7a52bf"
+      ],
+      "ring": [
+        "#9b7ae6",
+        "#c4a0ff",
+        "#dcc8ff"
+      ],
+      "pill": "#c4a0ff"
+    },
+    "achievements": {
+      "label": "Achievements",
+      "href": "achievements.html",
+      "sidebar": "#ffb347",
+      "fill": [
+        "#8a5518",
+        "#b87322"
+      ],
+      "ring": [
+        "#d9923a",
+        "#ffb347",
+        "#ffd08a"
+      ],
+      "pill": "#ffb347"
+    },
+    "references": {
+      "label": "References",
+      "href": "references.html",
+      "sidebar": "#d16bff",
+      "fill": [
+        "#6b2a99",
+        "#8a38bf"
+      ],
+      "ring": [
+        "#b055e6",
+        "#d16bff",
+        "#e5a8ff"
+      ],
+      "pill": "#d16bff"
+    },
+    "navigation": {
+      "label": "Navigation",
+      "href": "navigation.html",
+      "sidebar": "#39e0c4",
+      "fill": [
+        "#126b5e",
+        "#1a9a87"
+      ],
+      "ring": [
+        "#28c4ad",
+        "#39e0c4",
+        "#8af0e0"
+      ],
+      "pill": "#39e0c4"
+    },
+    "payslips": {
+      "label": "Payslips",
+      "href": "payslips.html",
+      "sidebar": "#cfa86a",
+      "fill": [
+        "#6b5228",
+        "#8a6a38"
+      ],
+      "ring": [
+        "#b08f52",
+        "#cfa86a",
+        "#e8cc9a"
+      ],
+      "pill": "#cfa86a"
+    },
+    "onboard-experience": {
+      "label": "Onboard Experience",
+      "href": "onboard-experience.html",
+      "sidebar": "#ff8fab",
+      "fill": [
+        "#993d55",
+        "#bf4f6a"
+      ],
+      "ring": [
+        "#e06a88",
+        "#ff8fab",
+        "#ffb8c9"
+      ],
+      "pill": "#ff8fab"
+    },
+    "hobbies-interests": {
+      "label": "Hobbies & Interests",
+      "href": "hobbies-interests.html",
+      "sidebar": "#e879f9",
+      "fill": [
+        "#7a2a8a",
+        "#9938ad"
+      ],
+      "ring": [
+        "#c855db",
+        "#e879f9",
+        "#f5b0ff"
+      ],
+      "pill": "#e879f9"
+    }
   },
-  "profile": {
-    "label": "Profile",
-    "href": "profile.html",
-    "sidebar": "#42d6b5",
-    "fill": [
-      "#156b59",
-      "#1f9a82"
-    ],
-    "ring": [
-      "#2bb896",
-      "#42d6b5",
-      "#8aedcf"
-    ],
-    "pill": "#42d6b5"
-  },
-  "seatime": {
-    "label": "Sea Time",
-    "href": "seatime.html",
-    "sidebar": "#829eff",
-    "fill": [
-      "#2a4589",
-      "#3d5fbf"
-    ],
-    "ring": [
-      "#5a7ae6",
-      "#829eff",
-      "#b8c8ff"
-    ],
-    "pill": "#829eff"
-  },
-  "vessels": {
-    "label": "Vessels",
-    "href": "vessels.html",
-    "sidebar": "#d6e2ee",
-    "fill": [
-      "#3d5266",
-      "#5a7185"
-    ],
-    "ring": [
-      "#8fa3b8",
-      "#d6e2ee",
-      "#eef3f8"
-    ],
-    "pill": "#b8c9d9"
-  },
-  "tenders": {
-    "label": "Tenders",
-    "href": "tenders.html",
-    "sidebar": "#4cffb8",
-    "fill": [
-      "#14805a",
-      "#1db57a"
-    ],
-    "ring": [
-      "#2ee89a",
-      "#4cffb8",
-      "#9dffdb"
-    ],
-    "pill": "#4cffb8"
-  },
-  "certificates": {
-    "label": "Certificates",
-    "href": "certificates.html",
-    "sidebar": "#ffd25a",
-    "fill": [
-      "#8a6a1a",
-      "#b89022"
-    ],
-    "ring": [
-      "#d4ad3a",
-      "#ffd25a",
-      "#ffe699"
-    ],
-    "pill": "#ffd25a"
-  },
-  "specialist-qualifications": {
-    "label": "Specialist Qualifications",
-    "href": "specialist-qualifications.html",
-    "sidebar": "#c4a0ff",
-    "fill": [
-      "#5c3d99",
-      "#7a52bf"
-    ],
-    "ring": [
-      "#9b7ae6",
-      "#c4a0ff",
-      "#dcc8ff"
-    ],
-    "pill": "#c4a0ff"
-  },
-  "achievements": {
-    "label": "Achievements",
-    "href": "achievements.html",
-    "sidebar": "#ffb347",
-    "fill": [
-      "#8a5518",
-      "#b87322"
-    ],
-    "ring": [
-      "#d9923a",
-      "#ffb347",
-      "#ffd08a"
-    ],
-    "pill": "#ffb347"
-  },
-  "references": {
-    "label": "References",
-    "href": "references.html",
-    "sidebar": "#d16bff",
-    "fill": [
-      "#6b2a99",
-      "#8a38bf"
-    ],
-    "ring": [
-      "#b055e6",
-      "#d16bff",
-      "#e5a8ff"
-    ],
-    "pill": "#d16bff"
-  },
-  "navigation": {
-    "label": "Navigation",
-    "href": "navigation.html",
-    "sidebar": "#39e0c4",
-    "fill": [
-      "#126b5e",
-      "#1a9a87"
-    ],
-    "ring": [
-      "#28c4ad",
-      "#39e0c4",
-      "#8af0e0"
-    ],
-    "pill": "#39e0c4"
-  },
-  "payslips": {
-    "label": "Payslips",
-    "href": "payslips.html",
-    "sidebar": "#cfa86a",
-    "fill": [
-      "#6b5228",
-      "#8a6a38"
-    ],
-    "ring": [
-      "#b08f52",
-      "#cfa86a",
-      "#e8cc9a"
-    ],
-    "pill": "#cfa86a"
-  },
-  "onboard-experience": {
-    "label": "Onboard Experience",
-    "href": "onboard-experience.html",
-    "sidebar": "#ff8fab",
-    "fill": [
-      "#993d55",
-      "#bf4f6a"
-    ],
-    "ring": [
-      "#e06a88",
-      "#ff8fab",
-      "#ffb8c9"
-    ],
-    "pill": "#ff8fab"
-  },
-  "hobbies-interests": {
-    "label": "Hobbies & Interests",
-    "href": "hobbies-interests.html",
-    "sidebar": "#e879f9",
-    "fill": [
-      "#7a2a8a",
-      "#9938ad"
-    ],
-    "ring": [
-      "#c855db",
-      "#e879f9",
-      "#f5b0ff"
-    ],
-    "pill": "#e879f9"
+  "tierInner": {
+    "bronze": {
+      "fill": [
+        "#4a3020",
+        "#7A4E2A"
+      ],
+      "pill": [
+        "#A0622E",
+        "#CD7F32"
+      ],
+      "pillText": "#FFF8F0"
+    },
+    "silver": {
+      "fill": [
+        "#3d4654",
+        "#6B7788"
+      ],
+      "pill": [
+        "#8E99A8",
+        "#C0C8D4"
+      ],
+      "pillText": "#0F172A"
+    },
+    "gold": {
+      "fill": [
+        "#5c4510",
+        "#9A7518"
+      ],
+      "pill": [
+        "#C8941A",
+        "#E8BE3A"
+      ],
+      "pillText": "#0F172A"
+    },
+    "platinum": {
+      "fill": [
+        "#1a3d4a",
+        "#2A6B7A"
+      ],
+      "pill": [
+        "#5EC4D8",
+        "#B9F2FF"
+      ],
+      "pillText": "#0F172A"
+    },
+    "default": {
+      "fill": [
+        "#2e3a48",
+        "#4A5868"
+      ],
+      "pill": [
+        "#64748B",
+        "#94A3B8"
+      ],
+      "pillText": "#F8FAFC"
+    }
   }
 };

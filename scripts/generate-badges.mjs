@@ -19,18 +19,43 @@ const CY = 56;
 const ICON_OUTLINE = "#0F172A";
 const ICON_ACCENT = "#FFFFFF";
 
-/** Tier adjusts the page ring gradient while keeping section hue */
-function tierRing(page, tier) {
-  const r = page.ring;
-  const stops = {
-    bronze: [page.fill[1], r[0], r[1]],
-    silver: r,
-    gold: [r[0], r[1], page.pill],
-    platinum: [r[1], page.sidebar, "#ffffff"],
-    default: r
-  };
-  const [a, b, c] = stops[tier] || stops.default;
+/** Inner hex + pill — tier level within each page (border stays page-colored) */
+const TIER_INNER = {
+  bronze: {
+    fill: ["#4a3020", "#7A4E2A"],
+    pill: ["#A0622E", "#CD7F32"],
+    pillText: "#FFF8F0"
+  },
+  silver: {
+    fill: ["#3d4654", "#6B7788"],
+    pill: ["#8E99A8", "#C0C8D4"],
+    pillText: ICON_OUTLINE
+  },
+  gold: {
+    fill: ["#5c4510", "#9A7518"],
+    pill: ["#C8941A", "#E8BE3A"],
+    pillText: ICON_OUTLINE
+  },
+  platinum: {
+    fill: ["#1a3d4a", "#2A6B7A"],
+    pill: ["#5EC4D8", "#B9F2FF"],
+    pillText: ICON_OUTLINE
+  },
+  default: {
+    fill: ["#2e3a48", "#4A5868"],
+    pill: ["#64748B", "#94A3B8"],
+    pillText: "#F8FAFC"
+  }
+};
+
+/** Outer ring always uses the page sidebar palette */
+function pageRing(page) {
+  const [a, b, c] = page.ring;
   return { a, b, c };
+}
+
+function tierInner(tier) {
+  return TIER_INNER[tier] || TIER_INNER.default;
 }
 
 const ICONS = {
@@ -178,7 +203,8 @@ function renderIcon(icon) {
 
 function buildSvg({ tier, main, label, cat, page, locked = false }) {
   const theme = PAGES[page] || PAGES.seatime;
-  const ring = tierRing(theme, tier);
+  const ring = pageRing(theme);
+  const inner = tierInner(tier);
   const uid = Math.random().toString(36).slice(2, 8);
   const icon = ICONS[cat] || ICONS.sea;
   const mainSize = mainFontSize(main);
@@ -197,7 +223,7 @@ function buildSvg({ tier, main, label, cat, page, locked = false }) {
     : "";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" data-source-page="${page}">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" data-source-page="${page}" data-tier="${tier}">
   <defs>
     <linearGradient id="ring-${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="${ring.a}"/>
@@ -205,9 +231,13 @@ function buildSvg({ tier, main, label, cat, page, locked = false }) {
       <stop offset="100%" stop-color="${ring.c}"/>
     </linearGradient>
     <radialGradient id="disc-${uid}" cx="38%" cy="32%" r="68%">
-      <stop offset="0%" stop-color="${theme.fill[1]}"/>
-      <stop offset="100%" stop-color="${theme.fill[0]}"/>
+      <stop offset="0%" stop-color="${inner.fill[1]}"/>
+      <stop offset="100%" stop-color="${inner.fill[0]}"/>
     </radialGradient>
+    <linearGradient id="pill-${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="${inner.pill[0]}"/>
+      <stop offset="100%" stop-color="${inner.pill[1]}"/>
+    </linearGradient>
     <linearGradient id="shine-${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
@@ -227,11 +257,11 @@ function buildSvg({ tier, main, label, cat, page, locked = false }) {
   ${renderIcon(icon)}
 
   <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
-  <rect x="27" y="83" width="66" height="16" rx="3" fill="${theme.pill}" opacity="0.96"/>
+  <rect x="27" y="83" width="66" height="16" rx="3" fill="url(#pill-${uid})" opacity="0.98"/>
   <text x="60" y="94.5" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="${mainSize}" font-weight="800" letter-spacing="0.6"
-    fill="${ICON_OUTLINE}">${main}</text>
+    fill="${inner.pillText}">${main}</text>
 
   <text x="60" y="108" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
@@ -243,7 +273,8 @@ function buildSvg({ tier, main, label, cat, page, locked = false }) {
 }
 
 function syncPageColorsJs() {
-  const body = `/* Auto-generated from scripts/page-colors.json — run scripts/generate-badges.mjs */\nwindow.SeavPageColors = ${JSON.stringify(PAGES, null, 2)};\n`;
+  const payload = { pages: PAGES, tierInner: TIER_INNER };
+  const body = `/* Auto-generated from scripts/page-colors.json — run scripts/generate-badges.mjs */\nwindow.SeavPageColors = ${JSON.stringify(payload, null, 2)};\n`;
   fs.writeFileSync(PAGE_COLORS_JS, body);
 }
 
