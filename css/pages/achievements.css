@@ -1,313 +1,579 @@
 /* =========================================================
-   SEA-V • ACHIEVEMENTS PAGE
+   SEA-V • ACHIEVEMENTS — Trophy case (Strava / Garmin inspired)
 ========================================================= */
 
-/* =========================================================
-   SHELL
-========================================================= */
-
-.achievement-shell-card {
+.ach-shell-card {
   overflow: hidden;
-
   border-radius: 30px;
-  border: 1px solid rgba(209,107,255,0.24);
-
+  border: 1px solid rgba(255, 179, 71, 0.28);
   background: var(--page-shell-bg);
-
-  box-shadow:
-    0 20px 48px rgba(0,0,0,0.28);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
 }
 
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.achievement-shell-head {
+.ach-shell-head {
   display: grid;
   grid-template-columns: auto 1fr auto;
-
   gap: 20px;
   align-items: center;
-
   padding: 28px;
-
-  border-bottom: 1px solid rgba(255,215,90,0.14);
+  border-bottom: 1px solid rgba(255, 179, 71, 0.14);
 }
 
-.achievement-shell-copy {
-  min-width: 0;
-}
-
-.achievement-shell-actions {
-  display: flex;
-  align-items: center;
-}
-
-.achievement-shell-icon {
+.ach-shell-icon {
   width: 72px;
   height: 72px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 50%;
-  border: 1.5px solid rgba(255,215,90,0.32);
-
-  background: rgba(255,255,255,0.035);
-
+  border: 1.5px solid rgba(255, 179, 71, 0.38);
+  background: rgba(255, 179, 71, 0.08);
   color: #ffb347;
 }
 
-.achievement-shell-icon svg {
+.ach-shell-icon svg {
   width: 34px;
   height: 34px;
-
   display: block;
 }
 
-.achievement-shell-head h2 {
+.ach-shell-head h2 {
   margin: 0 0 8px;
-
   color: #ffffff;
-
   font-size: 24px;
   line-height: 1.1;
   font-weight: 900;
 }
 
-.achievement-shell-head p {
+.ach-shell-head p {
   margin: 0;
-
-  color: rgba(255,255,255,0.68);
-
+  color: rgba(255, 255, 255, 0.68);
   font-size: 14px;
   line-height: 1.65;
   font-weight: 500;
+  max-width: 720px;
 }
 
-/* =========================================================
-   SECTION
-========================================================= */
-
-.achievement-section {
+.ach-section {
   padding: 26px 28px 30px;
 }
 
-.achievement-section-head {
-  margin-bottom: 18px;
-}
+/* KPI row */
 
-.achievement-section-head h3 {
-  margin: 0 0 5px;
-
-  color: #ffffff;
-
-  font-size: 18px;
-  font-weight: 850;
-}
-
-.achievement-section-head p {
-  margin: 0;
-
-  color: rgba(255,255,255,0.60);
-
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-/* =========================================================
-   GRID
-========================================================= */
-
-.achievement-grid {
+.ach-kpi-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-
-  gap: 16px;
-
-  margin-top: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-/* =========================================================
-   CARD
-========================================================= */
-
-.achievement-card {
-  overflow: hidden;
-
-  border-radius: 24px;
-  border: 1.5px solid rgba(255,179,71,0.24);
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(20,38,61,0.82),
-      rgba(12,28,48,0.76)
-    );
-
-  box-shadow:
-    0 12px 26px rgba(0,0,0,0.18);
+.ach-kpi-box {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
 }
 
+.ach-kpi-box .kpi-num,
+.ach-kpi-box .kpi-label {
+  display: block;
+}
 
+.ach-kpi-box .kpi-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--seav-field-value-color, #fff);
+}
 
-/* =========================================================
-   CARD MEDIA
-========================================================= */
+.ach-kpi-box .kpi-label {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--seav-field-label-color, #5bbcff);
+}
 
-.achievement-card .achievement-photo {
-  height: 220px;
-
+.ach-kpi-box--hero {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  padding: 0;
-
-  background: rgba(0,0,0,0.18);
+  text-align: center;
+  padding: 16px 12px;
 }
 
-.achievement-card .achievement-photo img {
-  width: 94%;
-  height: 94%;
+.ach-kpi-ring {
+  --ach-progress: 0%;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin-bottom: 8px;
+  background:
+    radial-gradient(circle closest-side, rgba(12, 28, 48, 0.95) 78%, transparent 80%),
+    conic-gradient(#ffb347 var(--ach-progress), rgba(255, 255, 255, 0.08) 0);
+  box-shadow: 0 0 24px rgba(255, 179, 71, 0.18);
+}
 
-  display: block;
+.ach-kpi-ring-value {
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
 
+.ach-kpi-ring-value small {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.ach-kpi-tier[data-tier="bronze"] { color: #cd7f32; }
+.ach-kpi-tier[data-tier="silver"] { color: #c0c0c0; }
+.ach-kpi-tier[data-tier="gold"] { color: #ffd700; }
+.ach-kpi-tier[data-tier="platinum"] { color: #b9f2ff; }
+
+/* Next milestone */
+
+.ach-next-milestone {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  border-radius: 20px;
+  border: 1px solid rgba(91, 188, 255, 0.22);
+  background: linear-gradient(135deg, rgba(91, 188, 255, 0.08), rgba(255, 179, 71, 0.06));
+}
+
+.ach-next-badge {
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  opacity: 0.55;
+  filter: grayscale(0.4);
+}
+
+.ach-next-badge img {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
-/* =========================================================
-   BODY SPACING
-========================================================= */
-
-.achievement-card .vessel-body {
-  padding: 18px;
-}
-
-.achievement-card .achievement-photo {
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-/* =========================================================
-   TITLES
-========================================================= */
-
-.achievement-card .achievement-title {
-  margin: 0 0 16px;
-
-  color: #ffffff;
-
-  font-size: 16px;
-  line-height: 1.25;
-  font-weight: 900;
-
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.achievement-card .vessel-title {
-  color: #ffffff;
-
-  line-height: 1.2;
-
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.achievement-card .vessel-title {
-  margin-bottom: 4px;
-
-  font-size: 13px;
-  font-weight: 800;
-}
-
-/* =========================================================
-   DESCRIPTION
-========================================================= */
-
-.achievement-card .achievement-desc,
-.achievement-card .vessel-desc {
-  color: rgba(255,255,255,0.82);
-
-  font-size: 13px;
-  line-height: 1.5;
-  font-weight: 500;
-
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-.achievement-card .achievement-desc {
-  margin-top: 14px;
-  min-height: 48px;
-}
-
-.achievement-card .vessel-desc {
-  min-height: 58px;
-}
-
-/* =========================================================
-   META GRID
-========================================================= */
-
-.achievement-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 14px 18px;
-
-  margin-top: 18px;
-}
-
-.achievement-meta-item {
+.ach-next-copy {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-
   gap: 4px;
-
-  min-width: 0;
 }
 
-.achievement-meta-label {
-  color: #5bbcff;
-
+.ach-next-label {
   font-size: 10px;
-  line-height: 1;
   font-weight: 800;
-
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  color: var(--seav-field-label-color, #5bbcff);
 }
 
-.achievement-meta-value {
-  color: rgba(255,255,255,0.72);
+.ach-next-copy strong {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+}
 
+.ach-next-progress-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.ach-progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.ach-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5bbcff, #ffb347);
+  transition: width 0.35s ease;
+}
+
+.ach-progress-bar--compact {
+  margin-top: 10px;
+}
+
+/* Category tabs */
+
+.ach-toolbar {
+  margin-bottom: 18px;
+}
+
+.ach-category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ach-tab {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.ach-tab:hover {
+  border-color: rgba(91, 188, 255, 0.35);
+  color: #fff;
+}
+
+.ach-tab.is-active {
+  border-color: rgba(255, 179, 71, 0.45);
+  background: rgba(255, 179, 71, 0.14);
+  color: #fff;
+}
+
+/* Trophy grid */
+
+.ach-trophy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.ach-trophy {
+  position: relative;
+  padding: 18px 16px 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.ach-trophy.is-unlocked {
+  border-color: rgba(255, 179, 71, 0.28);
+  background: linear-gradient(180deg, rgba(255, 179, 71, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.ach-trophy.is-unlocked:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(255, 179, 71, 0.12);
+}
+
+.ach-trophy.is-locked {
+  opacity: 0.88;
+}
+
+.ach-trophy-badge-wrap {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 12px;
+  display: grid;
+  place-items: center;
+}
+
+.ach-trophy-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 179, 71, 0.35), transparent 70%);
+  pointer-events: none;
+}
+
+.ach-trophy-badge {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+.ach-trophy.is-locked .ach-trophy-badge {
+  filter: grayscale(0.85) brightness(0.75);
+}
+
+.ach-trophy-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  z-index: 2;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 900;
+  color: #0c1c30;
+  background: #ffb347;
+  box-shadow: 0 4px 12px rgba(255, 179, 71, 0.35);
+}
+
+.ach-trophy-title {
+  margin: 0 0 4px;
+  text-align: center;
+  color: var(--seav-entity-name-color, #fff);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.ach-trophy-category {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--seav-field-label-color, #5bbcff);
+}
+
+.ach-trophy-status--unlocked {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffb347;
+}
+
+.ach-trophy-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.ach-trophy-vessel {
+  color: var(--seav-field-value-color, #fff);
   font-size: 13px;
-  line-height: 1.35;
-  font-weight: 600;
-
-  text-transform: none;
-  letter-spacing: 0;
-
-  word-break: break-word;
+  font-weight: 700;
 }
 
-/* =========================================================
-   FOOTER
-========================================================= */
-
-.achievement-card .vessel-foot {
-  margin-top: 12px;
+.ach-trophy-date {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
 }
 
-/* =========================================================
-   RESPONSIVE
-========================================================= */
+.ach-trophy-story {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.72);
+  text-align: center;
+}
+
+.ach-trophy-hint,
+.ach-trophy-log-hint,
+.ach-trophy-progress-label {
+  margin: 0;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.ach-trophy-log-hint {
+  margin-top: 6px;
+  color: rgba(91, 188, 255, 0.85);
+}
+
+.ach-trophy-progress-label {
+  display: block;
+  margin-top: 6px;
+}
+
+.ach-trophy .seav-actions {
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* Multi-vessel instances */
+
+.ach-instances-details {
+  margin-top: 8px;
+}
+
+.ach-instances-details summary {
+  cursor: pointer;
+  list-style: none;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--seav-field-label-color, #5bbcff);
+  padding: 6px 0;
+}
+
+.ach-instances-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.ach-instance-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ach-instance-row {
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.ach-instance-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.ach-instance-vessel {
+  color: var(--seav-field-value-color, #fff);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ach-instance-date {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+}
+
+.ach-instance-note {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.ach-instance-auto {
+  margin-top: 6px;
+  display: inline-block;
+}
+
+/* Recent feed */
+
+.ach-section-head {
+  margin: 28px 0 14px;
+}
+
+.ach-section-head h3 {
+  margin: 0 0 4px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.ach-section-head p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 12px;
+}
+
+.ach-recent-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ach-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ach-recent-badge {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex: 0 0 40px;
+}
+
+.ach-recent-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ach-recent-copy strong {
+  color: var(--seav-entity-name-color, #fff);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.ach-recent-copy span {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 11px;
+}
+
+.ach-empty {
+  grid-column: 1 / -1;
+  padding: 32px 16px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+}
+
+/* Modal */
+
+.ach-modal-badge-preview .modal-info-value {
+  display: flex;
+  justify-content: center;
+}
+
+.ach-modal-badge {
+  width: 72px;
+  height: 72px;
+}
+
+/* Tier accents on unlocked trophies */
+
+.ach-trophy[data-tier="bronze"].is-unlocked { border-color: rgba(205, 127, 50, 0.35); }
+.ach-trophy[data-tier="silver"].is-unlocked { border-color: rgba(192, 192, 192, 0.35); }
+.ach-trophy[data-tier="gold"].is-unlocked { border-color: rgba(255, 215, 0, 0.38); }
+.ach-trophy[data-tier="platinum"].is-unlocked { border-color: rgba(185, 242, 255, 0.38); }
+
+/* Responsive */
 
 @media (max-width: 900px) {
-  .achievement-shell-head {
+  .ach-shell-head {
+    grid-template-columns: 1fr;
+  }
+
+  .ach-kpi-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .ach-kpi-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ach-trophy-grid {
     grid-template-columns: 1fr;
   }
 }

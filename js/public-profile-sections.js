@@ -1111,9 +1111,11 @@
     const countLabel = `${approved.length} verified highlight${approved.length === 1 ? "" : "s"}`;
 
     const buildHighlightRow = (item, isMoreItem = false) => {
-      const witness = [item.witnessName, item.witnessPosition].filter(Boolean).join(" • ");
+      const vessel = item.vessel ? item.vessel : "";
       const title = item.title || "Achievement";
-      const meta = witness || (item.description ? truncate(item.description, 48) : "");
+      const meta =
+        vessel ||
+        (item.description ? truncate(item.description, 48) : "");
 
       return `
         <article class="public-cv-highlight-row"${isMoreItem ? " data-pp-more-item" : ""}>

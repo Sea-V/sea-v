@@ -3,248 +3,165 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SEA-V Achievements</title>
+  <title>SEA-V • Achievements</title>
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=39" />
+  <link rel="stylesheet" href="styles.css?v=71" />
 
-  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=39"></script>
-  <script src="js/supabase.js?v=39"></script>
-  <script src="js/auth.js?v=39"></script>
-  <script src="js/feedback.js?v=39" defer></script>
-  <script src="js/core.js?v=39" defer></script>
-  <script src="js/seav-upload.js?v=39" defer></script>
-  <script src="js/seav-data.js?v=39" defer></script>
-  <script src="js/seav-badges.js?v=39" defer></script>
-  <script src="js/api-core.js?v=39" defer></script>
-  <script src="js/api-mappers.js?v=39" defer></script>
-  <script src="js/api.js?v=39" defer></script>
-  <script src="js/state.js?v=39" defer></script>
-  <script src="js/achievements-engine.js?v=39" defer></script>
-  <script src="js/badge-unlock.js?v=39" defer></script>
-  <script src="js/achievements.js?v=39" defer></script>
+  <script src="js/seav-config.js?v=71"></script>
+  <script src="js/supabase.js?v=71"></script>
+  <script src="js/auth.js?v=71"></script>
+  <script src="js/feedback.js?v=71" defer></script>
+  <script src="js/core.js?v=71" defer></script>
+  <script src="js/seav-upload.js?v=71" defer></script>
+  <script src="js/seav-data.js?v=71" defer></script>
+  <script src="js/seav-badges.js?v=71" defer></script>
+  <script src="js/api-core.js?v=71" defer></script>
+  <script src="js/api-mappers.js?v=71" defer></script>
+  <script src="js/api.js?v=71" defer></script>
+  <script src="js/state.js?v=71" defer></script>
+  <script src="js/achievements-engine.js?v=71" defer></script>
+  <script src="js/badge-unlock.js?v=71" defer></script>
+  <script src="js/achievements.js?v=71" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
 
-  <!-- Topbar -->
   <div id="topbarMount"></div>
 
   <main class="dash">
 
-    <!-- Sidebar -->
     <div id="sidebarMount"></div>
 
-<!-- Main Content -->
-<section class="dash-content">
+    <section class="dash-content">
 
-  <article class="achievement-shell-card">
+      <article class="ach-shell-card">
 
-    <!-- HEADER -->
-    <div class="achievement-shell-head">
+        <div class="ach-shell-head">
+          <div class="ach-shell-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 4.8l1.9 3.8 4.2.6-3 3 .7 4.2L12 14.8 8.2 16.4l.7-4.2-3-3 4.2-.6L12 4.8Z"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
 
-      <div class="achievement-shell-icon">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M12 4.8l1.9 3.8 4.2.6-3 3 .7 4.2L12 14.8 8.2 16.4l.7-4.2-3-3 4.2-.6L12 4.8Z"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </div>
+          <div class="ach-shell-copy">
+            <h2>Trophy case</h2>
+            <p>
+              Unlock badges as you log sea time, vessels, and milestones — like Strava segments
+              for your yachting career. Auto badges appear when you qualify; log passage and ops
+              moments per vessel whenever you earn them again.
+            </p>
+          </div>
 
-      <div class="achievement-shell-copy">
-        <h2>Achievements</h2>
-
-        <p>
-          Build your SEA-V career record through verified milestones,
-          crossings, qualifications, operational experience, and
-          professional achievements.
-        </p>
-      </div>
-
-      <div class="achievement-shell-actions">
-        <a href="#" class="btn-blue" data-open="achievementModal">
-          Add Achievement
-        </a>
-      </div>
-
-    </div>
-
-    <!-- BODY -->
-    <section class="achievement-section">
-
-      <div class="achievement-section-head">
-        <div>
-          <h3>SEA-V achievement badges</h3>
-          <p>
-            Hover any badge to see the milestone. Earned badges glow in full colour;
-            locked badges show until you qualify or verify the achievement.
-          </p>
+          <div class="ach-shell-actions">
+            <a href="#" class="btn-blue" data-open="achievementModal" id="achOpenModal">
+              Log a milestone
+            </a>
+          </div>
         </div>
-      </div>
 
-      <div class="achievement-badge-gallery" id="achievementBadgeCatalog"></div>
+        <section class="ach-section">
 
-      <div class="achievement-section-head" style="margin-top:28px;">
-        <div>
-          <h3>SEA-V Achievement Record</h3>
+          <div class="ach-kpi-row" id="achKpiRow"></div>
 
-          <p>
-            Achievements are displayed as collectible career milestone cards
-            linked to vessels, operations, sea time, and witness records.
-          </p>
-        </div>
-      </div>
+          <div class="ach-next-milestone" id="achNextMilestone" hidden></div>
 
-      <div
-        class="vessel-grid achievement-grid"
-        id="achievementsList"
-      ></div>
+          <div class="ach-toolbar">
+            <div class="ach-category-tabs" id="achCategoryTabs" role="tablist" aria-label="Badge categories"></div>
+          </div>
+
+          <div class="ach-trophy-grid" id="achTrophyGrid"></div>
+
+          <div class="ach-recent" id="achRecentSection" hidden>
+            <div class="ach-section-head">
+              <h3>Recent unlocks</h3>
+              <p>Your latest milestones — newest first.</p>
+            </div>
+            <div class="ach-recent-feed" id="achRecentFeed"></div>
+          </div>
+
+        </section>
+
+      </article>
 
     </section>
-
-  </article>
-
-</section>
   </main>
 
-  <!-- =========================
-       ACHIEVEMENT MODAL
-  ========================== -->
   <div class="modal" id="achievementModal" hidden>
     <div class="modal-card modal-card--purple">
 
-      <!-- Modal Header -->
       <div class="modal-head">
-        <h3>Add / edit achievement</h3>
+        <h3>Log a milestone</h3>
         <button type="button" class="modal-x" data-close>&times;</button>
       </div>
 
-      <!-- Form -->
       <form class="modal-form" id="achievementForm">
 
         <input type="hidden" id="ach_edit_index" value="" />
 
         <p class="modal-intro">
-          Log milestones and operational achievements with vessel context, witness details,
-          and supporting evidence for your career record.
+          Record a passage, operation, or career moment on a specific vessel. You can earn the
+          same badge again on different yachts — each unlock shows the vessel name in your trophy case.
         </p>
 
-        <!-- Achievement Selection -->
         <label>
-          Achievement
+          Milestone
           <select id="ach_code" required>
-            <option value="">Pick the type of achievement</option>
+            <option value="">Choose a badge to log</option>
           </select>
         </label>
 
-        <!-- Badge Info -->
         <div class="modal-info-box">
-          <span class="modal-info-label">Assigned badge</span>
+          <span class="modal-info-label">Badge</span>
           <span class="modal-info-value" id="achBadgeLabel">
-            Select an achievement to view its assigned badge.
+            Pick a milestone to preview its badge.
           </span>
         </div>
 
-        <div class="modal-info-box">
-          <span class="modal-info-label">Badge artwork</span>
+        <div class="modal-info-box ach-modal-badge-preview">
+          <span class="modal-info-label">Preview</span>
           <div id="achBadgePreview"></div>
         </div>
 
-        <!-- Vessel + Date -->
         <div class="modal-grid2">
-
           <label>
             Vessel
-            <select id="ach_vessel">
-              <option value="">Choose from your vessel list</option>
+            <select id="ach_vessel" required>
+              <option value="">Which yacht was this on?</option>
             </select>
           </label>
 
-          <div data-date-field="ach_date" data-date-label="Date"></div>
-
+          <div data-date-field="ach_date" data-date-label="When"></div>
         </div>
 
-        <!-- Status + Witness Name -->
-        <div class="modal-grid2">
-
-          <label>
-            Status
-            <select id="ach_status">
-              <option value="Draft">Draft</option>
-              <option value="Pending Approval">Pending Approval</option>
-              <option value="Approved">Approved</option>
-              <option value="Declined">Declined</option>
-            </select>
-          </label>
-
-          <label>
-            Witness Name
-            <input type="text" id="ach_witness_name" placeholder="Name of the officer who witnessed this" />
-          </label>
-
-        </div>
-
-        <!-- Witness Details -->
-        <div class="modal-grid2">
-
-          <label>
-            Witness Position
-            <input type="text" id="ach_witness_position" placeholder="Their rank, e.g. Master or Chief Officer" />
-          </label>
-
-          <label>
-            Witness Email
-            <input type="email" id="ach_witness_email" placeholder="Their work email address" />
-          </label>
-
-        </div>
-
-        <!-- CoC -->
         <label>
-          CoC Number
-          <input type="text" id="ach_witness_coc" placeholder="Their certificate of competency number" />
-        </label>
-
-        <!-- Notes -->
-        <label>
-          Supporting notes
+          Your story <span class="muted">(optional)</span>
           <textarea
             id="ach_description"
-            rows="5"
-            placeholder="What happened, your role, and any supporting detail"
+            rows="4"
+            placeholder="Quick note — passage route, your role, or why it mattered"
           ></textarea>
         </label>
 
-        <!-- File -->
         <label>
-          Attachment
+          Photo or document <span class="muted">(optional)</span>
           <input type="file" id="ach_file" accept="image/*,.pdf,.doc,.docx" />
         </label>
 
-        <!-- Info Box -->
-        <div class="modal-info-box">
-          <span class="modal-info-label">Record note</span>
-          <span class="modal-info-value">
-            Auto-awarded badges cannot be edited here. Manual entries support witness verification.
-          </span>
-        </div>
+        <button type="submit" class="btn-blue">Unlock on my profile</button>
 
-        <!-- Submit -->
-        <button type="submit" class="btn-blue">Save achievement</button>
-
-        <p class="modal-footnote">Saved to your SEA-V profile.</p>
+        <p class="modal-footnote">Instant unlock — no approval queue. Shown on your public profile when enabled.</p>
 
       </form>
 
     </div>
   </div>
 
-  <!-- Shared Modals -->
   <div id="sharedModalsMount"></div>
 
 </body>

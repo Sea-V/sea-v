@@ -2,34 +2,17 @@
 (function () {
   "use strict";
 
-  if (!window.Seav) {
-    console.warn("[SEA-V] Seav core not found. Did you include js/core.js before achievements.js?");
+  if (!window.Seav || !window.SeavAPI || !window.SeavData || !window.SeavBadges || !window.SeavState) {
+    console.warn("[SEA-V] Achievements dependencies missing.");
     return;
   }
 
-  if (!window.SeavAPI) {
-    console.warn("[SEA-V] SeavAPI not found. Did you include js/api.js before achievements.js?");
-    return;
-  }
-
-  if (!window.SeavData) {
-    console.warn("[SEA-V] SeavData not found. Did you include js/seav-data.js before achievements.js?");
-    return;
-  }
-
-  if (!window.SeavBadges) {
-    console.warn("[SEA-V] SeavBadges not found. Did you include js/seav-badges.js before achievements.js?");
-    return;
-  }
-
-  if (!window.SeavState) {
-    console.warn("[SEA-V] SeavState not found. Did you include js/state.js before achievements.js?");
-    return;
-  }
-
-  const { KEYS, createId } = window.SeavData;
+  const { KEYS, createId, formatDatePretty } = window.SeavData;
   const { listAchievements, getAchievementWithBadge } = window.SeavBadges;
   const STORAGE_KEY = KEYS.ACHIEVEMENTS;
+
+  const TIER_RANK = { default: 0, bronze: 1, silver: 2, gold: 3, platinum: 4 };
+  let activeCategory = "all";
 
   function getAchievements() {
     return window.SeavState?.achievements || [];
@@ -39,17 +22,59 @@
     return window.SeavState?.vessels || [];
   }
 
-  function formatAchievementDate(date) {
-    return date || "—";
+  function isEarnedRecord(item) {
+    if (!item || item.status === "Declined") return false;
+    return true;
   }
 
-  function getBadgeImageForItem(item) {
-    if (window.SeavBadges?.resolveItemBadgeImage) {
-      return window.SeavBadges.resolveItemBadgeImage(item);
-    }
+  function groupEarnedByCode() {
+    const groups = new Map();
 
-    if (!item.badgeImage && !item.badgeKey) return "";
-    return item.badgeImage || "";
+    getAchievements()
+      .filter(isEarnedRecord)
+      .forEach((item) => {
+        if (!item.code) return;
+        if (!groups.has(item.code)) groups.set(item.code, []);
+        groups.get(item.code).push(item);
+      });
+
+    groups.forEach((items, code) => {
+      items.sort((a, b) => {
+        const da = a.date ? new Date(a.date) : new Date(0);
+        const db = b.date ? new Date(b.date) : new Date(0);
+        return db - da;
+      });
+      groups.set(code, items);
+    });
+
+    return groups;
+  }
+
+  function getUniqueCategories() {
+    const order = [];
+    listAchievements().forEach((definition) => {
+      const cat = definition.category || "Other";
+      if (!order.includes(cat)) order.push(cat);
+    });
+    return order;
+  }
+
+  function formatAchievementDate(date) {
+    if (!date) return "—";
+    return formatDatePretty(date) || date;
+  }
+
+  function getTierRank(tier) {
+    return TIER_RANK[String(tier || "default").toLowerCase()] ?? 0;
+  }
+
+  function getHighestTier(earnedGroups) {
+    let best = "default";
+    earnedGroups.forEach((items) => {
+      const tier = items[0]?.badgeTier || "default";
+      if (getTierRank(tier) > getTierRank(best)) best = tier;
+    });
+    return best;
   }
 
   function populateVesselOptions() {
@@ -57,224 +82,23 @@
     if (!select) return;
 
     const currentValue = select.value;
-    const vessels = getVessels();
-
-    const sorted = [...vessels].sort((a, b) => {
+    const sorted = [...getVessels()].sort((a, b) => {
       const da = a.from ? new Date(a.from) : new Date(0);
       const db = b.from ? new Date(b.from) : new Date(0);
       return db - da;
     });
 
     select.innerHTML = `
-      <option value="">Choose from your vessel list</option>
+      <option value="">Which yacht was this on?</option>
       ${sorted
-        .map((v) => `
-         <option value="${Seav.escapeHtml(v.id || "")}">
-          ${Seav.escapeHtml(v.name || "Unnamed Vessel")}
-         </option>
-       `)
+        .map(
+          (v) =>
+            `<option value="${Seav.escapeHtml(v.id || "")}">${Seav.escapeHtml(v.name || "Unnamed vessel")}</option>`
+        )
         .join("")}
     `;
 
-    if (currentValue) {
-      select.value = currentValue;
-    }
-  }
-
-  function buildBadgeHtml(item) {
-    const badgeImage = getBadgeImageForItem(item);
-    const tier = item.badgeTier || "default";
-    const title = item.title || item.badgeLabel || "Achievement";
-    const locked = item.status !== "Approved";
-
-    if (!badgeImage) {
-      return `<div class="vessel-photo-fallback">No Badge</div>`;
-    }
-
-    return `
-      <div class="seav-badge-wrap tooltip-above ${locked ? "is-locked" : ""}" data-tier="${Seav.escapeHtml(tier)}">
-        <img
-          class="seav-badge"
-          src="${Seav.escapeHtml(badgeImage)}"
-          alt="${Seav.escapeHtml(title)}"
-        />
-        <span class="seav-badge-tooltip">
-          <strong>${Seav.escapeHtml(title)}</strong>
-          <span>${Seav.escapeHtml(item.category || "")}${item.status ? ` • ${Seav.escapeHtml(item.status)}` : ""}</span>
-        </span>
-      </div>
-    `;
-  }
-
-  function buildAchievementCard(item) {
-    const achievementId = item.id || "";
-    const achievementFileUrl = item.attachment?.url || item.attachment?.dataUrl || "";
-    const hasAttachment = !!achievementFileUrl;
-    const badgeHtml = buildBadgeHtml(item);
-
-    const attachmentHtml = hasAttachment
-      ? `
-        <div class="row-actions" style="margin-top:10px;">
-          <a href="${Seav.escapeHtml(achievementFileUrl)}" target="_blank">
-            Attachment
-          </a>
-        </div>
-      `
-      : ``;
-
-    return `
-      <article class="vessel-card achievement-card">
-        <div class="vessel-photo achievement-photo">
-          ${badgeHtml}
-        </div>
-
-        <div class="vessel-body">
-          <h3 class="vessel-title achievement-title">${Seav.escapeHtml(item.title || "Untitled Achievement")}</h3>
-
-          <div class="achievement-meta-grid">
-            <div class="achievement-meta-item">
-              <span class="achievement-meta-label">Category</span>
-              <span class="achievement-meta-value">${Seav.escapeHtml(item.category || "—")}</span>
-            </div>
-
-            <div class="achievement-meta-item">
-              <span class="achievement-meta-label">Vessel</span>
-              <span class="achievement-meta-value">${Seav.escapeHtml(item.vessel || "—")}</span>
-            </div>
-
-            <div class="achievement-meta-item">
-              <span class="achievement-meta-label">Date</span>
-              <span class="achievement-meta-value">${Seav.escapeHtml(formatAchievementDate(item.date))}</span>
-            </div>
-
-            <div class="achievement-meta-item">
-              <span class="achievement-meta-label">Status</span>
-              <span class="achievement-meta-value">${Seav.escapeHtml(item.status || "Draft")}</span>
-            </div>
-
-            <div class="achievement-meta-item">
-              <span class="achievement-meta-label">Witness</span>
-              <span class="achievement-meta-value">${Seav.escapeHtml(item.witnessName || "—")}</span>
-            </div>
-
-            <div class="achievement-meta-item">
-              <span class="achievement-meta-label">Position</span>
-              <span class="achievement-meta-value">${Seav.escapeHtml(item.witnessPosition || "—")}</span>
-            </div>
-
-            <div class="achievement-meta-item">
-              <span class="achievement-meta-label">CoC</span>
-              <span class="achievement-meta-value">${Seav.escapeHtml(item.witnessCocNumber || "—")}</span>
-            </div>
-
-            <div class="achievement-meta-item">
-              <span class="achievement-meta-label">Email</span>
-              <span class="achievement-meta-value">${Seav.escapeHtml(item.witnessEmail || "—")}</span>
-            </div>
-          </div>
-
-          ${
-            item.description
-              ? `<div class="vessel-desc achievement-desc">${Seav.escapeHtml(item.description)}</div>`
-              : `<div class="muted achievement-desc">No supporting notes added.</div>`
-          }
-
-          ${attachmentHtml}
-
-          ${item.autoAwarded ? `` : `
-            ${Seav.seavActions(
-              `${Seav.seavAction(
-                "edit",
-                "Edit",
-                `data-edit-achievement-id="${Seav.escapeHtml(achievementId)}"`
-              )}${Seav.seavAction(
-                "delete",
-                "Delete",
-                `data-del-achievement-id="${Seav.escapeHtml(achievementId)}"`
-              )}`,
-              "seav-actions--compact"
-            )}
-          `}
-          </div>
-      </article>
-    `;
-  }
-
-  function renderAchievementCatalog() {
-    const mount = document.getElementById("achievementBadgeCatalog");
-    if (!mount) return;
-
-    const earnedCodes = new Set(
-      getAchievements()
-        .filter((item) => item.status === "Approved")
-        .map((item) => item.code)
-    );
-
-    const definitions = listAchievements().sort((a, b) => {
-      const cat = String(a.category || "").localeCompare(String(b.category || ""));
-      if (cat !== 0) return cat;
-      return String(a.title || "").localeCompare(String(b.title || ""));
-    });
-
-    mount.innerHTML = definitions
-      .map((definition) => {
-        const full = getAchievementWithBadge(definition.code);
-        const badge = full?.badge;
-        if (!badge) return "";
-
-        const unlocked = earnedCodes.has(definition.code);
-        const imagePath = unlocked
-          ? window.SeavBadges.resolveBadgeImage(definition.badgeKey, true)
-          : window.SeavBadges.resolveBadgeImage(definition.badgeKey, false);
-        const tier = badge.tier || "default";
-
-        return `
-          <div
-            class="seav-badge-wrap tooltip-above ${unlocked ? "" : "is-locked"}"
-            data-tier="${Seav.escapeHtml(tier)}"
-          >
-            <img
-              class="seav-badge"
-              src="${Seav.escapeHtml(imagePath)}"
-              alt="${Seav.escapeHtml(full.title || badge.label)}"
-            />
-            <span class="seav-badge-tooltip">
-              <strong>${Seav.escapeHtml(full.title || badge.label)}</strong>
-              <span>${Seav.escapeHtml(full.category || "")}${unlocked ? " • Earned" : " • Locked"}</span>
-            </span>
-          </div>
-        `;
-      })
-      .join("");
-  }
-
-  function renderAchievements() {
-    const list = document.getElementById("achievementsList");
-    if (!list && !document.getElementById("achievementForm")) return;
-    if (!list) return;
-
-    const items = getAchievements();
-
-    if (!items.length) {
-      list.innerHTML = `
-        <div class="list-row">
-          <div>
-            <div class="list-title">No achievements yet</div>
-            <div class="list-sub">Select official SEA-V achievements and save them to your record.</div>
-          </div>
-          <span class="pill">No Badges</span>
-        </div>
-      `;
-      return;
-    }
-
-    const sorted = [...items].sort((a, b) => {
-      const da = a.date ? new Date(a.date) : new Date(0);
-      const db = b.date ? new Date(b.date) : new Date(0);
-      return db - da;
-    });
-
-    list.innerHTML = sorted.map((item) => buildAchievementCard(item)).join("");
+    if (currentValue) select.value = currentValue;
   }
 
   function populateAchievementOptions() {
@@ -282,13 +106,13 @@
     if (!select) return;
 
     const currentValue = select.value;
-    const achievements = listAchievements().filter((achievement) => {
-  return achievement.approvalRequired === true;
-});
+    const manual = listAchievements()
+      .filter((achievement) => achievement.approvalRequired === true)
+      .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
 
     select.innerHTML = `
-      <option value="">Pick the type of achievement</option>
-      ${achievements
+      <option value="">Choose a badge to log</option>
+      ${manual
         .map(
           (achievement) =>
             `<option value="${Seav.escapeHtml(achievement.code)}">${Seav.escapeHtml(achievement.title)}</option>`
@@ -296,49 +120,319 @@
         .join("")}
     `;
 
-    if (currentValue) {
-      select.value = currentValue;
-    }
+    if (currentValue) select.value = currentValue;
   }
 
   function updateAchievementBadgePreview() {
     const codeEl = document.getElementById("ach_code");
     const labelEl = document.getElementById("achBadgeLabel");
     const previewEl = document.getElementById("achBadgePreview");
-
     if (!codeEl || !labelEl || !previewEl) return;
 
-    const selectedCode = codeEl.value;
-    const definition = selectedCode ? getAchievementWithBadge(selectedCode) : null;
+    const definition = codeEl.value ? getAchievementWithBadge(codeEl.value) : null;
 
     if (!definition) {
-      labelEl.textContent = "Select an achievement to view its assigned badge.";
+      labelEl.textContent = "Pick a milestone to preview its badge.";
       previewEl.innerHTML = `<span class="muted">No badge selected.</span>`;
       return;
     }
 
-    labelEl.textContent = definition.badge?.label || "Assigned badge";
+    labelEl.textContent = definition.badge?.label || definition.title || "Badge";
+    const imagePath = window.SeavBadges.resolveBadgeImage(definition.badgeKey, true);
 
-    if (definition.badge?.image) {
-      const imagePath = definition.badge.image;
-      previewEl.innerHTML = `
-        <div class="seav-badge-wrap" data-tier="${Seav.escapeHtml(definition.badge.tier || "default")}" style="width:72px;height:72px;">
-          <img
-            class="seav-badge"
-            src="${Seav.escapeHtml(imagePath)}"
-            alt="${Seav.escapeHtml(definition.badge.label || "Badge")}"
-          />
+    previewEl.innerHTML = `
+      <div class="seav-badge-wrap ach-modal-badge" data-tier="${Seav.escapeHtml(definition.badge?.tier || "default")}">
+        <img class="seav-badge" src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(definition.title || "")}" />
+      </div>
+    `;
+  }
+
+  function renderKpis(earnedGroups) {
+    const row = document.getElementById("achKpiRow");
+    if (!row) return;
+
+    const definitions = listAchievements();
+    const unlockedCodes = earnedGroups.size;
+    const totalCodes = definitions.length;
+    const totalMoments = [...earnedGroups.values()].reduce((sum, items) => sum + items.length, 0);
+    const highestTier = getHighestTier(earnedGroups);
+    const tierLabel =
+      highestTier === "default" ? "—" : highestTier.charAt(0).toUpperCase() + highestTier.slice(1);
+
+    row.innerHTML = `
+      <div class="ach-kpi-box ach-kpi-box--hero">
+        <div class="ach-kpi-ring" style="--ach-progress: ${totalCodes ? Math.round((unlockedCodes / totalCodes) * 100) : 0}%">
+          <span class="ach-kpi-ring-value">${unlockedCodes}<small>/${totalCodes}</small></span>
         </div>
-      `;
-    } else {
-      previewEl.innerHTML = `
-        <div class="dashboard-info-box" style="padding:10px 12px;">
-          <span class="dashboard-info-value">
-            ${Seav.escapeHtml(definition.badge?.label || "Assigned badge")}
-          </span>
-        </div>
-      `;
+        <div class="ach-kpi-label">Badges unlocked</div>
+      </div>
+      <div class="ach-kpi-box">
+        <div class="kpi-num">${totalMoments}</div>
+        <div class="kpi-label">Total moments</div>
+      </div>
+      <div class="ach-kpi-box">
+        <div class="kpi-num ach-kpi-tier" data-tier="${Seav.escapeHtml(highestTier)}">${Seav.escapeHtml(tierLabel)}</div>
+        <div class="kpi-label">Top tier earned</div>
+      </div>
+      <div class="ach-kpi-box">
+        <div class="kpi-num">${getUniqueCategories().length}</div>
+        <div class="kpi-label">Categories</div>
+      </div>
+    `;
+  }
+
+  function renderNextMilestone(earnedGroups) {
+    const mount = document.getElementById("achNextMilestone");
+    if (!mount) return;
+
+    const next = window.SeavAchievementEngine?.getNextMilestone?.();
+    if (!next) {
+      mount.hidden = true;
+      return;
     }
+
+    const full = getAchievementWithBadge(next.definition.code);
+    const imagePath = window.SeavBadges.resolveBadgeImage(next.definition.badgeKey, false);
+
+    mount.hidden = false;
+    mount.innerHTML = `
+      <div class="ach-next-badge">
+        <img src="${Seav.escapeHtml(imagePath)}" alt="" />
+      </div>
+      <div class="ach-next-copy">
+        <span class="ach-next-label">Next up</span>
+        <strong>${Seav.escapeHtml(full?.title || next.definition.title || "Milestone")}</strong>
+        <span class="ach-next-progress-label">${Seav.escapeHtml(next.progress.label || "")}</span>
+        <div class="ach-progress-bar" role="progressbar" aria-valuenow="${next.progress.percent}" aria-valuemin="0" aria-valuemax="100">
+          <span style="width: ${next.progress.percent}%"></span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCategoryTabs() {
+    const mount = document.getElementById("achCategoryTabs");
+    if (!mount) return;
+
+    const categories = getUniqueCategories();
+
+    mount.innerHTML = `
+      <button type="button" class="ach-tab ${activeCategory === "all" ? "is-active" : ""}" data-ach-category="all">All</button>
+      ${categories
+        .map(
+          (category) =>
+            `<button type="button" class="ach-tab ${activeCategory === category ? "is-active" : ""}" data-ach-category="${Seav.escapeHtml(category)}">${Seav.escapeHtml(category)}</button>`
+        )
+        .join("")}
+    `;
+  }
+
+  function buildInstanceRow(item) {
+    const vesselLabel = item.vessel || "Unknown vessel";
+    const dateLabel = formatAchievementDate(item.date);
+    const canEdit = !item.autoAwarded;
+
+    return `
+      <li class="ach-instance-row">
+        <div class="ach-instance-main">
+          <span class="ach-instance-vessel">${Seav.escapeHtml(vesselLabel)}</span>
+          <span class="ach-instance-date">${Seav.escapeHtml(dateLabel)}</span>
+        </div>
+        ${
+          item.description
+            ? `<p class="ach-instance-note">${Seav.escapeHtml(item.description)}</p>`
+            : ""
+        }
+        ${
+          canEdit
+            ? Seav.seavActions(
+                `${Seav.seavAction("edit", "Edit", `data-edit-achievement-id="${Seav.escapeHtml(item.id || "")}"`)}${Seav.seavAction(
+                  "delete",
+                  "Delete",
+                  `data-del-achievement-id="${Seav.escapeHtml(item.id || "")}"`
+                )}`,
+                "seav-actions--compact"
+              )
+            : `<span class="ach-instance-auto pill pill-neutral">Auto-unlocked</span>`
+        }
+      </li>
+    `;
+  }
+
+  function buildTrophyTile(definition, instances) {
+    const full = getAchievementWithBadge(definition.code);
+    if (!full) return "";
+
+    const unlocked = instances.length > 0;
+    const tier = full.badge?.tier || "default";
+    const imagePath = window.SeavBadges.resolveBadgeImage(definition.badgeKey, unlocked);
+    const progress = window.SeavAchievementEngine?.getProgressForDefinition?.(definition) || {
+      percent: unlocked ? 100 : 0,
+      label: ""
+    };
+
+    const primary = instances[0];
+    const vesselSummary =
+      instances.length === 0
+        ? ""
+        : instances.length === 1
+          ? primary.vessel
+            ? `On ${primary.vessel}`
+            : "Career milestone"
+          : `${instances.length} vessels`;
+
+    const instanceList =
+      instances.length <= 1
+        ? ""
+        : `
+          <details class="ach-instances-details">
+            <summary>${instances.length} unlocks — tap for vessels</summary>
+            <ul class="ach-instance-list">
+              ${instances.map((item) => buildInstanceRow(item)).join("")}
+            </ul>
+          </details>
+        `;
+
+    const singleMeta =
+      instances.length === 1
+        ? `
+          <p class="ach-trophy-meta">
+            ${primary.vessel ? `<span class="ach-trophy-vessel">${Seav.escapeHtml(primary.vessel)}</span>` : ""}
+            <span class="ach-trophy-date">${Seav.escapeHtml(formatAchievementDate(primary.date))}</span>
+          </p>
+          ${
+            primary.description && !primary.autoAwarded
+              ? `<p class="ach-trophy-story">${Seav.escapeHtml(primary.description)}</p>`
+              : ""
+          }
+          ${
+            !primary.autoAwarded
+              ? Seav.seavActions(
+                  `${Seav.seavAction("edit", "Edit", `data-edit-achievement-id="${Seav.escapeHtml(primary.id || "")}"`)}${Seav.seavAction(
+                    "delete",
+                    "Delete",
+                    `data-del-achievement-id="${Seav.escapeHtml(primary.id || "")}"`
+                  )}`,
+                  "seav-actions--compact"
+                )
+              : ""
+          }
+        `
+        : instanceList;
+
+    return `
+      <article
+        class="ach-trophy ${unlocked ? "is-unlocked" : "is-locked"}"
+        data-tier="${Seav.escapeHtml(tier)}"
+        data-category="${Seav.escapeHtml(definition.category || "")}"
+      >
+        <div class="ach-trophy-badge-wrap">
+          ${unlocked ? `<span class="ach-trophy-glow" aria-hidden="true"></span>` : ""}
+          ${instances.length > 1 ? `<span class="ach-trophy-count">×${instances.length}</span>` : ""}
+          <img class="ach-trophy-badge" src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(full.title || "")}" />
+        </div>
+
+        <h4 class="ach-trophy-title">${Seav.escapeHtml(full.title || "")}</h4>
+        <p class="ach-trophy-category">${Seav.escapeHtml(definition.category || "")}</p>
+
+        ${
+          unlocked
+            ? `<p class="ach-trophy-status ach-trophy-status--unlocked">${Seav.escapeHtml(vesselSummary)}</p>${singleMeta}`
+            : `
+              <p class="ach-trophy-hint">${Seav.escapeHtml(full.description || progress.label || "Keep building your record to unlock.")}</p>
+              ${
+                definition.approvalRequired
+                  ? `<p class="ach-trophy-log-hint">Log manually when you earn this on a vessel.</p>`
+                  : `
+                    <div class="ach-progress-bar ach-progress-bar--compact" role="progressbar" aria-valuenow="${progress.percent}" aria-valuemin="0" aria-valuemax="100">
+                      <span style="width: ${progress.percent}%"></span>
+                    </div>
+                    <span class="ach-trophy-progress-label">${Seav.escapeHtml(progress.label || "")}</span>
+                  `
+              }
+            `
+        }
+      </article>
+    `;
+  }
+
+  function renderTrophyCase() {
+    const grid = document.getElementById("achTrophyGrid");
+    if (!grid) return;
+
+    const earnedGroups = groupEarnedByCode();
+    const definitions = listAchievements().sort((a, b) => {
+      const aUnlocked = earnedGroups.has(a.code);
+      const bUnlocked = earnedGroups.has(b.code);
+      if (aUnlocked !== bUnlocked) return aUnlocked ? -1 : 1;
+
+      const cat = String(a.category || "").localeCompare(String(b.category || ""));
+      if (cat !== 0) return cat;
+      return String(a.title || "").localeCompare(String(b.title || ""));
+    });
+
+    const filtered =
+      activeCategory === "all"
+        ? definitions
+        : definitions.filter((definition) => definition.category === activeCategory);
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="ach-empty">No badges in this category yet.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered
+      .map((definition) => buildTrophyTile(definition, earnedGroups.get(definition.code) || []))
+      .join("");
+  }
+
+  function renderRecentFeed() {
+    const section = document.getElementById("achRecentSection");
+    const feed = document.getElementById("achRecentFeed");
+    if (!section || !feed) return;
+
+    const recent = getAchievements()
+      .filter(isEarnedRecord)
+      .sort((a, b) => {
+        const da = a.date ? new Date(a.date) : new Date(a.createdAt || 0);
+        const db = b.date ? new Date(b.date) : new Date(b.createdAt || 0);
+        return db - da;
+      })
+      .slice(0, 8);
+
+    if (!recent.length) {
+      section.hidden = true;
+      return;
+    }
+
+    section.hidden = false;
+    feed.innerHTML = recent
+      .map((item) => {
+        const imagePath =
+          window.SeavBadges.resolveItemBadgeImage({ ...item, status: "Approved" }) ||
+          window.SeavBadges.resolveBadgeImage(item.badgeKey, true);
+
+        return `
+          <article class="ach-recent-item">
+            <img class="ach-recent-badge" src="${Seav.escapeHtml(imagePath)}" alt="" />
+            <div class="ach-recent-copy">
+              <strong>${Seav.escapeHtml(item.title || "Achievement")}</strong>
+              <span>${Seav.escapeHtml(item.vessel || "Career milestone")} · ${Seav.escapeHtml(formatAchievementDate(item.date))}</span>
+            </div>
+            ${item.autoAwarded ? `<span class="pill pill-neutral">Auto</span>` : `<span class="pill pill-valid">Logged</span>`}
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  function renderPage() {
+    const earnedGroups = groupEarnedByCode();
+    renderKpis(earnedGroups);
+    renderNextMilestone(earnedGroups);
+    renderCategoryTabs();
+    renderTrophyCase();
+    renderRecentFeed();
   }
 
   function readAchievementForm() {
@@ -347,11 +441,6 @@
       code: document.getElementById("ach_code")?.value || "",
       vesselId: document.getElementById("ach_vessel")?.value || "",
       date: Seav.readDateTriplet("ach_date"),
-      status: document.getElementById("ach_status")?.value || "Draft",
-      witnessName: document.getElementById("ach_witness_name")?.value.trim() || "",
-      witnessPosition: document.getElementById("ach_witness_position")?.value.trim() || "",
-      witnessEmail: document.getElementById("ach_witness_email")?.value.trim() || "",
-      witnessCocNumber: (document.getElementById("ach_witness_coc")?.value.trim() || "").toUpperCase(),
       description: document.getElementById("ach_description")?.value.trim() || "",
       file: document.getElementById("ach_file")?.files?.[0] || null
     };
@@ -361,21 +450,13 @@
     document.getElementById("ach_code").value = item.code || "";
     document.getElementById("ach_vessel").value = item.vesselId || "";
     Seav.setDateTriplet("ach_date", item.date || "");
-    document.getElementById("ach_status").value = item.status || "Draft";
-    document.getElementById("ach_witness_name").value = item.witnessName || "";
-    document.getElementById("ach_witness_position").value = item.witnessPosition || "";
-    document.getElementById("ach_witness_email").value = item.witnessEmail || "";
-    document.getElementById("ach_witness_coc").value = item.witnessCocNumber || "";
     document.getElementById("ach_description").value = item.description || "";
 
     const editId = document.getElementById("ach_edit_index");
     if (editId) editId.value = item.id || "";
 
     updateAchievementBadgePreview();
-
-    if (window.SeavModals?.openModal) {
-      window.SeavModals.openModal("achievementModal");
-    }
+    window.SeavModals?.openModal?.("achievementModal");
   }
 
   function resetAchievementFormState() {
@@ -390,47 +471,40 @@
   }
 
   async function buildAchievementAttachment(file, existingAttachment, achievementId) {
-    return window.SeavUpload?.uploadToStorage({
-      bucket: "achievement-files",
-      entityId: achievementId,
-      file,
-      existingMeta: existingAttachment,
-      kind: "Achievement"
-    }) ?? existingAttachment ?? null;
-  }
-
-  async function saveAchievementData(item) {
-    await SeavAPI.upsertItemById(STORAGE_KEY, item);
+    return (
+      window.SeavUpload?.uploadToStorage({
+        bucket: "achievement-files",
+        entityId: achievementId,
+        file,
+        existingMeta: existingAttachment,
+        kind: "Achievement"
+      }) ?? existingAttachment ?? null
+    );
   }
 
   function initAchievements() {
-    if (
-      !document.getElementById("achievementsList") &&
-      !document.getElementById("achievementForm")
-    ) return;
+    if (!document.getElementById("achTrophyGrid") && !document.getElementById("achievementForm")) return;
+
+    populateAchievementOptions();
+    populateVesselOptions();
+    updateAchievementBadgePreview();
 
     const runRefresh = () => {
       populateVesselOptions();
-      renderAchievementCatalog();
-      renderAchievements();
+      renderPage();
     };
-
-    populateAchievementOptions();
-    updateAchievementBadgePreview();
 
     Seav.bindStateRefresh(runRefresh, { label: "Achievements refresh" });
 
-    const achievementSelect = document.getElementById("ach_code");
-    if (achievementSelect) {
-      achievementSelect.addEventListener("change", updateAchievementBadgePreview);
-    }
+    document.getElementById("ach_code")?.addEventListener("change", updateAchievementBadgePreview);
 
-    const cocInput = document.getElementById("ach_witness_coc");
-    if (cocInput) {
-      cocInput.addEventListener("input", () => {
-        cocInput.value = cocInput.value.toUpperCase();
-      });
-    }
+    document.getElementById("achCategoryTabs")?.addEventListener("click", (e) => {
+      const tab = e.target.closest("[data-ach-category]");
+      if (!tab) return;
+      activeCategory = tab.getAttribute("data-ach-category") || "all";
+      renderCategoryTabs();
+      renderTrophyCase();
+    });
 
     const form = document.getElementById("achievementForm");
     if (form) {
@@ -438,10 +512,13 @@
         e.preventDefault();
 
         const formData = readAchievementForm();
-        if (!formData.code) return;
+        if (!formData.code) {
+          Seav.notify("error", "Pick a milestone", "Choose which badge you are logging.");
+          return;
+        }
 
-        if (formData.witnessEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.witnessEmail)) {
-          Seav.notify("error", "Invalid email", "Please enter a valid witness email.");
+        if (!formData.vesselId) {
+          Seav.notify("error", "Pick a vessel", "Every milestone needs a yacht — even career-wide badges.");
           return;
         }
 
@@ -453,61 +530,60 @@
           : null;
 
         await Seav.withSaving(async () => {
-        const achievementId = formData.id || createId("achievement");
+          const achievementId = formData.id || createId("achievement");
+          const attachment = await buildAchievementAttachment(
+            formData.file,
+            existingItem?.attachment || null,
+            achievementId
+          );
+          if (formData.file && !attachment) return;
 
-        const attachment = await buildAchievementAttachment(
-          formData.file,
-          existingItem?.attachment || null,
-          achievementId
-        );
-        if (formData.file && !attachment) return;
+          const achievementData = {
+            id: achievementId,
+            code: definition.code,
+            title: definition.title,
+            category: definition.category,
+            dashboardSection: definition.dashboardSection || "",
+            badgeKey: definition.badgeKey,
+            badgeTier: definition.badge?.tier || "",
+            badgeLabel: definition.badge?.label || "",
+            badgeImage: definition.badge?.image || "",
+            badgeLockedImage: definition.badge?.lockedImage || "",
+            badgeFileName: definition.badge?.fileName || "",
+            vesselId: formData.vesselId,
+            vessel: getVessels().find((v) => v.id === formData.vesselId)?.name || "",
+            date: formData.date,
+            status: "Approved",
+            witnessName: "",
+            witnessPosition: "",
+            witnessEmail: "",
+            witnessCocNumber: "",
+            description: formData.description,
+            attachment,
+            autoAwarded: false
+          };
 
-        const achievementData = {
-          id: achievementId,
-          code: definition.code,
-          title: definition.title,
-          category: definition.category,
-          badgeKey: definition.badgeKey,
-          badgeTier: definition.badge?.tier || "",
-          badgeLabel: definition.badge?.label || "",
-          badgeImage: definition.badge?.image || "",
-          badgeLockedImage: definition.badge?.lockedImage || "",
-          badgeFileName: definition.badge?.fileName || "",
-          vesselId: formData.vesselId,
-          vessel: getVessels().find((v) => v.id === formData.vesselId)?.name || "",
-          date: formData.date,
-          status: formData.status,
-          witnessName: formData.witnessName,
-          witnessPosition: formData.witnessPosition,
-          witnessEmail: formData.witnessEmail,
-          witnessCocNumber: formData.witnessCocNumber,
-          description: formData.description,
-          attachment
-        };
+          const isNew = !existingItem;
 
-        const shouldCelebrate =
-          achievementData.status === "Approved" &&
-          (!existingItem || existingItem.status !== "Approved");
+          await SeavAPI.upsertItemById(STORAGE_KEY, achievementData);
 
-        await saveAchievementData(achievementData);
+          resetAchievementFormState();
+          window.SeavModals?.closeAllModals?.();
 
-        resetAchievementFormState();
-        if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
+          Seav.notify("success", "Badge unlocked", `${definition.title} added to your trophy case.`);
 
-        Seav.notify("success", "Achievement recorded", "Career milestone saved to your record.");
+          if (window.Seav.app?.refreshAll) {
+            await window.Seav.app.refreshAll();
+          } else {
+            renderPage();
+          }
 
-        if (window.Seav.app?.refreshAll) {
-          await window.Seav.app.refreshAll();
-        } else {
-          renderAchievements();
-        }
-
-        if (shouldCelebrate) {
-          window.setTimeout(() => {
-            window.SeavBadgeUnlock?.celebrate?.([achievementData]);
-          }, 600);
-        }
-        }, { sub: "Saving achievement" });
+          if (isNew) {
+            window.setTimeout(() => {
+              window.SeavBadgeUnlock?.celebrate?.([achievementData]);
+            }, 500);
+          }
+        }, { sub: "Saving milestone" });
       });
     }
 
@@ -515,12 +591,10 @@
       const editBtn = e.target.closest("[data-edit-achievement-id]");
       if (editBtn) {
         e.preventDefault();
-        const achievementId = editBtn.getAttribute("data-edit-achievement-id");
-        const item = getAchievements().find((entry) => entry.id === achievementId);
-
-        if (item.autoAwarded) return;
-
+        const item = getAchievements().find((entry) => entry.id === editBtn.getAttribute("data-edit-achievement-id"));
+        if (!item || item.autoAwarded) return;
         populateVesselOptions();
+        populateAchievementOptions();
         fillAchievementForm(item);
         return;
       }
@@ -528,31 +602,28 @@
       const delBtn = e.target.closest("[data-del-achievement-id]");
       if (delBtn) {
         e.preventDefault();
+        const achievementId = delBtn.getAttribute("data-del-achievement-id");
+        const item = getAchievements().find((entry) => entry.id === achievementId);
+        if (!item || item.autoAwarded) return;
 
-       const achievementId = delBtn.getAttribute("data-del-achievement-id");
-       const item = getAchievements().find((entry) => entry.id === achievementId);
+        if (
+          !Seav.confirmDelete({
+            itemName: item.title || item.badgeLabel || "",
+            itemLabel: "milestone"
+          })
+        ) {
+          return;
+        }
 
-       if (!item || item.autoAwarded) return;
+        await SeavAPI.deleteItemById(STORAGE_KEY, achievementId);
 
-       if (
-         !Seav.confirmDelete({
-           itemName: item.title || item.badgeLabel || "",
-           itemLabel: "achievement"
-         })
-       ) {
-         return;
-       }
-
-       await SeavAPI.deleteItemById(STORAGE_KEY, achievementId);
-
-       if (window.Seav.app?.refreshAll) {
-         await window.Seav.app.refreshAll();
-       } else {
-         renderAchievements();
-       }
-    }
+        if (window.Seav.app?.refreshAll) {
+          await window.Seav.app.refreshAll();
+        } else {
+          renderPage();
+        }
+      }
     });
-
   }
 
   document.addEventListener("DOMContentLoaded", initAchievements);

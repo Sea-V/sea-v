@@ -191,9 +191,125 @@
     return result;
   }
 
+  function getProgressForDefinition(definition) {
+    if (!definition) {
+      return { current: 0, target: 1, percent: 0, label: "" };
+    }
+
+    const trigger = definition.trigger || { type: "manual" };
+
+    switch (trigger.type) {
+      case "sea_days": {
+        const current = getTotalSeaDays();
+        const target = Number(trigger.minDays || 0);
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} qualifying days`
+        };
+      }
+      case "watchkeeping_days": {
+        const current = getTotalWatchkeepingDays();
+        const target = Number(trigger.minDays || 0);
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} watchkeeping days`
+        };
+      }
+      case "vessel_count": {
+        const current = getVessels().length;
+        const target = Number(trigger.minCount || 0);
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} vessels logged`
+        };
+      }
+      case "vessel_type_count": {
+        const current = getVesselTypeCount();
+        const target = Number(trigger.minCount || 0);
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} vessel types`
+        };
+      }
+      case "vessel_size": {
+        const minMeters = Number(trigger.minMeters || 0);
+        const current = hasLargeVessel(minMeters) ? minMeters : 0;
+        return {
+          current,
+          target: minMeters,
+          percent: hasLargeVessel(minMeters) ? 100 : 0,
+          label: hasLargeVessel(minMeters)
+            ? `50m+ vessel logged`
+            : `Log a ${minMeters}m+ vessel`
+        };
+      }
+      case "vessel_type_match": {
+        const matched = hasVesselType(trigger.value);
+        return {
+          current: matched ? 1 : 0,
+          target: 1,
+          percent: matched ? 100 : 0,
+          label: matched ? "Vessel type matched" : `Log ${trigger.value || "matching"} experience`
+        };
+      }
+      case "tender_count": {
+        const current = getTenders().length;
+        const target = Number(trigger.minCount || 0);
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} tenders logged`
+        };
+      }
+      case "rank_match":
+      case "profile_or_manual": {
+        const met = isTriggerMet(definition);
+        return {
+          current: met ? 1 : 0,
+          target: 1,
+          percent: met ? 100 : 0,
+          label: met ? "Requirement met" : "Update profile or log manually"
+        };
+      }
+      case "manual":
+      default:
+        return {
+          current: 0,
+          target: 1,
+          percent: 0,
+          label: "Log this milestone on a vessel"
+        };
+    }
+  }
+
+  function getNextMilestone() {
+    const earnedCodes = new Set(getAchievements().map((item) => item.code).filter(Boolean));
+    const candidates = listAchievements()
+      .filter((definition) => definition.approvalRequired === false && !earnedCodes.has(definition.code))
+      .map((definition) => ({
+        definition,
+        progress: getProgressForDefinition(definition)
+      }))
+      .filter((entry) => entry.progress.percent > 0 && entry.progress.percent < 100)
+      .sort((a, b) => b.progress.percent - a.progress.percent);
+
+    return candidates[0] || null;
+  }
+
   window.SeavAchievementEngine = {
     evaluateAutomaticAchievements,
-    runAchievementEvaluation
+    runAchievementEvaluation,
+    getProgressForDefinition,
+    getNextMilestone
   };
 
   const ACHIEVEMENT_EVAL_PAGES = new Set([

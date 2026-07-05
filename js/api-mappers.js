@@ -321,7 +321,7 @@ function mapAchievementToSupabase(item) {
     badge_locked_image: item.badgeLockedImage || "",
     vessel_id: item.vesselId || null,
     vessel: item.vessel || "",
-    achievement_date: item.date || "",
+    achievement_date: item.date || null,
     status: item.status || "Draft",
     witness_name: item.witnessName || "",
     witness_position: item.witnessPosition || "",
