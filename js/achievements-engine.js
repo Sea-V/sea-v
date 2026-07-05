@@ -87,6 +87,74 @@
     };
   }
 
+  function getVesselById(vesselId) {
+    if (!vesselId) return null;
+    return getVessels().find((v) => v.id === vesselId) || null;
+  }
+
+  function vesselContextFromSeatimeEntry(entry) {
+    if (!entry?.vesselId) {
+      return { vesselId: "", vessel: "" };
+    }
+    const vessel = getVesselById(entry.vesselId);
+    if (vessel) return vesselContextFromRecord(vessel);
+    return {
+      vesselId: entry.vesselId,
+      vessel: entry.vesselName || entry.vessel || "Linked vessel"
+    };
+  }
+
+  function sortSeatimesChronologically(entries) {
+    return [...entries].sort((a, b) => {
+      const da = a.dateJoined || a.from || a.createdAt || "";
+      const db = b.dateJoined || b.from || b.createdAt || "";
+      return String(da).localeCompare(String(db));
+    });
+  }
+
+  function seatimesWithWatchkeeping() {
+    return sortSeatimesChronologically(
+      getSeatimes().filter((item) => Number(item.watchkeepingDays || 0) > 0)
+    );
+  }
+
+  function seatimesWithSeaDays() {
+    return sortSeatimesChronologically(
+      getSeatimes().filter((item) => totalQualifyingDays(item) > 0)
+    );
+  }
+
+  function seatimeEntryForWatchkeepingThreshold(entries, targetDays) {
+    if (!entries.length) return null;
+    if (targetDays <= 1) return entries[0];
+
+    let cumulative = 0;
+    for (const entry of entries) {
+      cumulative += Number(entry.watchkeepingDays || 0);
+      if (cumulative >= targetDays) return entry;
+    }
+
+    return entries.reduce((best, entry) => {
+      return Number(entry.watchkeepingDays || 0) > Number(best?.watchkeepingDays || 0)
+        ? entry
+        : best;
+    }, entries[0]);
+  }
+
+  function seatimeEntryForSeaDayThreshold(entries, targetDays) {
+    if (!entries.length) return null;
+
+    let cumulative = 0;
+    for (const entry of entries) {
+      cumulative += totalQualifyingDays(entry);
+      if (cumulative >= targetDays) return entry;
+    }
+
+    return entries.reduce((best, entry) => {
+      return totalQualifyingDays(entry) > totalQualifyingDays(best) ? entry : best;
+    }, entries[0]);
+  }
+
   function resolveVesselContext(definition) {
     const trigger = definition.trigger || {};
     const vessels = getVessels().sort((a, b) => {
@@ -96,6 +164,20 @@
     });
 
     switch (trigger.type) {
+      case "watchkeeping_days": {
+        const entries = seatimesWithWatchkeeping();
+        const target = Number(trigger.minDays || 0);
+        return vesselContextFromSeatimeEntry(
+          seatimeEntryForWatchkeepingThreshold(entries, target)
+        );
+      }
+      case "sea_days": {
+        const entries = seatimesWithSeaDays();
+        const target = Number(trigger.minDays || 0);
+        return vesselContextFromSeatimeEntry(
+          seatimeEntryForSeaDayThreshold(entries, target)
+        );
+      }
       case "vessel_count":
       case "vessel_type_count":
         return vesselContextFromRecord(vessels[0] || null);
@@ -154,6 +236,14 @@
     return existing.some((item) => item?.code === code);
   }
 
+  function autoRecordScore(record) {
+    let score = 0;
+    if (record?.vesselId) score += 4;
+    if (record?.vessel) score += 2;
+    if (record?.date) score += 1;
+    return score;
+  }
+
   function buildAutoAchievement(definition) {
     const ctx = resolveVesselContext(definition);
     return {
@@ -206,16 +296,28 @@
             newAchievements.push(buildAutoAchievement(fullDefinition));
           }
         } else {
+          const ctx = resolveVesselContext(definition);
+
           autoRecords.forEach((record) => {
-            const ctx = resolveVesselContext(definition);
-            if (!ctx.vesselId || (record.vesselId && record.vessel)) return;
-            if (!ctx.vesselId) return;
+            if (record.vesselId && record.vessel) return;
+            if (!ctx.vesselId && !ctx.vessel) return;
             refreshAchievements.push({
               ...record,
               vesselId: ctx.vesselId,
               vessel: ctx.vessel
             });
           });
+
+          if (autoRecords.length > 1) {
+            const ranked = [...autoRecords].sort(
+              (a, b) => autoRecordScore(b) - autoRecordScore(a)
+            );
+            ranked.slice(1).forEach((record) => {
+              if (record.id && !removeIds.includes(record.id)) {
+                removeIds.push(record.id);
+              }
+            });
+          }
         }
       } else {
         autoRecords.forEach((record) => {
