@@ -67,44 +67,66 @@
     return marker;
   }
 
+  const WRAP_LNG_OFFSETS = [-360, 0, 360];
+
+  function shiftLatLngsByLng(latlngs, lngOffset) {
+    return latlngs.map(([lat, lng]) => [lat, lng + lngOffset]);
+  }
+
+  function addWrappingPolylines(layerGroup, latlngs, options, onEachLine) {
+    WRAP_LNG_OFFSETS.forEach((offset) => {
+      const line = L.polyline(shiftLatLngsByLng(latlngs, offset), options);
+      if (typeof onEachLine === "function") onEachLine(line, offset);
+      layerGroup.addLayer(line);
+    });
+  }
+
   function buildSavedTrackLine(path) {
     const latlngs = (path.coords || []).map((point) => [point[0], point[1]]);
     if (latlngs.length < 2) return null;
 
     const color = path.color || getVesselColor(path.vesselId);
     const baseOpacity = 0.92;
+    const group = L.layerGroup();
 
-    const halo = L.polyline(latlngs, {
-      color: "#ffffff",
-      weight: 7,
-      opacity: 0.16,
-      lineJoin: "round",
-      lineCap: "round",
-      interactive: false
+    const bindTrackLine = (line) => {
+      line.bindPopup(buildPathPopup(path));
+      line.bindTooltip(
+        `${Seav.escapeHtml(getVesselName(path.vesselId))}: ${Seav.escapeHtml(path.fromPort || "")} → ${Seav.escapeHtml(path.toPort || "")}`,
+        { sticky: true }
+      );
+      line.on("mouseover", () => {
+        line.setStyle({ weight: 5.5, opacity: 1 });
+      });
+      line.on("mouseout", () => {
+        line.setStyle({ weight: 4, opacity: baseOpacity });
+      });
+    };
+
+    WRAP_LNG_OFFSETS.forEach((offset) => {
+      const shifted = shiftLatLngsByLng(latlngs, offset);
+      group.addLayer(
+        L.polyline(shifted, {
+          color: "#ffffff",
+          weight: 7,
+          opacity: 0.16,
+          lineJoin: "round",
+          lineCap: "round",
+          interactive: false
+        })
+      );
+      const line = L.polyline(shifted, {
+        color,
+        weight: 4,
+        opacity: baseOpacity,
+        lineJoin: "round",
+        lineCap: "round"
+      });
+      bindTrackLine(line);
+      group.addLayer(line);
     });
 
-    const line = L.polyline(latlngs, {
-      color,
-      weight: 4,
-      opacity: baseOpacity,
-      lineJoin: "round",
-      lineCap: "round"
-    });
-
-    line.bindPopup(buildPathPopup(path));
-    line.bindTooltip(
-      `${Seav.escapeHtml(getVesselName(path.vesselId))}: ${Seav.escapeHtml(path.fromPort || "")} → ${Seav.escapeHtml(path.toPort || "")}`,
-      { sticky: true }
-    );
-
-    line.on("mouseover", () => {
-      line.setStyle({ weight: 5.5, opacity: 1 });
-    });
-    line.on("mouseout", () => {
-      line.setStyle({ weight: 4, opacity: baseOpacity });
-    });
-
-    return L.layerGroup([halo, line]);
+    return group;
   }
 
   function renderVesselLegend(entries) {
@@ -356,14 +378,11 @@
       return;
     }
 
-    const mapMaxBounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
-
     S.map = L.map(container, {
       center: [MAP_DEFAULT_VIEW.lat, MAP_DEFAULT_VIEW.lng],
       zoom: MAP_DEFAULT_VIEW.zoom,
       minZoom: 2,
-      maxBounds: mapMaxBounds,
-      maxBoundsViscosity: 1,
+      worldCopyJump: true,
       zoomControl: true,
       attributionControl: true,
       preferCanvas: true
@@ -373,8 +392,6 @@
       attribution: MAP_TILE_ATTRIBUTION,
       subdomains: "abcd",
       maxZoom: 18,
-      noWrap: true,
-      bounds: mapMaxBounds,
       keepBuffer: 2,
       updateWhenIdle: true
     }).addTo(S.map);
@@ -431,7 +448,7 @@
   window.SeavNavigationMap = {
     filterEntries, buildMapPoints, collectVisitedCountries, buildNavigationStats,
     renderStats, renderVesselLegend, fitMapToData, formatDateRange, buildPathPopup, buildPointPopup,
-    buildEndpointMarker, buildWaypointMarker, buildSavedTrackLine,
+    buildEndpointMarker, buildWaypointMarker, buildSavedTrackLine, addWrappingPolylines,
     refreshMap, initNavigationMap
   };
 })();

@@ -500,17 +500,20 @@
     if (token !== S.workingRouteToken) return;
     if (!route?.coords?.length || route.coords.length < 2) return;
 
-    const preview = L.polyline(
-      route.coords.map((point) => [point[0], point[1]]),
-      {
-        color: trackColor,
-        weight: 3,
-        opacity: 0.95,
-        dashArray: "8 6",
-        lineJoin: "round"
-      }
-    );
-    S.workingLayer.addLayer(preview);
+    const previewLatLngs = route.coords.map((point) => [point[0], point[1]]);
+    const previewStyle = {
+      color: trackColor,
+      weight: 3,
+      opacity: 0.95,
+      dashArray: "8 6",
+      lineJoin: "round"
+    };
+
+    if (M.addWrappingPolylines) {
+      M.addWrappingPolylines(S.workingLayer, previewLatLngs, previewStyle);
+    } else {
+      S.workingLayer.addLayer(L.polyline(previewLatLngs, previewStyle));
+    }
   }
 
   function addWaypoint(lat, lng, label) {
