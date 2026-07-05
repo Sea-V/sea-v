@@ -1,4 +1,4 @@
-@import url("./css/core/variables.css?v=52");
+@import url("./css/core/variables.css?v=53");
 @import url("./css/core/reset.css");
 @import url("./css/core/layout.css");
 @import url("./css/components/ocean-background.css?v=81");
@@ -29,7 +29,7 @@
    PAGE STYLES
 ========================================= */
 
-@import url("./css/pages/dashboard.css?v=64");
+@import url("./css/pages/dashboard.css?v=65");
 @import url("./css/pages/profile.css");
 @import url("./css/pages/certificates.css");
 @import url("./css/pages/seatime.css");

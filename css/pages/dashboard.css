@@ -16,9 +16,9 @@
 
 .dashboard-shell-card .dash-card {
   border-radius: 30px;
-  border: 1px solid var(--dashboard-card-border);
+  border: 1px solid rgba(91, 188, 255, 0.24);
 
-  background: var(--dashboard-card-bg);
+  background: var(--page-shell-panel);
 
   box-shadow:
     0 20px 48px rgba(0,0,0,0.22);
@@ -729,12 +729,12 @@
   padding: 0;
 
   border-radius: 16px;
-  border: 1px solid rgba(91, 188, 255, 0.24);
+  border: 1px solid rgba(91, 188, 255, 0.18);
 
   background: linear-gradient(
     180deg,
-    rgba(34, 68, 102, 0.92),
-    rgba(26, 54, 86, 0.88)
+    rgba(20,38,61,0.82),
+    rgba(12,28,48,0.76)
   );
 
   box-shadow: 0 8px 18px rgba(0,0,0,0.16);
