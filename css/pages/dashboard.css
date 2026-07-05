@@ -26,14 +26,41 @@
 
 .dashboard-shell-head {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto;
 
   gap: 20px;
-  align-items: center;
+  align-items: start;
 
   padding: 28px;
 
   border-bottom: 1px solid rgba(91, 188, 255, 0.14);
+}
+
+.dashboard-shell-head-actions {
+  justify-self: end;
+  align-self: start;
+  max-width: 240px;
+}
+
+.dashboard-public-toggle {
+  margin: 0;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .dashboard-shell-head {
+    grid-template-columns: auto 1fr;
+  }
+
+  .dashboard-shell-head-actions {
+    grid-column: 1 / -1;
+    justify-self: start;
+    max-width: none;
+  }
+
+  .dashboard-public-toggle {
+    text-align: left;
+  }
 }
 
 .dashboard-shell-icon {

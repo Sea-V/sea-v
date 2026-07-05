@@ -191,8 +191,8 @@
     return (vessels || []).find((v) => v.id === vesselId)?.name || "Unnamed vessel";
   }
 
-  function getPublicVesselColor(vesselId) {
-    return window.SeavData?.getVesselColor?.(vesselId) || "#64748b";
+  function getPublicVesselColor(vesselId, vessels) {
+    return window.SeavData?.getVesselColor?.(vesselId, vessels) || "#64748b";
   }
 
   function buildPublicNavigationStats(entries, vessels) {

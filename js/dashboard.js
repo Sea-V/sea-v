@@ -17,7 +17,12 @@
     return;
   }
 
-  const { DEFAULT_PROFILE, getSeatimeTotals } = window.SeavData;
+  if (!window.SeavAPI) {
+    console.warn("[SEA-V] SeavAPI not found. Did you include js/api.js before dashboard.js?");
+    return;
+  }
+
+  const { DEFAULT_PROFILE, getSeatimeTotals, KEYS } = window.SeavData;
 
   function loadProfile() {
     return {
@@ -114,6 +119,49 @@
     }
 
     updateProfileCompletion(profile);
+    syncDashboardPublicToggle(profile);
+  }
+
+  function syncDashboardPublicToggle(profile) {
+    const checkbox = document.getElementById("dashPublicEnabled");
+    if (!checkbox) return;
+    checkbox.checked = !!(profile || loadProfile()).publicEnabled;
+  }
+
+  function initDashboardPublicToggle() {
+    const checkbox = document.getElementById("dashPublicEnabled");
+    if (!checkbox) return;
+
+    syncDashboardPublicToggle();
+
+    checkbox.addEventListener("change", async () => {
+      const previous = !checkbox.checked;
+      const profile = loadProfile();
+      const updated = { ...profile, publicEnabled: checkbox.checked };
+
+      try {
+        await Seav.withSaving(async () => {
+          await SeavAPI.save(KEYS.PROFILE, updated);
+          if (window.SeavState?.refresh) {
+            await window.SeavState.refresh();
+          } else if (window.SeavState?.data) {
+            window.SeavState.data.profile = updated;
+          }
+        }, { sub: "Updating public profile" });
+
+        Seav.notify(
+          "success",
+          "Public profile updated",
+          updated.publicEnabled
+            ? "Your public profile is visible to anyone with your link."
+            : "Your public profile is hidden."
+        );
+      } catch (err) {
+        checkbox.checked = previous;
+        console.error("[SEA-V] Dashboard public profile toggle failed:", err);
+        Seav.notify("error", "Could not update public profile", err?.message || "Try again.");
+      }
+    });
   }
 
   function profileHasPhoto(profile) {
@@ -248,6 +296,7 @@
       await refresh();
     };
 
+    initDashboardPublicToggle();
     Seav.bindStateRefresh(runRefresh, { label: "Dashboard refresh" });
   }
 

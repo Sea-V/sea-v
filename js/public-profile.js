@@ -198,7 +198,7 @@
             if (title) title.textContent = "Profile not public";
             if (message) {
               message.textContent =
-                "This profile is currently set to private. Ask the seafarer to enable their public profile in SEA-V settings.";
+                "This profile is currently set to private. Ask the seafarer to enable their public profile on the SEA-V dashboard.";
             }
           }
           return;
