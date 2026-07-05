@@ -144,6 +144,19 @@
       }
     });
     if (error) throw error;
+
+    // With email confirmation enabled, Supabase returns a fake user (empty identities)
+    // instead of an error, to avoid email enumeration. Treat that as duplicate signup.
+    if (
+      data.user &&
+      Array.isArray(data.user.identities) &&
+      data.user.identities.length === 0
+    ) {
+      const duplicateErr = new Error("User already registered");
+      duplicateErr.code = "user_already_registered";
+      throw duplicateErr;
+    }
+
     if (data.session) {
       await applySession(client, data.session);
     } else {
@@ -201,8 +214,14 @@
     if (msg.includes("invalid login credentials")) {
       return "Incorrect email or password.";
     }
-    if (msg.includes("user already registered")) {
-      return "An account with this email already exists. Try logging in.";
+    if (
+      msg.includes("user already registered") ||
+      msg.includes("email already") ||
+      msg.includes("already been registered") ||
+      err?.code === "user_already_registered" ||
+      err?.code === "email_exists"
+    ) {
+      return "An account with this email already exists. Log in instead.";
     }
     if (msg.includes("row-level security") || msg.includes("row level security")) {
       return "Profile setup failed (database security policy). Run docs/schema-phase2-auth-trigger.sql in Supabase SQL Editor, then try logging in.";
