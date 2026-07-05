@@ -130,12 +130,6 @@
     return new URL(path, window.location.href).href;
   }
 
-  function resolveDashboardPublicProfilePath() {
-    const profileId = loadProfile().id || window.SeavState?.profile?.id || "";
-    if (!profileId) return "public-profile.html";
-    return `public-profile.html?p=${profileId}`;
-  }
-
   async function copyDashboardPublicProfileLink() {
     const url = resolveDashboardPublicProfileUrl();
 
@@ -150,13 +144,7 @@
     const urlEl = document.getElementById("dashPublicLinkUrl");
     if (urlEl) {
       urlEl.focus();
-      const selection = window.getSelection?.();
-      const range = document.createRange?.();
-      if (selection && range) {
-        range.selectNodeContents(urlEl);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
+      urlEl.select?.();
     }
 
     Seav.notify("info", "Copy manually", "Select the link and copy it.");
@@ -165,23 +153,46 @@
   function syncDashboardPublicPanel(profile) {
     const currentProfile = profile || loadProfile();
     const checkbox = document.getElementById("dashPublicEnabled");
+    const sharePanel = document.getElementById("dashPublicShare");
+    const statusEl = document.getElementById("dashPublicStatus");
+    const hintEl = document.getElementById("dashPublicLinkHint");
     const linkWrap = document.getElementById("dashPublicLinkWrap");
     const urlEl = document.getElementById("dashPublicLinkUrl");
+    const openEl = document.getElementById("dashPublicLinkOpen");
 
     if (checkbox) {
       checkbox.checked = !!currentProfile.publicEnabled;
     }
 
-    if (!linkWrap || !urlEl) return;
-
     const enabled = !!currentProfile.publicEnabled;
     const url = resolveDashboardPublicProfileUrl();
-    const path = resolveDashboardPublicProfilePath();
 
-    linkWrap.hidden = !enabled;
-    urlEl.href = url;
-    urlEl.textContent = path;
-    urlEl.title = url;
+    if (sharePanel) {
+      sharePanel.classList.toggle("is-live", enabled);
+    }
+
+    if (statusEl) {
+      statusEl.textContent = enabled ? "Live" : "Private";
+      statusEl.classList.toggle("is-live", enabled);
+      statusEl.classList.toggle("is-private", !enabled);
+    }
+
+    if (hintEl) {
+      hintEl.hidden = enabled;
+    }
+
+    if (linkWrap) {
+      linkWrap.hidden = !enabled;
+    }
+
+    if (urlEl) {
+      urlEl.value = url;
+      urlEl.title = url;
+    }
+
+    if (openEl) {
+      openEl.href = url;
+    }
   }
 
   function initDashboardPublicToggle() {
