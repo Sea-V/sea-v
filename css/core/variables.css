@@ -14,6 +14,10 @@
   --page-shell-panel: #132238;
   --page-shell-surface: var(--page-shell-panel);
 
+  /* Dashboard inner cards — brighter than shell for contrast (test) */
+  --dashboard-card-bg: #1c3858;
+  --dashboard-card-border: rgba(91, 188, 255, 0.30);
+
   /* App layout */
   --sidebar-width: 280px;
   --dash-layout-gap: 20px;
