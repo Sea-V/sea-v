@@ -58,6 +58,25 @@
   --accent-fuchsia: #e879f9;
 
   /* =========================================================
+     PAGE IDENTITY (sidebar nav + badge section colors)
+     Canonical values: scripts/page-colors.json
+  ========================================================= */
+
+  --page-dashboard: #5bbcff;
+  --page-profile: #42d6b5;
+  --page-seatime: #829eff;
+  --page-vessels: #d6e2ee;
+  --page-tenders: #4cffb8;
+  --page-certificates: #ffd25a;
+  --page-specialist-qualifications: #c4a0ff;
+  --page-achievements: #ffb347;
+  --page-references: #d16bff;
+  --page-navigation: #39e0c4;
+  --page-payslips: #cfa86a;
+  --page-onboard-experience: #ff8fab;
+  --page-hobbies-interests: #e879f9;
+
+  /* =========================================================
      META-GRID CARDS (tenders, references, future list pages)
      Shell uses shared navy gradient; accent border varies by section.
   ========================================================= */

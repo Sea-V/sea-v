@@ -274,6 +274,7 @@
 
     const unlocked = instances.length > 0;
     const tier = full.badge?.tier || "default";
+    const sourcePage = definition.sourcePage || "achievements";
     const imagePath = window.SeavBadges.resolveBadgeImage(definition.badgeKey, unlocked);
     const progress = window.SeavAchievementEngine?.getProgressForDefinition?.(definition) || {
       percent: unlocked ? 100 : 0,
@@ -328,6 +329,7 @@
       <article
         class="ach-trophy ${unlocked ? "is-unlocked" : "is-locked"}"
         data-tier="${Seav.escapeHtml(tier)}"
+        data-source-page="${Seav.escapeHtml(sourcePage)}"
         data-category="${Seav.escapeHtml(definition.category || "")}"
       >
         <div class="ach-trophy-badge-wrap">

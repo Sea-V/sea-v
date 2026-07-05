@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generates SEA-V achievement badges — modern flat-top hex badges.
+ * Generates SEA-V hex badges using sidebar page colors (scripts/page-colors.json).
  * Run: node scripts/generate-badges.mjs
  */
 import fs from "fs";
@@ -9,33 +9,29 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(__dirname, "../img/badges");
+const PAGE_COLORS_PATH = path.join(__dirname, "page-colors.json");
+const PAGE_COLORS_JS = path.join(__dirname, "../js/seav-page-colors.js");
+
+const PAGES = JSON.parse(fs.readFileSync(PAGE_COLORS_PATH, "utf8"));
 
 const CX = 60;
 const CY = 56;
-
-/** Tier border gradients */
-const TIERS = {
-  bronze: { a: "#FDBA74", b: "#C2410C", c: "#FED7AA" },
-  silver: { a: "#E2E8F0", b: "#64748B", c: "#F8FAFC" },
-  gold: { a: "#FDE68A", b: "#D97706", c: "#FFFBEB" },
-  platinum: { a: "#67E8F9", b: "#0891B2", c: "#ECFEFF" },
-  default: { a: "#93C5FD", b: "#2563EB", c: "#EFF6FF" }
-};
-
-/** Category fills + icon accent (icon uses white + dark outline for sharp contrast) */
-const CATEGORIES = {
-  sea: { inner: ["#0C4A6E", "#0369A1"], accent: "#FFFFFF", glow: "#38BDF8" },
-  vessel: { inner: ["#7C2D12", "#C2410C"], accent: "#FFFFFF", glow: "#FB923C" },
-  passage: { inner: ["#581C87", "#7E22CE"], accent: "#FFFFFF", glow: "#C084FC" },
-  ocean: { inner: ["#1E3A8A", "#1D4ED8"], accent: "#FFFFFF", glow: "#60A5FA" },
-  polar: { inner: ["#164E63", "#0891B2"], accent: "#FFFFFF", glow: "#67E8F9" },
-  watch: { inner: ["#312E81", "#4338CA"], accent: "#FFFFFF", glow: "#818CF8" },
-  career: { inner: ["#14532D", "#15803D"], accent: "#FFFFFF", glow: "#4ADE80" },
-  ops: { inner: ["#713F12", "#B45309"], accent: "#FFFFFF", glow: "#FBBF24" },
-  helm: { inner: ["#0F2744", "#D97706"], accent: "#FFFFFF", glow: "#FBBF24" }
-};
-
 const ICON_OUTLINE = "#0F172A";
+const ICON_ACCENT = "#FFFFFF";
+
+/** Tier adjusts the page ring gradient while keeping section hue */
+function tierRing(page, tier) {
+  const r = page.ring;
+  const stops = {
+    bronze: [page.fill[1], r[0], r[1]],
+    silver: r,
+    gold: [r[0], r[1], page.pill],
+    platinum: [r[1], page.sidebar, "#ffffff"],
+    default: r
+  };
+  const [a, b, c] = stops[tier] || stops.default;
+  return { a, b, c };
+}
 
 const ICONS = {
   sea: `
@@ -96,44 +92,38 @@ const ICONS = {
     <path d="M60 58v7M50 63h20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>`
 };
 
+/** page = sidebar section key from scripts/page-colors.json (matches achievement sourcePage) */
 const BADGE_DEFS = [
-  { file: "sea-30-days", tier: "default", main: "30", label: "DAYS AT SEA", cat: "sea" },
-  { file: "sea-100-days", tier: "default", main: "100", label: "DAYS AT SEA", cat: "sea" },
-  { file: "sea-250-days", tier: "silver", main: "250", label: "DAYS AT SEA", cat: "sea" },
-  { file: "sea-500-days", tier: "gold", main: "500", label: "DAYS AT SEA", cat: "sea" },
-  { file: "sea-1-year", tier: "gold", main: "1 YR", label: "SEA TIME", cat: "sea" },
-  { file: "sea-3-years", tier: "platinum", main: "3 YR", label: "SEA TIME", cat: "sea" },
-  { file: "first-vessel-logged", tier: "bronze", main: "1ST", label: "VESSEL", cat: "vessel" },
-  { file: "vessels-3-served", tier: "silver", main: "3", label: "YACHTS", cat: "vessel" },
-  { file: "vessel-types-5", tier: "gold", main: "5", label: "HULL TYPES", cat: "vessel" },
-  { file: "large-yacht-50m", tier: "silver", main: "50m+", label: "SUPERYACHT", cat: "vessel" },
-  { file: "explorer-vessel", tier: "silver", main: "EXP", label: "EXPLORER", cat: "vessel" },
-  { file: "commercial-vessel", tier: "silver", main: "COM", label: "COMMERCIAL", cat: "vessel" },
-  { file: "offshore-100nm", tier: "bronze", main: "100", label: "OFFSHORE NM", cat: "passage" },
-  { file: "passage-500nm", tier: "silver", main: "500", label: "PASSAGE NM", cat: "passage" },
-  { file: "passage-1000nm", tier: "gold", main: "1K", label: "PASSAGE NM", cat: "passage" },
-  { file: "atlantic-crossing", tier: "gold", main: "ATL", label: "CROSSING", cat: "ocean" },
-  { file: "pacific-crossing", tier: "platinum", main: "PAC", label: "CROSSING", cat: "ocean" },
-  { file: "polar-navigation", tier: "platinum", main: "POLAR", label: "NAVIGATION", cat: "polar" },
-  { file: "first-watchkeeping", tier: "bronze", main: "1ST", label: "WATCH", cat: "watch" },
-  { file: "watchkeeping-100-days", tier: "gold", main: "100", label: "BRIDGE DAYS", cat: "watch" },
-  { file: "oow-level", tier: "gold", main: "OOW", label: "DECK OFFICER", cat: "watch" },
-  {
-    file: "bridge-leader",
-    tier: "platinum",
-    main: "LEAD",
-    label: "BRIDGE LEADER",
-    cat: "helm",
-    split: true
-  },
-  { file: "first-promotion", tier: "silver", main: "UP", label: "PROMOTION", cat: "career" },
-  { file: "senior-crew", tier: "gold", main: "SNR", label: "SENIOR CREW", cat: "career" },
-  { file: "officer-rank", tier: "gold", main: "OFC", label: "OFFICER", cat: "career" },
-  { file: "command-experience", tier: "platinum", main: "CMD", label: "COMMAND", cat: "career" },
-  { file: "tender-operations", tier: "silver", main: "TDR", label: "TENDER OPS", cat: "ops" },
-  { file: "watersports-operations", tier: "silver", main: "H2O", label: "WATERSPORTS", cat: "ops" },
-  { file: "crane-operations", tier: "gold", main: "LIFT", label: "CRANE OPS", cat: "ops" },
-  { file: "helicopter-operations", tier: "platinum", main: "HELO", label: "FLIGHT OPS", cat: "ops" }
+  { file: "sea-30-days", tier: "default", main: "30", label: "DAYS AT SEA", cat: "sea", page: "seatime" },
+  { file: "sea-100-days", tier: "default", main: "100", label: "DAYS AT SEA", cat: "sea", page: "seatime" },
+  { file: "sea-250-days", tier: "silver", main: "250", label: "DAYS AT SEA", cat: "sea", page: "seatime" },
+  { file: "sea-500-days", tier: "gold", main: "500", label: "DAYS AT SEA", cat: "sea", page: "seatime" },
+  { file: "sea-1-year", tier: "gold", main: "1 YR", label: "SEA TIME", cat: "sea", page: "seatime" },
+  { file: "sea-3-years", tier: "platinum", main: "3 YR", label: "SEA TIME", cat: "sea", page: "seatime" },
+  { file: "first-vessel-logged", tier: "bronze", main: "1ST", label: "VESSEL", cat: "vessel", page: "vessels" },
+  { file: "vessels-3-served", tier: "silver", main: "3", label: "YACHTS", cat: "vessel", page: "vessels" },
+  { file: "vessel-types-5", tier: "gold", main: "5", label: "HULL TYPES", cat: "vessel", page: "vessels" },
+  { file: "large-yacht-50m", tier: "silver", main: "50m+", label: "SUPERYACHT", cat: "vessel", page: "vessels" },
+  { file: "explorer-vessel", tier: "silver", main: "EXP", label: "EXPLORER", cat: "vessel", page: "vessels" },
+  { file: "commercial-vessel", tier: "silver", main: "COM", label: "COMMERCIAL", cat: "vessel", page: "vessels" },
+  { file: "offshore-100nm", tier: "bronze", main: "100", label: "OFFSHORE NM", cat: "passage", page: "navigation" },
+  { file: "passage-500nm", tier: "silver", main: "500", label: "PASSAGE NM", cat: "passage", page: "navigation" },
+  { file: "passage-1000nm", tier: "gold", main: "1K", label: "PASSAGE NM", cat: "passage", page: "navigation" },
+  { file: "atlantic-crossing", tier: "gold", main: "ATL", label: "CROSSING", cat: "ocean", page: "navigation" },
+  { file: "pacific-crossing", tier: "platinum", main: "PAC", label: "CROSSING", cat: "ocean", page: "navigation" },
+  { file: "polar-navigation", tier: "platinum", main: "POLAR", label: "NAVIGATION", cat: "polar", page: "navigation" },
+  { file: "first-watchkeeping", tier: "bronze", main: "1ST", label: "WATCH", cat: "watch", page: "seatime" },
+  { file: "watchkeeping-100-days", tier: "gold", main: "100", label: "BRIDGE DAYS", cat: "watch", page: "seatime" },
+  { file: "oow-level", tier: "gold", main: "OOW", label: "DECK OFFICER", cat: "watch", page: "certificates" },
+  { file: "bridge-leader", tier: "platinum", main: "LEAD", label: "BRIDGE LEADER", cat: "helm", page: "navigation" },
+  { file: "first-promotion", tier: "silver", main: "UP", label: "PROMOTION", cat: "career", page: "profile" },
+  { file: "senior-crew", tier: "gold", main: "SNR", label: "SENIOR CREW", cat: "career", page: "profile" },
+  { file: "officer-rank", tier: "gold", main: "OFC", label: "OFFICER", cat: "career", page: "profile" },
+  { file: "command-experience", tier: "platinum", main: "CMD", label: "COMMAND", cat: "career", page: "profile" },
+  { file: "tender-operations", tier: "silver", main: "TDR", label: "TENDER OPS", cat: "ops", page: "tenders" },
+  { file: "watersports-operations", tier: "silver", main: "H2O", label: "WATERSPORTS", cat: "ops", page: "onboard-experience" },
+  { file: "crane-operations", tier: "gold", main: "LIFT", label: "CRANE OPS", cat: "ops", page: "specialist-qualifications" },
+  { file: "helicopter-operations", tier: "platinum", main: "HELO", label: "FLIGHT OPS", cat: "ops", page: "specialist-qualifications" }
 ];
 
 function hexPoints(cx, cy, r, startDeg = -90) {
@@ -171,41 +161,30 @@ function vertexTicks(uid) {
     .join("\n    ");
 }
 
-function innerFill(uid, c, split) {
+function innerFill(uid) {
   const clip = hexPath(CX, CY, 40);
-  if (split) {
-    return `
-    <clipPath id="hex-inner-${uid}"><path d="${clip}"/></clipPath>
-    <g clip-path="url(#hex-inner-${uid})">
-      <rect x="0" y="0" width="${CX}" height="120" fill="${c.inner[0]}"/>
-      <rect x="${CX}" y="0" width="${CX}" height="120" fill="${c.inner[1]}"/>
-    </g>`;
-  }
   return `
     <path d="${clip}" fill="url(#disc-${uid})"/>
     <path d="${clip}" fill="url(#shine-${uid})"/>`;
 }
 
-/** Crisp icon: dark offset + white fill with dark outline — no blur filters */
-function renderIcon(icon, accent = "#FFFFFF") {
+function renderIcon(icon) {
   return `
   <g shape-rendering="geometricPrecision">
     <g color="${ICON_OUTLINE}" opacity="0.38" transform="translate(0, 2)">${icon}</g>
-    <g color="${accent}" stroke="${ICON_OUTLINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">${icon}</g>
+    <g color="${ICON_ACCENT}" stroke="${ICON_OUTLINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">${icon}</g>
   </g>`;
 }
 
-function buildSvg({ tier, main, label, cat, split = false, locked = false }) {
-  const t = TIERS[tier] || TIERS.default;
-  const c = CATEGORIES[cat] || CATEGORIES.sea;
+function buildSvg({ tier, main, label, cat, page, locked = false }) {
+  const theme = PAGES[page] || PAGES.seatime;
+  const ring = tierRing(theme, tier);
   const uid = Math.random().toString(36).slice(2, 8);
   const icon = ICONS[cat] || ICONS.sea;
   const mainSize = mainFontSize(main);
   const labelSize = labelFontSize(label);
   const outerHex = hexPath(CX, CY, 50);
   const innerHex = hexPath(CX, CY, 40);
-  const pillFill = split ? c.inner[0] : c.glow;
-  const pillText = split ? "#FDE68A" : "#0F172A";
 
   const lockOverlay = locked
     ? `
@@ -218,19 +197,19 @@ function buildSvg({ tier, main, label, cat, split = false, locked = false }) {
     : "";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" data-source-page="${page}">
   <defs>
     <linearGradient id="ring-${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="${t.a}"/>
-      <stop offset="50%" stop-color="${t.b}"/>
-      <stop offset="100%" stop-color="${t.c}"/>
+      <stop offset="0%" stop-color="${ring.a}"/>
+      <stop offset="50%" stop-color="${ring.b}"/>
+      <stop offset="100%" stop-color="${ring.c}"/>
     </linearGradient>
     <radialGradient id="disc-${uid}" cx="38%" cy="32%" r="68%">
-      <stop offset="0%" stop-color="${c.inner[1]}"/>
-      <stop offset="100%" stop-color="${c.inner[0]}"/>
+      <stop offset="0%" stop-color="${theme.fill[1]}"/>
+      <stop offset="100%" stop-color="${theme.fill[0]}"/>
     </radialGradient>
     <linearGradient id="shine-${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
     <filter id="sh-${uid}" x="-20%" y="-15%" width="140%" height="150%">
@@ -241,29 +220,35 @@ function buildSvg({ tier, main, label, cat, split = false, locked = false }) {
   <g filter="url(#sh-${uid})">
     <path d="${outerHex}" fill="none" stroke="url(#ring-${uid})" stroke-width="5" stroke-linejoin="round"/>
     ${vertexTicks(uid)}
-    ${innerFill(uid, c, split)}
+    ${innerFill(uid)}
     <path d="${innerHex}" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
-  ${renderIcon(icon, c.accent)}
+  ${renderIcon(icon)}
 
   <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
-  <rect x="27" y="83" width="66" height="16" rx="3" fill="${pillFill}" opacity="0.96"/>
+  <rect x="27" y="83" width="66" height="16" rx="3" fill="${theme.pill}" opacity="0.96"/>
   <text x="60" y="94.5" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="${mainSize}" font-weight="800" letter-spacing="0.6"
-    fill="${pillText}">${main}</text>
+    fill="${ICON_OUTLINE}">${main}</text>
 
   <text x="60" y="108" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="${labelSize}" font-weight="700" letter-spacing="0.9"
-    fill="#64748B">${label}</text>
+    fill="${theme.sidebar}">${label}</text>
 
   ${lockOverlay}
 </svg>`;
 }
 
+function syncPageColorsJs() {
+  const body = `/* Auto-generated from scripts/page-colors.json — run scripts/generate-badges.mjs */\nwindow.SeavPageColors = ${JSON.stringify(PAGES, null, 2)};\n`;
+  fs.writeFileSync(PAGE_COLORS_JS, body);
+}
+
 fs.mkdirSync(OUT, { recursive: true });
+syncPageColorsJs();
 
 for (const def of BADGE_DEFS) {
   fs.writeFileSync(path.join(OUT, `${def.file}.svg`), buildSvg(def));
@@ -271,12 +256,12 @@ for (const def of BADGE_DEFS) {
 
 fs.writeFileSync(
   path.join(OUT, "locked.svg"),
-  buildSvg({ tier: "silver", main: "—", label: "LOCKED", cat: "sea", locked: true })
+  buildSvg({ tier: "silver", main: "—", label: "LOCKED", cat: "sea", page: "achievements", locked: true })
 );
 
 fs.writeFileSync(
   path.join(OUT, "default.svg"),
-  buildSvg({ tier: "default", main: "SV", label: "SEA-V CREW", cat: "sea" })
+  buildSvg({ tier: "default", main: "SV", label: "SEA-V CREW", cat: "sea", page: "achievements" })
 );
 
-console.log(`Generated ${BADGE_DEFS.length + 2} hex badges in ${OUT}`);
+console.log(`Generated ${BADGE_DEFS.length + 2} hex badges (page-colored) in ${OUT}`);

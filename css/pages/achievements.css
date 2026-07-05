@@ -559,10 +559,35 @@
 
 /* Tier accents on unlocked trophies */
 
-.ach-trophy[data-tier="bronze"].is-unlocked { border-color: rgba(205, 127, 50, 0.35); }
-.ach-trophy[data-tier="silver"].is-unlocked { border-color: rgba(192, 192, 192, 0.35); }
-.ach-trophy[data-tier="gold"].is-unlocked { border-color: rgba(255, 215, 0, 0.38); }
-.ach-trophy[data-tier="platinum"].is-unlocked { border-color: rgba(185, 242, 255, 0.38); }
+.ach-trophy.is-unlocked[data-source-page="dashboard"] { border-color: color-mix(in srgb, var(--page-dashboard) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="profile"] { border-color: color-mix(in srgb, var(--page-profile) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="seatime"] { border-color: color-mix(in srgb, var(--page-seatime) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="vessels"] { border-color: color-mix(in srgb, var(--page-vessels) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="tenders"] { border-color: color-mix(in srgb, var(--page-tenders) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="certificates"] { border-color: color-mix(in srgb, var(--page-certificates) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="specialist-qualifications"] { border-color: color-mix(in srgb, var(--page-specialist-qualifications) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="achievements"] { border-color: color-mix(in srgb, var(--page-achievements) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="references"] { border-color: color-mix(in srgb, var(--page-references) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="navigation"] { border-color: color-mix(in srgb, var(--page-navigation) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="payslips"] { border-color: color-mix(in srgb, var(--page-payslips) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="onboard-experience"] { border-color: color-mix(in srgb, var(--page-onboard-experience) 38%, transparent); }
+.ach-trophy.is-unlocked[data-source-page="hobbies-interests"] { border-color: color-mix(in srgb, var(--page-hobbies-interests) 38%, transparent); }
+
+.ach-trophy.is-unlocked[data-source-page="seatime"] .ach-trophy-glow {
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--page-seatime) 32%, transparent), transparent 70%);
+}
+
+.ach-trophy.is-unlocked[data-source-page="navigation"] .ach-trophy-glow {
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--page-navigation) 32%, transparent), transparent 70%);
+}
+
+.ach-trophy.is-unlocked[data-source-page="vessels"] .ach-trophy-glow {
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--page-vessels) 32%, transparent), transparent 70%);
+}
+
+.ach-trophy.is-unlocked[data-source-page="profile"] .ach-trophy-glow {
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--page-profile) 32%, transparent), transparent 70%);
+}
 
 /* Responsive */
 

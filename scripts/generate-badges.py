@@ -1,34 +1,22 @@
 #!/usr/bin/env python3
-"""Generate flat-top hex badges. Mirrors scripts/generate-badges.mjs."""
+"""Generate hex badges from scripts/page-colors.json. Mirrors generate-badges.mjs."""
+import json
 import math
 import os
 import random
 import string
 
-OUT = os.path.join(os.path.dirname(__file__), "..", "img", "badges")
+ROOT = os.path.dirname(__file__)
+OUT = os.path.join(ROOT, "..", "img", "badges")
+PAGE_COLORS_PATH = os.path.join(ROOT, "page-colors.json")
+PAGE_COLORS_JS = os.path.join(ROOT, "..", "js", "seav-page-colors.js")
+
+with open(PAGE_COLORS_PATH, encoding="utf-8") as f:
+    PAGES = json.load(f)
+
 CX, CY = 60, 56
-
-TIERS = {
-    "bronze": {"a": "#FDBA74", "b": "#C2410C", "c": "#FED7AA"},
-    "silver": {"a": "#E2E8F0", "b": "#64748B", "c": "#F8FAFC"},
-    "gold": {"a": "#FDE68A", "b": "#D97706", "c": "#FFFBEB"},
-    "platinum": {"a": "#67E8F9", "b": "#0891B2", "c": "#ECFEFF"},
-    "default": {"a": "#93C5FD", "b": "#2563EB", "c": "#EFF6FF"},
-}
-
 ICON_OUTLINE = "#0F172A"
-
-CATEGORIES = {
-    "sea": {"inner": ["#0C4A6E", "#0369A1"], "accent": "#FFFFFF", "glow": "#38BDF8"},
-    "vessel": {"inner": ["#7C2D12", "#C2410C"], "accent": "#FFFFFF", "glow": "#FB923C"},
-    "passage": {"inner": ["#581C87", "#7E22CE"], "accent": "#FFFFFF", "glow": "#C084FC"},
-    "ocean": {"inner": ["#1E3A8A", "#1D4ED8"], "accent": "#FFFFFF", "glow": "#60A5FA"},
-    "polar": {"inner": ["#164E63", "#0891B2"], "accent": "#FFFFFF", "glow": "#67E8F9"},
-    "watch": {"inner": ["#312E81", "#4338CA"], "accent": "#FFFFFF", "glow": "#818CF8"},
-    "career": {"inner": ["#14532D", "#15803D"], "accent": "#FFFFFF", "glow": "#4ADE80"},
-    "ops": {"inner": ["#713F12", "#B45309"], "accent": "#FFFFFF", "glow": "#FBBF24"},
-    "helm": {"inner": ["#0F2744", "#D97706"], "accent": "#FFFFFF", "glow": "#FBBF24"},
-}
+ICON_ACCENT = "#FFFFFF"
 
 ICONS = {
     "sea": """
@@ -90,36 +78,36 @@ ICONS = {
 }
 
 BADGE_DEFS = [
-    ("sea-30-days", "default", "30", "DAYS AT SEA", "sea", False),
-    ("sea-100-days", "default", "100", "DAYS AT SEA", "sea", False),
-    ("sea-250-days", "silver", "250", "DAYS AT SEA", "sea", False),
-    ("sea-500-days", "gold", "500", "DAYS AT SEA", "sea", False),
-    ("sea-1-year", "gold", "1 YR", "SEA TIME", "sea", False),
-    ("sea-3-years", "platinum", "3 YR", "SEA TIME", "sea", False),
-    ("first-vessel-logged", "bronze", "1ST", "VESSEL", "vessel", False),
-    ("vessels-3-served", "silver", "3", "YACHTS", "vessel", False),
-    ("vessel-types-5", "gold", "5", "HULL TYPES", "vessel", False),
-    ("large-yacht-50m", "silver", "50m+", "SUPERYACHT", "vessel", False),
-    ("explorer-vessel", "silver", "EXP", "EXPLORER", "vessel", False),
-    ("commercial-vessel", "silver", "COM", "COMMERCIAL", "vessel", False),
-    ("offshore-100nm", "bronze", "100", "OFFSHORE NM", "passage", False),
-    ("passage-500nm", "silver", "500", "PASSAGE NM", "passage", False),
-    ("passage-1000nm", "gold", "1K", "PASSAGE NM", "passage", False),
-    ("atlantic-crossing", "gold", "ATL", "CROSSING", "ocean", False),
-    ("pacific-crossing", "platinum", "PAC", "CROSSING", "ocean", False),
-    ("polar-navigation", "platinum", "POLAR", "NAVIGATION", "polar", False),
-    ("first-watchkeeping", "bronze", "1ST", "WATCH", "watch", False),
-    ("watchkeeping-100-days", "gold", "100", "BRIDGE DAYS", "watch", False),
-    ("oow-level", "gold", "OOW", "DECK OFFICER", "watch", False),
-    ("bridge-leader", "platinum", "LEAD", "BRIDGE LEADER", "helm", True),
-    ("first-promotion", "silver", "UP", "PROMOTION", "career", False),
-    ("senior-crew", "gold", "SNR", "SENIOR CREW", "career", False),
-    ("officer-rank", "gold", "OFC", "OFFICER", "career", False),
-    ("command-experience", "platinum", "CMD", "COMMAND", "career", False),
-    ("tender-operations", "silver", "TDR", "TENDER OPS", "ops", False),
-    ("watersports-operations", "silver", "H2O", "WATERSPORTS", "ops", False),
-    ("crane-operations", "gold", "LIFT", "CRANE OPS", "ops", False),
-    ("helicopter-operations", "platinum", "HELO", "FLIGHT OPS", "ops", False),
+    ("sea-30-days", "default", "30", "DAYS AT SEA", "sea", "seatime"),
+    ("sea-100-days", "default", "100", "DAYS AT SEA", "sea", "seatime"),
+    ("sea-250-days", "silver", "250", "DAYS AT SEA", "sea", "seatime"),
+    ("sea-500-days", "gold", "500", "DAYS AT SEA", "sea", "seatime"),
+    ("sea-1-year", "gold", "1 YR", "SEA TIME", "sea", "seatime"),
+    ("sea-3-years", "platinum", "3 YR", "SEA TIME", "sea", "seatime"),
+    ("first-vessel-logged", "bronze", "1ST", "VESSEL", "vessel", "vessels"),
+    ("vessels-3-served", "silver", "3", "YACHTS", "vessel", "vessels"),
+    ("vessel-types-5", "gold", "5", "HULL TYPES", "vessel", "vessels"),
+    ("large-yacht-50m", "silver", "50m+", "SUPERYACHT", "vessel", "vessels"),
+    ("explorer-vessel", "silver", "EXP", "EXPLORER", "vessel", "vessels"),
+    ("commercial-vessel", "silver", "COM", "COMMERCIAL", "vessel", "vessels"),
+    ("offshore-100nm", "bronze", "100", "OFFSHORE NM", "passage", "navigation"),
+    ("passage-500nm", "silver", "500", "PASSAGE NM", "passage", "navigation"),
+    ("passage-1000nm", "gold", "1K", "PASSAGE NM", "passage", "navigation"),
+    ("atlantic-crossing", "gold", "ATL", "CROSSING", "ocean", "navigation"),
+    ("pacific-crossing", "platinum", "PAC", "CROSSING", "ocean", "navigation"),
+    ("polar-navigation", "platinum", "POLAR", "NAVIGATION", "polar", "navigation"),
+    ("first-watchkeeping", "bronze", "1ST", "WATCH", "watch", "seatime"),
+    ("watchkeeping-100-days", "gold", "100", "BRIDGE DAYS", "watch", "seatime"),
+    ("oow-level", "gold", "OOW", "DECK OFFICER", "watch", "certificates"),
+    ("bridge-leader", "platinum", "LEAD", "BRIDGE LEADER", "helm", "navigation"),
+    ("first-promotion", "silver", "UP", "PROMOTION", "career", "profile"),
+    ("senior-crew", "gold", "SNR", "SENIOR CREW", "career", "profile"),
+    ("officer-rank", "gold", "OFC", "OFFICER", "career", "profile"),
+    ("command-experience", "platinum", "CMD", "COMMAND", "career", "profile"),
+    ("tender-operations", "silver", "TDR", "TENDER OPS", "ops", "tenders"),
+    ("watersports-operations", "silver", "H2O", "WATERSPORTS", "ops", "onboard-experience"),
+    ("crane-operations", "gold", "LIFT", "CRANE OPS", "ops", "specialist-qualifications"),
+    ("helicopter-operations", "platinum", "HELO", "FLIGHT OPS", "ops", "specialist-qualifications"),
 ]
 
 
@@ -127,12 +115,24 @@ def uid():
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
 
 
+def tier_ring(page, tier):
+    r = page["ring"]
+    stops = {
+        "bronze": [page["fill"][1], r[0], r[1]],
+        "silver": r,
+        "gold": [r[0], r[1], page["pill"]],
+        "platinum": [r[1], page["sidebar"], "#ffffff"],
+        "default": r,
+    }
+    a, b, c = stops.get(tier, stops["default"])
+    return a, b, c
+
+
 def hex_points(cx, cy, r, start_deg=-90):
-    pts = []
-    for i in range(6):
-        a = math.radians(start_deg + i * 60)
-        pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
-    return pts
+    return [
+        (cx + r * math.cos(math.radians(start_deg + i * 60)), cy + r * math.sin(math.radians(start_deg + i * 60)))
+        for i in range(6)
+    ]
 
 
 def hex_path(cx, cy, r, start_deg=-90):
@@ -168,39 +168,24 @@ def vertex_ticks(u):
     return "\n".join(lines)
 
 
-def inner_fill(u, c, split):
-    clip = hex_path(CX, CY, 40)
-    if split:
-        return f"""
-    <clipPath id="hex-inner-{u}"><path d="{clip}"/></clipPath>
-    <g clip-path="url(#hex-inner-{u})">
-      <rect x="0" y="0" width="{CX}" height="120" fill="{c['inner'][0]}"/>
-      <rect x="{CX}" y="0" width="{CX}" height="120" fill="{c['inner'][1]}"/>
-    </g>"""
-    return f"""
-    <path d="{clip}" fill="url(#disc-{u})"/>
-    <path d="{clip}" fill="url(#shine-{u})"/>"""
-
-
-def render_icon(icon, accent="#FFFFFF"):
+def render_icon(icon):
     return f"""
   <g shape-rendering="geometricPrecision">
     <g color="{ICON_OUTLINE}" opacity="0.38" transform="translate(0, 2)">{icon}</g>
-    <g color="{accent}" stroke="{ICON_OUTLINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">{icon}</g>
+    <g color="{ICON_ACCENT}" stroke="{ICON_OUTLINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">{icon}</g>
   </g>"""
 
 
-def build_svg(tier, main, label, cat, split=False, locked=False):
-    t = TIERS.get(tier, TIERS["default"])
-    c = CATEGORIES.get(cat, CATEGORIES["sea"])
+def build_svg(tier, main, label, cat, page, locked=False):
+    theme = PAGES.get(page, PAGES["seatime"])
+    ra, rb, rc = tier_ring(theme, tier)
     u = uid()
     icon = ICONS.get(cat, ICONS["sea"])
     main_size = main_font_size(main)
     label_size = label_font_size(label)
     outer_hex = hex_path(CX, CY, 50)
     inner_hex = hex_path(CX, CY, 40)
-    pill_fill = c["inner"][0] if split else c["glow"]
-    pill_text = "#FDE68A" if split else "#0F172A"
+    clip = hex_path(CX, CY, 40)
     lock = ""
     if locked:
         lock = f"""
@@ -211,19 +196,19 @@ def build_svg(tier, main, label, cat, split=False, locked=False):
     <path d="M-14 -2h28"/>
   </g>"""
     return f"""<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" data-source-page="{page}">
   <defs>
     <linearGradient id="ring-{u}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="{t['a']}"/>
-      <stop offset="50%" stop-color="{t['b']}"/>
-      <stop offset="100%" stop-color="{t['c']}"/>
+      <stop offset="0%" stop-color="{ra}"/>
+      <stop offset="50%" stop-color="{rb}"/>
+      <stop offset="100%" stop-color="{rc}"/>
     </linearGradient>
     <radialGradient id="disc-{u}" cx="38%" cy="32%" r="68%">
-      <stop offset="0%" stop-color="{c['inner'][1]}"/>
-      <stop offset="100%" stop-color="{c['inner'][0]}"/>
+      <stop offset="0%" stop-color="{theme['fill'][1]}"/>
+      <stop offset="100%" stop-color="{theme['fill'][0]}"/>
     </radialGradient>
     <linearGradient id="shine-{u}" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
     <filter id="sh-{u}" x="-20%" y="-15%" width="140%" height="150%">
@@ -234,38 +219,49 @@ def build_svg(tier, main, label, cat, split=False, locked=False):
   <g filter="url(#sh-{u})">
     <path d="{outer_hex}" fill="none" stroke="url(#ring-{u})" stroke-width="5" stroke-linejoin="round"/>
 {vertex_ticks(u)}
-{inner_fill(u, c, split)}
+    <path d="{clip}" fill="url(#disc-{u})"/>
+    <path d="{clip}" fill="url(#shine-{u})"/>
     <path d="{inner_hex}" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
-{render_icon(icon, c['accent'])}
+{render_icon(icon)}
 
   <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
-  <rect x="27" y="83" width="66" height="16" rx="3" fill="{pill_fill}" opacity="0.96"/>
+  <rect x="27" y="83" width="66" height="16" rx="3" fill="{theme['pill']}" opacity="0.96"/>
   <text x="60" y="94.5" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="{main_size}" font-weight="800" letter-spacing="0.6"
-    fill="{pill_text}">{main}</text>
+    fill="{ICON_OUTLINE}">{main}</text>
 
   <text x="60" y="108" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="{label_size}" font-weight="700" letter-spacing="0.9"
-    fill="#64748B">{label}</text>
+    fill="{theme['sidebar']}">{label}</text>
 
   {lock}
 </svg>"""
 
 
+def sync_page_colors_js():
+    body = (
+        "/* Auto-generated from scripts/page-colors.json — run scripts/generate-badges.py */\n"
+        f"window.SeavPageColors = {json.dumps(PAGES, indent=2)};\n"
+    )
+    with open(PAGE_COLORS_JS, "w", encoding="utf-8") as f:
+        f.write(body)
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
-    for file, tier, main, label, cat, split in BADGE_DEFS:
+    sync_page_colors_js()
+    for file, tier, main, label, cat, page in BADGE_DEFS:
         with open(os.path.join(OUT, f"{file}.svg"), "w", encoding="utf-8") as f:
-            f.write(build_svg(tier, main, label, cat, split))
+            f.write(build_svg(tier, main, label, cat, page))
     with open(os.path.join(OUT, "locked.svg"), "w", encoding="utf-8") as f:
-        f.write(build_svg("silver", "—", "LOCKED", "sea", locked=True))
+        f.write(build_svg("silver", "—", "LOCKED", "sea", "achievements", locked=True))
     with open(os.path.join(OUT, "default.svg"), "w", encoding="utf-8") as f:
-        f.write(build_svg("default", "SV", "SEA-V CREW", "sea"))
-    print(f"Generated {len(BADGE_DEFS) + 2} hex badges in {OUT}")
+        f.write(build_svg("default", "SV", "SEA-V CREW", "sea", "achievements"))
+    print(f"Generated {len(BADGE_DEFS) + 2} page-colored hex badges in {OUT}")
 
 
 if __name__ == "__main__":

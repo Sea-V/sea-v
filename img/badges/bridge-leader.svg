@@ -1,38 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" data-source-page="navigation">
   <defs>
-    <linearGradient id="ring-p2mgn5" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#67E8F9"/>
-      <stop offset="50%" stop-color="#0891B2"/>
-      <stop offset="100%" stop-color="#ECFEFF"/>
+    <linearGradient id="ring-iq7ptt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#39e0c4"/>
+      <stop offset="50%" stop-color="#39e0c4"/>
+      <stop offset="100%" stop-color="#ffffff"/>
     </linearGradient>
-    <radialGradient id="disc-p2mgn5" cx="38%" cy="32%" r="68%">
-      <stop offset="0%" stop-color="#D97706"/>
-      <stop offset="100%" stop-color="#0F2744"/>
+    <radialGradient id="disc-iq7ptt" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#1a9a87"/>
+      <stop offset="100%" stop-color="#126b5e"/>
     </radialGradient>
-    <linearGradient id="shine-p2mgn5" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
+    <linearGradient id="shine-iq7ptt" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-p2mgn5" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-iq7ptt" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-p2mgn5)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-p2mgn5)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-p2mgn5)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-p2mgn5)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-p2mgn5)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-p2mgn5)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-p2mgn5)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-p2mgn5)" stroke-width="2.4" stroke-linecap="round"/>
-
-    <clipPath id="hex-inner-p2mgn5"><path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z"/></clipPath>
-    <g clip-path="url(#hex-inner-p2mgn5)">
-      <rect x="0" y="0" width="60" height="120" fill="#0F2744"/>
-      <rect x="60" y="0" width="60" height="120" fill="#D97706"/>
-    </g>
+  <g filter="url(#sh-iq7ptt)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-iq7ptt)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-iq7ptt)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-iq7ptt)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-iq7ptt)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-iq7ptt)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-iq7ptt)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-iq7ptt)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-iq7ptt)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-iq7ptt)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
@@ -79,16 +75,16 @@
   </g>
 
   <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
-  <rect x="27" y="83" width="66" height="16" rx="3" fill="#0F2744" opacity="0.96"/>
+  <rect x="27" y="83" width="66" height="16" rx="3" fill="#39e0c4" opacity="0.96"/>
   <text x="60" y="94.5" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="12" font-weight="800" letter-spacing="0.6"
-    fill="#FDE68A">LEAD</text>
+    fill="#0F172A">LEAD</text>
 
   <text x="60" y="108" text-anchor="middle"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     font-size="5.2" font-weight="700" letter-spacing="0.9"
-    fill="#64748B">BRIDGE LEADER</text>
+    fill="#39e0c4">BRIDGE LEADER</text>
 
   
 </svg>

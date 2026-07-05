@@ -514,20 +514,20 @@ body.app-page::before {
   stroke: currentColor;
 }
 
-/* Page identity colors */
-.dash-link[href="dashboard.html"] { color: #5bbcff; }
-.dash-link[href="profile.html"] { color: #42d6b5; }
-.dash-link[href="seatime.html"] { color: #829eff; }
-.dash-link[href="vessels.html"] { color: #d6e2ee; }
-.dash-link[href="tenders.html"] { color: #4cffb8; }
-.dash-link[href="certificates.html"] { color: #ffd25a; }
-.dash-link[href="specialist-qualifications.html"] { color: #c4a0ff; }
-.dash-link[href="achievements.html"] { color: #ffb347; }
-.dash-link[href="references.html"] { color: #d16bff; }
-.dash-link[href="navigation.html"] { color: #39e0c4; }
-.dash-link[href="payslips.html"] { color: #cfa86a; }
-.dash-link[href="onboard-experience.html"] { color: #ff8fab; }
-.dash-link[href="hobbies-interests.html"] { color: #e879f9; }
+/* Page identity colors — sync with scripts/page-colors.json */
+.dash-link[href="dashboard.html"] { color: var(--page-dashboard); }
+.dash-link[href="profile.html"] { color: var(--page-profile); }
+.dash-link[href="seatime.html"] { color: var(--page-seatime); }
+.dash-link[href="vessels.html"] { color: var(--page-vessels); }
+.dash-link[href="tenders.html"] { color: var(--page-tenders); }
+.dash-link[href="certificates.html"] { color: var(--page-certificates); }
+.dash-link[href="specialist-qualifications.html"] { color: var(--page-specialist-qualifications); }
+.dash-link[href="achievements.html"] { color: var(--page-achievements); }
+.dash-link[href="references.html"] { color: var(--page-references); }
+.dash-link[href="navigation.html"] { color: var(--page-navigation); }
+.dash-link[href="payslips.html"] { color: var(--page-payslips); }
+.dash-link[href="onboard-experience.html"] { color: var(--page-onboard-experience); }
+.dash-link[href="hobbies-interests.html"] { color: var(--page-hobbies-interests); }
 
 .dash-link span:last-child {
   color: rgba(255,255,255,0.78);
