@@ -1,28 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <filter id="sh-i9nb9o" x="-15%" y="-10%" width="130%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#263238" flood-opacity="0.22"/>
+    <linearGradient id="ring-n9ypqq" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67E8F9"/>
+      <stop offset="50%" stop-color="#0891B2"/>
+      <stop offset="100%" stop-color="#ECFEFF"/>
+    </linearGradient>
+    <radialGradient id="disc-n9ypqq" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#1D4ED8"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </radialGradient>
+    <linearGradient id="shine-n9ypqq" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.28"/>
+      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="sh-n9ypqq" x="-20%" y="-15%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
+    </filter>
+    <filter id="glow-n9ypqq" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <g filter="url(#sh-i9nb9o)">
-    <path d="M24 38 L60 18 L96 38 L60 48 Z" fill="#4DD0E1"/>
-    <g color="#E0F7FA"><path d="M30 38L48 22L62 34L78 18L90 38Z" fill="currentColor" opacity="0.85"/></g>
-    <path d="M24 38 L60 48 L60 98 L24 78 Z" fill="#37474F"/>
-    <path d="M60 48 L96 38 L96 78 L60 98 Z" fill="#00ACC1"/>
-    <path d="M24 38 L60 18 L96 38" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.2"/>
-    <path d="M60 48 L60 98" fill="none" stroke="#000000" stroke-opacity="0.12" stroke-width="1"/>
+
+  <ellipse cx="60" cy="108" rx="28" ry="5" fill="#0F172A" opacity="0.12"/>
+
+  <g filter="url(#sh-n9ypqq)">
+    <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ring-n9ypqq)" stroke-width="5.5"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-n9ypqq)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="88.21" y1="21.17" x2="90.56" y2="17.93" stroke="url(#ring-n9ypqq)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="105.65" y1="45.17" x2="109.45" y2="43.93" stroke="url(#ring-n9ypqq)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="105.65" y1="74.83" x2="109.45" y2="76.07" stroke="url(#ring-n9ypqq)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="88.21" y1="98.83" x2="90.56" y2="102.07" stroke="url(#ring-n9ypqq)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="60.00" y1="108.00" x2="60.00" y2="112.00" stroke="url(#ring-n9ypqq)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="31.79" y1="98.83" x2="29.44" y2="102.07" stroke="url(#ring-n9ypqq)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="14.35" y1="74.83" x2="10.55" y2="76.07" stroke="url(#ring-n9ypqq)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="14.35" y1="45.17" x2="10.55" y2="43.93" stroke="url(#ring-n9ypqq)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="31.79" y1="21.17" x2="29.44" y2="17.93" stroke="url(#ring-n9ypqq)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <circle cx="60" cy="60" r="42" fill="url(#disc-n9ypqq)"/>
+    <circle cx="60" cy="60" r="42" fill="url(#shine-n9ypqq)"/>
+    <circle cx="60" cy="60" r="42" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
-  <text x="36" y="62" transform="rotate(-90 36 62)" text-anchor="middle"
-    font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="800"
-    letter-spacing="1.2" fill="#FFFFFF" opacity="0.92">OCEAN</text>
-  <text x="36" y="74" transform="rotate(-90 36 74)" text-anchor="middle"
-    font-family="Arial,Helvetica,sans-serif" font-size="6.5" font-weight="700"
-    letter-spacing="0.8" fill="#FFFFFF" opacity="0.65">XING</text>
-  <text x="78" y="66" text-anchor="middle"
-    font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="900"
-    fill="#FFFFFF">PAC</text>
-  <path d="M60 100 L54 106 L60 112 L66 106 Z" fill="#FFFFFF" opacity="0.92"/>
-  <path d="M60 104 L57 107 L63 107 Z" fill="#00ACC1"/>
+
+  <g color="#FDE68A" filter="url(#glow-n9ypqq)" transform="translate(0,-2)">
+    
+    <circle cx="60" cy="48" r="18" stroke="currentColor" stroke-width="2" fill="none" opacity="0.35"/>
+    <path d="M42 48c6-10 14-10 18 0s14 10 18 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M48 56h24l-4-8H52l-4 8z" fill="currentColor"/>
+  </g>
+
+  <rect x="28" y="82" width="64" height="18" rx="9" fill="#0F172A" opacity="0.82"/>
+  <rect x="29" y="83" width="62" height="16" rx="8" fill="#60A5FA" opacity="0.95"/>
+  <text x="60" y="94.5" text-anchor="middle"
+    font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="13" font-weight="800" letter-spacing="0.6"
+    fill="#0F172A">PAC</text>
+
+  <text x="60" y="108" text-anchor="middle"
+    font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="5.8" font-weight="700" letter-spacing="0.9"
+    fill="#64748B">CROSSING</text>
+
+  <circle cx="60" cy="22" r="4" fill="url(#ring-n9ypqq)"/>
+  <path d="M60 18 L57 24 L63 24 Z" fill="#FFFFFF" opacity="0.9"/>
+
   
 </svg>

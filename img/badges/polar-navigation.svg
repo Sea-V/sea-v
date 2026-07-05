@@ -1,28 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <filter id="sh-s88tkq" x="-15%" y="-10%" width="130%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#263238" flood-opacity="0.22"/>
+    <linearGradient id="ring-e0aadd" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67E8F9"/>
+      <stop offset="50%" stop-color="#0891B2"/>
+      <stop offset="100%" stop-color="#ECFEFF"/>
+    </linearGradient>
+    <radialGradient id="disc-e0aadd" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#0891B2"/>
+      <stop offset="100%" stop-color="#164E63"/>
+    </radialGradient>
+    <linearGradient id="shine-e0aadd" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.28"/>
+      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="sh-e0aadd" x="-20%" y="-15%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
+    </filter>
+    <filter id="glow-e0aadd" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <g filter="url(#sh-s88tkq)">
-    <path d="M24 38 L60 18 L96 38 L60 48 Z" fill="#4DD0E1"/>
-    <g color="#E0F7FA"><path d="M48 20L52 34H68L56 42L60 56L48 42L36 34H52Z" fill="currentColor" opacity="0.9"/></g>
-    <path d="M24 38 L60 48 L60 98 L24 78 Z" fill="#37474F"/>
-    <path d="M60 48 L96 38 L96 78 L60 98 Z" fill="#00ACC1"/>
-    <path d="M24 38 L60 18 L96 38" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.2"/>
-    <path d="M60 48 L60 98" fill="none" stroke="#000000" stroke-opacity="0.12" stroke-width="1"/>
+
+  <ellipse cx="60" cy="108" rx="28" ry="5" fill="#0F172A" opacity="0.12"/>
+
+  <g filter="url(#sh-e0aadd)">
+    <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ring-e0aadd)" stroke-width="5.5"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-e0aadd)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="88.21" y1="21.17" x2="90.56" y2="17.93" stroke="url(#ring-e0aadd)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="105.65" y1="45.17" x2="109.45" y2="43.93" stroke="url(#ring-e0aadd)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="105.65" y1="74.83" x2="109.45" y2="76.07" stroke="url(#ring-e0aadd)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="88.21" y1="98.83" x2="90.56" y2="102.07" stroke="url(#ring-e0aadd)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="60.00" y1="108.00" x2="60.00" y2="112.00" stroke="url(#ring-e0aadd)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="31.79" y1="98.83" x2="29.44" y2="102.07" stroke="url(#ring-e0aadd)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="14.35" y1="74.83" x2="10.55" y2="76.07" stroke="url(#ring-e0aadd)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="14.35" y1="45.17" x2="10.55" y2="43.93" stroke="url(#ring-e0aadd)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="31.79" y1="21.17" x2="29.44" y2="17.93" stroke="url(#ring-e0aadd)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <circle cx="60" cy="60" r="42" fill="url(#disc-e0aadd)"/>
+    <circle cx="60" cy="60" r="42" fill="url(#shine-e0aadd)"/>
+    <circle cx="60" cy="60" r="42" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
-  <text x="36" y="62" transform="rotate(-90 36 62)" text-anchor="middle"
-    font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="800"
-    letter-spacing="1.2" fill="#FFFFFF" opacity="0.92">ICE</text>
-  <text x="36" y="74" transform="rotate(-90 36 74)" text-anchor="middle"
-    font-family="Arial,Helvetica,sans-serif" font-size="6.5" font-weight="700"
-    letter-spacing="0.8" fill="#FFFFFF" opacity="0.65">NAV</text>
-  <text x="78" y="66" text-anchor="middle"
-    font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="900"
-    fill="#FFFFFF">POL</text>
-  <path d="M60 100 L54 106 L60 112 L66 106 Z" fill="#FFFFFF" opacity="0.92"/>
-  <path d="M60 104 L57 107 L63 107 Z" fill="#00ACC1"/>
+
+  <g color="#E0F2FE" filter="url(#glow-e0aadd)" transform="translate(0,-2)">
+    
+    <path d="M60 34l4 12h12l-9 7 3 12-10-7-10 7 3-12-9-7h12z" fill="currentColor"/>
+    <path d="M44 58h32" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+  </g>
+
+  <rect x="28" y="82" width="64" height="18" rx="9" fill="#0F172A" opacity="0.82"/>
+  <rect x="29" y="83" width="62" height="16" rx="8" fill="#67E8F9" opacity="0.95"/>
+  <text x="60" y="94.5" text-anchor="middle"
+    font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="11" font-weight="800" letter-spacing="0.6"
+    fill="#0F172A">POLAR</text>
+
+  <text x="60" y="108" text-anchor="middle"
+    font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="5.8" font-weight="700" letter-spacing="0.9"
+    fill="#64748B">NAVIGATION</text>
+
+  <circle cx="60" cy="22" r="4" fill="url(#ring-e0aadd)"/>
+  <path d="M60 18 L57 24 L63 24 Z" fill="#FFFFFF" opacity="0.9"/>
+
   
 </svg>

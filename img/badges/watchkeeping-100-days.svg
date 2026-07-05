@@ -1,28 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <filter id="sh-zkfhd9" x="-15%" y="-10%" width="130%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#263238" flood-opacity="0.22"/>
+    <linearGradient id="ring-5f7pzc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="50%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#FFFBEB"/>
+    </linearGradient>
+    <radialGradient id="disc-5f7pzc" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#4338CA"/>
+      <stop offset="100%" stop-color="#312E81"/>
+    </radialGradient>
+    <linearGradient id="shine-5f7pzc" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.28"/>
+      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="sh-5f7pzc" x="-20%" y="-15%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
+    </filter>
+    <filter id="glow-5f7pzc" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <g filter="url(#sh-zkfhd9)">
-    <path d="M24 38 L60 18 L96 38 L60 48 Z" fill="#FFD54F"/>
-    <g color="#FFF8E1"><circle cx="60" cy="32" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M60 27v6l4 2" stroke="currentColor" stroke-width="1.8" fill="none"/></g>
-    <path d="M24 38 L60 48 L60 98 L24 78 Z" fill="#455A64"/>
-    <path d="M60 48 L96 38 L96 78 L60 98 Z" fill="#FFA000"/>
-    <path d="M24 38 L60 18 L96 38" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.2"/>
-    <path d="M60 48 L60 98" fill="none" stroke="#000000" stroke-opacity="0.12" stroke-width="1"/>
+
+  <ellipse cx="60" cy="108" rx="28" ry="5" fill="#0F172A" opacity="0.12"/>
+
+  <g filter="url(#sh-5f7pzc)">
+    <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ring-5f7pzc)" stroke-width="5.5"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-5f7pzc)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="93.94" y1="26.06" x2="96.77" y2="23.23" stroke="url(#ring-5f7pzc)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="108.00" y1="60.00" x2="112.00" y2="60.00" stroke="url(#ring-5f7pzc)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="93.94" y1="93.94" x2="96.77" y2="96.77" stroke="url(#ring-5f7pzc)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="60.00" y1="108.00" x2="60.00" y2="112.00" stroke="url(#ring-5f7pzc)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="26.06" y1="93.94" x2="23.23" y2="96.77" stroke="url(#ring-5f7pzc)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="12.00" y1="60.00" x2="8.00" y2="60.00" stroke="url(#ring-5f7pzc)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="26.06" y1="26.06" x2="23.23" y2="23.23" stroke="url(#ring-5f7pzc)" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+    <circle cx="60" cy="60" r="42" fill="url(#disc-5f7pzc)"/>
+    <circle cx="60" cy="60" r="42" fill="url(#shine-5f7pzc)"/>
+    <circle cx="60" cy="60" r="42" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
-  <text x="36" y="62" transform="rotate(-90 36 62)" text-anchor="middle"
-    font-family="Arial,Helvetica,sans-serif" font-size="8" font-weight="800"
-    letter-spacing="1.2" fill="#FFFFFF" opacity="0.92">W/K</text>
-  <text x="36" y="74" transform="rotate(-90 36 74)" text-anchor="middle"
-    font-family="Arial,Helvetica,sans-serif" font-size="6.5" font-weight="700"
-    letter-spacing="0.8" fill="#FFFFFF" opacity="0.65">BRIDGE</text>
-  <text x="78" y="66" text-anchor="middle"
-    font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="900"
-    fill="#FFFFFF">100</text>
-  <path d="M60 100 L54 106 L60 112 L66 106 Z" fill="#FFFFFF" opacity="0.92"/>
-  <path d="M60 104 L57 107 L63 107 Z" fill="#FFA000"/>
+
+  <g color="#C7D2FE" filter="url(#glow-5f7pzc)" transform="translate(0,-2)">
+    
+    <rect x="42" y="38" width="36" height="22" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+    <path d="M46 52h28" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+    <circle cx="60" cy="49" r="6" stroke="currentColor" stroke-width="1.8" fill="none"/>
+    <path d="M60 46v4l2.5 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+  </g>
+
+  <rect x="28" y="82" width="64" height="18" rx="9" fill="#0F172A" opacity="0.82"/>
+  <rect x="29" y="83" width="62" height="16" rx="8" fill="#818CF8" opacity="0.95"/>
+  <text x="60" y="94.5" text-anchor="middle"
+    font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="13" font-weight="800" letter-spacing="0.6"
+    fill="#0F172A">100</text>
+
+  <text x="60" y="108" text-anchor="middle"
+    font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    font-size="5.8" font-weight="700" letter-spacing="0.9"
+    fill="#64748B">BRIDGE DAYS</text>
+
+  <circle cx="60" cy="22" r="4" fill="url(#ring-5f7pzc)"/>
+  <path d="M60 18 L57 24 L63 24 Z" fill="#FFFFFF" opacity="0.9"/>
+
   
 </svg>
