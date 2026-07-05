@@ -115,6 +115,50 @@
     return map[status] || { label: status || "Draft", className: "pill-neutral" };
   }
 
+  function isImageAttachment(attachment, url) {
+    const mime = String(attachment?.mime || attachment?.mimetype || "").toLowerCase();
+    const name = String(attachment?.filename || attachment?.name || url || "").toLowerCase();
+    if (mime.startsWith("image/")) return true;
+    return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
+  }
+
+  function renderAttachmentSection(attachment) {
+    const fileUrl = attachment?.url || attachment?.dataUrl || "";
+    if (!fileUrl) return "";
+
+    const filename = attachment?.filename || attachment?.name || "Attachment";
+    const safeUrl = Seav.escapeHtml(fileUrl);
+    const safeName = Seav.escapeHtml(filename);
+
+    if (isImageAttachment(attachment, fileUrl)) {
+      return `
+        <div class="onboard-attachment-section">
+          <div class="onboard-signoff-label">Photo</div>
+          <div class="onboard-attachment-preview">
+            <img
+              class="onboard-attachment-image"
+              src="${safeUrl}"
+              alt="${safeName}"
+              loading="lazy"
+            />
+          </div>
+          <a class="onboard-attachment-link" href="${safeUrl}" target="_blank" rel="noopener">
+            Open full size
+          </a>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="onboard-attachment-section onboard-attachment-section--file">
+        <div class="onboard-signoff-label">Attachment</div>
+        <a class="onboard-attachment-link" href="${safeUrl}" target="_blank" rel="noopener">
+          Download ${safeName}
+        </a>
+      </div>
+    `;
+  }
+
   function renderList() {
     const list = document.getElementById("oeList");
     if (!list) return;
@@ -146,21 +190,8 @@
         const categoryLabel = getOnboardCategoryLabel(entry.category);
         const status = entry.status || "Draft";
         const statusInfo = getStatusDisplay(status);
-        const fileUrl = entry.attachment?.url || entry.attachment?.dataUrl || "";
         const signoff = entry.signoff || {};
-
-        const attachmentPanel = fileUrl
-          ? `
-            <div class="onboard-signoff-panel${status === "Signed Off" ? "" : " onboard-signoff-panel-full"}">
-              <div class="onboard-signoff-label">Attachment</div>
-              <div class="onboard-signoff-value">
-                <a class="onboard-attachment-link" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">
-                  Download attachment
-                </a>
-              </div>
-            </div>
-          `
-          : "";
+        const attachmentHtml = renderAttachmentSection(entry.attachment);
 
         const signoffHtml =
           status === "Signed Off"
@@ -192,12 +223,9 @@
             `
                 : ""
             }
-            ${attachmentPanel}
           </div>
         `
-            : attachmentPanel
-              ? `<div class="onboard-signoff-grid">${attachmentPanel}</div>`
-              : "";
+            : "";
 
         const canSignoff =
           status === "Draft" || status === "Pending Sign-off" || !status;
@@ -245,6 +273,8 @@
               </div>
 
               <div class="onboard-modern-desc">${Seav.escapeHtml(entry.description || "")}</div>
+
+              ${attachmentHtml}
 
               ${signoffHtml}
 
