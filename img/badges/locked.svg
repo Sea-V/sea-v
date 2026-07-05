@@ -1,64 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" data-source-page="achievements" data-tier="silver">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="LOCKED MILESTONE" data-source-page="achievements" data-tier="silver">
   <defs>
-    <linearGradient id="ring-dxooss" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-k86gps" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#d9923a"/>
       <stop offset="50%" stop-color="#ffb347"/>
       <stop offset="100%" stop-color="#ffd08a"/>
     </linearGradient>
-    <radialGradient id="disc-dxooss" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-k86gps" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#ffd08a"/>
       <stop offset="100%" stop-color="#ffb347"/>
     </radialGradient>
-    <linearGradient id="pill-dxooss" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#d9923a"/>
-      <stop offset="100%" stop-color="#ffd08a"/>
-    </linearGradient>
-    <linearGradient id="shine-dxooss" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
+    <linearGradient id="shine-k86gps" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-dxooss" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-k86gps" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-dxooss)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-dxooss)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-dxooss)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-dxooss)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-dxooss)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-dxooss)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-dxooss)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-dxooss)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-dxooss)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-dxooss)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
+  <g filter="url(#sh-k86gps)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-k86gps)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-k86gps)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-k86gps)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-k86gps)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
-
-  <g shape-rendering="geometricPrecision">
-    <g color="#0F172A" opacity="0.32" transform="translate(0, 2)"><g transform="translate(60,48)"><rect x="-10" y="0" width="20" height="16" rx="3" stroke="currentColor" stroke-width="2.8" fill="none"/><path d="M-5 8v5a5 5 0 0 0 10 0v-5" stroke="currentColor" stroke-width="2.4" fill="none"/><path d="M-14-2h28" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></g></g>
-    <g color="#FFFFFF" stroke="#0F172A" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill"><g transform="translate(60,48)"><rect x="-10" y="0" width="20" height="16" rx="3" stroke="currentColor" stroke-width="2.8" fill="none"/><path d="M-5 8v5a5 5 0 0 0 10 0v-5" stroke="currentColor" stroke-width="2.4" fill="none"/><path d="M-14-2h28" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></g></g>
+  <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
+    <text x="60" y="30.4" font-size="6.4" font-weight="800" letter-spacing="1.8" fill="#ffb347">SEA-V</text>
+    <text font-size="16" font-weight="900" letter-spacing="0.5" fill="#0F172A"><tspan x="60" y="40.4">LOCKED</tspan></text>
+    <text font-size="8.8" font-weight="700" letter-spacing="1.3" fill="#0F172A" opacity="0.76"><tspan x="60" y="61.1">MILESTONE</tspan></text>
+    <line x1="36" y1="79.6" x2="84" y2="79.6" stroke="#ffb347" stroke-width="2" stroke-linecap="round" opacity="0.42"/>
   </g>
-
-  <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
-  <rect x="27" y="83" width="66" height="16" rx="3" fill="url(#pill-dxooss)" opacity="0.98"/>
-  <text x="60" y="94.5" text-anchor="middle"
-    font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
-    font-size="15" font-weight="800" letter-spacing="0.6"
-    fill="#0F172A">—</text>
-
-  <text x="60" y="108" text-anchor="middle"
-    font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
-    font-size="5.8" font-weight="700" letter-spacing="0.9"
-    fill="#ffb347">LOCKED</text>
-
   
-  <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="#F1F5F9" opacity="0.78"/>
-  <g transform="translate(60,54)" stroke="#64748B" fill="none" stroke-width="2.2" stroke-linecap="round">
-    <rect x="-11" y="-4" width="22" height="18" rx="4" fill="#E2E8F0" stroke="#64748B"/>
-    <path d="M-6 6v6a6 6 0 0 0 12 0v-6"/>
-    <path d="M-14 -2h28"/>
-  </g>
+  <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="#F1F5F9" opacity="0.82"/>
+  <text x="60" y="58" text-anchor="middle" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" font-weight="800" letter-spacing="1.4" fill="#64748B">LOCKED</text>
 </svg>
