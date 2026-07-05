@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="ring-5vrisv" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-iuvvce" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#67E8F9"/>
       <stop offset="50%" stop-color="#0891B2"/>
       <stop offset="100%" stop-color="#ECFEFF"/>
     </linearGradient>
-    <radialGradient id="disc-5vrisv" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-iuvvce" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#0891B2"/>
       <stop offset="100%" stop-color="#164E63"/>
     </radialGradient>
-    <linearGradient id="shine-5vrisv" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-iuvvce" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-5vrisv" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-iuvvce" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
-    </filter>
-    <filter id="glow-5vrisv" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="2" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
-  <g filter="url(#sh-5vrisv)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-5vrisv)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-5vrisv)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-5vrisv)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-5vrisv)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-5vrisv)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-5vrisv)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-5vrisv)" stroke-width="2.4" stroke-linecap="round"/>
+  <g filter="url(#sh-iuvvce)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-iuvvce)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-iuvvce)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-iuvvce)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-iuvvce)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-iuvvce)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-iuvvce)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-iuvvce)" stroke-width="2.4" stroke-linecap="round"/>
 
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-5vrisv)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-5vrisv)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-iuvvce)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-iuvvce)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
-  <g color="#E0F2FE" filter="url(#glow-5vrisv)">
-    
-    <path d="M60 34l4 12h12l-9 7 3 12-10-7-10 7 3-12-9-7h12z" fill="currentColor"/>
-    <path d="M44 58h32" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+
+  <g shape-rendering="geometricPrecision">
+    <g color="#0F172A" opacity="0.38" transform="translate(0, 2)">
+    <path d="M60 32l5 14h14l-11 8 4 14-12-8-12 8 4-14-11-8h14z" fill="currentColor"/>
+    <path d="M42 60h36" stroke="currentColor" stroke-width="2" opacity="0.5"/></g>
+    <g color="#FFFFFF" stroke="#0F172A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">
+    <path d="M60 32l5 14h14l-11 8 4 14-12-8-12 8 4-14-11-8h14z" fill="currentColor"/>
+    <path d="M42 60h36" stroke="currentColor" stroke-width="2" opacity="0.5"/></g>
   </g>
 
   <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>

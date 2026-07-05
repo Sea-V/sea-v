@@ -16,75 +16,77 @@ TIERS = {
     "default": {"a": "#93C5FD", "b": "#2563EB", "c": "#EFF6FF"},
 }
 
+ICON_OUTLINE = "#0F172A"
+
 CATEGORIES = {
-    "sea": {"inner": ["#0C4A6E", "#0369A1"], "accent": "#7DD3FC", "glow": "#38BDF8"},
-    "vessel": {"inner": ["#7C2D12", "#C2410C"], "accent": "#FDBA74", "glow": "#FB923C"},
-    "passage": {"inner": ["#581C87", "#7E22CE"], "accent": "#E9D5FF", "glow": "#C084FC"},
-    "ocean": {"inner": ["#1E3A8A", "#1D4ED8"], "accent": "#FDE68A", "glow": "#60A5FA"},
-    "polar": {"inner": ["#164E63", "#0891B2"], "accent": "#E0F2FE", "glow": "#67E8F9"},
-    "watch": {"inner": ["#312E81", "#4338CA"], "accent": "#C7D2FE", "glow": "#818CF8"},
-    "career": {"inner": ["#14532D", "#15803D"], "accent": "#BBF7D0", "glow": "#4ADE80"},
-    "ops": {"inner": ["#713F12", "#B45309"], "accent": "#FEF3C7", "glow": "#FBBF24"},
-    "helm": {"inner": ["#0F2744", "#D97706"], "accent": "#FDE68A", "glow": "#FBBF24"},
+    "sea": {"inner": ["#0C4A6E", "#0369A1"], "accent": "#FFFFFF", "glow": "#38BDF8"},
+    "vessel": {"inner": ["#7C2D12", "#C2410C"], "accent": "#FFFFFF", "glow": "#FB923C"},
+    "passage": {"inner": ["#581C87", "#7E22CE"], "accent": "#FFFFFF", "glow": "#C084FC"},
+    "ocean": {"inner": ["#1E3A8A", "#1D4ED8"], "accent": "#FFFFFF", "glow": "#60A5FA"},
+    "polar": {"inner": ["#164E63", "#0891B2"], "accent": "#FFFFFF", "glow": "#67E8F9"},
+    "watch": {"inner": ["#312E81", "#4338CA"], "accent": "#FFFFFF", "glow": "#818CF8"},
+    "career": {"inner": ["#14532D", "#15803D"], "accent": "#FFFFFF", "glow": "#4ADE80"},
+    "ops": {"inner": ["#713F12", "#B45309"], "accent": "#FFFFFF", "glow": "#FBBF24"},
+    "helm": {"inner": ["#0F2744", "#D97706"], "accent": "#FFFFFF", "glow": "#FBBF24"},
 }
 
 ICONS = {
     "sea": """
-    <path d="M34 52c6-4 12-4 18 0s12 4 18 0 12-4 18 0" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-    <path d="M30 58c6-3 12-3 18 0s12 3 18 0 12-3 18 0" stroke="currentColor" stroke-width="1.8" fill="none" opacity="0.55" stroke-linecap="round"/>
-    <circle cx="60" cy="42" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M60 36v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>""",
+    <path d="M34 52c6-4 12-4 18 0s12 4 18 0 12-4 18 0" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+    <path d="M30 58c6-3 12-3 18 0s12 3 18 0 12-3 18 0" stroke="currentColor" stroke-width="2.2" fill="none" opacity="0.7" stroke-linecap="round"/>
+    <circle cx="60" cy="42" r="11" stroke="currentColor" stroke-width="2.6" fill="none"/>
+    <path d="M60 35v7l5 3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>""",
     "vessel": """
-    <path d="M38 56h44l-6-14H44l-6 14z" fill="currentColor"/>
-    <path d="M32 58c8-3 16-3 24 0s16 3 24 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M52 42h16v8H52z" fill="currentColor" opacity="0.45"/>
-    <path d="M56 38h8v4h-8z" fill="currentColor" opacity="0.7"/>""",
+    <path d="M36 56h48l-7-16H43l-7 16z" fill="currentColor"/>
+    <path d="M30 59c9-3 18-3 27 0s18 3 27 0" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M50 40h20v10H50z" fill="currentColor" opacity="0.55"/>
+    <path d="M54 35h12v5H54z" fill="currentColor"/>""",
     "passage": """
-    <circle cx="42" cy="46" r="4" fill="currentColor"/>
-    <circle cx="78" cy="40" r="4" fill="currentColor"/>
-    <path d="M46 45c12-8 24-8 30-6" stroke="currentColor" stroke-width="2.2" stroke-dasharray="4 3" fill="none" stroke-linecap="round"/>
-    <path d="M54 52l6-8 6 5 8-10" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>""",
+    <circle cx="40" cy="46" r="5" fill="currentColor"/>
+    <circle cx="80" cy="40" r="5" fill="currentColor"/>
+    <path d="M45 45c14-9 28-9 34-6" stroke="currentColor" stroke-width="2.6" stroke-dasharray="5 3" fill="none" stroke-linecap="round"/>
+    <path d="M52 54l7-9 7 6 9-11" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>""",
     "ocean": """
-    <circle cx="60" cy="48" r="18" stroke="currentColor" stroke-width="2" fill="none" opacity="0.35"/>
-    <path d="M42 48c6-10 14-10 18 0s14 10 18 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-    <path d="M48 56h24l-4-8H52l-4 8z" fill="currentColor"/>""",
+    <circle cx="60" cy="48" r="20" stroke="currentColor" stroke-width="2.4" fill="none" opacity="0.45"/>
+    <path d="M40 48c7-11 16-11 20 0s16 11 20 0" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <path d="M46 58h28l-5-10H51l-5 10z" fill="currentColor"/>""",
     "polar": """
-    <path d="M60 34l4 12h12l-9 7 3 12-10-7-10 7 3-12-9-7h12z" fill="currentColor"/>
-    <path d="M44 58h32" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>""",
+    <path d="M60 32l5 14h14l-11 8 4 14-12-8-12 8 4-14-11-8h14z" fill="currentColor"/>
+    <path d="M42 60h36" stroke="currentColor" stroke-width="2" opacity="0.5"/>""",
     "watch": """
-    <rect x="42" y="38" width="36" height="22" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M46 52h28" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
-    <circle cx="60" cy="49" r="6" stroke="currentColor" stroke-width="1.8" fill="none"/>
-    <path d="M60 46v4l2.5 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/>""",
-    "helm": """
-    <g transform="translate(60,50)" stroke-linecap="round">
-      <circle r="26" fill="none" stroke="currentColor" stroke-width="3"/>
-      <circle r="20" fill="none" stroke="currentColor" stroke-width="1.8" opacity="0.55"/>
-      <g stroke="currentColor" stroke-width="2.6">
-        <line x1="0" y1="-22" x2="0" y2="22"/>
-        <line x1="-22" y1="0" x2="22" y2="0"/>
-        <line x1="-15.6" y1="-15.6" x2="15.6" y2="15.6"/>
-        <line x1="15.6" y1="-15.6" x2="-15.6" y2="15.6"/>
+    <rect x="40" y="36" width="40" height="24" rx="3" stroke="currentColor" stroke-width="2.6" fill="none"/>
+    <path d="M44 52h32" stroke="currentColor" stroke-width="2" opacity="0.55"/>
+    <circle cx="60" cy="48" r="7" stroke="currentColor" stroke-width="2.2" fill="none"/>
+    <path d="M60 44v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>""",
+    "helm": f"""
+    <g transform="translate(60,48)" shape-rendering="geometricPrecision">
+      <circle r="28" fill="none" stroke="currentColor" stroke-width="3.5"/>
+      <circle r="22" fill="none" stroke="currentColor" stroke-width="2.2" opacity="0.65"/>
+      <g stroke="currentColor" stroke-width="3.2" fill="none">
+        <line x1="0" y1="-24" x2="0" y2="24"/>
+        <line x1="-24" y1="0" x2="24" y2="0"/>
+        <line x1="-17" y1="-17" x2="17" y2="17"/>
+        <line x1="17" y1="-17" x2="-17" y2="17"/>
       </g>
-      <g fill="currentColor" stroke="#FFFBEB" stroke-width="1">
-        <circle cy="-25" r="2.8"/><circle cy="25" r="2.8"/>
-        <circle cx="-25" r="2.8"/><circle cx="25" r="2.8"/>
-        <circle cx="-17.7" cy="-17.7" r="2.6"/><circle cx="17.7" cy="-17.7" r="2.6"/>
-        <circle cx="-17.7" cy="17.7" r="2.6"/><circle cx="17.7" cy="17.7" r="2.6"/>
+      <g fill="currentColor" stroke="currentColor" stroke-width="1.2">
+        <circle cy="-28" r="3"/><circle cy="28" r="3"/>
+        <circle cx="-28" r="3"/><circle cx="28" r="3"/>
+        <circle cx="-20" cy="-20" r="3"/><circle cx="20" cy="-20" r="3"/>
+        <circle cx="-20" cy="20" r="3"/><circle cx="20" cy="20" r="3"/>
       </g>
-      <circle r="6" fill="#0F2744" stroke="currentColor" stroke-width="2"/>
-      <circle r="2.5" fill="currentColor"/>
+      <circle r="7" fill="{ICON_OUTLINE}" stroke="currentColor" stroke-width="2.4"/>
+      <circle r="3" fill="currentColor"/>
     </g>""",
     "career": """
-    <path d="M48 38h24v6H48z" fill="currentColor" opacity="0.55"/>
-    <path d="M44 44h32v6H44z" fill="currentColor" opacity="0.75"/>
-    <path d="M40 50h40v6H40z" fill="currentColor"/>
-    <path d="M54 56h12v4H54z" fill="currentColor" opacity="0.8"/>""",
+    <path d="M46 36h28v7H46z" fill="currentColor" opacity="0.65"/>
+    <path d="M42 43h36v7H42z" fill="currentColor" opacity="0.85"/>
+    <path d="M38 50h44v7H38z" fill="currentColor"/>
+    <path d="M52 57h16v5H52z" fill="currentColor"/>""",
     "ops": """
-    <circle cx="48" cy="48" r="8" stroke="currentColor" stroke-width="2" fill="none"/>
-    <circle cx="72" cy="48" r="8" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M54 48h12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M60 56v6M52 60h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>""",
+    <circle cx="46" cy="48" r="9" stroke="currentColor" stroke-width="2.6" fill="none"/>
+    <circle cx="74" cy="48" r="9" stroke="currentColor" stroke-width="2.6" fill="none"/>
+    <path d="M53 48h14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    <path d="M60 58v7M50 63h20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>""",
 }
 
 BADGE_DEFS = [
@@ -180,6 +182,14 @@ def inner_fill(u, c, split):
     <path d="{clip}" fill="url(#shine-{u})"/>"""
 
 
+def render_icon(icon, accent="#FFFFFF"):
+    return f"""
+  <g shape-rendering="geometricPrecision">
+    <g color="{ICON_OUTLINE}" opacity="0.38" transform="translate(0, 2)">{icon}</g>
+    <g color="{accent}" stroke="{ICON_OUTLINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">{icon}</g>
+  </g>"""
+
+
 def build_svg(tier, main, label, cat, split=False, locked=False):
     t = TIERS.get(tier, TIERS["default"])
     c = CATEGORIES.get(cat, CATEGORIES["sea"])
@@ -190,7 +200,7 @@ def build_svg(tier, main, label, cat, split=False, locked=False):
     outer_hex = hex_path(CX, CY, 50)
     inner_hex = hex_path(CX, CY, 40)
     pill_fill = c["inner"][0] if split else c["glow"]
-    pill_text = c["accent"] if split else "#0F172A"
+    pill_text = "#FDE68A" if split else "#0F172A"
     lock = ""
     if locked:
         lock = f"""
@@ -219,10 +229,6 @@ def build_svg(tier, main, label, cat, split=False, locked=False):
     <filter id="sh-{u}" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
-    <filter id="glow-{u}" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="2" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
   </defs>
 
   <g filter="url(#sh-{u})">
@@ -232,9 +238,7 @@ def build_svg(tier, main, label, cat, split=False, locked=False):
     <path d="{inner_hex}" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
-  <g color="{c['accent']}" filter="url(#glow-{u})">
-    {icon}
-  </g>
+{render_icon(icon, c['accent'])}
 
   <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
   <rect x="27" y="83" width="66" height="16" rx="3" fill="{pill_fill}" opacity="0.96"/>

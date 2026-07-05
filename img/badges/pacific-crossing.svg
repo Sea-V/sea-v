@@ -1,47 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
   <defs>
-    <linearGradient id="ring-q5l452" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-i6v37q" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#67E8F9"/>
       <stop offset="50%" stop-color="#0891B2"/>
       <stop offset="100%" stop-color="#ECFEFF"/>
     </linearGradient>
-    <radialGradient id="disc-q5l452" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-i6v37q" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#1D4ED8"/>
       <stop offset="100%" stop-color="#1E3A8A"/>
     </radialGradient>
-    <linearGradient id="shine-q5l452" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-i6v37q" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="sh-q5l452" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-i6v37q" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
-    </filter>
-    <filter id="glow-q5l452" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="2" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
-  <g filter="url(#sh-q5l452)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-q5l452)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-q5l452)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-q5l452)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-q5l452)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-q5l452)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-q5l452)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-q5l452)" stroke-width="2.4" stroke-linecap="round"/>
+  <g filter="url(#sh-i6v37q)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-i6v37q)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-i6v37q)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-i6v37q)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-i6v37q)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-i6v37q)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-i6v37q)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-i6v37q)" stroke-width="2.4" stroke-linecap="round"/>
 
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-q5l452)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-q5l452)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-i6v37q)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-i6v37q)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
   </g>
 
-  <g color="#FDE68A" filter="url(#glow-q5l452)">
-    
-    <circle cx="60" cy="48" r="18" stroke="currentColor" stroke-width="2" fill="none" opacity="0.35"/>
-    <path d="M42 48c6-10 14-10 18 0s14 10 18 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-    <path d="M48 56h24l-4-8H52l-4 8z" fill="currentColor"/>
+
+  <g shape-rendering="geometricPrecision">
+    <g color="#0F172A" opacity="0.38" transform="translate(0, 2)">
+    <circle cx="60" cy="48" r="20" stroke="currentColor" stroke-width="2.4" fill="none" opacity="0.45"/>
+    <path d="M40 48c7-11 16-11 20 0s16 11 20 0" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <path d="M46 58h28l-5-10H51l-5 10z" fill="currentColor"/></g>
+    <g color="#FFFFFF" stroke="#0F172A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke fill">
+    <circle cx="60" cy="48" r="20" stroke="currentColor" stroke-width="2.4" fill="none" opacity="0.45"/>
+    <path d="M40 48c7-11 16-11 20 0s16 11 20 0" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <path d="M46 58h28l-5-10H51l-5 10z" fill="currentColor"/></g>
   </g>
 
   <rect x="26" y="82" width="68" height="18" rx="4" fill="#0F172A" opacity="0.85"/>
