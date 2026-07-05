@@ -112,7 +112,7 @@
     ].join(","),
     navigation_areas: [
       "id", "user_id", "country", "port", "from_country", "from_port", "from_lat",
-      "from_lng", "to_country", "to_port", "to_lat", "to_lng", "vessel_id",
+      "from_lng", "to_country", "to_port", "to_lat", "to_lng", "vessel_id", "seatime_id",
       "operation_type", "passage_name", "visited_date", "departure_date", "arrival_date",
       "lat", "lng", "waypoints", "note", "created_at", "updated_at"
     ].join(","),
@@ -224,9 +224,106 @@
     return [];
   }
 
+  function getSupabaseErrorText(error) {
+    return [error?.message, error?.details, error?.hint].filter(Boolean).join(" ");
+  }
+
+  function isMissingSupabaseColumnError(error, column) {
+    const text = getSupabaseErrorText(error).toLowerCase();
+    const col = String(column || "").toLowerCase();
+    return (
+      !!col &&
+      text.includes(col) &&
+      (text.includes("column") || text.includes("schema cache"))
+    );
+  }
+
+  function emitSchemaWarning(table, message) {
+    document.dispatchEvent(
+      new CustomEvent("seav:schema-warning", {
+        detail: { table, message }
+      })
+    );
+  }
+
+  function stripNavigationSeatimeLink(item) {
+    if (!item || !Object.prototype.hasOwnProperty.call(item, "seatime_id")) {
+      return item;
+    }
+    const next = { ...item };
+    delete next.seatime_id;
+    return next;
+  }
+
+  async function saveNavigationAreaItem(mode, id, item) {
+    const payload = withUserId(item);
+
+    if (mode === "upsert") {
+      let { error } = await window.SeavSupabase.from("navigation_areas").upsert([payload]);
+      if (
+        error &&
+        isMissingSupabaseColumnError(error, "seatime_id") &&
+        payload.seatime_id
+      ) {
+        ({ error } = await window.SeavSupabase
+          .from("navigation_areas")
+          .upsert([stripNavigationSeatimeLink(payload)]));
+        if (!error) {
+          emitSchemaWarning(
+            "navigation_areas",
+            "Passage saved, but the sea time link was skipped because your database is missing navigation_areas.seatime_id. Run docs/navigation-complete-migration.sql in Supabase."
+          );
+          return;
+        }
+      }
+      if (error) throw error;
+      return;
+    }
+
+    let query = window.SeavSupabase
+      .from("navigation_areas")
+      .update(payload)
+      .eq("id", id);
+
+    const userId = getAuthUserId();
+    if (userId) query = query.eq("user_id", userId);
+
+    let { error } = await query;
+    if (
+      error &&
+      isMissingSupabaseColumnError(error, "seatime_id") &&
+      payload.seatime_id
+    ) {
+      query = window.SeavSupabase
+        .from("navigation_areas")
+        .update(stripNavigationSeatimeLink(payload))
+        .eq("id", id);
+      if (userId) query = query.eq("user_id", userId);
+      ({ error } = await query);
+      if (!error) {
+        emitSchemaWarning(
+          "navigation_areas",
+          "Passage saved, but the sea time link was skipped because your database is missing navigation_areas.seatime_id. Run docs/navigation-complete-migration.sql in Supabase."
+        );
+        return;
+      }
+    }
+    if (error) throw error;
+  }
+
   async function upsertSupabaseItem(table, item) {
     if (!window.SeavSupabase) {
       throw new Error("Supabase is not available.");
+    }
+
+    if (table === "navigation_areas") {
+      try {
+        await saveNavigationAreaItem("upsert", null, item);
+      } catch (error) {
+        console.error(`[SEA-V] Supabase save failed for ${table}:`, error);
+        throw error;
+      }
+      return;
     }
 
     const { error } = await window.SeavSupabase.from(table).upsert([withUserId(item)]);
@@ -240,6 +337,16 @@
   async function updateSupabaseItem(table, id, item) {
     if (!window.SeavSupabase) {
       throw new Error("Supabase is not available.");
+    }
+
+    if (table === "navigation_areas") {
+      try {
+        await saveNavigationAreaItem("update", id, item);
+      } catch (error) {
+        console.error(`[SEA-V] Supabase update failed for ${table}:`, error);
+        throw error;
+      }
+      return;
     }
 
     let query = window.SeavSupabase

@@ -321,11 +321,15 @@
         }, { sub: editId ? "Updating navigation passage" : "Logging navigation passage" });
       } catch (error) {
         console.error("[SEA-V] Navigation passage save failed:", error);
-        const detail =
+        const raw =
           error?.message ||
           error?.error_description ||
           error?.hint ||
-          "The passage could not be saved. Check your connection and database columns.";
+          "";
+        const detail =
+          /seatime_id/i.test(raw) && /column/i.test(raw)
+            ? "Your database is missing the navigation_areas.seatime_id column. Run docs/navigation-complete-migration.sql in the Supabase SQL Editor, then try again."
+            : raw || "The passage could not be saved. Check your connection and database columns.";
         Seav.notify("error", "Save failed", detail);
       }
     });
@@ -426,6 +430,12 @@
       { once: true }
     );
   }
+
+  document.addEventListener("seav:schema-warning", (event) => {
+    const message = event.detail?.message;
+    if (!message) return;
+    Seav.notify("warning", "Database update needed", message);
+  });
 
   document.addEventListener("DOMContentLoaded", () => {
     initNavigationPage();

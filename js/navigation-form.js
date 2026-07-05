@@ -915,7 +915,7 @@
     populateSeatimeOptions, applySeatimeLink, resetRouteForm, setNavFormMode,
     prefillFromSeatimeParam, getEndpointLocationInput, readEndpointDetails,
     resolveEndpointCoord, syncLocationFromPort, syncEndpointCoordsFromPorts,
-    getEndpointLocationInput, renderEndpointStatus, renderWaypointList, renderWaypointList,
+    renderEndpointStatus, renderWaypointList,
     renderWorkingRoute, addWaypoint, applyRecommendedPassage, importRouteFile,
     removeWaypoint, moveWaypoint, setEndpointPickMode, setPickMode,
     clearNavEditForm, fillNavForm

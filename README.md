@@ -23,7 +23,8 @@ Phase 2 uses **Supabase Auth** — each user has their own profile, documents, a
 5. Optional: **`docs/certificate-catalog.sql`** (certificate dropdown catalog in DB)
 6. Optional: **`docs/schema-reference-verification.sql`** + deploy Edge Function with `RESEND_API_KEY`
 7. Optional: **`docs/schema-account-deletion.sql`** (self-service delete account)
-8. Verify: `node scripts/test-supabase.mjs --step all`
+8. Navigation map: **`docs/navigation-complete-migration.sql`** (passage columns, waypoints, sea time link)
+9. Verify: `node scripts/test-supabase.mjs --step all`
 
 Guides: **[docs/SUPABASE-PHASE2.md](docs/SUPABASE-PHASE2.md)** · **[docs/SECURITY.md](docs/SECURITY.md)**
 
