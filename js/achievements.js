@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  if (!window.Seav || !window.SeavAPI || !window.SeavData || !window.SeavBadges || !window.SeavState) {
+  if (!window.SeavData || !window.SeavBadges) {
     console.warn("[SEA-V] Achievements dependencies missing.");
     return;
   }
@@ -13,6 +13,22 @@
 
   const TIER_RANK = { default: 0, bronze: 1, silver: 2, gold: 3, platinum: 4 };
   let activeCategory = "all";
+
+  function achievementActionAttrs(id) {
+    const safeId = Seav.escapeHtml(id || "");
+    return {
+      edit: `data-edit-achievement-id="${safeId}"`,
+      del: `data-del-achievement-id="${safeId}"`
+    };
+  }
+
+  function achievementActionsHtml(id) {
+    const attrs = achievementActionAttrs(id);
+    return Seav.seavActions(
+      `${Seav.seavAction("edit", "Edit", attrs.edit)}${Seav.seavAction("delete", "Delete", attrs.del)}`,
+      "seav-actions--compact"
+    );
+  }
 
   function getAchievements() {
     return window.SeavState?.achievements || [];
@@ -245,14 +261,7 @@
         }
         ${
           canEdit
-            ? Seav.seavActions(
-                `${Seav.seavAction("edit", "Edit", `data-edit-achievement-id="${Seav.escapeHtml(item.id || "")}"`)}${Seav.seavAction(
-                  "delete",
-                  "Delete",
-                  `data-del-achievement-id="${Seav.escapeHtml(item.id || "")}"`
-                )}`,
-                "seav-actions--compact"
-              )
+            ? achievementActionsHtml(item.id)
             : `<span class="ach-instance-auto pill pill-neutral">Auto-unlocked</span>`
         }
       </li>
@@ -307,14 +316,7 @@
           }
           ${
             !primary.autoAwarded
-              ? Seav.seavActions(
-                  `${Seav.seavAction("edit", "Edit", `data-edit-achievement-id="${Seav.escapeHtml(primary.id || "")}"`)}${Seav.seavAction(
-                    "delete",
-                    "Delete",
-                    `data-del-achievement-id="${Seav.escapeHtml(primary.id || "")}"`
-                  )}`,
-                  "seav-actions--compact"
-                )
+              ? achievementActionsHtml(primary.id)
               : ""
           }
         `
@@ -484,6 +486,11 @@
 
   function initAchievements() {
     if (!document.getElementById("achTrophyGrid") && !document.getElementById("achievementForm")) return;
+
+    if (!window.Seav || !window.SeavAPI || !window.SeavData || !window.SeavBadges || !window.SeavState) {
+      console.warn("[SEA-V] Achievements dependencies missing on init.");
+      return;
+    }
 
     populateAchievementOptions();
     populateVesselOptions();

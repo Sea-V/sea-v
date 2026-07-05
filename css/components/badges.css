@@ -127,6 +127,25 @@
 .sidebar-badge-item.seav-badge-wrap {
   width: 58px;
   height: 58px;
+  position: relative;
+}
+
+.sidebar-badge-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  z-index: 2;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 900;
+  color: #0c1c30;
+  background: #ffb347;
+  box-shadow: 0 2px 8px rgba(255, 179, 71, 0.35);
 }
 
 .dashboard-badge-icononly.seav-badge-wrap {

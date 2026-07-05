@@ -1099,7 +1099,9 @@
     const section = document.getElementById("ppAchievementSection");
     if (!box || !section) return;
 
-    const approved = achievements.filter((item) => item.status === "Approved");
+    const approved = achievements.filter(
+      (item) => item.status === "Approved" || (item.status !== "Declined" && item.autoAwarded)
+    );
     if (!approved.length) {
       section.hidden = true;
       return;

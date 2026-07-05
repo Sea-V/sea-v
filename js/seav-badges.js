@@ -621,15 +621,17 @@ helicopter_ops: {
     if (!item) return "";
     if (!item.badgeImage && !item.badgeKey) return "";
 
+    const unlocked = item.status !== "Declined";
+
     const normalized = normalizeBadgePath(item.badgeImage);
 
     if (!normalized && item.badgeKey) {
-      return resolveBadgeImage(item.badgeKey, item.status === "Approved");
+      return resolveBadgeImage(item.badgeKey, unlocked);
     }
 
     if (!normalized) return "";
 
-    return item.status === "Approved"
+    return unlocked
       ? normalized
       : normalizeBadgePath(item.badgeLockedImage || normalized);
   }

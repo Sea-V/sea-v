@@ -504,46 +504,74 @@ function resolveSidebarBadgeImage(item) {
     return window.SeavBadges.resolveItemBadgeImage(item);
   }
 
-  if (!item?.badgeImage || item.status !== "Approved") return "";
+  if (!item?.badgeImage || item.status === "Declined") return "";
   return String(item.badgeImage).replace(/\.png(\?.*)?$/i, ".svg$1");
+}
+
+function groupSidebarAchievements(records) {
+  const groups = new Map();
+
+  records.forEach((item) => {
+    if (!item || item.status === "Declined") return;
+    const key = item.code || item.id;
+    if (!key) return;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
+  });
+
+  return [...groups.values()].map((instances) => {
+    const sorted = [...instances].sort((a, b) => {
+      const da = a.date ? new Date(a.date) : new Date(0);
+      const db = b.date ? new Date(b.date) : new Date(0);
+      return db - da;
+    });
+    return sorted;
+  });
 }
 
 function renderSidebarAchievements() {
   const container = document.getElementById("sidebarAchievements");
   if (!container) return;
 
-  const achievements = (window.SeavState?.achievements || [])
-    .filter((item) => item.status === "Approved")
-    .map((item) => ({
-      item,
-      image: resolveSidebarBadgeImage(item)
-    }))
+  const grouped = groupSidebarAchievements(window.SeavState?.achievements || [])
+    .map((instances) => {
+      const item = instances[0];
+      const image = resolveSidebarBadgeImage({ ...item, status: "Approved" });
+      return { instances, item, image };
+    })
     .filter(({ image }) => !!image);
 
-  if (!achievements.length) {
+  if (!grouped.length) {
     container.innerHTML = `<div class="sidebar-badge-empty">No badges yet</div>`;
     return;
   }
 
- container.innerHTML = achievements
-  .map(({ item, image }) => {
-    const tier = item.badgeTier || "default";
-    const label = item.badgeLabel || item.title || "Achievement";
-    return `
+  container.innerHTML = grouped
+    .map(({ instances, item, image }) => {
+      const tier = item.badgeTier || "default";
+      const label = item.badgeLabel || item.title || "Achievement";
+      const vessels = instances.map((entry) => entry.vessel).filter(Boolean);
+      const meta =
+        vessels.length > 1
+          ? `${vessels.length} vessels: ${vessels.slice(0, 3).join(", ")}${vessels.length > 3 ? "…" : ""}`
+          : vessels[0] || item.category || "Achievement";
+
+      return `
     <div class="sidebar-badge-item seav-badge-wrap tooltip-above" data-tier="${window.Seav.escapeHtml(tier)}">
       <img
         class="seav-badge"
         src="${window.Seav.escapeHtml(image)}"
         alt="${window.Seav.escapeHtml(label)}"
       />
+      ${instances.length > 1 ? `<span class="sidebar-badge-count">${instances.length}</span>` : ""}
       <span class="seav-badge-tooltip">
         <strong>${window.Seav.escapeHtml(item.title || label)}</strong>
-        <span>${window.Seav.escapeHtml(item.category || "Achievement")}</span>
+        <span>${window.Seav.escapeHtml(meta)}</span>
       </span>
     </div>
   `;
-  })
-  .join("");
+    })
+    .join("");
 }
 
   function renderSharedModals() {
