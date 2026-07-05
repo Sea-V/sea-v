@@ -16,6 +16,9 @@
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.HOBBIES_INTERESTS;
+  const HI_PHOTO_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.HOBBIES_INTEREST_PHOTOS ||
+    "hobbies-interest-photos";
   const MAX_PHOTOS = 6;
   const expandedHiIds = new Set();
   let editingPhotos = [];
@@ -31,8 +34,39 @@
     return `${start} → ${end}`;
   }
 
+  function hasPhoto(photo) {
+    return (
+      window.SeavApiCore?.hasStoredFile?.(photo) ??
+      !!(photo?.url || photo?.dataUrl || photo?.path)
+    );
+  }
+
   function getPhotoUrl(photo) {
-    return photo?.url || photo?.dataUrl || "";
+    return Seav.getFileDisplayUrl(photo, HI_PHOTO_BUCKET);
+  }
+
+  async function ensureHiPhotosHydrated() {
+    const entries = getEntries();
+    const core = window.SeavApiCore;
+    if (!entries.length || !core?.hydrateFileMeta) return;
+
+    await Promise.all(
+      entries.map(async (entry) => {
+        if (!Array.isArray(entry.photos) || !entry.photos.length) return;
+        entry.photos = await Promise.all(
+          entry.photos.map(async (photo) => {
+            if (!photo?.path) return photo;
+            const bucket = photo.bucket || HI_PHOTO_BUCKET;
+            const hasDisplayUrl = !!getPhotoUrl(photo);
+            if (!core.storedFileNeedsHydration?.(photo, bucket) && hasDisplayUrl) {
+              return photo;
+            }
+            return core.hydrateFileMeta(photo, bucket);
+          })
+        );
+      })
+    );
+    window.SeavState?.syncCache?.();
   }
 
   function populateCategoryOptions() {
@@ -56,7 +90,9 @@
 
     const entries = getEntries();
     const published = entries.filter((e) => e.status === "Published").length;
-    const withPhotos = entries.filter((e) => (e.photos || []).length > 0).length;
+    const withPhotos = entries.filter((e) =>
+      (e.photos || []).some((photo) => hasPhoto(photo) && getPhotoUrl(photo))
+    ).length;
     const categories = new Set(entries.map((e) => e.category).filter(Boolean)).size;
 
     row.innerHTML = `
@@ -299,6 +335,11 @@
   }
 
   async function refreshView() {
+    try {
+      await ensureHiPhotosHydrated();
+    } catch (err) {
+      console.warn("[SEA-V] Hobbies photo hydration failed:", err);
+    }
     populateCategoryOptions();
     renderKpis();
     renderList();

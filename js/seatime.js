@@ -33,6 +33,31 @@
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.SEATIMES;
+  const SEATIME_FILE_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.SEATIME_FILES || "seatime-files";
+
+  async function ensureSeatimeAttachmentsHydrated() {
+    const seatimes = getSeatimes();
+    if (!seatimes.length || !window.SeavApiCore?.hydrateItemsFileField) return;
+
+    await window.SeavApiCore.hydrateItemsFileField(
+      seatimes,
+      "attachment",
+      SEATIME_FILE_BUCKET
+    );
+    window.SeavState?.syncCache?.();
+  }
+
+  function getSeatimeAttachmentUrl(attachment) {
+    return Seav.getFileDisplayUrl(attachment, SEATIME_FILE_BUCKET);
+  }
+
+  function hasSeatimeAttachment(attachment) {
+    return (
+      window.SeavApiCore?.hasStoredFile?.(attachment) ??
+      !!getSeatimeAttachmentUrl(attachment)
+    );
+  }
 
   function getSeatimes() {
     return window.SeavState?.seatimes || [];
@@ -108,11 +133,14 @@
 
         const total = totalQualifyingDays(x);
 
-        const attachmentUrl = x.attachment?.url || x.attachment?.dataUrl || "";
+        const attachmentUrl = getSeatimeAttachmentUrl(x.attachment);
+        const hasAttachment = hasSeatimeAttachment(x.attachment);
 
         const attachCell = attachmentUrl
           ? `<a class="seav-action seav-action--secondary seatime-testimonial-link" href="${Seav.escapeHtml(attachmentUrl)}" target="_blank" rel="noopener">View SST</a>`
-          : `<span class="seatime-no-file">Not uploaded</span>`;
+          : hasAttachment
+            ? `<span class="seatime-no-file muted">Loading…</span>`
+            : `<span class="seatime-no-file">Not uploaded</span>`;
 
         return `
           <tr>
@@ -349,7 +377,12 @@
       !document.getElementById("btnExportSeatimeCsv")
     ) return;
 
-    const runRefresh = () => {
+    const runRefresh = async () => {
+      try {
+        await ensureSeatimeAttachmentsHydrated();
+      } catch (err) {
+        console.warn("[SEA-V] Sea time attachment hydration failed:", err);
+      }
       populateSeattimeVesselOptions();
       renderSeatimes();
     };

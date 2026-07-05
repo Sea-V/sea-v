@@ -44,6 +44,11 @@
     "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
   const PP_NAV_ATTRIBUTION =
     '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+  const HI_PHOTO_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.HOBBIES_INTEREST_PHOTOS ||
+    "hobbies-interest-photos";
+  const CERT_FILE_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.CERTIFICATE_FILES || "certificate-files";
 
   let ppNavigationChart = null;
   let ppNavigationLayer = null;
@@ -696,7 +701,7 @@
         ${visible
           .map((entry) => {
             const photos = (entry.photos || [])
-              .map((photo) => photo?.url || photo?.dataUrl || "")
+              .map((photo) => Seav.getFileDisplayUrl(photo, HI_PHOTO_BUCKET))
               .filter(Boolean)
               .slice(0, 3);
             const categoryLabel = getHobbyInterestCategoryLabel(entry.category);
@@ -772,8 +777,11 @@
         ? "No expiry recorded"
         : "Not recorded";
     const statusLabel = status.badge || status.label || "Missing";
-    const fileUrl = record?.attachment?.url || record?.attachment?.dataUrl || "";
-    const hasFile = !!fileUrl;
+    const fileUrl = record?.attachment
+      ? Seav.getFileDisplayUrl(record.attachment, CERT_FILE_BUCKET)
+      : "";
+    const hasFile =
+      window.SeavApiCore?.hasStoredFile?.(record?.attachment) ?? !!fileUrl;
     const expiryLine = record?.expiry ? `Expires ${expiryLabel}` : expiryLabel;
     const certKey = resolvePublicCertKey(record, template);
     const isExpanded = isPublicCertExpanded?.(certKey) === true;

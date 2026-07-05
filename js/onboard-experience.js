@@ -17,6 +17,9 @@
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.ONBOARD_EXPERIENCES;
+  const OE_FILE_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.ONBOARD_EXPERIENCE_FILES ||
+    "onboard-experience-files";
   const expandedOeIds = new Set();
 
   function getEntries() {
@@ -115,6 +118,43 @@
     return map[status] || { label: status || "Draft", className: "pill-neutral" };
   }
 
+  function hasAttachment(attachment) {
+    return (
+      window.SeavApiCore?.hasStoredFile?.(attachment) ??
+      !!(attachment?.url || attachment?.dataUrl || attachment?.path)
+    );
+  }
+
+  function getAttachmentUrl(attachment) {
+    return Seav.getFileDisplayUrl(attachment, OE_FILE_BUCKET);
+  }
+
+  async function hydrateAttachment(attachment) {
+    if (!attachment || !hasAttachment(attachment)) return attachment || null;
+    if (!attachment.path || !window.SeavApiCore?.hydrateFileMeta) return attachment;
+
+    const hasDisplayUrl = !!getAttachmentUrl(attachment);
+    if (
+      !window.SeavApiCore?.storedFileNeedsHydration?.(attachment, OE_FILE_BUCKET) &&
+      hasDisplayUrl
+    ) {
+      return attachment;
+    }
+
+    return window.SeavApiCore.hydrateFileMeta(attachment, OE_FILE_BUCKET);
+  }
+
+  async function ensureOnboardAttachmentsHydrated() {
+    const entries = getEntries();
+    if (!Array.isArray(entries) || !entries.length || !window.SeavApiCore?.hydrateItemsFileField) {
+      return false;
+    }
+
+    await window.SeavApiCore.hydrateItemsFileField(entries, "attachment", OE_FILE_BUCKET);
+    window.SeavState?.syncCache?.();
+    return true;
+  }
+
   function isImageAttachment(attachment, url) {
     const mime = String(attachment?.mime || attachment?.mimetype || "").toLowerCase();
     const name = String(attachment?.filename || attachment?.name || url || "").toLowerCase();
@@ -123,8 +163,19 @@
   }
 
   function renderAttachmentSection(attachment) {
-    const fileUrl = attachment?.url || attachment?.dataUrl || "";
-    if (!fileUrl) return "";
+    if (!hasAttachment(attachment)) return "";
+
+    const fileUrl = getAttachmentUrl(attachment);
+    if (!fileUrl) {
+      return `
+        <div class="onboard-attachment-section">
+          <div class="onboard-signoff-label">Photo</div>
+          <div class="onboard-attachment-preview onboard-attachment-preview--loading muted">
+            Loading photo…
+          </div>
+        </div>
+      `;
+    }
 
     const filename = attachment?.filename || attachment?.name || "Attachment";
     const safeUrl = Seav.escapeHtml(fileUrl);
@@ -378,6 +429,12 @@
   }
 
   async function refreshView() {
+    try {
+      await ensureOnboardAttachmentsHydrated();
+    } catch (err) {
+      console.warn("[SEA-V] Onboard attachment hydration failed:", err);
+    }
+
     populateVesselOptions();
     populateCategoryOptions();
     renderKpis();
@@ -420,12 +477,15 @@
 
         await Seav.withSaving(async () => {
         const entryId = formData.id || createId("onboard");
-        const attachment = await buildAttachment(
+        let attachment = await buildAttachment(
           formData.file,
           existing?.attachment || null,
           entryId
         );
         if (formData.file && !attachment) return;
+        if (attachment) {
+          attachment = await hydrateAttachment(attachment);
+        }
 
         const now = new Date().toISOString();
 

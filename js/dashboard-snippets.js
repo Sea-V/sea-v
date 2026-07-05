@@ -829,7 +829,9 @@ async function renderHobbiesSnippet() {
       ${latest
         .map((entry) => {
           const photoCount = (entry.photos || []).filter(
-            (photo) => photo?.url || photo?.dataUrl
+            (photo) =>
+              window.SeavApiCore?.hasStoredFile?.(photo) ??
+              !!(photo?.url || photo?.dataUrl || photo?.path)
           ).length;
           return `
             <div class="list-row">

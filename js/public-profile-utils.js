@@ -435,7 +435,8 @@
       };
     }
 
-    const hasFile = !!(cert.attachment?.url || cert.attachment?.dataUrl);
+    const hasFile = window.SeavApiCore?.hasStoredFile?.(cert.attachment) ??
+      !!(cert.attachment?.url || cert.attachment?.dataUrl || cert.attachment?.path);
     return {
       badge: hasFile ? "On file" : "Recorded",
       label: hasFile ? "Document on file" : "Recorded",

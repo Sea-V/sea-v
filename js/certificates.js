@@ -31,13 +31,18 @@
 
   async function hydrateAttachment(meta) {
     if (!meta || !hasAttachment(meta)) return meta || null;
-    if (meta.url || meta.dataUrl) return meta;
     if (!meta.path || !window.SeavApiCore?.hydrateFileMeta) return meta;
 
-    return window.SeavApiCore.hydrateFileMeta(
-      meta,
-      meta.bucket || CERT_FILE_BUCKET
-    );
+    const bucket = meta.bucket || CERT_FILE_BUCKET;
+    const hasDisplayUrl = !!Seav.getFileDisplayUrl(meta, bucket);
+    if (
+      !window.SeavApiCore?.storedFileNeedsHydration?.(meta, bucket) &&
+      hasDisplayUrl
+    ) {
+      return meta;
+    }
+
+    return window.SeavApiCore.hydrateFileMeta(meta, bucket);
   }
 
   async function ensureCertAttachmentsHydrated() {
@@ -216,7 +221,7 @@
   function buildRow(cert) {
     const certId = cert.id || "";
     const status = statusFromCert(cert);
-    const fileUrl = cert.attachment?.url || cert.attachment?.dataUrl || "";
+    const fileUrl = Seav.getFileDisplayUrl(cert.attachment, CERT_FILE_BUCKET);
     const hasFile = hasAttachment(cert.attachment);
     const fileLabel = cert.attachment?.filename || "View document";
     const isExpanded = expandedCertIds.has(certId);

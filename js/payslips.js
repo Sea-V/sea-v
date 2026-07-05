@@ -69,6 +69,11 @@
   }
 
   async function refreshView() {
+    try {
+      await C.ensurePayslipAttachmentsHydrated?.();
+    } catch (err) {
+      console.warn("[SEA-V] Payslip attachment hydration failed:", err);
+    }
     populateTaxYearOptions("psTaxYearFilter", true);
     populateTaxYearOptions("ps_tax_year", false);
     populateCurrencyOptions();

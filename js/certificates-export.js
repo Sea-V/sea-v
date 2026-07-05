@@ -5,6 +5,27 @@
   if (!C || !window.Seav) return;
   const { getCerts, getDisplayStatus, isMandatoryCert } = C;
   const Seav = window.Seav;
+  const CERT_FILE_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.CERTIFICATE_FILES || "certificate-files";
+
+  async function resolveAttachmentBlob(attachment) {
+    const dataUrl = attachment?.dataUrl || "";
+    if (dataUrl) return dataUrlToBlob(dataUrl);
+
+    let fileUrl = attachment?.url || "";
+    if (!fileUrl && attachment?.path && window.SeavApiCore?.resolveStorageFileUrl) {
+      fileUrl = await window.SeavApiCore.resolveStorageFileUrl(
+        attachment,
+        CERT_FILE_BUCKET
+      );
+    }
+    if (!fileUrl) return null;
+
+    const response = await fetch(fileUrl);
+    if (!response.ok) return null;
+    return response.blob();
+  }
+
   async function emailCertificateSummary() {
     const certs = getCerts();
     if (!certs.length) {
@@ -91,29 +112,18 @@
 
     for (const [index, c] of certs.entries()) {
       const attachment = c.attachment || {};
-      const fileUrl = attachment.url || "";
-      const dataUrl = attachment.dataUrl || "";
-
-      if (!fileUrl && !dataUrl) continue;
+      if (!window.SeavApiCore?.hasStoredFile?.(attachment) &&
+          !(attachment.url || attachment.dataUrl || attachment.path)) {
+        continue;
+      }
 
       let blob = null;
       const label = c.name || c.code || `Certificate ${index + 1}`;
 
-      if (dataUrl) {
-        blob = dataUrlToBlob(dataUrl);
-      } else if (fileUrl) {
-        try {
-          const response = await fetch(fileUrl);
-          if (!response.ok) {
-            skipped.push(label);
-            continue;
-          }
-          blob = await response.blob();
-        } catch (err) {
-          console.warn("[SEA-V] Certificate attachment fetch failed:", err);
-          skipped.push(label);
-          continue;
-        }
+      try {
+        blob = await resolveAttachmentBlob(attachment);
+      } catch (err) {
+        console.warn("[SEA-V] Certificate attachment fetch failed:", err);
       }
 
       if (!blob) {

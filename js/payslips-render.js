@@ -5,7 +5,8 @@
   if (!C || !window.Seav) return;
   const {
     getFilteredEntries, getVesselName, expandedPsIds, getEntries,
-    filterEntriesForYear, activeYearMonthFilters, getMonthFilterOptionsHtml
+    filterEntriesForYear, activeYearMonthFilters, getMonthFilterOptionsHtml,
+    hasStoredAttachment, getAttachmentUrl
   } = C;
   const {
     formatDatePretty, formatMoneyAmount, getPayslipMonthLabel, normalizePayslipMonth,
@@ -18,8 +19,8 @@
       ? formatDatePretty(entry.paymentDate)
       : "—";
     const vesselName = getVesselName(entry.vesselId);
-    const fileUrl = entry.attachment?.url || entry.attachment?.dataUrl || "";
-    const hasFile = !!fileUrl;
+    const fileUrl = getAttachmentUrl(entry.attachment);
+    const hasFile = hasStoredAttachment(entry.attachment);
     const isExpanded = expandedPsIds.has(entryId);
     const netLabel =
       entry.netAmount !== "" && entry.netAmount != null
@@ -109,14 +110,16 @@
               <div class="ps-detail-label">Payslip file</div>
               <div class="ps-detail-value">
                 ${
-                  hasFile
+                  fileUrl
                     ? `<a class="ps-attachment-link" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                           <path d="M12 3v10m0 0l3.5-3.5M12 13l-3.5-3.5M5 15v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         View payslip
                       </a>`
-                    : "No payslip file uploaded"
+                    : hasFile
+                      ? `<span class="muted">Loading payslip…</span>`
+                      : "No payslip file uploaded"
                 }
               </div>
             </div>

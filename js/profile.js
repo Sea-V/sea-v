@@ -200,6 +200,8 @@
       }
     }
 
+    let previewObjectUrl = null;
+
     function refreshProfileView() {
       const profile = loadProfile();
       fillForm(profile);
@@ -207,11 +209,18 @@
     }
 
     function previewFromForm() {
+      if (previewObjectUrl) {
+        URL.revokeObjectURL(previewObjectUrl);
+        previewObjectUrl = null;
+      }
+
       const current = loadProfile();
       const formData = readProfileForm();
-      const previewPhoto = formData.file
-        ? { dataUrl: URL.createObjectURL(formData.file) }
-        : current.photo;
+      let previewPhoto = current.photo;
+      if (formData.file) {
+        previewObjectUrl = URL.createObjectURL(formData.file);
+        previewPhoto = { dataUrl: previewObjectUrl };
+      }
 
       renderPreview({
         ...current,

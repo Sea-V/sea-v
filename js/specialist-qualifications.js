@@ -16,6 +16,9 @@
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.SPECIALIST_QUALIFICATIONS;
+  const SQ_FILE_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.SPECIALIST_QUALIFICATION_FILES ||
+    "specialist-qualification-files";
   const expandedSqIds = new Set();
 
   function getEntries() {
@@ -29,6 +32,29 @@
       Expired: { label: "Expired", className: "pill-expired" }
     };
     return map[status] || { label: status || "Self-declared", className: "pill-neutral" };
+  }
+
+  function hasAttachment(attachment) {
+    return (
+      window.SeavApiCore?.hasStoredFile?.(attachment) ??
+      !!(attachment?.url || attachment?.dataUrl || attachment?.path)
+    );
+  }
+
+  function getAttachmentUrl(attachment) {
+    return Seav.getFileDisplayUrl(attachment, SQ_FILE_BUCKET);
+  }
+
+  async function ensureSqAttachmentsHydrated() {
+    const entries = getEntries();
+    if (!entries.length || !window.SeavApiCore?.hydrateItemsFileField) return;
+
+    await window.SeavApiCore.hydrateItemsFileField(
+      entries,
+      "attachment",
+      SQ_FILE_BUCKET
+    );
+    window.SeavState?.syncCache?.();
   }
 
   function populateCategoryOptions() {
@@ -52,9 +78,7 @@
 
     const entries = getEntries();
     const verified = entries.filter((e) => e.status === "Verified").length;
-    const withFile = entries.filter(
-      (e) => e.attachment?.url || e.attachment?.dataUrl
-    ).length;
+    const withFile = entries.filter((e) => hasAttachment(e.attachment)).length;
     const categories = new Set(
       entries.map((e) => e.category).filter(Boolean)
     ).size;
@@ -87,8 +111,8 @@
       ? formatDatePretty(entry.dateObtained)
       : "—";
     const expiry = entry.expiry ? formatDatePretty(entry.expiry) : "No expiry";
-    const fileUrl = entry.attachment?.url || entry.attachment?.dataUrl || "";
-    const hasFile = !!fileUrl;
+    const fileUrl = getAttachmentUrl(entry.attachment);
+    const hasFile = hasAttachment(entry.attachment);
     const isExpanded = expandedSqIds.has(entryId);
 
     return `
@@ -145,14 +169,16 @@
               <div class="sq-detail-label">Attachment</div>
               <div class="sq-detail-value">
                 ${
-                  hasFile
+                  fileUrl
                     ? `<a class="sq-attachment-link" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                           <path d="M12 3v10m0 0l3.5-3.5M12 13l-3.5-3.5M5 15v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         View document
                       </a>`
-                    : "No attachment uploaded"
+                    : hasFile
+                      ? `<span class="muted">Loading document…</span>`
+                      : "No attachment uploaded"
                 }
               </div>
             </div>
@@ -250,6 +276,11 @@
   }
 
   async function refreshView() {
+    try {
+      await ensureSqAttachmentsHydrated();
+    } catch (err) {
+      console.warn("[SEA-V] Specialist qualification hydration failed:", err);
+    }
     populateCategoryOptions();
     renderKpis();
     renderList();

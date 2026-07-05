@@ -24,9 +24,34 @@
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.PAYSLIPS;
+  const PS_FILE_BUCKET =
+    window.SeavApiCore?.STORAGE_BUCKETS?.PAYSLIP_FILES || "payslip-files";
   const expandedPsIds = new Set();
   let activeTaxYearFilter = "";
   const activeYearMonthFilters = {};
+
+  function hasStoredAttachment(attachment) {
+    return (
+      window.SeavApiCore?.hasStoredFile?.(attachment) ??
+      !!(attachment?.url || attachment?.dataUrl || attachment?.path)
+    );
+  }
+
+  function getAttachmentUrl(attachment) {
+    return window.Seav?.getFileDisplayUrl?.(attachment, PS_FILE_BUCKET) || "";
+  }
+
+  async function ensurePayslipAttachmentsHydrated() {
+    const entries = getEntries();
+    if (!entries.length || !window.SeavApiCore?.hydrateItemsFileField) return;
+
+    await window.SeavApiCore.hydrateItemsFileField(
+      entries,
+      "attachment",
+      PS_FILE_BUCKET
+    );
+    window.SeavState?.syncCache?.();
+  }
 
   function getEntries() {
     return window.SeavState?.payslips || [];
@@ -193,9 +218,7 @@
     if (!row) return;
 
     const entries = getFilteredEntries();
-    const withFile = entries.filter(
-      (entry) => entry.attachment?.url || entry.attachment?.dataUrl
-    ).length;
+    const withFile = entries.filter((entry) => hasStoredAttachment(entry.attachment)).length;
     const taxYears = new Set(entries.map((entry) => entry.taxYear).filter(Boolean)).size;
     const totalNet = entries.reduce((sum, entry) => {
       const value = Number(entry.netAmount);
@@ -230,12 +253,13 @@
 
 
   window.SeavPayslipsCore = {
-    STORAGE_KEY, expandedPsIds,
+    STORAGE_KEY, expandedPsIds, PS_FILE_BUCKET,
     get activeTaxYearFilter() { return activeTaxYearFilter; },
     set activeTaxYearFilter(v) { activeTaxYearFilter = v; },
     activeYearMonthFilters,
     getEntries, getFilteredEntries, getVesselName, getTaxYearsForFilter,
     getMonthFilterOptionsHtml, filterEntriesForYear, populateTaxYearOptions,
-    populateCurrencyOptions, populateMonthOptions, populateVesselOptions, renderKpis
+    populateCurrencyOptions, populateMonthOptions, populateVesselOptions, renderKpis,
+    hasStoredAttachment, getAttachmentUrl, ensurePayslipAttachmentsHydrated
   };
 })();

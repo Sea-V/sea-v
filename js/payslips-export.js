@@ -3,7 +3,7 @@
   "use strict";
   const C = window.SeavPayslipsCore;
   if (!C || !window.Seav) return;
-  const { getFilteredEntries, getVesselName } = C;
+  const { getFilteredEntries, getVesselName, PS_FILE_BUCKET } = C;
   const { getPayslipMonthLabel, normalizePayslipMonth } = window.SeavData;
   const Seav = window.Seav;
 
@@ -22,6 +22,21 @@
     const bytes = new Uint8Array(len);
     for (let i = 0; i < len; i += 1) bytes[i] = binary.charCodeAt(i);
     return new Blob([bytes], { type: mime });
+  }
+
+  async function resolveAttachmentBlob(attachment, bucket) {
+    const dataUrl = attachment?.dataUrl || "";
+    if (dataUrl) return dataUrlToBlob(dataUrl);
+
+    let fileUrl = attachment?.url || "";
+    if (!fileUrl && attachment?.path && window.SeavApiCore?.resolveStorageFileUrl) {
+      fileUrl = await window.SeavApiCore.resolveStorageFileUrl(attachment, bucket);
+    }
+    if (!fileUrl) return null;
+
+    const response = await fetch(fileUrl);
+    if (!response.ok) return null;
+    return response.blob();
   }
 
   function csvEscape(value) {
@@ -83,9 +98,10 @@
 
     for (const [index, entry] of entries.entries()) {
       const attachment = entry.attachment || {};
-      const fileUrl = attachment.url || "";
-      const dataUrl = attachment.dataUrl || "";
-      if (!fileUrl && !dataUrl) continue;
+      if (!window.SeavApiCore?.hasStoredFile?.(attachment) &&
+          !(attachment.url || attachment.dataUrl || attachment.path)) {
+        continue;
+      }
 
       let blob = null;
       const label =
@@ -93,21 +109,10 @@
         entry.payPeriod ||
         `Payslip ${index + 1}`;
 
-      if (dataUrl) {
-        blob = dataUrlToBlob(dataUrl);
-      } else if (fileUrl) {
-        try {
-          const response = await fetch(fileUrl);
-          if (!response.ok) {
-            skipped.push(label);
-            continue;
-          }
-          blob = await response.blob();
-        } catch (err) {
-          console.warn("[SEA-V] Payslip attachment fetch failed:", err);
-          skipped.push(label);
-          continue;
-        }
+      try {
+        blob = await resolveAttachmentBlob(attachment, PS_FILE_BUCKET);
+      } catch (err) {
+        console.warn("[SEA-V] Payslip attachment fetch failed:", err);
       }
 
       if (!blob) {

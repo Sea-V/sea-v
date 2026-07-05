@@ -232,7 +232,12 @@
     const photo = profile?.photo;
     if (!photo) return "";
     if (typeof photo === "string") return photo.trim();
-    return photo.url || photo.dataUrl || photo.publicUrl || "";
+    return (
+      window.Seav?.getFileDisplayUrl?.(
+        photo,
+        window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
+      ) || ""
+    );
   }
 
   function buildCvSource(state) {
