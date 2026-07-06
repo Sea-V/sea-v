@@ -466,16 +466,20 @@ function initDashboardNavigationChart(container) {
   if (dashNavigationChart || !container || typeof L === "undefined") return false;
 
   try {
+    // Panning/zoom enabled (mirrors the public profile map's config) — a fixed
+    // static view can crop out whole regions (e.g. South America) depending on
+    // where the auto-fit bounds land, so the user needs to be able to move it.
+    // scrollWheelZoom stays off so hovering the card doesn't hijack page scroll.
     dashNavigationChart = L.map(container, {
       center: [30, 0],
       zoom: 2,
-      minZoom: 2,
-      zoomControl: false,
+      minZoom: 1,
+      zoomControl: true,
       attributionControl: true,
-      dragging: false,
-      touchZoom: false,
+      dragging: true,
+      touchZoom: true,
       scrollWheelZoom: false,
-      doubleClickZoom: false,
+      doubleClickZoom: true,
       boxZoom: false,
       keyboard: false,
       preferCanvas: true
