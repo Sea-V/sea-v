@@ -570,52 +570,20 @@
     const hidden = published.slice(LIMITS.hobbies);
     const moreId = "ppHobbiesMore";
 
+    const buildRow = (entry) =>
+      window.SeavCards.buildHobbyRow(entry, {
+        variant: "public",
+        categoryLabel: getHobbyInterestCategoryLabel,
+        photoBucket: HI_PHOTO_BUCKET
+      });
+
     box.innerHTML = `
       <div class="public-cv-mini-list">
-        ${visible
-          .map((entry) => {
-            const photos = (entry.photos || [])
-              .map((photo) => Seav.getFileDisplayUrl(photo, HI_PHOTO_BUCKET))
-              .filter(Boolean)
-              .slice(0, 3);
-            const categoryLabel = getHobbyInterestCategoryLabel(entry.category);
-            const photoHtml = photos.length
-              ? `<div class="public-cv-hobby-photos">${photos
-                  .map(
-                    (url) =>
-                      `<img src="${Seav.escapeHtml(url)}" alt="" class="public-cv-hobby-photo" loading="lazy" />`
-                  )
-                  .join("")}</div>`
-              : "";
-
-            return `
-              <div class="public-cv-mini-row" data-pp-more-item>
-                <div class="public-cv-mini-main">
-                  <span class="public-cv-mini-title">${Seav.escapeHtml(entry.title || "—")}</span>
-                  <span class="public-cv-mini-meta">${Seav.escapeHtml(categoryLabel)}</span>
-                  ${entry.description ? `<p class="public-cv-hobby-desc">${Seav.escapeHtml(entry.description)}</p>` : ""}
-                  ${photoHtml}
-                </div>
-              </div>
-            `;
-          })
-          .join("")}
+        ${visible.map((entry) => buildRow(entry).replace(" data-pp-more-item", "")).join("")}
         ${
           hidden.length
             ? `<div class="public-cv-more-block" id="${moreId}" hidden>
-                ${hidden
-                  .map((entry) => {
-                    const categoryLabel = getHobbyInterestCategoryLabel(entry.category);
-                    return `
-                      <div class="public-cv-mini-row" data-pp-more-item>
-                        <div class="public-cv-mini-main">
-                          <span class="public-cv-mini-title">${Seav.escapeHtml(entry.title || "—")}</span>
-                          <span class="public-cv-mini-meta">${Seav.escapeHtml(categoryLabel)}</span>
-                        </div>
-                      </div>
-                    `;
-                  })
-                  .join("")}
+                ${hidden.map(buildRow).join("")}
               </div>`
             : ""
         }
@@ -849,47 +817,21 @@
     const hidden = sorted.slice(LIMITS.specialist);
     const moreId = "ppSpecialistMore";
 
-    // Status coloring lives in js/seav-data.js (shared with the dashboard
-    // snippet and the edit page) — translate its pill class to a dot class
-    // so all three surfaces agree on which statuses are green/blue/red.
-    const DOT_CLASS_BY_PILL = {
-      "pill-valid": "is-valid",
-      "pill-pending": "is-pending",
-      "pill-expired": "is-expired"
-    };
-
-    const buildCard = (entry) => {
-      const statusInfo = window.SeavData.getSpecialistQualificationStatusDisplay(entry.status);
-      const dotClass = DOT_CLASS_BY_PILL[statusInfo.className] || "";
-      const meta = [
-        getSpecialistCategoryLabel(entry.category),
-        entry.issuingBody,
-        entry.dateObtained ? formatExpiryShort(entry.dateObtained) : null
-      ]
-        .filter(Boolean)
-        .join(" • ");
-
-      return `
-        <div class="public-cv-mini-row public-cv-mini-row--stacked" data-pp-more-item>
-          <div class="public-cv-mini-main">
-            <span class="public-cv-mini-title">${Seav.escapeHtml(entry.title)}</span>
-            ${meta ? `<span class="public-cv-mini-meta">${Seav.escapeHtml(meta)}</span>` : ""}
-          </div>
-          <span class="public-cv-mini-meta">
-            <span class="public-cv-status-dot${dotClass ? ` ${dotClass}` : ""}" aria-hidden="true"></span>
-            ${Seav.escapeHtml(statusInfo.label)}
-          </span>
-        </div>
-      `;
-    };
+    const buildCard = (entry, moreAttr) =>
+      window.SeavCards.buildSpecialistRow(entry, {
+        variant: "public",
+        categoryLabel: getSpecialistCategoryLabel,
+        formatExpiry: formatExpiryShort,
+        moreAttr
+      });
 
     box.innerHTML = `
       <div class="public-cv-mini-list">
-        ${visible.map((entry) => buildCard(entry).replace(" data-pp-more-item", "")).join("")}
+        ${visible.map((entry) => buildCard(entry, false)).join("")}
         ${
           hidden.length
             ? `<div class="public-cv-more-block" id="${moreId}" hidden>
-                ${hidden.map(buildCard).join("")}
+                ${hidden.map((entry) => buildCard(entry, true)).join("")}
               </div>`
             : ""
         }

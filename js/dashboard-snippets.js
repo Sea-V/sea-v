@@ -563,9 +563,9 @@ async function renderNavigationSnippet() {
 }
 
   function truncateText(text, max = 140) {
-    const value = String(text || "").trim();
-    if (value.length <= max) return value;
-    return `${value.slice(0, max).trim()}…`;
+    return window.SeavData?.truncateText
+      ? window.SeavData.truncateText(text, max)
+      : String(text || "").trim().slice(0, max);
   }
 
   async function renderReferenceSnippet() {
@@ -640,20 +640,7 @@ async function renderSpecialistSnippet() {
   dashSpecialistSnippet.innerHTML = `
     <div class="list">
       ${latest
-        .map((entry) => {
-          const statusInfo = window.SeavData.getSpecialistQualificationStatusDisplay(entry.status);
-          return `
-            <div class="list-row">
-              <div style="min-width:0;">
-                <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
-                <div class="list-sub">
-                  ${Seav.escapeHtml(getLabel(entry.category))} • ${Seav.escapeHtml(statusInfo.label)}
-                </div>
-              </div>
-              <span class="pill ${statusInfo.className}">${Seav.escapeHtml(statusInfo.label)}</span>
-            </div>
-          `;
-        })
+        .map((entry) => window.SeavCards.buildSpecialistRow(entry, { categoryLabel: getLabel }))
         .join("")}
     </div>
   `;
@@ -717,26 +704,7 @@ async function renderHobbiesSnippet() {
   dashHobbiesSnippet.innerHTML = `
     <div class="list">
       ${latest
-        .map((entry) => {
-          const photoCount = (entry.photos || []).filter(
-            (photo) =>
-              window.SeavApiCore?.hasStoredFile?.(photo) ??
-              !!(photo?.url || photo?.dataUrl || photo?.path)
-          ).length;
-          const statusInfo = window.SeavData.getHobbyInterestStatusDisplay(entry.status);
-          return `
-            <div class="list-row">
-              <div style="min-width:0;">
-                <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
-                <div class="list-sub">
-                  ${Seav.escapeHtml(getLabel(entry.category))}
-                  ${photoCount ? ` • ${photoCount} photo${photoCount === 1 ? "" : "s"}` : ""}
-                </div>
-              </div>
-              <span class="pill ${statusInfo.className}">${Seav.escapeHtml(statusInfo.label)}</span>
-            </div>
-          `;
-        })
+        .map((entry) => window.SeavCards.buildHobbyRow(entry, { categoryLabel: getLabel }))
         .join("")}
     </div>
   `;

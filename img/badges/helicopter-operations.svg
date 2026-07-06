@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="HELO FLIGHT OPS" data-source-page="specialist-qualifications" data-tier="platinum">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="HELICOPTER FLIGHT OPS" data-source-page="specialist-qualifications" data-tier="platinum">
   <defs>
-    <linearGradient id="ring-ddb3i9" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-fdqijq" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#9b7ae6"/>
       <stop offset="50%" stop-color="#c4a0ff"/>
       <stop offset="100%" stop-color="#dcc8ff"/>
     </linearGradient>
-    <radialGradient id="disc-ddb3i9" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-fdqijq" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#dcc8ff"/>
       <stop offset="100%" stop-color="#c4a0ff"/>
     </radialGradient>
-    <linearGradient id="shine-ddb3i9" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-fdqijq" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <clipPath id="txt-ddb3i9">
-      <path d="M 60.00 19.00 L 92.04 37.50 L 92.04 74.50 L 60.00 93.00 L 27.96 74.50 L 27.96 37.50 Z"/>
+    <clipPath id="txt-fdqijq">
+      <path d="M 60.00 18.00 L 92.91 37.00 L 92.91 75.00 L 60.00 94.00 L 27.09 75.00 L 27.09 37.00 Z"/>
     </clipPath>
-    <filter id="sh-ddb3i9" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-fdqijq" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-ddb3i9)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-ddb3i9)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-ddb3i9)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-ddb3i9)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-ddb3i9)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-ddb3i9)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-ddb3i9)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-ddb3i9)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-ddb3i9)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-ddb3i9)"/>
+  <g filter="url(#sh-fdqijq)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-fdqijq)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-fdqijq)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-fdqijq)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-fdqijq)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-fdqijq)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-fdqijq)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-fdqijq)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-fdqijq)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-fdqijq)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
-  <g clip-path="url(#txt-ddb3i9)">
-
+  <g clip-path="url(#txt-fdqijq)">
+  
   <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
-    <text x="60" y="40.8" font-size="4.6" font-weight="800" letter-spacing="1.1" fill="#c4a0ff">SPEC OPS</text>
-    <text font-size="12.3" font-weight="900" letter-spacing="0.6" fill="#0F172A"><tspan x="60" y="54.3">HELO</tspan></text>
-    <text font-size="6.2" font-weight="700" letter-spacing="0.7" fill="#0F172A" opacity="0.78"><tspan x="60" y="66.4">FLIGHT</tspan><tspan x="60" dy="7.5">OPS</tspan></text>
-    <line x1="42" y1="70.5" x2="78" y2="70.5" stroke="#c4a0ff" stroke-width="1.6" stroke-linecap="round" opacity="0.38"/>
+    <text font-size="9" font-weight="900" letter-spacing="0.15" fill="#0F172A"><tspan x="60" y="52.2" dy="0">HELICOPTER</tspan></text>
+    <text font-size="7.4" font-weight="700" letter-spacing="0.6" fill="#c4a0ff"><tspan x="60" y="61.5" dy="0">FLIGHT OPS</tspan></text>
+    <line x1="40" y1="65.5" x2="80" y2="65.5" stroke="#c4a0ff" stroke-width="1.6" stroke-linecap="round" opacity="0.4"/>
   </g>
   </g>
+
   
 </svg>

@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="PROMO FIRST STEP" data-source-page="profile" data-tier="silver">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="FIRST PROMOTION" data-source-page="profile" data-tier="silver">
   <defs>
-    <linearGradient id="ring-t7qxgm" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-8lg593" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#2bb896"/>
       <stop offset="50%" stop-color="#42d6b5"/>
       <stop offset="100%" stop-color="#8aedcf"/>
     </linearGradient>
-    <radialGradient id="disc-t7qxgm" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-8lg593" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#8aedcf"/>
       <stop offset="100%" stop-color="#42d6b5"/>
     </radialGradient>
-    <linearGradient id="shine-t7qxgm" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-8lg593" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <clipPath id="txt-t7qxgm">
-      <path d="M 60.00 19.00 L 92.04 37.50 L 92.04 74.50 L 60.00 93.00 L 27.96 74.50 L 27.96 37.50 Z"/>
+    <clipPath id="txt-8lg593">
+      <path d="M 60.00 18.00 L 92.91 37.00 L 92.91 75.00 L 60.00 94.00 L 27.09 75.00 L 27.09 37.00 Z"/>
     </clipPath>
-    <filter id="sh-t7qxgm" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-8lg593" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-t7qxgm)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-t7qxgm)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-t7qxgm)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-t7qxgm)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-t7qxgm)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-t7qxgm)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-t7qxgm)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-t7qxgm)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-t7qxgm)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-t7qxgm)"/>
+  <g filter="url(#sh-8lg593)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-8lg593)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-8lg593)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-8lg593)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-8lg593)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-8lg593)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-8lg593)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-8lg593)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-8lg593)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-8lg593)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
-  <g clip-path="url(#txt-t7qxgm)">
-
+  <g clip-path="url(#txt-8lg593)">
+  
   <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
-    <text x="60" y="40.8" font-size="4.6" font-weight="800" letter-spacing="1.1" fill="#42d6b5">CAREER</text>
-    <text font-size="12.3" font-weight="900" letter-spacing="0.6" fill="#0F172A"><tspan x="60" y="54.3">PROMO</tspan></text>
-    <text font-size="6.2" font-weight="700" letter-spacing="0.7" fill="#0F172A" opacity="0.78"><tspan x="60" y="66.4">FIRST</tspan><tspan x="60" dy="7.5">STEP</tspan></text>
-    <line x1="42" y1="70.5" x2="78" y2="70.5" stroke="#42d6b5" stroke-width="1.6" stroke-linecap="round" opacity="0.38"/>
+    <text font-size="17" font-weight="900" letter-spacing="0.5" fill="#0F172A"><tspan x="60" y="55.7" dy="0">FIRST</tspan></text>
+    <text font-size="7.4" font-weight="700" letter-spacing="0.6" fill="#42d6b5"><tspan x="60" y="65.1" dy="0">PROMOTION</tspan></text>
+    <line x1="40" y1="69.1" x2="80" y2="69.1" stroke="#42d6b5" stroke-width="1.6" stroke-linecap="round" opacity="0.4"/>
   </g>
   </g>
+
   
 </svg>

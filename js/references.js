@@ -135,10 +135,9 @@
   }
 
   function truncateText(text, max = 140) {
-    const value = String(text || "").trim();
-    if (!value) return "";
-    if (value.length <= max) return value;
-    return `${value.slice(0, max).trim()}…`;
+    return window.SeavData?.truncateText
+      ? window.SeavData.truncateText(text, max)
+      : String(text || "").trim().slice(0, max);
   }
 
   function getReferenceExcerpt(ref, verification) {

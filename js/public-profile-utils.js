@@ -458,9 +458,9 @@
   }
 
   function truncate(text, max = 220) {
-    const raw = String(text || "").trim();
-    if (raw.length <= max) return raw;
-    return `${raw.slice(0, max).trim()}…`;
+    return window.SeavData?.truncateText
+      ? window.SeavData.truncateText(text, max)
+      : String(text || "").trim().slice(0, max);
   }
 
   function setSectionCount(elementId, total) {

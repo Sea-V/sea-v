@@ -950,6 +950,20 @@ function getEmptyTenderEntry() {
   });
 }
 
+  /**
+   * Shared text-truncation helper — was independently copy-pasted (with
+   * slightly different default lengths) in dashboard-snippets.js,
+   * public-profile-utils.js (as `truncate`), and references.js. Each caller
+   * still passes its own `max`, so behavior/output is unchanged; only the
+   * duplicated logic is centralized.
+   */
+  function truncateText(text, max = 140) {
+    const value = String(text || "").trim();
+    if (!value) return "";
+    if (value.length <= max) return value;
+    return `${value.slice(0, max).trim()}…`;
+  }
+
   /* =========================================================
      CERTIFICATE HELPERS
   ========================================================= */
@@ -1307,6 +1321,7 @@ window.SeavData = {
   getReferenceStatus,
   getReferenceStatusDisplay,
   isProfilePublic,
-  formatDatePretty
+  formatDatePretty,
+  truncateText
 };
 })();

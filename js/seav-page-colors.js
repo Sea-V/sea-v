@@ -1,4 +1,4 @@
-/* Auto-generated from scripts/page-colors.json — run scripts/generate-badges.py */
+/* Auto-generated from scripts/page-colors.json — run scripts/generate-badges.mjs */
 window.SeavPageColors = {
   "pages": {
     "dashboard": {
