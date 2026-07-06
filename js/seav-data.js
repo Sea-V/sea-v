@@ -821,11 +821,14 @@ function getTenderProficiencyLabel(value) {
 }
 
 function getTenderProficiencyDisplay(level) {
+  // Medal-style progression: no medal yet -> bronze -> silver -> gold,
+  // so the four proficiency levels read as increasing skill at a glance
+  // (Advanced and Coxswain used to both be plain green and looked identical).
   const classNames = {
-    Familiarisation: "pill-pending",
-    Competent: "pill-neutral",
-    Advanced: "pill-valid",
-    Coxswain: "pill-valid"
+    Familiarisation: "pill-neutral",
+    Competent: "tender-proficiency-pill--bronze",
+    Advanced: "tender-proficiency-pill--silver",
+    Coxswain: "tender-proficiency-pill--gold"
   };
   const label = getTenderProficiencyLabel(level);
   if (!level || label === "—") return null;

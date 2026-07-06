@@ -194,6 +194,28 @@
 }
 
 /* =========================================================
+   TENDER PROFICIENCY — MEDAL TIERS
+   Familiarisation stays neutral (pill-neutral, no medal yet);
+   Competent/Advanced/Coxswain step up bronze → silver → gold so
+   the four levels read as a progression at a glance.
+========================================================= */
+
+.tender-proficiency-pill--bronze {
+  background: rgba(184, 115, 51, 0.40);
+  border-color: rgba(214, 155, 106, 0.65);
+}
+
+.tender-proficiency-pill--silver {
+  background: rgba(176, 183, 195, 0.34);
+  border-color: rgba(216, 222, 230, 0.65);
+}
+
+.tender-proficiency-pill--gold {
+  background: rgba(212, 160, 23, 0.42);
+  border-color: rgba(255, 205, 60, 0.7);
+}
+
+/* =========================================================
    UNIFIED GLASS CARDS
 ========================================================= */
 
