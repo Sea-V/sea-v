@@ -71,7 +71,7 @@ Legacy paths do not start with `{userId}/` (e.g. `vessel_1779772960365_3ply7t/ph
 
 ## Known gaps / actions
 
-1. **HEIC tender photos** (Naiad, Axopar, Rafnar): files exist in storage but browsers cannot render `.HEIC` in `<img>`. Re-upload as JPG/PNG.
+1. **HEIC photos — systemic fix shipped 2026-07-06.** `js/seav-upload.js`'s `uploadToStorage` (the single choke point every domain's file upload goes through) now detects HEIC/HEIF files and converts them to JPEG client-side via `heic2any` (CDN, loaded on every page that has file uploads) before storing. Fixes new uploads across every domain, not just tenders. **Still needed:** the 3 already-broken tender photos (Naiad, Axopar, Rafnar) were uploaded before this fix and are still stored as raw `.HEIC` — those specific files still need Jack to re-upload them once to get converted; the fix does not retroactively touch existing storage objects.
 2. **Duplicate cleanup**: run `docs/dedupe-legacy-vessels.sql` preview if duplicates reappear; DB may already be clean.
 3. **Session cache**: bump `CACHE_KEY_PREFIX` in `state.js` after fleet-affecting DB changes.
 4. **Apply step5b** on Supabase if not yet applied (reference, payslip, profile legacy paths).

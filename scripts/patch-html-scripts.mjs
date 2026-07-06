@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 129;
+const ASSET_VERSION = 130;
 
 function bumpAssetVersions(html) {
   let next = html.replace(
@@ -102,6 +102,20 @@ function patchAppPage(html) {
     next = next.replace(
       '<script src="js/core.js" defer></script>',
       `<script src="js/core.js" defer></script>\n  <script src="js/seav-upload.js" defer></script>`
+    );
+  }
+
+  // heic2any: client-side HEIC -> JPEG conversion so iPhone photos render in
+  // Chrome/Firefox/Edge (only Safari decodes HEIC natively). Loaded right
+  // before seav-upload.js, the single choke point every photo upload goes
+  // through. Separate idempotent check so it also backfills pages that
+  // already had seav-upload.js inserted by an earlier run of this script.
+  // Matches only the opening of the tag (not the full closing/version suffix)
+  // since re-runs see the tag with ?v=N already appended from bumpAssetVersions.
+  if (next.includes("js/seav-upload.js") && !next.includes("heic2any")) {
+    next = next.replace(
+      '<script src="js/seav-upload.js',
+      `<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>\n  <script src="js/seav-upload.js`
     );
   }
 

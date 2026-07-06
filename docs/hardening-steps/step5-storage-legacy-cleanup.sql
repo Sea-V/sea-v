@@ -54,6 +54,16 @@ create policy hobbies_interest_photos_public_read
 
 -- ---------------------------------------------------------------------------
 -- 3. Owner SELECT — allow paths referenced on the user's rows (legacy uploads)
+--
+-- IMPORTANT: the subquery's path comparison must be qualified as
+-- storage.objects.name, not a bare `name`. Several of the joined tables
+-- (certificates, tenders, vessels, sea_references, profile) have their OWN
+-- "name" column — a bare `name` inside the subquery silently resolves to
+-- THAT column instead of the intended outer storage.objects.name, so the
+-- fallback clause never actually matches anything. Bit this once on
+-- certificate-files/tender-photos/vessel-photos (fixed live 2026-07-06 via a
+-- migration) — qualifying explicitly everywhere below so it can't recur if
+-- this script is ever re-run on a fresh project.
 -- ---------------------------------------------------------------------------
 drop policy if exists "onboard-experience-files_owner_select" on storage.objects;
 create policy "onboard-experience-files_owner_select"
@@ -65,7 +75,7 @@ create policy "onboard-experience-files_owner_select"
       or exists (
         select 1 from public.onboard_experiences oe
         where oe.user_id = auth.uid()
-          and oe.attachment->>'path' = name
+          and oe.attachment->>'path' = storage.objects.name
       )
     )
   );
@@ -80,7 +90,7 @@ create policy "seatime-files_owner_select"
       or exists (
         select 1 from public.seatimes s
         where s.user_id = auth.uid()
-          and s.attachment->>'path' = name
+          and s.attachment->>'path' = storage.objects.name
       )
     )
   );
@@ -95,7 +105,7 @@ create policy "certificate-files_owner_select"
       or exists (
         select 1 from public.certificates c
         where c.user_id = auth.uid()
-          and c.attachment->>'path' = name
+          and c.attachment->>'path' = storage.objects.name
       )
     )
   );
@@ -110,7 +120,7 @@ create policy "tender-photos_owner_select"
       or exists (
         select 1 from public.tenders t
         where t.user_id = auth.uid()
-          and t.photo->>'path' = name
+          and t.photo->>'path' = storage.objects.name
       )
     )
   );
@@ -125,7 +135,7 @@ create policy "vessel-photos_owner_select"
       or exists (
         select 1 from public.vessels v
         where v.user_id = auth.uid()
-          and v.photo->>'path' = name
+          and v.photo->>'path' = storage.objects.name
       )
     )
   );
@@ -142,7 +152,7 @@ create policy "hobbies-interest-photos_owner_select"
         from public.hobbies_interests h
         cross join lateral jsonb_array_elements(coalesce(h.photos, '[]'::jsonb)) photo
         where h.user_id = auth.uid()
-          and photo->>'path' = name
+          and photo->>'path' = storage.objects.name
       )
     )
   );
