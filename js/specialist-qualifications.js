@@ -12,7 +12,8 @@
     createId,
     formatDatePretty,
     SPECIALIST_QUALIFICATION_CATEGORIES,
-    getSpecialistCategoryLabel
+    getSpecialistCategoryLabel,
+    getSpecialistQualificationStatusDisplay
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.SPECIALIST_QUALIFICATIONS;
@@ -25,14 +26,9 @@
     return window.SeavState?.specialistQualifications || [];
   }
 
-  function getStatusDisplay(status) {
-    const map = {
-      "Self-declared": { label: "Self-declared", className: "pill-pending" },
-      Verified: { label: "Verified", className: "pill-valid" },
-      Expired: { label: "Expired", className: "pill-expired" }
-    };
-    return map[status] || { label: status || "Self-declared", className: "pill-neutral" };
-  }
+  // Status color map lives in js/seav-data.js (shared with the dashboard
+  // snippet and public profile) so all three surfaces show the same colors.
+  const getStatusDisplay = getSpecialistQualificationStatusDisplay;
 
   function hasAttachment(attachment) {
     return (

@@ -849,8 +849,18 @@
     const hidden = sorted.slice(LIMITS.specialist);
     const moreId = "ppSpecialistMore";
 
+    // Status coloring lives in js/seav-data.js (shared with the dashboard
+    // snippet and the edit page) — translate its pill class to a dot class
+    // so all three surfaces agree on which statuses are green/blue/red.
+    const DOT_CLASS_BY_PILL = {
+      "pill-valid": "is-valid",
+      "pill-pending": "is-pending",
+      "pill-expired": "is-expired"
+    };
+
     const buildCard = (entry) => {
-      const verified = entry.status === "Verified";
+      const statusInfo = window.SeavData.getSpecialistQualificationStatusDisplay(entry.status);
+      const dotClass = DOT_CLASS_BY_PILL[statusInfo.className] || "";
       const meta = [
         getSpecialistCategoryLabel(entry.category),
         entry.issuingBody,
@@ -866,8 +876,8 @@
             ${meta ? `<span class="public-cv-mini-meta">${Seav.escapeHtml(meta)}</span>` : ""}
           </div>
           <span class="public-cv-mini-meta">
-            <span class="public-cv-status-dot${verified ? " is-valid" : ""}" aria-hidden="true"></span>
-            ${Seav.escapeHtml(entry.status || "Self-declared")}
+            <span class="public-cv-status-dot${dotClass ? ` ${dotClass}` : ""}" aria-hidden="true"></span>
+            ${Seav.escapeHtml(statusInfo.label)}
           </span>
         </div>
       `;

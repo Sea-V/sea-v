@@ -1171,6 +1171,10 @@ body.public-profile-page .overlay {
   background: rgba(91, 188, 255, 0.7);
 }
 
+.public-cv-status-dot.is-expired {
+  background: #dc3545;
+}
+
 /* =========================================================
    BADGES
 ========================================================= */

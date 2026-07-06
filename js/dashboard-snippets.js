@@ -635,15 +635,16 @@ async function renderSpecialistSnippet() {
     <div class="list">
       ${latest
         .map((entry) => {
+          const statusInfo = window.SeavData.getSpecialistQualificationStatusDisplay(entry.status);
           return `
             <div class="list-row">
               <div style="min-width:0;">
                 <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
                 <div class="list-sub">
-                  ${Seav.escapeHtml(getLabel(entry.category))} • ${Seav.escapeHtml(entry.status || "Self-declared")}
+                  ${Seav.escapeHtml(getLabel(entry.category))} • ${Seav.escapeHtml(statusInfo.label)}
                 </div>
               </div>
-              <span class="pill">${Seav.escapeHtml(entry.status || "Self-declared")}</span>
+              <span class="pill ${statusInfo.className}">${Seav.escapeHtml(statusInfo.label)}</span>
             </div>
           `;
         })
