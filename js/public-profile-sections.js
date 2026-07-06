@@ -1002,7 +1002,7 @@
     const visible = approved.slice(0, LIMITS.achievements);
     const hidden = approved.slice(LIMITS.achievements);
     const moreId = "ppAchievementMore";
-    const countLabel = `${approved.length} verified highlight${approved.length === 1 ? "" : "s"}`;
+    const countLabel = `${approved.length} career highlight${approved.length === 1 ? "" : "s"}`;
 
     const buildHighlightRow = (item, isMoreItem = false) => {
       const vessel = item.vessel ? item.vessel : "";
@@ -1027,7 +1027,7 @@
           <span class="public-cv-achievements-summary-meta">${Seav.escapeHtml(countLabel)}</span>
         </summary>
         <div class="public-cv-achievements-panel">
-          <p class="public-cv-achievements-note">Optional detail for recruiters — verified milestones from SEA-V.</p>
+          <p class="public-cv-achievements-note">Optional detail for recruiters — career milestones logged in SEA-V.</p>
           <div class="public-cv-highlight-list public-cv-highlight-list--compact">
             ${visible.map((item) => buildHighlightRow(item)).join("")}
             ${

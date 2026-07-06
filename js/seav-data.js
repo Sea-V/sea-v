@@ -1137,6 +1137,39 @@ function getSortedVesselOptions(vessels = []) {
     return total;
   }
 
+  function hasPassageCoord(lat, lng) {
+    const latNum = Number(lat);
+    const lngNum = Number(lng);
+    return Number.isFinite(latNum) && Number.isFinite(lngNum) && !(latNum === 0 && lngNum === 0);
+  }
+
+  // Quick straight-line (great-circle) distance for a single logged passage —
+  // deliberately NOT the routed sea-lane distance (SeavNavigationPassage /
+  // navigation-routing.js's Dijkstra engine). That engine is heavy (a ~100+
+  // node graph + land-avoidance heuristics) and only loaded on navigation.html
+  // and the dashboard/public profile. Achievement evaluation runs on every
+  // app page, so this stays cheap and dependency-free — it only needs the raw
+  // navigation entry, which window.SeavState already loads everywhere. A
+  // straight line is always a slight underestimate of the real route, so it
+  // never over-awards a distance badge.
+  function getPassageDistanceNm(entry) {
+    if (!entry) return 0;
+    const fromLat = Number(entry.fromLat ?? entry.from_lat ?? 0);
+    const fromLng = Number(entry.fromLng ?? entry.from_lng ?? 0);
+    const toLat = Number(entry.toLat ?? entry.lat ?? entry.to_lat ?? 0);
+    const toLng = Number(entry.toLng ?? entry.lng ?? entry.to_lng ?? 0);
+    const waypoints = Array.isArray(entry.waypoints)
+      ? entry.waypoints
+          .map((wp) => [Number(wp?.lat), Number(wp?.lng)])
+          .filter(([lat, lng]) => hasPassageCoord(lat, lng))
+      : [];
+
+    if (!hasPassageCoord(fromLat, fromLng) || !hasPassageCoord(toLat, toLng)) return 0;
+    if (fromLat === toLat && fromLng === toLng && !waypoints.length) return 0;
+
+    return pathLengthNm([[fromLat, fromLng], ...waypoints, [toLat, toLng]]);
+  }
+
   /* =========================================================
      VESSEL FIELD ACCESSORS
      Vessel records are saved with prefixed field names (vessel_type,
@@ -1270,6 +1303,7 @@ window.SeavData = {
   haversineNm,
   formatNm,
   pathLengthNm,
+  getPassageDistanceNm,
   getReferenceStatus,
   getReferenceStatusDisplay,
   isProfilePublic,

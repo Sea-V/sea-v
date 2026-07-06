@@ -399,8 +399,10 @@ helicopter_ops: {
       sourcePage: "navigation",
       badgeKey: "offshore_100nm",
       description: "Completed an offshore passage of 100nm or more.",
-      approvalRequired: true,
-      trigger: { type: "manual" }
+      // Auto-detected from your navigation log's own passage distance —
+      // straight-line estimate, see SeavData.getPassageDistanceNm.
+      approvalRequired: false,
+      trigger: { type: "passage_distance", minNm: 100 }
     },
     passage_500nm: {
       code: "passage_500nm",
@@ -410,8 +412,8 @@ helicopter_ops: {
       sourcePage: "navigation",
       badgeKey: "passage_500nm",
       description: "Completed a passage of 500nm or more.",
-      approvalRequired: true,
-      trigger: { type: "manual" }
+      approvalRequired: false,
+      trigger: { type: "passage_distance", minNm: 500 }
     },
     passage_1000nm: {
       code: "passage_1000nm",
@@ -421,8 +423,8 @@ helicopter_ops: {
       sourcePage: "navigation",
       badgeKey: "passage_1000nm",
       description: "Completed a passage of 1000nm or more.",
-      approvalRequired: true,
-      trigger: { type: "manual" }
+      approvalRequired: false,
+      trigger: { type: "passage_distance", minNm: 1000 }
     },
     atlantic_crossing: {
       code: "atlantic_crossing",

@@ -7,7 +7,7 @@
     return;
   }
 
-  const { KEYS, createId, totalQualifyingDays } = window.SeavData;
+  const { KEYS, createId, totalQualifyingDays, getPassageDistanceNm } = window.SeavData;
   const { listAchievements, getAchievementWithBadge } = window.SeavBadges;
 
   function getProfile() {
@@ -24,6 +24,33 @@
 
   function getTenders() {
     return window.SeavState?.tenders || [];
+  }
+
+  function getNavigationAreas() {
+    return window.SeavState?.navigationAreas || [];
+  }
+
+  // A single logged passage's distance, not a cumulative total — Strava-style
+  // "you did a 500nm passage" means one leg was that long, not that all your
+  // passages added up to it. Uses straight-line distance (see
+  // SeavData.getPassageDistanceNm) rather than the routed sea-lane engine —
+  // simple, dependency-free, and never over-awards since a straight line is
+  // always the shortest possible estimate of the real route.
+  function getLongestPassageNm() {
+    return getNavigationAreas().reduce(
+      (best, entry) => Math.max(best, getPassageDistanceNm(entry)),
+      0
+    );
+  }
+
+  function firstQualifyingPassageEntry(minNm) {
+    const sorted = [...getNavigationAreas()].sort((a, b) => {
+      const da = a.departureDate || a.visitedDate || a.createdAt || "";
+      const db = b.departureDate || b.visitedDate || b.createdAt || "";
+      return String(da).localeCompare(String(db));
+    });
+
+    return sorted.find((entry) => getPassageDistanceNm(entry) >= minNm) || null;
   }
 
   function getAchievements() {
@@ -166,6 +193,14 @@
     }, entries[0]);
   }
 
+  function vesselContextFromNavEntry(entry) {
+    const vesselId = entry?.vesselId || entry?.vessel_id || "";
+    if (!vesselId) return { vesselId: "", vessel: "" };
+    const vessel = getVesselById(vesselId);
+    if (vessel) return vesselContextFromRecord(vessel);
+    return { vesselId, vessel: "Linked vessel" };
+  }
+
   function resolveVesselContext(definition) {
     const trigger = definition.trigger || {};
     const vessels = getVessels().sort((a, b) => {
@@ -201,6 +236,10 @@
         if (!tender?.vesselId) return { vesselId: "", vessel: "" };
         return vesselContextFromRecord(vessels.find((v) => v.id === tender.vesselId) || null);
       }
+      case "passage_distance":
+        return vesselContextFromNavEntry(
+          firstQualifyingPassageEntry(Number(trigger.minNm || 0))
+        );
       default:
         return { vesselId: "", vessel: "" };
     }
@@ -230,6 +269,9 @@
 
       case "tender_count":
         return getTenders().length >= Number(trigger.minCount || 0);
+
+      case "passage_distance":
+        return getLongestPassageNm() >= Number(trigger.minNm || 0);
 
       case "rank_match":
         return includesAny(getProfile().rank, trigger.values || []);
@@ -282,6 +324,18 @@
     };
   }
 
+  // Data for these trigger types can legitimately be [] for a moment on page
+  // load — window.SeavState lazy-loads most collections per page (see
+  // js/state.js's PAGE_LOAD_KEYS) and only backfills navigationAreas/vessels/
+  // tenders in the background on pages that don't need them for their own UI
+  // (certificates.html, hobbies-interests.html, payslips.html, etc). Without
+  // this, a passage badge earned on the navigation page could get silently
+  // revoked the next time achievement evaluation runs on an unrelated page,
+  // purely because that page hadn't fetched the navigation log yet — not
+  // because the passage was actually removed. Once earned, these stay earned
+  // (matches how Strava/Garmin trophies behave — they don't get taken back).
+  const PERMANENT_ONCE_EARNED_TRIGGERS = new Set(["passage_distance"]);
+
   async function evaluateAutomaticAchievements() {
     const existing = getAchievements();
     const definitions = listAchievements();
@@ -330,7 +384,7 @@
             });
           }
         }
-      } else {
+      } else if (!PERMANENT_ONCE_EARNED_TRIGGERS.has(definition.trigger?.type)) {
         autoRecords.forEach((record) => {
           if (record.id) removeIds.push(record.id);
         });
@@ -454,6 +508,16 @@
           target,
           percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
           label: `${current} / ${target} tenders logged`
+        };
+      }
+      case "passage_distance": {
+        const current = Math.round(getLongestPassageNm());
+        const target = Number(trigger.minNm || 0);
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} NM longest passage`
         };
       }
       case "rank_match":
