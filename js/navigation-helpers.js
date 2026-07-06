@@ -178,23 +178,8 @@
     return resolved;
   }
 
-  function haversineNm(lat1, lng1, lat2, lng2) {
-    const toRad = (deg) => (deg * Math.PI) / 180;
-    const earthRadiusNm = 3440.065;
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-    return 2 * earthRadiusNm * Math.asin(Math.sqrt(a));
-  }
-
-  function formatNm(value) {
-    const miles = Number(value || 0);
-    if (miles >= 1000) return `${Math.round(miles).toLocaleString()} NM`;
-    if (miles >= 100) return `${Math.round(miles)} NM`;
-    return `${Math.round(miles * 10) / 10} NM`;
-  }
+  const haversineNm = window.SeavData.haversineNm;
+  const formatNm = window.SeavData.formatNm;
 
   function formatRouteLabel(entry) {
     const from = entry.fromPort
@@ -219,14 +204,7 @@
     );
   }
 
-  function pathLengthNm(coords) {
-    let total = 0;
-    for (let i = 1; i < coords.length; i += 1) {
-      total += haversineNm(coords[i - 1][0], coords[i - 1][1], coords[i][0], coords[i][1]);
-    }
-    return total;
-  }
-
+  const pathLengthNm = window.SeavData.pathLengthNm;
 
   window.SeavNavigationHelpers = {
     STORAGE_KEY, MAP_TILE_URL, MAP_TILE_ATTRIBUTION, MAP_DEFAULT_VIEW,

@@ -27,7 +27,8 @@
     createId,
     getSortedVesselOptions,
     formatDatePretty,
-    getReferenceStatus
+    getReferenceStatus,
+    getReferenceStatusDisplay
   } = window.SeavData;
   const STORAGE_KEY = KEYS.REFS;
   const VERIFY_LINK_KEY_PREFIX = "seav_ref_verify_url_";
@@ -117,20 +118,12 @@
     return refs;
   }
 
+  // Status label/color map lives in js/seav-data.js (shared with the
+  // dashboard snippet) so both surfaces agree on wording and colors.
   function referenceStatusPill(status) {
-    if (status === "Verified") {
-      return `<span class="reference-verified-pill">Verified</span>`;
-    }
-    if (status === "Sent for Verification") {
-      return `<span class="reference-sent-pill">Sent for verification</span>`;
-    }
-    if (status === "Declined") {
-      return `<span class="reference-declined-pill">Declined</span>`;
-    }
-    if (status !== "Draft") {
-      return `<span class="pill">${Seav.escapeHtml(status)}</span>`;
-    }
-    return "";
+    const info = getReferenceStatusDisplay(status);
+    if (!info.visible) return "";
+    return `<span class="${info.className}">${Seav.escapeHtml(info.label)}</span>`;
   }
 
   function getRefereeInitials(name) {

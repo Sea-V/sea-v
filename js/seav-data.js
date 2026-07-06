@@ -1104,6 +1104,40 @@ function getSortedVesselOptions(vessels = []) {
   }
 
   /* =========================================================
+     NAVIGATION DISTANCE HELPERS
+     Single source of truth for the great-circle distance math —
+     was previously copy-pasted (identically) in navigation-helpers.js,
+     navigation-routing.js, dashboard-snippets.js, and public-profile-utils.js.
+  ========================================================= */
+
+  const EARTH_RADIUS_NM = 3440.065;
+
+  function haversineNm(lat1, lng1, lat2, lng2) {
+    const toRad = (deg) => (deg * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    return 2 * EARTH_RADIUS_NM * Math.asin(Math.sqrt(a));
+  }
+
+  function formatNm(value) {
+    const miles = Number(value || 0);
+    if (miles >= 1000) return `${Math.round(miles).toLocaleString()} NM`;
+    if (miles >= 100) return `${Math.round(miles)} NM`;
+    return `${Math.round(miles * 10) / 10} NM`;
+  }
+
+  function pathLengthNm(coords) {
+    let total = 0;
+    for (let i = 1; i < coords.length; i += 1) {
+      total += haversineNm(coords[i - 1][0], coords[i - 1][1], coords[i][0], coords[i][1]);
+    }
+    return total;
+  }
+
+  /* =========================================================
      REFERENCE HELPERS
   ========================================================= */
 
@@ -1115,6 +1149,26 @@ function getSortedVesselOptions(vessels = []) {
     if (value === "declined") return "Declined";
     if (value.startsWith("sent")) return "Sent for Verification";
     return String(raw).trim() || "Draft";
+  }
+
+  // Single source of truth for reference status pills — was previously
+  // copy-pasted in js/references.js (edit page) and js/dashboard-snippets.js
+  // with slightly different label text ("Sent for verification" vs "Sent
+  // for Verification"). `visible: false` means the edit page's card hides
+  // the pill for that status; callers can ignore it if they want to always
+  // show something (the dashboard snippet does, for a quick-glance Draft tag).
+  function getReferenceStatusDisplay(status) {
+    const map = {
+      Verified: { label: "Verified", className: "reference-verified-pill" },
+      "Sent for Verification": {
+        label: "Sent for verification",
+        className: "reference-sent-pill"
+      },
+      Declined: { label: "Declined", className: "reference-declined-pill" }
+    };
+    if (map[status]) return { ...map[status], visible: true };
+    if (status === "Draft") return { label: "Draft", className: "pill", visible: false };
+    return { label: status || "Draft", className: "pill", visible: true };
   }
 
   /* =========================================================
@@ -1182,7 +1236,11 @@ window.SeavData = {
   getVesselHistory,
   getSortedVesselOptions,
   getVesselColor,
+  haversineNm,
+  formatNm,
+  pathLengthNm,
   getReferenceStatus,
+  getReferenceStatusDisplay,
   isProfilePublic,
   formatDatePretty
 };

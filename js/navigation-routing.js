@@ -1,8 +1,8 @@
 // /js/navigation-routing.js — ocean-only passage paths for the globe
 (function () {
   "use strict";
+  if (!window.SeavData) return;
 
-  const EARTH_RADIUS_NM = 3440.065;
   const HUB_SNAP_NM = 150;
   const PORT_HUB_SNAP_NM = 120;
   const PORT_PORT_MAX_NM = 95;
@@ -180,14 +180,7 @@
     return (value * Math.PI) / 180;
   }
 
-  function haversineNm(lat1, lng1, lat2, lng2) {
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-    return 2 * EARTH_RADIUS_NM * Math.asin(Math.sqrt(a));
-  }
+  const haversineNm = window.SeavData.haversineNm;
 
   function makePortId(country, port) {
     return `port_${country}_${port}`.toLowerCase().replace(/[^a-z0-9]+/g, "_");
@@ -301,13 +294,7 @@
     return false;
   }
 
-  function pathLengthNm(coords) {
-    let total = 0;
-    for (let i = 1; i < coords.length; i += 1) {
-      total += haversineNm(coords[i - 1][0], coords[i - 1][1], coords[i][0], coords[i][1]);
-    }
-    return total;
-  }
+  const pathLengthNm = window.SeavData.pathLengthNm;
 
   function dedupeCoords(coords) {
     const output = [];

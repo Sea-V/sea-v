@@ -49,23 +49,8 @@
     heading.textContent = `${baseTitle} (${count})`;
   }
 
-  function haversineNm(lat1, lng1, lat2, lng2) {
-    const toRad = (deg) => (deg * Math.PI) / 180;
-    const earthRadiusNm = 3440.065;
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-    return 2 * earthRadiusNm * Math.asin(Math.sqrt(a));
-  }
-
-  function formatNm(value) {
-    const miles = Number(value || 0);
-    if (miles >= 1000) return `${Math.round(miles).toLocaleString()} NM`;
-    if (miles >= 100) return `${Math.round(miles)} NM`;
-    return `${Math.round(miles * 10) / 10} NM`;
-  }
+  const haversineNm = window.SeavData.haversineNm;
+  const formatNm = window.SeavData.formatNm;
 
   async function renderSeatimeSnippet() {
     const dashSeatimeSnippet = document.getElementById("dashSeatimeSnippet");
@@ -555,13 +540,6 @@ async function renderNavigationSnippet() {
     return `${value.slice(0, max).trim()}…`;
   }
 
-  function referenceSnippetPillClass(status) {
-    if (status === "Verified") return "reference-verified-pill";
-    if (status === "Sent for Verification") return "reference-sent-pill";
-    if (status === "Declined") return "reference-declined-pill";
-    return "pill";
-  }
-
   async function renderReferenceSnippet() {
     const dashRefSnippet = document.getElementById("dashRefSnippet");
     if (!dashRefSnippet) return;
@@ -586,7 +564,7 @@ async function renderNavigationSnippet() {
       <div class="list">
         ${latestThree.map((ref) => {
           const status = getReferenceStatus(ref);
-          const pillClass = referenceSnippetPillClass(status);
+          const statusInfo = window.SeavData.getReferenceStatusDisplay(status);
           const quote = truncateText(ref.text, 140);
           return `
             <div class="list-row">
@@ -599,7 +577,7 @@ async function renderNavigationSnippet() {
                     : ``
                 }
               </div>
-              <span class="${pillClass}">${Seav.escapeHtml(status)}</span>
+              <span class="${statusInfo.className}">${Seav.escapeHtml(statusInfo.label)}</span>
             </div>
           `;
         }).join("")}

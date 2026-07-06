@@ -181,6 +181,7 @@
 
   --pill-height: 30px;
   --pill-padding-x: 12px;
+  --pill-min-width: 100px;
   --pill-font-size: 12px;
   --pill-font-weight: 800;
   --pill-letter-spacing: 0.2px;
