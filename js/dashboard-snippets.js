@@ -295,78 +295,18 @@ async function renderTenderSnippet() {
     window.SeavState?.syncCache?.();
   }
 
+  const tenderPhotoBucket =
+    window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos";
+
   dashTenderSnippet.innerHTML = `
     <div class="dash-mini-card-grid">
-      ${latestThree.map((tender) => {
-        const tenderPhotoBucket =
-          window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos";
-        const photoUrl = Seav.getFileDisplayUrl(tender.photo, tenderPhotoBucket);
-        const hasPhoto =
-          window.SeavApiCore?.hasStoredFile?.(tender.photo) ?? !!photoUrl;
-        const photoHtml = photoUrl
-          ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(tender.name || "Tender")}" loading="lazy" />`
-          : hasPhoto
-            ? `<div class="dash-mini-fallback muted">Loading…</div>`
-            : `<div class="dash-mini-fallback">No Photo</div>`;
-
-        const linkedVessel = (window.SeavState?.vessels || []).find(
-          (v) => v.id === tender.vesselId
-        );
-
-        const name = Seav.escapeHtml(tender.name || "Unnamed Tender");
-        const vesselName = Seav.escapeHtml(linkedVessel?.name || "Standalone / Chase");
-        const type = Seav.escapeHtml(tender.type || "—");
-        const proficiency = window.SeavData?.getTenderProficiencyDisplay?.(
-          tender.proficiencyLevel
-        );
-        const proficiencyHtml = proficiency
-          ? `<span class="pill tender-proficiency-pill ${proficiency.className}">${Seav.escapeHtml(proficiency.label)}</span>`
-          : `<strong>—</strong>`;
-        const model = Seav.escapeHtml(tender.model || "—");
-        const length = Seav.escapeHtml(tender.length || "—");
-        const engine = Seav.escapeHtml(tender.engine || "—");
-
-        return `
-          <article class="dash-mini-card">
-            <div class="dash-mini-photo">${photoHtml}</div>
-
-            <div class="dash-mini-body">
-              <div class="dash-mini-head">
-                <div>
-                  <h4>${name}</h4>
-                </div>
-              </div>
-
-              <div class="dash-mini-info-grid">
-                <div>
-                  <span>Vessel</span>
-                  <strong>${vesselName}</strong>
-                </div>
-                <div>
-                  <span>Type</span>
-                  <strong>${type}</strong>
-                </div>
-                <div>
-                  <span>Model</span>
-                  <strong>${model}</strong>
-                </div>
-                <div>
-                  <span>Length</span>
-                  <strong>${length}</strong>
-                </div>
-                <div>
-                  <span>Engine</span>
-                  <strong>${engine}</strong>
-                </div>
-                <div class="dash-mini-info-cell dash-mini-info-cell--proficiency">
-                  <span>Proficiency</span>
-                  ${proficiencyHtml}
-                </div>
-              </div>
-            </div>
-          </article>
-        `;
-      }).join("")}
+      ${latestThree
+        .map((tender) =>
+          window.SeavCards.buildTenderCard(tender, window.SeavState?.vessels || [], {
+            photoBucket: tenderPhotoBucket
+          })
+        )
+        .join("")}
     </div>
   `;
 }

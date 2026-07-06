@@ -376,69 +376,12 @@
     if (section) section.hidden = false;
   }
 
+  // Tender card markup lives in js/seav-cards.js (shared with the dashboard
+  // snippet) — this wrapper just keeps the existing call signature used below.
   function buildTenderCard(tender, vessels) {
-    const photoUrl =
-      window.Seav?.getFileDisplayUrl?.(
-        tender.photo,
-        window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos"
-      ) ||
-      tender.photo?.url ||
-      tender.photo?.dataUrl ||
-      "";
-    const photoHtml = photoUrl
-      ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(tender.name || "Tender")}" loading="lazy" />`
-      : `<div class="dash-mini-fallback">No Photo</div>`;
-
-    const linkedVessel = vessels.find((v) => v.id === tender.vesselId);
-    const name = Seav.escapeHtml(tender.name || "Unnamed Tender");
-    const vesselName = Seav.escapeHtml(linkedVessel?.name || "Standalone / Chase");
-    const type = Seav.escapeHtml(tender.type || "—");
-    const proficiency = getTenderProficiencyDisplay?.(tender.proficiencyLevel);
-    const proficiencyHtml = proficiency
-      ? `<span class="pill tender-proficiency-pill ${proficiency.className}">${Seav.escapeHtml(proficiency.label)}</span>`
-      : `<strong>—</strong>`;
-    const model = Seav.escapeHtml(tender.model || "—");
-    const length = Seav.escapeHtml(tender.length || "—");
-    const engine = Seav.escapeHtml(tender.engine || "—");
-
-    return `
-      <article class="dash-mini-card" data-pp-more-item>
-        <div class="dash-mini-photo">${photoHtml}</div>
-        <div class="dash-mini-body">
-          <div class="dash-mini-head">
-            <div>
-              <h4>${name}</h4>
-            </div>
-          </div>
-          <div class="dash-mini-info-grid">
-            <div>
-              <span>Vessel</span>
-              <strong>${vesselName}</strong>
-            </div>
-            <div>
-              <span>Type</span>
-              <strong>${type}</strong>
-            </div>
-            <div>
-              <span>Model</span>
-              <strong>${model}</strong>
-            </div>
-            <div>
-              <span>Length</span>
-              <strong>${length}</strong>
-            </div>
-            <div>
-              <span>Engine</span>
-              <strong>${engine}</strong>
-            </div>
-            <div class="dash-mini-info-cell dash-mini-info-cell--proficiency">
-              <span>Proficiency</span>
-              ${proficiencyHtml}
-            </div>
-          </div>
-        </div>
-      </article>
-    `;
+    return window.SeavCards.buildTenderCard(tender, vessels, {
+      photoBucket: window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos"
+    });
   }
 
   function renderTenders(tenders, vessels) {

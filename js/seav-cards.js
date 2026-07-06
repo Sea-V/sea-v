@@ -101,7 +101,74 @@
     `;
   }
 
+  /**
+   * Build the shared read-only tender summary card used on the dashboard
+   * "Tenders" snippet and the public profile tender section.
+   */
+  function buildTenderCard(tender, vessels, options = {}) {
+    const bucket =
+      options.photoBucket ||
+      window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS ||
+      "tender-photos";
+
+    const photoHtml = buildCardPhotoHtml(tender.photo, bucket, tender.name || "Tender");
+
+    const linkedVessel = (vessels || []).find((v) => v.id === tender.vesselId);
+    const name = Seav.escapeHtml(tender.name || "Unnamed Tender");
+    const vesselName = Seav.escapeHtml(linkedVessel?.name || "Standalone / Chase");
+    const type = Seav.escapeHtml(tender.type || "—");
+    const proficiency = window.SeavData?.getTenderProficiencyDisplay?.(tender.proficiencyLevel);
+    const proficiencyHtml = proficiency
+      ? `<span class="pill tender-proficiency-pill ${proficiency.className}">${Seav.escapeHtml(proficiency.label)}</span>`
+      : `<strong>—</strong>`;
+    const model = Seav.escapeHtml(tender.model || "—");
+    const length = Seav.escapeHtml(tender.length || "—");
+    const engine = Seav.escapeHtml(tender.engine || "—");
+
+    return `
+      <article class="dash-mini-card" data-pp-more-item>
+        <div class="dash-mini-photo">${photoHtml}</div>
+
+        <div class="dash-mini-body">
+          <div class="dash-mini-head">
+            <div>
+              <h4>${name}</h4>
+            </div>
+          </div>
+
+          <div class="dash-mini-info-grid">
+            <div>
+              <span>Vessel</span>
+              <strong>${vesselName}</strong>
+            </div>
+            <div>
+              <span>Type</span>
+              <strong>${type}</strong>
+            </div>
+            <div>
+              <span>Model</span>
+              <strong>${model}</strong>
+            </div>
+            <div>
+              <span>Length</span>
+              <strong>${length}</strong>
+            </div>
+            <div>
+              <span>Engine</span>
+              <strong>${engine}</strong>
+            </div>
+            <div class="dash-mini-info-cell dash-mini-info-cell--proficiency">
+              <span>Proficiency</span>
+              ${proficiencyHtml}
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
   window.SeavCards = {
-    buildVesselCard
+    buildVesselCard,
+    buildTenderCard
   };
 })();
