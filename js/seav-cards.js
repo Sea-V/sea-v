@@ -177,14 +177,18 @@
     const getLabel = window.SeavData?.getOnboardCategoryLabel || ((value) => value || "—");
     const vessel = (vessels || []).find((v) => v.id === entry.vesselId);
     const statusFallback = options.statusFallback ?? "—";
+    // Same green pill used on the onboard-experience edit page (js/onboard-experience.js)
+    // — was plain unstyled text here before, which is why it didn't match.
+    const familiarisationHtml = entry.isFamiliarisation
+      ? ` <span class="onboard-familiarisation-pill">Familiarisation</span>`
+      : "";
 
     return `
       <div class="list-row" data-pp-more-item>
         <div style="min-width:0;">
           <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
           <div class="list-sub">
-            ${Seav.escapeHtml(vessel?.name || "—")} • ${Seav.escapeHtml(getLabel(entry.category))}
-            ${entry.isFamiliarisation ? " • Familiarisation" : ""}
+            ${Seav.escapeHtml(vessel?.name || "—")} • ${Seav.escapeHtml(getLabel(entry.category))}${familiarisationHtml}
           </div>
         </div>
         <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
