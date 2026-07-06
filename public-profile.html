@@ -11,7 +11,7 @@
 
   <title>SEA-V • Public Profile</title>
 
-  <link rel="stylesheet" href="styles.css?v=133" />
+  <link rel="stylesheet" href="styles.css?v=134" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -23,27 +23,27 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
-  <script src="js/feedback.js?v=133" defer></script>
-  <script src="js/core.js?v=133" defer></script>
+  <script src="js/feedback.js?v=134" defer></script>
+  <script src="js/core.js?v=134" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=133" defer></script>
-  <script src="js/seav-data.js?v=133" defer></script>
-  <script src="js/seav-badges.js?v=133" defer></script>
+  <script src="js/seav-upload.js?v=134" defer></script>
+  <script src="js/seav-data.js?v=134" defer></script>
+  <script src="js/seav-badges.js?v=134" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=133"></script>
-  <script src="js/supabase.js?v=133" defer></script>
-  <script src="js/auth.js?v=133"></script>
-  <script src="js/api-core.js?v=133" defer></script>
-  <script src="js/api-mappers.js?v=133" defer></script>
-  <script src="js/api.js?v=133" defer></script>
-  <script src="js/navigation-ports.js?v=133" defer></script>
-  <script src="js/navigation-helpers.js?v=133" defer></script>
-  <script src="js/navigation-passage.js?v=133" defer></script>
-  <script src="js/navigation-routing.js?v=133" defer></script>
-  <script src="js/public-profile-utils.js?v=133" defer></script>
-  <script src="js/seav-cards.js?v=133" defer></script>
-  <script src="js/public-profile-sections.js?v=133" defer></script>
-  <script src="js/public-profile.js?v=133" defer></script>
+  <script src="js/seav-config.js?v=134"></script>
+  <script src="js/supabase.js?v=134" defer></script>
+  <script src="js/auth.js?v=134"></script>
+  <script src="js/api-core.js?v=134" defer></script>
+  <script src="js/api-mappers.js?v=134" defer></script>
+  <script src="js/api.js?v=134" defer></script>
+  <script src="js/navigation-ports.js?v=134" defer></script>
+  <script src="js/navigation-helpers.js?v=134" defer></script>
+  <script src="js/navigation-passage.js?v=134" defer></script>
+  <script src="js/navigation-routing.js?v=134" defer></script>
+  <script src="js/public-profile-utils.js?v=134" defer></script>
+  <script src="js/seav-cards.js?v=134" defer></script>
+  <script src="js/public-profile-sections.js?v=134" defer></script>
+  <script src="js/public-profile.js?v=134" defer></script>
 </head>
 
 <body class="public-page public-profile-page">
@@ -162,7 +162,7 @@
 
               <article class="dash-card dash-card-accent-vessels" id="ppVesselSection">
                 <div class="dashboard-card-headline">
-                  <h3>Vessels</h3>
+                  <h3><span class="public-profile-section-icon" data-pp-icon="vessels" aria-hidden="true"></span>Vessels</h3>
                   <span class="public-profile-section-count" id="ppVesselCount" hidden></span>
                 </div>
                 <div id="ppVesselSnippet"></div>
@@ -170,7 +170,7 @@
 
               <article class="dash-card dash-card-accent-tenders" id="ppTenderSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Tenders</h3>
+                  <h3><span class="public-profile-section-icon" data-pp-icon="tenders" aria-hidden="true"></span>Tenders</h3>
                   <span class="public-profile-section-count" id="ppTenderCount" hidden></span>
                 </div>
                 <div id="ppTenderSnippet"></div>
@@ -178,7 +178,7 @@
 
               <article class="dash-card dash-card-accent-seatime" id="ppSeatimeSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Sea Time</h3>
+                  <h3><span class="public-profile-section-icon" data-pp-icon="seatime" aria-hidden="true"></span>Sea Time</h3>
                 </div>
                 <p class="public-profile-section-note">Formal sea time logged in SEA-V.</p>
                 <div id="ppSeatimeSnippet"></div>
@@ -186,14 +186,14 @@
 
               <article class="dash-card dash-card-accent-navigation dashboard-navigation-card" id="ppNavigationSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Navigation</h3>
+                  <h3><span class="public-profile-section-icon" data-pp-icon="navigation" aria-hidden="true"></span>Navigation</h3>
                 </div>
                 <div id="ppNavigationSnippet"></div>
               </article>
 
               <article class="dash-card dash-card-accent-onboard" id="ppOperationsSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Onboard experience</h3>
+                  <h3><span class="public-profile-section-icon" data-pp-icon="onboard" aria-hidden="true"></span>Onboard experience</h3>
                   <span class="public-profile-section-count" id="ppOnboardCount" hidden></span>
                 </div>
                 <p class="public-profile-section-note">Operations and familiarisations from your SEA-V log.</p>
@@ -202,26 +202,26 @@
 
               <article class="dash-card dash-card-accent-specialist" id="ppSpecialistSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Specialist Qualifications</h3>
+                  <h3><span class="public-profile-section-icon" data-pp-icon="specialist" aria-hidden="true"></span>Specialist Qualifications</h3>
                 </div>
                 <div id="ppSpecialistSnippet"></div>
               </article>
 
               <article class="dash-card dash-card-accent-references" id="ppRefSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>References</h3>
+                  <h3><span class="public-profile-section-icon" data-pp-icon="references" aria-hidden="true"></span>References</h3>
                 </div>
                 <p class="public-profile-section-note">Only confirmed verifications are shown.</p>
                 <div id="ppRefSnippet"></div>
               </article>
 
-              <article class="dash-card dash-card-accent-hobbies public-profile-achievements-card" id="ppAchievementSection" hidden>
+              <article class="dash-card dash-card-accent-achievements public-profile-achievements-card" id="ppAchievementSection" hidden>
                 <div id="ppAchievementSnippet"></div>
               </article>
 
               <article class="dash-card dash-card-accent-hobbies" id="ppHobbiesSection" hidden>
                 <div class="dashboard-card-headline">
-                  <h3>Hobbies &amp; Interests</h3>
+                  <h3><span class="public-profile-section-icon" data-pp-icon="hobbies" aria-hidden="true"></span>Hobbies &amp; Interests</h3>
                 </div>
                 <div id="ppHobbiesSnippet"></div>
               </article>

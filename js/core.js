@@ -410,6 +410,26 @@ const app = {
   const iconPublicProfile = `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M4 12h16M12 4c2.2 2.8 3.2 5.7 3.2 8s-1 5.2-3.2 8M12 4c-2.2 2.8-3.2 5.7-3.2 8s1 5.2 3.2 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
   const iconLogout = `<svg viewBox="0 0 24 24" fill="none"><path d="M10 6H7.5A1.5 1.5 0 0 0 6 7.5v9A1.5 1.5 0 0 0 7.5 18H10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M13 8.5 16.5 12 13 15.5M9.5 12h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
+  // Reuse the same sidebar-nav icon set elsewhere on the site (e.g. the
+  // public profile section headings) instead of duplicating SVG markup.
+  window.SeavIcons = {
+    dashboard: iconDashboard,
+    profile: iconProfile,
+    cv: iconCv,
+    vessels: iconVessels,
+    seatime: iconSeatime,
+    tenders: iconTenders,
+    navigation: iconNavigation,
+    onboard: iconOnboard,
+    achievements: iconAchievements,
+    certificates: iconCertificates,
+    specialist: iconSpecialist,
+    references: iconReferences,
+    hobbies: iconHobbies,
+    payslips: iconPayslips,
+    publicProfile: iconPublicProfile
+  };
+
 function renderAppSidebar() {
   return `
     <div class="dash-side-stack">

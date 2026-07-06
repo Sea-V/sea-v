@@ -145,84 +145,8 @@ body.public-profile-page .overlay {
   background: rgba(91, 188, 255, 0.2);
 }
 
-/* The shell must stay overflow: visible (not the dashboard.css default of
-   hidden) or the sticky section-nav below can't stick — a sticky element's
-   nearest clipping ancestor becomes its scroll container, and a hidden
-   overflow up the tree kills the stickiness entirely. That trade-off means
-   the shell itself no longer clips anything, so individual cards need their
-   own clipping restored below (otherwise long titles / wide content can
-   spill past the card's rounded edge instead of staying contained). */
-.public-profile-shell.dashboard-shell-card {
-  overflow: visible;
-}
-
-.public-profile-page .dash-card,
-.public-profile-page .dashboard-shell-head,
-.public-profile-page .dashboard-shell-section {
-  overflow: hidden;
-}
-
 .public-profile-page .dashboard-shell-head {
   grid-template-columns: 1fr;
-}
-
-/* =========================================================
-   STICKY SECTION NAV
-========================================================= */
-
-.public-profile-section-nav {
-  position: sticky;
-  top: 49px;
-  z-index: 30;
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 10px 28px 12px;
-  margin: 0 0 0;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  border-bottom: 1px solid rgba(91, 188, 255, 0.14);
-  /* Must be opaque + blurred like the topbar directly above it — this bar is
-     sticky, so page content (including card/section titles) scrolls
-     underneath it. A transparent background let that content show through
-     and visually collide with the nav pills while scrolling. */
-  background: rgba(8, 16, 28, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-.public-profile-section-nav::-webkit-scrollbar {
-  display: none;
-}
-
-.public-profile-section-nav-link {
-  flex: 0 0 auto;
-  padding: 7px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(91, 188, 255, 0.18);
-  background: rgba(255, 255, 255, 0.035);
-  color: rgba(255, 255, 255, 0.74);
-  font-size: 11px;
-  font-weight: 800;
-  text-decoration: none;
-  white-space: nowrap;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
-}
-
-.public-profile-section-nav-link:hover {
-  color: #ffffff;
-  border-color: rgba(91, 188, 255, 0.32);
-  background: rgba(91, 188, 255, 0.08);
-}
-
-.public-profile-section-nav-link.is-active {
-  color: #ffffff;
-  border-color: rgba(91, 188, 255, 0.42);
-  background: rgba(91, 188, 255, 0.16);
-  box-shadow: 0 0 0 1px rgba(91, 188, 255, 0.08);
 }
 
 /* =========================================================
@@ -237,7 +161,7 @@ body.public-profile-page .overlay {
 
 .public-profile-page .dash-card,
 .public-profile-page #pp-section-overview {
-  scroll-margin-top: 118px;
+  scroll-margin-top: 70px;
 }
 
 /* Flex items default to a min-width based on their own content, so a long
@@ -247,6 +171,59 @@ body.public-profile-page .overlay {
 .public-profile-page .dashboard-card-headline h3 {
   min-width: 0;
   overflow-wrap: break-word;
+}
+
+/* =========================================================
+   PER-SECTION COLOR ACCENTS
+   Each dash-card-accent-* class already exists in the markup but had no
+   actual color tied to it — every section rendered as the same flat navy
+   card, which read as monotonous scrolling down the page. Reuse the same
+   --page-* identity colors already used for the app's sidebar nav (see
+   core/variables.css) so each section gets a subtle, on-brand tint instead
+   of introducing a new palette. Scoped to .public-profile-page only so the
+   authenticated dashboard (which shares these same class names) is
+   untouched.
+========================================================= */
+
+.public-profile-page .dash-card-accent-profile { --section-accent: var(--page-profile); }
+.public-profile-page .dash-card-accent-seatime { --section-accent: var(--page-seatime); }
+.public-profile-page .dash-card-accent-vessels { --section-accent: var(--page-vessels); }
+.public-profile-page .dash-card-accent-tenders { --section-accent: var(--page-tenders); }
+.public-profile-page .dash-card-accent-navigation { --section-accent: var(--page-navigation); }
+.public-profile-page .dash-card-accent-onboard { --section-accent: var(--page-onboard-experience); }
+.public-profile-page .dash-card-accent-specialist { --section-accent: var(--page-specialist-qualifications); }
+.public-profile-page .dash-card-accent-references { --section-accent: var(--page-references); }
+.public-profile-page .dash-card-accent-achievements { --section-accent: var(--page-achievements); }
+.public-profile-page .dash-card-accent-hobbies { --section-accent: var(--page-hobbies-interests); }
+
+.public-profile-page [class*="dash-card-accent-"] {
+  border-color: color-mix(in srgb, var(--section-accent, #5bbcff) 42%, rgba(255, 255, 255, 0.1));
+  transition: border-color 0.2s ease;
+}
+
+/* Section heading icon — reuses the same SVG set as the app's own sidebar
+   nav (window.SeavIcons, js/core.js) tinted to the section's accent color,
+   so each card reads distinctly while scrolling instead of a wall of
+   identical text headings. */
+.public-profile-page .dashboard-card-headline h3,
+.public-profile-page .dash-kpis-row h3.kpi-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.public-profile-page .public-profile-section-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--section-accent, #5bbcff);
+}
+
+.public-profile-page .public-profile-section-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .public-profile-tagline {
@@ -725,76 +702,8 @@ body.public-profile-page .overlay {
 }
 
 /* =========================================================
-   HIGHLIGHTS (achievements) — compact recruiter dropdown
+   HIGHLIGHTS (achievements) — real badge artwork, always visible
 ========================================================= */
-
-.public-profile-achievements-card {
-  padding: 10px 12px !important;
-}
-
-.public-cv-achievements-details {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  overflow: hidden;
-}
-
-.public-cv-achievements-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 8px 11px;
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
-}
-
-.public-cv-achievements-summary::-webkit-details-marker {
-  display: none;
-}
-
-.public-cv-achievements-summary::after {
-  content: "";
-  width: 7px;
-  height: 7px;
-  flex-shrink: 0;
-  border-right: 1.5px solid rgba(91, 188, 255, 0.85);
-  border-bottom: 1.5px solid rgba(91, 188, 255, 0.85);
-  transform: rotate(45deg);
-  transition: transform 0.18s ease;
-}
-
-.public-cv-achievements-details[open] .public-cv-achievements-summary::after {
-  transform: rotate(-135deg) translateY(-2px);
-}
-
-.public-cv-achievements-summary-label {
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.02em;
-}
-
-.public-cv-achievements-summary-meta {
-  color: rgba(91, 188, 255, 0.72);
-  font-size: 10px;
-  font-weight: 750;
-  white-space: nowrap;
-}
-
-.public-cv-achievements-panel {
-  padding: 0 10px 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.public-cv-achievements-note {
-  margin: 8px 0 6px;
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 9px;
-  line-height: 1.35;
-  font-weight: 650;
-}
 
 .public-cv-highlight-list {
   display: flex;
@@ -802,77 +711,11 @@ body.public-profile-page .overlay {
   gap: 8px;
 }
 
-.public-cv-highlight-list--compact {
-  gap: 0;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
 .public-cv-highlight-list.public-cv-more-block:not([hidden]) {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 8px;
-}
-
-.public-cv-highlight-list--compact.public-cv-more-block:not([hidden]) {
-  gap: 0;
-  margin-top: 0;
-  border-top: 0;
-  border-radius: 0 0 8px 8px;
-}
-
-.public-cv-highlight-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) minmax(0, 0.85fr);
-  gap: 8px;
-  align-items: center;
-  min-height: 28px;
-  padding: 4px 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.015);
-}
-
-.public-cv-highlight-row:first-child {
-  border-top: 0;
-}
-
-.public-cv-highlight-row-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(91, 188, 255, 0.75);
-  flex-shrink: 0;
-}
-
-.public-cv-highlight-row-title {
-  min-width: 0;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 10px;
-  line-height: 1.25;
-  font-weight: 800;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.public-cv-highlight-row-meta {
-  min-width: 0;
-  color: rgba(255, 255, 255, 0.45);
-  font-size: 9px;
-  line-height: 1.2;
-  font-weight: 650;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: right;
-}
-
-.public-profile-achievements-card .public-cv-show-more {
-  margin-top: 6px;
-  padding: 5px 8px;
-  font-size: 9px;
 }
 
 .public-cv-highlight-card {

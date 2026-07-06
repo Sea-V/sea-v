@@ -30,7 +30,17 @@
     const hasPhoto = window.SeavApiCore?.hasStoredFile?.(fileValue) ?? !!photoUrl;
 
     if (photoUrl) {
-      return `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(altText)}" loading="lazy" />`;
+      // A recorded photo can still fail to actually render in the browser
+      // (e.g. a HEIC file uploaded before the auto-convert fix, on a browser
+      // with no HEIC support) — that shows the native broken-image icon with
+      // no useful information. Swap to a clean text fallback instead of
+      // leaving that on screen.
+      const safeAlt = Seav.escapeHtml(altText || "Photo unavailable");
+      return `
+        <img src="${Seav.escapeHtml(photoUrl)}" alt="${safeAlt}" loading="lazy"
+          onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+        <div class="dash-mini-fallback" style="display:none;">${safeAlt}</div>
+      `;
     }
     return hasPhoto
       ? `<div class="dash-mini-fallback muted">Loading…</div>`

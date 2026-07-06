@@ -16,6 +16,14 @@
     return waitForDependency(() => window.SeavSupabase, maxMs);
   }
 
+  function populateSectionIcons() {
+    document.querySelectorAll("[data-pp-icon]").forEach((el) => {
+      const key = el.getAttribute("data-pp-icon");
+      const svg = window.SeavIcons?.[key];
+      if (svg) el.innerHTML = svg;
+    });
+  }
+
   function showPublicProfileBootstrapError(message) {
     const loading = document.getElementById("ppLoading");
     const gate = document.getElementById("ppGate");
@@ -258,6 +266,7 @@
 
         bindExpandToggles(document.getElementById("ppContent"));
         renderSectionNav();
+        populateSectionIcons();
       } catch (err) {
         console.error("[SEA-V] Public profile render failed:", err);
         if (loading) loading.hidden = true;

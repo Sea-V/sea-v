@@ -944,47 +944,50 @@
     const visible = approved.slice(0, LIMITS.achievements);
     const hidden = approved.slice(LIMITS.achievements);
     const moreId = "ppAchievementMore";
-    const countLabel = `${approved.length} career highlight${approved.length === 1 ? "" : "s"}`;
 
-    const buildHighlightRow = (item, isMoreItem = false) => {
+    const buildHighlightCard = (item, isMoreItem = false) => {
       const vessel = item.vessel ? item.vessel : "";
       const title = item.title || "Milestone";
       const meta =
         vessel ||
-        (item.description ? truncate(item.description, 48) : "");
+        (item.description ? truncate(item.description, 70) : "Career-wide milestone");
+      const imagePath = window.SeavBadges?.resolveItemBadgeImage?.(item) || "";
+      const initial = Seav.escapeHtml((title || "M").trim().charAt(0).toUpperCase() || "M");
+      const badgeInner = imagePath
+        ? `<img src="${Seav.escapeHtml(imagePath)}" alt="" loading="lazy" />`
+        : `<span class="public-cv-highlight-badge-fallback">${initial}</span>`;
 
       return `
-        <article class="public-cv-highlight-row"${isMoreItem ? " data-pp-more-item" : ""}>
-          <span class="public-cv-highlight-row-dot" aria-hidden="true"></span>
-          <span class="public-cv-highlight-row-title" title="${Seav.escapeHtml(title)}">${Seav.escapeHtml(title)}</span>
-          ${meta ? `<span class="public-cv-highlight-row-meta">${Seav.escapeHtml(meta)}</span>` : ""}
+        <article class="public-cv-highlight-card"${isMoreItem ? " data-pp-more-item" : ""}>
+          <span class="public-cv-highlight-badge">${badgeInner}</span>
+          <div class="public-cv-highlight-body">
+            <p class="public-cv-highlight-title">${Seav.escapeHtml(title)}</p>
+            <p class="public-cv-highlight-desc">${Seav.escapeHtml(meta)}</p>
+          </div>
         </article>
       `;
     };
 
     box.innerHTML = `
-      <details class="public-cv-achievements-details">
-        <summary class="public-cv-achievements-summary">
-          <span class="public-cv-achievements-summary-label">Milestones</span>
-          <span class="public-cv-achievements-summary-meta">${Seav.escapeHtml(countLabel)}</span>
-        </summary>
-        <div class="public-cv-achievements-panel">
-          <p class="public-cv-achievements-note">Optional detail for recruiters — career milestones logged in SEA-V.</p>
-          <div class="public-cv-highlight-list public-cv-highlight-list--compact">
-            ${visible.map((item) => buildHighlightRow(item)).join("")}
-            ${
-              hidden.length
-                ? `<div class="public-cv-more-block public-cv-highlight-list public-cv-highlight-list--compact" id="${moreId}" hidden>
-                    ${hidden.map((item) => buildHighlightRow(item, true)).join("")}
-                  </div>`
-                : ""
-            }
-          </div>
-          ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "highlights") : ""}
-        </div>
-      </details>
+      <div class="dashboard-card-headline">
+        <h3><span class="public-profile-section-icon" data-pp-icon="achievements" aria-hidden="true"></span>Milestones</h3>
+        <span class="public-profile-section-count" id="ppAchievementCount" hidden></span>
+      </div>
+      <p class="public-profile-section-note">Career highlights logged in SEA-V.</p>
+      <div class="public-cv-highlight-list">
+        ${visible.map((item) => buildHighlightCard(item)).join("")}
+      </div>
+      ${
+        hidden.length
+          ? `<div class="public-cv-more-block public-cv-highlight-list" id="${moreId}" hidden>
+              ${hidden.map((item) => buildHighlightCard(item, true)).join("")}
+            </div>`
+          : ""
+      }
+      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "highlights") : ""}
     `;
 
+    setSectionCount("ppAchievementCount", approved.length);
     section.hidden = false;
   }
 
