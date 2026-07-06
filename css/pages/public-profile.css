@@ -7,6 +7,19 @@
   background: transparent;
 }
 
+/* Hide the default browser scrollbar on this page — html has overflow-y:
+   scroll globally (core/reset.css) so the track always reserves space, and
+   its unstyled light-grey default look stands out against the dark theme.
+   Scrolling itself is unaffected, just the visible track/thumb. */
+html:has(body.public-profile-page) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html:has(body.public-profile-page)::-webkit-scrollbar {
+  display: none;
+}
+
 /* Animated ocean — duplicated here so cache-busted public-profile CSS always applies */
 body.public-profile-page .ocean {
   display: block;
