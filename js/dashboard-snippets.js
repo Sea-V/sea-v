@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  if (!window.Seav || !window.SeavState || !window.SeavData) {
+  if (!window.Seav || !window.SeavState || !window.SeavData || !window.SeavCards) {
     console.warn("[SEA-V] Dashboard snippets dependencies missing.");
     return;
   }
@@ -263,67 +263,11 @@ async function renderCertSnippet() {
 
   dashVesselSnippet.innerHTML = `
     <div class="dash-mini-card-grid">
-      ${latestThree.map((vessel) => {
-        const photoUrl = Seav.getFileDisplayUrl(vessel.photo, vesselPhotoBucket);
-        const hasPhoto =
-          window.SeavApiCore?.hasStoredFile?.(vessel.photo) ?? !!photoUrl;
-        const photoHtml = photoUrl
-          ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(vessel.name || "Vessel")}" loading="lazy" />`
-          : hasPhoto
-            ? `<div class="dash-mini-fallback muted">Loading…</div>`
-            : `<div class="dash-mini-fallback">No Photo</div>`;
-
-        const name = Seav.escapeHtml(vessel.name || "Unnamed Vessel");
-        const builder = Seav.escapeHtml(vessel.builder || "—");
-        const flag = Seav.escapeHtml(vessel.flag || "—");
-        const gt = Seav.escapeHtml(vessel.gt || "—");
-        const role = Seav.escapeHtml(vessel.vessel_role || vessel.role || "—");
-        const length = Seav.escapeHtml(vessel.vessel_length || vessel.length || "—");
-        const from = vessel.from ? formatDatePretty(vessel.from) : "—";
-        const to = vessel.to ? formatDatePretty(vessel.to) : "Present";
-
-        return `
-          <article class="dash-mini-card">
-            <div class="dash-mini-photo">${photoHtml}</div>
-
-            <div class="dash-mini-body">
-              <div class="dash-mini-head">
-                <div>
-                  <h4>${name}</h4>
-                </div>
-                ${!vessel.to ? `<span class="dash-mini-status">Current</span>` : ``}
-              </div>
-
-              <div class="dash-mini-info-grid">
-                <div>
-                  <span>Build</span>
-                  <strong>${builder}</strong>
-                </div>
-                <div>
-                  <span>Flag state</span>
-                  <strong>${flag}</strong>
-                </div>
-                <div>
-                  <span>Role</span>
-                  <strong>${role}</strong>
-                </div>
-                <div>
-                  <span>GT</span>
-                  <strong>${gt}</strong>
-                </div>
-                <div>
-                  <span>Length</span>
-                  <strong>${length}</strong>
-                </div>
-                <div>
-                  <span>Dates</span>
-                  <strong>${from} → ${to}</strong>
-                </div>
-              </div>
-            </div>
-          </article>
-        `;
-      }).join("")}
+      ${latestThree
+        .map((vessel) =>
+          window.SeavCards.buildVesselCard(vessel, { photoBucket: vesselPhotoBucket })
+        )
+        .join("")}
     </div>
   `;
 }

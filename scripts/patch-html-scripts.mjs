@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 91;
+const ASSET_VERSION = 111;
 
 function bumpAssetVersions(html) {
   let next = html.replace(
@@ -59,6 +59,13 @@ function patchAppPage(html) {
     next = next.replace(
       '<script src="js/dashboard.js',
       '<script src="js/dashboard-snippets.js" defer></script>\n  <script src="js/dashboard.js'
+    );
+  }
+
+  if (next.includes("js/dashboard-snippets.js") && !next.includes("js/seav-cards.js")) {
+    next = next.replace(
+      '<script src="js/dashboard-snippets.js',
+      '<script src="js/seav-cards.js" defer></script>\n  <script src="js/dashboard-snippets.js'
     );
   }
 
@@ -117,14 +124,29 @@ function patchPublicProfile(html) {
   if (!next.includes("js/public-profile-utils.js")) {
     next = next.replace(
       '<script src="js/public-profile.js',
-      `<script src="js/public-profile-utils.js" defer></script>\n  <script src="js/public-profile-sections.js" defer></script>\n  <script src="js/public-profile.js`
+      `<script src="js/seav-cards.js" defer></script>\n  <script src="js/public-profile-utils.js" defer></script>\n  <script src="js/public-profile-sections.js" defer></script>\n  <script src="js/public-profile.js`
+    );
+  }
+
+  if (next.includes("js/public-profile-sections.js") && !next.includes("js/seav-cards.js")) {
+    next = next.replace(
+      '<script src="js/public-profile-sections.js',
+      '<script src="js/seav-cards.js" defer></script>\n  <script src="js/public-profile-sections.js'
     );
   }
 
   return bumpAssetVersions(next);
 }
 
-const PUBLIC_PAGES = ["verify-reference.html"];
+const PUBLIC_PAGES = [
+  "verify-reference.html",
+  "index.html",
+  "signup.html",
+  "about.html",
+  "contact.html",
+  "privacy.html",
+  "terms.html"
+];
 
 let changed = 0;
 

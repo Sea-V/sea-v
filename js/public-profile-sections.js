@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  if (!window.Seav || !window.SeavData) {
+  if (!window.Seav || !window.SeavData || !window.SeavCards) {
     console.warn("[SEA-V] Public profile sections dependencies missing.");
     return;
   }
@@ -259,68 +259,12 @@
       .filter(Boolean);
   }
 
-  function buildVesselCard(v, onboardEntries, seatimeGroups) {
-    const role = getVesselRole(v);
-    const photoUrl =
-      window.Seav?.getFileDisplayUrl?.(
-        v.photo,
-        window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos"
-      ) ||
-      v.photo?.url ||
-      v.photo?.dataUrl ||
-      "";
-    const photoHtml = photoUrl
-      ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(v.name || "Vessel")}" loading="lazy" />`
-      : `<div class="dash-mini-fallback">No Photo</div>`;
-
-    const name = Seav.escapeHtml(v.name || "Unnamed Vessel");
-    const builder = Seav.escapeHtml(v.builder || "—");
-    const flag = Seav.escapeHtml(v.flag || "—");
-    const gt = Seav.escapeHtml(v.gt || "—");
-    const length = Seav.escapeHtml(getVesselLength(v) || "—");
-    const vesselRole = Seav.escapeHtml(role || "—");
-    const from = v.from ? formatDatePretty(v.from) : "—";
-    const to = v.to ? formatDatePretty(v.to) : "Present";
-
-    return `
-      <article class="dash-mini-card" data-pp-more-item>
-        <div class="dash-mini-photo">${photoHtml}</div>
-        <div class="dash-mini-body">
-          <div class="dash-mini-head">
-            <div>
-              <h4>${name}</h4>
-            </div>
-            ${!v.to ? `<span class="dash-mini-status">Current</span>` : ``}
-          </div>
-          <div class="dash-mini-info-grid">
-            <div>
-              <span>Build</span>
-              <strong>${builder}</strong>
-            </div>
-            <div>
-              <span>Flag state</span>
-              <strong>${flag}</strong>
-            </div>
-            <div>
-              <span>Role</span>
-              <strong>${vesselRole}</strong>
-            </div>
-            <div>
-              <span>GT</span>
-              <strong>${gt}</strong>
-            </div>
-            <div>
-              <span>Length</span>
-              <strong>${length}</strong>
-            </div>
-            <div>
-              <span>Dates</span>
-              <strong>${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}</strong>
-            </div>
-          </div>
-        </div>
-      </article>
-    `;
+  // Vessel card markup lives in js/seav-cards.js (shared with the dashboard
+  // snippet) — this wrapper just keeps the existing call signature used below.
+  function buildVesselCard(v, _onboardEntries, _seatimeGroups) {
+    return window.SeavCards.buildVesselCard(v, {
+      photoBucket: window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos"
+    });
   }
 
   function renderSeatime(seatimes, vessels) {
