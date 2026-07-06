@@ -1138,6 +1138,33 @@ function getSortedVesselOptions(vessels = []) {
   }
 
   /* =========================================================
+     VESSEL FIELD ACCESSORS
+     Vessel records are saved with prefixed field names (vessel_type,
+     vessel_length, vessel_role, experience_onboard — see js/vessels.js's
+     submit handler) but a couple of un-prefixed legacy names (type, length,
+     role, desc) are kept as fallbacks for any older records saved before the
+     rename. Single source of truth — was duplicated inline in
+     public-profile-utils.js and, with the WRONG field names entirely, in
+     js/achievements-engine.js (see below).
+  ========================================================= */
+
+  function getVesselRole(v) {
+    return v?.vessel_role || v?.role || "Crew";
+  }
+
+  function getVesselType(v) {
+    return v?.vessel_type || v?.type || "";
+  }
+
+  function getVesselLength(v) {
+    return v?.vessel_length || v?.length || v?.gt || "";
+  }
+
+  function getVesselExperience(v) {
+    return String(v?.experience_onboard || v?.desc || "").trim();
+  }
+
+  /* =========================================================
      REFERENCE HELPERS
   ========================================================= */
 
@@ -1236,6 +1263,10 @@ window.SeavData = {
   getVesselHistory,
   getSortedVesselOptions,
   getVesselColor,
+  getVesselRole,
+  getVesselType,
+  getVesselLength,
+  getVesselExperience,
   haversineNm,
   formatNm,
   pathLengthNm,

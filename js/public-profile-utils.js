@@ -255,21 +255,7 @@
     };
   }
 
-  function getVesselRole(v) {
-    return v?.vessel_role || v?.role || "Crew";
-  }
-
-  function getVesselType(v) {
-    return v?.vessel_type || v?.type || "";
-  }
-
-  function getVesselLength(v) {
-    return v?.vessel_length || v?.length || v?.gt || "";
-  }
-
-  function getVesselExperience(v) {
-    return String(v?.experience_onboard || v?.desc || "").trim();
-  }
+  const { getVesselRole, getVesselType, getVesselLength, getVesselExperience } = window.SeavData;
 
   function isReferenceVerified(ref) {
     const status = getReferenceStatus(ref);

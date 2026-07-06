@@ -50,9 +50,16 @@
     );
   }
 
+  // Vessel records are saved with prefixed field names (vessel_type,
+  // vessel_length, experience_onboard — see js/vessels.js's submit handler),
+  // not the bare `type`/`length`/`desc` this file used to check. Those bare
+  // fields don't exist on real vessel records, so getVesselTypeCount() always
+  // returned 0 and hasLargeVessel()/hasVesselType() only ever matched by
+  // accident (e.g. parsing a stray number out of the vessel's name). Fixed to
+  // read the real fields, same fallback pattern as public-profile-utils.js.
   function getVesselTypeCount() {
     const types = getVessels()
-      .map((v) => normalize(v.type))
+      .map((v) => normalize(v.vessel_type || v.type))
       .filter(Boolean);
 
     return new Set(types).size;
@@ -65,15 +72,19 @@
 
   function hasLargeVessel(minMeters) {
     return getVessels().find((v) => {
-      return parseMeters(v.length || v.size || v.name || v.desc) >= minMeters;
+      // Length only — deliberately not falling back to GT (gross tonnage) or
+      // name/description text like before: GT is a volume, not a length, and
+      // parsing a stray number out of a vessel's name/model risks false
+      // positives (e.g. "Sunseeker 68" is a 68-foot boat, not a 68m one).
+      return parseMeters(v.vessel_length || v.length) >= minMeters;
     }) || null;
   }
 
   function hasVesselType(value) {
     return getVessels().find((v) => {
-      return normalize(v.type).includes(normalize(value)) ||
+      return normalize(v.vessel_type || v.type).includes(normalize(value)) ||
         normalize(v.program).includes(normalize(value)) ||
-        normalize(v.desc).includes(normalize(value));
+        normalize(v.experience_onboard || v.desc).includes(normalize(value));
     }) || null;
   }
 
