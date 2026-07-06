@@ -167,8 +167,34 @@
     `;
   }
 
+  /**
+   * Build the shared read-only onboard-experience list row used on the
+   * dashboard "Onboard experience" snippet and the public profile section.
+   * `options.statusFallback` preserves each page's own default label when
+   * an entry has no status set ("Draft" on the dashboard, "—" on public).
+   */
+  function buildOnboardRow(entry, vessels, options = {}) {
+    const getLabel = window.SeavData?.getOnboardCategoryLabel || ((value) => value || "—");
+    const vessel = (vessels || []).find((v) => v.id === entry.vesselId);
+    const statusFallback = options.statusFallback ?? "—";
+
+    return `
+      <div class="list-row" data-pp-more-item>
+        <div style="min-width:0;">
+          <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
+          <div class="list-sub">
+            ${Seav.escapeHtml(vessel?.name || "—")} • ${Seav.escapeHtml(getLabel(entry.category))}
+            ${entry.isFamiliarisation ? " • Familiarisation" : ""}
+          </div>
+        </div>
+        <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
+      </div>
+    `;
+  }
+
   window.SeavCards = {
     buildVesselCard,
-    buildTenderCard
+    buildTenderCard,
+    buildOnboardRow
   };
 })();

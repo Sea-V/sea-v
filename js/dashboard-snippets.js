@@ -672,30 +672,12 @@ async function renderOnboardSnippet() {
     })
     .slice(0, 4);
 
-  const getLabel =
-    window.SeavData?.getOnboardCategoryLabel ||
-    ((value) => value || "—");
+  const vessels = window.SeavState?.vessels || [];
 
   dashOnboardSnippet.innerHTML = `
     <div class="list">
       ${latest
-        .map((entry) => {
-          const vessel = (window.SeavState?.vessels || []).find(
-            (v) => v.id === entry.vesselId
-          );
-          return `
-            <div class="list-row">
-              <div style="min-width:0;">
-                <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
-                <div class="list-sub">
-                  ${Seav.escapeHtml(vessel?.name || "—")} • ${Seav.escapeHtml(getLabel(entry.category))}
-                  ${entry.isFamiliarisation ? " • Familiarisation" : ""}
-                </div>
-              </div>
-              <span class="pill">${Seav.escapeHtml(entry.status || "Draft")}</span>
-            </div>
-          `;
-        })
+        .map((entry) => window.SeavCards.buildOnboardRow(entry, vessels, { statusFallback: "Draft" }))
         .join("")}
     </div>
   `;

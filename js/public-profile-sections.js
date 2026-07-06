@@ -527,21 +527,8 @@
     const hidden = entries.slice(LIMITS.operations);
     const moreId = "ppOnboardMore";
 
-    const buildRow = (entry) => {
-      const vessel = vessels.find((v) => v.id === entry.vesselId);
-      return `
-        <div class="list-row" data-pp-more-item>
-          <div style="min-width:0;">
-            <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
-            <div class="list-sub">
-              ${Seav.escapeHtml(vessel?.name || "—")} • ${Seav.escapeHtml(getOnboardCategoryLabel(entry.category))}
-              ${entry.isFamiliarisation ? " • Familiarisation" : ""}
-            </div>
-          </div>
-          <span class="pill">${Seav.escapeHtml(entry.status || "—")}</span>
-        </div>
-      `;
-    };
+    // Row markup lives in js/seav-cards.js (shared with the dashboard snippet).
+    const buildRow = (entry) => window.SeavCards.buildOnboardRow(entry, vessels, { statusFallback: "—" });
 
     box.innerHTML = `
       <div class="list">
