@@ -14,7 +14,8 @@
     auth: {
       detectSessionInUrl: true,
       persistSession: true,
-      flowType: "pkce"
+      // Implicit flow so email confirmation links work on any device (PKCE requires same browser).
+      flowType: "implicit"
     }
   });
 

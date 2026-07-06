@@ -89,7 +89,7 @@
 
         setSignupMessage(
           msg,
-          "Account created. Check your email and click the confirmation link, then log in.",
+          "Account created. Check your email and click the confirmation link — you can open it on any device, then log in.",
           "#5bbcff"
         );
 

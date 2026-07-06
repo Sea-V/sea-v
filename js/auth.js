@@ -176,6 +176,14 @@
     if (error) throw error;
   }
 
+  function isPkceCrossDeviceError(err) {
+    const msg = String(err?.message || err || "").toLowerCase();
+    return (
+      err?.code === "pkce_code_verifier_not_found" ||
+      msg.includes("pkce code verifier")
+    );
+  }
+
   async function completeAuthFromUrl() {
     const client = await waitForSupabase();
     const params = new URLSearchParams(window.location.search);
@@ -185,6 +193,10 @@
       const { error } = await client.auth.exchangeCodeForSession(code);
       if (error) {
         console.error("[SEA-V] Email confirmation failed:", error);
+        if (isPkceCrossDeviceError(error)) {
+          window.history.replaceState({}, "", window.location.pathname);
+          return { ok: false, emailConfirmed: true };
+        }
         return { ok: false, error };
       }
       window.history.replaceState({}, "", window.location.pathname);
@@ -208,6 +220,9 @@
 
   function authErrorMessage(err) {
     const msg = String(err?.message || err || "").toLowerCase();
+    if (isPkceCrossDeviceError(err)) {
+      return "Your email is confirmed. Log in with your email and password on this device.";
+    }
     if (msg.includes("email not confirmed")) {
       return "Please confirm your email first — check your inbox and spam folder.";
     }
@@ -386,11 +401,17 @@
             console.warn("[SEA-V] Profile bootstrap after confirm:", profileErr);
           }
         }
+      } else if (confirmed.emailConfirmed) {
+        sessionStorage.setItem(
+          "seav_auth_notice",
+          "Email confirmed — log in with your email and password."
+        );
       } else if (confirmed.error) {
         sessionStorage.setItem(
           "seav_auth_notice",
           authErrorMessage(confirmed.error)
         );
+        window.history.replaceState({}, "", window.location.pathname);
       }
 
       window.SeavSupabase.auth.onAuthStateChange(async (event, session) => {
