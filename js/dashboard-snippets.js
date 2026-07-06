@@ -421,33 +421,81 @@ function buildDashboardNavigationStats(entries, distanceMap) {
   };
 }
 
-function initDashboardNavigationChart(container) {
-  if (dashNavigationChart || !container || typeof L === "undefined") return;
+function destroyDashboardNavigationChart() {
+  if (!dashNavigationChart) return;
+  try {
+    dashNavigationChart.remove();
+  } catch (error) {
+    console.warn("[SEA-V] Dashboard nav chart cleanup:", error);
+  }
+  dashNavigationChart = null;
+  dashNavigationLayer = null;
+}
 
-  dashNavigationChart = L.map(container, {
-    center: [30, 0],
-    zoom: 2,
-    minZoom: 2,
-    zoomControl: false,
-    attributionControl: true,
-    dragging: false,
-    touchZoom: false,
-    scrollWheelZoom: false,
-    doubleClickZoom: false,
-    boxZoom: false,
-    keyboard: false,
-    preferCanvas: true
+// Same fix already proven on the public profile map (js/public-profile-sections.js's
+// whenChartContainerReady): Leaflet computes its tile grid against whatever size the
+// container has at the exact moment L.map() runs. The dashboard sets box.innerHTML
+// then initializes the map in the same synchronous pass — if the grid layout
+// (.dashboard-navigation-layout) hasn't been painted by the browser yet, the
+// container measures 0x0, the map silently renders nothing, and a single flat
+// setTimeout isn't a reliable enough wait. This polls (via rAF, twice, then a
+// timeout fallback) until the container actually has a size before settling the view.
+function whenDashboardChartContainerReady(container, callback) {
+  const attempt = () => {
+    if (!container?.isConnected) return false;
+    const rect = container.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      callback();
+      return true;
+    }
+    return false;
+  };
+
+  if (attempt()) return;
+
+  window.requestAnimationFrame(() => {
+    if (attempt()) return;
+    window.requestAnimationFrame(() => {
+      if (attempt()) return;
+      window.setTimeout(callback, 300);
+    });
   });
+}
 
-  L.tileLayer(DASH_NAV_TILE_URL, {
-    attribution: DASH_NAV_ATTRIBUTION,
-    subdomains: "abcd",
-    maxZoom: 18,
-    keepBuffer: 2,
-    updateWhenIdle: true
-  }).addTo(dashNavigationChart);
+function initDashboardNavigationChart(container) {
+  if (dashNavigationChart || !container || typeof L === "undefined") return false;
 
-  dashNavigationLayer = L.layerGroup().addTo(dashNavigationChart);
+  try {
+    dashNavigationChart = L.map(container, {
+      center: [30, 0],
+      zoom: 2,
+      minZoom: 2,
+      zoomControl: false,
+      attributionControl: true,
+      dragging: false,
+      touchZoom: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      preferCanvas: true
+    });
+
+    L.tileLayer(DASH_NAV_TILE_URL, {
+      attribution: DASH_NAV_ATTRIBUTION,
+      subdomains: "abcd",
+      maxZoom: 18,
+      keepBuffer: 2,
+      updateWhenIdle: true
+    }).addTo(dashNavigationChart);
+
+    dashNavigationLayer = L.layerGroup().addTo(dashNavigationChart);
+    return true;
+  } catch (error) {
+    console.error("[SEA-V] Dashboard nav chart init failed:", error);
+    destroyDashboardNavigationChart();
+    return false;
+  }
 }
 
 async function renderNavigationSnippet() {
@@ -457,11 +505,7 @@ async function renderNavigationSnippet() {
   const entries = window.SeavState?.navigationAreas || [];
   updateCardTitle("dashNavigationSnippet", "Navigation chart", entries.length);
 
-  if (dashNavigationChart) {
-    dashNavigationChart.remove();
-    dashNavigationChart = null;
-    dashNavigationLayer = null;
-  }
+  destroyDashboardNavigationChart();
 
   if (!entries.length) {
     box.innerHTML = `<div class="muted">No passages logged yet.</div>`;
@@ -520,8 +564,7 @@ async function renderNavigationSnippet() {
     return;
   }
 
-  initDashboardNavigationChart(container);
-  if (!dashNavigationChart || !dashNavigationLayer) return;
+  if (!initDashboardNavigationChart(container) || !dashNavigationLayer) return;
 
   dashNavigationLayer.clearLayers();
 
@@ -550,8 +593,9 @@ async function renderNavigationSnippet() {
     coords.forEach((coord) => bounds.push(coord));
   });
 
-  window.setTimeout(() => {
-    dashNavigationChart.invalidateSize();
+  const settleDashboardChart = () => {
+    if (!dashNavigationChart) return;
+    dashNavigationChart.invalidateSize(true);
     if (bounds.length) {
       dashNavigationChart.fitBounds(L.latLngBounds(bounds), {
         padding: [52, 52],
@@ -559,7 +603,14 @@ async function renderNavigationSnippet() {
         animate: false
       });
     }
-  }, 80);
+  };
+
+  whenDashboardChartContainerReady(container, () => {
+    settleDashboardChart();
+    // Second pass 250ms later, same as the public profile map — covers late
+    // layout shifts (web fonts, sibling cards resizing) the first pass missed.
+    window.setTimeout(settleDashboardChart, 250);
+  });
 }
 
   function truncateText(text, max = 140) {
