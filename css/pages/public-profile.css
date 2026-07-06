@@ -132,8 +132,21 @@ body.public-profile-page .overlay {
   background: rgba(91, 188, 255, 0.2);
 }
 
+/* The shell must stay overflow: visible (not the dashboard.css default of
+   hidden) or the sticky section-nav below can't stick — a sticky element's
+   nearest clipping ancestor becomes its scroll container, and a hidden
+   overflow up the tree kills the stickiness entirely. That trade-off means
+   the shell itself no longer clips anything, so individual cards need their
+   own clipping restored below (otherwise long titles / wide content can
+   spill past the card's rounded edge instead of staying contained). */
 .public-profile-shell.dashboard-shell-card {
   overflow: visible;
+}
+
+.public-profile-page .dash-card,
+.public-profile-page .dashboard-shell-head,
+.public-profile-page .dashboard-shell-section {
+  overflow: hidden;
 }
 
 .public-profile-page .dashboard-shell-head {
@@ -151,12 +164,18 @@ body.public-profile-page .overlay {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 0 28px 12px;
-  margin: 0;
+  padding: 10px 28px 12px;
+  margin: 0 0 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
   border-bottom: 1px solid rgba(91, 188, 255, 0.14);
-  background: transparent;
+  /* Must be opaque + blurred like the topbar directly above it — this bar is
+     sticky, so page content (including card/section titles) scrolls
+     underneath it. A transparent background let that content show through
+     and visually collide with the nav pills while scrolling. */
+  background: rgba(8, 16, 28, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .public-profile-section-nav::-webkit-scrollbar {
@@ -206,6 +225,15 @@ body.public-profile-page .overlay {
 .public-profile-page .dash-card,
 .public-profile-page #pp-section-overview {
   scroll-margin-top: 118px;
+}
+
+/* Flex items default to a min-width based on their own content, so a long
+   section title (e.g. "Specialist Qualifications") plus a count badge could
+   force .dashboard-card-headline wider than its card on narrow screens.
+   min-width: 0 lets the title wrap/shrink instead of pushing past the edge. */
+.public-profile-page .dashboard-card-headline h3 {
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .public-profile-tagline {
