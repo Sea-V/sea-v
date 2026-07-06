@@ -681,6 +681,17 @@ function getHobbyInterestCategoryLabel(value) {
   return match?.label || value || "—";
 }
 
+// Single source of truth for hobby/interest status color — was previously
+// copy-pasted in js/hobbies-interests.js (edit page); the dashboard snippet
+// used a flat unstyled pill regardless of Published vs Draft.
+function getHobbyInterestStatusDisplay(status) {
+  const map = {
+    Published: { label: "Published", className: "pill-valid" },
+    Draft: { label: "Draft", className: "pill-neutral" }
+  };
+  return map[status] || { label: status || "Published", className: "pill-neutral" };
+}
+
 function getEmptySpecialistQualificationEntry() {
   return {
     id: createId("specialist"),
@@ -1146,6 +1157,7 @@ window.SeavData = {
   getEmptySpecialistQualificationEntry,
   getSpecialistCategoryLabel,
   getSpecialistQualificationStatusDisplay,
+  getHobbyInterestStatusDisplay,
   PAYSLIP_CURRENCIES,
   PAYSLIP_TAX_YEAR_MONTHS,
   getEmptyPayslipEntry,

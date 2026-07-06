@@ -717,6 +717,7 @@ async function renderHobbiesSnippet() {
               window.SeavApiCore?.hasStoredFile?.(photo) ??
               !!(photo?.url || photo?.dataUrl || photo?.path)
           ).length;
+          const statusInfo = window.SeavData.getHobbyInterestStatusDisplay(entry.status);
           return `
             <div class="list-row">
               <div style="min-width:0;">
@@ -726,7 +727,7 @@ async function renderHobbiesSnippet() {
                   ${photoCount ? ` • ${photoCount} photo${photoCount === 1 ? "" : "s"}` : ""}
                 </div>
               </div>
-              <span class="pill">${Seav.escapeHtml(entry.status || "Published")}</span>
+              <span class="pill ${statusInfo.className}">${Seav.escapeHtml(statusInfo.label)}</span>
             </div>
           `;
         })

@@ -12,7 +12,8 @@
     createId,
     formatDatePretty,
     HOBBIES_INTEREST_CATEGORIES,
-    getHobbyInterestCategoryLabel
+    getHobbyInterestCategoryLabel,
+    getHobbyInterestStatusDisplay
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.HOBBIES_INTERESTS;
@@ -115,13 +116,9 @@
     `;
   }
 
-  function getStatusDisplay(status) {
-    const map = {
-      Published: { label: "Published", className: "pill-valid" },
-      Draft: { label: "Draft", className: "pill-neutral" }
-    };
-    return map[status] || { label: status || "Published", className: "pill-neutral" };
-  }
+  // Status color map lives in js/seav-data.js (shared with the dashboard
+  // snippet) so both surfaces show the same colors.
+  const getStatusDisplay = getHobbyInterestStatusDisplay;
 
   function renderShowcaseGrid(photos) {
     const items = (photos || []).filter((photo) => getPhotoUrl(photo));
