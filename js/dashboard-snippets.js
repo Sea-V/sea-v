@@ -350,7 +350,33 @@ function getDashboardRouteDistance(coords) {
   return total;
 }
 
-function buildDashboardNavigationStats(entries) {
+// Straight-line haversine understates real distance (it ignores land and sea
+// lanes), which is why this used to show a different "Total distance" than
+// navigation.html. When js/navigation-passage.js is loaded, look up each
+// entry's routed distance (same calculation navigation.html's own log list
+// uses — see js/navigation-list.js's buildDistanceMap) and prefer that;
+// otherwise fall back to the straight-line sum so nothing breaks if that
+// script isn't available.
+async function buildDashboardDistanceMap(entries) {
+  const distances = new Map();
+  const P = window.SeavNavigationPassage;
+  if (!P?.getEntryRoute) return distances;
+
+  await Promise.all(
+    entries.map(async (entry) => {
+      try {
+        const route = await P.getEntryRoute(entry);
+        if (route?.distanceNm) distances.set(entry.id, route.distanceNm);
+      } catch (error) {
+        console.warn("[SEA-V] Dashboard routed distance failed:", error);
+      }
+    })
+  );
+
+  return distances;
+}
+
+function buildDashboardNavigationStats(entries, distanceMap) {
   const routeEntries = entries
     .map((entry) => ({ entry, coords: getDashboardRouteCoords(entry) }))
     .filter((item) => item.coords.length >= 2);
@@ -359,7 +385,8 @@ function buildDashboardNavigationStats(entries) {
   let totalNm = 0;
 
   routeEntries.forEach(({ entry, coords }) => {
-    totalNm += getDashboardRouteDistance(coords);
+    const routedNm = distanceMap?.get(entry.id);
+    totalNm += Number.isFinite(routedNm) ? routedNm : getDashboardRouteDistance(coords);
 
     const fromCountry = entry.fromCountry || entry.from_country || "";
     const toCountry = entry.toCountry || entry.to_country || entry.country || "";
@@ -441,7 +468,8 @@ async function renderNavigationSnippet() {
     return;
   }
 
-  const stats = buildDashboardNavigationStats(entries);
+  const distanceMap = await buildDashboardDistanceMap(entries);
+  const stats = buildDashboardNavigationStats(entries, distanceMap);
 
   box.innerHTML = `
     <div class="dashboard-navigation-layout">

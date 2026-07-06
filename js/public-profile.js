@@ -51,6 +51,7 @@
       renderTrustStrip,
       isReferenceVerified,
       computeNavigationTotalNm,
+      buildPublicDistanceMap,
       bindExpandToggles,
       renderSectionNav
     } = utils;
@@ -234,19 +235,21 @@
           loadPublicData(ownerId, KEYS.SEATIMES, profile)
         ]);
 
+        const navigationDistanceMap = await buildPublicDistanceMap(navigationAreas);
+
         const metrics = {
           seaDays: getSeatimeTotals(seatimes).sea,
           vessels: vessels.length,
           verifiedRefs: refs.filter(isReferenceVerified).length,
           signedOps: onboardEntries.filter((entry) => entry.status === "Signed Off").length,
-          navigationNm: computeNavigationTotalNm(navigationAreas)
+          navigationNm: computeNavigationTotalNm(navigationAreas, navigationDistanceMap)
         };
 
         renderHeaderProfile(profile, vessels, metrics);
         sections.renderSeatime(seatimes, vessels);
         sections.renderVessels(vessels, onboardEntries, seatimes);
         sections.renderTenders(tenders, vessels);
-        await sections.renderNavigation(navigationAreas, vessels);
+        await sections.renderNavigation(navigationAreas, vessels, navigationDistanceMap);
         sections.renderOnboardExperience(onboardEntries, vessels);
         sections.renderHobbiesInterests(hobbyEntries);
         sections.renderSpecialistQualifications(specialistEntries);

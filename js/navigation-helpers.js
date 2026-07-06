@@ -1,7 +1,11 @@
 // /js/navigation-helpers.js
 (function () {
   "use strict";
-  if (!window.Seav || !window.SeavAPI || !window.SeavState || !window.SeavData) return;
+  // window.SeavState is optional here (every use below already guards it with
+  // ?.) — the public profile page loads this file too (for routed navigation
+  // distance via SeavNavigationPassage) but never loads js/state.js, since it
+  // has no live editable state, only read-only public data.
+  if (!window.Seav || !window.SeavAPI || !window.SeavData) return;
   const STORAGE_KEY = window.SeavData.KEYS.NAVIGATION_AREAS;
   const MAP_TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
   const MAP_TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';

@@ -161,10 +161,40 @@
     return total;
   }
 
-  function computeNavigationTotalNm(navigationAreas) {
+  // Straight-line haversine understates real distance (it ignores land and
+  // sea lanes), which is why this used to disagree with navigation.html's own
+  // "Total NM". When js/navigation-passage.js is loaded, look up each entry's
+  // routed distance (same calculation navigation.html's log list uses — see
+  // js/navigation-list.js's buildDistanceMap) and prefer that; otherwise fall
+  // back to the straight-line sum so nothing breaks if that script isn't
+  // available. Build this once per profile load and reuse it for both the
+  // "Miles navigated" trust-strip KPI and the Navigation section card so the
+  // two numbers on the same page always agree.
+  async function buildPublicDistanceMap(entries) {
+    const distances = new Map();
+    const P = window.SeavNavigationPassage;
+    if (!P?.getEntryRoute) return distances;
+
+    await Promise.all(
+      (entries || []).map(async (entry) => {
+        try {
+          const route = await P.getEntryRoute(entry);
+          if (route?.distanceNm) distances.set(entry.id, route.distanceNm);
+        } catch (error) {
+          console.warn("[SEA-V] Public profile routed distance failed:", error);
+        }
+      })
+    );
+
+    return distances;
+  }
+
+  function computeNavigationTotalNm(navigationAreas, distanceMap) {
     if (!Array.isArray(navigationAreas) || !navigationAreas.length) return 0;
 
     return navigationAreas.reduce((sum, entry) => {
+      const routedNm = distanceMap?.get(entry.id);
+      if (Number.isFinite(routedNm)) return sum + routedNm;
       const coords = getNavigationRouteCoords(entry);
       if (coords.length < 2) return sum;
       return sum + getNavigationRouteDistance(coords);
@@ -180,7 +210,7 @@
     return window.SeavData?.getVesselColor?.(vesselId, vessels) || "#64748b";
   }
 
-  function buildPublicNavigationStats(entries, vessels) {
+  function buildPublicNavigationStats(entries, vessels, distanceMap) {
     const routeEntries = (entries || [])
       .map((entry) => ({ entry, coords: getNavigationRouteCoords(entry) }))
       .filter((item) => item.coords.length >= 2);
@@ -189,7 +219,8 @@
     let totalNm = 0;
 
     routeEntries.forEach(({ entry, coords }) => {
-      totalNm += getNavigationRouteDistance(coords);
+      const routedNm = distanceMap?.get(entry.id);
+      totalNm += Number.isFinite(routedNm) ? routedNm : getNavigationRouteDistance(coords);
 
       const fromCountry = entry.fromCountry || entry.from_country || "";
       const toCountry = entry.toCountry || entry.to_country || entry.country || "";
@@ -715,6 +746,7 @@
     LIMITS,
     haversineNm, formatNm, hasNavCoord, normalizeNavWaypoints,
     getNavigationRouteCoords, getNavigationRouteDistance, computeNavigationTotalNm,
+    buildPublicDistanceMap,
     getNavigationEndpointMarkers, hasPlottableNavigationData,
     getPublicVesselName, getPublicVesselColor, buildPublicNavigationStats,
     getVesselRole, getVesselType, getVesselLength, getVesselExperience,

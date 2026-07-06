@@ -425,7 +425,7 @@
     section.hidden = false;
   }
 
-  async function renderNavigation(navigationAreas, vessels) {
+  async function renderNavigation(navigationAreas, vessels, distanceMap) {
     const box = document.getElementById("ppNavigationSnippet");
     const section = document.getElementById("ppNavigationSection");
     if (!box || !section) return;
@@ -437,7 +437,7 @@
       return;
     }
 
-    const stats = buildPublicNavigationStats(navigationAreas, vessels);
+    const stats = buildPublicNavigationStats(navigationAreas, vessels, distanceMap);
     const canPlotMap = hasPlottableNavigationData(navigationAreas);
 
     box.innerHTML = `

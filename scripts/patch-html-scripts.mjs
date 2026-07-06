@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 121;
+const ASSET_VERSION = 122;
 
 function bumpAssetVersions(html) {
   let next = html.replace(
@@ -84,6 +84,20 @@ function patchAppPage(html) {
     );
   }
 
+  /**
+   * The dashboard's navigation card needs the same routed sea-lane distance
+   * calculation navigation.html uses (js/navigation-passage.js's getEntryRoute),
+   * so its "Total distance" figure matches instead of a separate straight-line
+   * estimate. These modules are self-contained (no map/DOM dependency) so they
+   * are safe to load on the dashboard purely for the distance math.
+   */
+  if (next.includes("js/dashboard-snippets.js") && !next.includes("js/navigation-passage.js")) {
+    next = next.replace(
+      '<script src="js/dashboard-snippets.js',
+      '<script src="js/navigation-ports.js" defer></script>\n  <script src="js/navigation-helpers.js" defer></script>\n  <script src="js/navigation-passage.js" defer></script>\n  <script src="js/navigation-routing.js" defer></script>\n  <script src="js/dashboard-snippets.js'
+    );
+  }
+
   if (next.includes('src="js/core.js"') && !next.includes("js/seav-upload.js")) {
     next = next.replace(
       '<script src="js/core.js" defer></script>',
@@ -147,6 +161,15 @@ function patchPublicProfile(html) {
     next = next.replace(
       '<script src="js/public-profile-sections.js',
       '<script src="js/seav-cards.js" defer></script>\n  <script src="js/public-profile-sections.js'
+    );
+  }
+
+  // Same reasoning as the dashboard: give the public profile's navigation
+  // stats access to the routed sea-lane distance calc, not just haversine.
+  if (next.includes("js/public-profile-utils.js") && !next.includes("js/navigation-passage.js")) {
+    next = next.replace(
+      '<script src="js/public-profile-utils.js',
+      '<script src="js/navigation-helpers.js" defer></script>\n  <script src="js/navigation-passage.js" defer></script>\n  <script src="js/navigation-routing.js" defer></script>\n  <script src="js/public-profile-utils.js'
     );
   }
 
