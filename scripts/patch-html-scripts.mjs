@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 115;
+const ASSET_VERSION = 116;
 
 function bumpAssetVersions(html) {
   let next = html.replace(
@@ -19,6 +19,21 @@ function bumpAssetVersions(html) {
     `$1?v=${ASSET_VERSION}`
   );
   return next;
+}
+
+/**
+ * styles.css pulls in every css/**.css file via @import. Each @import is its
+ * own HTTP request with its own cache key, so bumping ?v= on the <link> tag
+ * in HTML does NOT bust the cache of the files it @imports — only this does.
+ * Several past bugs ("colors not showing after deploy") were worked around by
+ * embedding CSS directly in styles.css instead of fixing this; keep every
+ * @import on the same ASSET_VERSION so that workaround is never needed again.
+ */
+function bumpCssImports(css) {
+  return css.replace(
+    /@import url\("([^"?]+)(?:\?v=\d+)?"\);/g,
+    `@import url("$1?v=${ASSET_VERSION}");`
+  );
 }
 
 const APP_PAGES = [
@@ -149,6 +164,15 @@ const PUBLIC_PAGES = [
 ];
 
 let changed = 0;
+
+const stylesPath = path.join(root, "styles.css");
+const stylesOriginal = fs.readFileSync(stylesPath, "utf8");
+const stylesPatched = bumpCssImports(stylesOriginal);
+if (stylesPatched !== stylesOriginal) {
+  fs.writeFileSync(stylesPath, stylesPatched);
+  changed += 1;
+  console.log("patched styles.css (@import versions)");
+}
 
 for (const file of APP_PAGES) {
   const filePath = path.join(root, file);
