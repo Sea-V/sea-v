@@ -25,10 +25,12 @@
     return window.SeavNavigationPorts?.COUNTRY_GEO_NAMES || {};
   }
 
+  // Fallback only (used if js/seav-data.js somehow isn't loaded) — keep this
+  // in sync with the canonical VESSEL_COLORS in seav-data.js.
   const VESSEL_COLORS = window.SeavData?.VESSEL_COLORS || [
-    "#2563eb", "#dc2626", "#16a34a", "#9333ea", "#ea580c", "#0891b2",
-    "#be123c", "#4f46e5", "#0f766e", "#b45309", "#7c3aed", "#0284c7",
-    "#65a30d", "#c026d3", "#b91c1c", "#0369a1"
+    "#2a6eb8", "#1f9a82", "#3d5fbf", "#1db57a", "#b89022", "#7a52bf",
+    "#b87322", "#8a38bf", "#1a9a87", "#8a6a38", "#bf4f6a", "#9938ad",
+    "#5a7185"
   ];
 
   function getVesselColor(vesselId) {

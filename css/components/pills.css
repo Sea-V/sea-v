@@ -218,6 +218,17 @@
 
 /* =========================================================
    UNIFIED GLASS CARDS
+   No backdrop-filter here on purpose — these classes render once
+   PER ROW/TILE (seatime, certs, references, hobbies, specialist
+   quals, KPI tiles, vessel pills all reuse them), so a real profile
+   or public-profile page can easily stack 30-60+ of them in one
+   scroll. Each backdrop-filter forces its own GPU compositing layer
+   that has to be recomposited on every scroll frame — that's what
+   was causing the reported scroll lag / flicker. The plain
+   translucent background gives the same "glass" look without the
+   per-element blur cost. Keep backdrop-filter reserved for one-off
+   overlay UI (modals, toasts, the sticky topbar) where there's only
+   ever one or two instances on screen at a time.
 ========================================================= */
 
 .dashboard-info-box,
@@ -231,7 +242,4 @@
   border: 1px solid rgba(255,255,255,0.07) !important;
 
   background: rgba(255,255,255,0.045) !important;
-
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
 }

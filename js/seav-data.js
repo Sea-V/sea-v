@@ -1083,23 +1083,26 @@ function getSortedVesselOptions(vessels = []) {
     }));
 }
 
+  // Pulled from the same per-page accent palette used everywhere else in the
+  // app (scripts/page-colors.json's "fill" tones — the badge disc colors and
+  // sidebar icon accents), instead of stock saturated primaries. Keeps
+  // multi-vessel nav-map tracks and passage colors visually on-brand rather
+  // than clashing with SEA-V's softer, muted jewel-tone look. Keep in sync
+  // with the fallback copy in navigation-helpers.js.
   const VESSEL_COLORS = [
-    "#2563eb",
-    "#dc2626",
-    "#16a34a",
-    "#9333ea",
-    "#ea580c",
-    "#0891b2",
-    "#be123c",
-    "#4f46e5",
-    "#0f766e",
-    "#b45309",
-    "#7c3aed",
-    "#0284c7",
-    "#65a30d",
-    "#c026d3",
-    "#b91c1c",
-    "#0369a1"
+    "#2a6eb8", // dashboard blue
+    "#1f9a82", // profile teal
+    "#3d5fbf", // seatime indigo
+    "#1db57a", // tenders green
+    "#b89022", // certificates gold
+    "#7a52bf", // specialist purple
+    "#b87322", // achievements amber
+    "#8a38bf", // references violet
+    "#1a9a87", // navigation turquoise
+    "#8a6a38", // payslips bronze
+    "#bf4f6a", // onboard-experience rose
+    "#9938ad", // hobbies magenta
+    "#5a7185"  // vessels slate
   ];
 
   function getVesselColor(vesselId, vesselsInput) {

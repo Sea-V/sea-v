@@ -740,8 +740,10 @@
 
   background: rgba(255,255,255,0.035);
 
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* backdrop-filter intentionally dropped — the dashboard renders 8-12+ of
+     these small info tiles per page (see css/components/pills.css for the
+     full explanation), and stacking that many blur layers is what was
+     causing the scroll lag/flicker Jack reported. */
 
   min-width: 0;
 }
