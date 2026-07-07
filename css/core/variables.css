@@ -14,6 +14,13 @@
   --page-shell-panel: #132238;
   --page-shell-surface: var(--page-shell-panel);
 
+  /* Same color as --page-shell-bg at 85% opacity (~15% transparent) — used
+     for the main shell wrapper on each app page and the sidebar/Milestones
+     panel, so the ocean background shows through slightly. Kept as a
+     separate variable (not a change to --page-shell-bg itself) because the
+     topbar also reads --page-shell-bg and needs to stay fully solid. */
+  --page-shell-bg-translucent: rgba(14, 28, 46, 0.85);
+
   /* App layout */
   --sidebar-width: 280px;
   --dash-layout-gap: 20px;

@@ -14,6 +14,14 @@
     0 20px 48px rgba(0,0,0,0.28);
 }
 
+/* Scoped to .dash-content (not just .dashboard-shell-card) because
+   public-profile.html reuses the same "dashboard-shell-card" wrapper class
+   and has no override of its own for this background — an unscoped rule
+   here would silently make the public profile's shell translucent too. */
+.dash-content .dashboard-shell-card {
+  background: var(--page-shell-bg-translucent);
+}
+
 .dashboard-shell-card .dash-card {
   border-radius: 30px;
   border: 1px solid rgba(91, 188, 255, 0.24);

@@ -187,8 +187,16 @@ body.app-page :where(
    same solid palette instead of mixed gradients and tints.
 ========================================================= */
 
+/* ~15% transparent so the ocean background shows through slightly. This is
+   the rule that actually wins (loads after every page CSS file, and
+   [class$="-shell-card"] has higher specificity than each page's own
+   .xxx-shell-card selector) — the matching per-page background: declarations
+   were also updated to --page-shell-bg-translucent to avoid a silent
+   mismatch if this rule's specificity/load-order ever changes. Scoped to
+   body.app-page only, so the public profile (a different body class, no
+   sidebar/topbar) is unaffected. */
 body.app-page [class$="-shell-card"] {
-  background: var(--page-shell-bg);
+  background: var(--page-shell-bg-translucent);
 }
 
 body.app-page :where(
