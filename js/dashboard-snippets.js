@@ -563,11 +563,50 @@ async function renderNavigationSnippet() {
   `;
 
   const container = document.getElementById("dashNavigationChart");
-  if (!container || typeof L === "undefined") {
-    box.innerHTML = `<div class="muted">Chart preview unavailable.</div>`;
+  if (!container) return;
+
+  // On a fresh login redirect (as opposed to a plain refresh of an
+  // already-open dashboard), this render can fire before the Leaflet
+  // <script> has actually finished loading — e.g. a slow/blocked first
+  // fetch of the CDN script. A refresh "fixes" it purely because the
+  // script is warm in cache by then. Rather than give up immediately,
+  // poll briefly for `L` to show up and retry, so the map still appears
+  // without the user needing to reload the page.
+  if (typeof L === "undefined") {
+    waitForLeaflet(() => {
+      if (document.getElementById("dashNavigationChart") === container) {
+        drawDashboardNavigationChart(container, stats);
+      }
+    });
     return;
   }
 
+  drawDashboardNavigationChart(container, stats);
+}
+
+const DASH_NAV_LEAFLET_POLL_MS = 200;
+const DASH_NAV_LEAFLET_POLL_ATTEMPTS = 25; // ~5s total
+
+function waitForLeaflet(onReady, attemptsLeft = DASH_NAV_LEAFLET_POLL_ATTEMPTS) {
+  if (typeof L !== "undefined") {
+    onReady();
+    return;
+  }
+  if (attemptsLeft <= 0) {
+    // Leaflet never showed up (genuinely blocked/failed to load, not just slow) —
+    // only now fall back to the static message, and only if this render pass'
+    // chart container is still the one on screen (user hasn't navigated away
+    // or triggered a fresh re-render in the meantime).
+    const shell = document.querySelector(
+      "#dashNavigationSnippet .dashboard-navigation-chart-shell"
+    );
+    if (shell) shell.innerHTML = `<div class="muted">Chart preview unavailable.</div>`;
+    return;
+  }
+  window.setTimeout(() => waitForLeaflet(onReady, attemptsLeft - 1), DASH_NAV_LEAFLET_POLL_MS);
+}
+
+function drawDashboardNavigationChart(container, stats) {
   if (!initDashboardNavigationChart(container) || !dashNavigationLayer) return;
 
   dashNavigationLayer.clearLayers();
