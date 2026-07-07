@@ -96,10 +96,10 @@
         { sticky: true }
       );
       line.on("mouseover", () => {
-        line.setStyle({ weight: 5.5, opacity: 1 });
+        line.setStyle({ weight: 2.75, opacity: 1 });
       });
       line.on("mouseout", () => {
-        line.setStyle({ weight: 4, opacity: baseOpacity });
+        line.setStyle({ weight: 2, opacity: baseOpacity });
       });
     };
 
@@ -108,7 +108,7 @@
       group.addLayer(
         L.polyline(shifted, {
           color: "#ffffff",
-          weight: 7,
+          weight: 3.5,
           opacity: 0.16,
           lineJoin: "round",
           lineCap: "round",
@@ -117,7 +117,7 @@
       );
       const line = L.polyline(shifted, {
         color,
-        weight: 4,
+        weight: 2,
         opacity: baseOpacity,
         lineJoin: "round",
         lineCap: "round"

@@ -135,7 +135,7 @@
       const to = entry.toPort || entry.to_port || entry.port || "Arrival";
       const line = L.polyline(coords, {
         color,
-        weight: 4,
+        weight: 2,
         opacity: 0.94,
         lineCap: "round",
         lineJoin: "round"
