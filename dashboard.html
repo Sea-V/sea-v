@@ -12,7 +12,7 @@
   <title>SEA-V Dashboard</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=147" />
+  <link rel="stylesheet" href="styles.css?v=148" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -22,34 +22,34 @@
 
   <!-- Core Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=147"></script>
-  <script src="js/supabase.js?v=147"></script>
-  <script src="js/auth.js?v=147"></script>
-  <script src="js/feedback.js?v=147" defer></script>
-  <script src="js/core.js?v=147" defer></script>
+  <script src="js/seav-config.js?v=148"></script>
+  <script src="js/supabase.js?v=148"></script>
+  <script src="js/auth.js?v=148"></script>
+  <script src="js/feedback.js?v=148" defer></script>
+  <script src="js/core.js?v=148" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=147" defer></script>
-  <script src="js/seav-data.js?v=147" defer></script>
-  <script src="js/seav-badges.js?v=147" defer></script>
-  <script src="js/api-core.js?v=147" defer></script>
-  <script src="js/api-mappers.js?v=147" defer></script>
-  <script src="js/api.js?v=147" defer></script>
-  <script src="js/state.js?v=147" defer></script>
-  <script src="js/achievements-engine.js?v=147" defer></script>
-  <script src="js/badge-unlock.js?v=147" defer></script>
+  <script src="js/seav-upload.js?v=148" defer></script>
+  <script src="js/seav-data.js?v=148" defer></script>
+  <script src="js/seav-badges.js?v=148" defer></script>
+  <script src="js/api-core.js?v=148" defer></script>
+  <script src="js/api-mappers.js?v=148" defer></script>
+  <script src="js/api.js?v=148" defer></script>
+  <script src="js/state.js?v=148" defer></script>
+  <script src="js/achievements-engine.js?v=148" defer></script>
+  <script src="js/badge-unlock.js?v=148" defer></script>
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
     defer
   ></script>
-  <script src="js/seav-cards.js?v=147" defer></script>
-  <script src="js/navigation-ports.js?v=147" defer></script>
-  <script src="js/navigation-helpers.js?v=147" defer></script>
-  <script src="js/navigation-passage.js?v=147" defer></script>
-  <script src="js/navigation-routing.js?v=147" defer></script>
-  <script src="js/dashboard-snippets.js?v=147" defer></script>
-  <script src="js/dashboard.js?v=147" defer></script>
+  <script src="js/seav-cards.js?v=148" defer></script>
+  <script src="js/navigation-ports.js?v=148" defer></script>
+  <script src="js/navigation-helpers.js?v=148" defer></script>
+  <script src="js/navigation-passage.js?v=148" defer></script>
+  <script src="js/navigation-routing.js?v=148" defer></script>
+  <script src="js/dashboard-snippets.js?v=148" defer></script>
+  <script src="js/dashboard.js?v=148" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -287,7 +287,7 @@
         ========================== -->
         <article class="dash-card dash-card-accent-vessels">
           <div class="dashboard-card-headline">
-            <h3>Vessels</h3>
+            <h3><span class="dashboard-card-icon" data-dash-icon="vessels" aria-hidden="true"></span>Vessels</h3>
             <a href="vessels.html">View all</a>
           </div>
           <div id="dashVesselSnippet"></div>
@@ -298,7 +298,7 @@
         ========================== -->
         <article class="dash-card dash-card-accent-seatime">
           <div class="dashboard-card-headline">
-            <h3>Sea time</h3>
+            <h3><span class="dashboard-card-icon" data-dash-icon="seatime" aria-hidden="true"></span>Sea time</h3>
             <a href="seatime.html">View all</a>
           </div>
           <div id="dashSeatimeSnippet"></div>
@@ -338,7 +338,7 @@
         ========================== -->
         <article class="dash-card dash-card-accent-navigation dashboard-navigation-card">
           <div class="dashboard-card-headline">
-            <h3>Navigation chart</h3>
+            <h3><span class="dashboard-card-icon" data-dash-icon="navigation" aria-hidden="true"></span>Navigation chart</h3>
             <a href="navigation.html">Open full chart</a>
           </div>
           <div id="dashNavigationSnippet"></div>
@@ -349,7 +349,7 @@
         ========================== -->
         <article class="dash-card dash-card-accent-tenders">
           <div class="dashboard-card-headline">
-            <h3>Tenders</h3>
+            <h3><span class="dashboard-card-icon" data-dash-icon="tenders" aria-hidden="true"></span>Tenders</h3>
             <a href="tenders.html">View all</a>
           </div>
           <div id="dashTenderSnippet"></div>
@@ -360,7 +360,7 @@
         ========================== -->
         <article class="dash-card dash-card-accent-onboard">
           <div class="dashboard-card-headline">
-            <h3>Onboard experience</h3>
+            <h3><span class="dashboard-card-icon" data-dash-icon="onboard" aria-hidden="true"></span>Onboard experience</h3>
             <a href="onboard-experience.html">View all</a>
           </div>
           <div id="dashOnboardSnippet"></div>
@@ -371,7 +371,7 @@
         ========================== -->
         <article class="dash-card dash-card-accent-specialist">
           <div class="dashboard-card-headline">
-            <h3>Specialist qualifications</h3>
+            <h3><span class="dashboard-card-icon" data-dash-icon="specialist" aria-hidden="true"></span>Specialist qualifications</h3>
             <a href="specialist-qualifications.html">View all</a>
           </div>
           <div id="dashSpecialistSnippet"></div>
@@ -393,7 +393,7 @@
             </svg>
           </div>
           <div class="dashboard-card-headline">
-            <h3>Certificates</h3>
+            <h3><span class="dashboard-card-icon" data-dash-icon="certificates" aria-hidden="true"></span>Certificates</h3>
             <a href="certificates.html">View all</a>
           </div>
           <div id="dashCertSnippet"></div>
@@ -404,7 +404,7 @@
         ========================== -->
         <article class="dash-card dash-card-accent-references">
           <div class="dashboard-card-headline">
-            <h3>References</h3>
+            <h3><span class="dashboard-card-icon" data-dash-icon="references" aria-hidden="true"></span>References</h3>
             <a href="references.html">View all</a>
           </div>
           <div id="dashRefSnippet"></div>
@@ -415,7 +415,7 @@
         ========================== -->
         <article class="dash-card dash-card-accent-hobbies">
           <div class="dashboard-card-headline">
-            <h3>Hobbies & interests</h3>
+            <h3><span class="dashboard-card-icon" data-dash-icon="hobbies" aria-hidden="true"></span>Hobbies &amp; interests</h3>
             <a href="hobbies-interests.html">View all</a>
           </div>
           <div id="dashHobbiesSnippet"></div>

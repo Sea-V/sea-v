@@ -359,6 +359,17 @@
     await renderDashboardSnippets();
   }
 
+  // Same helper as js/public-profile.js's populateSectionIcons — reuses the
+  // sidebar's SVG set (window.SeavIcons, js/core.js) for each card heading's
+  // data-dash-icon span. No data dependency, safe to run immediately.
+  function populateDashboardCardIcons() {
+    document.querySelectorAll("[data-dash-icon]").forEach((el) => {
+      const key = el.getAttribute("data-dash-icon");
+      const svg = window.SeavIcons?.[key];
+      if (svg) el.innerHTML = svg;
+    });
+  }
+
   function initDashboard() {
     const isDashboard =
       document.getElementById("dashSeatimeSnippet") ||
@@ -371,6 +382,7 @@
       await refresh();
     };
 
+    populateDashboardCardIcons();
     initDashboardPublicToggle();
     Seav.bindStateRefresh(runRefresh, { label: "Dashboard refresh" });
   }

@@ -24,6 +24,63 @@
     0 20px 48px rgba(0,0,0,0.22);
 }
 
+/* =========================================================
+   PER-SECTION COLOR ACCENTS + HEADING ICONS
+   Same pattern as public-profile.css: the dash-card-accent-* classes
+   already existed in this page's markup (a few one-off rules already keyed
+   off them for cert links / mini-cards), but every card still rendered with
+   the same flat blue border — this ties each one to the same --page-*
+   identity color already used in the sidebar nav and on the public profile,
+   so the two pages read consistently instead of the dashboard looking flat
+   next to the profile.
+
+   Scoped via ".dash-content .dashboard-shell-card" rather than just
+   ".dashboard-shell-card" — public-profile.html's shell reuses that same
+   "dashboard-shell-card" wrapper class (that's why public-profile.css needs
+   its own ".public-profile-page" scoping prefix), and ".dash-content" only
+   wraps the real dashboard, so this can't bleed onto the public profile.
+========================================================= */
+
+.dash-content .dashboard-shell-card .dash-card-accent-profile { --section-accent: var(--page-profile); }
+.dash-content .dashboard-shell-card .dash-card-accent-seatime { --section-accent: var(--page-seatime); }
+.dash-content .dashboard-shell-card .dash-card-accent-vessels { --section-accent: var(--page-vessels); }
+.dash-content .dashboard-shell-card .dash-card-accent-tenders { --section-accent: var(--page-tenders); }
+.dash-content .dashboard-shell-card .dash-card-accent-navigation { --section-accent: var(--page-navigation); }
+.dash-content .dashboard-shell-card .dash-card-accent-onboard { --section-accent: var(--page-onboard-experience); }
+.dash-content .dashboard-shell-card .dash-card-accent-specialist { --section-accent: var(--page-specialist-qualifications); }
+.dash-content .dashboard-shell-card .dash-card-accent-certificates { --section-accent: var(--page-certificates); }
+.dash-content .dashboard-shell-card .dash-card-accent-references { --section-accent: var(--page-references); }
+.dash-content .dashboard-shell-card .dash-card-accent-hobbies { --section-accent: var(--page-hobbies-interests); }
+
+.dash-content .dashboard-shell-card [class*="dash-card-accent-"] {
+  border-color: color-mix(in srgb, var(--section-accent, #5bbcff) 42%, rgba(255, 255, 255, 0.1));
+  transition: border-color 0.2s ease;
+}
+
+/* Section heading icon — reuses the same SVG set as the sidebar nav
+   (window.SeavIcons, js/core.js) and the public profile's section icons,
+   tinted to the section's accent color. */
+.dash-content .dashboard-shell-card .dashboard-card-headline h3,
+.dash-content .dashboard-shell-card .dash-kpis-row h3.kpi-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dash-content .dashboard-shell-card .dashboard-card-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--section-accent, #5bbcff);
+}
+
+.dash-content .dashboard-shell-card .dashboard-card-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .dashboard-shell-head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
