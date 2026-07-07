@@ -50,6 +50,39 @@ begin
   end loop;
 end $$;
 
+-- Belt-and-suspenders: the ADD COLUMN IF NOT EXISTS ... REFERENCES lines
+-- above only attach the FK when the column doesn't already exist yet. If a
+-- table's user_id column was added by an earlier/separate migration before
+-- this script ran, IF NOT EXISTS skips the whole clause -- including the
+-- inline REFERENCES -- and the FK silently never gets created, with no
+-- error. This happened live to public.vessels (fixed 2026-07-07). This
+-- block explicitly ensures every table's FK exists regardless of how
+-- user_id first got added, so this can't recur silently on any table.
+do $$
+declare
+  t text;
+begin
+  foreach t in array array[
+    'profile', 'vessels', 'seatimes', 'certificates', 'sea_references',
+    'tenders', 'achievements', 'navigation_areas', 'onboard_experiences',
+    'hobbies_interests', 'specialist_qualifications', 'payslips'
+  ]
+  loop
+    if not exists (
+      select 1
+      from pg_constraint c
+      where c.conrelid = format('public.%I', t)::regclass
+        and c.contype = 'f'
+        and c.confrelid = 'auth.users'::regclass
+    ) then
+      execute format(
+        'alter table public.%I add constraint %I foreign key (user_id) references auth.users(id) on delete cascade',
+        t, t || '_user_id_fkey'
+      );
+    end if;
+  end loop;
+end $$;
+
 create index if not exists profile_user_id_idx on public.profile (user_id);
 create index if not exists vessels_user_id_idx on public.vessels (user_id);
 create index if not exists seatimes_user_id_idx on public.seatimes (user_id);
@@ -295,18 +328,10 @@ create policy vessel_photos_public_read
     )
   );
 
-create policy certificate_files_public_read
-  on storage.objects for select to anon
-  using (
-    bucket_id = 'certificate-files'
-    and exists (
-      select 1
-      from public.certificates c
-      join public.profile p on p.user_id = c.user_id
-      where p.public_enabled = true
-        and c.attachment->>'path' = storage.objects.name
-    )
-  );
+-- Intentionally no certificate_files_public_read policy: certificate
+-- attachments are never linked from the public profile (see
+-- docs/schema-phase2-public-hardening.sql for the reasoning), so there's
+-- nothing for a public-read policy to serve.
 
 create policy achievement_files_public_read
   on storage.objects for select to anon
@@ -336,6 +361,10 @@ create policy onboard_experience_files_public_read
     )
   );
 
+-- NOTE: jsonb_array_elements()'s output column is named "value", not "photo"
+-- -- a bare `photo->>'path'` silently resolves to the unrelated profile.photo
+-- column instead of erroring, so this policy never actually matched a real
+-- hobby photo. Must be photo.value->>'path'.
 create policy hobbies_interest_photos_public_read
   on storage.objects for select to anon
   using (
@@ -347,6 +376,6 @@ create policy hobbies_interest_photos_public_read
       cross join lateral jsonb_array_elements(coalesce(h.photos, '[]'::jsonb)) photo
       where p.public_enabled = true
         and h.status = 'Published'
-        and photo->>'path' = storage.objects.name
+        and photo.value->>'path' = storage.objects.name
     )
   );

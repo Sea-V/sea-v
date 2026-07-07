@@ -62,18 +62,10 @@ create policy vessel_photos_public_read
     )
   );
 
-create policy certificate_files_public_read
-  on storage.objects for select to anon
-  using (
-    bucket_id = 'certificate-files'
-    and exists (
-      select 1
-      from public.certificates c
-      join public.profile p on p.user_id = c.user_id
-      where p.public_enabled = true
-        and c.attachment->>'path' = storage.objects.name
-    )
-  );
+-- Intentionally no certificate_files_public_read policy: certificate
+-- attachments are never linked from the public profile, so there's nothing
+-- for a public-read policy to serve. Existing certificate-files objects stay
+-- readable only to their owner via certificate-files_owner_select.
 
 create policy achievement_files_public_read
   on storage.objects for select to anon
@@ -103,6 +95,10 @@ create policy onboard_experience_files_public_read
     )
   );
 
+-- NOTE: jsonb_array_elements()'s output column is named "value", not "photo"
+-- -- a bare `photo->>'path'` silently resolves to the unrelated profile.photo
+-- column instead of erroring, so this policy never actually matched a real
+-- hobby photo. Must be photo.value->>'path'.
 create policy hobbies_interest_photos_public_read
   on storage.objects for select to anon
   using (
@@ -114,6 +110,6 @@ create policy hobbies_interest_photos_public_read
       cross join lateral jsonb_array_elements(coalesce(h.photos, '[]'::jsonb)) photo
       where p.public_enabled = true
         and h.status = 'Published'
-        and photo->>'path' = storage.objects.name
+        and photo.value->>'path' = storage.objects.name
     )
   );

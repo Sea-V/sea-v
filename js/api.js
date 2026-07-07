@@ -96,8 +96,13 @@
       "date_left", "actual_sea_service_days", "standby_service_days", "yard_service_days",
       "watchkeeping_days", "verification_status", "created_at", "updated_at"
     ].join(","),
+    // No "attachment" here on purpose: the public profile never renders a
+    // certificate file link (only expiry/issue metadata), and certificate
+    // scans can contain PII (full name, DOB, nationality). The matching
+    // DB-level anon grant and the certificate-files storage read policy
+    // were tightened to match — see docs/schema-phase2-public-hardening.sql.
     certificates: [
-      "id", "user_id", "code", "name", "issue_date", "expiry_date", "status", "attachment",
+      "id", "user_id", "code", "name", "issue_date", "expiry_date", "status",
       "is_mandatory", "is_template", "created_at", "updated_at"
     ].join(","),
     sea_references: [
@@ -116,9 +121,14 @@
       "operation_type", "passage_name", "visited_date", "departure_date", "arrival_date",
       "lat", "lng", "waypoints", "note", "created_at", "updated_at"
     ].join(","),
+    // No "signoff" here on purpose: it's a jsonb blob including the
+    // supervisor's signatory_email, and the public onboard-experience row
+    // never renders any part of it (only category/title/dates/status) — see
+    // js/seav-cards.js's buildOnboardRow. Matching DB-level anon grant is
+    // column-scoped to exclude signoff too (docs/schema-phase2-public-hardening.sql).
     onboard_experiences: [
       "id", "user_id", "vessel_id", "category", "title", "description", "location_onboard",
-      "date_from", "date_to", "hours", "is_familiarisation", "status", "signoff",
+      "date_from", "date_to", "hours", "is_familiarisation", "status",
       "attachment", "created_at", "updated_at"
     ].join(","),
     hobbies_interests: [

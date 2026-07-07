@@ -35,6 +35,13 @@ drop policy if exists "Allow public uploads to vessel photos" on storage.objects
 
 -- ---------------------------------------------------------------------------
 -- 2. Fix hobbies public read policy (must match photo path, not profile photo)
+--
+-- This fix was previously attempted here but still used a bare
+-- `photo->>'path'`, which doesn't actually work: jsonb_array_elements()'s
+-- output column is named "value", not "photo", so the unqualified `photo`
+-- silently resolves to the unrelated profile.photo column instead of
+-- erroring. Confirmed live 2026-07-07 via EXPLAIN that this never matched a
+-- real hobby photo. Must be photo.value->>'path'.
 -- ---------------------------------------------------------------------------
 drop policy if exists hobbies_interest_photos_public_read on storage.objects;
 create policy hobbies_interest_photos_public_read
@@ -48,7 +55,7 @@ create policy hobbies_interest_photos_public_read
       cross join lateral jsonb_array_elements(coalesce(h.photos, '[]'::jsonb)) photo
       where p.public_enabled = true
         and h.status = 'Published'
-        and photo->>'path' = storage.objects.name
+        and photo.value->>'path' = storage.objects.name
     )
   );
 
@@ -152,7 +159,7 @@ create policy "hobbies-interest-photos_owner_select"
         from public.hobbies_interests h
         cross join lateral jsonb_array_elements(coalesce(h.photos, '[]'::jsonb)) photo
         where h.user_id = auth.uid()
-          and photo->>'path' = storage.objects.name
+          and photo.value->>'path' = storage.objects.name
       )
     )
   );

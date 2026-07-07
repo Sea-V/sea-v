@@ -65,8 +65,12 @@ grant select (
   watchkeeping_days, verification_status, created_at, updated_at
 ) on table public.seatimes to anon;
 
+-- No "attachment" here on purpose: the public profile never shows a
+-- certificate file link, and certificate scans can contain PII. Keep this
+-- column-scoped (not a table-wide `grant select on ... to anon`), otherwise
+-- anon gets every column including attachment regardless of this list.
 grant select (
-  id, user_id, code, name, expiry_date, status, attachment, is_mandatory,
+  id, user_id, code, name, issue_date, expiry_date, status, is_mandatory,
   is_template, created_at, updated_at
 ) on table public.certificates to anon;
 
@@ -89,9 +93,13 @@ grant select (
   waypoints, note, created_at, updated_at
 ) on table public.navigation_areas to anon;
 
+-- No "signoff" here on purpose: it's a jsonb blob that includes the
+-- supervisor's signatory_email, and the public onboard-experience row never
+-- renders any part of it. Fixed live 2026-07-07 via a column-level revoke
+-- after finding it granted in full.
 grant select (
   id, user_id, vessel_id, category, title, description, location_onboard,
-  date_from, date_to, hours, is_familiarisation, status, signoff, attachment,
+  date_from, date_to, hours, is_familiarisation, status, attachment,
   created_at, updated_at
 ) on table public.onboard_experiences to anon;
 
@@ -304,18 +312,10 @@ create policy vessel_photos_public_read
     )
   );
 
-create policy certificate_files_public_read
-  on storage.objects for select to anon
-  using (
-    bucket_id = 'certificate-files'
-    and exists (
-      select 1
-      from public.certificates c
-      join public.profile p on p.user_id = c.user_id
-      where p.public_enabled = true
-        and c.attachment->>'path' = storage.objects.name
-    )
-  );
+-- Intentionally no certificate_files_public_read policy: certificate
+-- attachments are never linked from the public profile, so there's nothing
+-- for a public-read policy to serve. Existing certificate-files objects stay
+-- readable only to their owner via certificate-files_owner_select.
 
 create policy achievement_files_public_read
   on storage.objects for select to anon
@@ -345,6 +345,12 @@ create policy onboard_experience_files_public_read
     )
   );
 
+-- NOTE: `photo` here is the lateral alias for jsonb_array_elements(), but
+-- jsonb_array_elements' output column is actually named "value", not "photo"
+-- -- so a bare `photo->>'path'` reference doesn't address it. Postgres
+-- silently resolves the unqualified `photo` to the unrelated profile.photo
+-- column instead (no error, just always-false), which meant this policy
+-- never actually matched a real hobby photo. Must be photo.value->>'path'.
 create policy hobbies_interest_photos_public_read
   on storage.objects for select to anon
   using (
@@ -356,6 +362,6 @@ create policy hobbies_interest_photos_public_read
       cross join lateral jsonb_array_elements(coalesce(h.photos, '[]'::jsonb)) photo
       where p.public_enabled = true
         and h.status = 'Published'
-        and photo->>'path' = storage.objects.name
+        and photo.value->>'path' = storage.objects.name
     )
   );

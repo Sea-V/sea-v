@@ -47,8 +47,8 @@
   const HI_PHOTO_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.HOBBIES_INTEREST_PHOTOS ||
     "hobbies-interest-photos";
-  const CERT_FILE_BUCKET =
-    window.SeavApiCore?.STORAGE_BUCKETS?.CERTIFICATE_FILES || "certificate-files";
+  // No CERT_FILE_BUCKET here — the public certificate row never links to the
+  // attachment file (see js/api.js's certificates PUBLIC_ARRAY_COLUMNS note).
 
   let ppNavigationChart = null;
   let ppNavigationLayer = null;
