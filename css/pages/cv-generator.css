@@ -296,6 +296,7 @@
   margin: 0 auto;
   background: #ffffff;
   color: #1f2933;
+  border-radius: 30px;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 10.5pt;
@@ -630,6 +631,9 @@
     width: 210mm;
     min-height: auto;
     margin: 0;
+    /* Rounded corners are a screen-preview touch to match the app shell —
+       the actual saved/printed CV should stay a normal rectangular page. */
+    border-radius: 0;
     box-shadow: none;
     break-inside: avoid;
   }
