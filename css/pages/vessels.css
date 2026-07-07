@@ -198,8 +198,12 @@
 ========================================================= */
 
 .vessel-image-card {
+  /* Wider than before (was 240) so more of the yacht photo shows, but height
+     is unchanged from the original 240 — a taller square stretched the
+     overview panel next to it and left the stat grid looking centered in a
+     lot of empty space. Landscape crop instead of a square. */
   width: 320px;
-  height: 320px;
+  height: 240px;
   padding: 0;
   background: rgba(0,0,0,0.25);
   align-self: start;
@@ -219,15 +223,15 @@
 
 .vessel-overview-card {
   min-width: 0;
-  height: 320px;
+  height: 240px;
   padding: 0;
   display: flex;
   flex-direction: column;
 }
 
 #currentVesselCard .vessel-overview-card {
-  min-height: 320px;
-  max-height: 320px;
+  min-height: 240px;
+  max-height: 240px;
 }
 
 #currentVesselCard .vessel-overview-head {
@@ -356,8 +360,6 @@
 #currentVesselCard .vessel-main-grid {
   gap: 7px;
   padding: 8px 10px;
-  flex: 1;
-  align-content: center;
 }
 
 .vessel-main-item {
