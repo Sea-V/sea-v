@@ -58,7 +58,7 @@
       image:
         window.SeavBadges?.resolveItemBadgeImage?.({
           ...achievement,
-          status: "Approved"
+          status: "Verified"
         }) ||
         badge.image ||
         window.SeavBadges?.resolveBadgeImage?.(
@@ -280,7 +280,7 @@
 
     const celebrated = new Set(getCelebratedCodes());
     const payloads = achievements
-      .filter((item) => item?.code && String(item.status || "") === "Approved")
+      .filter((item) => item?.code && String(item.status || "") === "Verified")
       .filter((item) => !celebrated.has(item.code))
       .filter((item) => !shownThisSession.has(item.code))
       .map(buildPayload)

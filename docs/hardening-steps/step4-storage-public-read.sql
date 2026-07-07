@@ -84,7 +84,7 @@ create policy achievement_files_public_read
       from public.achievements a
       join public.profile p on p.user_id = a.user_id
       where p.public_enabled = true
-        and a.status = 'Approved'
+        and a.status = 'Verified'
         and a.attachment->>'path' = storage.objects.name
     )
   );

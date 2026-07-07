@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="COMMERCIAL VESSEL" data-source-page="vessels" data-tier="silver">
   <defs>
-    <linearGradient id="ring-snjqat" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-t28ol7" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#8fa3b8"/>
       <stop offset="50%" stop-color="#d6e2ee"/>
       <stop offset="100%" stop-color="#eef3f8"/>
     </linearGradient>
-    <radialGradient id="disc-snjqat" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-t28ol7" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#eef3f8"/>
       <stop offset="100%" stop-color="#d6e2ee"/>
     </radialGradient>
-    <linearGradient id="shine-snjqat" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-t28ol7" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <clipPath id="txt-snjqat">
+    <clipPath id="txt-t28ol7">
       <path d="M 60.00 18.00 L 92.91 37.00 L 92.91 75.00 L 60.00 94.00 L 27.09 75.00 L 27.09 37.00 Z"/>
     </clipPath>
-    <filter id="sh-snjqat" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-t28ol7" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-snjqat)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-snjqat)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-snjqat)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-snjqat)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-snjqat)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-snjqat)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-snjqat)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-snjqat)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-snjqat)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-snjqat)"/>
+  <g filter="url(#sh-t28ol7)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-t28ol7)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-t28ol7)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-t28ol7)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-t28ol7)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-t28ol7)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-t28ol7)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-t28ol7)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-t28ol7)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-t28ol7)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
-  <g clip-path="url(#txt-snjqat)">
+  <g clip-path="url(#txt-t28ol7)">
   
   <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
     <text font-size="9" font-weight="900" letter-spacing="0.15" fill="#0F172A"><tspan x="60" y="52.2" dy="0">COMMERCIAL</tspan></text>
-    <text font-size="7.4" font-weight="700" letter-spacing="0.6" fill="#d6e2ee"><tspan x="60" y="61.5" dy="0">VESSEL</tspan></text>
+    <text font-size="7.4" font-weight="700" letter-spacing="0.6" fill="#0F172A"><tspan x="60" y="61.5" dy="0">VESSEL</tspan></text>
     <line x1="40" y1="65.5" x2="80" y2="65.5" stroke="#d6e2ee" stroke-width="1.6" stroke-linecap="round" opacity="0.4"/>
   </g>
   </g>

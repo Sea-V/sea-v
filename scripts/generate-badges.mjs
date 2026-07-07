@@ -154,7 +154,7 @@ function renderTypography({ hero, sub, theme }) {
   return `
   <g font-family="${FONT}" text-anchor="middle">
     <text font-size="${heroSize}" font-weight="900" letter-spacing="${heroTracking(hero)}" fill="${TEXT}">${heroTspans}</text>
-    <text font-size="${subSize}" font-weight="700" letter-spacing="0.6" fill="${theme.sidebar}">${subTspans}</text>
+    <text font-size="${subSize}" font-weight="700" letter-spacing="0.6" fill="${TEXT}">${subTspans}</text>
     <line x1="40" y1="${accentY.toFixed(1)}" x2="80" y2="${accentY.toFixed(1)}" stroke="${theme.sidebar}" stroke-width="1.6" stroke-linecap="round" opacity="0.4"/>
   </g>`;
 }

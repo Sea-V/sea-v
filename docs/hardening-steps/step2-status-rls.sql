@@ -17,7 +17,7 @@ drop policy if exists achievements_public_read on public.achievements;
 create policy achievements_public_read
   on public.achievements for select to anon
   using (
-    status = 'Approved'
+    status = 'Verified'
     and exists (
       select 1 from public.profile p
       where p.user_id = achievements.user_id

@@ -313,7 +313,7 @@
       vesselId: ctx.vesselId,
       vessel: ctx.vessel,
       date: new Date().toISOString().slice(0, 10),
-      status: "Approved",
+      status: "Verified",
       witnessName: "",
       witnessPosition: "",
       witnessEmail: "",

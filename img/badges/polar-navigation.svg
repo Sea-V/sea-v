@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="POLAR NAVIGATION" data-source-page="navigation" data-tier="platinum">
   <defs>
-    <linearGradient id="ring-2i3r6n" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-vo6lyn" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#28c4ad"/>
       <stop offset="50%" stop-color="#39e0c4"/>
       <stop offset="100%" stop-color="#8af0e0"/>
     </linearGradient>
-    <radialGradient id="disc-2i3r6n" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-vo6lyn" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#8af0e0"/>
       <stop offset="100%" stop-color="#39e0c4"/>
     </radialGradient>
-    <linearGradient id="shine-2i3r6n" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-vo6lyn" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <clipPath id="txt-2i3r6n">
+    <clipPath id="txt-vo6lyn">
       <path d="M 60.00 18.00 L 92.91 37.00 L 92.91 75.00 L 60.00 94.00 L 27.09 75.00 L 27.09 37.00 Z"/>
     </clipPath>
-    <filter id="sh-2i3r6n" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-vo6lyn" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-2i3r6n)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-2i3r6n)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-2i3r6n)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-2i3r6n)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-2i3r6n)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-2i3r6n)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-2i3r6n)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-2i3r6n)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-2i3r6n)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-2i3r6n)"/>
+  <g filter="url(#sh-vo6lyn)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-vo6lyn)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-vo6lyn)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-vo6lyn)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-vo6lyn)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-vo6lyn)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-vo6lyn)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-vo6lyn)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-vo6lyn)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-vo6lyn)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
-  <g clip-path="url(#txt-2i3r6n)">
+  <g clip-path="url(#txt-vo6lyn)">
   
   <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
     <text font-size="17" font-weight="900" letter-spacing="0.5" fill="#0F172A"><tspan x="60" y="55.7" dy="0">POLAR</tspan></text>
-    <text font-size="7.4" font-weight="700" letter-spacing="0.6" fill="#39e0c4"><tspan x="60" y="65.1" dy="0">NAVIGATION</tspan></text>
+    <text font-size="7.4" font-weight="700" letter-spacing="0.6" fill="#0F172A"><tspan x="60" y="65.1" dy="0">NAVIGATION</tspan></text>
     <line x1="40" y1="69.1" x2="80" y2="69.1" stroke="#39e0c4" stroke-width="1.6" stroke-linecap="round" opacity="0.4"/>
   </g>
   </g>

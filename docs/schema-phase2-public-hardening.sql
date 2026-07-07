@@ -126,7 +126,7 @@ drop policy if exists achievements_public_read on public.achievements;
 create policy achievements_public_read
   on public.achievements for select to anon
   using (
-    status = 'Approved'
+    status = 'Verified'
     and exists (
       select 1 from public.profile p
       where p.user_id = achievements.user_id
@@ -326,7 +326,7 @@ create policy achievement_files_public_read
       from public.achievements a
       join public.profile p on p.user_id = a.user_id
       where p.public_enabled = true
-        and a.status = 'Approved'
+        and a.status = 'Verified'
         and a.attachment->>'path' = storage.objects.name
     )
   );

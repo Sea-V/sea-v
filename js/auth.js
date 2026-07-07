@@ -299,27 +299,46 @@
     if (!sessionData.session) return;
 
     const profileId = String(user.id);
-    const displayName = name || user.user_metadata?.name || "";
     const email = user.email || "";
     const updatedAt = new Date().toISOString();
 
-    const { data: updated, error: updateError } = await client
+    // Bootstrap-only: check whether a profile row already exists before
+    // writing anything. `user.user_metadata.name` is only ever set at signup
+    // time and goes stale the moment the user edits their name in
+    // profile.html — this used to run an unconditional UPDATE on `name` on
+    // every page load / session refresh (ensureProfileRow fires on every
+    // INITIAL_SESSION auth event), which silently reverted any later name
+    // change back to the signup-time value, or to "" for rows with no
+    // metadata name at all (e.g. seeded directly in Supabase). Only create
+    // the row if missing; if it already exists, keep `email` in sync but
+    // never touch `name` again.
+    const { data: existing, error: fetchError } = await client
       .from("profile")
-      .update({ name: displayName, email, updated_at: updatedAt })
-      .eq("id", profileId)
       .select("id")
+      .eq("id", profileId)
       .maybeSingle();
 
-    if (updateError) {
-      console.warn("[SEA-V] Profile update failed:", updateError);
-      throw updateError;
+    if (fetchError) {
+      console.warn("[SEA-V] Profile lookup failed:", fetchError);
+      throw fetchError;
     }
 
-    if (updated) {
+    if (existing) {
+      const { error: updateError } = await client
+        .from("profile")
+        .update({ email, updated_at: updatedAt })
+        .eq("id", profileId);
+
+      if (updateError) {
+        console.warn("[SEA-V] Profile email sync failed:", updateError);
+        throw updateError;
+      }
+
       profileBootstrapDone.add(user.id);
       return;
     }
 
+    const displayName = name || user.user_metadata?.name || "";
     const { error: insertError } = await client.from("profile").insert([
       {
         id: profileId,

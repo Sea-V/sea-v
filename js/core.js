@@ -561,7 +561,7 @@ function renderSidebarAchievements() {
   const grouped = groupSidebarAchievements(window.SeavState?.achievements || [])
     .map((instances) => {
       const item = instances[0];
-      const image = resolveSidebarBadgeImage({ ...item, status: "Approved" });
+      const image = resolveSidebarBadgeImage({ ...item, status: "Verified" });
       return { instances, item, image };
     })
     .filter(({ image }) => !!image);

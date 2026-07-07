@@ -934,7 +934,7 @@
     if (!box || !section) return;
 
     const approved = achievements.filter(
-      (item) => item.status === "Approved" || (item.status !== "Declined" && item.autoAwarded)
+      (item) => item.status === "Verified" || (item.status !== "Declined" && item.autoAwarded)
     );
     if (!approved.length) {
       section.hidden = true;

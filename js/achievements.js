@@ -415,7 +415,7 @@
     feed.innerHTML = recent
       .map((item) => {
         const imagePath =
-          window.SeavBadges.resolveItemBadgeImage({ ...item, status: "Approved" }) ||
+          window.SeavBadges.resolveItemBadgeImage({ ...item, status: "Verified" }) ||
           window.SeavBadges.resolveBadgeImage(item.badgeKey, true);
 
         return `
@@ -564,7 +564,7 @@
             vesselId: formData.vesselId,
             vessel: getVessels().find((v) => v.id === formData.vesselId)?.name || "",
             date: formData.date,
-            status: "Approved",
+            status: "Verified",
             witnessName: "",
             witnessPosition: "",
             witnessEmail: "",
