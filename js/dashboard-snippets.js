@@ -20,9 +20,11 @@
   const DASH_NAV_ATTRIBUTION =
     '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
   const DASH_NAV_WORLD_BOUNDS = [[-85, -180], [85, 180]];
+  const DASH_NAV_MOUNT_RETRY_DELAYS = [900, 1800];
 
   let dashNavigationChart = null;
   let dashNavigationLayer = null;
+  let dashNavigationRenderId = 0;
 
   function updateCardTitle(containerId, baseTitle, count) {
     const container = document.getElementById(containerId);
@@ -410,6 +412,7 @@ function buildDashboardNavigationStats(entries, distanceMap) {
 }
 
 function destroyDashboardNavigationChart() {
+  dashNavigationRenderId += 1;
   if (!dashNavigationChart) return;
   try {
     dashNavigationChart.remove();
@@ -443,6 +446,10 @@ function whenDashboardChartContainerReady(container, callback) {
       window.setTimeout(callback, 300);
     });
   });
+}
+
+function hasDashboardNavLoadedTiles(container) {
+  return !!container?.querySelector?.(".leaflet-tile-loaded");
 }
 
 // Surfaces failures on-screen instead of only in devtools console — added
@@ -651,8 +658,9 @@ function waitForLeaflet(onReady, attemptsLeft = DASH_NAV_LEAFLET_POLL_ATTEMPTS) 
   window.setTimeout(() => waitForLeaflet(onReady, attemptsLeft - 1), DASH_NAV_LEAFLET_POLL_MS);
 }
 
-function drawDashboardNavigationChart(container, stats) {
+function drawDashboardNavigationChart(container, stats, retryAttempt = 0, renderId = ++dashNavigationRenderId) {
   whenDashboardChartContainerReady(container, () => {
+    if (renderId !== dashNavigationRenderId) return;
     if (!initDashboardNavigationChart(container) || !dashNavigationLayer) return;
 
     dashNavigationLayer.clearLayers();
@@ -698,6 +706,20 @@ function drawDashboardNavigationChart(container, stats) {
     // that can happen only on the first dashboard load.
     window.setTimeout(settleDashboardChart, 250);
     window.setTimeout(settleDashboardChart, 800);
+
+    const retryDelay = DASH_NAV_MOUNT_RETRY_DELAYS[retryAttempt];
+    if (retryDelay === undefined) return;
+
+    window.setTimeout(() => {
+      if (renderId !== dashNavigationRenderId) return;
+      if (!container.isConnected || hasDashboardNavLoadedTiles(container)) return;
+
+      // Cold first loads can leave Leaflet with no requested/painted tiles even
+      // though the map object exists. Remount in-place instead of relying on a
+      // manual browser refresh.
+      destroyDashboardNavigationChart();
+      drawDashboardNavigationChart(container, stats, retryAttempt + 1);
+    }, retryDelay);
   });
 }
 
