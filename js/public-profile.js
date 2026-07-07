@@ -230,7 +230,8 @@
           hobbyEntries,
           specialistEntries,
           achievements,
-          seatimes
+          seatimes,
+          certs
         ] = await Promise.all([
           loadPublicData(ownerId, KEYS.VESSELS, profile),
           loadPublicData(ownerId, KEYS.TENDERS, profile),
@@ -240,7 +241,8 @@
           loadPublicData(ownerId, KEYS.HOBBIES_INTERESTS, profile),
           loadPublicData(ownerId, KEYS.SPECIALIST_QUALIFICATIONS, profile),
           loadPublicData(ownerId, KEYS.ACHIEVEMENTS, profile),
-          loadPublicData(ownerId, KEYS.SEATIMES, profile)
+          loadPublicData(ownerId, KEYS.SEATIMES, profile),
+          loadPublicData(ownerId, KEYS.CERTS, profile)
         ]);
 
         const navigationDistanceMap = await buildPublicDistanceMap(navigationAreas);
@@ -261,6 +263,7 @@
         sections.renderOnboardExperience(onboardEntries, vessels);
         sections.renderHobbiesInterests(hobbyEntries);
         sections.renderSpecialistQualifications(specialistEntries);
+        sections.renderCertificates(certs);
         sections.renderReferences(refs, vessels);
         sections.renderAchievements(achievements);
 

@@ -192,6 +192,7 @@ body.public-profile-page .overlay {
 .public-profile-page .dash-card-accent-navigation { --section-accent: var(--page-navigation); }
 .public-profile-page .dash-card-accent-onboard { --section-accent: var(--page-onboard-experience); }
 .public-profile-page .dash-card-accent-specialist { --section-accent: var(--page-specialist-qualifications); }
+.public-profile-page .dash-card-accent-certificates { --section-accent: var(--page-certificates); }
 .public-profile-page .dash-card-accent-references { --section-accent: var(--page-references); }
 .public-profile-page .dash-card-accent-achievements { --section-accent: var(--page-achievements); }
 .public-profile-page .dash-card-accent-hobbies { --section-accent: var(--page-hobbies-interests); }

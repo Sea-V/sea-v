@@ -335,11 +335,54 @@
     `;
   }
 
+  /**
+   * Build the public-profile certificate row. Deliberately just a single
+   * flat, simple row (no accordion/expand, no attachment link) to match
+   * every other public-profile section (specialist quals, hobbies) — the
+   * previous certificates section design was a much heavier expandable
+   * card that never actually got wired into public-profile.html at all.
+   * Expiry is the lead fact since that's what an employer scans for first;
+   * issue date (if recorded) is a secondary, optional detail.
+   */
+  function buildCertRow(cert) {
+    const title = Seav.escapeHtml(cert?.name || cert?.code || "Certificate");
+    const expiry = cert?.noExpiry ? "" : cert?.expiry || "";
+    const info = window.SeavData.getCertExpiryInfo(expiry);
+    const formatDate = window.SeavData.formatDatePretty;
+
+    const DOT_CLASS_BY_PILL = {
+      "pill pill-valid": "is-valid",
+      "pill pill-warning": "is-pending",
+      "pill pill-expired": "is-expired"
+    };
+    const dotClass = DOT_CLASS_BY_PILL[info.statusClass] || "";
+
+    const expiryMeta = expiry
+      ? `${info.badge === "Expired" ? "Expired" : "Expires"} ${formatDate(expiry)}`
+      : "No expiry";
+    const issuedMeta = cert?.issued ? `Issued ${formatDate(cert.issued)}` : "";
+    const meta = [expiryMeta, issuedMeta].filter(Boolean).join(" • ");
+
+    return `
+      <div class="public-cv-mini-row" data-pp-more-item>
+        <div class="public-cv-mini-main">
+          <span class="public-cv-mini-title">${title}</span>
+          <span class="public-cv-mini-meta">${Seav.escapeHtml(meta)}</span>
+        </div>
+        <span class="public-cv-mini-meta">
+          <span class="public-cv-status-dot${dotClass ? ` ${dotClass}` : ""}" aria-hidden="true"></span>
+          ${Seav.escapeHtml(info.badge)}
+        </span>
+      </div>
+    `;
+  }
+
   window.SeavCards = {
     buildVesselCard,
     buildTenderCard,
     buildOnboardRow,
     buildSpecialistRow,
-    buildHobbyRow
+    buildHobbyRow,
+    buildCertRow
   };
 })();

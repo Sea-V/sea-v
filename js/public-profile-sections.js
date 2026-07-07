@@ -594,205 +594,54 @@
     section.hidden = false;
   }
 
-  function getCertStatusPillClass(status) {
-    const map = {
-      "pp-pill-valid": "pill-valid",
-      "pp-pill-warning": "pill-warning",
-      "pp-pill-expired": "pill-expired",
-      "pp-pill-missing": "pill-missing",
-      "pp-pill-neutral": "pill-neutral",
-      "pp-pill-pending": "pill-pending"
-    };
-    return map[status?.className] || "pill-neutral";
-  }
-
-  function buildPublicCertRow(cert, template) {
-    const record = cert || null;
-    const source = record || template;
-    const status = getCertPublicStatus(record);
-    const pillClass = getCertStatusPillClass(status);
-    const displayTitle = record?.name || template?.name || source?.code || "Certificate";
-    const code = record?.code || template?.code || "—";
-    const expiryLabel = record?.expiry
-      ? formatDatePretty(record.expiry)
-      : record?.name
-        ? "No expiry recorded"
-        : "Not recorded";
-    const statusLabel = status.badge || status.label || "Missing";
-    const fileUrl = record?.attachment
-      ? Seav.getFileDisplayUrl(record.attachment, CERT_FILE_BUCKET)
-      : "";
-    const hasFile =
-      window.SeavApiCore?.hasStoredFile?.(record?.attachment) ?? !!fileUrl;
-    const expiryLine = record?.expiry ? `Expires ${expiryLabel}` : expiryLabel;
-    const certKey = resolvePublicCertKey(record, template);
-    const isExpanded = isPublicCertExpanded?.(certKey) === true;
-    const typeLabel = getPublicCertTypeLabel(record, template);
-
-    return `
-      <article class="cert-compact-card public-cv-cert-row${isExpanded ? " is-expanded" : ""}" data-pp-more-item>
-        <button
-          type="button"
-          class="cert-compact-summary public-cv-cert-summary"
-          aria-expanded="${isExpanded ? "true" : "false"}"
-          data-pp-toggle-cert-id="${Seav.escapeHtml(certKey)}"
-        >
-          <div class="cert-compact-summary-left">
-            <div class="cert-compact-title">${Seav.escapeHtml(displayTitle)}</div>
-            <div class="cert-compact-sub">
-              ${Seav.escapeHtml(code)} • ${Seav.escapeHtml(expiryLine)}${
-                hasFile ? " • Document on file" : ""
-              }
-            </div>
-          </div>
-          <div class="cert-compact-summary-right">
-            <span class="cert-status-pill ${pillClass}">${Seav.escapeHtml(statusLabel)}</span>
-            <span class="cert-chevron" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </div>
-        </button>
-
-        <div class="cert-compact-body"${isExpanded ? "" : " hidden"}>
-          <div class="cert-compact-detail-grid">
-            <div class="cert-compact-detail-panel">
-              <div class="cert-compact-detail-label">Certificate</div>
-              <div class="cert-compact-detail-value">
-                ${Seav.escapeHtml(record?.name || template?.name || "Not recorded")}<br>
-                Code: ${Seav.escapeHtml(code)}
-              </div>
-            </div>
-            <div class="cert-compact-detail-panel">
-              <div class="cert-compact-detail-label">Expiry &amp; status</div>
-              <div class="cert-compact-detail-value">
-                ${Seav.escapeHtml(expiryLabel)}<br>
-                ${Seav.escapeHtml(status.label || statusLabel)}
-              </div>
-            </div>
-            <div class="cert-compact-detail-panel">
-              <div class="cert-compact-detail-label">Type</div>
-              <div class="cert-compact-detail-value">${Seav.escapeHtml(typeLabel)}</div>
-            </div>
-            <div class="cert-compact-detail-panel">
-              <div class="cert-compact-detail-label">Attachment</div>
-              <div class="cert-compact-detail-value">
-                ${
-                  hasFile
-                    ? `<a class="cert-attachment-link" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                          <path d="M12 3v10m0 0l3.5-3.5M12 13l-3.5-3.5M5 15v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        View certificate
-                      </a>`
-                    : record?.name
-                      ? "No attachment uploaded"
-                      : "Not recorded on profile"
-                }
-              </div>
-            </div>
-          </div>
-          ${renderMandatoryCertDetailHtml(code)}
-        </div>
-      </article>
-    `;
-  }
-
-  function renderCertBlock(label, visibleHtml, hiddenHtml, moreId, moreLabel) {
-    if (!visibleHtml.length && !hiddenHtml.length) return "";
-
-    return `
-      <div class="public-cv-cert-block">
-        <div class="public-cv-cert-group-label">${Seav.escapeHtml(label)}</div>
-        <div class="cert-compact-list">
-          ${visibleHtml.join("")}
-          ${
-            hiddenHtml.length
-              ? `<div class="cert-compact-list public-cv-more-block" id="${moreId}" hidden>
-                  ${hiddenHtml.join("")}
-                </div>
-                ${buildShowMoreButton(moreId, hiddenHtml.length, moreLabel)}`
-              : ""
-          }
-        </div>
-      </div>
-    `;
-  }
-
+  /**
+   * Certificates section — kept deliberately simple to match every other
+   * public-profile section (specialist quals, hobbies): one flat list of
+   * small rows via window.SeavCards.buildCertRow, most urgent (expired /
+   * expiring soon) first since that's what an employer scans for. This
+   * replaces a much heavier expandable-accordion design that was never
+   * actually wired into public-profile.html in the first place.
+   */
   function renderCertificates(certs) {
     const box = document.getElementById("ppCertSnippet");
     const section = document.getElementById("ppCertSection");
-    if (!box) return;
+    if (!box || !section) return;
 
-    const mandatoryBlocks = (MANDATORY_CERTS || []).map((template) =>
-      renderCertBlock(
-        template.name,
-        [
-          buildPublicCertRow(findSavedCertByCode(certs, template.code), template).replace(
-            " data-pp-more-item",
-            ""
-          )
-        ],
-        [],
-        "",
-        "certificates"
-      )
+    const saved = (certs || []).filter(
+      (cert) => isSavedCert(cert) && (cert.name || cert.code) && !isSuppressedAdditionalCert(cert)
     );
 
-    const rankHtml = (certs || [])
-      .filter((cert) => isSavedCert(cert) && isRecommendedCert(cert))
-      .map((cert) => buildPublicCertRow(cert, null).replace(" data-pp-more-item", ""));
-
-    const additional = (certs || []).filter(
-      (cert) =>
-        isSavedCert(cert) &&
-        (cert.name || cert.code) &&
-        !isMandatoryCert(cert) &&
-        !isRecommendedCert(cert) &&
-        !isSuppressedAdditionalCert(cert)
-    );
-
-    const visibleAdditional = additional
-      .slice(0, LIMITS.additionalCerts)
-      .map((cert) => buildPublicCertRow(cert, null).replace(" data-pp-more-item", ""));
-    const hiddenAdditional = additional
-      .slice(LIMITS.additionalCerts)
-      .map((cert) => buildPublicCertRow(cert, null));
-
-    const blocks = [
-      ...mandatoryBlocks,
-      rankHtml.length
-        ? renderCertBlock("Rank & role", rankHtml, [], "", "certificates")
-        : "",
-      visibleAdditional.length || hiddenAdditional.length
-        ? renderCertBlock(
-            "Additional",
-            visibleAdditional,
-            hiddenAdditional,
-            "ppCertMoreAdditional",
-            "certificates"
-          )
-        : ""
-    ].filter(Boolean);
-
-    box.innerHTML = blocks.length
-      ? blocks.join("")
-      : `<div class="muted">No certificates recorded yet.</div>`;
-
-    const summaryEl = document.getElementById("ppCertSummary");
-    if (summaryEl) {
-      const summary = getCertComplianceSummary(certs);
-      if (summary.total) {
-        summaryEl.textContent = `${summary.valid}/${summary.total} mandatory valid`;
-        summaryEl.hidden = false;
-      } else {
-        summaryEl.hidden = true;
-      }
+    if (!saved.length) {
+      section.hidden = true;
+      return;
     }
 
-    if (section) section.hidden = false;
-    bindExpandToggles(box);
+    const sorted = [...saved].sort((a, b) => {
+      const infoA = getCertExpiryInfo(a.noExpiry ? "" : a.expiry);
+      const infoB = getCertExpiryInfo(b.noExpiry ? "" : b.expiry);
+      return infoA.sortValue - infoB.sortValue;
+    });
+
+    const visible = sorted.slice(0, LIMITS.certificates);
+    const hidden = sorted.slice(LIMITS.certificates);
+    const moreId = "ppCertMore";
+
+    box.innerHTML = `
+      <div class="public-cv-mini-list">
+        ${visible.map((cert) => window.SeavCards.buildCertRow(cert).replace(" data-pp-more-item", "")).join("")}
+        ${
+          hidden.length
+            ? `<div class="public-cv-more-block" id="${moreId}" hidden>
+                ${hidden.map((cert) => window.SeavCards.buildCertRow(cert)).join("")}
+              </div>`
+            : ""
+        }
+      </div>
+      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "certificates") : ""}
+    `;
+
+    setSectionCount("ppCertCount", saved.length);
+    section.hidden = false;
   }
 
   function renderSpecialistQualifications(entries) {

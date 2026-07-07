@@ -162,6 +162,11 @@
     return formatDatePretty(cert.expiry) || "No expiry";
   }
 
+  function issuedLabel(cert) {
+    if (!cert.issued) return "Not recorded";
+    return formatDatePretty(cert.issued) || "Not recorded";
+  }
+
   function certTypeLabel(cert) {
     const item = findCatalog(cert?.code);
     if (item && item.code !== CUSTOM) return cert.code;
@@ -268,8 +273,9 @@
               </div>
             </div>
             <div class="cert-compact-detail-panel">
-              <div class="cert-compact-detail-label">Expiry &amp; status</div>
+              <div class="cert-compact-detail-label">Issued &amp; expiry</div>
               <div class="cert-compact-detail-value">
+                Issued: ${Seav.escapeHtml(issuedLabel(cert))}<br>
                 Expiry: ${Seav.escapeHtml(expiry)}<br>
                 ${Seav.escapeHtml(status.label || status.badge)}
               </div>
@@ -400,6 +406,7 @@
     const nameEl = document.getElementById("ct_name");
     if (nameEl) nameEl.disabled = false;
 
+    Seav.clearDateTriplet("ct_issued");
     Seav.clearDateTriplet("ct_expiry");
     fillTypeSelect("");
     onTypeChange();
@@ -419,6 +426,7 @@
       nameEl.required = true;
     }
 
+    Seav.setDateTriplet("ct_issued", cert.issued || "");
     Seav.setDateTriplet("ct_expiry", cert.expiry || "");
     document.getElementById("ct_file").value = "";
     window.SeavModals?.openModal?.("certModal");
@@ -429,6 +437,7 @@
     const typeCode = document.getElementById("ct_type")?.value || "";
     const item = findCatalog(typeCode);
     const isCustom = typeCode === CUSTOM;
+    const issued = Seav.readDateTriplet("ct_issued");
     const expiry = Seav.readDateTriplet("ct_expiry");
     const noExpiry = !expiry;
 
@@ -457,6 +466,7 @@
       id: editId,
       code,
       name,
+      issued,
       expiry,
       noExpiry,
       isMandatory,
@@ -562,6 +572,7 @@
           id: certId,
           code: data.code,
           name: data.name,
+          issued: data.issued,
           expiry: data.noExpiry ? "" : data.expiry,
           status: computeStoredStatus(data.expiry, data.noExpiry),
           attachment: attachment || existing?.attachment || null,

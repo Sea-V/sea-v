@@ -97,7 +97,7 @@
       "watchkeeping_days", "verification_status", "created_at", "updated_at"
     ].join(","),
     certificates: [
-      "id", "user_id", "code", "name", "expiry_date", "status", "attachment",
+      "id", "user_id", "code", "name", "issue_date", "expiry_date", "status", "attachment",
       "is_mandatory", "is_template", "created_at", "updated_at"
     ].join(","),
     sea_references: [

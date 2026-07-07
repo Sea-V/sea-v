@@ -28,7 +28,8 @@
     references: 3,
     specialist: 5,
     achievements: 8,
-    additionalCerts: 8
+    additionalCerts: 8,
+    certificates: 6
   };
 
   const SECTION_NAV = [
@@ -39,6 +40,7 @@
     { id: "ppNavigationSection", label: "Navigation" },
     { id: "ppOperationsSection", label: "Onboard Experience" },
     { id: "ppSpecialistSection", label: "Specialist Qualifications" },
+    { id: "ppCertSection", label: "Certificates" },
     { id: "ppRefSection", label: "References" },
     { id: "ppAchievementSection", label: "Milestones" },
     { id: "ppHobbiesSection", label: "Hobbies & Interests" }

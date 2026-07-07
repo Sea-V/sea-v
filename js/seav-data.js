@@ -596,6 +596,7 @@ function getEmptySeatimeEntry() {
       id: createId("cert"),
       code: "",
       name: "",
+      issued: "",
       expiry: "",
       status: "Missing",
       attachment: null,
