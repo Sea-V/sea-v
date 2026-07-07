@@ -19,7 +19,8 @@
    and has no override of its own for this background — an unscoped rule
    here would silently make the public profile's shell translucent too. */
 .dash-content .dashboard-shell-card {
-  background: var(--page-shell-bg-translucent);
+  background: rgba(14, 28, 46, 0.85);
+  background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85));
 }
 
 .dashboard-shell-card .dash-card {

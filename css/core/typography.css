@@ -196,7 +196,8 @@ body.app-page :where(
    body.app-page only, so the public profile (a different body class, no
    sidebar/topbar) is unaffected. */
 body.app-page [class$="-shell-card"] {
-  background: var(--page-shell-bg-translucent);
+  background: rgba(14, 28, 46, 0.85);
+  background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85));
 }
 
 body.app-page :where(

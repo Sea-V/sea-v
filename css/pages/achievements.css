@@ -6,7 +6,8 @@
   overflow: hidden;
   border-radius: 30px;
   border: 1px solid rgba(255, 179, 71, 0.28);
-  background: var(--page-shell-bg-translucent);
+  background: rgba(14, 28, 46, 0.85);
+  background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85));
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
 }
 

@@ -248,16 +248,29 @@ body.app-page::before {
   pointer-events: none;
 
   background-color: #0b1c2e;
+  /* The darkening used to be done almost entirely via `filter:
+     brightness(0.60)` below. Safari does not reliably apply `filter` to a
+     `position: fixed` pseudo-element (confirmed side-by-side against Chrome —
+     Safari renders the raw ocean.png at near-full brightness with no blur),
+     so anything translucent sitting on top of this background — the new
+     shell/sidebar transparency in particular — read as "too see-through" on
+     Safari even though the shell's own alpha never changed. Baking the
+     darkening into the gradient/solid layers below (same approach already
+     used for the public-profile/landing ocean background, which never had
+     this problem) makes it work regardless of whether `filter` applies. */
   background-image:
-    linear-gradient(180deg, rgba(8, 18, 35, 0.15) 0%, rgba(11, 28, 46, 0.75) 100%),
+    linear-gradient(180deg, rgba(8, 18, 35, 0.55) 0%, rgba(9, 20, 34, 0.72) 100%),
+    linear-gradient(rgba(8, 18, 35, 0.35), rgba(8, 18, 35, 0.35)),
     url("../../img/ocean.png");
-  background-size: cover, cover;
-  background-position: center, center;
-  background-repeat: no-repeat, no-repeat;
+  background-size: cover, cover, cover;
+  background-position: center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-blend-mode: normal, multiply, normal;
 
+  /* Cosmetic only now (softening/color, not the primary darkening) — safe if
+     Safari drops it, unlike before. */
   filter:
     blur(1px)
-    brightness(0.60)
     saturate(1.2);
 
   transform: scale(1.06);
@@ -286,7 +299,8 @@ body.app-page::before {
   border-radius: 26px;
   border: 1px solid rgba(255,255,255,0.10);
 
-  background: var(--page-shell-bg-translucent);
+  background: rgba(14, 28, 46, 0.85);
+  background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85));
 
   box-shadow:
     0 16px 38px rgba(0,0,0,0.24),
