@@ -149,11 +149,14 @@
 }
 
 .cvgen-editor {
+  /* No internal scroll — the whole editor (toggles, vessel list, everything)
+     lays out at its natural height so it's all visible at once. The preview
+     stays pinned via .cvgen-preview-frame's position: sticky below, so
+     whatever section of the editor you're working on stays side by side
+     with the live CV as you scroll the page. */
   display: flex;
   flex-direction: column;
   gap: 14px;
-  max-height: calc(100vh - 220px);
-  overflow: auto;
   padding: 16px;
   border-radius: 18px;
   border: 1px solid rgba(124, 156, 184, 0.18);
