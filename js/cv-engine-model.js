@@ -174,7 +174,12 @@
   function getReferenceItems(source) {
     const vesselMap = new Map((source.vessels || []).map((v) => [v.id, v.name || ""]));
     return (source.refs || [])
-      .filter((ref) => ref?.name)
+      // Only put verified references in front of employers — a Draft (never
+      // sent), "Sent for Verification" (not yet confirmed), or Declined
+      // reference has no business appearing on an exported CV as if it
+      // vouches for the crew member. See js/references.js for the status
+      // lifecycle (Draft -> Sent for Verification -> Verified/Declined).
+      .filter((ref) => ref?.name && ref.status === "Verified")
       .slice(0, 8)
       .map((ref) => ({
         name: ref.name,
