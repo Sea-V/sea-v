@@ -169,7 +169,7 @@
 
 .vessel-profile-top {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 320px minmax(0, 1fr);
   gap: 14px;
   align-items: stretch;
 }
@@ -198,8 +198,8 @@
 ========================================================= */
 
 .vessel-image-card {
-  width: 240px;
-  height: 240px;
+  width: 320px;
+  height: 320px;
   padding: 0;
   background: rgba(0,0,0,0.25);
   align-self: start;
@@ -219,15 +219,15 @@
 
 .vessel-overview-card {
   min-width: 0;
-  height: 240px;
+  height: 320px;
   padding: 0;
   display: flex;
   flex-direction: column;
 }
 
 #currentVesselCard .vessel-overview-card {
-  min-height: 240px;
-  max-height: 240px;
+  min-height: 320px;
+  max-height: 320px;
 }
 
 #currentVesselCard .vessel-overview-head {
@@ -356,6 +356,8 @@
 #currentVesselCard .vessel-main-grid {
   gap: 7px;
   padding: 8px 10px;
+  flex: 1;
+  align-content: center;
 }
 
 .vessel-main-item {
@@ -725,7 +727,10 @@
 }
 
 .vessel-history-photo {
-  height: 132px;
+  /* Matches .dash-mini-photo on the dashboard (aspect-ratio, not a fixed
+     height) so these history cards show as much of the photo as the
+     dashboard's vessel mini-cards do, instead of a smaller fixed crop. */
+  aspect-ratio: 16 / 10;
   background: rgba(0, 0, 0, 0.28);
   border-bottom: 1px solid rgba(214, 226, 238, 0.12);
 }
