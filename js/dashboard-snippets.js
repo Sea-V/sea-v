@@ -603,7 +603,7 @@ async function renderNavigationSnippet() {
                   <div class="dashboard-navigation-vessel-row">
                     <i style="background:${Seav.escapeHtml(getDashboardVesselColor(row.id))}"></i>
                     <span>${Seav.escapeHtml(row.name)}</span>
-                    <b>${row.passages} / ${row.countries.size} countries</b>
+                    <b>${row.passages} ${row.passages === 1 ? "passage" : "passages"} · ${row.countries.size} ${row.countries.size === 1 ? "country" : "countries"}</b>
                   </div>
                 `)
                 .join("")
