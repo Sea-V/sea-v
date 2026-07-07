@@ -381,8 +381,10 @@ body.public-profile-page .overlay {
 }
 
 .public-cv-verify-badge.is-trusted {
-  border-color: rgba(52, 168, 83, 0.28);
-  background: rgba(52, 168, 83, 0.1);
+  /* Same pastel mint as the shared .pill-valid — was a more saturated
+     "Google green" (rgba(52,168,83)) that didn't match. */
+  border-color: rgba(94, 230, 168, 0.36);
+  background: rgba(94, 230, 168, 0.12);
   color: #7ddea0;
 }
 
