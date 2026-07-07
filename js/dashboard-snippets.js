@@ -19,19 +19,7 @@
     "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
   const DASH_NAV_ATTRIBUTION =
     '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
-  const DASH_WRAP_LNG_OFFSETS = [-360, 0, 360];
-
-  function shiftDashboardLatLngs(latlngs, lngOffset) {
-    return latlngs.map(([lat, lng]) => [lat, lng + lngOffset]);
-  }
-
-  function addDashboardWrappingPolylines(layer, latlngs, options, onEachLine) {
-    DASH_WRAP_LNG_OFFSETS.forEach((offset) => {
-      const line = L.polyline(shiftDashboardLatLngs(latlngs, offset), options);
-      if (typeof onEachLine === "function") onEachLine(line, offset);
-      layer.addLayer(line);
-    });
-  }
+  const DASH_NAV_WORLD_BOUNDS = [[-85, -180], [85, 180]];
 
   let dashNavigationChart = null;
   let dashNavigationLayer = null;
@@ -432,14 +420,9 @@ function destroyDashboardNavigationChart() {
   dashNavigationLayer = null;
 }
 
-// Same fix already proven on the public profile map (js/public-profile-sections.js's
-// whenChartContainerReady): Leaflet computes its tile grid against whatever size the
-// container has at the exact moment L.map() runs. The dashboard sets box.innerHTML
-// then initializes the map in the same synchronous pass — if the grid layout
-// (.dashboard-navigation-layout) hasn't been painted by the browser yet, the
-// container measures 0x0, the map silently renders nothing, and a single flat
-// setTimeout isn't a reliable enough wait. This polls (via rAF, twice, then a
-// timeout fallback) until the container actually has a size before settling the view.
+// Leaflet computes its tile grid against the container size at map creation.
+// On first dashboard load the snippet HTML can exist before the grid has been
+// painted, so wait for a measurable chart before mounting or fitting the map.
 function whenDashboardChartContainerReady(container, callback) {
   const attempt = () => {
     if (!container?.isConnected) return false;
@@ -493,14 +476,16 @@ function initDashboardNavigationChart(container) {
   if (dashNavigationChart || !container || typeof L === "undefined") return false;
 
   try {
-    // Panning/zoom enabled (mirrors the public profile map's config) — a fixed
-    // static view can crop out whole regions (e.g. South America) depending on
-    // where the auto-fit bounds land, so the user needs to be able to move it.
-    // scrollWheelZoom stays off so hovering the card doesn't hijack page scroll.
+    // Keep the dashboard preview to one world copy. Leaflet tile layers wrap by
+    // default; noWrap + maxBounds prevents the repeated-world view while still
+    // allowing normal pan/zoom inside the real map extent.
     dashNavigationChart = L.map(container, {
       center: [30, 0],
       zoom: 2,
-      minZoom: 1,
+      minZoom: 2,
+      maxBounds: DASH_NAV_WORLD_BOUNDS,
+      maxBoundsViscosity: 1,
+      worldCopyJump: false,
       zoomControl: true,
       attributionControl: true,
       dragging: true,
@@ -516,6 +501,8 @@ function initDashboardNavigationChart(container) {
       attribution: DASH_NAV_ATTRIBUTION,
       subdomains: "abcd",
       maxZoom: 18,
+      noWrap: true,
+      bounds: DASH_NAV_WORLD_BOUNDS,
       keepBuffer: 2,
       updateWhenIdle: true
     }).addTo(dashNavigationChart);
@@ -665,52 +652,52 @@ function waitForLeaflet(onReady, attemptsLeft = DASH_NAV_LEAFLET_POLL_ATTEMPTS) 
 }
 
 function drawDashboardNavigationChart(container, stats) {
-  if (!initDashboardNavigationChart(container) || !dashNavigationLayer) return;
+  whenDashboardChartContainerReady(container, () => {
+    if (!initDashboardNavigationChart(container) || !dashNavigationLayer) return;
 
-  dashNavigationLayer.clearLayers();
+    dashNavigationLayer.clearLayers();
 
-  const bounds = [];
-  stats.routes.forEach(({ entry, coords }) => {
-    const vesselId = entry.vesselId || entry.vessel_id || "";
-    const color = getDashboardVesselColor(vesselId);
-    const from = entry.fromPort || entry.from_port || "Departure";
-    const to = entry.toPort || entry.to_port || entry.port || "Arrival";
-    const lineStyle = {
-      color,
-      weight: 4,
-      opacity: 0.94,
-      lineCap: "round",
-      lineJoin: "round"
-    };
-    const bindLine = (line) => {
+    const bounds = [];
+    stats.routes.forEach(({ entry, coords }) => {
+      const vesselId = entry.vesselId || entry.vessel_id || "";
+      const color = getDashboardVesselColor(vesselId);
+      const from = entry.fromPort || entry.from_port || "Departure";
+      const to = entry.toPort || entry.to_port || entry.port || "Arrival";
+      const line = L.polyline(coords, {
+        color,
+        weight: 4,
+        opacity: 0.94,
+        lineCap: "round",
+        lineJoin: "round"
+      });
+
       line.bindTooltip(`${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`, { sticky: true });
       line.bindPopup(
         `<strong>${Seav.escapeHtml(entry.passageName || entry.passage_name || getDashboardVesselName(vesselId))}</strong><br/>${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`
       );
+      dashNavigationLayer.addLayer(line);
+
+      coords.forEach((coord) => bounds.push(coord));
+    });
+
+    const settleDashboardChart = () => {
+      if (!dashNavigationChart) return;
+      dashNavigationChart.invalidateSize(true);
+      if (bounds.length) {
+        dashNavigationChart.fitBounds(L.latLngBounds(bounds), {
+          padding: [52, 52],
+          maxZoom: 9,
+          animate: false
+        });
+      }
+      dashNavigationChart.panInsideBounds(DASH_NAV_WORLD_BOUNDS, { animate: false });
     };
 
-    addDashboardWrappingPolylines(dashNavigationLayer, coords, lineStyle, bindLine);
-
-    coords.forEach((coord) => bounds.push(coord));
-  });
-
-  const settleDashboardChart = () => {
-    if (!dashNavigationChart) return;
-    dashNavigationChart.invalidateSize(true);
-    if (bounds.length) {
-      dashNavigationChart.fitBounds(L.latLngBounds(bounds), {
-        padding: [52, 52],
-        maxZoom: 9,
-        animate: false
-      });
-    }
-  };
-
-  whenDashboardChartContainerReady(container, () => {
     settleDashboardChart();
-    // Second pass 250ms later, same as the public profile map — covers late
-    // layout shifts (web fonts, sibling cards resizing) the first pass missed.
+    // Extra passes cover late layout shifts (web fonts, sibling cards resizing)
+    // that can happen only on the first dashboard load.
     window.setTimeout(settleDashboardChart, 250);
+    window.setTimeout(settleDashboardChart, 800);
   });
 }
 
