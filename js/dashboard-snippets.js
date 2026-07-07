@@ -412,7 +412,6 @@ function buildDashboardNavigationStats(entries, distanceMap) {
 }
 
 function destroyDashboardNavigationChart() {
-  dashNavigationRenderId += 1;
   if (!dashNavigationChart) return;
   try {
     dashNavigationChart.remove();
@@ -547,12 +546,14 @@ async function renderNavigationSnippet() {
   const box = document.getElementById("dashNavigationSnippet");
   if (!box) return;
 
+  const renderId = ++dashNavigationRenderId;
   const entries = window.SeavState?.navigationAreas || [];
   updateCardTitle("dashNavigationSnippet", "Navigation chart", entries.length);
 
   destroyDashboardNavigationChart();
 
   if (!entries.length) {
+    if (renderId !== dashNavigationRenderId) return;
     box.innerHTML = `<div class="muted">No passages logged yet.</div>`;
     return;
   }
@@ -570,6 +571,8 @@ async function renderNavigationSnippet() {
     box.innerHTML = `<div class="muted" style="padding:12px;">Navigation chart failed to load: ${Seav.escapeHtml(error?.message || String(error))}</div>`;
     throw error;
   }
+
+  if (renderId !== dashNavigationRenderId) return;
 
   box.innerHTML = `
     <div class="dashboard-navigation-layout">
@@ -626,14 +629,17 @@ async function renderNavigationSnippet() {
   // without the user needing to reload the page.
   if (typeof L === "undefined") {
     waitForLeaflet(() => {
-      if (document.getElementById("dashNavigationChart") === container) {
-        drawDashboardNavigationChart(container, stats);
+      if (
+        renderId === dashNavigationRenderId &&
+        document.getElementById("dashNavigationChart") === container
+      ) {
+        drawDashboardNavigationChart(container, stats, 0, renderId);
       }
     });
     return;
   }
 
-  drawDashboardNavigationChart(container, stats);
+  drawDashboardNavigationChart(container, stats, 0, renderId);
 }
 
 const DASH_NAV_LEAFLET_POLL_MS = 200;
@@ -658,7 +664,7 @@ function waitForLeaflet(onReady, attemptsLeft = DASH_NAV_LEAFLET_POLL_ATTEMPTS) 
   window.setTimeout(() => waitForLeaflet(onReady, attemptsLeft - 1), DASH_NAV_LEAFLET_POLL_MS);
 }
 
-function drawDashboardNavigationChart(container, stats, retryAttempt = 0, renderId = ++dashNavigationRenderId) {
+function drawDashboardNavigationChart(container, stats, retryAttempt = 0, renderId = dashNavigationRenderId) {
   whenDashboardChartContainerReady(container, () => {
     if (renderId !== dashNavigationRenderId) return;
     if (!initDashboardNavigationChart(container) || !dashNavigationLayer) return;
