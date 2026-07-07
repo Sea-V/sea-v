@@ -462,6 +462,33 @@ function whenDashboardChartContainerReady(container, callback) {
   });
 }
 
+// Surfaces failures on-screen instead of only in devtools console — added
+// after a Safari-only "map not loading" report we couldn't reproduce or
+// diagnose from a partial console screenshot. Two variants: a destructive
+// one for total init failure (container is unusable anyway), and an
+// additive one for partial failures (e.g. tiles blocked) where the map
+// object is still alive and routes/polylines may still be worth showing.
+function replaceDashboardNavShellWithDiagnostic(message) {
+  const shell = document.querySelector(
+    "#dashNavigationSnippet .dashboard-navigation-chart-shell"
+  );
+  if (shell) {
+    shell.innerHTML = `<div class="muted" style="padding:12px;">${Seav.escapeHtml(message)}</div>`;
+  }
+}
+
+function appendDashboardNavDiagnostic(message) {
+  const shell = document.querySelector(
+    "#dashNavigationSnippet .dashboard-navigation-chart-shell"
+  );
+  if (!shell || shell.querySelector(".dash-nav-diag")) return;
+  const diag = document.createElement("div");
+  diag.className = "muted dash-nav-diag";
+  diag.style.cssText = "padding:6px 4px 0; font-size:12px;";
+  diag.textContent = message;
+  shell.appendChild(diag);
+}
+
 function initDashboardNavigationChart(container) {
   if (dashNavigationChart || !container || typeof L === "undefined") return false;
 
@@ -485,7 +512,7 @@ function initDashboardNavigationChart(container) {
       preferCanvas: true
     });
 
-    L.tileLayer(DASH_NAV_TILE_URL, {
+    const tileLayer = L.tileLayer(DASH_NAV_TILE_URL, {
       attribution: DASH_NAV_ATTRIBUTION,
       subdomains: "abcd",
       maxZoom: 18,
@@ -493,11 +520,31 @@ function initDashboardNavigationChart(container) {
       updateWhenIdle: true
     }).addTo(dashNavigationChart);
 
+    // If every tile request errors out (network block, ad/content blocker,
+    // CSP) the map div stays visibly blank even though Leaflet "loaded" fine
+    // — from the user's side that looks identical to "the map isn't
+    // loading." This makes that failure mode visible without needing
+    // devtools open.
+    let tilesLoaded = 0;
+    let tileErrors = 0;
+    tileLayer.on("load", () => {
+      tilesLoaded += 1;
+    });
+    tileLayer.on("tileerror", () => {
+      tileErrors += 1;
+      if (tileErrors >= 4 && tilesLoaded === 0) {
+        appendDashboardNavDiagnostic(
+          "Map tiles failed to load (network or content blocker) — routes are still listed below."
+        );
+      }
+    });
+
     dashNavigationLayer = L.layerGroup().addTo(dashNavigationChart);
     return true;
   } catch (error) {
     console.error("[SEA-V] Dashboard nav chart init failed:", error);
     destroyDashboardNavigationChart();
+    replaceDashboardNavShellWithDiagnostic(`Map failed to load: ${error?.message || error}`);
     return false;
   }
 }
@@ -516,8 +563,19 @@ async function renderNavigationSnippet() {
     return;
   }
 
-  const distanceMap = await buildDashboardDistanceMap(entries);
-  const stats = buildDashboardNavigationStats(entries, distanceMap);
+  let distanceMap;
+  let stats;
+  try {
+    distanceMap = await buildDashboardDistanceMap(entries);
+    stats = buildDashboardNavigationStats(entries, distanceMap);
+  } catch (error) {
+    // Surface the real reason on-screen. Previously a throw here (before any
+    // map code even ran) left the card silently blank with only a console
+    // log — indistinguishable from "map not loading" but with a totally
+    // different cause and fix.
+    box.innerHTML = `<div class="muted" style="padding:12px;">Navigation chart failed to load: ${Seav.escapeHtml(error?.message || String(error))}</div>`;
+    throw error;
+  }
 
   box.innerHTML = `
     <div class="dashboard-navigation-layout">
