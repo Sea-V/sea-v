@@ -44,7 +44,13 @@ body.legal-page {
 .legal-topnav a {
   color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
-  font-size: 13px;
+  /* !important: core/typography.css forces every <a> inside body.landing-page
+     to 14px (for the app-wide "one body size" rule). about.html carries
+     body.landing-page (for the shared ocean background) as well as this
+     shared legal topbar, so without this the nav text — and the "Sign in"
+     pill below — rendered a size larger there than on contact/privacy/terms
+     (which use body.legal-page and aren't in that rule's selector list). */
+  font-size: 13px !important;
   font-weight: 600;
 }
 
