@@ -72,7 +72,17 @@ body.landing-page .info-title {
   line-height: 1.25 !important;
 }
 
-/* Uniform body size — overrides scattered 11–13px rules in page CSS */
+/* Uniform body size — overrides scattered 11–13px rules in page CSS.
+   Excludes .legal-topbar/.legal-footer: those are shared chrome partials
+   reused across body.legal-page (contact/privacy/terms) and body.landing-page
+   (about.html) alike, and already fully own their typography in
+   css/pages/legal.css. Without this exclusion, any page that carries
+   body.landing-page or body.app-page would silently render that shared
+   chrome's text a different size than pages using body.legal-page, since
+   this rule isn't scoped to legal-page. Keeping the exclusion here (instead
+   of raising specificity in legal.css to fight it) means legal.css never
+   needs !important or extra specificity to render correctly regardless of
+   which page includes it. */
 :is(body.app-page, body.public-profile-page, body.landing-page) :where(
   p,
   span,
@@ -138,7 +148,7 @@ body.landing-page .info-title {
   .seatime-stat-value,
   .profile-field-label,
   .profile-field-value
-) {
+):not(.legal-topbar *, .legal-footer *) {
   font-family: inherit !important;
   font-size: var(--font-body) !important;
 }
