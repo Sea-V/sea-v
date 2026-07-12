@@ -41,20 +41,26 @@ body.legal-page {
   gap: 8px 14px;
 }
 
-.legal-topnav a {
+.legal-topbar .legal-topnav a {
   color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
-  /* !important: core/typography.css forces every <a> inside body.landing-page
-     to 14px (for the app-wide "one body size" rule). about.html carries
-     body.landing-page (for the shared ocean background) as well as this
-     shared legal topbar, so without this the nav text — and the "Sign in"
-     pill below — rendered a size larger there than on contact/privacy/terms
-     (which use body.legal-page and aren't in that rule's selector list). */
+  /* Specificity, not just !important: core/typography.css forces every <a>
+     inside body.landing-page to 14px via `:is(body.landing-page) :where(a, ...)`,
+     which is also !important. That selector's specificity is (0,1,1) — the
+     same as a plain `.legal-topnav a` rule — and core/typography.css is
+     @import'd AFTER css/pages/legal.css in styles.css, so on a tie it wins
+     regardless of !important. about.html carries body.landing-page (for the
+     shared ocean background) as well as this shared legal topbar, so without
+     extra specificity here the nav text — and the "Sign in" pill below —
+     rendered a size larger there than on contact/privacy/terms (which use
+     body.legal-page and aren't in that rule's selector list). Adding
+     .legal-topbar to the selector bumps specificity to (0,2,1), which wins
+     outright regardless of import order. */
   font-size: 13px !important;
   font-weight: 600;
 }
 
-.legal-topnav a:hover {
+.legal-topbar .legal-topnav a:hover {
   color: #5bbcff;
 }
 
