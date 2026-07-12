@@ -1,5 +1,8 @@
 /* =========================================================
    SEA-V • LEGAL PAGES (privacy.html • terms.html • contact.html)
+   Topbar (.legal-topbar) and footer (.legal-footer) are also shared
+   by about.html so every public/info page has the same chrome —
+   see css/pages/info.css for about.html's own content styling.
 ========================================================= */
 
 body.legal-page {

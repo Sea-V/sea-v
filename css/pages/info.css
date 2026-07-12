@@ -1,6 +1,7 @@
 /* =========================================================
    SEA-V • INFO PAGES
-   about.html • contact.html • help pages
+   about.html content (topbar/footer now shared with legal.css —
+   see .legal-topbar / .legal-footer)
 ========================================================= */
 
 body.info-page {

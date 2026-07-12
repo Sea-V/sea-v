@@ -14,15 +14,29 @@
 
   <title>SEA-V • About</title>
 
-  <link rel="stylesheet" href="styles.css?v=161">
-  <script src="js/feedback.js?v=161" defer></script>
-  <script src="js/core.js?v=161" defer></script>
+  <link rel="stylesheet" href="styles.css?v=162">
+  <script src="js/feedback.js?v=162" defer></script>
+  <script src="js/core.js?v=162" defer></script>
 </head>
 
 <body class="landing-page info-page">
 
   <div class="ocean"></div>
   <div class="overlay"></div>
+
+  <header class="legal-topbar">
+    <div class="legal-topbar-inner">
+      <a class="legal-brand" href="index.html">
+        <img src="img/logo.png?v=7" class="seav-logo seav-logo--legal" alt="SEA-V" width="16" height="16" />
+      </a>
+      <nav class="legal-topnav" aria-label="Site">
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="index.html" class="legal-topnav-cta">Sign in</a>
+      </nav>
+    </div>
+  </header>
 
   <main class="info-shell">
     <section class="info-panel">
@@ -96,16 +110,17 @@
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-brand">SEA-V</div>
-      <div class="footer-links">
+  <footer class="legal-footer">
+    <div class="legal-footer-inner">
+      <div class="legal-footer-brand">SEA-V</div>
+      <nav class="legal-footer-links" aria-label="Footer">
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
-      </div>
-      <div class="footer-copy">© <span id="footerYear"></span> SEA-V</div>
+        <a href="index.html">Sign in</a>
+      </nav>
+      <div>© <span id="footerYear"></span> SEA-V</div>
     </div>
   </footer>
 
