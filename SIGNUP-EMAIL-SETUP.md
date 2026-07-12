@@ -5,22 +5,17 @@
 1. **New page: `confirm-account.html`.** This is the actual fix for "opening the email link logged me straight into the account." Supabase's default confirmation link (`{{ .ConfirmationURL }}`) verifies the account *and* logs you in the instant it's opened — before any page or button gets a chance to render. There's no way to add a manual confirm step on top of that link; the only way to get a genuine "click here to confirm" step is to stop using that link entirely and drive verification ourselves. That's what this page does: the email now links to `confirm-account.html?token_hash=...&type=signup`, which shows a plain "Confirm my account" button and does **nothing** until it's clicked. Only the click calls Supabase's `verifyOtp()`. Since `verifyOtp()` still hands back a live session (that's built into the API, not something we can turn off), the page immediately signs that session back out and sends you to the login page — so you land on login and have to type your credentials, rather than being silently signed in.
 2. **"Email verified" modal on the login page**, shown after the confirm step above completes: a green checkmark, "Email verified," and a message telling you to log in with the credentials you created.
 
-That part is done and committed. What's below is the part I can't do for you — the confirmation **email**'s subject and HTML body live in the Supabase Dashboard, not in this codebase.
+That part is done and committed. The confirmation **email**'s subject and HTML body live in the Supabase Dashboard, not in this codebase — that part is covered below.
 
-## What to do in the Supabase Dashboard
+## Supabase Dashboard — status: done
 
-1. Go to **Authentication → Emails** in your `sea-v` project and open the **Confirm signup** template.
-2. Set the **Subject** to:
-   ```
-   Confirm your SEA-V account
-   ```
-3. Replace the **Message body** with the HTML below. The important part is the button/link — it now points at `confirm-account.html` using `{{ .SiteURL }}` and `{{ .TokenHash }}` instead of Supabase's `{{ .ConfirmationURL }}`. Don't change those template variables.
-4. Save.
-5. **Check your Site URL is correct:** go to **Authentication → URL Configuration → Site URL** and confirm it's set to `https://www.sea-v.com` (no trailing slash). The email link is built as `{{ .SiteURL }}/confirm-account.html?...`, so if Site URL is wrong or blank, the link in the email will be broken. I can't check this setting from here — only you can see it in the dashboard.
+I pasted the subject and HTML template directly into **Authentication → Emails → Confirm sign up** and saved it (confirmed by reloading the page after saving). I also checked **Authentication → URL Configuration → Site URL** — it's already correctly set to `https://www.sea-v.com`, no trailing slash. There's nothing left for you to do here.
 
-(The "Redirect URLs" allow-list you may remember from before doesn't matter for this flow — that only governs `{{ .ConfirmationURL }}`, which we're no longer using. The new link goes straight to your site and calls `verifyOtp()` directly, so there's nothing else to allow-list.)
+If you ever need to re-paste or tweak the template yourself, this is where it lives: `Authentication → Emails → Confirm sign up`, with **Source** / **Preview** tabs and a **Save changes** button at the bottom. One thing that tripped me up while working on this: after clicking Save changes, the button briefly hovers a tooltip if there's nothing new to save ("Make a change before saving") — that's how you know it actually went through, since the dashboard doesn't show a success toast. If you navigate away and it doesn't pop an "unsaved changes" warning, the save stuck.
 
-## The email template
+(The "Redirect URLs" allow-list doesn't matter for this flow — that only governs `{{ .ConfirmationURL }}`, which we're not using. The confirm link goes straight to `confirm-account.html` on your own domain and calls `verifyOtp()` directly from there, so there's nothing else to allow-list.)
+
+## The email template (as currently saved)
 
 ```html
 <!DOCTYPE html>
@@ -34,7 +29,7 @@ That part is done and committed. What's below is the part I can't do for you —
             <!-- Header -->
             <tr>
               <td style="background-color:#0b1c2e; padding:28px 32px; text-align:center;">
-                <img src="https://www.sea-v.com/img/logo.png" width="44" height="44" alt="SEA-V" style="display:block; margin:0 auto 10px; border-radius:8px;" />
+                <img src="data:image/png;base64,(embedded logo — see note below)" width="44" height="44" alt="SEA-V" style="display:block; margin:0 auto 10px; border-radius:8px;" />
                 <span style="color:#ffffff; font-size:19px; font-weight:700; letter-spacing:0.05em;">SEA-V</span>
               </td>
             </tr>
@@ -109,6 +104,18 @@ That part is done and committed. What's below is the part I can't do for you —
 </html>
 ```
 
+## Why the logo is embedded as base64, not a URL (important — don't revert this)
+
+The first version of this template pointed the logo at `https://www.sea-v.com/img/logo.png` — a normal remote image URL, which is the standard way to put a logo in an email. It rendered fine in a browser test and in Supabase's own template preview.
+
+It showed up as **blank space** in Apple Mail. Not a broken-image icon — nothing at all.
+
+I checked the file itself first, in case something was actually broken: fetched it directly, got a clean `200`, correct `image/png` type, no redirect, reasonable 146KB size. The file and hosting are fine. The real cause is that Apple Mail (and most modern email clients to varying degrees) blocks loading of remote, externally-hosted images by default for privacy — it doesn't show a broken-link icon when this happens, it just leaves the space empty, which is exactly what you saw.
+
+The fix is to stop depending on a network fetch entirely: the logo is now embedded directly in the email's HTML as a `data:image/png;base64,...` string, compressed down to about 3.5KB (from the original 146KB file) so it doesn't bloat the email. Because the image data ships as part of the email itself rather than being fetched separately, there's nothing for any client's remote-image-blocking to block — it always renders, in every client, immediately.
+
+**If this ever gets "fixed" back to a plain URL** (e.g. someone re-pastes an older version of this template, or edits the header block without noticing), the logo will silently stop showing in Apple Mail again. The actual base64 string is already saved in the live Supabase template — if you need to regenerate it (e.g. after a logo redesign), the source PNG lives at `img/logo.png` in the repo; resize it to ~130x130 and re-encode to base64 before pasting it back in.
+
 ## Design notes
 
 - Light background, not the app's dark navy theme — email clients apply their own dark-mode inversion to HTML emails, and a fully dark-styled email can render unpredictably (washed-out text, broken contrast) across Gmail/Outlook/Apple Mail. A light card with a navy header bar is the safer, more universally-professional choice for email specifically, even though it doesn't match the app's dark UI.
@@ -118,4 +125,4 @@ That part is done and committed. What's below is the part I can't do for you —
 
 ## What I didn't touch
 
-Supabase has separate templates for **Reset Password**, **Magic Link**, **Change Email**, and **Reauthentication** — all still on Supabase's generic default. You only asked about the signup confirmation one, so I left those alone. Reset Password in particular is a real account-holder-facing email worth the same branded treatment eventually — happy to draft that one whenever you want it.
+Supabase has separate templates for **Reset Password**, **Magic Link**, **Change Email**, and **Reauthentication** — all still on Supabase's generic default. You only asked about the signup confirmation one, so I left those alone. Reset Password in particular is a real account-holder-facing email worth the same branded treatment eventually — happy to draft that one whenever you want it (and it would reuse the same embedded-logo approach, not a URL).

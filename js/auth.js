@@ -288,19 +288,83 @@
     if (error) throw error;
   }
 
+  // Every bucket that stores files under a `{userId}/...` path prefix.
+  // Kept in sync with docs/schema-account-deletion.sql's bucket list.
+  const USER_STORAGE_BUCKETS = [
+    "achievement-files",
+    "certificate-files",
+    "hobbies-interest-photos",
+    "onboard-experience-files",
+    "payslip-files",
+    "profile-photos",
+    "reference-files",
+    "seatime-files",
+    "specialist-qualification-files",
+    "tender-photos",
+    "vessel-documents",
+    "vessel-photos"
+  ];
+
+  // Supabase Storage's REST API only lists one folder level at a time, and
+  // `.remove()` needs exact file paths (not folder prefixes) — so this walks
+  // every nested folder under `prefix` to build the full flat list of files.
+  // Folder entries come back from `.list()` with `id: null`; files have a
+  // real id.
+  async function listAllStorageFilePaths(client, bucket, prefix) {
+    const paths = [];
+    const { data, error } = await client.storage.from(bucket).list(prefix, { limit: 1000 });
+    if (error) {
+      console.warn(`[SEA-V] Could not list storage ${bucket}/${prefix}:`, error);
+      return paths;
+    }
+    for (const entry of data || []) {
+      const entryPath = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.id) {
+        paths.push(entryPath);
+      } else {
+        const nested = await listAllStorageFilePaths(client, bucket, entryPath);
+        paths.push(...nested);
+      }
+    }
+    return paths;
+  }
+
+  // Supabase blocks raw SQL `DELETE FROM storage.objects` ("Direct deletion
+  // from storage tables is not allowed. Use the Storage API instead.") — a
+  // SQL-only delete_own_account() RPC hit this on its very first statement,
+  // which aborted the whole transaction and silently deleted nothing at all
+  // (not the files, not the profile, not the login). Storage files have to
+  // be removed here, client-side, through the Storage API before the RPC
+  // touches the database rows.
+  async function removeAllUserStorageFiles(client, userId) {
+    for (const bucket of USER_STORAGE_BUCKETS) {
+      try {
+        const paths = await listAllStorageFilePaths(client, bucket, userId);
+        if (!paths.length) continue;
+        for (let i = 0; i < paths.length; i += 100) {
+          const chunk = paths.slice(i, i + 100);
+          const { error } = await client.storage.from(bucket).remove(chunk);
+          if (error) {
+            console.warn(`[SEA-V] Failed removing ${chunk.length} file(s) from ${bucket}:`, error);
+          }
+        }
+      } catch (err) {
+        console.warn(`[SEA-V] Storage cleanup failed for bucket ${bucket}:`, err);
+      }
+    }
+  }
+
   async function deleteAccount() {
     const client = await waitForSupabase();
     const userId = getUserId();
     if (!userId) throw new Error("Not signed in.");
 
+    await removeAllUserStorageFiles(client, userId);
+
     const { error } = await client.rpc("delete_own_account");
     if (error) {
-      // Fallback: sign out if RPC not deployed (operator deletes via Supabase dashboard)
-      console.warn("[SEA-V] delete_own_account RPC unavailable:", error);
-      await logout();
-      throw new Error(
-        "Account deletion requires delete_own_account SQL in Supabase. You have been signed out — contact support to finish deletion."
-      );
+      console.error("[SEA-V] delete_own_account RPC failed:", error);
+      throw new Error(error.message || "Account deletion failed. Contact support to finish deletion.");
     }
 
     await logout();
