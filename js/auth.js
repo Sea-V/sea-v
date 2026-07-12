@@ -134,8 +134,14 @@
 
   async function signUpWithPassword({ email, password, name }) {
     const client = await waitForSupabase();
-    // ?confirmed=1 is read by js/index.js to show the "email verified" modal
-    // once Supabase redirects back here after the confirmation link is clicked.
+    // This only matters if the Supabase "Confirm signup" email template
+    // ever gets reverted to using {{ .ConfirmationURL }} (Supabase's own
+    // auto-verifying link) instead of the token_hash link that points to
+    // confirm-account.html. With the token_hash link (the current setup,
+    // see SIGNUP-EMAIL-SETUP.md) this value is unused — .SiteURL and the
+    // confirm-account.html link are controlled by the email template and
+    // Supabase's Site URL setting, not by this parameter. ?confirmed=1 is
+    // read by js/index.js to show the "email verified" modal.
     const emailRedirectTo = new URL("index.html?confirmed=1", window.location.href).href;
     const { data, error } = await client.auth.signUp({
       email,
@@ -169,8 +175,14 @@
 
   async function resendConfirmationEmail(email) {
     const client = await waitForSupabase();
-    // ?confirmed=1 is read by js/index.js to show the "email verified" modal
-    // once Supabase redirects back here after the confirmation link is clicked.
+    // This only matters if the Supabase "Confirm signup" email template
+    // ever gets reverted to using {{ .ConfirmationURL }} (Supabase's own
+    // auto-verifying link) instead of the token_hash link that points to
+    // confirm-account.html. With the token_hash link (the current setup,
+    // see SIGNUP-EMAIL-SETUP.md) this value is unused — .SiteURL and the
+    // confirm-account.html link are controlled by the email template and
+    // Supabase's Site URL setting, not by this parameter. ?confirmed=1 is
+    // read by js/index.js to show the "email verified" modal.
     const emailRedirectTo = new URL("index.html?confirmed=1", window.location.href).href;
     const { error } = await client.auth.resend({
       type: "signup",

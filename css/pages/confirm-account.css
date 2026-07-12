@@ -1,0 +1,77 @@
+/* =========================================================
+   SEA-V • CONFIRM ACCOUNT (click-to-confirm signup link)
+========================================================= */
+
+.confirm-account-page .confirm-account-shell {
+  position: relative;
+  z-index: 2;
+
+  display: grid;
+  place-items: center;
+
+  min-height: 100vh;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.confirm-account-card {
+  width: min(440px, 92vw);
+
+  padding: 36px 32px;
+
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  background: rgba(15, 32, 52, 0.5);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.34);
+
+  text-align: center;
+}
+
+.confirm-account-brand {
+  display: flex;
+  justify-content: center;
+
+  margin-bottom: 18px;
+}
+
+.confirm-account-state {
+  text-align: center;
+}
+
+.confirm-account-title {
+  margin: 0 0 10px;
+
+  color: #ffffff;
+
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.confirm-account-subtitle {
+  margin: 0 0 24px;
+
+  color: rgba(255, 255, 255, 0.72);
+
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.confirm-account-loading {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.72);
+
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.confirm-account-btn {
+  width: 100%;
+  text-decoration: none;
+}

@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 167;
+const ASSET_VERSION = 168;
 
 function bumpAssetVersions(html) {
   let next = html.replace(
@@ -192,6 +192,7 @@ function patchPublicProfile(html) {
 
 const PUBLIC_PAGES = [
   "verify-reference.html",
+  "confirm-account.html",
   "index.html",
   "signup.html",
   "about.html",
