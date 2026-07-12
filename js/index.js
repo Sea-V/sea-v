@@ -9,6 +9,32 @@
     loginMsg.style.color = color;
   }
 
+  function openEmailConfirmedModal() {
+    const modal = document.getElementById("emailConfirmedModal");
+    const overlay = document.getElementById("emailConfirmedOverlay");
+    if (!modal || !overlay) {
+      // Fall back to the inline message if the modal markup is missing.
+      setLoginMessage("Email confirmed — you can log in now.", "#5bbcff");
+      return;
+    }
+    modal.hidden = false;
+    overlay.hidden = false;
+
+    const closeBtn = document.getElementById("emailConfirmedClose");
+    const continueBtn = document.getElementById("emailConfirmedContinue");
+    const close = () => {
+      modal.hidden = true;
+      overlay.hidden = true;
+    };
+    closeBtn?.addEventListener("click", close);
+    continueBtn?.addEventListener("click", close);
+    overlay.addEventListener("click", close);
+
+    // Let the click land in the email field so a returning user can just
+    // start typing their password.
+    document.querySelector('#loginForm input[type="email"]')?.focus();
+  }
+
   function initIndexAuth() {
     const loginForm = document.getElementById("loginForm");
     const resetLink = document.getElementById("forgotPasswordLink");
@@ -21,7 +47,10 @@
 
     const params = new URLSearchParams(window.location.search);
     if (params.get("confirmed") === "1") {
-      setLoginMessage("Email confirmed — you can log in now.", "#5bbcff");
+      openEmailConfirmedModal();
+      // Drop ?confirmed=1 from the URL so refreshing (or sharing the link)
+      // doesn't reopen the modal.
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     if (loginForm) {

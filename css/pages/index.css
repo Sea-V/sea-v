@@ -188,3 +188,49 @@ body.signup-page #signupMsg {
     font-size: 13px;
   }
 }
+
+/* =========================================
+   EMAIL VERIFIED MODAL (post signup-confirmation)
+========================================= */
+
+.email-confirmed-card {
+  text-align: center;
+}
+
+.email-confirmed-icon {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 14px;
+}
+
+.email-confirmed-icon svg {
+  width: 52px;
+  height: 52px;
+}
+
+.email-confirmed-head {
+  justify-content: center;
+  position: relative;
+}
+
+.email-confirmed-head h3 {
+  font-size: 20px;
+}
+
+.email-confirmed-head .modal-x {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.email-confirmed-card .modal-intro {
+  text-align: center;
+}
+
+.email-confirmed-continue {
+  width: 100%;
+  margin-top: 6px;
+  text-decoration: none;
+  font-size: 14px;
+}

@@ -134,7 +134,9 @@
 
   async function signUpWithPassword({ email, password, name }) {
     const client = await waitForSupabase();
-    const emailRedirectTo = new URL("index.html", window.location.href).href;
+    // ?confirmed=1 is read by js/index.js to show the "email verified" modal
+    // once Supabase redirects back here after the confirmation link is clicked.
+    const emailRedirectTo = new URL("index.html?confirmed=1", window.location.href).href;
     const { data, error } = await client.auth.signUp({
       email,
       password,
@@ -167,7 +169,9 @@
 
   async function resendConfirmationEmail(email) {
     const client = await waitForSupabase();
-    const emailRedirectTo = new URL("index.html", window.location.href).href;
+    // ?confirmed=1 is read by js/index.js to show the "email verified" modal
+    // once Supabase redirects back here after the confirmation link is clicked.
+    const emailRedirectTo = new URL("index.html?confirmed=1", window.location.href).href;
     const { error } = await client.auth.resend({
       type: "signup",
       email,
