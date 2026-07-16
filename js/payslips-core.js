@@ -9,16 +9,12 @@
 
   const {
     KEYS,
-    createId,
-    formatDatePretty,
     PAYSLIP_CURRENCIES,
     PAYSLIP_TAX_YEAR_MONTHS,
     getUkTaxYearOptions,
-    inferUkTaxYear,
     normalizePayslipMonth,
     getPayslipMonthLabel,
     getPayslipMonthsLogged,
-    inferPayslipMonthFromDate,
     formatMoneyAmount,
     getSortedVesselOptions
   } = window.SeavData;

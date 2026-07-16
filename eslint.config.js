@@ -56,7 +56,7 @@ export default [
       }
     },
     rules: {
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_", ignoreRestSiblings: true }],
       "no-undef": "warn",
       "no-empty": "warn",
       "no-control-regex": "off"

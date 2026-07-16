@@ -13,32 +13,22 @@
     getSpecialistCategoryLabel,
     getReferenceStatus,
     getCertExpiryInfo,
-    isCertNoExpiry,
-    renderMandatoryCertDetailHtml,
     isSuppressedAdditionalCert,
     isSavedCert,
-    isRankRoleCert,
-    MANDATORY_CERTS,
-    getSeatimeTotals,
-    formatDatePretty,
-    getTenderProficiencyDisplay
+    getSeatimeTotals
   } = window.SeavData;
 
   const U = window.SeavPublicProfileUtils || {};
   const {
     LIMITS,
-    getVesselRole, getVesselType, getVesselLength, getVesselExperience,
-    formatDates, truncate, setSectionCount, buildShowMoreButton,
+    truncate, setSectionCount, buildShowMoreButton,
     groupSeatimeByVessel, formatNm, getPublicVesselColor, buildPublicNavigationStats,
     getNavigationEndpointMarkers, hasPlottableNavigationData,
-    bindExpandToggles, getCertPublicStatus, findCertByCode, findSavedCertByCode, isMandatoryCert,
-    isRecommendedCert, normalizeCode, formatExpiryShort, getComplianceClass,
-    renderVerificationBadge, isReferenceVerified, getCertComplianceSummary,
-    resolvePublicCertKey, getPublicCertTypeLabel, isPublicCertExpanded
+    formatExpiryShort,
+    renderVerificationBadge, isReferenceVerified
   } = U;
 
   const Seav = window.Seav;
-  const escapeHtml = Seav.escapeHtml.bind(Seav);
 
   const PP_NAV_TILE_URL =
     "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";

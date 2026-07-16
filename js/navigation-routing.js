@@ -176,10 +176,6 @@
   const waypointById = new Map(WAYPOINTS.map((point) => [point.id, point]));
   const graph = new Map();
 
-  function toRad(value) {
-    return (value * Math.PI) / 180;
-  }
-
   const haversineNm = window.SeavData.haversineNm;
 
   function makePortId(country, port) {

@@ -32,8 +32,6 @@
   const populateSeatimeOptions = () => F.populateSeatimeOptions();
   const resetRouteForm = () => F.resetRouteForm();
   const prefillFromSeatimeParam = () => F.prefillFromSeatimeParam();
-  const populateCountrySelect = F.populateCountrySelect;
-  const populatePortSelect = F.populatePortSelect;
   const wireRouteSelects = F.wireRouteSelects;
   const renderWorkingRoute = () => F.renderWorkingRoute();
   const importRouteFile = (f) => F.importRouteFile(f);
@@ -43,21 +41,16 @@
   const addWaypoint = (...a) => F.addWaypoint(...a);
   const removeWaypoint = (...a) => F.removeWaypoint(...a);
   const moveWaypoint = (...a) => F.moveWaypoint(...a);
-  const renderWaypointList = () => F.renderWaypointList();
   const renderEndpointStatus = () => F.renderEndpointStatus();
   const syncLocationFromPort = (r) => F.syncLocationFromPort(r);
   const updateEndpointFromPort = (r) => F.updateEndpointFromPort(r);
   const resetEndpointToPort = (r) => F.resetEndpointToPort(r);
   const applySeatimeLink = (id) => F.applySeatimeLink(id);
-  const setNavFormMode = (v) => F.setNavFormMode(v);
   const readEndpointDetails = F.readEndpointDetails;
   const resolveEndpointCoord = F.resolveEndpointCoord;
   const getEndpointLocationInput = F.getEndpointLocationInput;
   const normalizeText = H.normalizeText;
   const formatRouteLabel = H.formatRouteLabel;
-  const formatNm = H.formatNm;
-  const getVesselName = H.getVesselName;
-  const getSeatimes = H.getSeatimes;
   const normalizeNavEntry = H.normalizeNavEntry;
   const Seav = window.Seav;
 

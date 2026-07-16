@@ -357,7 +357,7 @@
 
   const CV_TEMPLATE = "seav";
 
-  function createDefaultDraft(source, template = CV_TEMPLATE) {
+  function createDefaultDraft(source, _template = CV_TEMPLATE) {
     const vesselEntries = {};
     source.vessels.forEach((vessel) => {
       vesselEntries[vessel.id] = {

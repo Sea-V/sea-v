@@ -130,7 +130,7 @@
     return FILE_HYDRATION_TABLES.filter((entry) => allowed.has(entry.stateKey));
   }
 
-  async function fetchStateKey(key, userId) {
+  async function fetchStateKey(key, _userId) {
     switch (key) {
       case "profile":
         return window.SeavAPI.get(KEYS.PROFILE, DEFAULT_PROFILE);

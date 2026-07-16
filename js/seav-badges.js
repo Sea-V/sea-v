@@ -652,7 +652,7 @@ helicopter_ops: {
     return `${base}?v=${badgeAssetVersion()}`;
   }
 
-  function resolveBadgeImage(badgeKey, unlocked = true) {
+  function resolveBadgeImage(badgeKey, _unlocked = true) {
     const badge = getBadge(badgeKey);
     if (!badge) return withBadgeCacheBust(DEFAULT_IMAGE);
     // Always show the real badge art — locked state is handled in CSS (grayscale/dim).

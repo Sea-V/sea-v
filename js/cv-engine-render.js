@@ -4,9 +4,9 @@
   const M = window.SeavCvModel;
   if (!M) return;
   const {
-    escapeHtml, formatCvDate, formatCvDateRange, formatYear, splitParagraphs, splitBullets,
-    getVesselRole, getVesselType, formatVesselSize, formatVesselMeta, formatVesselSubline,
-    formatProfileDob, getPhotoUrl, getCertDisplayName, splitProfileLines, LOGO_SRC
+    escapeHtml, splitParagraphs,
+    getVesselRole, formatVesselSubline,
+    formatProfileDob, splitProfileLines, LOGO_SRC
   } = M;
   function renderBrandMark(showBranding) {
     if (!showBranding) return "";

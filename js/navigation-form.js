@@ -15,7 +15,7 @@
   } = H;
   const buildRecommendedPassageWaypoints = P.buildRecommendedPassageWaypoints;
   const buildRouteThroughAnchors = P.buildRouteThroughAnchors;
-  const { refreshMap, formatDateRange } = M;
+  const { formatDateRange } = M;
 
   function buildCountryOptions(selectedValue = "") {
     return getCountryList().map((country) => {
@@ -718,7 +718,7 @@
     } else {
       try {
         points = parseRtzRoute(text);
-      } catch (error) {
+      } catch {
         points = parseKmlRoute(text);
       }
       if (!points.length) points = parseKmlRoute(text);
