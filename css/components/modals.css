@@ -649,6 +649,31 @@
   color: rgba(196, 160, 255, 0.92);
 }
 
+.modal-info-value a {
+  color: var(--accent-blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.modal-info-value a:hover {
+  text-decoration: underline;
+}
+
+.modal-link-more {
+  align-self: flex-start;
+  margin-top: -2px;
+
+  color: rgba(255, 255, 255, 0.56);
+
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.modal-link-more:hover {
+  color: #ffffff;
+}
+
 /* =========================================================
    GRID
 ========================================================= */

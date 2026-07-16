@@ -607,21 +607,26 @@ function renderSidebarAchievements() {
         <div class="modal-card modal-card--blue">
           <div class="modal-head">
             <h3>Contact SEA-V</h3>
-            <button type="button" class="modal-x" data-close>&times;</button>
+            <button type="button" class="modal-x" data-close aria-label="Close">&times;</button>
           </div>
 
           <div class="modal-form">
             <p class="modal-intro">
-              For product feedback, support, partnerships, or early access enquiries.
+              Product feedback, support, partnerships, or early access — we’d love to hear from you.
             </p>
 
-            <label>Email
-              <input type="text" value="admin@sea-v.com" readonly />
-            </label>
+            <div class="modal-info-box">
+              <span class="modal-info-label">Email</span>
+              <span class="modal-info-value"><a href="mailto:admin@sea-v.com">admin@sea-v.com</a></span>
+            </div>
 
-            <label>Enquiries
-              <textarea rows="4" readonly>Product feedback, support, partnerships, and early access.</textarea>
-            </label>
+            <div class="modal-info-box">
+              <span class="modal-info-label">We welcome</span>
+              <span class="modal-info-value">Product feedback, partnerships, account support, and early access requests.</span>
+            </div>
+
+            <a class="btn-blue" href="mailto:admin@sea-v.com">Email us</a>
+            <a class="modal-link-more" href="contact.html" target="_blank" rel="noopener">Open the full contact page →</a>
           </div>
         </div>
       </div>
@@ -630,21 +635,25 @@ function renderSidebarAchievements() {
         <div class="modal-card modal-card--blue">
           <div class="modal-head">
             <h3>About SEA-V</h3>
-            <button type="button" class="modal-x" data-close>&times;</button>
+            <button type="button" class="modal-x" data-close aria-label="Close">&times;</button>
           </div>
 
           <div class="modal-form">
             <p class="modal-intro">
-              SEA-V is a modern digital hub for seafarers — one place to record and share your maritime career.
+              A modern digital hub for seafarers — one place to record and share your maritime career.
             </p>
 
-            <label>What it does
-              <textarea rows="5" readonly>Track sea time, manage certificates, store vessel history, collect references, and build a professional maritime profile in one place.</textarea>
-            </label>
+            <div class="modal-info-box">
+              <span class="modal-info-label">What it does</span>
+              <span class="modal-info-value">Track sea time, manage certificates, store vessel history, collect references, and build a professional maritime profile — all in one place.</span>
+            </div>
 
-            <label>Vision
-              <textarea rows="4" readonly>Built to modernise how maritime careers are recorded, presented, and shared.</textarea>
-            </label>
+            <div class="modal-info-box">
+              <span class="modal-info-label">Vision</span>
+              <span class="modal-info-value">Built to modernise how maritime careers are recorded, presented, and shared.</span>
+            </div>
+
+            <a class="modal-link-more" href="about.html" target="_blank" rel="noopener">Read the full story →</a>
           </div>
         </div>
       </div>
