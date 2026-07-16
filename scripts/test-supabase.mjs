@@ -37,11 +37,14 @@ const TABLES = [
   "payslips"
 ];
 
-const ANON_PRIVATE_TABLES = new Set(["tenders", "payslips"]);
+// tenders are intentionally public (they show on public profiles alongside
+// vessels) — only payslips are fully private to anon. See
+// docs/schema-phase2-public-hardening.sql for the tenders_public_read policy.
+const ANON_PRIVATE_TABLES = new Set(["payslips"]);
 
 const PUBLIC_TABLE_SAFE_COLUMNS = {
   profile: [
-    "id", "user_id", "name", "rank", "qualification", "nationality", "dob", "location",
+    "id", "user_id", "name", "rank", "qualification", "nationality", "location",
     "availability", "bio", "photo", "public_enabled", "created_at", "updated_at"
   ].join(","),
   vessels: [
@@ -55,7 +58,7 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
     "watchkeeping_days", "verification_status", "created_at", "updated_at"
   ].join(","),
   certificates: [
-    "id", "user_id", "code", "name", "expiry_date", "status", "attachment",
+    "id", "user_id", "code", "name", "issue_date", "expiry_date", "status",
     "is_mandatory", "is_template", "created_at", "updated_at"
   ].join(","),
   sea_references: [
@@ -76,7 +79,7 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
   ].join(","),
   onboard_experiences: [
     "id", "user_id", "vessel_id", "category", "title", "description", "location_onboard",
-    "date_from", "date_to", "hours", "is_familiarisation", "status", "signoff",
+    "date_from", "date_to", "hours", "is_familiarisation", "status",
     "attachment", "created_at", "updated_at"
   ].join(","),
   hobbies_interests: [
@@ -86,6 +89,10 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
   specialist_qualifications: [
     "id", "user_id", "category", "title", "issuing_body", "date_obtained", "expiry",
     "status", "notes", "attachment", "created_at", "updated_at"
+  ].join(","),
+  tenders: [
+    "id", "user_id", "name", "vessel_id", "type", "model", "length", "engine", "capacity",
+    "reg", "proficiency_level", "description", "photo", "created_at", "updated_at"
   ].join(",")
 };
 
@@ -258,7 +265,6 @@ const PUBLIC_PROFILE_SAFE_COLUMNS = [
   "rank",
   "qualification",
   "nationality",
-  "dob",
   "location",
   "availability",
   "bio",
@@ -268,7 +274,7 @@ const PUBLIC_PROFILE_SAFE_COLUMNS = [
   "updated_at"
 ].join(",");
 
-const PUBLIC_PROFILE_SENSITIVE_COLUMNS = ["email", "phone", "salary", "passports_held", "visas_held"];
+const PUBLIC_PROFILE_SENSITIVE_COLUMNS = ["email", "phone", "salary", "dob", "passports_held", "visas_held"];
 
 async function testProfileColumns(config) {
   const safeProbe = await restGet(
