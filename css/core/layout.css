@@ -390,16 +390,8 @@ body.app-page::after {
   padding-top: 10px;
 }
 
-.dash-nav-group--documentation .dash-nav-group-label {
-  color: rgba(207, 168, 106, 0.72);
-}
-
 .dash-nav-group--tools {
   margin-top: auto;
-}
-
-.dash-nav-group--tools .dash-nav-group-label {
-  color: rgba(91, 188, 255, 0.72);
 }
 
 .dash-sidebar-footer {

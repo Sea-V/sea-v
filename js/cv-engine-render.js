@@ -129,7 +129,7 @@
             .join("")}</ul>`
         : "";
 
-    const extracurricular =
+    const milestonesHtml =
       sections.showHighlights && doc.highlights.length
         ? `<p class="cv-seav-extra">${doc.highlights
             .map((line) => escapeHtml(line))
@@ -152,7 +152,7 @@
       salaryLine,
       renderSeavSidebarBlock("Yacht Qualifications", certList),
       renderSeavSidebarBlock("Other Qualifications", specialistList),
-      renderSeavSidebarBlock("Extracurricular", extracurricular)
+      renderSeavSidebarBlock("Milestones", milestonesHtml)
     ].join("");
 
     const photoHtml = doc.photoUrl

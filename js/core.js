@@ -355,7 +355,7 @@ const app = {
           <div class="nav-right">
             <a
               class="icon insta-link"
-              href="https://instagram.com/sea_verification"
+              href="https://instagram.com/seav_crew"
               target="_blank"
               rel="noopener"
               aria-label="Instagram"
