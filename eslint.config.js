@@ -43,6 +43,7 @@ export default [
         HTMLTextAreaElement: "readonly",
         requestAnimationFrame: "readonly",
         cancelAnimationFrame: "readonly",
+        createImageBitmap: "readonly",
         // App globals assigned by earlier script tags (browser only).
         Seav: "readonly",
         SeavAPI: "readonly",
