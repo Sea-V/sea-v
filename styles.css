@@ -121,6 +121,13 @@ img.seav-logo--verify {
   margin: 0 auto 18px;
 }
 
+img.seav-logo--confirm {
+  width: auto !important;
+  height: 40px !important;
+  max-height: 40px !important;
+  min-width: 0 !important;
+}
+
 .cv-brand-mark {
   width: 7.5mm !important;
 }

@@ -316,7 +316,7 @@ const app = {
 
           <a class="brand" href="index.html">
             <img
-              src="img/logo.png?v=7"
+              src="img/logo.png?v=8"
               class="seav-logo seav-logo--topbar"
               alt="SEA-V"
               width="34"
@@ -344,7 +344,7 @@ const app = {
 
           <a class="brand" href="dashboard.html">
             <img
-              src="img/logo.png?v=7"
+              src="img/logo.png?v=8"
               class="seav-logo seav-logo--topbar"
               alt="SEA-V"
               width="34"
