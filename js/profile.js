@@ -45,7 +45,6 @@
       phone: el("pf_phone"),
       passportsHeld: el("pf_passportsHeld"),
       visasHeld: el("pf_visasHeld"),
-      salary: el("pf_salary"),
       availability: el("pf_availability"),
       bio: el("pf_bio"),
       photo: el("pf_photo")
@@ -62,7 +61,6 @@
       phone: el("previewPhone"),
       passportsHeld: el("previewPassportsHeld"),
       visasHeld: el("previewVisasHeld"),
-      salary: el("previewSalary"),
       availability: el("previewAvailability"),
       bio: el("previewBio"),
       photo: el("profilePreviewPhoto")
@@ -117,7 +115,6 @@
       if (preview.phone) preview.phone.textContent = profile.phone || "—";
       if (preview.passportsHeld) preview.passportsHeld.textContent = profile.passportsHeld || "—";
       if (preview.visasHeld) preview.visasHeld.textContent = profile.visasHeld || "—";
-      if (preview.salary) preview.salary.textContent = profile.salary || "—";
       if (preview.availability) preview.availability.textContent = profile.availability || "—";
       if (preview.bio) preview.bio.textContent = profile.bio || "—";
 
@@ -155,7 +152,6 @@
         phone: fields.phone?.value.trim() || "",
         passportsHeld: fields.passportsHeld?.value.trim() || "",
         visasHeld: fields.visasHeld?.value.trim() || "",
-        salary: fields.salary?.value.trim() || "",
         availability: fields.availability?.value || "Available Immediately",
         bio: fields.bio?.value.trim() || "",
         file: fields.photo?.files?.[0] || null
@@ -187,7 +183,6 @@
       if (fields.phone) fields.phone.value = profile.phone || "";
       if (fields.passportsHeld) fields.passportsHeld.value = profile.passportsHeld || "";
       if (fields.visasHeld) fields.visasHeld.value = profile.visasHeld || "";
-      if (fields.salary) fields.salary.value = profile.salary || "";
       if (fields.availability) fields.availability.value = profile.availability || "Available Immediately";
       if (fields.bio) fields.bio.value = profile.bio || "";
     }
@@ -226,7 +221,6 @@
         phone: formData.phone,
         passportsHeld: formData.passportsHeld,
         visasHeld: formData.visasHeld,
-        salary: formData.salary,
         availability: formData.availability,
         bio: formData.bio,
         photo: previewPhoto
@@ -273,7 +267,6 @@
         phone: formData.phone,
         passportsHeld: formData.passportsHeld,
         visasHeld: formData.visasHeld,
-        salary: formData.salary,
         availability: formData.availability,
         bio: formData.bio,
         publicEnabled: !!existingProfile.publicEnabled,

@@ -350,7 +350,6 @@
       showHighlights: true,
       showContact: true,
       showReferences: true,
-      showSalary: false,
       showSeavBranding: true
     };
   }

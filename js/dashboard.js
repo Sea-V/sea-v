@@ -74,7 +74,6 @@
     const dashProfileBio = document.getElementById("dashProfileBio");
     const dashProfilePassportsHeld = document.getElementById("dashProfilePassportsHeld");
     const dashProfileVisasHeld = document.getElementById("dashProfileVisasHeld");
-    const dashProfileSalary = document.getElementById("dashProfileSalary");
     const dashProfileAvailability = document.getElementById("dashProfileAvailability");
 
     if (!dashProfileName && !dashAvatar) return;
@@ -99,7 +98,6 @@
     if (dashProfileBio) dashProfileBio.textContent = careerOverview;
     if (dashProfilePassportsHeld) dashProfilePassportsHeld.textContent = profile.passportsHeld || "—";
     if (dashProfileVisasHeld) dashProfileVisasHeld.textContent = profile.visasHeld || "—";
-    if (dashProfileSalary) dashProfileSalary.textContent = profile.salary || "—";
     if (dashProfileAvailability) dashProfileAvailability.textContent = profile.availability || "—";
 
     if (dashAvatar) {

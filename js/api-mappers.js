@@ -33,7 +33,6 @@ function mapProfileFromSupabase(p) {
     phone: p.phone || "",
     passportsHeld: p.passports_held || "",
     visasHeld: p.visas_held || "",
-    salary: p.salary || "",
     availability: p.availability || "",
     bio: p.bio || "",
     photo: p.photo || null,
@@ -58,7 +57,6 @@ function mapProfileToSupabase(item) {
     phone: item.phone || "",
     passports_held: item.passportsHeld || "",
     visas_held: item.visasHeld || "",
-    salary: item.salary || "",
     availability: item.availability || "",
     bio: item.bio || "",
     photo: sanitizePhotoForStorage(item.photo),
@@ -81,6 +79,7 @@ function mapProfileToSupabase(item) {
     vessel_type: v.vessel_type || "",
 
     program: v.program || "",
+    salary: v.salary || "",
 
     experience_onboard: v.experience_onboard || "",
 
@@ -107,6 +106,7 @@ function mapVesselToSupabase(item) {
     vessel_role: item.vessel_role || item.role || "",
     vessel_type: item.vessel_type || item.type || "",
     program: item.program || "",
+    salary: item.salary || "",
     experience_onboard: item.experience_onboard || item.desc || "",
     date_from: item.from || item.date_from || "",
     date_to: item.to || item.date_to || "",

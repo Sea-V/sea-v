@@ -137,10 +137,6 @@
         : "";
 
     const dob = formatProfileDob(profile.dob);
-    const salaryLine =
-      sections.showSalary && profile.salary
-        ? renderSeavSidebarBlock("Salary", `<p>${escapeHtml(profile.salary)}</p>`)
-        : "";
 
     const sidebarHtml = [
       sections.showContact ? renderSeavSidebarBlock("Contact", renderSeavContact(profile)) : "",
@@ -149,7 +145,6 @@
       profile.availability
         ? renderSeavSidebarBlock("Availability", `<p>${escapeHtml(profile.availability)}</p>`)
         : "",
-      salaryLine,
       renderSeavSidebarBlock("Yacht Qualifications", certList),
       renderSeavSidebarBlock("Other Qualifications", specialistList),
       renderSeavSidebarBlock("Milestones", milestonesHtml)

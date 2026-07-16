@@ -94,6 +94,7 @@ function buildVesselCard(v, options = {}) {
   const role = v.vessel_role || v.role ? Seav.escapeHtml(v.vessel_role || v.role) : "—";
   const type = v.vessel_type || v.type ? Seav.escapeHtml(v.vessel_type || v.type) : "—";
   const program = v.program ? Seav.escapeHtml(v.program) : "—";
+  const salary = v.salary ? Seav.escapeHtml(v.salary) : "—";
   const experience = v.experience_onboard || v.desc || "";
   const experienceHtml = buildExperienceSection(experience);
   const from = v.from ? formatDatePretty(v.from) : "—";
@@ -218,6 +219,11 @@ function buildVesselCard(v, options = {}) {
             <div class="vessel-main-item">
               <span>Program</span>
               <strong>${program}</strong>
+            </div>
+
+            <div class="vessel-main-item">
+              <span>Salary</span>
+              <strong>${salary}</strong>
             </div>
           </div>
 
@@ -420,6 +426,9 @@ function fillVesselForm(vessel) {
   if (programEl) programEl.value = vessel.program || "";
   if (builderEl) builderEl.value = vessel.builder || "";
 
+  const salaryEl = document.getElementById("vs_salary");
+  if (salaryEl) salaryEl.value = vessel.salary || "";
+
   const editId = document.getElementById("vs_edit_index");
   if (editId) editId.value = vessel.id || "";
 
@@ -469,6 +478,7 @@ function readVesselForm() {
     role: document.getElementById("vs_role")?.value.trim() || "",
     type: document.getElementById("vs_type")?.value.trim() || "",
     program: document.getElementById("vs_program")?.value.trim() || "",
+    salary: document.getElementById("vs_salary")?.value.trim() || "",
     file: document.getElementById("vs_photo")?.files?.[0] || null,
     seaFile: document.getElementById("vs_sea")?.files?.[0] || null
   };
@@ -574,6 +584,7 @@ async function saveVesselData(vesselData) {
   vessel_role: formData.role,
   vessel_type: formData.type,
   program: formData.program,
+  salary: formData.salary,
   experience_onboard: formData.desc,
   from: formData.from,
   to: formData.to,
