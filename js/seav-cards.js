@@ -193,6 +193,55 @@
       ? ` <span class="onboard-familiarisation-pill">Familiarisation</span>`
       : "";
 
+    if (!options.expandable) {
+      return `
+        <div class="list-row" data-pp-more-item>
+          <div style="min-width:0;">
+            <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
+            <div class="list-sub">
+              ${Seav.escapeHtml(vessel?.name || "—")} • ${Seav.escapeHtml(getLabel(entry.category))}${familiarisationHtml}
+            </div>
+          </div>
+          <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
+        </div>
+      `;
+    }
+
+    // Public-profile variant: adds a "Details" toggle revealing description,
+    // dates/hours/location, and the attachment (photo or file link) — this
+    // data was already fetched for public profiles (RLS/grants allow it for
+    // Signed Off entries), it just wasn't rendered anywhere yet.
+    const detailId = `ppOnboardDetail-${Seav.escapeHtml(String(entry.id || Math.random().toString(36).slice(2)))}`;
+
+    const metaBits = [];
+    if (entry.locationOnboard) metaBits.push(Seav.escapeHtml(entry.locationOnboard));
+    if (entry.dateFrom || entry.dateTo) {
+      const from = entry.dateFrom ? formatCardDate(entry.dateFrom) : "—";
+      const to = entry.dateTo ? formatCardDate(entry.dateTo) : "Ongoing";
+      metaBits.push(Seav.escapeHtml(`${from} → ${to}`));
+    }
+    if (entry.hours) metaBits.push(`${Seav.escapeHtml(String(entry.hours))} hrs logged`);
+
+    const detailParts = [];
+    if (entry.description) {
+      detailParts.push(`<p class="onboard-detail-desc">${Seav.escapeHtml(entry.description)}</p>`);
+    }
+    if (metaBits.length) {
+      detailParts.push(`<div class="onboard-detail-meta">${metaBits.join(" • ")}</div>`);
+    }
+
+    const attachmentUrl = entry.attachment?.url || "";
+    if (attachmentUrl) {
+      const isImage = (entry.attachment?.mime || "").startsWith("image/");
+      detailParts.push(
+        isImage
+          ? `<img class="onboard-detail-photo" src="${Seav.escapeHtml(attachmentUrl)}" alt="${Seav.escapeHtml(entry.title || "Onboard experience photo")}" loading="lazy" />`
+          : `<a class="onboard-detail-attachment" href="${Seav.escapeHtml(attachmentUrl)}" target="_blank" rel="noopener">${Seav.escapeHtml(entry.attachment?.filename || "View attachment")}</a>`
+      );
+    }
+
+    const hasDetail = detailParts.length > 0;
+
     return `
       <div class="list-row" data-pp-more-item>
         <div style="min-width:0;">
@@ -201,8 +250,16 @@
             ${Seav.escapeHtml(vessel?.name || "—")} • ${Seav.escapeHtml(getLabel(entry.category))}${familiarisationHtml}
           </div>
         </div>
-        <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
+        <div class="onboard-row-actions">
+          <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
+          ${
+            hasDetail
+              ? `<button type="button" class="onboard-detail-toggle" data-pp-expand="${detailId}" aria-expanded="false" data-pp-collapsed-label="Details">Details</button>`
+              : ""
+          }
+        </div>
       </div>
+      ${hasDetail ? `<div class="onboard-detail-panel" id="${detailId}" hidden>${detailParts.join("")}</div>` : ""}
     `;
   }
 

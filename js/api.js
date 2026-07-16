@@ -121,10 +121,12 @@
       "lat", "lng", "waypoints", "note", "created_at", "updated_at"
     ].join(","),
     // No "signoff" here on purpose: it's a jsonb blob including the
-    // supervisor's signatory_email, and the public onboard-experience row
-    // never renders any part of it (only category/title/dates/status) — see
-    // js/seav-cards.js's buildOnboardRow. Matching DB-level anon grant is
-    // column-scoped to exclude signoff too (docs/schema-phase2-public-hardening.sql).
+    // supervisor's signatory_email, which the public profile should never
+    // expose. The public onboard-experience row's expandable "Details" panel
+    // (js/seav-cards.js's buildOnboardRow, expandable: true) does render
+    // description/dates/hours/location/attachment, but deliberately never
+    // touches signoff. Matching DB-level anon grant is column-scoped to
+    // exclude signoff too (docs/schema-phase2-public-hardening.sql).
     onboard_experiences: [
       "id", "user_id", "vessel_id", "category", "title", "description", "location_onboard",
       "date_from", "date_to", "hours", "is_familiarisation", "status",

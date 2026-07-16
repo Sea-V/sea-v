@@ -550,17 +550,27 @@
       const target = document.getElementById(btn.getAttribute("data-pp-expand"));
       if (!target) return;
 
+      // A fixed collapsed-state label (e.g. a single row's "Details" toggle)
+      // opts out of the "Show N more <label>" counting below, which assumes
+      // the panel holds a list of [data-pp-more-item] rows — not true for a
+      // single-item detail panel.
+      const collapsedLabel = btn.getAttribute("data-pp-collapsed-label");
+
       const isHidden = target.hasAttribute("hidden");
       if (isHidden) {
         target.removeAttribute("hidden");
         btn.setAttribute("aria-expanded", "true");
-        btn.textContent = "Show less";
+        btn.textContent = collapsedLabel ? "Hide details" : "Show less";
       } else {
         target.setAttribute("hidden", "");
         btn.setAttribute("aria-expanded", "false");
-        const count = target.querySelectorAll("[data-pp-more-item]").length;
-        const label = btn.getAttribute("data-pp-label") || "items";
-        btn.textContent = `Show ${count} more ${label}`;
+        if (collapsedLabel) {
+          btn.textContent = collapsedLabel;
+        } else {
+          const count = target.querySelectorAll("[data-pp-more-item]").length;
+          const label = btn.getAttribute("data-pp-label") || "items";
+          btn.textContent = `Show ${count} more ${label}`;
+        }
       }
     });
   }

@@ -518,7 +518,11 @@
     const moreId = "ppOnboardMore";
 
     // Row markup lives in js/seav-cards.js (shared with the dashboard snippet).
-    const buildRow = (entry) => window.SeavCards.buildOnboardRow(entry, vessels, { statusFallback: "—" });
+    // expandable: true adds a per-row "Details" toggle (description, dates,
+    // hours, location onboard, attachment) — public-profile only, dashboard
+    // keeps the plain row.
+    const buildRow = (entry) =>
+      window.SeavCards.buildOnboardRow(entry, vessels, { statusFallback: "—", expandable: true });
 
     box.innerHTML = `
       <div class="list">

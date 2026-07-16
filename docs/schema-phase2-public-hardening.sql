@@ -95,9 +95,10 @@ grant select (
 ) on table public.navigation_areas to anon;
 
 -- No "signoff" here on purpose: it's a jsonb blob that includes the
--- supervisor's signatory_email, and the public onboard-experience row never
--- renders any part of it. Fixed live 2026-07-07 via a column-level revoke
--- after finding it granted in full.
+-- supervisor's signatory_email. Fixed live 2026-07-07 via a column-level
+-- revoke after finding it granted in full. The public onboard-experience
+-- row's expandable "Details" panel (added 2026-07-16) does render
+-- description/dates/hours/location/attachment, but never signoff.
 grant select (
   id, user_id, vessel_id, category, title, description, location_onboard,
   date_from, date_to, hours, is_familiarisation, status, attachment,
