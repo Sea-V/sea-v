@@ -157,6 +157,7 @@
     const headlineInput = document.getElementById("cvHeadlineInput");
     const resetBtn = document.getElementById("btnResetCvDraft");
     const printBtn = document.getElementById("btnPrintCv");
+    const docxBtn = document.getElementById("btnExportCvDocx");
     const list = document.getElementById("cvVesselEditor");
 
     if (summaryInput) {
@@ -204,6 +205,31 @@
         document.body.classList.add("cvgen-printing");
         window.print();
         window.setTimeout(() => document.body.classList.remove("cvgen-printing"), 500);
+      });
+    }
+
+    if (docxBtn) {
+      docxBtn.addEventListener("click", async () => {
+        if (!window.SeavCvExportDocx) {
+          Seav.notify("error", "Export unavailable", "Word export failed to load. Refresh the page and try again.");
+          return;
+        }
+        docxBtn.disabled = true;
+        const originalLabel = docxBtn.textContent;
+        docxBtn.textContent = "Exporting…";
+        try {
+          draft = window.SeavCvEngine.saveDraft(draft);
+          const source = getSource();
+          const documentModel = window.SeavCvEngine.buildCvDocument(source, draft);
+          await window.SeavCvExportDocx.exportCvAsDocx(documentModel);
+          Seav.notify("success", "CV exported", "Word document downloaded.");
+        } catch (err) {
+          console.warn("[SEA-V] CV Word export failed:", err);
+          Seav.notify("error", "Export failed", err?.message || "Could not create the Word document.");
+        } finally {
+          docxBtn.disabled = false;
+          docxBtn.textContent = originalLabel;
+        }
       });
     }
 
