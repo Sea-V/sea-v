@@ -10,11 +10,8 @@
     getReferenceStatus,
     getCertExpiryInfo,
     isCertNoExpiry,
-    getOnboardCategoryLabel,
-    getSeatimeTotals,
-    renderMandatoryCertDetailHtml,
-    isSuppressedAdditionalCert,
-    isRankRoleCert
+    isRankRoleCert,
+    formatDatePretty
   } = window.SeavData;
 
   const LIMITS = {

@@ -197,7 +197,7 @@
     `;
   }
 
-  function renderNextMilestone(earnedGroups) {
+  function renderNextMilestone(_earnedGroups) {
     const mount = document.getElementById("achNextMilestone");
     if (!mount) return;
 

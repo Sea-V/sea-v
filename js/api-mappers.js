@@ -375,7 +375,7 @@ function normalizeWaypoints(value) {
   if (typeof list === "string") {
     try {
       list = JSON.parse(list);
-    } catch (error) {
+    } catch {
       list = [];
     }
   }

@@ -52,8 +52,6 @@
     }
   }
 
-const storage = window.localStorage;
-
   function vesselKey() {
     return window.SeavData?.KEYS?.VESSELS || "seav_vessels";
   }

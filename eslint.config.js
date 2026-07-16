@@ -36,6 +36,13 @@ export default [
         btoa: "readonly",
         File: "readonly",
         JSZip: "readonly",
+        Option: "readonly",
+        Image: "readonly",
+        DOMParser: "readonly",
+        HTMLInputElement: "readonly",
+        HTMLTextAreaElement: "readonly",
+        requestAnimationFrame: "readonly",
+        cancelAnimationFrame: "readonly",
         // App globals assigned by earlier script tags (browser only).
         Seav: "readonly",
         SeavAPI: "readonly",

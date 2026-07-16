@@ -11,7 +11,6 @@
     isVesselKey, isSeatimeKey, isCertKey, isRefKey, isProfileKey,
     isTenderKey, isAchievementKey, isNavigationAreaKey, isOnboardExperienceKey,
     isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,
-    profileKey, vesselKey, seatimeKey, certKey, refKey,
     resolveStorageFileUrl, sanitizeFileForStorage, buildUploadedFileMeta,
     hydrateProfilePhoto, withUserId, findIndexById, hydrateArrayFiles
   } = Core;
