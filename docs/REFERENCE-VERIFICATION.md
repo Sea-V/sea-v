@@ -21,6 +21,7 @@ docs/schema-reference-verification.sql
 docs/schema-reference-verification-v2-complete.sql
 docs/schema-reference-verification-attachment.sql
 docs/schema-reference-verification-signature.sql
+docs/schema-reference-verification-signature-read-fix.sql
 ```
 
 Optional — set production site URL for links:
@@ -95,3 +96,4 @@ On **localhost**, the app skips the Edge Function and calls the RPC directly (`S
 | `verify-reference.html` + `js/verify-reference.js` | Public referee page |
 | `docs/schema-reference-verification-signature.sql` | Drawn signature upload + complete v3 |
 | `js/seav-signature-pad.js` | Reusable canvas signature pad |
+| `docs/schema-reference-verification-signature-read-fix.sql` | Fixes "new row violates row-level security policy" on signature upload (RETURNING vs. SELECT policy chicken-and-egg) |
