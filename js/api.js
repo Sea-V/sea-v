@@ -476,6 +476,10 @@
     }
   }
 
+// dob intentionally excluded — anon no longer has SELECT on profile.dob
+// (exact date of birth is an identity-theft risk and was never shown on
+// the public profile UI). Requesting it here would make PostgREST reject
+// the whole query for anon callers, not just omit the column.
 const PUBLIC_PROFILE_COLUMNS = [
   "id",
   "user_id",
@@ -483,7 +487,6 @@ const PUBLIC_PROFILE_COLUMNS = [
   "rank",
   "qualification",
   "nationality",
-  "dob",
   "location",
   "availability",
   "bio",
