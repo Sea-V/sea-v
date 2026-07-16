@@ -31,7 +31,6 @@ grant select (
   rank,
   qualification,
   nationality,
-  dob,
   location,
   availability,
   bio,
@@ -40,6 +39,8 @@ grant select (
   created_at,
   updated_at
 ) on table public.profile to anon;
+-- dob intentionally excluded: exact date of birth is an identity-theft risk
+-- and the public profile UI never reads it. Revoked live 2026-07-16.
 
 revoke all on table public.vessels from anon;
 revoke all on table public.seatimes from anon;
