@@ -1084,26 +1084,31 @@ function getSortedVesselOptions(vessels = []) {
     }));
 }
 
-  // Pulled from the same per-page accent palette used everywhere else in the
-  // app (scripts/page-colors.json's "fill" tones — the badge disc colors and
-  // sidebar icon accents), instead of stock saturated primaries. Keeps
-  // multi-vessel nav-map tracks and passage colors visually on-brand rather
-  // than clashing with SEA-V's softer, muted jewel-tone look. Keep in sync
-  // with the fallback copy in navigation-helpers.js.
+  // Same muted jewel-tone family as the rest of the app (moderate
+  // saturation, medium-dark lightness — no stock saturated primaries), but
+  // hues are spaced using a golden-angle sequence (~137.5° apart) instead of
+  // picked from other pages' accents. That previous approach clustered
+  // several colors within 10-15° of each other (three near-identical blues,
+  // three near-identical teals/greens, three near-identical golds), so with
+  // more than a couple of vessels the nav-map lines became hard to tell
+  // apart. Golden-angle spacing guarantees every prefix of this list (i.e.
+  // the common case of 2-6 vessels) stays maximally spread around the hue
+  // wheel, not just the full set of 13. Keep in sync with the fallback copy
+  // in navigation-helpers.js.
   const VESSEL_COLORS = [
-    "#2a6eb8", // dashboard blue
-    "#1f9a82", // profile teal
-    "#3d5fbf", // seatime indigo
-    "#1db57a", // tenders green
-    "#b89022", // certificates gold
-    "#7a52bf", // specialist purple
-    "#b87322", // achievements amber
-    "#8a38bf", // references violet
-    "#1a9a87", // navigation turquoise
-    "#8a6a38", // payslips bronze
-    "#bf4f6a", // onboard-experience rose
-    "#9938ad", // hobbies magenta
-    "#5a7185"  // vessels slate
+    "#2f70b1", // ocean blue
+    "#b12f4a", // crimson
+    "#2fb13a", // emerald green
+    "#602fb1", // violet
+    "#b1862f", // amber gold
+    "#2fb1ac", // teal
+    "#b12f91", // magenta
+    "#6bb12f", // lime green
+    "#2f45b1", // indigo
+    "#b1402f", // rust orange
+    "#2fb166", // jade green
+    "#8c2fb1", // purple
+    "#b1b12f"  // olive
   ];
 
   function getVesselColor(vesselId, vesselsInput) {

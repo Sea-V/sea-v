@@ -28,9 +28,9 @@
   // Fallback only (used if js/seav-data.js somehow isn't loaded) — keep this
   // in sync with the canonical VESSEL_COLORS in seav-data.js.
   const VESSEL_COLORS = window.SeavData?.VESSEL_COLORS || [
-    "#2a6eb8", "#1f9a82", "#3d5fbf", "#1db57a", "#b89022", "#7a52bf",
-    "#b87322", "#8a38bf", "#1a9a87", "#8a6a38", "#bf4f6a", "#9938ad",
-    "#5a7185"
+    "#2f70b1", "#b12f4a", "#2fb13a", "#602fb1", "#b1862f", "#2fb1ac",
+    "#b12f91", "#6bb12f", "#2f45b1", "#b1402f", "#2fb166", "#8c2fb1",
+    "#b1b12f"
   ];
 
   function getVesselColor(vesselId) {
