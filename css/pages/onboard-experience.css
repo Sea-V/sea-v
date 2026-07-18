@@ -114,6 +114,88 @@
   gap: 8px;
 }
 
+/* =========================================================
+   VESSEL GROUPS
+   Entries are grouped by vessel (one collapsible row per vessel)
+   instead of one long flat list — a vessel's entries only show once
+   its row is expanded.
+========================================================= */
+
+.onboard-vessel-group {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 143, 171, 0.24);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.onboard-vessel-summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 16px 20px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: background 0.15s ease;
+}
+
+.onboard-vessel-summary:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.onboard-vessel-summary:focus-visible {
+  outline: 2px solid rgba(91, 188, 255, 0.55);
+  outline-offset: -2px;
+}
+
+.onboard-vessel-group.is-expanded .onboard-vessel-summary {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.onboard-vessel-summary-left {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.onboard-vessel-name {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.onboard-vessel-meta {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.onboard-vessel-summary-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.onboard-vessel-group.is-expanded .onboard-chevron {
+  transform: rotate(180deg);
+  color: rgba(255, 143, 171, 0.85);
+}
+
+.onboard-vessel-body.list {
+  padding: 0 14px 14px;
+  gap: 8px;
+}
+
 .onboard-modern-card {
   padding: 0;
   overflow: hidden;

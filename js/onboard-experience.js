@@ -21,6 +21,7 @@
     window.SeavApiCore?.STORAGE_BUCKETS?.ONBOARD_EXPERIENCE_FILES ||
     "onboard-experience-files";
   const expandedOeIds = new Set();
+  const expandedVesselIds = new Set();
 
   function getEntries() {
     return window.SeavState?.onboardExperiences || [];
@@ -210,39 +211,55 @@
     `;
   }
 
-  function renderList() {
-    const list = document.getElementById("oeList");
-    if (!list) return;
+  // Groups entries by vessel so the page shows one row per vessel instead of
+  // every entry flattened together — with many entries across several
+  // vessels that flat list became hard to scan. Each group is sorted
+  // most-recent-first internally, and the groups themselves are ordered by
+  // whichever vessel has the most recently dated entry.
+  function groupEntriesByVessel(entries) {
+    const groups = new Map();
 
-    const entries = [...getEntries()].sort((a, b) => {
-      const da = a.dateFrom ? new Date(a.dateFrom) : new Date(0);
-      const db = b.dateFrom ? new Date(b.dateFrom) : new Date(0);
-      return db - da;
+    entries.forEach((entry) => {
+      const vesselId = entry.vesselId || "";
+      if (!groups.has(vesselId)) groups.set(vesselId, []);
+      groups.get(vesselId).push(entry);
     });
 
-    if (!entries.length) {
-      list.innerHTML = `
-        <div class="list-row">
-          <div>
-            <div class="list-title">No onboard experience yet</div>
-            <div class="list-sub">Add familiarisations, paint work, crane ops, and other yacht skills.</div>
-          </div>
-          <span class="pill">Draft</span>
-        </div>
-      `;
-      return;
-    }
+    const vessels = getVessels();
 
-    list.innerHTML = entries
-      .map((entry) => {
-        const entryId = entry.id || "";
-        const vessel = getVessels().find((v) => v.id === entry.vesselId);
-        const vesselName = vessel?.name || "—";
-        const categoryLabel = getOnboardCategoryLabel(entry.category);
-        const status = entry.status || "Draft";
-        const statusInfo = getStatusDisplay(status);
-        const signoff = entry.signoff || {};
-        const attachmentHtml = renderAttachmentSection(entry.attachment);
+    return [...groups.entries()]
+      .map(([vesselId, groupEntries]) => {
+        const vessel = vessels.find((v) => v.id === vesselId);
+        const sorted = [...groupEntries].sort((a, b) => {
+          const da = a.dateFrom ? new Date(a.dateFrom) : new Date(0);
+          const db = b.dateFrom ? new Date(b.dateFrom) : new Date(0);
+          return db - da;
+        });
+        const latestTime = sorted[0]?.dateFrom ? new Date(sorted[0].dateFrom).getTime() : 0;
+        const pendingCount = sorted.filter(
+          (e) => e.status === "Pending Sign-off" || e.status === "Draft" || !e.status
+        ).length;
+        const signedCount = sorted.filter((e) => e.status === "Signed Off").length;
+
+        return {
+          vesselId,
+          vesselName: vessel?.name || (vesselId ? "Unknown vessel" : "No vessel linked"),
+          entries: sorted,
+          latestTime,
+          pendingCount,
+          signedCount
+        };
+      })
+      .sort((a, b) => b.latestTime - a.latestTime);
+  }
+
+  function renderEntryCard(entry) {
+    const entryId = entry.id || "";
+    const categoryLabel = getOnboardCategoryLabel(entry.category);
+    const status = entry.status || "Draft";
+    const statusInfo = getStatusDisplay(status);
+    const signoff = entry.signoff || {};
+    const attachmentHtml = renderAttachmentSection(entry.attachment);
 
         const signoffHtml =
           status === "Signed Off"
@@ -314,7 +331,7 @@
 
             <div class="onboard-modern-body"${isExpanded ? "" : " hidden"}>
               <div class="onboard-modern-meta">
-                ${Seav.escapeHtml(vesselName)} • ${Seav.escapeHtml(categoryLabel)}
+                ${Seav.escapeHtml(categoryLabel)}
               </div>
 
               <div class="onboard-modern-meta">
@@ -360,8 +377,67 @@
             </div>
           </article>
         `;
-      })
-      .join("");
+  }
+
+  function renderVesselGroup(group) {
+    const isExpanded = expandedVesselIds.has(group.vesselId);
+    const entryLabel = group.entries.length === 1 ? "entry" : "entries";
+
+    const statusMetaParts = [`${group.entries.length} ${entryLabel}`];
+    if (group.pendingCount) statusMetaParts.push(`${group.pendingCount} awaiting sign-off`);
+    if (group.signedCount) statusMetaParts.push(`${group.signedCount} signed off`);
+
+    return `
+      <article class="onboard-vessel-group ui-card ui-accent-coral${isExpanded ? " is-expanded" : ""}" data-vessel-group-id="${Seav.escapeHtml(group.vesselId)}">
+
+        <button
+          type="button"
+          class="onboard-vessel-summary"
+          aria-expanded="${isExpanded ? "true" : "false"}"
+          data-toggle-vessel-id="${Seav.escapeHtml(group.vesselId)}"
+        >
+          <div class="onboard-vessel-summary-left">
+            <h3 class="onboard-vessel-name">${Seav.escapeHtml(group.vesselName)}</h3>
+            <span class="onboard-vessel-meta">${Seav.escapeHtml(statusMetaParts.join(" • "))}</span>
+          </div>
+          <div class="onboard-vessel-summary-right">
+            <span class="onboard-chevron" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </button>
+
+        <div class="onboard-vessel-body list"${isExpanded ? "" : " hidden"}>
+          ${group.entries.map((entry) => renderEntryCard(entry)).join("")}
+        </div>
+
+      </article>
+    `;
+  }
+
+  function renderList() {
+    const list = document.getElementById("oeList");
+    if (!list) return;
+
+    const entries = getEntries();
+
+    if (!entries.length) {
+      list.innerHTML = `
+        <div class="list-row">
+          <div>
+            <div class="list-title">No onboard experience yet</div>
+            <div class="list-sub">Add familiarisations, paint work, crane ops, and other yacht skills.</div>
+          </div>
+          <span class="pill">Draft</span>
+        </div>
+      `;
+      return;
+    }
+
+    const groups = groupEntriesByVessel(entries);
+    list.innerHTML = groups.map((group) => renderVesselGroup(group)).join("");
   }
 
   function openEntryModal(entry) {
@@ -587,6 +663,28 @@
     }
 
     document.addEventListener("click", async (e) => {
+      const toggleVesselBtn = e.target.closest("[data-toggle-vessel-id]");
+      if (toggleVesselBtn) {
+        e.preventDefault();
+        const vesselId = toggleVesselBtn.getAttribute("data-toggle-vessel-id") || "";
+        const group = toggleVesselBtn.closest(".onboard-vessel-group");
+        const body = group?.querySelector(".onboard-vessel-body");
+        if (!group || !body) return;
+
+        if (expandedVesselIds.has(vesselId)) {
+          expandedVesselIds.delete(vesselId);
+          group.classList.remove("is-expanded");
+          toggleVesselBtn.setAttribute("aria-expanded", "false");
+          body.setAttribute("hidden", "");
+        } else {
+          expandedVesselIds.add(vesselId);
+          group.classList.add("is-expanded");
+          toggleVesselBtn.setAttribute("aria-expanded", "true");
+          body.removeAttribute("hidden");
+        }
+        return;
+      }
+
       const toggleBtn = e.target.closest("[data-toggle-oe-id]");
       if (toggleBtn) {
         e.preventDefault();
