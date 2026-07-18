@@ -278,6 +278,150 @@
 }
 
 /* =========================================================
+   PHONE FIELD (country code + number)
+========================================================= */
+
+.profile-phone-field {
+  display: grid;
+  grid-template-columns: 128px 1fr;
+
+  gap: 10px;
+}
+
+.profile-phone-country {
+  min-width: 0;
+}
+
+/* =========================================================
+   CHIP FIELD (Passports Held)
+========================================================= */
+
+.profile-chip-field {
+  margin-top: 8px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.profile-chip-picker {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.profile-chip-picker select {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0 !important;
+}
+
+.profile-chip-picker .btn-ghost2 {
+  flex: none;
+}
+
+.profile-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.profile-chip-empty {
+  font-size: 13px;
+}
+
+.profile-chip {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 7px 8px 7px 14px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(91, 188, 255, 0.24);
+
+  background: rgba(91, 188, 255, 0.12);
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.profile-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+  height: 20px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  line-height: 1;
+
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.profile-chip-remove:hover {
+  background: rgba(220, 38, 38, 0.35);
+  color: #ffffff;
+}
+
+/* =========================================================
+   PHOTO FIELD
+========================================================= */
+
+.profile-photo-field {
+  margin-top: 8px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+}
+
+.profile-photo-thumb {
+  flex: none;
+
+  width: 72px;
+  height: 72px;
+
+  border-radius: 18px;
+  overflow: hidden;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(66, 214, 181, 0.22);
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.profile-photo-actions {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.profile-photo-hint {
+  font-size: 12px;
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
@@ -302,5 +446,13 @@
 
   .profile-info-box-full {
     grid-column: auto;
+  }
+
+  .profile-phone-field {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-photo-field {
+    align-items: flex-start;
   }
 }

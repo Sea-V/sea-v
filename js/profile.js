@@ -42,13 +42,71 @@
       dobYear: el("pf_dob_year"),
       location: el("pf_location"),
       email: el("pf_email"),
-      phone: el("pf_phone"),
-      passportsHeld: el("pf_passportsHeld"),
+      phoneCountry: el("pf_phone_country"),
+      phoneNumber: el("pf_phone_number"),
+      passportCountry: el("pf_passport_country"),
+      passportAdd: el("pf_passport_add"),
       visasHeld: el("pf_visasHeld"),
       availability: el("pf_availability"),
       bio: el("pf_bio"),
       photo: el("pf_photo")
     };
+
+    const passportChipsBox = el("pf_passport_chips");
+    const photoThumb = el("pfPhotoThumb");
+    const photoBtn = el("pfPhotoBtn");
+    const photoHint = el("pfPhotoHint");
+    const Countries = window.SeavCountries;
+
+    function flag(iso2) {
+      return Countries?.flagEmoji ? Countries.flagEmoji(iso2) : "";
+    }
+
+    // The Nationality/Passports/Phone-code dropdowns all draw from the same
+    // shared js/seav-countries.js list, so the three stay visually and
+    // alphabetically consistent instead of drifting apart over time.
+    function populateCountrySelects() {
+      const countries = Countries?.COUNTRIES || [];
+
+      if (fields.nationality) {
+        fields.nationality.innerHTML =
+          '<option value="">Select your nationality</option>' +
+          countries
+            .map((c) => `<option value="${Seav.escapeHtml(c.name)}">${flag(c.iso2)} ${Seav.escapeHtml(c.name)}</option>`)
+            .join("");
+      }
+
+      if (fields.passportCountry) {
+        fields.passportCountry.innerHTML =
+          '<option value="">Select a country to add</option>' +
+          countries
+            .map((c) => `<option value="${Seav.escapeHtml(c.name)}">${flag(c.iso2)} ${Seav.escapeHtml(c.name)}</option>`)
+            .join("");
+      }
+
+      if (fields.phoneCountry) {
+        fields.phoneCountry.innerHTML =
+          '<option value="">Code</option>' +
+          countries
+            .map((c) => `<option value="${c.iso2}">${flag(c.iso2)} ${Seav.escapeHtml(c.name)} (+${c.dial})</option>`)
+            .join("");
+      }
+    }
+
+    populateCountrySelects();
+
+    // Preserves a legacy free-text value (e.g. a nationality saved before
+    // this dropdown existed) as a selectable option instead of silently
+    // blanking the field the first time this page loads after the change.
+    function ensureSelectHasValue(select, value) {
+      if (!select || !value) return;
+      const exists = [...select.options].some((opt) => opt.value === value);
+      if (exists) return;
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = `${value} (previously entered)`;
+      select.insertBefore(opt, select.options[1] || null);
+    }
 
     const preview = {
       name: el("previewName"),
@@ -104,6 +162,136 @@
       return `${parts.day}/${parts.month}/${parts.year}`;
     }
 
+    // profile.phone stays a single plain string in storage (same column,
+    // same shape every other reader — CV export, public profile, etc. —
+    // already expects), the country-code select is purely an editing aid
+    // that composes/parses that string on the way in and out.
+    function splitPhone(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return { iso2: "", number: "" };
+      if (!raw.startsWith("+")) return { iso2: "", number: raw };
+
+      const digits = raw.slice(1);
+      const countries = Countries?.COUNTRIES || [];
+      // Longest dial code first so e.g. Barbados' "1246" matches before the
+      // shorter shared NANP "1".
+      const dials = [...new Set(countries.map((c) => c.dial))].sort((a, b) => b.length - a.length);
+      const matchedDial = dials.find((dial) => digits.startsWith(dial));
+      if (!matchedDial) return { iso2: "", number: raw };
+
+      const country = Countries?.getCountryByDial?.(matchedDial);
+      return { iso2: country?.iso2 || "", number: digits.slice(matchedDial.length).trim() };
+    }
+
+    function buildPhone(iso2, number) {
+      const trimmedNumber = String(number || "").trim();
+      const country = iso2 ? (Countries?.COUNTRIES || []).find((c) => c.iso2 === iso2) : null;
+      if (!country) return trimmedNumber;
+      return trimmedNumber ? `+${country.dial} ${trimmedNumber}` : `+${country.dial}`;
+    }
+
+    // profile.passportsHeld also stays a single comma-joined string in
+    // storage — same as before this field had chips — so nothing else that
+    // reads it needs to change.
+    let passportChips = [];
+
+    function renderPassportChips() {
+      if (!passportChipsBox) return;
+      if (!passportChips.length) {
+        passportChipsBox.innerHTML = '<span class="profile-chip-empty muted">No passports added yet</span>';
+        return;
+      }
+      passportChipsBox.innerHTML = passportChips
+        .map(
+          (name) => `
+            <span class="profile-chip">
+              ${Seav.escapeHtml(name)}
+              <button type="button" class="profile-chip-remove" data-name="${Seav.escapeHtml(name)}" aria-label="Remove ${Seav.escapeHtml(name)}">&times;</button>
+            </span>
+          `
+        )
+        .join("");
+    }
+
+    function setPassportChips(value) {
+      passportChips = String(value || "")
+        .split(",")
+        .map((token) => token.trim())
+        .filter(Boolean);
+      renderPassportChips();
+    }
+
+    function addPassportChip(name) {
+      const trimmed = String(name || "").trim();
+      if (!trimmed) return;
+      const exists = passportChips.some((chip) => chip.toLowerCase() === trimmed.toLowerCase());
+      if (exists) return;
+      passportChips = [...passportChips, trimmed];
+      renderPassportChips();
+      previewFromForm();
+    }
+
+    function removePassportChip(name) {
+      passportChips = passportChips.filter((chip) => chip !== name);
+      renderPassportChips();
+      previewFromForm();
+    }
+
+    if (fields.passportAdd) {
+      fields.passportAdd.addEventListener("click", () => {
+        const value = fields.passportCountry?.value || "";
+        if (!value) return;
+        addPassportChip(value);
+        fields.passportCountry.value = "";
+      });
+    }
+
+    if (passportChipsBox) {
+      passportChipsBox.addEventListener("click", (e) => {
+        const btn = e.target.closest(".profile-chip-remove");
+        if (!btn) return;
+        removePassportChip(btn.dataset.name || "");
+      });
+    }
+
+    if (photoBtn && fields.photo) {
+      photoBtn.addEventListener("click", () => fields.photo.click());
+    }
+
+    // Mirrors the same background-image treatment the Preview card's avatar
+    // already used — previously the form only had a bare <input type=file>
+    // with no indication a photo already existed, which read as "nothing
+    // uploaded" (a blank/empty control) even when one was.
+    function renderPhotoThumb(photoMeta, { isNewSelection = false } = {}) {
+      if (!photoThumb) return;
+
+      const photoUrl = Seav.getFileDisplayUrl(
+        photoMeta,
+        window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
+      );
+
+      if (photoUrl) {
+        const safeUrl = String(photoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+        photoThumb.style.backgroundImage = `url("${safeUrl}")`;
+      } else {
+        photoThumb.style.backgroundImage = "";
+      }
+
+      if (photoHint) {
+        if (isNewSelection) {
+          photoHint.textContent = "New photo selected — click Save Profile to apply";
+        } else if (photoUrl) {
+          photoHint.textContent = "Current photo";
+        } else {
+          photoHint.textContent = "No photo uploaded yet";
+        }
+      }
+
+      if (photoBtn) {
+        photoBtn.textContent = photoUrl ? "Change photo" : "Choose photo";
+      }
+    }
+
     function renderPreview(profile) {
       if (preview.name) preview.name.textContent = profile.name || "Your Name";
       if (preview.rank) preview.rank.textContent = profile.rank || "—";
@@ -149,8 +337,8 @@
         ),
         location: fields.location?.value.trim() || "",
         email: fields.email?.value.trim() || "",
-        phone: fields.phone?.value.trim() || "",
-        passportsHeld: fields.passportsHeld?.value.trim() || "",
+        phone: buildPhone(fields.phoneCountry?.value || "", fields.phoneNumber?.value || ""),
+        passportsHeld: passportChips.join(", "),
         visasHeld: fields.visasHeld?.value.trim() || "",
         availability: fields.availability?.value || "Available Immediately",
         bio: fields.bio?.value.trim() || "",
@@ -174,17 +362,26 @@
       if (fields.name) fields.name.value = profile.name || "";
       if (fields.rank) fields.rank.value = profile.rank || "";
       if (fields.qualification) fields.qualification.value = profile.qualification || "";
-      if (fields.nationality) fields.nationality.value = profile.nationality || "";
+      if (fields.nationality) {
+        ensureSelectHasValue(fields.nationality, profile.nationality);
+        fields.nationality.value = profile.nationality || "";
+      }
       if (fields.dobDay) fields.dobDay.value = dobParts.day || "";
       if (fields.dobMonth) fields.dobMonth.value = dobParts.month || "";
       if (fields.dobYear) fields.dobYear.value = dobParts.year || "";
       if (fields.location) fields.location.value = profile.location || "";
       if (fields.email) fields.email.value = profile.email || "";
-      if (fields.phone) fields.phone.value = profile.phone || "";
-      if (fields.passportsHeld) fields.passportsHeld.value = profile.passportsHeld || "";
+
+      const phoneParts = splitPhone(profile.phone);
+      if (fields.phoneCountry) fields.phoneCountry.value = phoneParts.iso2 || "";
+      if (fields.phoneNumber) fields.phoneNumber.value = phoneParts.number || "";
+
+      setPassportChips(profile.passportsHeld);
       if (fields.visasHeld) fields.visasHeld.value = profile.visasHeld || "";
       if (fields.availability) fields.availability.value = profile.availability || "Available Immediately";
       if (fields.bio) fields.bio.value = profile.bio || "";
+
+      renderPhotoThumb(profile.photo, { isNewSelection: false });
     }
 
     let previewObjectUrl = null;
@@ -208,6 +405,8 @@
         previewObjectUrl = URL.createObjectURL(formData.file);
         previewPhoto = { dataUrl: previewObjectUrl };
       }
+
+      renderPhotoThumb(previewPhoto, { isNewSelection: !!formData.file });
 
       renderPreview({
         ...current,

@@ -12,25 +12,26 @@
 
   <title>SEA-V • Profile</title>
 
-  <link rel="stylesheet" href="styles.css?v=169" />
+  <link rel="stylesheet" href="styles.css?v=170" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=169"></script>
-  <script src="js/supabase.js?v=169"></script>
-  <script src="js/auth.js?v=169"></script>
-  <script src="js/feedback.js?v=169" defer></script>
-  <script src="js/core.js?v=169" defer></script>
+  <script src="js/seav-config.js?v=170"></script>
+  <script src="js/supabase.js?v=170"></script>
+  <script src="js/auth.js?v=170"></script>
+  <script src="js/feedback.js?v=170" defer></script>
+  <script src="js/core.js?v=170" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=169" defer></script>
-  <script src="js/seav-data.js?v=169" defer></script>
-  <script src="js/seav-badges.js?v=169" defer></script>
-  <script src="js/api-core.js?v=169" defer></script>
-  <script src="js/api-mappers.js?v=169" defer></script>
-  <script src="js/api.js?v=169" defer></script>
-  <script src="js/state.js?v=169" defer></script>
-  <script src="js/achievements-engine.js?v=169" defer></script>
-  <script src="js/badge-unlock.js?v=169" defer></script>
-  <script src="js/profile.js?v=169" defer></script>
+  <script src="js/seav-upload.js?v=170" defer></script>
+  <script src="js/seav-countries.js?v=170" defer></script>
+  <script src="js/seav-data.js?v=170" defer></script>
+  <script src="js/seav-badges.js?v=170" defer></script>
+  <script src="js/api-core.js?v=170" defer></script>
+  <script src="js/api-mappers.js?v=170" defer></script>
+  <script src="js/api.js?v=170" defer></script>
+  <script src="js/state.js?v=170" defer></script>
+  <script src="js/achievements-engine.js?v=170" defer></script>
+  <script src="js/badge-unlock.js?v=170" defer></script>
+  <script src="js/profile.js?v=170" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -102,7 +103,9 @@
 
             <label>
               Nationality
-              <input id="pf_nationality" placeholder="Your nationality or citizenship" />
+              <select id="pf_nationality">
+                <option value="">Select your nationality</option>
+              </select>
             </label>
 
             <!-- DOB -->
@@ -177,15 +180,32 @@
               <input type="email" id="pf_email" placeholder="Contact email for employers" />
             </label>
 
-            <label>
-              Phone
-              <input id="pf_phone" placeholder="Phone number with country code" />
-            </label>
+            <div>
+              <label>Phone</label>
 
-            <label>
-              Passports Held
-              <textarea id="pf_passportsHeld" rows="2" placeholder="Nationalities on your passport(s)"></textarea>
-            </label>
+              <div class="profile-phone-field">
+                <select id="pf_phone_country" class="profile-phone-country" aria-label="Phone country code">
+                  <option value="">Code</option>
+                </select>
+                <input id="pf_phone_number" class="profile-phone-number" placeholder="Phone number" inputmode="tel" />
+              </div>
+            </div>
+
+            <div>
+              <label>Passports Held</label>
+
+              <div class="profile-chip-field">
+                <div class="profile-chip-picker">
+                  <select id="pf_passport_country" aria-label="Add a passport country">
+                    <option value="">Select a country to add</option>
+                  </select>
+                  <button type="button" class="btn-ghost2" id="pf_passport_add">Add</button>
+                </div>
+                <div class="profile-chip-list" id="pf_passport_chips">
+                  <span class="profile-chip-empty muted">No passports added yet</span>
+                </div>
+              </div>
+            </div>
 
             <label>
               Visas Held
@@ -207,10 +227,18 @@
               <textarea id="pf_bio" rows="4" placeholder="Describe your career path, growth, and goals at sea"></textarea>
             </label>
 
-            <label>
-              Profile Photo
-              <input type="file" id="pf_photo" accept="image/*" />
-            </label>
+            <div>
+              <label>Profile Photo</label>
+
+              <div class="profile-photo-field">
+                <div class="profile-photo-thumb" id="pfPhotoThumb" aria-label="Current profile photo"></div>
+                <div class="profile-photo-actions">
+                  <button type="button" class="btn-ghost2" id="pfPhotoBtn">Choose photo</button>
+                  <input type="file" id="pf_photo" accept="image/*" hidden />
+                  <p class="profile-photo-hint muted" id="pfPhotoHint">No photo uploaded yet</p>
+                </div>
+              </div>
+            </div>
 
             <button class="btn-blue" type="submit">Save Profile</button>
 
