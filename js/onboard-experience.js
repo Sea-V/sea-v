@@ -417,11 +417,32 @@
     `;
   }
 
+  // js/core.js's bindStateRefresh reruns this page's refresh on EVERY
+  // "seav:data-updated" event app-wide — not just changes to onboard
+  // experience data. That event also fires for things with nothing to do
+  // with this page (background signed-URL re-hydration for another table,
+  // a save on a completely different page in another tab sharing this
+  // session, etc.). Rebuilding list.innerHTML unconditionally on every one
+  // of those tears down and recreates every vessel group and entry card —
+  // including whichever one the user currently has expanded — producing a
+  // visible flash/flicker even though the resulting HTML is identical.
+  // Skip the rebuild entirely unless the data that actually feeds this
+  // list (entries + vessel names) has changed since the last render.
+  let lastRenderedFingerprint = null;
+
   function renderList() {
     const list = document.getElementById("oeList");
     if (!list) return;
 
     const entries = getEntries();
+    const vessels = getVessels();
+    const fingerprint = JSON.stringify({
+      entries,
+      vessels: vessels.map((v) => [v.id, v.name])
+    });
+
+    if (fingerprint === lastRenderedFingerprint) return;
+    lastRenderedFingerprint = fingerprint;
 
     if (!entries.length) {
       list.innerHTML = `
