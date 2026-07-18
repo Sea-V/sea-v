@@ -340,62 +340,78 @@ function getDashboardRouteDistance(coords) {
   return total;
 }
 
-// Straight-line haversine understates real distance (it ignores land and sea
-// lanes), which is why this used to show a different "Total distance" than
-// navigation.html. When js/navigation-passage.js is loaded, look up each
-// entry's routed distance (same calculation navigation.html's own log list
-// uses — see js/navigation-list.js's buildDistanceMap) and prefer that;
-// otherwise fall back to the straight-line sum so nothing breaks if that
-// script isn't available.
-async function buildDashboardDistanceMap(entries) {
-  const distances = new Map();
+// The dashboard mini-map used to draw a straight line through only the
+// stored from/waypoints/to anchors (getDashboardRouteCoords below) — never
+// the actual curved sea-route navigation.html's own map draws
+// (js/navigation-map.js uses SeavNavigationPassage.buildPassagePaths, which
+// great-circle-interpolates direct legs and routes along sea lanes when
+// available). That's why editing a passage's route on navigation.html never
+// visibly changed anything on the dashboard: the dashboard was never
+// plotting that route to begin with, just a straight chord between anchors.
+// Reuse the same buildPassagePaths() navigation.html uses so both maps show
+// the same line for the same passage. Falls back to the old straight-anchor
+// behaviour only if navigation-passage.js somehow isn't loaded.
+async function buildDashboardPassagePaths(entries) {
   const P = window.SeavNavigationPassage;
-  if (!P?.getEntryRoute) return distances;
+  const H = window.SeavNavigationHelpers;
+  if (P?.buildPassagePaths) {
+    try {
+      // buildPassagePaths (like navigation.html's own loadNavEntries) expects
+      // normalized camelCase fields (entry.fromLat, not entry.from_lat) to
+      // detect a routable entry at all — feeding it raw/un-normalized entries
+      // silently produces zero paths rather than an error.
+      const normalized = H?.normalizeNavEntry ? entries.map(H.normalizeNavEntry) : entries;
+      return await P.buildPassagePaths(normalized);
+    } catch (error) {
+      console.warn("[SEA-V] Dashboard routed passage paths failed:", error);
+    }
+  }
 
-  await Promise.all(
-    entries.map(async (entry) => {
-      try {
-        const route = await P.getEntryRoute(entry);
-        if (route?.distanceNm) distances.set(entry.id, route.distanceNm);
-      } catch (error) {
-        console.warn("[SEA-V] Dashboard routed distance failed:", error);
-      }
+  return entries
+    .map((entry) => {
+      const coords = getDashboardRouteCoords(entry);
+      if (coords.length < 2) return null;
+      const vesselId = entry.vesselId || entry.vessel_id || "";
+      return {
+        coords,
+        color: getDashboardVesselColor(vesselId),
+        distanceNm: getDashboardRouteDistance(coords),
+        vesselId,
+        vesselName: getDashboardVesselName(vesselId),
+        fromPort: entry.fromPort || entry.from_port || "",
+        toPort: entry.toPort || entry.to_port || entry.port || "",
+        fromCountry: entry.fromCountry || entry.from_country || "",
+        toCountry: entry.toCountry || entry.to_country || entry.country || "",
+        passageName: entry.passageName || entry.passage_name || ""
+      };
     })
-  );
-
-  return distances;
+    .filter(Boolean);
 }
 
-function buildDashboardNavigationStats(entries, distanceMap) {
-  const routeEntries = entries
-    .map((entry) => ({ entry, coords: getDashboardRouteCoords(entry) }))
-    .filter((item) => item.coords.length >= 2);
+function buildDashboardNavigationStats(paths) {
   const countries = new Set();
   const vessels = new Map();
   let totalNm = 0;
 
-  routeEntries.forEach(({ entry, coords }) => {
-    const routedNm = distanceMap?.get(entry.id);
-    totalNm += Number.isFinite(routedNm) ? routedNm : getDashboardRouteDistance(coords);
+  paths.forEach((path) => {
+    totalNm += Number(path.distanceNm) || 0;
 
-    const fromCountry = entry.fromCountry || entry.from_country || "";
-    const toCountry = entry.toCountry || entry.to_country || entry.country || "";
-    if (fromCountry) countries.add(fromCountry);
-    if (toCountry) countries.add(toCountry);
+    if (path.fromCountry) countries.add(path.fromCountry);
+    if (path.toCountry) countries.add(path.toCountry);
 
-    const vesselId = entry.vesselId || entry.vessel_id || "";
+    const vesselId = path.vesselId || "";
     if (!vessels.has(vesselId)) {
       vessels.set(vesselId, {
         id: vesselId,
-        name: getDashboardVesselName(vesselId),
+        name: path.vesselName || getDashboardVesselName(vesselId),
         passages: 0,
         countries: new Set()
       });
     }
     const vessel = vessels.get(vesselId);
     vessel.passages += 1;
-    if (fromCountry) vessel.countries.add(fromCountry);
-    if (toCountry) vessel.countries.add(toCountry);
+    if (path.fromCountry) vessel.countries.add(path.fromCountry);
+    if (path.toCountry) vessel.countries.add(path.toCountry);
   });
 
   const vesselRows = [...vessels.values()]
@@ -403,7 +419,7 @@ function buildDashboardNavigationStats(entries, distanceMap) {
     .slice(0, 4);
 
   return {
-    routes: routeEntries,
+    paths,
     totalNm,
     countries: countries.size,
     vessels: vessels.size,
@@ -558,11 +574,10 @@ async function renderNavigationSnippet() {
     return;
   }
 
-  let distanceMap;
   let stats;
   try {
-    distanceMap = await buildDashboardDistanceMap(entries);
-    stats = buildDashboardNavigationStats(entries, distanceMap);
+    const paths = await buildDashboardPassagePaths(entries);
+    stats = buildDashboardNavigationStats(paths);
   } catch (error) {
     // Surface the real reason on-screen. Previously a throw here (before any
     // map code even ran) left the card silently blank with only a console
@@ -586,7 +601,7 @@ async function renderNavigationSnippet() {
         </div>
         <div class="dashboard-navigation-stat">
           <span>Passages</span>
-          <strong>${stats.routes.length}</strong>
+          <strong>${stats.paths.length}</strong>
         </div>
         <div class="dashboard-navigation-stat">
           <span>Countries</span>
@@ -672,11 +687,13 @@ function drawDashboardNavigationChart(container, stats, retryAttempt = 0, render
     dashNavigationLayer.clearLayers();
 
     const bounds = [];
-    stats.routes.forEach(({ entry, coords }) => {
-      const vesselId = entry.vesselId || entry.vessel_id || "";
-      const color = getDashboardVesselColor(vesselId);
-      const from = entry.fromPort || entry.from_port || "Departure";
-      const to = entry.toPort || entry.to_port || entry.port || "Arrival";
+    stats.paths.forEach((path) => {
+      const coords = path.coords || [];
+      if (coords.length < 2) return;
+      const vesselId = path.vesselId || "";
+      const color = path.color || getDashboardVesselColor(vesselId);
+      const from = path.fromPort || "Departure";
+      const to = path.toPort || path.port || "Arrival";
       const line = L.polyline(coords, {
         color,
         weight: 2,
@@ -687,7 +704,7 @@ function drawDashboardNavigationChart(container, stats, retryAttempt = 0, render
 
       line.bindTooltip(`${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`, { sticky: true });
       line.bindPopup(
-        `<strong>${Seav.escapeHtml(entry.passageName || entry.passage_name || getDashboardVesselName(vesselId))}</strong><br/>${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`
+        `<strong>${Seav.escapeHtml(path.passageName || path.vesselName || getDashboardVesselName(vesselId))}</strong><br/>${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`
       );
       dashNavigationLayer.addLayer(line);
 
