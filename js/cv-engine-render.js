@@ -6,7 +6,7 @@
   const {
     escapeHtml, splitParagraphs,
     getVesselRole, formatVesselSubline,
-    formatProfileDob, splitProfileLines, LOGO_SRC
+    formatProfileDob, splitProfileLines, splitProfileList, LOGO_SRC
   } = M;
   function renderBrandMark(showBranding) {
     if (!showBranding) return "";
@@ -50,7 +50,7 @@
   function renderSeavNationality(profile) {
     const lines = [];
     if (profile.nationality) lines.push(profile.nationality);
-    splitProfileLines(profile.passportsHeld).forEach((line) => lines.push(line));
+    splitProfileList(profile.passportsHeld).forEach((line) => lines.push(line));
     splitProfileLines(profile.visasHeld).forEach((line) => lines.push(line));
     if (!lines.length) return "";
     return lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("");

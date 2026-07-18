@@ -10,7 +10,7 @@
   "use strict";
   const M = window.SeavCvModel;
   if (!M) return;
-  const { formatVesselSubline, formatProfileDob, splitProfileLines, splitParagraphs } = M;
+  const { formatVesselSubline, formatProfileDob, splitProfileLines, splitProfileList, splitParagraphs } = M;
 
   const ACCENT = "1F3864";
   const MUTED = "555555";
@@ -147,7 +147,7 @@
 
     const nationalityLines = [];
     if (profile.nationality) nationalityLines.push(profile.nationality);
-    (splitProfileLines ? splitProfileLines(profile.passportsHeld) : []).forEach((l) => nationalityLines.push(l));
+    (splitProfileList ? splitProfileList(profile.passportsHeld) : []).forEach((l) => nationalityLines.push(l));
     (splitProfileLines ? splitProfileLines(profile.visasHeld) : []).forEach((l) => nationalityLines.push(l));
     if (nationalityLines.length) {
       parts.push(sidebarHeading("Nationality & Visas"));

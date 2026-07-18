@@ -202,6 +202,19 @@
       .filter(Boolean);
   }
 
+  // Passports Held moved from a free-text textarea to the profile page's
+  // country-chip picker, which stores multiple passports as one comma-joined
+  // string (e.g. "United Kingdom, Ireland") rather than one-per-line. This
+  // still handles old newline-separated data too, so nothing already saved
+  // gets dropped. Visas Held is still a plain textarea, so it stays on
+  // splitProfileLines (newline-only) below.
+  function splitProfileList(value) {
+    return String(value || "")
+      .split(/[\n,]+/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+  }
+
   function certPriority(cert) {
     const code = normalizeCode(cert?.code || "");
     if (code === "STCW A-II/1") return 0;
@@ -589,7 +602,7 @@
     normalizeCode, escapeHtml, formatCvDate, formatCvDateRange, formatYear,
     splitParagraphs, splitBullets, sortByDateDesc, compareVesselsChronologicalDesc,
     getVesselRole, getVesselType, formatVesselSize, formatVesselMeta, formatVesselSubline,
-    formatProfileDob, getReferenceItems, splitProfileLines, certPriority, getCertDisplayName,
+    formatProfileDob, getReferenceItems, splitProfileLines, splitProfileList, certPriority, getCertDisplayName,
     getPhotoUrl, buildCvSource, getVesselExperience, buildAutoBullets,
     getProfileCareerOverview, buildFallbackSummary, buildAutoSummary, normalizeOverviewText,
     shouldUseProfileCareerOverview, buildAutoHeadline, getDefaultSections,
