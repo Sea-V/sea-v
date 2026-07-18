@@ -43,6 +43,12 @@
   let ppNavigationChart = null;
   let ppNavigationLayer = null;
 
+  // Tracks which vessel groups are open in the onboard experience section
+  // (keyed by vesselId, "" for "no vessel linked"). Kept in a Set rather
+  // than read back from the DOM so expand state survives a full section
+  // re-render — see the click handler and renderOnboardExperience below.
+  const expandedOnboardVesselIds = new Set();
+
   function destroyPublicNavigationChart() {
     if (!ppNavigationChart) return;
     try {
@@ -496,16 +502,100 @@
     schedulePublicNavigationChartPaint(container, stats, vessels, navigationAreas);
   }
 
+  // Same grouping shape as the edit page's js/onboard-experience.js — one
+  // collapsible row per vessel, most-recently-dated vessel first, entries
+  // within a group sorted most-recent-first. A flat list of every entry got
+  // hard to scan once there were several vessels' worth logged, same
+  // complaint that drove the edit page's grouping.
+  function groupOnboardEntriesByVessel(entries, vessels) {
+    const groups = new Map();
+
+    entries.forEach((entry) => {
+      const vesselId = entry.vesselId || "";
+      if (!groups.has(vesselId)) groups.set(vesselId, []);
+      groups.get(vesselId).push(entry);
+    });
+
+    return [...groups.entries()]
+      .map(([vesselId, groupEntries]) => {
+        const vessel = (vessels || []).find((v) => v.id === vesselId);
+        const sorted = [...groupEntries].sort((a, b) => {
+          const da = a.dateFrom ? new Date(a.dateFrom) : new Date(0);
+          const db = b.dateFrom ? new Date(b.dateFrom) : new Date(0);
+          return db - da;
+        });
+        const latestTime = sorted[0]?.dateFrom ? new Date(sorted[0].dateFrom).getTime() : 0;
+
+        return {
+          vesselId,
+          vesselName: vessel?.name || (vesselId ? "Unknown vessel" : "No vessel linked"),
+          entries: sorted,
+          latestTime
+        };
+      })
+      .sort((a, b) => b.latestTime - a.latestTime);
+  }
+
+  // Note on toggle wiring: this does NOT use the page's generic
+  // data-pp-expand / bindExpandToggles convention. That handler
+  // unconditionally overwrites btn.textContent on every click (fine for
+  // plain-text "Show more" buttons), which would destroy this button's two
+  // child <span>s (vessel name + entry count) after the very first click.
+  // Instead this uses a dedicated classList/aria-expanded/hidden toggle —
+  // the same non-destructive pattern the edit page's onboard-experience.js
+  // uses for its own vessel groups — wired up below via a delegated click
+  // handler bound once when this script loads.
+  function buildOnboardVesselGroup(group, vessels) {
+    const groupKey = group.vesselId || "none";
+    const groupId = `ppOnboardVessel-${Seav.escapeHtml(groupKey)}`;
+    const isExpanded = expandedOnboardVesselIds.has(group.vesselId);
+    const entryLabel = group.entries.length === 1 ? "entry" : "entries";
+
+    // Row markup lives in js/seav-cards.js (shared with the dashboard
+    // snippet). expandable: true adds a per-row "Details" toggle
+    // (description, dates, hours, location onboard, attachment).
+    // hideVesselName: true because the vessel is now the group heading —
+    // repeating it on every row inside was redundant.
+    const rows = group.entries
+      .map((entry) =>
+        window.SeavCards.buildOnboardRow(entry, vessels, {
+          statusFallback: "—",
+          expandable: true,
+          hideVesselName: true
+        })
+      )
+      .join("");
+
+    return `
+      <div class="public-onboard-vessel-group${isExpanded ? " is-expanded" : ""}">
+        <button
+          type="button"
+          class="public-onboard-vessel-summary"
+          data-toggle-onboard-vessel="${Seav.escapeHtml(group.vesselId)}"
+          aria-expanded="${isExpanded ? "true" : "false"}"
+          aria-controls="${groupId}"
+        >
+          <span class="public-onboard-vessel-name">${Seav.escapeHtml(group.vesselName)}</span>
+          <span class="public-onboard-vessel-count">${group.entries.length} ${entryLabel}</span>
+          <span class="public-onboard-vessel-chevron" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="list public-onboard-vessel-body" id="${groupId}"${isExpanded ? "" : " hidden"}>
+          ${rows}
+        </div>
+      </div>
+    `;
+  }
+
   function renderOnboardExperience(onboardEntries, vessels) {
     const box = document.getElementById("ppOperationsSnippet");
     const section = document.getElementById("ppOperationsSection");
     if (!box || !section) return;
 
-    const entries = [...(onboardEntries || [])].sort((a, b) => {
-      const da = a.dateFrom ? new Date(a.dateFrom) : new Date(0);
-      const db = b.dateFrom ? new Date(b.dateFrom) : new Date(0);
-      return db - da;
-    });
+    const entries = onboardEntries || [];
 
     if (!entries.length) {
       section.hidden = true;
@@ -513,34 +603,45 @@
       return;
     }
 
-    const visible = entries.slice(0, LIMITS.operations);
-    const hidden = entries.slice(LIMITS.operations);
-    const moreId = "ppOnboardMore";
-
-    // Row markup lives in js/seav-cards.js (shared with the dashboard snippet).
-    // expandable: true adds a per-row "Details" toggle (description, dates,
-    // hours, location onboard, attachment) — public-profile only, dashboard
-    // keeps the plain row.
-    const buildRow = (entry) =>
-      window.SeavCards.buildOnboardRow(entry, vessels, { statusFallback: "—", expandable: true });
+    const groups = groupOnboardEntriesByVessel(entries, vessels);
 
     box.innerHTML = `
-      <div class="list">
-        ${visible.map((entry) => buildRow(entry).replace(" data-pp-more-item", "")).join("")}
-        ${
-          hidden.length
-            ? `<div class="public-cv-more-block" id="${moreId}" hidden>
-                <div class="list">${hidden.map(buildRow).join("")}</div>
-              </div>`
-            : ""
-        }
+      <div class="public-onboard-vessel-list">
+        ${groups.map((group) => buildOnboardVesselGroup(group, vessels)).join("")}
       </div>
-      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "entries") : ""}
     `;
 
     setSectionCount("ppOnboardCount", entries.length);
     section.hidden = false;
   }
+
+  // Delegated, bound once at script load — mirrors the edit page's own
+  // [data-toggle-vessel-id] handler in js/onboard-experience.js. Reading
+  // expand state back out of expandedOnboardVesselIds (rather than the DOM)
+  // in buildOnboardVesselGroup means this survives the full-section
+  // re-render that happens on every "seav:data-updated" event.
+  document.addEventListener("click", (e) => {
+    const toggleBtn = e.target.closest("[data-toggle-onboard-vessel]");
+    if (!toggleBtn) return;
+    e.preventDefault();
+
+    const vesselKey = toggleBtn.getAttribute("data-toggle-onboard-vessel") || "";
+    const group = toggleBtn.closest(".public-onboard-vessel-group");
+    const body = group?.querySelector(".public-onboard-vessel-body");
+    if (!group || !body) return;
+
+    if (expandedOnboardVesselIds.has(vesselKey)) {
+      expandedOnboardVesselIds.delete(vesselKey);
+      group.classList.remove("is-expanded");
+      toggleBtn.setAttribute("aria-expanded", "false");
+      body.setAttribute("hidden", "");
+    } else {
+      expandedOnboardVesselIds.add(vesselKey);
+      group.classList.add("is-expanded");
+      toggleBtn.setAttribute("aria-expanded", "true");
+      body.removeAttribute("hidden");
+    }
+  });
 
   function renderHobbiesInterests(entries) {
     const box = document.getElementById("ppHobbiesSnippet");

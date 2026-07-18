@@ -193,13 +193,24 @@
       ? ` <span class="onboard-familiarisation-pill">Familiarisation</span>`
       : "";
 
+    // When entries are already grouped under a vessel heading (public profile's
+    // grouped onboard-experience section), repeating the vessel name on every
+    // row inside that group is redundant — same fix already applied to the
+    // edit page's per-entry meta line when it moved to vessel grouping.
+    const metaLine = [
+      options.hideVesselName ? null : Seav.escapeHtml(vessel?.name || "—"),
+      Seav.escapeHtml(getLabel(entry.category))
+    ]
+      .filter(Boolean)
+      .join(" • ");
+
     if (!options.expandable) {
       return `
         <div class="list-row" data-pp-more-item>
           <div style="min-width:0;">
             <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
             <div class="list-sub">
-              ${Seav.escapeHtml(vessel?.name || "—")} • ${Seav.escapeHtml(getLabel(entry.category))}${familiarisationHtml}
+              ${metaLine}${familiarisationHtml}
             </div>
           </div>
           <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
@@ -247,7 +258,7 @@
         <div style="min-width:0;">
           <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
           <div class="list-sub">
-            ${Seav.escapeHtml(vessel?.name || "—")} • ${Seav.escapeHtml(getLabel(entry.category))}${familiarisationHtml}
+            ${metaLine}${familiarisationHtml}
           </div>
         </div>
         <div class="onboard-row-actions">
