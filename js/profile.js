@@ -22,7 +22,7 @@
     return;
   }
 
-  const { KEYS, DEFAULT_PROFILE } = window.SeavData;
+  const { KEYS, DEFAULT_PROFILE, getSavedCertificates } = window.SeavData;
 
   document.addEventListener("DOMContentLoaded", initProfile);
 
@@ -94,6 +94,40 @@
     }
 
     populateCountrySelects();
+
+    // "Current Qualification" used to be free text. Now it draws from the
+    // certificates the crew member has actually saved on the Certificates
+    // page (matching CV generator/public profile conventions for what
+    // counts as a "saved" cert), so the value picked here is guaranteed to
+    // correspond to a real logged cert. Certs load in the background after
+    // profile.html's initial paint (see js/state.js's deferred-key
+    // hydration for this page), so this also gets called again from
+    // refreshProfileView() once bindStateRefresh's "seav:data-updated"
+    // fires with the fetched certs — not just once at init.
+    function populateQualificationOptions() {
+      const select = fields.qualification;
+      if (!select) return;
+
+      const certs = getSavedCertificates
+        ? getSavedCertificates(window.SeavState?.certs || [])
+        : [];
+      const sorted = [...certs].sort((a, b) =>
+        String(a.name || "").localeCompare(String(b.name || ""))
+      );
+
+      const current = select.value || "";
+      select.innerHTML =
+        '<option value="">Select a certificate you hold</option>' +
+        sorted
+          .map(
+            (cert) =>
+              `<option value="${Seav.escapeHtml(cert.name)}">${Seav.escapeHtml(cert.name)}</option>`
+          )
+          .join("");
+      if (current) select.value = current;
+    }
+
+    populateQualificationOptions();
 
     // Preserves a legacy free-text value (e.g. a nationality saved before
     // this dropdown existed) as a selectable option instead of silently
@@ -361,7 +395,10 @@
 
       if (fields.name) fields.name.value = profile.name || "";
       if (fields.rank) fields.rank.value = profile.rank || "";
-      if (fields.qualification) fields.qualification.value = profile.qualification || "";
+      if (fields.qualification) {
+        ensureSelectHasValue(fields.qualification, profile.qualification);
+        fields.qualification.value = profile.qualification || "";
+      }
       if (fields.nationality) {
         ensureSelectHasValue(fields.nationality, profile.nationality);
         fields.nationality.value = profile.nationality || "";
@@ -388,6 +425,7 @@
 
     function refreshProfileView() {
       const profile = loadProfile();
+      populateQualificationOptions();
       fillForm(profile);
       renderPreview(profile);
     }
