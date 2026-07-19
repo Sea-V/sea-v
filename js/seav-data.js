@@ -106,7 +106,7 @@
     {
       code: "PST",
       name: "Personal Survival Techniques (PST)",
-      stcwRef: "STCW A-VI/1",
+      stcwRef: "STCW A-VI/1-1",
       summary:
         "Core BST module — survival at sea, lifejackets, liferafts, and abandon-ship procedures.",
       topics: [
@@ -120,7 +120,7 @@
     {
       code: "FPFF",
       name: "Fire Prevention and Fire Fighting (FPFF)",
-      stcwRef: "STCW A-VI/1",
+      stcwRef: "STCW A-VI/1-2",
       summary:
         "Core BST module — fire prevention, equipment, and practical firefighting drills.",
       topics: [
@@ -134,7 +134,7 @@
     {
       code: "EFA",
       name: "Elementary First Aid (EFA)",
-      stcwRef: "STCW A-VI/1",
+      stcwRef: "STCW A-VI/1-3",
       summary:
         "Core BST module — emergency first response and casualty care at sea.",
       topics: [
@@ -148,7 +148,7 @@
     {
       code: "PSSR",
       name: "Personal Safety and Social Responsibilities (PSSR)",
-      stcwRef: "STCW A-VI/1",
+      stcwRef: "STCW A-VI/1-4",
       summary:
         "Core BST module — safe working practices, pollution prevention, and teamwork onboard.",
       topics: [
@@ -230,12 +230,12 @@
     {
       label: "Navigation, bridge & GMDSS",
       certs: [
-        { code: "GMDSS GOC", name: "GMDSS General Operator's Certificate (GOC)" },
-        { code: "GMDSS ROC", name: "GMDSS Restricted Operator's Certificate (ROC)" },
-        { code: "ECDIS", name: "ECDIS Generic Training" },
+        { code: "GMDSS GOC", name: "GMDSS General Operator's Certificate (GOC)", stcwRef: "STCW A-IV/2" },
+        { code: "GMDSS ROC", name: "GMDSS Restricted Operator's Certificate (ROC)", stcwRef: "STCW A-IV/2" },
+        { code: "ECDIS", name: "ECDIS Generic Training", stcwRef: "STCW A-II/1, A-II/2" },
         { code: "ARPA", name: "Radar / ARPA Operational" },
-        { code: "HELM-O", name: "HELM Operational" },
-        { code: "HELM-M", name: "HELM Management" },
+        { code: "HELM-O", name: "HELM Operational", stcwRef: "STCW A-II/1" },
+        { code: "HELM-M", name: "HELM Management", stcwRef: "STCW A-II/2" },
         { code: "NAEST-O", name: "NAEST Operational" },
         { code: "NAEST-M", name: "NAEST Management" },
         { code: "BTM", name: "Bridge Team Management" },
@@ -363,7 +363,7 @@
       }
       const group = groups.get(label);
       if (row.is_mandatory) group.isMandatory = true;
-      group.certs.push({ code: row.code, name: row.name });
+      group.certs.push({ code: row.code, name: row.name, stcwRef: row.stcw_ref || "" });
     }
 
     const result = [...groups.values()];
@@ -394,7 +394,8 @@
         isMandatory: true,
         certs: MANDATORY_CERTS.map((item) => ({
           code: item.code,
-          name: item.name
+          name: item.name,
+          stcwRef: item.stcwRef || ""
         }))
       },
       ...CERT_CATALOG_GROUPS
@@ -406,6 +407,7 @@
       (group.certs || []).map((cert) => ({
         code: cert.code,
         name: cert.name,
+        stcwRef: cert.stcwRef || "",
         isMandatory: !!group.isMandatory,
         isTemplate: true,
         group: group.label

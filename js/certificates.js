@@ -349,7 +349,9 @@
       if (item.code !== CUSTOM && taken.has(normCode(item.code)) && normCode(item.code) !== editCode) {
         return;
       }
-      const label = `${item.name} (${item.code})`;
+      const label = item.stcwRef
+        ? `${item.name} (${item.code}) — ${item.stcwRef}`
+        : `${item.name} (${item.code})`;
       const opt = new Option(label, item.code);
       if (normCode(item.code) === editCode) opt.selected = true;
       select.appendChild(opt);
