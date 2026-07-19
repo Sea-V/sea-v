@@ -54,11 +54,13 @@
   }
 
   function escapeHtml(value) {
+    if (window.Seav?.escapeHtml) return window.Seav.escapeHtml(value);
     return String(value || "")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   function showError(message) {
