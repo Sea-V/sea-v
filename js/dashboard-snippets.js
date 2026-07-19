@@ -26,6 +26,28 @@
   let dashNavigationLayer = null;
   let dashNavigationRenderId = 0;
 
+  // js/core.js's bindStateRefresh reruns the dashboard's full refresh() on
+  // EVERY "seav:data-updated" event app-wide — not just changes to a given
+  // card's own data (background signed-URL re-hydration, a save on a
+  // completely different page in another tab, etc.). Every snippet renderer
+  // below used to rebuild its card's innerHTML unconditionally on each of
+  // those calls, tearing down and recreating <img> photo elements and (worse)
+  // destroying/remounting the whole Leaflet navigation map every time — a
+  // visible flash even though the result was identical, most noticeable on
+  // Safari. renderFingerprints tracks the last-rendered input per card so a
+  // renderer can skip its rebuild when nothing it actually depends on changed.
+  const renderFingerprints = new Map();
+
+  function skipUnchangedRender(key, fingerprint) {
+    if (renderFingerprints.get(key) === fingerprint) return true;
+    renderFingerprints.set(key, fingerprint);
+    return false;
+  }
+
+  function vesselNameFingerprint() {
+    return (window.SeavState?.vessels || []).map((v) => [v.id, v.name]);
+  }
+
   function updateCardTitle(containerId, baseTitle, count) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -61,6 +83,9 @@
         return db - da;
       })
       .slice(0, 3);
+
+    const fingerprint = JSON.stringify({ latestThree, vessels: vesselNameFingerprint() });
+    if (skipUnchangedRender("seatime", fingerprint)) return;
 
     dashSeatimeSnippet.innerHTML = `
       <div class="table-wrap">
@@ -179,6 +204,8 @@ async function renderCertSnippet() {
     return aDate - bDate;
   });
 
+  if (skipUnchangedRender("cert", JSON.stringify(sortedCerts))) return;
+
   dashCertSnippet.innerHTML = `
     <div class="list">
       ${sortedCerts
@@ -236,6 +263,11 @@ async function renderCertSnippet() {
     window.SeavState?.syncCache?.();
   }
 
+  // Fingerprint taken after hydration so an already-cached signed URL
+  // (unchanged) still compares equal and skips the rebuild — this is what
+  // stops the vessel photos from flashing on every unrelated data refresh.
+  if (skipUnchangedRender("vessel", JSON.stringify(latestThree))) return;
+
   dashVesselSnippet.innerHTML = `
     <div class="dash-mini-card-grid">
       ${latestThree
@@ -272,6 +304,8 @@ async function renderTenderSnippet() {
 
   const tenderPhotoBucket =
     window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos";
+
+  if (skipUnchangedRender("tender", JSON.stringify(latestThree))) return;
 
   dashTenderSnippet.innerHTML = `
     <div class="dash-mini-card-grid">
@@ -562,9 +596,22 @@ async function renderNavigationSnippet() {
   const box = document.getElementById("dashNavigationSnippet");
   if (!box) return;
 
-  const renderId = ++dashNavigationRenderId;
   const entries = window.SeavState?.navigationAreas || [];
   updateCardTitle("dashNavigationSnippet", "Navigation chart", entries.length);
+
+  // Skip the rebuild entirely when nothing this card depends on has changed
+  // AND a map is already mounted (or the empty-state message is already
+  // showing) — otherwise this destroys and remounts the whole Leaflet map,
+  // including a full tile reload, on every unrelated "seav:data-updated"
+  // event anywhere in the app. If the chart never successfully mounted
+  // (dashNavigationChart is null after a failure) this still falls through
+  // so a retry can happen.
+  const fingerprint = JSON.stringify({ entries, vessels: vesselNameFingerprint() });
+  const unchanged = renderFingerprints.get("navigation") === fingerprint;
+  renderFingerprints.set("navigation", fingerprint);
+  if (unchanged && (dashNavigationChart || !entries.length)) return;
+
+  const renderId = ++dashNavigationRenderId;
 
   destroyDashboardNavigationChart();
 
@@ -772,6 +819,8 @@ function drawDashboardNavigationChart(container, stats, retryAttempt = 0, render
       })
       .slice(0, 3);
 
+    if (skipUnchangedRender("reference", JSON.stringify(latestThree))) return;
+
     dashRefSnippet.innerHTML = `
       <div class="list">
         ${latestThree.map((ref) => {
@@ -821,6 +870,8 @@ async function renderSpecialistSnippet() {
     window.SeavData?.getSpecialistCategoryLabel ||
     ((value) => value || "—");
 
+  if (skipUnchangedRender("specialist", JSON.stringify(latest))) return;
+
   dashSpecialistSnippet.innerHTML = `
     <div class="list">
       ${latest
@@ -851,6 +902,10 @@ async function renderOnboardSnippet() {
     .slice(0, 4);
 
   const vessels = window.SeavState?.vessels || [];
+
+  if (skipUnchangedRender("onboard", JSON.stringify({ latest, vessels: vesselNameFingerprint() }))) {
+    return;
+  }
 
   dashOnboardSnippet.innerHTML = `
     <div class="list">
@@ -884,6 +939,8 @@ async function renderHobbiesSnippet() {
   const getLabel =
     window.SeavData?.getHobbyInterestCategoryLabel ||
     ((value) => value || "—");
+
+  if (skipUnchangedRender("hobbies", JSON.stringify(latest))) return;
 
   dashHobbiesSnippet.innerHTML = `
     <div class="list">
