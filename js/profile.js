@@ -95,27 +95,45 @@
 
     populateCountrySelects();
 
-    // "Current Qualification" used to be free text. Now it draws from the
-    // certificates the crew member has actually saved on the Certificates
-    // page (matching CV generator/public profile conventions for what
-    // counts as a "saved" cert), filtered further to actual rank/command
-    // CoCs only (isCurrentQualificationCert) — a saved ENG1 or STCW Basic
-    // Safety Training cert is real and "saved" but isn't a qualification/
-    // rank, so it shouldn't show up here. Certs load in the background
-    // after profile.html's initial paint (see js/state.js's deferred-key
-    // hydration for this page), so this also gets called again from
-    // refreshProfileView() once bindStateRefresh's "seav:data-updated"
-    // fires with the fetched certs — not just once at init.
+    // "Current Qualification" used to be free text. It now draws from the
+    // full certificate catalog (the same list certificates.html's "choose a
+    // certificate" dropdown uses), filtered to actual rank/command CoCs only
+    // (isCurrentQualificationCert) — a plain ENG1 or STCW Basic Safety
+    // Training entry is a real cert but isn't a qualification/rank, so it
+    // shouldn't show up here. Sourcing from the catalog (rather than only
+    // certs the crew member has already saved with an expiry/attachment)
+    // means every CoC/RYA qualification is pickable immediately, without
+    // first adding it as a full dated certificate elsewhere.
+    //
+    // Also unioned with the crew member's own saved certs that pass the same
+    // filter, so a legacy/custom-named saved cert (e.g. a free-typed "Chief
+    // Mate <3000GT (STCW II/2)" that doesn't exactly match a catalog name)
+    // still shows up and isn't silently dropped.
     function populateQualificationOptions() {
       const select = fields.qualification;
       if (!select) return;
 
+      const catalogCerts = window.SeavData?.getCertificateCatalog
+        ? window.SeavData.getCertificateCatalog()
+        : [];
       const savedCerts = getSavedCertificates
         ? getSavedCertificates(window.SeavState?.certs || [])
         : [];
-      const certs = isCurrentQualificationCert
-        ? savedCerts.filter(isCurrentQualificationCert)
-        : savedCerts;
+
+      const candidates = isCurrentQualificationCert
+        ? [...catalogCerts, ...savedCerts].filter(isCurrentQualificationCert)
+        : [...catalogCerts, ...savedCerts];
+
+      const seenNames = new Set();
+      const certs = candidates.filter((cert) => {
+        const name = String(cert?.name || "").trim();
+        if (!name) return false;
+        const key = name.toLowerCase();
+        if (seenNames.has(key)) return false;
+        seenNames.add(key);
+        return true;
+      });
+
       const sorted = [...certs].sort((a, b) =>
         String(a.name || "").localeCompare(String(b.name || ""))
       );
