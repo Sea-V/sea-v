@@ -22,7 +22,7 @@
     return;
   }
 
-  const { KEYS, DEFAULT_PROFILE, getSavedCertificates } = window.SeavData;
+  const { KEYS, DEFAULT_PROFILE, getSavedCertificates, isCurrentQualificationCert } = window.SeavData;
 
   document.addEventListener("DOMContentLoaded", initProfile);
 
@@ -98,9 +98,11 @@
     // "Current Qualification" used to be free text. Now it draws from the
     // certificates the crew member has actually saved on the Certificates
     // page (matching CV generator/public profile conventions for what
-    // counts as a "saved" cert), so the value picked here is guaranteed to
-    // correspond to a real logged cert. Certs load in the background after
-    // profile.html's initial paint (see js/state.js's deferred-key
+    // counts as a "saved" cert), filtered further to actual rank/command
+    // CoCs only (isCurrentQualificationCert) — a saved ENG1 or STCW Basic
+    // Safety Training cert is real and "saved" but isn't a qualification/
+    // rank, so it shouldn't show up here. Certs load in the background
+    // after profile.html's initial paint (see js/state.js's deferred-key
     // hydration for this page), so this also gets called again from
     // refreshProfileView() once bindStateRefresh's "seav:data-updated"
     // fires with the fetched certs — not just once at init.
@@ -108,9 +110,12 @@
       const select = fields.qualification;
       if (!select) return;
 
-      const certs = getSavedCertificates
+      const savedCerts = getSavedCertificates
         ? getSavedCertificates(window.SeavState?.certs || [])
         : [];
+      const certs = isCurrentQualificationCert
+        ? savedCerts.filter(isCurrentQualificationCert)
+        : savedCerts;
       const sorted = [...certs].sort((a, b) =>
         String(a.name || "").localeCompare(String(b.name || ""))
       );

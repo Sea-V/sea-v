@@ -199,19 +199,32 @@
         { code: "STCW A-II/1", name: "Certificate of Competency (Deck CoC)" },
         { code: "STCW A-III/1", name: "Certificate of Competency (Engineering CoC)" },
         { code: "STCW A-III/6", name: "Electro-Technical Officer CoC" },
-        { code: "OOW YACHT", name: "Officer of the Watch (Yacht)" },
-        { code: "CHIEF MATE Y", name: "Chief Mate Yacht (MCA)" },
-        { code: "MASTER Y3000", name: "Master Yacht 3000GT (MCA)" },
-        { code: "MASTER Y500", name: "Master Yacht 500GT (MCA)" },
+        { code: "MASTER Y200", name: "Master (Code Vessel) <200GT (MCA)" },
+        { code: "OOW YACHT", name: "Officer of the Watch (Yacht) <3000GT (MCA)" },
+        { code: "CHIEF MATE Y", name: "Chief Mate (Yacht) <3000GT (MCA)" },
+        { code: "MASTER Y500", name: "Master (Yacht) <500GT (MCA)" },
+        { code: "MASTER Y3000", name: "Master (Yacht) <3000GT (MCA)" },
+        // New MCA top-tier deck CoCs (MSN 1858 Amendment 2, launched 18 May
+        // 2026) — let yacht-career deck officers progress past 3000GT
+        // without needing cargo-ship sea time first.
+        { code: "CHIEF MATE Y UNLTD", name: "Chief Mate Unlimited (Yacht) (MCA)" },
+        { code: "MASTER Y UNLTD", name: "Master Unlimited (Yacht) (MCA)" },
+        // Current MCA "Small Vessel" engineer officer structure (MIN 524,
+        // 2021) — replaced the old Y1-4 ticket system below as the route to
+        // a new CoC, though many working engineers still hold a legacy
+        // Y-ticket, so those stay listed too.
+        { code: "EOOW SV", name: "Engineer Officer of the Watch — Small Vessel <3000GT (MCA)" },
+        { code: "CE SV500", name: "Chief Engineer (Small Vessel) <500GT (MCA)" },
+        { code: "CE SV3000", name: "Chief Engineer (Small Vessel) <3000GT (MCA)" },
         { code: "EDH", name: "Efficient Deck Hand (EDH)" },
         { code: "RFPNW", name: "Rating Forming Part of a Navigational Watch" },
         { code: "RFPEW", name: "Rating Forming Part of an Engineering Watch" },
         { code: "AEC", name: "Approved Engine Course (AEC)" },
-        { code: "MEOL", name: "Motor Engineering Operational Level (MEOL)" },
-        { code: "Y1", name: "Yacht Engineer Y1 (MCA)" },
-        { code: "Y2", name: "Yacht Engineer Y2 (MCA)" },
-        { code: "Y3", name: "Yacht Engineer Y3 (MCA)" },
-        { code: "Y4", name: "Yacht Engineer Y4 (MCA)" }
+        { code: "MEOL", name: "Marine Engine Operators License (MEOL)" },
+        { code: "Y1", name: "Yacht Engineer Y1 (MCA, legacy)" },
+        { code: "Y2", name: "Yacht Engineer Y2 (MCA, legacy)" },
+        { code: "Y3", name: "Yacht Engineer Y3 (MCA, legacy)" },
+        { code: "Y4", name: "Yacht Engineer Y4 (MCA, legacy)" }
       ]
     },
     {
@@ -433,6 +446,29 @@
   function findSavedCertByCode(certs, code) {
     const cert = findCertByCode(certs, code);
     return isSavedCert(cert) ? cert : null;
+  }
+
+  // Powers the profile page's "Current Qualification" dropdown — deliberately
+  // narrower than isRankRoleCert (which also covers STCW basic/combined
+  // training, GMDSS, ECDIS/bridge courses, etc. for the public profile's
+  // "Rank & role" section). This should only match an actual command/
+  // engineering rank ticket (a CoC), never a medical, safety, security, or
+  // ancillary course cert — e.g. ENG1 is a fitness certificate, not a rank.
+  //
+  // Matches on the cert's NAME rather than a fixed code whitelist. Real saved
+  // cert rows don't reliably carry the exact catalog codes above — seed/
+  // demo data and certs a crew member free-typed on the Certificates page
+  // commonly use their own codes (e.g. "CHIEF_MATE_3000", "PWO_Y") even
+  // though the name is clearly a real CoC. Matching the human-readable name
+  // is what stays robust against that drift.
+  const CURRENT_QUALIFICATION_NAME_PATTERN =
+    /\b(master|chief mate|officer of the watch|certificate of competency|electro-technical officer|yachtmaster|day skipper|coastal skipper|powerboat level ?2|chief engineer|yacht engineer y[1-4]|eoow)\b/i;
+
+  function isCurrentQualificationCert(cert) {
+    if (!cert) return false;
+    const name = String(cert.name || "").trim();
+    if (!name) return false;
+    return CURRENT_QUALIFICATION_NAME_PATTERN.test(name);
   }
 
   function isRankRoleCert(cert) {
@@ -1269,6 +1305,7 @@ window.SeavData = {
   setCertificateCatalogFromDb,
   findCertificateCatalogItem,
   isSavedCert,
+  isCurrentQualificationCert,
   getSavedCertificates,
   findCertByCode,
   findSavedCertByCode,
