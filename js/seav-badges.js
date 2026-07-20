@@ -2,16 +2,16 @@
 (function () {
   "use strict";
 
-  const LOCKED_IMAGE = "img/badges/locked.svg";
-  const DEFAULT_IMAGE = "img/badges/default.svg";
+  const LOCKED_IMAGE = "/img/badges/locked.svg";
+  const DEFAULT_IMAGE = "/img/badges/default.svg";
 
   const BADGES = {
 sea_30_days: {
   key: "sea_30_days",
   label: "30 Days at Sea",
   fileName: "sea-30-days.svg",
-  image: "img/badges/sea-30-days.svg",
-  lockedImage: "img/badges/locked.svg",
+  image: "/img/badges/sea-30-days.svg",
+  lockedImage: "/img/badges/locked.svg",
   tier: "default"
 },
 
@@ -19,8 +19,8 @@ sea_100_days: {
   key: "sea_100_days",
   label: "100 Days at Sea",
   fileName: "sea-100-days.svg",
-  image: "img/badges/sea-100-days.svg",
-  lockedImage: "img/badges/locked.svg",
+  image: "/img/badges/sea-100-days.svg",
+  lockedImage: "/img/badges/locked.svg",
   tier: "default"
 },
 
@@ -28,8 +28,8 @@ sea_250_days: {
   key: "sea_250_days",
   label: "250 Days at Sea",
   fileName: "sea-250-days.svg",
-  image: "img/badges/sea-250-days.svg",
-  lockedImage: "img/badges/locked.svg",
+  image: "/img/badges/sea-250-days.svg",
+  lockedImage: "/img/badges/locked.svg",
   tier: "silver"
 },
 
@@ -37,15 +37,15 @@ sea_500_days: {
   key: "sea_500_days",
   label: "500 Days at Sea",
   fileName: "sea-500-days.svg",
-  image: "img/badges/sea-500-days.svg",
-  lockedImage: "img/badges/locked.svg",
+  image: "/img/badges/sea-500-days.svg",
+  lockedImage: "/img/badges/locked.svg",
   tier: "gold"
 },
 sea_1_year: {
   key: "sea_1_year",
   label: "1 Year at Sea",
   fileName: "sea-1-year.svg",
-  image: "img/badges/sea-1-year.svg",
+  image: "/img/badges/sea-1-year.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
@@ -53,7 +53,7 @@ sea_3_years: {
   key: "sea_3_years",
   label: "3 Years at Sea",
   fileName: "sea-3-years.svg",
-  image: "img/badges/sea-3-years.svg",
+  image: "/img/badges/sea-3-years.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "platinum"
 },
@@ -62,7 +62,7 @@ first_vessel_logged: {
   key: "first_vessel_logged",
   label: "First Vessel Logged",
   fileName: "first-vessel-logged.svg",
-  image: "img/badges/first-vessel-logged.svg",
+  image: "/img/badges/first-vessel-logged.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "bronze"
 },
@@ -70,7 +70,7 @@ vessels_3_served: {
   key: "vessels_3_served",
   label: "3 Vessels Served",
   fileName: "vessels-3-served.svg",
-  image: "img/badges/vessels-3-served.svg",
+  image: "/img/badges/vessels-3-served.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "silver"
 },
@@ -78,7 +78,7 @@ vessel_types_5: {
   key: "vessel_types_5",
   label: "5 Vessel Types Experienced",
   fileName: "vessel-types-5.svg",
-  image: "img/badges/vessel-types-5.svg",
+  image: "/img/badges/vessel-types-5.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
@@ -86,7 +86,7 @@ large_yacht_50m: {
   key: "large_yacht_50m",
   label: "Large Yacht Experience",
   fileName: "large-yacht-50m.svg",
-  image: "img/badges/large-yacht-50m.svg",
+  image: "/img/badges/large-yacht-50m.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "silver"
 },
@@ -94,7 +94,7 @@ explorer_vessel: {
   key: "explorer_vessel",
   label: "Explorer Vessel Experience",
   fileName: "explorer-vessel.svg",
-  image: "img/badges/explorer-vessel.svg",
+  image: "/img/badges/explorer-vessel.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "silver"
 },
@@ -102,7 +102,7 @@ commercial_vessel: {
   key: "commercial_vessel",
   label: "Commercial Vessel Experience",
   fileName: "commercial-vessel.svg",
-  image: "img/badges/commercial-vessel.svg",
+  image: "/img/badges/commercial-vessel.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "silver"
 },
@@ -111,7 +111,7 @@ offshore_100nm: {
   key: "offshore_100nm",
   label: "First Offshore Passage",
   fileName: "offshore-100nm.svg",
-  image: "img/badges/offshore-100nm.svg",
+  image: "/img/badges/offshore-100nm.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "bronze"
 },
@@ -119,7 +119,7 @@ passage_500nm: {
   key: "passage_500nm",
   label: "500nm Passage",
   fileName: "passage-500nm.svg",
-  image: "img/badges/passage-500nm.svg",
+  image: "/img/badges/passage-500nm.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "silver"
 },
@@ -127,7 +127,7 @@ passage_1000nm: {
   key: "passage_1000nm",
   label: "1000nm Passage",
   fileName: "passage-1000nm.svg",
-  image: "img/badges/passage-1000nm.svg",
+  image: "/img/badges/passage-1000nm.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
@@ -135,7 +135,7 @@ atlantic_crossing: {
   key: "atlantic_crossing",
   label: "Atlantic Crossing",
   fileName: "atlantic-crossing.svg",
-  image: "img/badges/atlantic-crossing.svg",
+  image: "/img/badges/atlantic-crossing.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
@@ -143,7 +143,7 @@ pacific_crossing: {
   key: "pacific_crossing",
   label: "Pacific Crossing",
   fileName: "pacific-crossing.svg",
-  image: "img/badges/pacific-crossing.svg",
+  image: "/img/badges/pacific-crossing.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "platinum"
 },
@@ -151,7 +151,7 @@ polar_navigation: {
   key: "polar_navigation",
   label: "Arctic / Polar Navigation",
   fileName: "polar-navigation.svg",
-  image: "img/badges/polar-navigation.svg",
+  image: "/img/badges/polar-navigation.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "platinum"
 },
@@ -160,7 +160,7 @@ first_watchkeeping: {
   key: "first_watchkeeping",
   label: "First Watchkeeping Logged",
   fileName: "first-watchkeeping.svg",
-  image: "img/badges/first-watchkeeping.svg",
+  image: "/img/badges/first-watchkeeping.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "bronze"
 },
@@ -168,7 +168,7 @@ watchkeeping_100_days: {
   key: "watchkeeping_100_days",
   label: "100 Watchkeeping Days",
   fileName: "watchkeeping-100-days.svg",
-  image: "img/badges/watchkeeping-100-days.svg",
+  image: "/img/badges/watchkeeping-100-days.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
@@ -176,7 +176,7 @@ oow_level: {
   key: "oow_level",
   label: "Officer of the Watch",
   fileName: "oow-level.svg",
-  image: "img/badges/oow-level.svg",
+  image: "/img/badges/oow-level.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
@@ -184,7 +184,7 @@ bridge_leader: {
   key: "bridge_leader",
   label: "Bridge Leader",
   fileName: "bridge-leader.svg",
-  image: "img/badges/bridge-leader.svg",
+  image: "/img/badges/bridge-leader.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "platinum"
 },
@@ -193,7 +193,7 @@ first_promotion: {
   key: "first_promotion",
   label: "First Promotion",
   fileName: "first-promotion.svg",
-  image: "img/badges/first-promotion.svg",
+  image: "/img/badges/first-promotion.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "silver"
 },
@@ -201,7 +201,7 @@ senior_crew: {
   key: "senior_crew",
   label: "Senior Crew",
   fileName: "senior-crew.svg",
-  image: "img/badges/senior-crew.svg",
+  image: "/img/badges/senior-crew.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
@@ -209,7 +209,7 @@ officer_rank: {
   key: "officer_rank",
   label: "Officer Rank Achieved",
   fileName: "officer-rank.svg",
-  image: "img/badges/officer-rank.svg",
+  image: "/img/badges/officer-rank.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
@@ -217,7 +217,7 @@ command_experience: {
   key: "command_experience",
   label: "Command Experience",
   fileName: "command-experience.svg",
-  image: "img/badges/command-experience.svg",
+  image: "/img/badges/command-experience.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "platinum"
 },
@@ -226,7 +226,7 @@ tender_ops: {
   key: "tender_ops",
   label: "Tender Operations Specialist",
   fileName: "tender-operations.svg",
-  image: "img/badges/tender-operations.svg",
+  image: "/img/badges/tender-operations.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "silver"
 },
@@ -234,7 +234,7 @@ watersports_ops: {
   key: "watersports_ops",
   label: "Watersports Operations",
   fileName: "watersports-operations.svg",
-  image: "img/badges/watersports-operations.svg",
+  image: "/img/badges/watersports-operations.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "silver"
 },
@@ -242,7 +242,7 @@ crane_ops: {
   key: "crane_ops",
   label: "Crane / Heavy Lift Ops",
   fileName: "crane-operations.svg",
-  image: "img/badges/crane-operations.svg",
+  image: "/img/badges/crane-operations.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
@@ -250,7 +250,7 @@ helicopter_ops: {
   key: "helicopter_ops",
   label: "Helicopter Operations",
   fileName: "helicopter-operations.svg",
-  image: "img/badges/helicopter-operations.svg",
+  image: "/img/badges/helicopter-operations.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "platinum"
 }
