@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 181;
+const ASSET_VERSION = 182;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
@@ -148,6 +148,18 @@ function patchAppPage(html) {
     next = next.replace(
       '<script src="js/payslips.js" defer></script>',
       `<script src="js/payslips-core.js" defer></script>\n  <script src="js/payslips-render.js" defer></script>\n  <script src="js/payslips-export.js" defer></script>\n  <script src="js/payslips.js" defer></script>`
+    );
+  }
+
+  // Share cards: html2canvas rasterizes the off-screen card js/seav-share.js
+  // builds, then hands the PNG to navigator.share (or a download fallback).
+  // Inserted right after badge-unlock.js since that's the only current
+  // trigger (the "Share this badge" button in the unlock celebration); any
+  // page that shows that celebration needs both loaded too.
+  if (next.includes("js/badge-unlock.js") && !next.includes("js/seav-share.js")) {
+    next = next.replace(
+      /<script src="js\/badge-unlock\.js([^"]*)" defer><\/script>/,
+      `<script src="js/badge-unlock.js$1" defer></script>\n  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>\n  <script src="js/seav-share.js$1" defer></script>`
     );
   }
 

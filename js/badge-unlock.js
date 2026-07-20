@@ -13,6 +13,7 @@
   let overlayEl = null;
   let introTimer = null;
   let openTimer = null;
+  let currentItem = null;
 
   function storageKey() {
     const userId = window.SeavAuth?.getUserId?.();
@@ -105,6 +106,14 @@
         <p class="badge-unlock-badge-name"></p>
         <span class="badge-unlock-tier-pill"></span>
 
+        <button
+          type="button"
+          class="badge-unlock-share-btn"
+          data-badge-unlock-action="share"
+        >
+          Share this badge
+        </button>
+
         <div class="badge-unlock-reason" hidden>
           <p class="badge-unlock-reason-label">Why you earned this</p>
           <p class="badge-unlock-reason-text"></p>
@@ -141,6 +150,11 @@
 
       if (action === "reveal") {
         revealReason(card);
+        return;
+      }
+
+      if (action === "share") {
+        shareCurrent(actionBtn);
         return;
       }
 
@@ -183,8 +197,24 @@
     }, 650);
   }
 
+  async function shareCurrent(button) {
+    if (!currentItem || !window.SeavShare) return;
+
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = "Preparing image…";
+
+    try {
+      await window.SeavShare.shareBadge(currentItem);
+    } finally {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
+
   function renderModal(item) {
     clearTimers();
+    currentItem = item;
 
     const overlay = ensureOverlay();
     const card = overlay.querySelector(".badge-unlock-card");

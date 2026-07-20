@@ -109,6 +109,7 @@
               }
             </div>
             <div class="seav-actions seav-actions--inline">
+              ${Seav.seavAction("secondary", "Share", `data-share-nav-id="${Seav.escapeHtml(entry.id)}"`)}
               ${Seav.seavAction("edit", "Edit", `data-edit-nav-id="${Seav.escapeHtml(entry.id)}"`)}
               ${Seav.seavAction("delete", "Delete", `data-del-nav-id="${Seav.escapeHtml(entry.id)}"`)}
             </div>

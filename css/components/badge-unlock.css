@@ -190,6 +190,35 @@ body.badge-unlock-open {
   color: #9aeaff;
 }
 
+.badge-unlock-share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 14px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(114, 228, 255, 0.28);
+  background: rgba(114, 228, 255, 0.08);
+  color: #9adfff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.badge-unlock-share-btn:hover:not(:disabled) {
+  background: rgba(114, 228, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.badge-unlock-share-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .badge-unlock-reason {
   margin: 0 0 12px;
   padding: 11px 12px;

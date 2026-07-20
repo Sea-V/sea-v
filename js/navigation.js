@@ -52,6 +52,9 @@
   const normalizeText = H.normalizeText;
   const formatRouteLabel = H.formatRouteLabel;
   const normalizeNavEntry = H.normalizeNavEntry;
+  const getVesselName = H.getVesselName;
+  const formatNm = H.formatNm;
+  const formatDateRange = M.formatDateRange;
   const Seav = window.Seav;
 
   let navRefreshTimer = null;
@@ -358,6 +361,35 @@
     });
 
     document.addEventListener("click", async (e) => {
+      const shareBtn = e.target.closest("[data-share-nav-id]");
+      if (shareBtn) {
+        e.preventDefault();
+
+        const id = shareBtn.getAttribute("data-share-nav-id");
+        const entries = await loadNavEntries();
+        const entry = entries.find((item) => item.id === id);
+
+        if (!entry) {
+          Seav.notify("error", "Not found", "That passage could not be loaded.");
+          return;
+        }
+
+        const route = await window.SeavNavigationPassage?.getEntryRoute?.(entry);
+        const dateText =
+          formatDateRange(
+            entry.departureDate || entry.visitedDate || "",
+            entry.arrivalDate || ""
+          ) || "";
+
+        window.SeavShare?.sharePassage(entry, {
+          routeLabel: formatRouteLabel(entry),
+          vesselName: getVesselName(entry.vesselId),
+          dateText,
+          distanceText: route?.distanceNm ? formatNm(route.distanceNm) : ""
+        });
+        return;
+      }
+
       const editBtn = e.target.closest("[data-edit-nav-id]");
       if (editBtn) {
         e.preventDefault();
