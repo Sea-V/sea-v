@@ -23,6 +23,7 @@ function mapProfileFromSupabase(p) {
   return {
     id: p.id,
     userId: p.user_id || p.userId || null,
+    username: p.username || "",
     name: p.name || "",
     rank: p.rank || "",
     qualification: p.qualification || "",
@@ -47,6 +48,10 @@ function mapProfileToSupabase(item) {
   return {
     id: userId || item.id || "default-profile",
     user_id: userId || item.user_id || item.id || null,
+    // null (not "") when unset: the DB unique index on lower(username) only
+    // excludes NULL rows, so an empty string would collide across every
+    // profile that hasn't set one yet.
+    username: item.username ? item.username.toLowerCase() : null,
     name: item.name || "",
     rank: item.rank || "",
     qualification: item.qualification || "",

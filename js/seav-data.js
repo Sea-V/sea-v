@@ -473,6 +473,45 @@
     return CURRENT_QUALIFICATION_NAME_PATTERN.test(name);
   }
 
+  /* =========================================================
+     USERNAME HELPERS (public profile vanity link, e.g. /u/daniel-whitfield)
+  ========================================================= */
+
+  // Obvious top-level routes/terms that would be a confusing or misleading
+  // username even though they'd pass the format check below.
+  const USERNAME_RESERVED = new Set([
+    "admin", "api", "app", "dashboard", "profile", "login", "logout",
+    "signup", "signin", "index", "about", "contact", "privacy", "terms",
+    "support", "help", "null", "undefined", "test", "demo", "sea-v", "seav"
+  ]);
+
+  // Mirrors the DB check constraint in docs/schema-username.sql
+  // (profile_username_format): lowercase letters/digits/hyphens, 3-30
+  // chars, no leading/trailing/consecutive hyphens.
+  const USERNAME_FORMAT_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+  /** Turns free text (typically profile.name) into a clean username candidate. */
+  function slugifyUsername(value) {
+    const slug = String(value || "")
+      .normalize("NFKD")
+      .replace(new RegExp("[\\u0300-\\u036f]", "g"), "") // strip combining accents (e.g. é -> e)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 30)
+      .replace(/-+$/g, ""); // slice() can leave a trailing hyphen mid-word
+    return slug;
+  }
+
+  /** True if `value` could be saved as a username as-is (already slug-shaped). */
+  function isValidUsername(value) {
+    const v = String(value || "");
+    if (v.length < 3 || v.length > 30) return false;
+    if (!USERNAME_FORMAT_PATTERN.test(v)) return false;
+    if (USERNAME_RESERVED.has(v)) return false;
+    return true;
+  }
+
   function isRankRoleCert(cert) {
     if (!cert) return false;
     const mandatoryCodes = MANDATORY_CERTS.map((item) => normalizeCertCode(item.code));
@@ -1308,6 +1347,8 @@ window.SeavData = {
   findCertificateCatalogItem,
   isSavedCert,
   isCurrentQualificationCert,
+  slugifyUsername,
+  isValidUsername,
   getSavedCertificates,
   findCertByCode,
   findSavedCertByCode,

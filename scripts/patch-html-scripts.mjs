@@ -7,15 +7,19 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 179;
+const ASSET_VERSION = 180;
 
 function bumpAssetVersions(html) {
+  // "\/?" before styles.css|js/ handles public-profile.html, which uses
+  // root-absolute paths (/styles.css, /js/x.js) instead of the usual
+  // relative ones — it's also served at /u/<username> via a Netlify/Vercel
+  // rewrite, where a relative path would resolve against "/u/" and 404.
   let next = html.replace(
-    /((?:href|src)="(?:styles\.css|js\/[^"?]+))\?v=\d+/g,
+    /((?:href|src)="\/?(?:styles\.css|js\/[^"?]+))\?v=\d+/g,
     `$1?v=${ASSET_VERSION}`
   );
   next = next.replace(
-    /((?:href|src)="(styles\.css|js\/[^"]+\.js))(?!\?v=)/g,
+    /((?:href|src)="\/?(styles\.css|js\/[^"]+\.js))(?!\?v=)/g,
     `$1?v=${ASSET_VERSION}`
   );
   return next;

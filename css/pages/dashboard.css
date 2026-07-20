@@ -356,6 +356,81 @@
   font-weight: 500;
 }
 
+.dashboard-public-share-username {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dashboard-public-share-username > label {
+  color: rgba(255, 255, 255, 0.6);
+
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dashboard-public-share-username-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-public-share-username-prefix {
+  color: rgba(255, 255, 255, 0.45);
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.dashboard-public-share-username-input {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 10px;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  background: rgba(0, 0, 0, 0.24);
+  color: rgba(255, 255, 255, 0.88);
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.dashboard-public-share-username-input:focus-visible {
+  outline: 2px solid rgba(94, 166, 255, 0.55);
+  outline-offset: 1px;
+}
+
+#dashPublicUsernameSave {
+  min-height: 34px;
+  padding: 0 12px;
+
+  font-size: 11px;
+}
+
+.dashboard-public-share-username-hint {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.48);
+
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.dashboard-public-share-username-hint.is-error {
+  color: #ff9a9a;
+}
+
 .dashboard-public-share-link {
   min-width: 0;
 }
@@ -408,6 +483,14 @@
 
   .dashboard-public-share-copy,
   .dashboard-public-share-open {
+    width: 100%;
+  }
+
+  .dashboard-public-share-username-row {
+    grid-template-columns: 1fr;
+  }
+
+  #dashPublicUsernameSave {
     width: 100%;
   }
 }

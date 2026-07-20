@@ -22,7 +22,7 @@
     return;
   }
 
-  const { DEFAULT_PROFILE, getSeatimeTotals, KEYS } = window.SeavData;
+  const { DEFAULT_PROFILE, getSeatimeTotals, KEYS, slugifyUsername, isValidUsername } = window.SeavData;
 
   function loadProfile() {
     return {
@@ -121,10 +121,8 @@
   }
 
   function resolveDashboardPublicProfileUrl() {
-    const profileId = loadProfile().id || window.SeavState?.profile?.id || "";
-    const path = profileId
-      ? `public-profile.html?p=${encodeURIComponent(profileId)}`
-      : "public-profile.html";
+    const profile = loadProfile();
+    const path = Seav.buildPublicProfileUrl?.(profile) || "public-profile.html";
     return new URL(path, window.location.href).href;
   }
 
@@ -157,6 +155,7 @@
     const linkWrap = document.getElementById("dashPublicLinkWrap");
     const urlEl = document.getElementById("dashPublicLinkUrl");
     const openEl = document.getElementById("dashPublicLinkOpen");
+    const usernameInput = document.getElementById("dashPublicUsername");
 
     if (checkbox) {
       checkbox.checked = !!currentProfile.publicEnabled;
@@ -191,6 +190,71 @@
     if (openEl) {
       openEl.href = url;
     }
+
+    // Don't clobber the field mid-edit — only sync it in from the saved
+    // profile when the user isn't actively typing in it.
+    if (usernameInput && document.activeElement !== usernameInput) {
+      usernameInput.value = currentProfile.username || "";
+    }
+  }
+
+  function setUsernameHint(message, isError) {
+    const hintEl = document.getElementById("dashPublicUsernameHint");
+    if (!hintEl) return;
+    hintEl.textContent = message || "";
+    hintEl.classList.toggle("is-error", !!isError);
+  }
+
+  function initDashboardPublicUsername() {
+    const input = document.getElementById("dashPublicUsername");
+    const saveBtn = document.getElementById("dashPublicUsernameSave");
+    if (!input || !saveBtn) return;
+
+    saveBtn.addEventListener("click", async () => {
+      const cleaned = slugifyUsername ? slugifyUsername(input.value) : input.value.trim().toLowerCase();
+      input.value = cleaned;
+
+      if (!cleaned) {
+        setUsernameHint("Enter a username first.", true);
+        return;
+      }
+
+      if (isValidUsername && !isValidUsername(cleaned)) {
+        setUsernameHint("3-30 characters: lowercase letters, numbers, and hyphens only.", true);
+        return;
+      }
+
+      const profile = loadProfile();
+      if (cleaned === (profile.username || "")) {
+        setUsernameHint("That's already your username.", false);
+        return;
+      }
+
+      const updated = { ...profile, username: cleaned };
+
+      try {
+        await Seav.withSaving(async () => {
+          await SeavAPI.save(KEYS.PROFILE, updated);
+          if (window.SeavState?.refresh) {
+            await window.SeavState.refresh();
+          } else if (window.SeavState?.data) {
+            window.SeavState.data.profile = updated;
+          }
+        }, { sub: "Updating your public link" });
+
+        syncDashboardPublicPanel(updated);
+        setUsernameHint("Saved — your link is updated.", false);
+        Seav.notify("success", "Username saved", `Your public link is now /u/${cleaned}.`);
+      } catch (err) {
+        console.error("[SEA-V] Username save failed:", err);
+        const message =
+          err?.code === "USERNAME_TAKEN"
+            ? err.message
+            : err?.message || "Could not save username. Try again.";
+        setUsernameHint(message, true);
+        Seav.notify("error", "Could not save username", message);
+      }
+    });
   }
 
   function initDashboardPublicToggle() {
@@ -199,6 +263,7 @@
     if (!checkbox) return;
 
     syncDashboardPublicPanel();
+    initDashboardPublicUsername();
 
     copyBtn?.addEventListener("click", () => {
       copyDashboardPublicProfileLink();

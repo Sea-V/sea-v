@@ -150,7 +150,12 @@
 
     async function loadProfile() {
       const params = new URLSearchParams(location.search);
-      const profileId = params.get("p") || params.get("id");
+      // "u" is the clean /u/<username> link (rewritten to
+      // public-profile.html?u=<username> — see netlify.toml/vercel.json);
+      // "p"/"id" are the older raw-UUID link, kept working for anything
+      // already shared. SeavAPI.getPublicProfile tries all three column
+      // matches regardless of which param supplied the value.
+      const profileId = params.get("u") || params.get("p") || params.get("id");
 
       if (profileId) {
         const publicProfile = await SeavAPI.getPublicProfile(profileId);

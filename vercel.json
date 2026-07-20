@@ -1,4 +1,7 @@
 {
+  "rewrites": [
+    { "source": "/u/:username", "destination": "/public-profile.html?u=:username" }
+  ],
   "headers": [
     {
       "source": "/(.*\\.html)",

@@ -751,10 +751,25 @@ function renderSidebarAchievements() {
     if (matchedTopbar) matchedTopbar.classList.add("active");
   }
 
-  function resolvePublicProfileUrl() {
-    const profileId = window.SeavState?.profile?.id || "";
+  /**
+   * Shared by the sidebar link (here) and the dashboard "copy link" button
+   * (js/dashboard.js resolveDashboardPublicProfileUrl) so both always agree
+   * on the same URL shape. Prefers the clean /u/<username> path (see the
+   * netlify.toml/vercel.json rewrite to public-profile.html?u=<username>)
+   * once a crew member has a username; falls back to the original
+   * ?p=<uuid> link for profiles that don't have one yet.
+   */
+  function buildPublicProfileUrl(profile) {
+    const username = String(profile?.username || "").trim();
+    if (username) return `u/${encodeURIComponent(username)}`;
+
+    const profileId = profile?.id || "";
     if (!profileId) return "public-profile.html";
     return `public-profile.html?p=${encodeURIComponent(profileId)}`;
+  }
+
+  function resolvePublicProfileUrl() {
+    return buildPublicProfileUrl(window.SeavState?.profile);
   }
 
   function wireSidebarPublicProfile() {
@@ -985,6 +1000,7 @@ function renderSidebarAchievements() {
     mountSharedLayout,
     getFileDisplayUrl,
     bindStateRefresh,
+    buildPublicProfileUrl,
     notify(type, title, message) {
       if (window.SeavFeedback?.[type]) {
         window.SeavFeedback[type](title, message);

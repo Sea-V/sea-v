@@ -485,6 +485,7 @@
 const PUBLIC_PROFILE_COLUMNS = [
   "id",
   "user_id",
+  "username",
   "name",
   "rank",
   "qualification",
@@ -502,6 +503,7 @@ const PUBLIC_PROFILE_COLUMNS = [
 const OWNER_PROFILE_COLUMNS = [
   "id",
   "user_id",
+  "username",
   "name",
   "rank",
   "qualification",
@@ -557,7 +559,18 @@ const SeavAPI = {
         .select(PUBLIC_PROFILE_COLUMNS)
         .eq("public_enabled", true);
 
-    let { data, error } = await baseQuery().eq("id", profileId).maybeSingle();
+    // Username is the common case going forward (the /u/<username> link),
+    // so it's tried first; the raw-UUID ?p=<id> link some crew already
+    // shared keeps working via the id/user_id fallbacks below.
+    let { data, error } = await baseQuery()
+      .eq("username", String(profileId).toLowerCase())
+      .maybeSingle();
+
+    if (!error && !data) {
+      const byId = await baseQuery().eq("id", profileId).maybeSingle();
+      data = byId.data;
+      error = byId.error;
+    }
 
     if (!error && !data) {
       const byUser = await baseQuery().eq("user_id", profileId).maybeSingle();
@@ -658,6 +671,14 @@ const SeavAPI = {
 
     if (error) {
       console.error("[SEA-V] Supabase profile save failed:", error);
+      // Postgres unique-violation on profile_username_unique_idx (see
+      // docs/schema-username.sql) — surface a message worth showing the
+      // user directly, instead of the raw constraint-name error text.
+      if (error.code === "23505" && /username/i.test(error.message || "")) {
+        const friendly = new Error("That username is already taken. Try another.");
+        friendly.code = "USERNAME_TAKEN";
+        throw friendly;
+      }
       throw error;
     }
 

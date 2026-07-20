@@ -22,7 +22,10 @@
     return;
   }
 
-  const { KEYS, DEFAULT_PROFILE, getSavedCertificates, isCurrentQualificationCert } = window.SeavData;
+  const {
+    KEYS, DEFAULT_PROFILE, getSavedCertificates, isCurrentQualificationCert,
+    slugifyUsername, isValidUsername
+  } = window.SeavData;
 
   document.addEventListener("DOMContentLoaded", initProfile);
 
@@ -533,7 +536,17 @@
         photo
       };
 
-      await SeavAPI.save(KEYS.PROFILE, profile);
+      // First time this profile is saved with a name and no username yet:
+      // auto-suggest one so the /u/<username> share link works immediately,
+      // instead of requiring a trip to the dashboard's share panel first.
+      // Editing/changing it afterward happens there, not on this page.
+      const autoBase = slugifyUsername ? slugifyUsername(profile.name) : "";
+      const needsUsername =
+        !profile.username && autoBase && (!isValidUsername || isValidUsername(autoBase));
+
+      const saved = needsUsername
+        ? await saveProfileWithAutoUsername(profile, autoBase)
+        : await saveProfileNow(profile);
 
       if (window.Seav.app?.refreshAll) {
         await window.Seav.app.refreshAll();
@@ -541,8 +554,35 @@
         refreshProfileView();
       }
 
-      return profile;
+      return saved;
       }, { sub: "Updating your profile" });
+    }
+
+    async function saveProfileNow(profile) {
+      await SeavAPI.save(KEYS.PROFILE, profile);
+      return profile;
+    }
+
+    async function saveProfileWithAutoUsername(profile, base) {
+      try {
+        return await saveProfileNow({ ...profile, username: base });
+      } catch (err) {
+        if (err?.code !== "USERNAME_TAKEN") throw err;
+      }
+
+      for (let suffix = 2; suffix <= 6; suffix += 1) {
+        const candidate = `${base}-${suffix}`.slice(0, 30);
+        try {
+          return await saveProfileNow({ ...profile, username: candidate });
+        } catch (err) {
+          if (err?.code !== "USERNAME_TAKEN") throw err;
+        }
+      }
+
+      // Couldn't find a free auto-generated slug in a few tries — save
+      // without one rather than blocking the whole profile save; a username
+      // can always be set manually later from the dashboard share panel.
+      return saveProfileNow({ ...profile, username: "" });
     }
 
     form.addEventListener("submit", async (e) => {
