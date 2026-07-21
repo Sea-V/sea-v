@@ -49,17 +49,20 @@
       phoneNumber: el("pf_phone_number"),
       passportCountry: el("pf_passport_country"),
       passportAdd: el("pf_passport_add"),
-      visasHeld: el("pf_visasHeld"),
+      visaType: el("pf_visa_type"),
+      visaAdd: el("pf_visa_add"),
       availability: el("pf_availability"),
       bio: el("pf_bio"),
       photo: el("pf_photo")
     };
 
     const passportChipsBox = el("pf_passport_chips");
+    const visaChipsBox = el("pf_visa_chips");
     const photoThumb = el("pfPhotoThumb");
     const photoBtn = el("pfPhotoBtn");
     const photoHint = el("pfPhotoHint");
     const Countries = window.SeavCountries;
+    const Visas = window.SeavVisas;
 
     function flag(iso2) {
       return Countries?.flagEmoji ? Countries.flagEmoji(iso2) : "";
@@ -93,6 +96,13 @@
           countries
             .map((c) => `<option value="${c.iso2}">${flag(c.iso2)} ${Seav.escapeHtml(c.name)} (+${c.dial})</option>`)
             .join("");
+      }
+
+      if (fields.visaType) {
+        const visaTypes = Visas?.VISA_TYPES || [];
+        fields.visaType.innerHTML =
+          '<option value="">Select a visa to add</option>' +
+          visaTypes.map((v) => `<option value="${Seav.escapeHtml(v)}">${Seav.escapeHtml(v)}</option>`).join("");
       }
     }
 
@@ -302,7 +312,10 @@
         const value = fields.passportCountry?.value || "";
         if (!value) return;
         addPassportChip(value);
-        fields.passportCountry.value = "";
+        // Deliberately leave the select showing the country just added —
+        // clearing it back to "Select a country to add" made it look like
+        // the pick hadn't registered at all, even though the chip below
+        // had been added correctly.
       });
     }
 
@@ -311,6 +324,70 @@
         const btn = e.target.closest(".profile-chip-remove");
         if (!btn) return;
         removePassportChip(btn.dataset.name || "");
+      });
+    }
+
+    // profile.visasHeld follows the exact same comma-joined-string pattern
+    // as passportsHeld above — same chip UI, sourced from js/seav-visas.js
+    // instead of js/seav-countries.js.
+    let visaChips = [];
+
+    function renderVisaChips() {
+      if (!visaChipsBox) return;
+      if (!visaChips.length) {
+        visaChipsBox.innerHTML = '<span class="profile-chip-empty muted">No visas added yet</span>';
+        return;
+      }
+      visaChipsBox.innerHTML = visaChips
+        .map(
+          (name) => `
+            <span class="profile-chip">
+              ${Seav.escapeHtml(name)}
+              <button type="button" class="profile-chip-remove" data-name="${Seav.escapeHtml(name)}" aria-label="Remove ${Seav.escapeHtml(name)}">&times;</button>
+            </span>
+          `
+        )
+        .join("");
+    }
+
+    function setVisaChips(value) {
+      visaChips = String(value || "")
+        .split(",")
+        .map((token) => token.trim())
+        .filter(Boolean);
+      renderVisaChips();
+    }
+
+    function addVisaChip(name) {
+      const trimmed = String(name || "").trim();
+      if (!trimmed) return;
+      const exists = visaChips.some((chip) => chip.toLowerCase() === trimmed.toLowerCase());
+      if (exists) return;
+      visaChips = [...visaChips, trimmed];
+      renderVisaChips();
+      previewFromForm();
+    }
+
+    function removeVisaChip(name) {
+      visaChips = visaChips.filter((chip) => chip !== name);
+      renderVisaChips();
+      previewFromForm();
+    }
+
+    if (fields.visaAdd) {
+      fields.visaAdd.addEventListener("click", () => {
+        const value = fields.visaType?.value || "";
+        if (!value) return;
+        addVisaChip(value);
+        // Same reasoning as passports above — leave the pick visible.
+      });
+    }
+
+    if (visaChipsBox) {
+      visaChipsBox.addEventListener("click", (e) => {
+        const btn = e.target.closest(".profile-chip-remove");
+        if (!btn) return;
+        removeVisaChip(btn.dataset.name || "");
       });
     }
 
@@ -399,7 +476,7 @@
         email: fields.email?.value.trim() || "",
         phone: buildPhone(fields.phoneCountry?.value || "", fields.phoneNumber?.value || ""),
         passportsHeld: passportChips.join(", "),
-        visasHeld: fields.visasHeld?.value.trim() || "",
+        visasHeld: visaChips.join(", "),
         availability: fields.availability?.value || "Available Immediately",
         bio: fields.bio?.value.trim() || "",
         file: fields.photo?.files?.[0] || null
@@ -440,7 +517,7 @@
       if (fields.phoneNumber) fields.phoneNumber.value = phoneParts.number || "";
 
       setPassportChips(profile.passportsHeld);
-      if (fields.visasHeld) fields.visasHeld.value = profile.visasHeld || "";
+      setVisaChips(profile.visasHeld);
       if (fields.availability) fields.availability.value = profile.availability || "Available Immediately";
       if (fields.bio) fields.bio.value = profile.bio || "";
 
