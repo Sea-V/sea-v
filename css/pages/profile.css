@@ -283,12 +283,16 @@
 
 .profile-phone-field {
   display: grid;
-  grid-template-columns: 128px 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
   gap: 10px;
 }
 
 .profile-phone-country {
+  min-width: 0;
+}
+
+.profile-phone-number {
   min-width: 0;
 }
 
