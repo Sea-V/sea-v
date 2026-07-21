@@ -882,21 +882,31 @@ body.app-page::after {
     padding: 0 12px 12px;
   }
 
+  /*
+   * The big Milestones badge grid (aside.dash-sidebar.sidebar-badge-panel)
+   * reuses the .dash-sidebar class but is a totally separate block from the
+   * nav sidebar below. On mobile it was still being laid out inside the
+   * narrow sidebar column, which is what was actually eating the screen —
+   * not the nav link. Crew can still see badges on the Achievements page.
+   */
+  .sidebar-badge-panel {
+    display: none;
+  }
+
   .dash-sidebar {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    /*
+     * Column, not row: the nav strip and the Logout/legal footer used to sit
+     * side-by-side in one horizontally-scrolling row, which made Logout look
+     * like it was pinned on top of / behind the nav's scrollbar. Stacking
+     * them (nav row on top, footer row below) removes that overlap outright
+     * instead of just re-styling the scrollbar. See
+     * feedback_mobile_sidebar_scrollbar memory if this regresses.
+     */
+    flex-direction: column;
+    align-items: stretch;
 
     gap: 10px;
-
-    /*
-     * Only js/nav (below) scrolls horizontally — this outer row must NOT
-     * also set overflow-x:auto. Two nested auto-scroll containers here used
-     * to fight each other: the browser's own (unstyled) scrollbar for this
-     * element rendered right where the pinned Logout button sits, making it
-     * look like Logout "stuck" in place with a scrollbar stuck behind it.
-     * See feedback_mobile_sidebar_scrollbar memory if this regresses.
-     */
     overflow: visible;
 
     width: 100%;
@@ -916,8 +926,7 @@ body.app-page::after {
     flex-wrap: nowrap;
     align-items: center;
     gap: 8px;
-    flex: 1;
-    min-width: 0;
+    width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -934,18 +943,11 @@ body.app-page::after {
     margin: 0;
   }
 
-  /* Keeps the mobile nav strip shorter so Logout stays reachable without as
-     much horizontal scrolling — crew can still open Achievements from the
-     dashboard's own Milestones panel or the page itself. Desktop sidebar is
-     unaffected. */
-  #sidebarAchievementsLink {
-    display: none;
-  }
-
   .dash-sidebar-footer {
+    width: 100%;
     margin-top: 0;
-    padding-top: 0;
-    border-top: none;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     flex: 0 0 auto;
   }
 
