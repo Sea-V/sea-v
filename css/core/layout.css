@@ -390,17 +390,24 @@ body.app-page::after {
   padding-top: 10px;
 }
 
-.dash-nav-group--tools {
-  margin-top: auto;
-}
+/*
+ * Was "margin-top: auto" — only has an effect if .dash-nav has extra height
+ * to grow into, which it never reliably does (the sidebar card sizes to its
+ * own content). On pages where the sidebar card ends up taller for other
+ * reasons, that auto margin silently ate the extra space, so the gap above
+ * Logout varied page to page instead of always matching the standard
+ * inter-group gap below. Removed so every page gets the same fixed spacing.
+ */
 
 .dash-sidebar-footer {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 10px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  /* Matches .dash-nav-group + .dash-nav-group exactly, so the gap above
+     Logout is identical to every other divider in the sidebar. */
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .dash-sidebar-footer .dash-link.dash-logout {
