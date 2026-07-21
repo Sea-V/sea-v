@@ -840,6 +840,7 @@
   font-size: 8px;
   letter-spacing: 0.5px;
   line-height: 1.1;
+  padding-bottom: 3px;
 }
 
 .dashboard-profile-top .dashboard-info-value {
@@ -927,6 +928,12 @@
   letter-spacing: 1.2px;
 
   text-align: center;
+
+  /* Separator between the title and its value below — shared by the
+     dashboard profile card AND public-profile.html (both reuse these same
+     classes), so this one rule covers both surfaces at once. */
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .dashboard-info-value {
