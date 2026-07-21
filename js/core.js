@@ -480,7 +480,9 @@ function renderAppSidebar() {
           ${renderSidebarGroup(
             "Highlights",
             [
-              renderSidebarLink("achievements.html", "Milestones", iconAchievements),
+              renderSidebarLink("achievements.html", "Milestones", iconAchievements, {
+                id: "sidebarAchievementsLink"
+              }),
               renderSidebarLink("hobbies-interests.html", "Hobbies &amp; Interests", iconHobbies)
             ].join("")
           )}

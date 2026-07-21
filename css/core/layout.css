@@ -934,6 +934,14 @@ body.app-page::after {
     margin: 0;
   }
 
+  /* Keeps the mobile nav strip shorter so Logout stays reachable without as
+     much horizontal scrolling — crew can still open Achievements from the
+     dashboard's own Milestones panel or the page itself. Desktop sidebar is
+     unaffected. */
+  #sidebarAchievementsLink {
+    display: none;
+  }
+
   .dash-sidebar-footer {
     margin-top: 0;
     padding-top: 0;
