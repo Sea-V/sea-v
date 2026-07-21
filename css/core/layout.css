@@ -412,7 +412,6 @@ body.app-page::after {
 
 .dash-sidebar-footer .dash-link.dash-logout {
   margin: 0;
-  border-top: none;
 }
 
 .dash-sidebar-legal {
