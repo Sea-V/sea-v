@@ -889,8 +889,15 @@ body.app-page::after {
 
     gap: 10px;
 
-    overflow-x: auto;
-    overflow-y: hidden;
+    /*
+     * Only js/nav (below) scrolls horizontally — this outer row must NOT
+     * also set overflow-x:auto. Two nested auto-scroll containers here used
+     * to fight each other: the browser's own (unstyled) scrollbar for this
+     * element rendered right where the pinned Logout button sits, making it
+     * look like Logout "stuck" in place with a scrollbar stuck behind it.
+     * See feedback_mobile_sidebar_scrollbar memory if this regresses.
+     */
+    overflow: visible;
 
     width: 100%;
 
@@ -912,6 +919,7 @@ body.app-page::after {
     flex: 1;
     min-width: 0;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .dash-nav-group {
@@ -946,8 +954,12 @@ body.app-page::after {
     padding: 0 0 20px;
   }
 
-  .dash-sidebar::-webkit-scrollbar {
+  .dash-nav::-webkit-scrollbar {
     height: 6px;
+  }
+
+  .dash-nav {
+    scrollbar-width: thin;
   }
 
   .dash-link {
