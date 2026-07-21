@@ -76,6 +76,29 @@
     `);
   }
 
+  function buildProfileCardHtml(data) {
+    return cardShell(`
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center;">
+        <div style="width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.08);border:3px solid var(--logo-sky,#72e4ff);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+          ${
+            data.imageSrc
+              ? `<img src="${escapeHtml(data.imageSrc)}" alt="" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover;" />`
+              : `<span style="font-size:64px;font-weight:800;color:var(--logo-sky,#72e4ff);">${escapeHtml(data.initial)}</span>`
+          }
+        </div>
+        <div>
+          <p style="font-size:40px;font-weight:800;margin:0 0 10px;">${escapeHtml(data.title)}</p>
+          <p style="font-size:24px;color:rgba(255,255,255,0.68);margin:0;">${escapeHtml(data.subtitle)}</p>
+        </div>
+        ${
+          data.statLabel
+            ? `<div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:26px;padding:12px 26px;font-size:22px;font-weight:600;">${escapeHtml(data.statLabel)}</div>`
+            : ""
+        }
+      </div>
+    `);
+  }
+
   function buildPassageCardHtml(data) {
     return cardShell(`
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;">
@@ -231,5 +254,31 @@
     );
   }
 
-  window.SeavShare = { shareBadge, sharePassage };
+  function shareProfile() {
+    const profile = window.SeavState?.profile || {};
+    const name = profile.name || "Seafarer";
+    const subtitleParts = [profile.rank, profile.qualification].filter(Boolean);
+    const imageSrc = window.Seav?.getFileDisplayUrl
+      ? window.Seav.getFileDisplayUrl(
+          profile.photo,
+          window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
+        )
+      : "";
+    const initial = String(name).trim().charAt(0).toUpperCase() || "S";
+
+    return generate(
+      buildProfileCardHtml,
+      {
+        title: name,
+        subtitle: subtitleParts.join(" · ") || "Maritime crew",
+        statLabel: "View my SEA-V career profile",
+        imageSrc,
+        initial
+      },
+      `seav-profile-${(profile.username || "career").toLowerCase()}`,
+      "Check out my SEA-V career profile."
+    );
+  }
+
+  window.SeavShare = { shareBadge, sharePassage, shareProfile };
 })();

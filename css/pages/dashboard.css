@@ -438,8 +438,46 @@
 
 .dashboard-public-share-link-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
   gap: 8px;
+}
+
+/* Same cyan pill treatment as the Milestone badge's "Share this badge"
+   button (css/components/badge-unlock.css .badge-unlock-share-btn) — kept
+   visually consistent since both trigger the same seav-share.js image-card
+   pipeline. Sized to match the row's existing Copy/Open buttons. */
+.dashboard-public-share-image {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 34px;
+  padding: 0 14px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(114, 228, 255, 0.28);
+
+  background: rgba(114, 228, 255, 0.08);
+  color: #9adfff;
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dashboard-public-share-image:hover:not(:disabled) {
+  background: rgba(114, 228, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.dashboard-public-share-image:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .dashboard-public-share-url {

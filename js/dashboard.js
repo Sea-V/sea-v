@@ -260,6 +260,7 @@
   function initDashboardPublicToggle() {
     const checkbox = document.getElementById("dashPublicEnabled");
     const copyBtn = document.getElementById("dashPublicLinkCopy");
+    const shareImageBtn = document.getElementById("dashPublicShareImage");
     if (!checkbox) return;
 
     syncDashboardPublicPanel();
@@ -267,6 +268,16 @@
 
     copyBtn?.addEventListener("click", () => {
       copyDashboardPublicProfileLink();
+    });
+
+    shareImageBtn?.addEventListener("click", async () => {
+      if (shareImageBtn.disabled) return;
+      shareImageBtn.disabled = true;
+      try {
+        await window.SeavShare?.shareProfile?.();
+      } finally {
+        shareImageBtn.disabled = false;
+      }
     });
 
     checkbox.addEventListener("change", async () => {
