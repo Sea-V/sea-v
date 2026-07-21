@@ -12,7 +12,7 @@
   <title>SEA-V Dashboard</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=186" />
+  <link rel="stylesheet" href="styles.css?v=187" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -22,36 +22,36 @@
 
   <!-- Core Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=186"></script>
-  <script src="js/supabase.js?v=186"></script>
-  <script src="js/auth.js?v=186"></script>
-  <script src="js/feedback.js?v=186" defer></script>
-  <script src="js/core.js?v=186" defer></script>
+  <script src="js/seav-config.js?v=187"></script>
+  <script src="js/supabase.js?v=187"></script>
+  <script src="js/auth.js?v=187"></script>
+  <script src="js/feedback.js?v=187" defer></script>
+  <script src="js/core.js?v=187" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=186" defer></script>
-  <script src="js/seav-data.js?v=186" defer></script>
-  <script src="js/seav-badges.js?v=186" defer></script>
-  <script src="js/api-core.js?v=186" defer></script>
-  <script src="js/api-mappers.js?v=186" defer></script>
-  <script src="js/api.js?v=186" defer></script>
-  <script src="js/state.js?v=186" defer></script>
-  <script src="js/achievements-engine.js?v=186" defer></script>
-  <script src="js/badge-unlock.js?v=186" defer></script>
+  <script src="js/seav-upload.js?v=187" defer></script>
+  <script src="js/seav-data.js?v=187" defer></script>
+  <script src="js/seav-badges.js?v=187" defer></script>
+  <script src="js/api-core.js?v=187" defer></script>
+  <script src="js/api-mappers.js?v=187" defer></script>
+  <script src="js/api.js?v=187" defer></script>
+  <script src="js/state.js?v=187" defer></script>
+  <script src="js/achievements-engine.js?v=187" defer></script>
+  <script src="js/badge-unlock.js?v=187" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=186" defer></script>
+  <script src="js/seav-share.js?v=187" defer></script>
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
     defer
   ></script>
-  <script src="js/seav-cards.js?v=186" defer></script>
-  <script src="js/navigation-ports.js?v=186" defer></script>
-  <script src="js/navigation-helpers.js?v=186" defer></script>
-  <script src="js/navigation-passage.js?v=186" defer></script>
-  <script src="js/navigation-routing.js?v=186" defer></script>
-  <script src="js/dashboard-snippets.js?v=186" defer></script>
-  <script src="js/dashboard.js?v=186" defer></script>
+  <script src="js/seav-cards.js?v=187" defer></script>
+  <script src="js/navigation-ports.js?v=187" defer></script>
+  <script src="js/navigation-helpers.js?v=187" defer></script>
+  <script src="js/navigation-passage.js?v=187" defer></script>
+  <script src="js/navigation-routing.js?v=187" defer></script>
+  <script src="js/dashboard-snippets.js?v=187" defer></script>
+  <script src="js/dashboard.js?v=187" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -434,6 +434,21 @@
             <a href="hobbies-interests.html">View all</a>
           </div>
           <div id="dashHobbiesSnippet"></div>
+        </article>
+
+        <!-- =========================
+             MILESTONES
+             Moved here from the sidebar (was sidebar-badge-panel in every
+             page's sidebar) — now dashboard-only, using the same badge grid
+             CSS/JS (id="sidebarAchievements", .sidebar-badge-grid) so no
+             rendering logic had to change, just where it mounts.
+        ========================== -->
+        <article class="dash-card dash-card-accent-achievements full-row">
+          <div class="dashboard-card-headline">
+            <h3><span class="dashboard-card-icon" data-dash-icon="achievements" aria-hidden="true"></span>Milestones</h3>
+            <a href="achievements.html">View all</a>
+          </div>
+          <div class="sidebar-badge-grid" id="sidebarAchievements"></div>
         </article>
 
       </div>

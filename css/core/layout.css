@@ -882,17 +882,6 @@ body.app-page::after {
     padding: 0 12px 12px;
   }
 
-  /*
-   * The big Milestones badge grid (aside.dash-sidebar.sidebar-badge-panel)
-   * reuses the .dash-sidebar class but is a totally separate block from the
-   * nav sidebar below. On mobile it was still being laid out inside the
-   * narrow sidebar column, which is what was actually eating the screen —
-   * not the nav link. Crew can still see badges on the Achievements page.
-   */
-  .sidebar-badge-panel {
-    display: none;
-  }
-
   .dash-sidebar {
     display: flex;
     /*

@@ -60,6 +60,7 @@
 .dash-content .dashboard-shell-card .dash-card-accent-certificates { --section-accent: var(--page-certificates); }
 .dash-content .dashboard-shell-card .dash-card-accent-references { --section-accent: var(--page-references); }
 .dash-content .dashboard-shell-card .dash-card-accent-hobbies { --section-accent: var(--page-hobbies-interests); }
+.dash-content .dashboard-shell-card .dash-card-accent-achievements { --section-accent: var(--page-achievements); }
 
 .dash-content .dashboard-shell-card [class*="dash-card-accent-"] {
   border-color: color-mix(in srgb, var(--section-accent, #5bbcff) 42%, rgba(255, 255, 255, 0.1));

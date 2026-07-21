@@ -512,11 +512,6 @@ function renderAppSidebar() {
           </nav>
         </div>
       </aside>
-
-      <aside class="dash-sidebar sidebar-badge-panel">
-        <h3 class="sidebar-badge-title">Milestones</h3>
-        <div class="sidebar-badge-grid" id="sidebarAchievements"></div>
-      </aside>
     </div>
   `;
 }
