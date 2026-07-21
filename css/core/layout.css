@@ -896,15 +896,16 @@ body.app-page::after {
   .dash-sidebar {
     display: flex;
     /*
-     * Column, not row: the nav strip and the Logout/legal footer used to sit
-     * side-by-side in one horizontally-scrolling row, which made Logout look
-     * like it was pinned on top of / behind the nav's scrollbar. Stacking
-     * them (nav row on top, footer row below) removes that overlap outright
-     * instead of just re-styling the scrollbar. See
+     * Row, matching desktop's single-column feel (nav flows straight into
+     * Logout). This only works because the nav's scrollbar is hidden below
+     * (touch/swipe scrolling still works without a visible bar) — with the
+     * scrollbar visible, it rendered right behind the pinned Logout button,
+     * which read as "stuck". Don't re-show that scrollbar without also
+     * moving Logout out of this row again. See
      * feedback_mobile_sidebar_scrollbar memory if this regresses.
      */
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
 
     gap: 10px;
     overflow: visible;
@@ -926,9 +927,18 @@ body.app-page::after {
     flex-wrap: nowrap;
     align-items: center;
     gap: 8px;
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+
+    /* Scrollbar hidden on purpose — see note on .dash-sidebar above. */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .dash-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .dash-nav-group {
@@ -944,10 +954,9 @@ body.app-page::after {
   }
 
   .dash-sidebar-footer {
-    width: 100%;
     margin-top: 0;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0;
+    border-top: none;
     flex: 0 0 auto;
   }
 
@@ -962,14 +971,6 @@ body.app-page::after {
   .dash-content {
     margin-top: 0;
     padding: 0 0 20px;
-  }
-
-  .dash-nav::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  .dash-nav {
-    scrollbar-width: thin;
   }
 
   .dash-link {
