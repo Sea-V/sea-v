@@ -283,7 +283,12 @@
 
   async function requestPasswordReset(email) {
     const client = await waitForSupabase();
-    const redirectTo = new URL("index.html", window.location.href).href;
+    // The "Reset password" email template uses a custom token_hash link to
+    // reset-password.html (mirroring confirm-account.html's signup flow)
+    // instead of Supabase's own auto-verifying .ConfirmationURL, so this
+    // redirectTo is a fallback only — unused as long as the template keeps
+    // using {{ .TokenHash }}. See reset-password.js for the actual flow.
+    const redirectTo = new URL("reset-password.html", window.location.href).href;
     const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
     if (error) throw error;
   }
