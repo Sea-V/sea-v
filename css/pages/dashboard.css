@@ -442,10 +442,9 @@
   gap: 8px;
 }
 
-/* Same cyan pill treatment as the Milestone badge's "Share this badge"
-   button (css/components/badge-unlock.css .badge-unlock-share-btn) — kept
-   visually consistent since both trigger the same seav-share.js image-card
-   pipeline. Sized to match the row's existing Copy/Open buttons. */
+/* Matches the Save/Copy/Open buttons in this row (all btn-ghost2) instead of
+   its previous standalone cyan treatment — Save, Share, Copy, and Open are
+   meant to read as one consistent button group. */
 .dashboard-public-share-image {
   display: inline-flex;
   align-items: center;
@@ -455,10 +454,10 @@
   padding: 0 14px;
 
   border-radius: 999px;
-  border: 1px solid rgba(114, 228, 255, 0.28);
+  border: 1px solid var(--pill-blue-border);
 
-  background: rgba(114, 228, 255, 0.08);
-  color: #9adfff;
+  background: var(--pill-blue-bg);
+  color: #ffffff;
 
   font-size: 11px;
   font-weight: 800;
@@ -471,7 +470,8 @@
 }
 
 .dashboard-public-share-image:hover:not(:disabled) {
-  background: rgba(114, 228, 255, 0.16);
+  background: var(--pill-blue-bg-hover);
+  border-color: var(--pill-blue-border-hover);
   transform: translateY(-1px);
 }
 
@@ -1203,7 +1203,12 @@
   flex-direction: column;
   height: 100%;
 
-  overflow: hidden;
+  /* No overflow:hidden here anymore — it was clipping the info-grid's
+     bottom padding whenever a cell's text wrapped to two lines (e.g. a
+     long Build/shipyard name or a long Dates range), leaving no visible
+     gap under Length/GT/Build. The photo's own border-radius (below)
+     handles corner rounding instead, so nothing needs to be clipped at
+     the card level. */
 
   padding: 0;
 
@@ -1230,6 +1235,7 @@
   padding: 0;
 
   overflow: hidden;
+  border-radius: 16px 16px 0 0;
 
   border: 0;
   background: rgba(0, 0, 0, 0.22);
@@ -1242,7 +1248,10 @@
   display: block;
 
   border: 0;
-  object-fit: cover;
+  /* contain (not cover) so the whole uploaded photo is visible — cover was
+     cropping the top and bottom of vessel photos against the card's fixed
+     16:10 frame. The container's dark background letterboxes any gap. */
+  object-fit: contain;
   object-position: center;
 }
 
@@ -1276,16 +1285,18 @@
   gap: 6px;
 
   margin-top: auto;
-  padding-top: 10px;
+  padding: 10px 0 4px;
 }
 
 .dash-mini-info-grid div {
-  padding: 7px 8px;
+  padding: 7px 8px 8px;
 
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.07);
 
   background: rgba(255,255,255,0.035);
+
+  min-width: 0;
 }
 
 .dash-mini-head {

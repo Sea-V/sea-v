@@ -181,7 +181,24 @@
     return "downloaded";
   }
 
-  async function generate(buildHtml, data, filenameBase, shareText) {
+  // Best-effort clipboard copy — used as a fallback for the share link,
+  // since navigator.share({ files, text }) frequently drops the `text`
+  // (and any link inside it) once a file is attached: many share targets
+  // (Instagram, WhatsApp, etc.) hand the receiving app only the image, not
+  // the caption. Copying the link separately means the user always has it
+  // to paste, regardless of what the receiving app does with `text`.
+  async function copyLinkFallback(linkUrl) {
+    if (!linkUrl || !navigator.clipboard?.writeText) return false;
+    try {
+      await navigator.clipboard.writeText(linkUrl);
+      return true;
+    } catch (err) {
+      console.warn("[SEA-V] Could not copy share link to clipboard:", err);
+      return false;
+    }
+  }
+
+  async function generate(buildHtml, data, filenameBase, shareText, linkUrl) {
     if (!window.html2canvas) {
       window.Seav.notify?.(
         "error",
@@ -200,8 +217,23 @@
         title: "SEA-V",
         text: shareText || ""
       });
+
+      const linkCopied = await copyLinkFallback(linkUrl);
+
       if (result === "downloaded") {
-        window.Seav.notify?.("success", "Image saved", "Share it from your downloads or photo library.");
+        window.Seav.notify?.(
+          "success",
+          "Image saved",
+          linkCopied
+            ? "Share it from your downloads or photo library — your profile link was also copied, paste it alongside the image."
+            : "Share it from your downloads or photo library."
+        );
+      } else if (result === "shared" && linkCopied) {
+        window.Seav.notify?.(
+          "success",
+          "Link copied too",
+          "Some apps drop the caption when you share an image — your profile link was copied, paste it in if it's missing."
+        );
       }
       return result;
     } catch (err) {
@@ -266,6 +298,13 @@
       : "";
     const initial = String(name).trim().charAt(0).toUpperCase() || "S";
 
+    // The card image prints this same URL on its face (see profileShareLine
+    // in cardShell), but that's just a picture of text — not a real,
+    // clickable/copyable link. The actual URL needs to travel in the share
+    // text (and get copied as a fallback) or recipients only ever get a
+    // picture with no way to reach the profile.
+    const profileUrl = `https://${profileShareLine()}`;
+
     return generate(
       buildProfileCardHtml,
       {
@@ -276,7 +315,8 @@
         initial
       },
       `seav-profile-${(profile.username || "career").toLowerCase()}`,
-      "Check out my SEA-V career profile."
+      `Check out my SEA-V career profile: ${profileUrl}`,
+      profileUrl
     );
   }
 
