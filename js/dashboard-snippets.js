@@ -48,6 +48,17 @@
     return (window.SeavState?.vessels || []).map((v) => [v.id, v.name]);
   }
 
+  // heading.textContent = "..." wipes ALL child nodes, including the
+  // data-dash-icon <span> that populateDashboardCardIcons() already
+  // populated with SVG on load. Detach-and-reattach the icon node around
+  // the text rewrite instead of recreating it, so the icon survives every
+  // title update (card counts refresh on every "seav:data-updated" event).
+  function setHeadingText(heading, text) {
+    const icon = heading.querySelector(".dashboard-card-icon");
+    heading.textContent = text;
+    if (icon) heading.prepend(icon);
+  }
+
   function updateCardTitle(containerId, baseTitle, count) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -58,7 +69,7 @@
     const heading = card.querySelector(".dashboard-card-headline h3, .dash-card > h3");
     if (!heading) return;
 
-    heading.textContent = `${baseTitle} (${count})`;
+    setHeadingText(heading, `${baseTitle} (${count})`);
   }
 
   const haversineNm = window.SeavData.haversineNm;
@@ -137,8 +148,7 @@ function updateCertCardCompleteState(displayCount, attentionCount) {
   const heading = card?.querySelector(".dashboard-card-headline h3, .dash-card > h3");
 
   if (heading) {
-    heading.textContent =
-      displayCount > 0 ? `Certificates (${displayCount})` : "Certificates";
+    setHeadingText(heading, displayCount > 0 ? `Certificates (${displayCount})` : "Certificates");
   }
 
   if (badge) badge.hidden = attentionCount > 0;
