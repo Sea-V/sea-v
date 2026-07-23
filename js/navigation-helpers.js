@@ -21,8 +21,8 @@
     return [...new Set(getPortList().map((item) => item.country))].sort();
   }
 
-  function getCountryGeoNames() {
-    return window.SeavNavigationPorts?.COUNTRY_GEO_NAMES || {};
+  function getCountryIsoNumeric() {
+    return window.SeavNavigationPorts?.COUNTRY_ISO_NUMERIC || {};
   }
 
   // Fallback only (used if js/seav-data.js somehow isn't loaded) — keep this
@@ -214,7 +214,7 @@
 
   window.SeavNavigationHelpers = {
     STORAGE_KEY, MAP_TILE_URL, MAP_TILE_ATTRIBUTION, MAP_DEFAULT_VIEW,
-    getPortList, getCountryList, getCountryGeoNames, roundCoord,
+    getPortList, getCountryList, getCountryIsoNumeric, roundCoord,
     getVessels, getSeatimes, getVesselName, getVesselColor, loadNavEntries,
     hasCoord, normalizeWaypointList, normalizeNavEntry, normalizeText, findPort,
     lookupPortByName, resolveNavEntryCoords,

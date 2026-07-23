@@ -275,51 +275,36 @@
   // =========================================================
   // COUNTRY HIGHLIGHT OVERLAY
   // Fills whole countries green (matching the "S" start-marker green) once
-  // any passage's departure or arrival country matches. Backed by a
-  // community world-boundaries file fetched once and cached; the country
-  // name matching goes through SeavNavigationPorts.COUNTRY_GEO_NAMES so
-  // naming differences ("UAE" vs "United Arab Emirates", accents, etc.)
-  // still resolve. Countries the boundaries file doesn't include as their
-  // own polygon (mostly small island territories) fall back to a green dot
-  // at their port coordinates instead of silently not highlighting at all.
+  // any passage's departure or arrival country matches. Backed by world-atlas's
+  // countries-50m TopoJSON (~60KB, fetched once and cached) converted to
+  // GeoJSON via topojson-client. Matching goes by ISO 3166-1 numeric id
+  // (SeavNavigationPorts.COUNTRY_ISO_NUMERIC), not name strings, so accents/
+  // naming variants never cause a mismatch. If the CDN is unreachable this
+  // fails silently — the rest of the map (tracks, ports, stats) still works.
   // =========================================================
 
-  const WORLD_GEOJSON_URL =
-    "https://cdn.jsdelivr.net/gh/johan/world.geo.json@master/countries.geo.json";
+  const WORLD_TOPOJSON_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
   const COUNTRY_HIGHLIGHT_COLOR = "#15803d";
 
   let worldGeoJsonPromise = null;
   let countryHighlightLayer = null;
-  let countryHighlightDotsLayer = null;
 
   function loadWorldGeoJson() {
     if (!worldGeoJsonPromise) {
-      worldGeoJsonPromise = fetch(WORLD_GEOJSON_URL)
+      worldGeoJsonPromise = fetch(WORLD_TOPOJSON_URL)
         .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+        .then((topology) => {
+          if (typeof topojson === "undefined" || !topology?.objects?.countries) {
+            throw new Error("world boundaries data missing expected structure");
+          }
+          return topojson.feature(topology, topology.objects.countries);
+        })
         .catch((err) => {
           console.warn("[SEA-V] Country highlight overlay unavailable:", err?.message || err);
           return null;
         });
     }
     return worldGeoJsonPromise;
-  }
-
-  // Matches Unicode "combining diacritical marks" (U+0300-U+036F) split off by
-  // String.normalize("NFD"), e.g. turns "Curaçao" into "Curac" + a standalone
-  // cedilla mark, which this then strips to "curacao" for matching.
-  const DIACRITIC_MARKS_PATTERN = /[̀-ͯ]/g;
-
-  function normalizeGeoName(name) {
-    return String(name || "")
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(DIACRITIC_MARKS_PATTERN, "");
-  }
-
-  function getCountryGeoAliases(country, geoNames) {
-    const aliases = geoNames[country];
-    return Array.isArray(aliases) && aliases.length ? aliases : [country];
   }
 
   async function renderCountryHighlights(entries) {
@@ -329,92 +314,43 @@
       S.map.removeLayer(countryHighlightLayer);
       countryHighlightLayer = null;
     }
-    if (countryHighlightDotsLayer) {
-      S.map.removeLayer(countryHighlightDotsLayer);
-      countryHighlightDotsLayer = null;
-    }
 
     const visited = collectVisitedCountries(entries);
     if (!visited.size) return;
 
-    const geoNames = window.SeavNavigationPorts?.COUNTRY_GEO_NAMES || {};
-
-    const acceptedNormalized = new Set();
+    const isoCodes = window.SeavNavigationPorts?.COUNTRY_ISO_NUMERIC || {};
+    const acceptedIds = new Set();
     visited.forEach((country) => {
-      getCountryGeoAliases(country, geoNames).forEach((alias) => {
-        acceptedNormalized.add(normalizeGeoName(alias));
-      });
+      const id = isoCodes[country];
+      if (id) acceptedIds.add(id);
     });
+    if (!acceptedIds.size) return;
 
     const geo = await loadWorldGeoJson();
-    const matchedCountries = new Set();
+    if (!geo || !S.map) return;
 
-    if (geo && S.map) {
-      let layer;
-      try {
-        layer = L.geoJSON(geo, {
-          filter: (feature) => acceptedNormalized.has(normalizeGeoName(feature?.properties?.name)),
-          style: () => ({
-            fillColor: COUNTRY_HIGHLIGHT_COLOR,
-            fillOpacity: 0.3,
-            color: COUNTRY_HIGHLIGHT_COLOR,
-            weight: 1,
-            opacity: 0.6,
-            interactive: false
-          })
-        });
-      } catch (geoError) {
-        console.warn("[SEA-V] Country highlight overlay failed to render:", geoError);
-        layer = null;
-      }
-
-      if (layer) {
-        layer.eachLayer((featureLayer) => {
-          const norm = normalizeGeoName(featureLayer.feature?.properties?.name);
-          visited.forEach((country) => {
-            if (getCountryGeoAliases(country, geoNames).some((alias) => normalizeGeoName(alias) === norm)) {
-              matchedCountries.add(country);
-            }
-          });
-        });
-
-        if (layer.getLayers().length) {
-          layer.addTo(S.map);
-          layer.bringToBack();
-          countryHighlightLayer = layer;
-        }
-      }
+    let layer;
+    try {
+      layer = L.geoJSON(geo, {
+        filter: (feature) => acceptedIds.has(String(feature.id)),
+        style: () => ({
+          fillColor: COUNTRY_HIGHLIGHT_COLOR,
+          fillOpacity: 0.32,
+          color: COUNTRY_HIGHLIGHT_COLOR,
+          weight: 1,
+          opacity: 0.65,
+          interactive: false
+        })
+      });
+    } catch (geoError) {
+      console.warn("[SEA-V] Country highlight overlay failed to render:", geoError);
+      return;
     }
 
-    const unmatched = [...visited].filter((country) => !matchedCountries.has(country));
-    if (unmatched.length) {
-      const ports = window.SeavNavigationPorts?.PORTS || [];
-      const dots = L.layerGroup();
-      const seenCoords = new Set();
-
-      unmatched.forEach((country) => {
-        ports
-          .filter((p) => p.country === country)
-          .forEach((p) => {
-            const key = `${p.lat},${p.lng}`;
-            if (seenCoords.has(key)) return;
-            seenCoords.add(key);
-            L.circleMarker([p.lat, p.lng], {
-              radius: 7,
-              color: COUNTRY_HIGHLIGHT_COLOR,
-              weight: 1,
-              fillColor: COUNTRY_HIGHLIGHT_COLOR,
-              fillOpacity: 0.55,
-              interactive: false
-            }).addTo(dots);
-          });
-      });
-
-      if (S.map) {
-        dots.addTo(S.map);
-        dots.bringToBack();
-        countryHighlightDotsLayer = dots;
-      }
+    if (layer.getLayers().length) {
+      layer.addTo(S.map);
+      layer.bringToBack();
+      countryHighlightLayer = layer;
     }
   }
 

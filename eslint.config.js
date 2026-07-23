@@ -28,6 +28,7 @@ export default [
         IntersectionObserver: "readonly",
         ResizeObserver: "readonly",
         L: "readonly",
+        topojson: "readonly",
         supabase: "readonly",
         alert: "readonly",
         confirm: "readonly",
