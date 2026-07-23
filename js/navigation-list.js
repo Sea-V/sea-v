@@ -31,6 +31,91 @@
     return distances;
   }
 
+  function buildEntryRow(entry, distanceMap) {
+    const vesselName = getVesselName(entry.vesselId);
+    const distanceNm = distanceMap.get(entry.id);
+    const distanceText = distanceNm ? formatNm(distanceNm) : "";
+    const dateText =
+      formatDateRange(
+        entry.departureDate || entry.visitedDate || "",
+        entry.arrivalDate || ""
+      ) || "—";
+
+    const routeLabel = formatRouteLabel(entry);
+    const title = entry.passageName || routeLabel;
+    const linkedSeatime = entry.seatimeId
+      ? getSeatimes().find((item) => item.id === entry.seatimeId)
+      : null;
+
+    const vesselColor = getVesselColor(entry.vesselId);
+
+    return `
+      <div class="list-row navigation-log-row">
+        <div class="navigation-log-main">
+          <div class="list-title navigation-log-title">
+            <span class="navigation-log-color" style="background:${Seav.escapeHtml(vesselColor)}"></span>
+            ${Seav.escapeHtml(title)}
+          </div>
+          ${
+            entry.passageName
+              ? `<div class="list-sub navigation-log-route">${Seav.escapeHtml(routeLabel)}</div>`
+              : ""
+          }
+          <div class="list-sub">
+            ${Seav.escapeHtml(vesselName)} · ${Seav.escapeHtml(dateText)} · ${Seav.escapeHtml(entry.operationType || "—")}${entry.isTidal ? " · Tidal waters" : ""}
+          </div>
+          ${
+            linkedSeatime
+              ? `<div class="list-sub navigation-log-seatime">Linked sea time: ${Seav.escapeHtml(buildSeatimeLabel(linkedSeatime))}</div>`
+              : ""
+          }
+          ${
+            distanceText
+              ? `<div class="navigation-log-leg">${Seav.escapeHtml(distanceText)}</div>`
+              : ""
+          }
+          ${
+            entry.note
+              ? `<div class="list-sub navigation-log-note">${Seav.escapeHtml(entry.note)}</div>`
+              : ""
+          }
+        </div>
+        <div class="seav-actions seav-actions--inline">
+          ${Seav.seavAction("secondary", "Share", `data-share-nav-id="${Seav.escapeHtml(entry.id)}"`)}
+          ${Seav.seavAction("edit", "Edit", `data-edit-nav-id="${Seav.escapeHtml(entry.id)}"`)}
+          ${Seav.seavAction("delete", "Delete", `data-del-nav-id="${Seav.escapeHtml(entry.id)}"`)}
+        </div>
+      </div>
+    `;
+  }
+
+  function buildVesselGroups(entries, distanceMap) {
+    const groups = new Map();
+
+    entries.forEach((entry) => {
+      const key = entry.vesselId || "";
+      if (!groups.has(key)) {
+        groups.set(key, {
+          vesselId: key,
+          vesselName: getVesselName(key),
+          vesselColor: getVesselColor(key),
+          entries: [],
+          totalNm: 0,
+          latest: 0
+        });
+      }
+      const group = groups.get(key);
+      group.entries.push(entry);
+      group.totalNm += Number(distanceMap.get(entry.id) || 0);
+
+      const sortDate = entry.departureDate || entry.visitedDate || entry.arrivalDate || "";
+      const time = sortDate ? new Date(sortDate).getTime() : 0;
+      if (time > group.latest) group.latest = time;
+    });
+
+    return [...groups.values()].sort((a, b) => b.latest - a.latest);
+  }
+
   async function renderNavEntriesList() {
     const list = document.getElementById("navEntriesList");
     if (!list) return;
@@ -58,62 +143,27 @@
       return db - da;
     });
 
-    list.innerHTML = sorted
-      .map((entry) => {
-        const vesselName = getVesselName(entry.vesselId);
-        const distanceNm = distanceMap.get(entry.id);
-        const distanceText = distanceNm ? formatNm(distanceNm) : "";
-        const dateText =
-          formatDateRange(
-            entry.departureDate || entry.visitedDate || "",
-            entry.arrivalDate || ""
-          ) || "—";
+    const groups = buildVesselGroups(sorted, distanceMap);
 
-        const routeLabel = formatRouteLabel(entry);
-        const title = entry.passageName || routeLabel;
-        const linkedSeatime = entry.seatimeId
-          ? getSeatimes().find((item) => item.id === entry.seatimeId)
-          : null;
-
-        const vesselColor = getVesselColor(entry.vesselId);
+    list.innerHTML = groups
+      .map((group, index) => {
+        const passageWord = group.entries.length === 1 ? "passage" : "passages";
+        const totalNmText = group.totalNm ? formatNm(group.totalNm) : "";
 
         return `
-          <div class="list-row navigation-log-row">
-            <div class="navigation-log-main">
-              <div class="list-title navigation-log-title">
-                <span class="navigation-log-color" style="background:${Seav.escapeHtml(vesselColor)}"></span>
-                ${Seav.escapeHtml(title)}
-              </div>
-              ${
-                entry.passageName
-                  ? `<div class="list-sub navigation-log-route">${Seav.escapeHtml(routeLabel)}</div>`
-                  : ""
-              }
-              <div class="list-sub">
-                ${Seav.escapeHtml(vesselName)} · ${Seav.escapeHtml(dateText)} · ${Seav.escapeHtml(entry.operationType || "—")}${entry.isTidal ? " · Tidal waters" : ""}
-              </div>
-              ${
-                linkedSeatime
-                  ? `<div class="list-sub navigation-log-seatime">Linked sea time: ${Seav.escapeHtml(buildSeatimeLabel(linkedSeatime))}</div>`
-                  : ""
-              }
-              ${
-                distanceText
-                  ? `<div class="navigation-log-leg">${Seav.escapeHtml(distanceText)}</div>`
-                  : ""
-              }
-              ${
-                entry.note
-                  ? `<div class="list-sub navigation-log-note">${Seav.escapeHtml(entry.note)}</div>`
-                  : ""
-              }
+          <details class="navigation-vessel-group"${index === 0 ? " open" : ""}>
+            <summary class="navigation-vessel-group-summary">
+              <span class="navigation-log-color" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>
+              <span class="navigation-vessel-group-title">
+                <strong>${Seav.escapeHtml(group.vesselName)}</strong>
+                <small>${group.entries.length} ${passageWord}${totalNmText ? ` · ${Seav.escapeHtml(totalNmText)}` : ""}</small>
+              </span>
+              <span class="navigation-vessel-group-count">${group.entries.length}</span>
+            </summary>
+            <div class="navigation-vessel-group-body">
+              ${group.entries.map((entry) => buildEntryRow(entry, distanceMap)).join("")}
             </div>
-            <div class="seav-actions seav-actions--inline">
-              ${Seav.seavAction("secondary", "Share", `data-share-nav-id="${Seav.escapeHtml(entry.id)}"`)}
-              ${Seav.seavAction("edit", "Edit", `data-edit-nav-id="${Seav.escapeHtml(entry.id)}"`)}
-              ${Seav.seavAction("delete", "Delete", `data-del-nav-id="${Seav.escapeHtml(entry.id)}"`)}
-            </div>
-          </div>
+          </details>
         `;
       })
       .join("");
