@@ -11,26 +11,26 @@
 
   <title>SEA-V • Vessels</title>
 
-<link rel="stylesheet" href="styles.css?v=199" />
+<link rel="stylesheet" href="styles.css?v=200" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=199"></script>
-  <script src="js/supabase.js?v=199"></script>
-  <script src="js/auth.js?v=199"></script>
-  <script src="js/feedback.js?v=199" defer></script>
-  <script src="js/core.js?v=199" defer></script>
+  <script src="js/seav-config.js?v=200"></script>
+  <script src="js/supabase.js?v=200"></script>
+  <script src="js/auth.js?v=200"></script>
+  <script src="js/feedback.js?v=200" defer></script>
+  <script src="js/core.js?v=200" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=199" defer></script>
-<script src="js/seav-data.js?v=199" defer></script>
-<script src="js/seav-badges.js?v=199" defer></script>
-<script src="js/api-core.js?v=199" defer></script>
-  <script src="js/api-mappers.js?v=199" defer></script>
-  <script src="js/api.js?v=199" defer></script>
-<script src="js/state.js?v=199" defer></script>
-<script src="js/achievements-engine.js?v=199" defer></script>
-  <script src="js/badge-unlock.js?v=199" defer></script>
+  <script src="js/seav-upload.js?v=200" defer></script>
+<script src="js/seav-data.js?v=200" defer></script>
+<script src="js/seav-badges.js?v=200" defer></script>
+<script src="js/api-core.js?v=200" defer></script>
+  <script src="js/api-mappers.js?v=200" defer></script>
+  <script src="js/api.js?v=200" defer></script>
+<script src="js/state.js?v=200" defer></script>
+<script src="js/achievements-engine.js?v=200" defer></script>
+  <script src="js/badge-unlock.js?v=200" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=199" defer></script>
-<script src="js/vessels.js?v=199" defer></script>
+  <script src="js/seav-share.js?v=200" defer></script>
+<script src="js/vessels.js?v=200" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -157,16 +157,35 @@
           <input id="vs_program" placeholder="Private owner, charter, or expedition use" />
         </label>
 
-        <label>Salary (optional)
-          <input id="vs_salary" placeholder="Salary on this vessel — private, only visible to you" />
-        </label>
+        <div class="modal-grid2">
+          <label>Salary currency (optional)
+            <select id="vs_salary_currency"></select>
+          </label>
+
+          <label>Salary amount (optional)
+            <input id="vs_salary_amount" placeholder="Salary on this vessel — private, only visible to you" />
+          </label>
+        </div>
 
         <label>Vessel photo (optional)
-          <input type="file" id="vs_photo" accept="image/*" />
+          <div class="profile-photo-field">
+            <div class="profile-photo-thumb" id="vsPhotoThumb" aria-label="Current vessel photo"></div>
+            <div class="profile-photo-actions">
+              <button type="button" class="btn-ghost2" id="vsPhotoBtn">Choose photo</button>
+              <input type="file" id="vs_photo" accept="image/*" hidden />
+              <p class="profile-photo-hint muted" id="vsPhotoHint">No photo uploaded yet</p>
+            </div>
+          </div>
         </label>
 
         <label>Seafarer employment agreement (optional)
-          <input type="file" id="vs_sea" accept=".pdf,.doc,.docx,image/*" />
+          <div class="profile-photo-field">
+            <div class="profile-photo-actions">
+              <button type="button" class="btn-ghost2" id="vsSeaBtn">Choose file</button>
+              <input type="file" id="vs_sea" accept=".pdf,.doc,.docx,image/*" hidden />
+              <p class="profile-photo-hint muted" id="vsSeaHint">No document uploaded yet</p>
+            </div>
+          </div>
         </label>
 
         <button class="btn-blue" type="submit">Save vessel</button>

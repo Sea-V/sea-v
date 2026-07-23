@@ -22,8 +22,36 @@
     return;
   }
 
-  const { KEYS, createId, totalQualifyingDays, formatDatePretty } = window.SeavData;
+  const { KEYS, createId, totalQualifyingDays, formatDatePretty, PAYSLIP_CURRENCIES } = window.SeavData;
   const STORAGE_KEY = KEYS.VESSELS;
+
+  /**
+   * Vessel salary is stored as a single free-text column (no schema change),
+   * but the form now splits it into a currency dropdown + amount input.
+   * New saves are written as "<CURRENCY> <amount>" so they round-trip; older
+   * free-text values (no recognised currency prefix) fall back to "OTHER"
+   * with the full original text preserved in the amount field.
+   */
+  function parseVesselSalary(raw) {
+    const str = String(raw || "").trim();
+    if (!str) return { currency: "GBP", amount: "" };
+    const match = str.match(/^(GBP|EUR|USD|CHF|AUD|NZD)\s*(.*)$/i);
+    if (match) {
+      return { currency: match[1].toUpperCase(), amount: match[2].trim() };
+    }
+    return { currency: "OTHER", amount: str };
+  }
+
+  function populateVesselCurrencyOptions() {
+    const select = document.getElementById("vs_salary_currency");
+    if (!select || !PAYSLIP_CURRENCIES) return;
+
+    const current = select.value || "GBP";
+    select.innerHTML = PAYSLIP_CURRENCIES.map(
+      (item) => `<option value="${Seav.escapeHtml(item.value)}">${Seav.escapeHtml(item.label)}</option>`
+    ).join("");
+    select.value = current;
+  }
 
   function getVessels() {
     return window.SeavState?.vessels || [];
@@ -332,6 +360,67 @@ function buildVesselCard(v, options = {}) {
   const VESSEL_DOC_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_DOCUMENTS || "vessel-documents";
 
+  // Mirrors the Profile page's photo-thumb pattern — previously vs_photo/vs_sea
+  // were bare <input type="file"> controls with no indication a file already
+  // existed, which read as empty even when editing a vessel that had one.
+  function renderVesselPhotoThumb(photoMeta, { isNewSelection = false } = {}) {
+    const thumb = document.getElementById("vsPhotoThumb");
+    const hint = document.getElementById("vsPhotoHint");
+    const btn = document.getElementById("vsPhotoBtn");
+    if (!thumb) return;
+
+    const photoUrl = Seav.getFileDisplayUrl(photoMeta, VESSEL_PHOTO_BUCKET);
+
+    if (photoUrl) {
+      const safeUrl = String(photoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+      thumb.style.backgroundImage = `url("${safeUrl}")`;
+    } else {
+      thumb.style.backgroundImage = "";
+    }
+
+    if (hint) {
+      if (isNewSelection) {
+        hint.textContent = "New photo selected — click Save vessel to apply";
+      } else if (photoUrl) {
+        hint.textContent = "Current photo";
+      } else {
+        hint.textContent = "No photo uploaded yet";
+      }
+    }
+
+    if (btn) {
+      btn.textContent = photoUrl ? "Change photo" : "Choose photo";
+    }
+  }
+
+  function renderVesselSeaHint(attachmentMeta, { isNewSelection = false } = {}) {
+    const hint = document.getElementById("vsSeaHint");
+    const btn = document.getElementById("vsSeaBtn");
+
+    if (isNewSelection) {
+      if (hint) {
+        hint.textContent = attachmentMeta?.filename
+          ? `New file selected: ${attachmentMeta.filename} — click Save vessel to apply`
+          : "New file selected — click Save vessel to apply";
+      }
+      if (btn) btn.textContent = "Change file";
+      return;
+    }
+
+    const docUrl = attachmentMeta ? Seav.getFileDisplayUrl(attachmentMeta, VESSEL_DOC_BUCKET) : "";
+    const filename = attachmentMeta?.filename || "";
+
+    if (hint) {
+      hint.textContent = docUrl
+        ? (filename ? `Current document: ${filename}` : "Current document uploaded")
+        : "No document uploaded yet";
+    }
+
+    if (btn) {
+      btn.textContent = docUrl ? "Change file" : "Choose file";
+    }
+  }
+
   async function hydrateVesselFiles(vessels) {
     if (!window.SeavApiCore?.hydrateItemsFileField || !vessels.length) return vessels;
     await window.SeavApiCore.hydrateItemsFileField(vessels, "photo", VESSEL_PHOTO_BUCKET);
@@ -426,8 +515,15 @@ function fillVesselForm(vessel) {
   if (programEl) programEl.value = vessel.program || "";
   if (builderEl) builderEl.value = vessel.builder || "";
 
-  const salaryEl = document.getElementById("vs_salary");
-  if (salaryEl) salaryEl.value = vessel.salary || "";
+  populateVesselCurrencyOptions();
+  const parsedSalary = parseVesselSalary(vessel.salary);
+  const salaryCurrencyEl = document.getElementById("vs_salary_currency");
+  const salaryAmountEl = document.getElementById("vs_salary_amount");
+  if (salaryCurrencyEl) salaryCurrencyEl.value = parsedSalary.currency;
+  if (salaryAmountEl) salaryAmountEl.value = parsedSalary.amount;
+
+  renderVesselPhotoThumb(vessel.photo || null, { isNewSelection: false });
+  renderVesselSeaHint(vessel.sea_attachment || vessel.seaAttachment || null, { isNewSelection: false });
 
   const editId = document.getElementById("vs_edit_index");
   if (editId) editId.value = vessel.id || "";
@@ -458,6 +554,13 @@ function resetVesselFormState() {
   if (toWrap) {
     toWrap.style.display = "";
   }
+
+  populateVesselCurrencyOptions();
+  const salaryCurrencyEl = document.getElementById("vs_salary_currency");
+  if (salaryCurrencyEl) salaryCurrencyEl.value = "GBP";
+
+  renderVesselPhotoThumb(null, { isNewSelection: false });
+  renderVesselSeaHint(null, { isNewSelection: false });
 }
 
 function readVesselForm() {
@@ -478,7 +581,12 @@ function readVesselForm() {
     role: document.getElementById("vs_role")?.value.trim() || "",
     type: document.getElementById("vs_type")?.value.trim() || "",
     program: document.getElementById("vs_program")?.value.trim() || "",
-    salary: document.getElementById("vs_salary")?.value.trim() || "",
+    salary: (() => {
+      const amount = document.getElementById("vs_salary_amount")?.value.trim() || "";
+      if (!amount) return "";
+      const currency = document.getElementById("vs_salary_currency")?.value || "GBP";
+      return currency === "OTHER" ? amount : `${currency} ${amount}`;
+    })(),
     file: document.getElementById("vs_photo")?.files?.[0] || null,
     seaFile: document.getElementById("vs_sea")?.files?.[0] || null
   };
@@ -536,6 +644,34 @@ async function saveVesselData(vesselData) {
     const vesselForm = document.getElementById("vesselForm");
     const currentCheckbox = document.getElementById("vs_current");
     const toWrap = document.getElementById("vs_to_wrap");
+
+    populateVesselCurrencyOptions();
+
+    const vsPhotoInput = document.getElementById("vs_photo");
+    const vsPhotoBtn = document.getElementById("vsPhotoBtn");
+    if (vsPhotoBtn && vsPhotoInput) {
+      vsPhotoBtn.addEventListener("click", () => vsPhotoInput.click());
+    }
+    if (vsPhotoInput) {
+      vsPhotoInput.addEventListener("change", () => {
+        const file = vsPhotoInput.files?.[0] || null;
+        if (file) {
+          renderVesselPhotoThumb({ dataUrl: URL.createObjectURL(file) }, { isNewSelection: true });
+        }
+      });
+    }
+
+    const vsSeaInput = document.getElementById("vs_sea");
+    const vsSeaBtn = document.getElementById("vsSeaBtn");
+    if (vsSeaBtn && vsSeaInput) {
+      vsSeaBtn.addEventListener("click", () => vsSeaInput.click());
+    }
+    if (vsSeaInput) {
+      vsSeaInput.addEventListener("change", () => {
+        const file = vsSeaInput.files?.[0] || null;
+        renderVesselSeaHint(file ? { filename: file.name } : null, { isNewSelection: !!file });
+      });
+    }
 
     if (currentCheckbox && toWrap) {
     const syncEndDateVisibility = () => {
