@@ -222,6 +222,11 @@
     return countries;
   }
 
+  // 1 nautical mile = 1 minute of arc, so the Earth's circumference at the
+  // equator is exactly 360 * 60 = 21,600 NM. Used for the "% of Earth's
+  // circumference sailed" stat — a distance-based measure, not a country count.
+  const EARTH_CIRCUMFERENCE_NM = 21600;
+
   function buildNavigationStats(entries, paths) {
     const countries = collectVisitedCountries(entries);
     const ports = new Set();
@@ -236,13 +241,21 @@
     });
 
     const totalNm = paths.reduce((sum, path) => sum + Number(path.distanceNm || 0), 0);
+    const worldPct = (totalNm / EARTH_CIRCUMFERENCE_NM) * 100;
 
     return {
       countries: countries.size,
       ports: ports.size,
       passages: paths.length,
-      totalNm
+      totalNm,
+      worldPct
     };
+  }
+
+  function formatWorldPct(pct) {
+    if (!Number.isFinite(pct) || pct <= 0) return "0%";
+    if (pct < 0.1) return "<0.1%";
+    return `${pct.toFixed(pct < 10 ? 1 : 0)}%`;
   }
 
   function renderStats(stats) {
@@ -250,11 +263,159 @@
     const portsEl = document.getElementById("navStatPorts");
     const passagesEl = document.getElementById("navStatPassages");
     const milesEl = document.getElementById("navStatMiles");
+    const worldPctEl = document.getElementById("navStatWorldPct");
 
     if (countriesEl) countriesEl.textContent = String(stats.countries);
     if (portsEl) portsEl.textContent = String(stats.ports);
     if (passagesEl) passagesEl.textContent = String(stats.passages);
     if (milesEl) milesEl.textContent = formatNm(stats.totalNm);
+    if (worldPctEl) worldPctEl.textContent = formatWorldPct(stats.worldPct);
+  }
+
+  // =========================================================
+  // COUNTRY HIGHLIGHT OVERLAY
+  // Fills whole countries green (matching the "S" start-marker green) once
+  // any passage's departure or arrival country matches. Backed by a
+  // community world-boundaries file fetched once and cached; the country
+  // name matching goes through SeavNavigationPorts.COUNTRY_GEO_NAMES so
+  // naming differences ("UAE" vs "United Arab Emirates", accents, etc.)
+  // still resolve. Countries the boundaries file doesn't include as their
+  // own polygon (mostly small island territories) fall back to a green dot
+  // at their port coordinates instead of silently not highlighting at all.
+  // =========================================================
+
+  const WORLD_GEOJSON_URL =
+    "https://cdn.jsdelivr.net/gh/johan/world.geo.json@master/countries.geo.json";
+  const COUNTRY_HIGHLIGHT_COLOR = "#15803d";
+
+  let worldGeoJsonPromise = null;
+  let countryHighlightLayer = null;
+  let countryHighlightDotsLayer = null;
+
+  function loadWorldGeoJson() {
+    if (!worldGeoJsonPromise) {
+      worldGeoJsonPromise = fetch(WORLD_GEOJSON_URL)
+        .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+        .catch((err) => {
+          console.warn("[SEA-V] Country highlight overlay unavailable:", err?.message || err);
+          return null;
+        });
+    }
+    return worldGeoJsonPromise;
+  }
+
+  // Matches Unicode "combining diacritical marks" (U+0300-U+036F) split off by
+  // String.normalize("NFD"), e.g. turns "Curaçao" into "Curac" + a standalone
+  // cedilla mark, which this then strips to "curacao" for matching.
+  const DIACRITIC_MARKS_PATTERN = /[̀-ͯ]/g;
+
+  function normalizeGeoName(name) {
+    return String(name || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(DIACRITIC_MARKS_PATTERN, "");
+  }
+
+  function getCountryGeoAliases(country, geoNames) {
+    const aliases = geoNames[country];
+    return Array.isArray(aliases) && aliases.length ? aliases : [country];
+  }
+
+  async function renderCountryHighlights(entries) {
+    if (!S.map) return;
+
+    if (countryHighlightLayer) {
+      S.map.removeLayer(countryHighlightLayer);
+      countryHighlightLayer = null;
+    }
+    if (countryHighlightDotsLayer) {
+      S.map.removeLayer(countryHighlightDotsLayer);
+      countryHighlightDotsLayer = null;
+    }
+
+    const visited = collectVisitedCountries(entries);
+    if (!visited.size) return;
+
+    const geoNames = window.SeavNavigationPorts?.COUNTRY_GEO_NAMES || {};
+
+    const acceptedNormalized = new Set();
+    visited.forEach((country) => {
+      getCountryGeoAliases(country, geoNames).forEach((alias) => {
+        acceptedNormalized.add(normalizeGeoName(alias));
+      });
+    });
+
+    const geo = await loadWorldGeoJson();
+    const matchedCountries = new Set();
+
+    if (geo && S.map) {
+      let layer;
+      try {
+        layer = L.geoJSON(geo, {
+          filter: (feature) => acceptedNormalized.has(normalizeGeoName(feature?.properties?.name)),
+          style: () => ({
+            fillColor: COUNTRY_HIGHLIGHT_COLOR,
+            fillOpacity: 0.3,
+            color: COUNTRY_HIGHLIGHT_COLOR,
+            weight: 1,
+            opacity: 0.6,
+            interactive: false
+          })
+        });
+      } catch (geoError) {
+        console.warn("[SEA-V] Country highlight overlay failed to render:", geoError);
+        layer = null;
+      }
+
+      if (layer) {
+        layer.eachLayer((featureLayer) => {
+          const norm = normalizeGeoName(featureLayer.feature?.properties?.name);
+          visited.forEach((country) => {
+            if (getCountryGeoAliases(country, geoNames).some((alias) => normalizeGeoName(alias) === norm)) {
+              matchedCountries.add(country);
+            }
+          });
+        });
+
+        if (layer.getLayers().length) {
+          layer.addTo(S.map);
+          layer.bringToBack();
+          countryHighlightLayer = layer;
+        }
+      }
+    }
+
+    const unmatched = [...visited].filter((country) => !matchedCountries.has(country));
+    if (unmatched.length) {
+      const ports = window.SeavNavigationPorts?.PORTS || [];
+      const dots = L.layerGroup();
+      const seenCoords = new Set();
+
+      unmatched.forEach((country) => {
+        ports
+          .filter((p) => p.country === country)
+          .forEach((p) => {
+            const key = `${p.lat},${p.lng}`;
+            if (seenCoords.has(key)) return;
+            seenCoords.add(key);
+            L.circleMarker([p.lat, p.lng], {
+              radius: 7,
+              color: COUNTRY_HIGHLIGHT_COLOR,
+              weight: 1,
+              fillColor: COUNTRY_HIGHLIGHT_COLOR,
+              fillOpacity: 0.55,
+              interactive: false
+            }).addTo(dots);
+          });
+      });
+
+      if (S.map) {
+        dots.addTo(S.map);
+        dots.bringToBack();
+        countryHighlightDotsLayer = dots;
+      }
+    }
   }
 
   function fitMapToData(paths, points, options = {}) {
@@ -340,6 +501,12 @@
       } catch (legendError) {
         console.warn("[SEA-V] Vessel legend render failed:", legendError);
       }
+
+      // Not awaited: the choropleth overlay fetches a world boundaries file
+      // over the network the first time it's needed, and is purely additive
+      // — the rest of the map (tracks, ports, stats) must never wait on it,
+      // and if it fails it fails silently (see renderCountryHighlights).
+      renderCountryHighlights(entries);
 
       if (S.pathLayer) S.pathLayer.clearLayers();
       if (S.pointLayer) S.pointLayer.clearLayers();
@@ -449,6 +616,6 @@
     filterEntries, buildMapPoints, collectVisitedCountries, buildNavigationStats,
     renderStats, renderVesselLegend, fitMapToData, formatDateRange, buildPathPopup, buildPointPopup,
     buildEndpointMarker, buildWaypointMarker, buildSavedTrackLine, addWrappingPolylines,
-    refreshMap, initNavigationMap
+    renderCountryHighlights, refreshMap, initNavigationMap
   };
 })();

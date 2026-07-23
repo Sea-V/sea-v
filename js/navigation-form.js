@@ -534,6 +534,11 @@
     }
 
     S.formWaypoints.push({ lat: roundCoord(latNum), lng: roundCoord(lngNum), label: label || "" });
+    // The add controls now live outside the collapsed waypoints <details>
+    // (surfaced near the arrival port), so auto-expand it here — otherwise
+    // a manually added point wouldn't visibly register anywhere.
+    const panel = document.getElementById("navWaypointsPanel");
+    if (panel) panel.open = true;
     renderWaypointList();
     renderWorkingRoute();
     return true;

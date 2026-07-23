@@ -11,7 +11,7 @@
 
   <title>SEA-V • Navigation</title>
 
-  <link rel="stylesheet" href="styles.css?v=208" />
+  <link rel="stylesheet" href="styles.css?v=209" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -20,38 +20,38 @@
   />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=208"></script>
-  <script src="js/supabase.js?v=208"></script>
-  <script src="js/auth.js?v=208"></script>
-  <script src="js/feedback.js?v=208" defer></script>
-  <script src="js/core.js?v=208" defer></script>
+  <script src="js/seav-config.js?v=209"></script>
+  <script src="js/supabase.js?v=209"></script>
+  <script src="js/auth.js?v=209"></script>
+  <script src="js/feedback.js?v=209" defer></script>
+  <script src="js/core.js?v=209" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=208" defer></script>
-  <script src="js/seav-data.js?v=208" defer></script>
-  <script src="js/seav-badges.js?v=208" defer></script>
-  <script src="js/api-core.js?v=208" defer></script>
-  <script src="js/api-mappers.js?v=208" defer></script>
-  <script src="js/api.js?v=208" defer></script>
-  <script src="js/state.js?v=208" defer></script>
-  <script src="js/achievements-engine.js?v=208" defer></script>
-  <script src="js/badge-unlock.js?v=208" defer></script>
+  <script src="js/seav-upload.js?v=209" defer></script>
+  <script src="js/seav-data.js?v=209" defer></script>
+  <script src="js/seav-badges.js?v=209" defer></script>
+  <script src="js/api-core.js?v=209" defer></script>
+  <script src="js/api-mappers.js?v=209" defer></script>
+  <script src="js/api.js?v=209" defer></script>
+  <script src="js/state.js?v=209" defer></script>
+  <script src="js/achievements-engine.js?v=209" defer></script>
+  <script src="js/badge-unlock.js?v=209" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=208" defer></script>
-  <script src="js/navigation-helpers.js?v=208" defer></script>
-  <script src="js/navigation-passage.js?v=208" defer></script>
-  <script src="js/navigation-ports.js?v=208" defer></script>
-  <script src="js/navigation-routing.js?v=208" defer></script>
+  <script src="js/seav-share.js?v=209" defer></script>
+  <script src="js/navigation-helpers.js?v=209" defer></script>
+  <script src="js/navigation-passage.js?v=209" defer></script>
+  <script src="js/navigation-ports.js?v=209" defer></script>
+  <script src="js/navigation-routing.js?v=209" defer></script>
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
     defer
   ></script>
-  <script src="js/navigation-state.js?v=208" defer></script>
-  <script src="js/navigation-map.js?v=208" defer></script>
-  <script src="js/navigation-form.js?v=208" defer></script>
-  <script src="js/navigation-list.js?v=208" defer></script>
-  <script src="js/navigation.js?v=208" defer></script>
+  <script src="js/navigation-state.js?v=209" defer></script>
+  <script src="js/navigation-map.js?v=209" defer></script>
+  <script src="js/navigation-form.js?v=209" defer></script>
+  <script src="js/navigation-list.js?v=209" defer></script>
+  <script src="js/navigation.js?v=209" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -88,7 +88,8 @@
             <h3>World passage chart</h3>
             <p>
               Pan and zoom the chart to explore towns, ports and coastlines. Each logged
-              passage draws a track from port of departure to port of arrival.
+              passage draws a track from port of departure to port of arrival, and countries
+              you've visited are highlighted in green.
             </p>
           </div>
 
@@ -116,6 +117,10 @@
               <div class="navigation-stat navigation-stat--highlight">
                 <span class="navigation-stat-value" id="navStatMiles">0</span>
                 <span class="navigation-stat-label">Total NM</span>
+              </div>
+              <div class="navigation-stat">
+                <span class="navigation-stat-value" id="navStatWorldPct">0%</span>
+                <span class="navigation-stat-label">Of Earth's circumference</span>
               </div>
             </div>
           </div>
@@ -251,11 +256,22 @@
                   <button type="button" class="btn-ghost2" id="navResetToPointBtn">Reset finish point</button>
                 </div>
               </div>
+
+              <div class="navigation-waypoint-add navigation-waypoint-add--surfaced">
+                <p class="navigation-route-label">Add a waypoint (optional)</p>
+                <button type="button" class="btn-ghost2" id="navRecommendPassageBtn">Use recommended passage</button>
+                <button type="button" class="btn-ghost2" id="navPickOnMapBtn">Pick on chart</button>
+                <div class="navigation-waypoint-coords">
+                  <input id="navWaypointLat" type="number" step="any" min="-90" max="90" placeholder="Latitude" />
+                  <input id="navWaypointLng" type="number" step="any" min="-180" max="180" placeholder="Longitude" />
+                  <button type="button" class="btn-ghost2" id="navAddWaypointBtn">Add point</button>
+                </div>
+              </div>
             </div>
 
             <details class="navigation-route-block navigation-waypoints-block" id="navWaypointsPanel">
               <summary class="navigation-waypoints-summary">
-                <span class="navigation-route-label">Waypoints (optional)</span>
+                <span class="navigation-route-label">Waypoints list &amp; import</span>
                 <span class="navigation-waypoints-count" id="navWaypointCount">0</span>
               </summary>
 
@@ -269,21 +285,11 @@
 
               <p class="navigation-waypoints-help">
                 Imported RTZ/KML sets green <strong>S</strong> start and red <strong>F</strong> finish on the chart.
-                Waypoints stay numbered <strong>1, 2, 3…</strong> — not S/F. You can also add points manually;
-                the track runs departure → each waypoint → arrival.
+                Waypoints stay numbered <strong>1, 2, 3…</strong> — not S/F. You can also add points manually
+                above; the track runs departure → each waypoint → arrival.
               </p>
 
               <ul id="navWaypointList" class="navigation-waypoint-list"></ul>
-
-              <div class="navigation-waypoint-add">
-                <button type="button" class="btn-ghost2" id="navRecommendPassageBtn">Use recommended passage</button>
-                <button type="button" class="btn-ghost2" id="navPickOnMapBtn">Pick on chart</button>
-                <div class="navigation-waypoint-coords">
-                  <input id="navWaypointLat" type="number" step="any" min="-90" max="90" placeholder="Latitude" />
-                  <input id="navWaypointLng" type="number" step="any" min="-180" max="180" placeholder="Longitude" />
-                  <button type="button" class="btn-ghost2" id="navAddWaypointBtn">Add point</button>
-                </div>
-              </div>
             </details>
 
             <label>
