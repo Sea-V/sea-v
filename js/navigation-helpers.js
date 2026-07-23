@@ -181,6 +181,22 @@
       }
     }
 
+    // Some legacy/free-text entries already have lat/lng (e.g. resolved via a
+    // geocoder when the port was typed) but never got a country saved. The
+    // coord-backfill branches above skip these since hasCoord() is already
+    // true, so country would otherwise stay blank forever and the entry
+    // would silently drop out of the country-highlight map. Always try a
+    // name-only port lookup for country, independent of coord state.
+    if (!resolved.fromCountry && resolved.fromPort) {
+      const found = lookupPortByName(resolved.fromPort);
+      if (found) resolved.fromCountry = found.country;
+    }
+
+    if (!resolved.toCountry && resolved.toPort) {
+      const found = lookupPortByName(resolved.toPort);
+      if (found) resolved.toCountry = found.country;
+    }
+
     return resolved;
   }
 
