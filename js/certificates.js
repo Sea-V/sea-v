@@ -624,10 +624,13 @@
 
     document.getElementById("btnDownloadAllCerts")?.addEventListener("click", async (e) => {
       e.preventDefault();
+      window.SeavFeedback?.showSaving("Preparing download…", "Zipping your certificate files");
       try {
         await exportApi?.downloadAllCertificates?.();
       } catch (err) {
         Seav.notify("error", "Download failed", err.message || "Could not download.");
+      } finally {
+        window.SeavFeedback?.hideSaving();
       }
     });
 
@@ -638,10 +641,13 @@
 
     document.getElementById("btnShareZipCerts")?.addEventListener("click", async (e) => {
       e.preventDefault();
+      window.SeavFeedback?.showSaving("Preparing share…", "Zipping your certificate files");
       try {
         await exportApi?.shareAllCertificates?.();
       } catch (err) {
         if (bulkMsg) bulkMsg.textContent = err.message || "Share unavailable.";
+      } finally {
+        window.SeavFeedback?.hideSaving();
       }
     });
 
@@ -656,10 +662,13 @@
 
     document.getElementById("btnDownloadZipFromModal")?.addEventListener("click", async (e) => {
       e.preventDefault();
+      window.SeavFeedback?.showSaving("Preparing download…", "Zipping your certificate files");
       try {
         await exportApi?.downloadAllCertificates?.();
       } catch (err) {
         Seav.notify("error", "Download failed", err.message || "Could not download.");
+      } finally {
+        window.SeavFeedback?.hideSaving();
       }
     });
   }

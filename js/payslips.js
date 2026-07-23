@@ -120,6 +120,7 @@
     if (downloadBtn) {
       downloadBtn.addEventListener("click", async (e) => {
         e.preventDefault();
+        window.SeavFeedback?.showSaving("Preparing download…", "Zipping your payslip pack");
         try {
           await downloadPayslipPack();
           if (exportMsg) {
@@ -127,6 +128,8 @@
           }
         } catch (err) {
           Seav.notify("error", "Download failed", err.message || "Could not download payslips.");
+        } finally {
+          window.SeavFeedback?.hideSaving();
         }
       });
     }
@@ -134,6 +137,7 @@
     if (shareBtn) {
       shareBtn.addEventListener("click", async (e) => {
         e.preventDefault();
+        window.SeavFeedback?.showSaving("Preparing share…", "Zipping your payslip pack");
         try {
           await sharePayslipPack();
           if (exportMsg) {
@@ -144,6 +148,8 @@
             exportMsg.textContent =
               err.message || "Share unavailable. ZIP downloaded instead.";
           }
+        } finally {
+          window.SeavFeedback?.hideSaving();
         }
       });
     }
