@@ -170,10 +170,12 @@
     }
   }
 
-  function applyOowMasterVisibility(confirmed) {
+  // Grid hides as soon as eligibility is met (pill takes over) — independent
+  // of the tick box, which only gates the separate Master section reveal.
+  function applyOowMasterVisibility(allMet, confirmed) {
     const oowGrid = document.getElementById("seatimeOowGrid");
     const masterSection = document.getElementById("seatimeMasterSection");
-    if (oowGrid) oowGrid.hidden = confirmed;
+    if (oowGrid) oowGrid.hidden = allMet;
     if (masterSection) masterSection.hidden = !confirmed;
   }
 
@@ -183,7 +185,7 @@
     confirmCheck.dataset.wired = "1";
     confirmCheck.addEventListener("change", () => {
       setOowMasterConfirmed(confirmCheck.checked);
-      applyOowMasterVisibility(latestOowAllMet && confirmCheck.checked);
+      applyOowMasterVisibility(latestOowAllMet, latestOowAllMet && confirmCheck.checked);
     });
   }
 
@@ -270,7 +272,7 @@
     wireOowMasterConfirmCheckbox();
     const confirmed = allMet && isOowMasterConfirmed();
     if (confirmCheck) confirmCheck.checked = confirmed;
-    applyOowMasterVisibility(confirmed);
+    applyOowMasterVisibility(allMet, confirmed);
 
     if (breakdownEl) {
       breakdownEl.innerHTML = `On vessels 15m and over: <strong>${totalActual15m}</strong> actual sea days, <strong>${totalStandby15mCounted}</strong> standby days counted, <strong>${totalYard15mCounted}</strong> of ${totalYard15mRaw} yard days counted (capped at ${YARD_CAP}).`;
