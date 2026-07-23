@@ -478,15 +478,6 @@
   align-self: start;
 }
 
-.vessel-experience-card--clamp:not(.is-expanded) {
-  max-height: 112px;
-  overflow: hidden;
-}
-
-.vessel-experience-card.is-expanded {
-  max-height: none;
-}
-
 .vessel-experience-card .vessel-panel-label {
   margin-bottom: 0;
   flex-shrink: 0;
@@ -504,41 +495,9 @@
   white-space: pre-line;
 }
 
-.vessel-experience-card--clamp:not(.is-expanded) .vessel-experience-text {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
-}
-
-.vessel-experience-card.is-expanded .vessel-experience-text {
-  display: block;
-  overflow: visible;
-}
-
-.vessel-read-more {
-  align-self: flex-start;
-  margin-top: auto;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--seav-field-label-color, #5bbcff);
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.vessel-read-more:hover {
-  color: #ffffff;
-}
-
 .vessel-sea-card {
   width: 210px;
-  height: 112px;
   min-height: 112px;
-  max-height: 112px;
 
   padding: 14px 16px;
 
@@ -554,8 +513,14 @@
   margin-bottom: 0;
 }
 
-.vessel-sea-card .vessel-doc-button {
-  margin-top: auto;
+.vessel-sea-note {
+  margin: 0;
+
+  color: rgba(255,255,255,0.52);
+
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 /* =========================================================

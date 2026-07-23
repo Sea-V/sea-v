@@ -69,8 +69,6 @@ function getRefs() {
   return window.SeavState?.refs || [];
 }
 
-const EXPERIENCE_CLAMP_CHARS = 160;
-
 function buildExperienceSection(experience) {
   const text = String(experience || "").trim();
 
@@ -83,20 +81,11 @@ function buildExperienceSection(experience) {
     `;
   }
 
-  const needsToggle =
-    text.length > EXPERIENCE_CLAMP_CHARS || text.split(/\n/).filter(Boolean).length > 3;
-
+  // Always shown in full on the Current Vessel card — no read-more clamp.
   return `
-    <section class="vessel-experience-card${
-      needsToggle ? " vessel-experience-card--clamp" : ""
-    }" ${needsToggle ? 'data-expandable="true"' : ""}>
+    <section class="vessel-experience-card">
       <span class="vessel-panel-label">Experience onboard</span>
       <p class="vessel-experience-text">${Seav.escapeHtml(text)}</p>
-      ${
-        needsToggle
-          ? `<button type="button" class="vessel-read-more" aria-expanded="false">Read more</button>`
-          : ""
-      }
     </section>
   `;
 }
@@ -267,12 +256,13 @@ function buildVesselCard(v, options = {}) {
         ${experienceHtml}
 
         <aside class="vessel-sea-card">
-          <span class="vessel-panel-label">SEA agreement</span>
+          <span class="vessel-panel-label">Seafarer Employment Agreement</span>
           ${
             seaUrl
               ? `<a class="vessel-doc-button" href="${Seav.escapeHtml(seaUrl)}" target="_blank" rel="noopener">View document</a>`
               : `<span class="vessel-doc-button vessel-doc-button--empty">Not uploaded</span>`
           }
+          <p class="vessel-sea-note">Your Seafarer Employment Agreement (SEA) is the signed contract between you and the vessel's employer, covering pay, leave, and repatriation. You should have this signed before joining the vessel, or as soon as possible once onboard.</p>
         </aside>
       </div>
 
@@ -748,17 +738,6 @@ async function saveVesselData(vesselData) {
 }
 
     document.addEventListener("click", async (e) => {
-  const readMoreBtn = e.target.closest(".vessel-read-more");
-  if (readMoreBtn) {
-    e.preventDefault();
-    const card = readMoreBtn.closest(".vessel-experience-card");
-    if (!card) return;
-    const expanded = card.classList.toggle("is-expanded");
-    readMoreBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
-    readMoreBtn.textContent = expanded ? "Show less" : "Read more";
-    return;
-  }
-
   const editBtn = e.target.closest("[data-edit-vessel-id]");
   if (editBtn) {
     e.preventDefault();
