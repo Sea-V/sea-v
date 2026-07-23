@@ -12,28 +12,28 @@
   <title>SEA-V • Sea Service</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=202" />
+  <link rel="stylesheet" href="styles.css?v=203" />
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=202"></script>
-  <script src="js/supabase.js?v=202"></script>
-  <script src="js/auth.js?v=202"></script>
-  <script src="js/feedback.js?v=202" defer></script>
-  <script src="js/core.js?v=202" defer></script>
+  <script src="js/seav-config.js?v=203"></script>
+  <script src="js/supabase.js?v=203"></script>
+  <script src="js/auth.js?v=203"></script>
+  <script src="js/feedback.js?v=203" defer></script>
+  <script src="js/core.js?v=203" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=202" defer></script>
-  <script src="js/seav-data.js?v=202" defer></script>
-  <script src="js/seav-badges.js?v=202" defer></script>
-  <script src="js/api-core.js?v=202" defer></script>
-  <script src="js/api-mappers.js?v=202" defer></script>
-  <script src="js/api.js?v=202" defer></script>
-  <script src="js/state.js?v=202" defer></script>
-  <script src="js/achievements-engine.js?v=202" defer></script>
-  <script src="js/badge-unlock.js?v=202" defer></script>
+  <script src="js/seav-upload.js?v=203" defer></script>
+  <script src="js/seav-data.js?v=203" defer></script>
+  <script src="js/seav-badges.js?v=203" defer></script>
+  <script src="js/api-core.js?v=203" defer></script>
+  <script src="js/api-mappers.js?v=203" defer></script>
+  <script src="js/api.js?v=203" defer></script>
+  <script src="js/state.js?v=203" defer></script>
+  <script src="js/achievements-engine.js?v=203" defer></script>
+  <script src="js/badge-unlock.js?v=203" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=202" defer></script>
-  <script src="js/seatime.js?v=202" defer></script>
+  <script src="js/seav-share.js?v=203" defer></script>
+  <script src="js/seatime.js?v=203" defer></script>
  </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -126,31 +126,68 @@
 
     <!-- OOW ELIGIBILITY TRACKER -->
     <article class="dash-card dash-kpis-row seatime-oow-panel">
-      <h3 class="kpi-title">OOW Yachts &lt;3000GT eligibility guide</h3>
+      <div class="seatime-oow-head">
+        <h3 class="kpi-title">OOW Yachts &lt;3000GT eligibility guide</h3>
+        <span class="seatime-oow-status" id="seatimeOowStatus" hidden>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 12.5l3.5 3.5L18 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Eligibility complete
+        </span>
+      </div>
 
       <div class="kpi-row-grid kpi-row-grid-3">
 
-        <div class="kpi-box">
-          <div class="kpi-num" id="oowMonthsOnboard">0 / 36 mo</div>
-          <div class="kpi-label">Months onboard (any vessel)</div>
-          <div class="seatime-progress-bar"><span id="oowMonthsBar" style="width:0%"></span></div>
+        <div class="kpi-box seatime-oow-box" id="oowMonthsBox">
+          <div class="seatime-oow-box-metric">
+            <div class="kpi-num" id="oowMonthsOnboard">0 / 36 mo</div>
+            <div class="kpi-label">Months onboard (any vessel)</div>
+            <div class="seatime-progress-bar"><span id="oowMonthsBar" style="width:0%"></span></div>
+          </div>
+          <div class="seatime-oow-box-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M6 12.5l3.5 3.5L18 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Requirement met</span>
+          </div>
         </div>
 
-        <div class="kpi-box">
-          <div class="kpi-num" id="oowQualifyingDays">0 / 365</div>
-          <div class="kpi-label">Qualifying days on 15m+ vessels</div>
-          <div class="seatime-progress-bar"><span id="oowQualifyingBar" style="width:0%"></span></div>
+        <div class="kpi-box seatime-oow-box" id="oowQualifyingBox">
+          <div class="seatime-oow-box-metric">
+            <div class="kpi-num" id="oowQualifyingDays">0 / 365</div>
+            <div class="kpi-label">Qualifying days on 15m+ vessels</div>
+            <div class="seatime-progress-bar"><span id="oowQualifyingBar" style="width:0%"></span></div>
+          </div>
+          <div class="seatime-oow-box-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M6 12.5l3.5 3.5L18 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Requirement met</span>
+          </div>
         </div>
 
-        <div class="kpi-box">
-          <div class="kpi-num" id="oowActualDays">0 / 250</div>
-          <div class="kpi-label">Actual sea service (min.)</div>
-          <div class="seatime-progress-bar"><span id="oowActualBar" style="width:0%"></span></div>
+        <div class="kpi-box seatime-oow-box" id="oowActualBox">
+          <div class="seatime-oow-box-metric">
+            <div class="kpi-num" id="oowActualDays">0 / 250</div>
+            <div class="kpi-label">Actual sea service (min.)</div>
+            <div class="seatime-progress-bar"><span id="oowActualBar" style="width:0%"></span></div>
+          </div>
+          <div class="seatime-oow-box-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M6 12.5l3.5 3.5L18 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Requirement met</span>
+          </div>
         </div>
 
       </div>
 
       <p class="seatime-oow-breakdown" id="seatimeOowBreakdown"></p>
+
+      <p class="seatime-oow-master-note" id="seatimeOowMasterNote" hidden>
+        Your qualifying days here also count toward Master Yachts &lt;3000GT — that's a separate
+        Certificate of Competency with its own additional requirements we haven't built a tracker for yet.
+      </p>
 
       <p class="seatime-oow-note">
         Based on MCA MSN 1858 (Amendment 2, 18 May 2026), Regulation II/1 — Officer of the Watch (OOW),

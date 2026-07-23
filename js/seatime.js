@@ -160,11 +160,16 @@
   function updateOowTracker(seatimes) {
     const monthsEl = document.getElementById("oowMonthsOnboard");
     const monthsBar = document.getElementById("oowMonthsBar");
+    const monthsBox = document.getElementById("oowMonthsBox");
     const qualDaysEl = document.getElementById("oowQualifyingDays");
     const qualBar = document.getElementById("oowQualifyingBar");
+    const qualBox = document.getElementById("oowQualifyingBox");
     const actualEl = document.getElementById("oowActualDays");
     const actualBar = document.getElementById("oowActualBar");
+    const actualBox = document.getElementById("oowActualBox");
     const breakdownEl = document.getElementById("seatimeOowBreakdown");
+    const statusEl = document.getElementById("seatimeOowStatus");
+    const masterNoteEl = document.getElementById("seatimeOowMasterNote");
 
     if (!monthsEl && !qualDaysEl && !actualEl) return;
 
@@ -208,20 +213,31 @@
     const totalQualifying15m = totalActual15m + totalStandby15mCounted + totalYard15mCounted;
     const monthsOnboard = totalOnboardDays / 30.44;
 
+    const monthsMet = monthsOnboard >= MONTHS_TARGET;
+    const qualifyingMet = totalQualifying15m >= QUALIFYING_TARGET;
+    const actualMet = totalActual15m >= ACTUAL_MIN;
+    const allMet = monthsMet && qualifyingMet && actualMet;
+
     if (monthsEl) monthsEl.textContent = `${monthsOnboard.toFixed(1)} / ${MONTHS_TARGET} mo`;
     if (monthsBar) {
       monthsBar.style.width = `${Math.min(100, (monthsOnboard / MONTHS_TARGET) * 100)}%`;
     }
+    if (monthsBox) monthsBox.classList.toggle("is-met", monthsMet);
 
     if (qualDaysEl) qualDaysEl.textContent = `${totalQualifying15m} / ${QUALIFYING_TARGET}`;
     if (qualBar) {
       qualBar.style.width = `${Math.min(100, (totalQualifying15m / QUALIFYING_TARGET) * 100)}%`;
     }
+    if (qualBox) qualBox.classList.toggle("is-met", qualifyingMet);
 
     if (actualEl) actualEl.textContent = `${totalActual15m} / ${ACTUAL_MIN}`;
     if (actualBar) {
       actualBar.style.width = `${Math.min(100, (totalActual15m / ACTUAL_MIN) * 100)}%`;
     }
+    if (actualBox) actualBox.classList.toggle("is-met", actualMet);
+
+    if (statusEl) statusEl.hidden = !allMet;
+    if (masterNoteEl) masterNoteEl.hidden = !allMet;
 
     if (breakdownEl) {
       const trbNote =
