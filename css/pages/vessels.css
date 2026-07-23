@@ -213,7 +213,11 @@
 .vessel-history-photo img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* contain (not cover) so the whole uploaded vessel photo is always visible —
+     cover was cropping the top/bottom or sides depending on the photo's
+     aspect ratio. Both containers already have a dark background to
+     letterbox any gap. */
+  object-fit: contain;
   display: block;
 }
 
