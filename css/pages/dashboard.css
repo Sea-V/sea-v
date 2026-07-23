@@ -1248,10 +1248,11 @@
   display: block;
 
   border: 0;
-  /* contain (not cover) so the whole uploaded photo is visible — cover was
-     cropping the top and bottom of vessel photos against the card's fixed
-     16:10 frame. The container's dark background letterboxes any gap. */
-  object-fit: contain;
+  /* cover — contain was tried here but left real (non-16:10) photos looking
+     small with big dark letterbox gaps on the sides, which read as more
+     "broken" than a modest crop. The container's 16:10 aspect ratio keeps
+     the crop reasonable for typical landscape vessel photos. */
+  object-fit: cover;
   object-position: center;
 }
 
