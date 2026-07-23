@@ -95,6 +95,7 @@
     const vesselInput = document.getElementById("navVessel");
     const operationTypeInput = document.getElementById("navOperationType");
     const noteInput = document.getElementById("navNote");
+    const isTidalInput = document.getElementById("navIsTidal");
     const filterSelect = document.getElementById("navMapVesselFilter");
 
     const cancelEditBtn = document.getElementById("navCancelEditBtn");
@@ -234,6 +235,7 @@
       const visitedDate = departureDate || arrivalDate;
       const operationType = operationTypeInput?.value || "";
       const note = noteInput?.value.trim() || "";
+      const isTidal = !!isTidalInput?.checked;
       const passageName =
         document.getElementById("navPassageName")?.value.trim() || "";
 
@@ -310,6 +312,7 @@
           departureDate,
           arrivalDate,
           note,
+          isTidal,
           waypoints: S.formWaypoints.map((wp) => ({
             lat: wp.lat,
             lng: wp.lng,

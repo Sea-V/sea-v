@@ -123,6 +123,7 @@
       arrivalDate,
       visitedDate: entry.visitedDate || departureDate || arrivalDate || "",
       waypoints: normalizeWaypointList(entry.waypoints),
+      isTidal: !!entry.isTidal,
       country: toCountry,
       port: toPort,
       lat: toLat,

@@ -118,7 +118,7 @@
       "id", "user_id", "country", "port", "from_country", "from_port", "from_lat",
       "from_lng", "to_country", "to_port", "to_lat", "to_lng", "vessel_id", "seatime_id",
       "operation_type", "passage_name", "visited_date", "departure_date", "arrival_date",
-      "lat", "lng", "waypoints", "note", "created_at", "updated_at"
+      "lat", "lng", "waypoints", "note", "is_tidal", "created_at", "updated_at"
     ].join(","),
     // No "signoff" here on purpose: it's a jsonb blob including the
     // supervisor's signatory_email, which the public profile should never

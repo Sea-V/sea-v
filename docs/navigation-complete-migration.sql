@@ -7,6 +7,7 @@
 -- - passage name / ECDIS passage title reference
 -- - departure and arrival dates
 -- - ordered waypoint list for manual, recommended, KML, and RTZ routes
+-- - is_tidal flag (RYA/MCA Yachtmaster Offshore tidal-mile tracking)
 
 create table if not exists public.navigation_areas (
   id text primary key,
@@ -31,6 +32,7 @@ create table if not exists public.navigation_areas (
   lng numeric default 0,
   waypoints jsonb default '[]'::jsonb,
   note text default '',
+  is_tidal boolean not null default false,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -56,6 +58,7 @@ alter table public.navigation_areas add column if not exists lat numeric default
 alter table public.navigation_areas add column if not exists lng numeric default 0;
 alter table public.navigation_areas add column if not exists waypoints jsonb default '[]'::jsonb;
 alter table public.navigation_areas add column if not exists note text default '';
+alter table public.navigation_areas add column if not exists is_tidal boolean not null default false;
 alter table public.navigation_areas add column if not exists created_at timestamptz default now();
 alter table public.navigation_areas add column if not exists updated_at timestamptz default now();
 

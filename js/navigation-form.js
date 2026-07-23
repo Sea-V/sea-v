@@ -842,6 +842,7 @@
     const vesselInput = document.getElementById("navVessel");
     const operationTypeInput = document.getElementById("navOperationType");
     const noteInput = document.getElementById("navNote");
+    const isTidalInput = document.getElementById("navIsTidal");
     const passageNameInput = document.getElementById("navPassageName");
     const seatimeInput = document.getElementById("navSeatime");
     const editIdInput = document.getElementById("nav_edit_id");
@@ -864,6 +865,7 @@
     if (seatimeInput) seatimeInput.value = normalized.seatimeId || "";
     if (operationTypeInput) operationTypeInput.value = normalized.operationType || "";
     if (noteInput) noteInput.value = normalized.note || "";
+    if (isTidalInput) isTidalInput.checked = !!normalized.isTidal;
     Seav.setDateTriplet("navDepartureDate", normalized.departureDate || "");
     Seav.setDateTriplet("navArrivalDate", normalized.arrivalDate || "");
 

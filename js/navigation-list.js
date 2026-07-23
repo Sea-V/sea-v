@@ -90,7 +90,7 @@
                   : ""
               }
               <div class="list-sub">
-                ${Seav.escapeHtml(vesselName)} · ${Seav.escapeHtml(dateText)} · ${Seav.escapeHtml(entry.operationType || "—")}
+                ${Seav.escapeHtml(vesselName)} · ${Seav.escapeHtml(dateText)} · ${Seav.escapeHtml(entry.operationType || "—")}${entry.isTidal ? " · Tidal waters" : ""}
               </div>
               ${
                 linkedSeatime

@@ -152,6 +152,31 @@
   text-transform: uppercase;
 }
 
+.navigation-stat--ym {
+  min-width: 128px;
+}
+
+.navigation-stat-subvalue {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.navigation-stat--met {
+  border-color: rgba(21, 128, 61, 0.45);
+  background: rgba(21, 128, 61, 0.14);
+}
+
+.navigation-stat--met .navigation-stat-value {
+  color: #4ade80;
+}
+
+.navigation-stat--met .navigation-stat-subvalue {
+  color: rgba(74, 222, 128, 0.75);
+}
+
 .navigation-map-wrap {
   margin-top: 4px;
 }

@@ -374,6 +374,7 @@ function mapNavigationAreaFromSupabase(n) {
     lng: toLng,
     waypoints: normalizeWaypoints(n.waypoints),
     note: n.note || "",
+    isTidal: !!n.is_tidal,
     createdAt: n.created_at || "",
     updatedAt: n.updated_at || ""
   };
@@ -426,6 +427,7 @@ function mapNavigationAreaToSupabase(item) {
     lng: toLng,
     waypoints: normalizeWaypoints(item.waypoints),
     note: item.note || "",
+    is_tidal: !!item.isTidal,
     updated_at: new Date().toISOString()
   };
 

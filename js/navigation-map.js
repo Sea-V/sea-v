@@ -227,6 +227,13 @@
   // circumference sailed" stat — a distance-based measure, not a country count.
   const EARTH_CIRCUMFERENCE_NM = 21600;
 
+  // RYA/MCA Yachtmaster Offshore exam pre-requisites (rya.org.uk): 2500
+  // qualifying miles, at least half of the qualifying sea time (1250 miles)
+  // gained in tidal waters. Tidal/non-tidal is a per-passage self-declared
+  // flag (navIsTidal checkbox) since the app has no way to infer it.
+  const YACHTMASTER_OFFSHORE_MILES = 2500;
+  const YACHTMASTER_OFFSHORE_TIDAL_MILES = 1250;
+
   function buildNavigationStats(entries, paths) {
     const countries = collectVisitedCountries(entries);
     const ports = new Set();
@@ -241,6 +248,10 @@
     });
 
     const totalNm = paths.reduce((sum, path) => sum + Number(path.distanceNm || 0), 0);
+    const tidalNm = paths.reduce(
+      (sum, path) => sum + (path.isTidal ? Number(path.distanceNm || 0) : 0),
+      0
+    );
     const worldPct = (totalNm / EARTH_CIRCUMFERENCE_NM) * 100;
 
     return {
@@ -248,6 +259,7 @@
       ports: ports.size,
       passages: paths.length,
       totalNm,
+      tidalNm,
       worldPct
     };
   }
@@ -264,12 +276,29 @@
     const passagesEl = document.getElementById("navStatPassages");
     const milesEl = document.getElementById("navStatMiles");
     const worldPctEl = document.getElementById("navStatWorldPct");
+    const ymWrapEl = document.getElementById("navStatYmWrap");
+    const ymMilesEl = document.getElementById("navStatYmMiles");
+    const ymTidalEl = document.getElementById("navStatYmTidal");
 
     if (countriesEl) countriesEl.textContent = String(stats.countries);
     if (portsEl) portsEl.textContent = String(stats.ports);
     if (passagesEl) passagesEl.textContent = String(stats.passages);
     if (milesEl) milesEl.textContent = formatNm(stats.totalNm);
     if (worldPctEl) worldPctEl.textContent = formatWorldPct(stats.worldPct);
+
+    if (ymMilesEl) {
+      const milesMet = Math.min(Math.round(stats.totalNm), YACHTMASTER_OFFSHORE_MILES);
+      ymMilesEl.textContent = `${milesMet.toLocaleString()} / ${YACHTMASTER_OFFSHORE_MILES.toLocaleString()}`;
+    }
+    if (ymTidalEl) {
+      const tidalMet = Math.min(Math.round(stats.tidalNm), YACHTMASTER_OFFSHORE_TIDAL_MILES);
+      ymTidalEl.textContent = `${tidalMet.toLocaleString()} / ${YACHTMASTER_OFFSHORE_TIDAL_MILES.toLocaleString()} tidal`;
+    }
+    if (ymWrapEl) {
+      const qualified =
+        stats.totalNm >= YACHTMASTER_OFFSHORE_MILES && stats.tidalNm >= YACHTMASTER_OFFSHORE_TIDAL_MILES;
+      ymWrapEl.classList.toggle("navigation-stat--met", qualified);
+    }
   }
 
   // =========================================================

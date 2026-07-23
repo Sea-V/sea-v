@@ -413,6 +413,7 @@
           toPort: entry.toPort,
           fromCountry: entry.fromCountry,
           toCountry: entry.toCountry,
+          isTidal: !!entry.isTidal,
           passageName: entry.passageName,
           visitedDate: entry.visitedDate,
           departureDate: entry.departureDate,

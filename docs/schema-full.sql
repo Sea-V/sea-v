@@ -174,6 +174,7 @@ create table if not exists public.navigation_areas (
   lng numeric default 0,
   waypoints jsonb default '[]'::jsonb,
   note text default '',
+  is_tidal boolean not null default false,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
