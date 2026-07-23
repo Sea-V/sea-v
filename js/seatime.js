@@ -191,21 +191,20 @@
    * Guide-only OOW (Yachts <3000GT) II/1 eligibility tracker.
    * Figures verified against MCA MSN 1858 (M+F) Amendment 2 (18 May 2026),
    * section 3.3 — the current in-force requirement as of this build:
-   *   - 36 months' onboard yacht service (any vessel size) since age 16
-   *   - Within that, 365 days seagoing service on vessels 15m+ load line length:
+   *   - 365 days seagoing service on vessels 15m+ load line length:
    *       - minimum 250 days actual sea service
    *       - 115 days from any combination of actual/standby/yard, where
    *         standby never exceeds that voyage's actual sea days and yard
    *         service counts up to a max of 90 days total
+   * (Section 3.3 also requires 36 months' onboard yacht service of any size
+   * since age 16 — that leg isn't shown as its own box, but is covered in
+   * the "read more" dropdown below since it's rarely the limiting factor.)
    * This works from each entry's day totals (not day-by-day consecutive
    * tracking), so it is a guide, not an official assessment. Once met, the
    * boxes above are replaced by a status pill and a tick box lets the crew
    * confirm they hold the cert before the Master <3000GT tracker appears.
    */
   function updateOowTracker(seatimes) {
-    const monthsEl = document.getElementById("oowMonthsOnboard");
-    const monthsBar = document.getElementById("oowMonthsBar");
-    const monthsBox = document.getElementById("oowMonthsBox");
     const qualDaysEl = document.getElementById("oowQualifyingDays");
     const qualBar = document.getElementById("oowQualifyingBar");
     const qualBox = document.getElementById("oowQualifyingBox");
@@ -217,14 +216,12 @@
     const confirmWrap = document.getElementById("seatimeOowConfirmWrap");
     const confirmCheck = document.getElementById("seatimeOowConfirmCheck");
 
-    if (!monthsEl && !qualDaysEl && !actualEl) return;
+    if (!qualDaysEl && !actualEl) return;
 
-    const MONTHS_TARGET = 36;
     const QUALIFYING_TARGET = 365;
     const ACTUAL_MIN = 250;
     const YARD_CAP = 90;
 
-    let totalOnboardDays = 0;
     let totalActual15m = 0;
     let totalStandby15mCounted = 0;
     let totalYard15mRaw = 0;
@@ -234,8 +231,6 @@
       const lengthM = parseVesselLengthMeters(
         vessel?.vessel_length || vessel?.length || entry.vesselLength
       );
-
-      totalOnboardDays += daysBetween(entry.dateJoined, entry.dateLeft);
 
       const actual = toNumber(entry.actualSeaServiceDays);
       const standby = toNumber(entry.standbyServiceDays);
@@ -251,19 +246,11 @@
 
     const totalYard15mCounted = Math.min(totalYard15mRaw, YARD_CAP);
     const totalQualifying15m = totalActual15m + totalStandby15mCounted + totalYard15mCounted;
-    const monthsOnboard = totalOnboardDays / 30.44;
 
-    const monthsMet = monthsOnboard >= MONTHS_TARGET;
     const qualifyingMet = totalQualifying15m >= QUALIFYING_TARGET;
     const actualMet = totalActual15m >= ACTUAL_MIN;
-    const allMet = monthsMet && qualifyingMet && actualMet;
+    const allMet = qualifyingMet && actualMet;
     latestOowAllMet = allMet;
-
-    if (monthsEl) monthsEl.textContent = `${monthsOnboard.toFixed(1)} / ${MONTHS_TARGET} mo`;
-    if (monthsBar) {
-      monthsBar.style.width = `${Math.min(100, (monthsOnboard / MONTHS_TARGET) * 100)}%`;
-    }
-    if (monthsBox) monthsBox.classList.toggle("is-met", monthsMet);
 
     if (qualDaysEl) qualDaysEl.textContent = `${totalQualifying15m} / ${QUALIFYING_TARGET}`;
     if (qualBar) {
