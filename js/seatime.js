@@ -59,6 +59,37 @@
     );
   }
 
+  // Mirrors the Profile/Vessels upload-box pattern — previously st_attachment
+  // was a bare <input type="file"> with no indication an entry already had a
+  // testimonial attached before re-uploading.
+  function renderSeatimeAttachmentHint(attachmentMeta, { isNewSelection = false } = {}) {
+    const hint = document.getElementById("stAttachmentHint");
+    const btn = document.getElementById("stAttachmentBtn");
+
+    if (isNewSelection) {
+      if (hint) {
+        hint.textContent = attachmentMeta?.filename
+          ? `New file selected: ${attachmentMeta.filename} — click Save service entry to apply`
+          : "New file selected — click Save service entry to apply";
+      }
+      if (btn) btn.textContent = "Change file";
+      return;
+    }
+
+    const docUrl = attachmentMeta ? getSeatimeAttachmentUrl(attachmentMeta) : "";
+    const filename = attachmentMeta?.filename || "";
+
+    if (hint) {
+      hint.textContent = docUrl
+        ? (filename ? `Current file: ${filename}` : "Current file uploaded")
+        : "No file uploaded yet";
+    }
+
+    if (btn) {
+      btn.textContent = docUrl ? "Change file" : "Choose file";
+    }
+  }
+
   function getSeatimes() {
     return window.SeavState?.seatimes || [];
   }
@@ -97,6 +128,109 @@
     if (kpiYard) kpiYard.textContent = String(totals.yard);
     if (kpiWatchkeeping) kpiWatchkeeping.textContent = String(totals.watchkeeping);
     if (kpiTotalDays) kpiTotalDays.textContent = String(totals.total);
+  }
+
+  function parseVesselLengthMeters(raw) {
+    const match = String(raw || "").match(/(\d+(\.\d+)?)/);
+    return match ? Number(match[1]) : 0;
+  }
+
+  function daysBetween(startIso, endIso) {
+    const start = startIso ? new Date(startIso) : null;
+    const end = endIso ? new Date(endIso) : new Date();
+    if (!start || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0;
+    const ms = end - start;
+    return ms > 0 ? Math.round(ms / 86400000) : 0;
+  }
+
+  /**
+   * Guide-only OOW (Yachts <3000GT) II/1 eligibility tracker.
+   * Figures verified against MCA MSN 1858 (M+F) Amendment 2 (18 May 2026),
+   * section 3.3 — the current in-force requirement as of this build:
+   *   - 36 months' onboard yacht service (any vessel size) since age 16
+   *   - Within that, 365 days seagoing service on vessels 15m+ load line length:
+   *       - minimum 250 days actual sea service
+   *       - 115 days from any combination of actual/standby/yard, where
+   *         standby never exceeds that voyage's actual sea days and yard
+   *         service counts up to a max of 90 days total
+   *   - TRB not required if 36 months' actual sea service on vessels 24m+
+   * This works from each entry's day totals (not day-by-day consecutive
+   * tracking), so it is a guide, not an official assessment.
+   */
+  function updateOowTracker(seatimes) {
+    const monthsEl = document.getElementById("oowMonthsOnboard");
+    const monthsBar = document.getElementById("oowMonthsBar");
+    const qualDaysEl = document.getElementById("oowQualifyingDays");
+    const qualBar = document.getElementById("oowQualifyingBar");
+    const actualEl = document.getElementById("oowActualDays");
+    const actualBar = document.getElementById("oowActualBar");
+    const breakdownEl = document.getElementById("seatimeOowBreakdown");
+
+    if (!monthsEl && !qualDaysEl && !actualEl) return;
+
+    const MONTHS_TARGET = 36;
+    const QUALIFYING_TARGET = 365;
+    const ACTUAL_MIN = 250;
+    const YARD_CAP = 90;
+    const TRB_EXEMPT_ACTUAL_DAYS = 1096; // ~36 months at 30.44 days/month
+
+    let totalOnboardDays = 0;
+    let totalActual15m = 0;
+    let totalStandby15mCounted = 0;
+    let totalYard15mRaw = 0;
+    let totalActual24mPlus = 0;
+
+    seatimes.forEach((entry) => {
+      const vessel = getVesselById(entry.vesselId);
+      const lengthM = parseVesselLengthMeters(
+        vessel?.vessel_length || vessel?.length || entry.vesselLength
+      );
+
+      totalOnboardDays += daysBetween(entry.dateJoined, entry.dateLeft);
+
+      const actual = toNumber(entry.actualSeaServiceDays);
+      const standby = toNumber(entry.standbyServiceDays);
+      const yard = toNumber(entry.yardServiceDays);
+
+      if (lengthM >= 15) {
+        totalActual15m += actual;
+        // Standby can never exceed that voyage's own actual sea days.
+        totalStandby15mCounted += Math.min(standby, actual);
+        totalYard15mRaw += yard;
+      }
+
+      if (lengthM >= 24) {
+        totalActual24mPlus += actual;
+      }
+    });
+
+    const totalYard15mCounted = Math.min(totalYard15mRaw, YARD_CAP);
+    const totalQualifying15m = totalActual15m + totalStandby15mCounted + totalYard15mCounted;
+    const monthsOnboard = totalOnboardDays / 30.44;
+
+    if (monthsEl) monthsEl.textContent = `${monthsOnboard.toFixed(1)} / ${MONTHS_TARGET} mo`;
+    if (monthsBar) {
+      monthsBar.style.width = `${Math.min(100, (monthsOnboard / MONTHS_TARGET) * 100)}%`;
+    }
+
+    if (qualDaysEl) qualDaysEl.textContent = `${totalQualifying15m} / ${QUALIFYING_TARGET}`;
+    if (qualBar) {
+      qualBar.style.width = `${Math.min(100, (totalQualifying15m / QUALIFYING_TARGET) * 100)}%`;
+    }
+
+    if (actualEl) actualEl.textContent = `${totalActual15m} / ${ACTUAL_MIN}`;
+    if (actualBar) {
+      actualBar.style.width = `${Math.min(100, (totalActual15m / ACTUAL_MIN) * 100)}%`;
+    }
+
+    if (breakdownEl) {
+      const trbNote =
+        totalActual24mPlus >= TRB_EXEMPT_ACTUAL_DAYS
+          ? `Training Record Book exemption met — ${totalActual24mPlus} actual days logged on vessels 24m and over.`
+          : `Training Record Book required unless you reach ~36 months of actual sea service on vessels 24m+ (${totalActual24mPlus} / ${TRB_EXEMPT_ACTUAL_DAYS} days so far).`;
+
+      breakdownEl.innerHTML = `On vessels 15m and over: <strong>${totalActual15m}</strong> actual sea days, <strong>${totalStandby15mCounted}</strong> standby days counted, <strong>${totalYard15mCounted}</strong> of ${totalYard15mRaw} yard days counted (capped at ${YARD_CAP}). ${Seav.escapeHtml(trbNote)}`;
+    }
   }
 
   function renderSeatimeRows(seatimes) {
@@ -147,8 +281,8 @@
             <td>${Seav.escapeHtml(displayVesselName)}</td>
             <td>${flagGt}</td>
             <td>${Seav.escapeHtml(x.capacityServed || "—")}</td>
-            <td>${formatDatePretty(x.dateJoined)}</td>
-            <td>${x.dateLeft ? formatDatePretty(x.dateLeft) : "Present"}</td>
+            <td>${formatDatePretty(x.dateJoined)}${x.locationJoined ? `<br><small class="muted">${Seav.escapeHtml(x.locationJoined)}</small>` : ""}</td>
+            <td>${x.dateLeft ? formatDatePretty(x.dateLeft) : "Present"}${x.locationLeft ? `<br><small class="muted">${Seav.escapeHtml(x.locationLeft)}</small>` : ""}</td>
             <td>${getSeatimeDayValue(x, "actualSeaServiceDays", "actualSea")}</td>
             <td>${getSeatimeDayValue(x, "standbyServiceDays", "standby")}</td>
             <td>${getSeatimeDayValue(x, "yardServiceDays", "yard")}</td>
@@ -187,6 +321,7 @@
 
     renderSeatimeRows(seatimes);
     updateServiceKpisFromData(seatimes);
+    updateOowTracker(seatimes);
   }
 
   function populateSeattimeVesselOptions() {
@@ -238,7 +373,9 @@
       "IMO / Official Number",
       "Capacity Served",
       "Date Joined",
+      "Location Signed On",
       "Date Left",
+      "Location Signed Off",
       "Actual Sea Service (Days)",
       "Standby Service (Days)",
       "Yard Service (Days)",
@@ -258,7 +395,9 @@
         x.imoOfficialNumber || linkedVessel?.imoOfficialNumber || "",
         x.capacityServed || "",
         x.dateJoined || "",
+        x.locationJoined || "",
         x.dateLeft || "",
+        x.locationLeft || "",
         getSeatimeDayValue(x, "actualSeaServiceDays", "actualSea"),
         getSeatimeDayValue(x, "standbyServiceDays", "standby"),
         getSeatimeDayValue(x, "yardServiceDays", "yard"),
@@ -287,6 +426,13 @@
     document.getElementById("st_role").value = entry.capacityServed || "";
     Seav.setDateTriplet("st_date_joined", entry.dateJoined || "");
     Seav.setDateTriplet("st_date_left", entry.dateLeft || "");
+
+    const locationJoinedEl = document.getElementById("st_location_joined");
+    const locationLeftEl = document.getElementById("st_location_left");
+    if (locationJoinedEl) locationJoinedEl.value = entry.locationJoined || "";
+    if (locationLeftEl) locationLeftEl.value = entry.locationLeft || "";
+
+    renderSeatimeAttachmentHint(entry.attachment || null, { isNewSelection: false });
 
     document.getElementById("st_actual_sea").value =
       entry.actualSeaServiceDays > 0 ? String(entry.actualSeaServiceDays) : "";
@@ -318,6 +464,8 @@
     document.getElementById("st_yard").value = "";
     document.getElementById("st_watchkeeping").value = "";
 
+    renderSeatimeAttachmentHint(null, { isNewSelection: false });
+
     populateSeattimeVesselOptions();
   }
 
@@ -346,6 +494,8 @@
       capacityServed: document.getElementById("st_role")?.value.trim() || "",
       dateJoined: Seav.readDateTriplet("st_date_joined"),
       dateLeft: Seav.readDateTriplet("st_date_left"),
+      locationJoined: document.getElementById("st_location_joined")?.value.trim() || "",
+      locationLeft: document.getElementById("st_location_left")?.value.trim() || "",
       actualSeaServiceDays: toNumber(document.getElementById("st_actual_sea")?.value),
       standbyServiceDays: toNumber(document.getElementById("st_standby")?.value),
       yardServiceDays: toNumber(document.getElementById("st_yard")?.value),
@@ -399,6 +549,18 @@
 
     const seatimeForm = document.getElementById("seatimeForm");
     const vesselSelect = document.getElementById("st_vessel");
+
+    const stAttachmentInput = document.getElementById("st_attachment");
+    const stAttachmentBtn = document.getElementById("stAttachmentBtn");
+    if (stAttachmentBtn && stAttachmentInput) {
+      stAttachmentBtn.addEventListener("click", () => stAttachmentInput.click());
+    }
+    if (stAttachmentInput) {
+      stAttachmentInput.addEventListener("change", () => {
+        const file = stAttachmentInput.files?.[0] || null;
+        renderSeatimeAttachmentHint(file ? { filename: file.name } : null, { isNewSelection: !!file });
+      });
+    }
 
     if (vesselSelect) {
       vesselSelect.addEventListener("change", () => {
@@ -461,6 +623,8 @@
           capacityServed: formData.capacityServed,
           dateJoined: formData.dateJoined,
           dateLeft: formData.dateLeft,
+          locationJoined: formData.locationJoined,
+          locationLeft: formData.locationLeft,
           actualSeaServiceDays: formData.actualSeaServiceDays,
           standbyServiceDays: formData.standbyServiceDays,
           yardServiceDays: formData.yardServiceDays,

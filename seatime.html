@@ -12,28 +12,28 @@
   <title>SEA-V • Sea Service</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=201" />
+  <link rel="stylesheet" href="styles.css?v=202" />
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=201"></script>
-  <script src="js/supabase.js?v=201"></script>
-  <script src="js/auth.js?v=201"></script>
-  <script src="js/feedback.js?v=201" defer></script>
-  <script src="js/core.js?v=201" defer></script>
+  <script src="js/seav-config.js?v=202"></script>
+  <script src="js/supabase.js?v=202"></script>
+  <script src="js/auth.js?v=202"></script>
+  <script src="js/feedback.js?v=202" defer></script>
+  <script src="js/core.js?v=202" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=201" defer></script>
-  <script src="js/seav-data.js?v=201" defer></script>
-  <script src="js/seav-badges.js?v=201" defer></script>
-  <script src="js/api-core.js?v=201" defer></script>
-  <script src="js/api-mappers.js?v=201" defer></script>
-  <script src="js/api.js?v=201" defer></script>
-  <script src="js/state.js?v=201" defer></script>
-  <script src="js/achievements-engine.js?v=201" defer></script>
-  <script src="js/badge-unlock.js?v=201" defer></script>
+  <script src="js/seav-upload.js?v=202" defer></script>
+  <script src="js/seav-data.js?v=202" defer></script>
+  <script src="js/seav-badges.js?v=202" defer></script>
+  <script src="js/api-core.js?v=202" defer></script>
+  <script src="js/api-mappers.js?v=202" defer></script>
+  <script src="js/api.js?v=202" defer></script>
+  <script src="js/state.js?v=202" defer></script>
+  <script src="js/achievements-engine.js?v=202" defer></script>
+  <script src="js/badge-unlock.js?v=202" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=201" defer></script>
-  <script src="js/seatime.js?v=201" defer></script>
+  <script src="js/seav-share.js?v=202" defer></script>
+  <script src="js/seatime.js?v=202" defer></script>
  </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -124,6 +124,42 @@
       </div>
     </article>
 
+    <!-- OOW ELIGIBILITY TRACKER -->
+    <article class="dash-card dash-kpis-row seatime-oow-panel">
+      <h3 class="kpi-title">OOW Yachts &lt;3000GT eligibility guide</h3>
+
+      <div class="kpi-row-grid kpi-row-grid-3">
+
+        <div class="kpi-box">
+          <div class="kpi-num" id="oowMonthsOnboard">0 / 36 mo</div>
+          <div class="kpi-label">Months onboard (any vessel)</div>
+          <div class="seatime-progress-bar"><span id="oowMonthsBar" style="width:0%"></span></div>
+        </div>
+
+        <div class="kpi-box">
+          <div class="kpi-num" id="oowQualifyingDays">0 / 365</div>
+          <div class="kpi-label">Qualifying days on 15m+ vessels</div>
+          <div class="seatime-progress-bar"><span id="oowQualifyingBar" style="width:0%"></span></div>
+        </div>
+
+        <div class="kpi-box">
+          <div class="kpi-num" id="oowActualDays">0 / 250</div>
+          <div class="kpi-label">Actual sea service (min.)</div>
+          <div class="seatime-progress-bar"><span id="oowActualBar" style="width:0%"></span></div>
+        </div>
+
+      </div>
+
+      <p class="seatime-oow-breakdown" id="seatimeOowBreakdown"></p>
+
+      <p class="seatime-oow-note">
+        Based on MCA MSN 1858 (Amendment 2, 18 May 2026), Regulation II/1 — Officer of the Watch (OOW),
+        Yachts less than 3000GT, Unlimited Area. This is a guide calculated from your logged day totals,
+        not day-by-day consecutive tracking, so always confirm your exact qualifying service with the
+        MCA or PYA before applying. Vessel length is read from each linked vessel's Length field.
+      </p>
+    </article>
+
     <!-- VERIFICATION PORTALS -->
     <section class="seatime-section seatime-portals">
 
@@ -208,8 +244,8 @@
               <th>Vessel</th>
               <th>Flag / GT</th>
               <th>Capacity</th>
-              <th>Joined</th>
-              <th>Left</th>
+              <th>Signed on</th>
+              <th>Signed off</th>
               <th>Sea</th>
               <th>Standby</th>
               <th>Yard</th>
@@ -305,10 +341,22 @@
 
         <!-- Service Period -->
         <div class="modal-grid2">
-          <div data-date-field="st_date_joined" data-date-label="Date joined" data-date-required></div>
-          <div data-date-field="st_date_left" data-date-label="Date left" data-date-required></div>
+          <div data-date-field="st_date_joined" data-date-label="Date sign on" data-date-required></div>
+          <div data-date-field="st_date_left" data-date-label="Date signed off" data-date-required></div>
         </div>
         <p class="modal-date-hint">Pick year, month, and day — current year is listed first.</p>
+
+        <div class="modal-grid2">
+          <label>
+            Location signed on
+            <input id="st_location_joined" placeholder="Port where you signed on, matching your discharge book" />
+          </label>
+
+          <label>
+            Location signed off
+            <input id="st_location_left" placeholder="Port where you signed off, matching your discharge book" />
+          </label>
+        </div>
 
         <!-- Service Breakdown -->
         <div class="modal-grid2">
@@ -352,7 +400,13 @@
 
         <label>
           Sea service testimonial / supporting evidence
-          <input type="file" id="st_attachment" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+          <div class="profile-photo-field">
+            <div class="profile-photo-actions">
+              <button type="button" class="btn-ghost2" id="stAttachmentBtn">Choose file</button>
+              <input type="file" id="st_attachment" accept=".pdf,.jpg,.jpeg,.png,.webp" hidden />
+              <p class="profile-photo-hint muted" id="stAttachmentHint">No file uploaded yet</p>
+            </div>
+          </div>
         </label>
 
         <p class="modal-footnote">

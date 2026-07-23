@@ -477,6 +477,50 @@
 }
 
 /* =========================================================
+   OOW ELIGIBILITY TRACKER
+========================================================= */
+
+.seatime-oow-panel .kpi-row-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.seatime-progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.seatime-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--seatime-accent), #5bbcff);
+  transition: width 0.35s ease;
+}
+
+.seatime-oow-breakdown {
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(214, 226, 238, 0.82);
+}
+
+.seatime-oow-note {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(214, 226, 238, 0.55);
+}
+
+@media (max-width: 760px) {
+  .seatime-oow-panel .kpi-row-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
    NOTES
 ========================================================= */
 
