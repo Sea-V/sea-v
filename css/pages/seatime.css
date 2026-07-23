@@ -496,6 +496,39 @@
   gap: 8px;
 }
 
+.seatime-oow-summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.seatime-oow-summary::-webkit-details-marker {
+  display: none;
+}
+
+.seatime-oow-summary .kpi-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.seatime-oow-summary .kpi-title::before {
+  content: "›";
+  display: inline-block;
+  color: var(--seatime-accent);
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.seatime-oow-panel[open] .seatime-oow-summary .kpi-title::before {
+  transform: rotate(90deg);
+}
+
+.seatime-oow-panel > .kpi-row-grid {
+  margin-top: 16px;
+}
+
 .seatime-oow-status {
   display: inline-flex;
   align-items: center;
