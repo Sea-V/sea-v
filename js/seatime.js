@@ -283,18 +283,17 @@
 
   /**
    * Guide-only Master (Yachts <3000GT) II/2 sea-service tracker — MSN 1858
-   * Amendment 2, section 3.6(a): while serving as OOW <3000GT, 24 months'
-   * onboard service as a Deck Officer (incl. 240 days watchkeeping) on
-   * vessels 15m+, including either 12 months on vessels 24m+ or 6 months on
-   * vessels 500GT+. Only this sea-service leg is trackable from logged data —
-   * ancillary certs, the Master <500GT CoC/Celestial Nav (or equivalent
-   * modules), and the oral exam are separate requirements not covered here.
-   * Revealed once the OOW tracker above is confirmed via its tick box.
+   * Amendment 2, section 3.6(a): while serving as OOW <3000GT, 240 days
+   * watchkeeping service on vessels 15m+, including either 12 months on
+   * vessels 24m+ or 6 months on vessels 500GT+. Only this sea-service leg is
+   * trackable from logged data — ancillary certs, the Master <500GT CoC/
+   * Celestial Nav (or equivalent modules), and the oral exam are separate
+   * requirements not covered here. (Section 3.6(a) also requires 24 months'
+   * onboard service as a Deck Officer — that leg isn't shown as its own box,
+   * matching the OOW tracker's 36-month box above.) Revealed once the OOW
+   * tracker above is confirmed via its tick box.
    */
   function updateMasterTracker(seatimes) {
-    const monthsEl = document.getElementById("masterMonthsOnboard");
-    const monthsBar = document.getElementById("masterMonthsBar");
-    const monthsBox = document.getElementById("masterMonthsBox");
     const watchEl = document.getElementById("masterWatchkeeping");
     const watchBar = document.getElementById("masterWatchkeepingBar");
     const watchBox = document.getElementById("masterWatchkeepingBox");
@@ -305,14 +304,12 @@
     const breakdownEl = document.getElementById("seatimeMasterBreakdown");
     const statusEl = document.getElementById("seatimeMasterStatus");
 
-    if (!monthsEl && !watchEl && !specialEl) return;
+    if (!watchEl && !specialEl) return;
 
-    const MONTHS_TARGET = 24;
     const WATCHKEEPING_TARGET = 240;
     const SPECIAL_24M_TARGET = 12;
     const SPECIAL_500GT_TARGET = 6;
 
-    let totalOnboard15mDays = 0;
     let totalWatchkeeping15m = 0;
     let totalOnboard24mDays = 0;
     let totalOnboard500gtDays = 0;
@@ -326,18 +323,15 @@
       const days = daysBetween(entry.dateJoined, entry.dateLeft);
 
       if (lengthM >= 15) {
-        totalOnboard15mDays += days;
         totalWatchkeeping15m += toNumber(entry.watchkeepingDays);
       }
       if (lengthM >= 24) totalOnboard24mDays += days;
       if (gt >= 500) totalOnboard500gtDays += days;
     });
 
-    const monthsOnboard15m = totalOnboard15mDays / 30.44;
     const months24m = totalOnboard24mDays / 30.44;
     const months500gt = totalOnboard500gtDays / 30.44;
 
-    const monthsMet = monthsOnboard15m >= MONTHS_TARGET;
     const watchMet = totalWatchkeeping15m >= WATCHKEEPING_TARGET;
 
     // Show whichever specialised-experience path is further along.
@@ -345,13 +339,7 @@
     const specialValue = use500gtPath ? months500gt : months24m;
     const specialTarget = use500gtPath ? SPECIAL_500GT_TARGET : SPECIAL_24M_TARGET;
     const specialMet = months24m >= SPECIAL_24M_TARGET || months500gt >= SPECIAL_500GT_TARGET;
-    const allMasterMet = monthsMet && watchMet && specialMet;
-
-    if (monthsEl) monthsEl.textContent = `${monthsOnboard15m.toFixed(1)} / ${MONTHS_TARGET} mo`;
-    if (monthsBar) {
-      monthsBar.style.width = `${Math.min(100, (monthsOnboard15m / MONTHS_TARGET) * 100)}%`;
-    }
-    if (monthsBox) monthsBox.classList.toggle("is-met", monthsMet);
+    const allMasterMet = watchMet && specialMet;
 
     if (watchEl) watchEl.textContent = `${totalWatchkeeping15m} / ${WATCHKEEPING_TARGET}`;
     if (watchBar) {
@@ -373,7 +361,7 @@
     if (statusEl) statusEl.hidden = !allMasterMet;
 
     if (breakdownEl) {
-      breakdownEl.innerHTML = `On vessels 15m and over: <strong>${totalOnboard15mDays}</strong> onboard days, <strong>${totalWatchkeeping15m}</strong> watchkeeping days. Specialised experience: <strong>${months24m.toFixed(1)}</strong> months on 24m+ vessels, <strong>${months500gt.toFixed(1)}</strong> months on 500GT+ vessels.`;
+      breakdownEl.innerHTML = `On vessels 15m and over: <strong>${totalWatchkeeping15m}</strong> watchkeeping days. Specialised experience: <strong>${months24m.toFixed(1)}</strong> months on 24m+ vessels, <strong>${months500gt.toFixed(1)}</strong> months on 500GT+ vessels.`;
     }
   }
 

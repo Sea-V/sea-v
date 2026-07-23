@@ -12,28 +12,28 @@
   <title>SEA-V • Sea Service</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=207" />
+  <link rel="stylesheet" href="styles.css?v=208" />
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=207"></script>
-  <script src="js/supabase.js?v=207"></script>
-  <script src="js/auth.js?v=207"></script>
-  <script src="js/feedback.js?v=207" defer></script>
-  <script src="js/core.js?v=207" defer></script>
+  <script src="js/seav-config.js?v=208"></script>
+  <script src="js/supabase.js?v=208"></script>
+  <script src="js/auth.js?v=208"></script>
+  <script src="js/feedback.js?v=208" defer></script>
+  <script src="js/core.js?v=208" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=207" defer></script>
-  <script src="js/seav-data.js?v=207" defer></script>
-  <script src="js/seav-badges.js?v=207" defer></script>
-  <script src="js/api-core.js?v=207" defer></script>
-  <script src="js/api-mappers.js?v=207" defer></script>
-  <script src="js/api.js?v=207" defer></script>
-  <script src="js/state.js?v=207" defer></script>
-  <script src="js/achievements-engine.js?v=207" defer></script>
-  <script src="js/badge-unlock.js?v=207" defer></script>
+  <script src="js/seav-upload.js?v=208" defer></script>
+  <script src="js/seav-data.js?v=208" defer></script>
+  <script src="js/seav-badges.js?v=208" defer></script>
+  <script src="js/api-core.js?v=208" defer></script>
+  <script src="js/api-mappers.js?v=208" defer></script>
+  <script src="js/api.js?v=208" defer></script>
+  <script src="js/state.js?v=208" defer></script>
+  <script src="js/achievements-engine.js?v=208" defer></script>
+  <script src="js/badge-unlock.js?v=208" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=207" defer></script>
-  <script src="js/seatime.js?v=207" defer></script>
+  <script src="js/seav-share.js?v=208" defer></script>
+  <script src="js/seatime.js?v=208" defer></script>
  </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -219,21 +219,7 @@
           Once OOW &lt;3000GT is held, your onboard service continues to count toward Master &lt;3000GT.
         </p>
 
-        <div class="kpi-row-grid kpi-row-grid-3 seatime-oow-grid" id="seatimeMasterGrid">
-
-          <div class="kpi-box seatime-oow-box" id="masterMonthsBox">
-            <div class="seatime-oow-box-metric">
-              <div class="kpi-num" id="masterMonthsOnboard">0 / 24 mo</div>
-              <div class="kpi-label">Months as deck officer (15m+)</div>
-              <div class="seatime-progress-bar"><span id="masterMonthsBar" style="width:0%"></span></div>
-            </div>
-            <div class="seatime-oow-box-check" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M6 12.5l3.5 3.5L18 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>Requirement met</span>
-            </div>
-          </div>
+        <div class="kpi-row-grid kpi-row-grid-2 seatime-oow-grid" id="seatimeMasterGrid">
 
           <div class="kpi-box seatime-oow-box" id="masterWatchkeepingBox">
             <div class="seatime-oow-box-metric">
