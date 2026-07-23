@@ -143,6 +143,50 @@
     return ms > 0 ? Math.round(ms / 86400000) : 0;
   }
 
+  // Per-user "I hold the OOW cert and want to see Master progress" tick box —
+  // a local preference, not official data, so it lives in localStorage rather
+  // than Supabase (mirrors js/badge-unlock.js's per-user storageKey pattern).
+  const OOW_MASTER_CONFIRM_KEY = "seav_oow_master_confirmed";
+  let latestOowAllMet = false;
+
+  function getOowMasterConfirmStorageKey() {
+    const userId = window.SeavAuth?.getUserId?.();
+    return userId ? `${OOW_MASTER_CONFIRM_KEY}_${userId}` : OOW_MASTER_CONFIRM_KEY;
+  }
+
+  function isOowMasterConfirmed() {
+    try {
+      return localStorage.getItem(getOowMasterConfirmStorageKey()) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function setOowMasterConfirmed(value) {
+    try {
+      localStorage.setItem(getOowMasterConfirmStorageKey(), value ? "1" : "0");
+    } catch {
+      /* ignore storage errors (private browsing, quota, etc.) */
+    }
+  }
+
+  function applyOowMasterVisibility(confirmed) {
+    const oowGrid = document.getElementById("seatimeOowGrid");
+    const masterSection = document.getElementById("seatimeMasterSection");
+    if (oowGrid) oowGrid.hidden = confirmed;
+    if (masterSection) masterSection.hidden = !confirmed;
+  }
+
+  function wireOowMasterConfirmCheckbox() {
+    const confirmCheck = document.getElementById("seatimeOowConfirmCheck");
+    if (!confirmCheck || confirmCheck.dataset.wired) return;
+    confirmCheck.dataset.wired = "1";
+    confirmCheck.addEventListener("change", () => {
+      setOowMasterConfirmed(confirmCheck.checked);
+      applyOowMasterVisibility(latestOowAllMet && confirmCheck.checked);
+    });
+  }
+
   /**
    * Guide-only OOW (Yachts <3000GT) II/1 eligibility tracker.
    * Figures verified against MCA MSN 1858 (M+F) Amendment 2 (18 May 2026),
@@ -153,9 +197,10 @@
    *       - 115 days from any combination of actual/standby/yard, where
    *         standby never exceeds that voyage's actual sea days and yard
    *         service counts up to a max of 90 days total
-   *   - TRB not required if 36 months' actual sea service on vessels 24m+
    * This works from each entry's day totals (not day-by-day consecutive
-   * tracking), so it is a guide, not an official assessment.
+   * tracking), so it is a guide, not an official assessment. Once met, the
+   * boxes above are replaced by a status pill and a tick box lets the crew
+   * confirm they hold the cert before the Master <3000GT tracker appears.
    */
   function updateOowTracker(seatimes) {
     const monthsEl = document.getElementById("oowMonthsOnboard");
@@ -169,7 +214,8 @@
     const actualBox = document.getElementById("oowActualBox");
     const breakdownEl = document.getElementById("seatimeOowBreakdown");
     const statusEl = document.getElementById("seatimeOowStatus");
-    const masterNoteEl = document.getElementById("seatimeOowMasterNote");
+    const confirmWrap = document.getElementById("seatimeOowConfirmWrap");
+    const confirmCheck = document.getElementById("seatimeOowConfirmCheck");
 
     if (!monthsEl && !qualDaysEl && !actualEl) return;
 
@@ -177,13 +223,11 @@
     const QUALIFYING_TARGET = 365;
     const ACTUAL_MIN = 250;
     const YARD_CAP = 90;
-    const TRB_EXEMPT_ACTUAL_DAYS = 1096; // ~36 months at 30.44 days/month
 
     let totalOnboardDays = 0;
     let totalActual15m = 0;
     let totalStandby15mCounted = 0;
     let totalYard15mRaw = 0;
-    let totalActual24mPlus = 0;
 
     seatimes.forEach((entry) => {
       const vessel = getVesselById(entry.vesselId);
@@ -203,10 +247,6 @@
         totalStandby15mCounted += Math.min(standby, actual);
         totalYard15mRaw += yard;
       }
-
-      if (lengthM >= 24) {
-        totalActual24mPlus += actual;
-      }
     });
 
     const totalYard15mCounted = Math.min(totalYard15mRaw, YARD_CAP);
@@ -217,6 +257,7 @@
     const qualifyingMet = totalQualifying15m >= QUALIFYING_TARGET;
     const actualMet = totalActual15m >= ACTUAL_MIN;
     const allMet = monthsMet && qualifyingMet && actualMet;
+    latestOowAllMet = allMet;
 
     if (monthsEl) monthsEl.textContent = `${monthsOnboard.toFixed(1)} / ${MONTHS_TARGET} mo`;
     if (monthsBar) {
@@ -237,15 +278,113 @@
     if (actualBox) actualBox.classList.toggle("is-met", actualMet);
 
     if (statusEl) statusEl.hidden = !allMet;
-    if (masterNoteEl) masterNoteEl.hidden = !allMet;
+    if (confirmWrap) confirmWrap.hidden = !allMet;
+
+    wireOowMasterConfirmCheckbox();
+    const confirmed = allMet && isOowMasterConfirmed();
+    if (confirmCheck) confirmCheck.checked = confirmed;
+    applyOowMasterVisibility(confirmed);
 
     if (breakdownEl) {
-      const trbNote =
-        totalActual24mPlus >= TRB_EXEMPT_ACTUAL_DAYS
-          ? `Training Record Book exemption met — ${totalActual24mPlus} actual days logged on vessels 24m and over.`
-          : `Training Record Book required unless you reach ~36 months of actual sea service on vessels 24m+ (${totalActual24mPlus} / ${TRB_EXEMPT_ACTUAL_DAYS} days so far).`;
+      breakdownEl.innerHTML = `On vessels 15m and over: <strong>${totalActual15m}</strong> actual sea days, <strong>${totalStandby15mCounted}</strong> standby days counted, <strong>${totalYard15mCounted}</strong> of ${totalYard15mRaw} yard days counted (capped at ${YARD_CAP}).`;
+    }
 
-      breakdownEl.innerHTML = `On vessels 15m and over: <strong>${totalActual15m}</strong> actual sea days, <strong>${totalStandby15mCounted}</strong> standby days counted, <strong>${totalYard15mCounted}</strong> of ${totalYard15mRaw} yard days counted (capped at ${YARD_CAP}). ${Seav.escapeHtml(trbNote)}`;
+    updateMasterTracker(seatimes);
+  }
+
+  /**
+   * Guide-only Master (Yachts <3000GT) II/2 sea-service tracker — MSN 1858
+   * Amendment 2, section 3.6(a): while serving as OOW <3000GT, 24 months'
+   * onboard service as a Deck Officer (incl. 240 days watchkeeping) on
+   * vessels 15m+, including either 12 months on vessels 24m+ or 6 months on
+   * vessels 500GT+. Only this sea-service leg is trackable from logged data —
+   * ancillary certs, the Master <500GT CoC/Celestial Nav (or equivalent
+   * modules), and the oral exam are separate requirements not covered here.
+   * Revealed once the OOW tracker above is confirmed via its tick box.
+   */
+  function updateMasterTracker(seatimes) {
+    const monthsEl = document.getElementById("masterMonthsOnboard");
+    const monthsBar = document.getElementById("masterMonthsBar");
+    const monthsBox = document.getElementById("masterMonthsBox");
+    const watchEl = document.getElementById("masterWatchkeeping");
+    const watchBar = document.getElementById("masterWatchkeepingBar");
+    const watchBox = document.getElementById("masterWatchkeepingBox");
+    const specialEl = document.getElementById("masterSpecial");
+    const specialLabelEl = document.getElementById("masterSpecialLabel");
+    const specialBar = document.getElementById("masterSpecialBar");
+    const specialBox = document.getElementById("masterSpecialBox");
+    const breakdownEl = document.getElementById("seatimeMasterBreakdown");
+    const statusEl = document.getElementById("seatimeMasterStatus");
+
+    if (!monthsEl && !watchEl && !specialEl) return;
+
+    const MONTHS_TARGET = 24;
+    const WATCHKEEPING_TARGET = 240;
+    const SPECIAL_24M_TARGET = 12;
+    const SPECIAL_500GT_TARGET = 6;
+
+    let totalOnboard15mDays = 0;
+    let totalWatchkeeping15m = 0;
+    let totalOnboard24mDays = 0;
+    let totalOnboard500gtDays = 0;
+
+    seatimes.forEach((entry) => {
+      const vessel = getVesselById(entry.vesselId);
+      const lengthM = parseVesselLengthMeters(
+        vessel?.vessel_length || vessel?.length || entry.vesselLength
+      );
+      const gt = parseVesselLengthMeters(vessel?.gt);
+      const days = daysBetween(entry.dateJoined, entry.dateLeft);
+
+      if (lengthM >= 15) {
+        totalOnboard15mDays += days;
+        totalWatchkeeping15m += toNumber(entry.watchkeepingDays);
+      }
+      if (lengthM >= 24) totalOnboard24mDays += days;
+      if (gt >= 500) totalOnboard500gtDays += days;
+    });
+
+    const monthsOnboard15m = totalOnboard15mDays / 30.44;
+    const months24m = totalOnboard24mDays / 30.44;
+    const months500gt = totalOnboard500gtDays / 30.44;
+
+    const monthsMet = monthsOnboard15m >= MONTHS_TARGET;
+    const watchMet = totalWatchkeeping15m >= WATCHKEEPING_TARGET;
+
+    // Show whichever specialised-experience path is further along.
+    const use500gtPath = months500gt / SPECIAL_500GT_TARGET > months24m / SPECIAL_24M_TARGET;
+    const specialValue = use500gtPath ? months500gt : months24m;
+    const specialTarget = use500gtPath ? SPECIAL_500GT_TARGET : SPECIAL_24M_TARGET;
+    const specialMet = months24m >= SPECIAL_24M_TARGET || months500gt >= SPECIAL_500GT_TARGET;
+    const allMasterMet = monthsMet && watchMet && specialMet;
+
+    if (monthsEl) monthsEl.textContent = `${monthsOnboard15m.toFixed(1)} / ${MONTHS_TARGET} mo`;
+    if (monthsBar) {
+      monthsBar.style.width = `${Math.min(100, (monthsOnboard15m / MONTHS_TARGET) * 100)}%`;
+    }
+    if (monthsBox) monthsBox.classList.toggle("is-met", monthsMet);
+
+    if (watchEl) watchEl.textContent = `${totalWatchkeeping15m} / ${WATCHKEEPING_TARGET}`;
+    if (watchBar) {
+      watchBar.style.width = `${Math.min(100, (totalWatchkeeping15m / WATCHKEEPING_TARGET) * 100)}%`;
+    }
+    if (watchBox) watchBox.classList.toggle("is-met", watchMet);
+
+    if (specialEl) specialEl.textContent = `${specialValue.toFixed(1)} / ${specialTarget} mo`;
+    if (specialLabelEl) {
+      specialLabelEl.textContent = use500gtPath
+        ? "Months on vessels 500GT+"
+        : "Months on vessels 24m+";
+    }
+    if (specialBar) {
+      specialBar.style.width = `${Math.min(100, (specialValue / specialTarget) * 100)}%`;
+    }
+    if (specialBox) specialBox.classList.toggle("is-met", specialMet);
+
+    if (statusEl) statusEl.hidden = !allMasterMet;
+
+    if (breakdownEl) {
+      breakdownEl.innerHTML = `On vessels 15m and over: <strong>${totalOnboard15mDays}</strong> onboard days, <strong>${totalWatchkeeping15m}</strong> watchkeeping days. Specialised experience: <strong>${months24m.toFixed(1)}</strong> months on 24m+ vessels, <strong>${months500gt.toFixed(1)}</strong> months on 500GT+ vessels.`;
     }
   }
 

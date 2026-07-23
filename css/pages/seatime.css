@@ -540,15 +540,51 @@
   display: flex;
 }
 
-.seatime-oow-master-note {
-  margin-top: 12px;
-  padding: 10px 14px;
+.seatime-oow-confirm {
+  margin-top: 12px !important;
+  padding: 12px 14px !important;
   border-radius: 12px;
   border: 1px solid rgba(76, 217, 123, 0.3);
   background: rgba(76, 217, 123, 0.08);
-  font-size: 13px;
-  line-height: 1.5;
-  color: rgba(214, 226, 238, 0.9);
+}
+
+.seatime-oow-confirm span {
+  color: rgba(214, 226, 238, 0.92) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.seatime-master-section {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(130, 158, 255, 0.14);
+}
+
+.seatime-master-head {
+  margin-bottom: 4px;
+}
+
+/* Boxes take up a lot of vertical space at the default kpi-box size —
+   scope a smaller footprint just within this tracker. */
+.seatime-oow-panel .kpi-box {
+  padding: 12px 14px;
+}
+
+.seatime-oow-panel .kpi-num {
+  font-size: 17px;
+}
+
+.seatime-oow-panel .kpi-label {
+  font-size: 10px;
+}
+
+.seatime-oow-panel .seatime-oow-box-check {
+  min-height: 44px;
+}
+
+.seatime-oow-panel .seatime-oow-box-check svg {
+  width: 20px;
+  height: 20px;
 }
 
 .seatime-progress-bar {

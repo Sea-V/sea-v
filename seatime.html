@@ -12,28 +12,28 @@
   <title>SEA-V • Sea Service</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=203" />
+  <link rel="stylesheet" href="styles.css?v=204" />
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=203"></script>
-  <script src="js/supabase.js?v=203"></script>
-  <script src="js/auth.js?v=203"></script>
-  <script src="js/feedback.js?v=203" defer></script>
-  <script src="js/core.js?v=203" defer></script>
+  <script src="js/seav-config.js?v=204"></script>
+  <script src="js/supabase.js?v=204"></script>
+  <script src="js/auth.js?v=204"></script>
+  <script src="js/feedback.js?v=204" defer></script>
+  <script src="js/core.js?v=204" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=203" defer></script>
-  <script src="js/seav-data.js?v=203" defer></script>
-  <script src="js/seav-badges.js?v=203" defer></script>
-  <script src="js/api-core.js?v=203" defer></script>
-  <script src="js/api-mappers.js?v=203" defer></script>
-  <script src="js/api.js?v=203" defer></script>
-  <script src="js/state.js?v=203" defer></script>
-  <script src="js/achievements-engine.js?v=203" defer></script>
-  <script src="js/badge-unlock.js?v=203" defer></script>
+  <script src="js/seav-upload.js?v=204" defer></script>
+  <script src="js/seav-data.js?v=204" defer></script>
+  <script src="js/seav-badges.js?v=204" defer></script>
+  <script src="js/api-core.js?v=204" defer></script>
+  <script src="js/api-mappers.js?v=204" defer></script>
+  <script src="js/api.js?v=204" defer></script>
+  <script src="js/state.js?v=204" defer></script>
+  <script src="js/achievements-engine.js?v=204" defer></script>
+  <script src="js/badge-unlock.js?v=204" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=203" defer></script>
-  <script src="js/seatime.js?v=203" defer></script>
+  <script src="js/seav-share.js?v=204" defer></script>
+  <script src="js/seatime.js?v=204" defer></script>
  </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -124,7 +124,7 @@
       </div>
     </article>
 
-    <!-- OOW ELIGIBILITY TRACKER -->
+    <!-- OOW / MASTER ELIGIBILITY TRACKER -->
     <article class="dash-card dash-kpis-row seatime-oow-panel">
       <div class="seatime-oow-head">
         <h3 class="kpi-title">OOW Yachts &lt;3000GT eligibility guide</h3>
@@ -136,7 +136,7 @@
         </span>
       </div>
 
-      <div class="kpi-row-grid kpi-row-grid-3">
+      <div class="kpi-row-grid kpi-row-grid-3 seatime-oow-grid" id="seatimeOowGrid">
 
         <div class="kpi-box seatime-oow-box" id="oowMonthsBox">
           <div class="seatime-oow-box-metric">
@@ -184,17 +184,127 @@
 
       <p class="seatime-oow-breakdown" id="seatimeOowBreakdown"></p>
 
-      <p class="seatime-oow-master-note" id="seatimeOowMasterNote" hidden>
-        Your qualifying days here also count toward Master Yachts &lt;3000GT — that's a separate
-        Certificate of Competency with its own additional requirements we haven't built a tracker for yet.
-      </p>
+      <label class="modal-check seatime-oow-confirm" id="seatimeOowConfirmWrap" hidden>
+        <input type="checkbox" id="seatimeOowConfirmCheck" />
+        <span>I confirm I've been awarded my OOW Yachts &lt;3000GT Certificate of Competency and want to start tracking progress toward Master &lt;3000GT.</span>
+      </label>
 
-      <p class="seatime-oow-note">
-        Based on MCA MSN 1858 (Amendment 2, 18 May 2026), Regulation II/1 — Officer of the Watch (OOW),
-        Yachts less than 3000GT, Unlimited Area. This is a guide calculated from your logged day totals,
-        not day-by-day consecutive tracking, so always confirm your exact qualifying service with the
-        MCA or PYA before applying. Vessel length is read from each linked vessel's Length field.
-      </p>
+      <details class="seatime-checklist-panel seatime-oow-details">
+        <summary class="seatime-checklist-summary">
+          <span>
+            <strong>What are the OOW &lt;3000GT requirements?</strong>
+            <small>MCA MSN 1858 Amendment 2, Regulation II/1 — read the full breakdown.</small>
+          </span>
+        </summary>
+        <div class="seatime-oow-details-body">
+          <p>
+            Since the age of 16, a minimum of 36 months' onboard yacht service (any vessel size),
+            including at least 365 days seagoing service on vessels 15 metres or over in load line
+            length, made up of a minimum of 250 days' actual sea service and 115 days from any
+            combination of actual sea, stand-by, or yard service — stand-by service can never exceed
+            that voyage's actual sea days (max 14 consecutive days counted at once), and yard service
+            counts up to a maximum of 90 days total.
+          </p>
+          <p class="seatime-oow-note">
+            Based on MCA MSN 1858 (Amendment 2, 18 May 2026), Regulation II/1 — Officer of the Watch
+            (OOW), Yachts less than 3000GT, Unlimited Area. This is a guide calculated from your logged
+            day totals, not day-by-day consecutive tracking, and covers sea service only — the CoC also
+            requires EDH, ancillary courses, professional exams, and the oral exam. Always confirm your
+            exact qualifying service with the MCA or PYA before applying. Vessel length/GT are read from
+            each linked vessel's Length/GT fields.
+          </p>
+        </div>
+      </details>
+
+      <!-- MASTER <3000GT — appears once OOW eligibility above is met -->
+      <div class="seatime-master-section" id="seatimeMasterSection" hidden>
+
+        <div class="seatime-oow-head seatime-master-head">
+          <h3 class="kpi-title">Master Yachts &lt;3000GT progress</h3>
+          <span class="seatime-oow-status" id="seatimeMasterStatus" hidden>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 12.5l3.5 3.5L18 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Eligibility complete
+          </span>
+        </div>
+
+        <p class="seatime-oow-breakdown">
+          Once OOW &lt;3000GT is held, your onboard service continues to count toward Master &lt;3000GT.
+        </p>
+
+        <div class="kpi-row-grid kpi-row-grid-3 seatime-oow-grid" id="seatimeMasterGrid">
+
+          <div class="kpi-box seatime-oow-box" id="masterMonthsBox">
+            <div class="seatime-oow-box-metric">
+              <div class="kpi-num" id="masterMonthsOnboard">0 / 24 mo</div>
+              <div class="kpi-label">Months as deck officer (15m+)</div>
+              <div class="seatime-progress-bar"><span id="masterMonthsBar" style="width:0%"></span></div>
+            </div>
+            <div class="seatime-oow-box-check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M6 12.5l3.5 3.5L18 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Requirement met</span>
+            </div>
+          </div>
+
+          <div class="kpi-box seatime-oow-box" id="masterWatchkeepingBox">
+            <div class="seatime-oow-box-metric">
+              <div class="kpi-num" id="masterWatchkeeping">0 / 240</div>
+              <div class="kpi-label">Watchkeeping days (15m+)</div>
+              <div class="seatime-progress-bar"><span id="masterWatchkeepingBar" style="width:0%"></span></div>
+            </div>
+            <div class="seatime-oow-box-check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M6 12.5l3.5 3.5L18 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Requirement met</span>
+            </div>
+          </div>
+
+          <div class="kpi-box seatime-oow-box" id="masterSpecialBox">
+            <div class="seatime-oow-box-metric">
+              <div class="kpi-num" id="masterSpecial">0 / 12 mo</div>
+              <div class="kpi-label" id="masterSpecialLabel">Months on vessels 24m+</div>
+              <div class="seatime-progress-bar"><span id="masterSpecialBar" style="width:0%"></span></div>
+            </div>
+            <div class="seatime-oow-box-check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M6 12.5l3.5 3.5L18 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Requirement met</span>
+            </div>
+          </div>
+
+        </div>
+
+        <p class="seatime-oow-breakdown" id="seatimeMasterBreakdown"></p>
+
+        <details class="seatime-checklist-panel seatime-oow-details">
+          <summary class="seatime-checklist-summary">
+            <span>
+              <strong>What are the Master &lt;3000GT requirements?</strong>
+              <small>MCA MSN 1858 Amendment 2, Regulation II/2 — read the full breakdown.</small>
+            </span>
+          </summary>
+          <div class="seatime-oow-details-body">
+            <p>
+              While serving as OOW Yachts &lt;3000GT, a minimum of 24 months' onboard yacht service as
+              a Deck Officer, including at least 240 days watchkeeping service. All of this service must
+              be on vessels 15 metres or over in load line length, and must include either 12 months on
+              vessels 24 metres or over, or 6 months on vessels of 500 GT or more.
+            </p>
+            <p class="seatime-oow-note">
+              Based on MCA MSN 1858 (Amendment 2, 18 May 2026), Regulation II/2 — Master, Yachts less
+              than 3000GT, Unlimited Area. This is a guide calculated from your logged day totals and
+              covers sea service only — the CoC also requires an MCA Master &lt;500GT CoC or equivalent
+              modules/exams, ancillary certificates, and the oral exam. Always confirm your exact
+              qualifying service with the MCA or PYA before applying.
+            </p>
+          </div>
+        </details>
+      </div>
     </article>
 
     <!-- VERIFICATION PORTALS -->
