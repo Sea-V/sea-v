@@ -239,6 +239,18 @@ function buildTenderVesselGroups(tenders) {
   `;
 }
 
+  // js/core.js's bindStateRefresh reruns this page's refresh on EVERY
+  // "seav:data-updated" event app-wide, and photo hydration itself dispatches
+  // that event once signed URLs resolve — so without a guard, every refresh
+  // (including ones with nothing to do with tenders) tears down and recreates
+  // every tender card's <img>, producing a visible flash/flicker even though
+  // the resulting HTML is identical. Same root cause already fixed for
+  // dashboard vessel/tender photos (js/dashboard-snippets.js) and the
+  // onboard-experience list (js/onboard-experience.js) — mirroring that fix
+  // here. Fingerprint is taken AFTER hydration so an already-cached signed
+  // URL (unchanged) still compares equal and skips the rebuild.
+  let lastRenderedFingerprint = null;
+
   async function renderTenders() {
     const tendersGrid = document.getElementById("tendersGrid");
     if (!tendersGrid && !document.getElementById("tenderForm")) return;
@@ -248,11 +260,16 @@ function buildTenderVesselGroups(tenders) {
 
     if (!tenders.length) {
       tendersGrid.innerHTML = `<p class="muted">No tenders added yet.</p>`;
+      lastRenderedFingerprint = null;
       return;
     }
 
     await hydrateTenderPhotos(tenders);
     window.SeavState?.syncCache?.();
+
+    const fingerprint = JSON.stringify(tenders);
+    if (fingerprint === lastRenderedFingerprint) return;
+    lastRenderedFingerprint = fingerprint;
 
     const groups = buildTenderVesselGroups(tenders);
 
