@@ -75,7 +75,7 @@
     { value: "Familiarisation", label: "Familiarisation" },
     { value: "Competent", label: "Competent" },
     { value: "Advanced", label: "Advanced" },
-    { value: "Coxswain", label: "Coxswain" }
+    { value: "Coxswain", label: "Proficient" }
   ];
 
   const ONBOARD_EXPERIENCE_CATEGORIES = [
@@ -925,7 +925,7 @@ function getTenderProficiencyLabel(value) {
 function getTenderProficiencyDisplay(level) {
   // Medal-style progression: no medal yet -> bronze -> silver -> gold,
   // so the four proficiency levels read as increasing skill at a glance
-  // (Advanced and Coxswain used to both be plain green and looked identical).
+  // (Advanced and Proficient used to both be plain green and looked identical).
   const classNames = {
     Familiarisation: "pill-neutral",
     Competent: "tender-proficiency-pill--bronze",
