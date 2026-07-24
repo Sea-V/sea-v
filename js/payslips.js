@@ -9,7 +9,7 @@
   const {
     STORAGE_KEY, populateTaxYearOptions, populateCurrencyOptions,
     populateMonthOptions, populateVesselOptions, renderKpis,
-    expandedPsIds, activeYearMonthFilters, getEntries
+    expandedPsIds, activeYearMonthFilters, getEntries, getAttachmentUrl
   } = C;
   const { renderList } = R;
   const { downloadPayslipPack, sharePayslipPack } = X;
@@ -36,6 +36,30 @@
     };
   }
 
+  function renderAttachmentHint(attachmentMeta, { isNewSelection = false } = {}) {
+    const hint = document.getElementById("psFileHint");
+    const btn = document.getElementById("psFileBtn");
+    if (isNewSelection) {
+      if (hint) {
+        hint.textContent = attachmentMeta?.filename
+          ? `New file selected: ${attachmentMeta.filename} — click Save payslip to apply`
+          : "New file selected — click Save payslip to apply";
+      }
+      if (btn) btn.textContent = "Change file";
+      return;
+    }
+    const docUrl = attachmentMeta ? getAttachmentUrl(attachmentMeta) : "";
+    const filename = attachmentMeta?.filename || attachmentMeta?.name || "";
+    if (hint) {
+      hint.textContent = docUrl
+        ? (filename ? `Current file: ${filename}` : "Current file uploaded")
+        : "No file uploaded yet";
+    }
+    if (btn) {
+      btn.textContent = docUrl ? "Change file" : "Choose file";
+    }
+  }
+
   function fillForm(entry) {
     const entryId = entry?.id || "";
     const payMonth = entry ? normalizePayslipMonth(entry) : "";
@@ -55,6 +79,7 @@
     Seav.setDateTriplet("ps_payment_date", entry?.paymentDate || "");
     const fileInput = document.getElementById("ps_file");
     if (fileInput) fileInput.value = "";
+    renderAttachmentHint(entry?.attachment || null);
   }
 
   async function buildAttachment(file, existing, entryId) {
@@ -85,6 +110,18 @@
   function initPayslips() {
     if (!document.getElementById("psList") && !document.getElementById("psForm")) {
       return;
+    }
+
+    const psFileInput = document.getElementById("ps_file");
+    const psFileBtn = document.getElementById("psFileBtn");
+    if (psFileBtn && psFileInput) {
+      psFileBtn.addEventListener("click", () => psFileInput.click());
+      psFileInput.addEventListener("change", () => {
+        const file = psFileInput.files?.[0] || null;
+        if (file) {
+          renderAttachmentHint({ filename: file.name }, { isNewSelection: true });
+        }
+      });
     }
 
     const filter = document.getElementById("psTaxYearFilter");
