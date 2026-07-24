@@ -71,6 +71,40 @@ function getVesselNameForTender(tender) {
   const TENDER_PHOTO_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos";
 
+  // Mirrors the Vessels page's photo-thumb pattern (js/vessels.js
+  // renderVesselPhotoThumb) — without this, td_photo was a bare
+  // <input type="file"> that gave no indication a tender already had a
+  // photo, so editing one looked like the photo field was empty.
+  function renderTenderPhotoThumb(photoMeta, { isNewSelection = false } = {}) {
+    const thumb = document.getElementById("tdPhotoThumb");
+    const hint = document.getElementById("tdPhotoHint");
+    const btn = document.getElementById("tdPhotoBtn");
+    if (!thumb) return;
+
+    const photoUrl = Seav.getFileDisplayUrl(photoMeta, TENDER_PHOTO_BUCKET);
+
+    if (photoUrl) {
+      const safeUrl = String(photoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+      thumb.style.backgroundImage = `url("${safeUrl}")`;
+    } else {
+      thumb.style.backgroundImage = "";
+    }
+
+    if (hint) {
+      if (isNewSelection) {
+        hint.textContent = "New photo selected — click Save tender to apply";
+      } else if (photoUrl) {
+        hint.textContent = "Current photo";
+      } else {
+        hint.textContent = "No photo uploaded yet";
+      }
+    }
+
+    if (btn) {
+      btn.textContent = photoUrl ? "Change photo" : "Choose photo";
+    }
+  }
+
   async function hydrateTenderPhotos(tenders) {
     if (!window.SeavApiCore?.hydrateItemsFileField) return tenders;
     return window.SeavApiCore.hydrateItemsFileField(tenders, "photo", TENDER_PHOTO_BUCKET);
@@ -203,6 +237,8 @@ function getVesselNameForTender(tender) {
     const editId = document.getElementById("td_edit_id");
     if (editId) editId.value = tender.id || "";
 
+    renderTenderPhotoThumb(tender.photo || null, { isNewSelection: false });
+
     if (window.SeavModals?.openModal) {
       window.SeavModals.openModal("tenderModal");
     }
@@ -220,6 +256,8 @@ function getVesselNameForTender(tender) {
 
     const proficiencySelect = document.getElementById("td_proficiency");
     if (proficiencySelect) proficiencySelect.value = "";
+
+    renderTenderPhotoThumb(null, { isNewSelection: false });
   }
 
 function readTenderForm() {
@@ -265,6 +303,20 @@ function readTenderForm() {
     };
 
     Seav.bindStateRefresh(runRefresh, { label: "Tenders refresh" });
+
+    const tdPhotoInput = document.getElementById("td_photo");
+    const tdPhotoBtn = document.getElementById("tdPhotoBtn");
+    if (tdPhotoBtn && tdPhotoInput) {
+      tdPhotoBtn.addEventListener("click", () => tdPhotoInput.click());
+    }
+    if (tdPhotoInput) {
+      tdPhotoInput.addEventListener("change", () => {
+        const file = tdPhotoInput.files?.[0] || null;
+        if (file) {
+          renderTenderPhotoThumb({ dataUrl: URL.createObjectURL(file) }, { isNewSelection: true });
+        }
+      });
+    }
 
     const tenderForm = document.getElementById("tenderForm");
     if (tenderForm) {
