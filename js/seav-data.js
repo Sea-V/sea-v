@@ -778,7 +778,6 @@ function getEmptySpecialistQualificationEntry() {
     issuingBody: "",
     dateObtained: "",
     expiry: "",
-    status: "Self-declared",
     notes: "",
     attachment: null,
     createdAt: "",
@@ -791,19 +790,6 @@ function getSpecialistCategoryLabel(value) {
     (item) => item.value === value
   );
   return match?.label || value || "—";
-}
-
-// Single source of truth for specialist qualification status colors — was
-// previously copy-pasted in js/specialist-qualifications.js (edit page),
-// and the dashboard/public profile mirrors each had their own, weaker
-// treatment (plain gray pill / binary verified-or-not dot) that didn't match.
-function getSpecialistQualificationStatusDisplay(status) {
-  const map = {
-    "Self-declared": { label: "Self-declared", className: "pill-pending" },
-    Verified: { label: "Verified", className: "pill-valid" },
-    Expired: { label: "Expired", className: "pill-expired" }
-  };
-  return map[status] || { label: status || "Self-declared", className: "pill-neutral" };
 }
 
 function getEmptyPayslipEntry() {
@@ -1376,7 +1362,6 @@ window.SeavData = {
   SPECIALIST_QUALIFICATION_CATEGORIES,
   getEmptySpecialistQualificationEntry,
   getSpecialistCategoryLabel,
-  getSpecialistQualificationStatusDisplay,
   getHobbyInterestStatusDisplay,
   PAYSLIP_CURRENCIES,
   PAYSLIP_TAX_YEAR_MONTHS,

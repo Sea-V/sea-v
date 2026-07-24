@@ -12,8 +12,7 @@
     createId,
     formatDatePretty,
     SPECIALIST_QUALIFICATION_CATEGORIES,
-    getSpecialistCategoryLabel,
-    getSpecialistQualificationStatusDisplay
+    getSpecialistCategoryLabel
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.SPECIALIST_QUALIFICATIONS;
@@ -25,10 +24,6 @@
   function getEntries() {
     return window.SeavState?.specialistQualifications || [];
   }
-
-  // Status color map lives in js/seav-data.js (shared with the dashboard
-  // snippet and public profile) so all three surfaces show the same colors.
-  const getStatusDisplay = getSpecialistQualificationStatusDisplay;
 
   function hasAttachment(attachment) {
     return (
@@ -73,7 +68,6 @@
     if (!row) return;
 
     const entries = getEntries();
-    const verified = entries.filter((e) => e.status === "Verified").length;
     const withFile = entries.filter((e) => hasAttachment(e.attachment)).length;
     const categories = new Set(
       entries.map((e) => e.category).filter(Boolean)
@@ -83,10 +77,6 @@
       <div class="sq-kpi-box">
         <div class="kpi-num">${entries.length}</div>
         <div class="kpi-label">Total logged</div>
-      </div>
-      <div class="sq-kpi-box">
-        <div class="kpi-num">${verified}</div>
-        <div class="kpi-label">Verified</div>
       </div>
       <div class="sq-kpi-box">
         <div class="kpi-num">${withFile}</div>
@@ -102,7 +92,6 @@
   function buildRow(entry) {
     const entryId = entry.id || "";
     const categoryLabel = getSpecialistCategoryLabel(entry.category);
-    const statusInfo = getStatusDisplay(entry.status);
     const obtained = entry.dateObtained
       ? formatDatePretty(entry.dateObtained)
       : "—";
@@ -129,9 +118,6 @@
             </div>
           </div>
           <div class="sq-compact-summary-right">
-            <span class="sq-status-pill ${statusInfo.className}">
-              ${Seav.escapeHtml(statusInfo.label)}
-            </span>
             <span class="sq-chevron" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -150,11 +136,10 @@
               </div>
             </div>
             <div class="sq-detail-panel">
-              <div class="sq-detail-label">Dates & status</div>
+              <div class="sq-detail-label">Dates</div>
               <div class="sq-detail-value">
                 Obtained: ${Seav.escapeHtml(obtained)}<br>
-                Expiry: ${Seav.escapeHtml(expiry)}<br>
-                ${Seav.escapeHtml(statusInfo.label)}
+                Expiry: ${Seav.escapeHtml(expiry)}
               </div>
             </div>
             <div class="sq-detail-panel">
@@ -224,13 +209,38 @@
               Add massage, yoga, fitness, water sports, languages, and other credentials.
             </div>
           </div>
-          <span class="pill">Draft</span>
         </div>
       `;
       return;
     }
 
     list.innerHTML = entries.map(buildRow).join("");
+  }
+
+  function renderAttachmentHint(attachmentMeta, { isNewSelection = false } = {}) {
+    const hint = document.getElementById("sqFileHint");
+    const btn = document.getElementById("sqFileBtn");
+
+    if (isNewSelection) {
+      if (hint) {
+        hint.textContent = attachmentMeta?.filename
+          ? `New file selected: ${attachmentMeta.filename} — click Save qualification to apply`
+          : "New file selected — click Save qualification to apply";
+      }
+      if (btn) btn.textContent = "Change file";
+      return;
+    }
+
+    const docUrl = attachmentMeta ? getAttachmentUrl(attachmentMeta) : "";
+    const filename = attachmentMeta?.filename || attachmentMeta?.name || "";
+    if (hint) {
+      hint.textContent = docUrl
+        ? (filename ? `Current file: ${filename}` : "Current file uploaded")
+        : "No file uploaded yet";
+    }
+    if (btn) {
+      btn.textContent = docUrl ? "Change file" : "Choose file";
+    }
   }
 
   function readForm() {
@@ -241,7 +251,6 @@
       issuingBody: document.getElementById("sq_issuing_body")?.value.trim() || "",
       dateObtained: Seav.readDateTriplet("sq_date_obtained"),
       expiry: Seav.readDateTriplet("sq_expiry"),
-      status: document.getElementById("sq_status")?.value || "Self-declared",
       notes: document.getElementById("sq_notes")?.value.trim() || "",
       file: document.getElementById("sq_file")?.files?.[0] || null
     };
@@ -252,12 +261,12 @@
     document.getElementById("sq_category").value = entry?.category || "";
     document.getElementById("sq_title").value = entry?.title || "";
     document.getElementById("sq_issuing_body").value = entry?.issuingBody || "";
-    document.getElementById("sq_status").value = entry?.status || "Self-declared";
     document.getElementById("sq_notes").value = entry?.notes || "";
     Seav.setDateTriplet("sq_date_obtained", entry?.dateObtained || "");
     Seav.setDateTriplet("sq_expiry", entry?.expiry || "");
     const fileInput = document.getElementById("sq_file");
     if (fileInput) fileInput.value = "";
+    renderAttachmentHint(entry?.attachment || null);
   }
 
   async function buildAttachment(file, existing, entryId) {
@@ -292,6 +301,18 @@
     const runRefresh = () => refreshView();
 
     Seav.bindStateRefresh(runRefresh, { label: "Specialist qualifications refresh" });
+
+    const sqFileInput = document.getElementById("sq_file");
+    const sqFileBtn = document.getElementById("sqFileBtn");
+    if (sqFileBtn && sqFileInput) {
+      sqFileBtn.addEventListener("click", () => sqFileInput.click());
+      sqFileInput.addEventListener("change", () => {
+        const file = sqFileInput.files?.[0] || null;
+        if (file) {
+          renderAttachmentHint({ filename: file.name }, { isNewSelection: true });
+        }
+      });
+    }
 
     const form = document.getElementById("sqForm");
     if (form) {
@@ -330,7 +351,6 @@
           issuingBody: formData.issuingBody,
           dateObtained: formData.dateObtained,
           expiry: formData.expiry,
-          status: formData.status,
           notes: formData.notes,
           attachment,
           createdAt: existing?.createdAt || now,

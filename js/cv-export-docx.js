@@ -145,10 +145,17 @@
       parts.push(paragraph(dob, { size: 18 }, { spacingAfter: 30 }));
     }
 
+    // Each line is tagged with what it actually is (Nationality/Passport/Visa)
+    // so e.g. a British nationality + a British passport don't show up as two
+    // unlabelled "British" lines with no indication of what either one means.
     const nationalityLines = [];
-    if (profile.nationality) nationalityLines.push(profile.nationality);
-    (splitProfileList ? splitProfileList(profile.passportsHeld) : []).forEach((l) => nationalityLines.push(l));
-    (splitProfileLines ? splitProfileLines(profile.visasHeld) : []).forEach((l) => nationalityLines.push(l));
+    if (profile.nationality) nationalityLines.push(`Nationality: ${profile.nationality}`);
+    (splitProfileList ? splitProfileList(profile.passportsHeld) : []).forEach((l) =>
+      nationalityLines.push(`Passport: ${l}`)
+    );
+    (splitProfileLines ? splitProfileLines(profile.visasHeld) : []).forEach((l) =>
+      nationalityLines.push(`Visa: ${l}`)
+    );
     if (nationalityLines.length) {
       parts.push(sidebarHeading("Nationality & Visas"));
       nationalityLines.forEach((l) => parts.push(paragraph(l, { size: 18 }, { spacingAfter: 20 })));

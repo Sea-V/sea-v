@@ -284,24 +284,19 @@
    * page to change its look — only the underlying data logic (status lookup,
    * category label, meta line) is shared.
    */
+  // No status concept here — specialist qualifications sit outside the
+  // yachting industry, so SEA-V (or an employer) has no realistic way to
+  // verify them. A manual Self-declared/Verified/Expired field used to
+  // imply a check that could never actually happen; removed entirely
+  // rather than shown as a permanently-unverifiable badge.
   function buildSpecialistRow(entry, options = {}) {
     const getLabel =
       options.categoryLabel ||
       window.SeavData?.getSpecialistCategoryLabel ||
       ((value) => value || "—");
-    const statusInfo = window.SeavData.getSpecialistQualificationStatusDisplay(entry.status);
     const title = Seav.escapeHtml(entry.title || "—");
 
     if (options.variant === "public") {
-      // Status coloring lives in seav-data.js (shared with the dashboard
-      // snippet and the edit page) — translate its pill class to a dot class
-      // so all three surfaces agree on which statuses are green/blue/red.
-      const DOT_CLASS_BY_PILL = {
-        "pill-valid": "is-valid",
-        "pill-pending": "is-pending",
-        "pill-expired": "is-expired"
-      };
-      const dotClass = DOT_CLASS_BY_PILL[statusInfo.className] || "";
       const meta = [
         getLabel(entry.category),
         entry.issuingBody,
@@ -316,10 +311,6 @@
             <span class="public-cv-mini-title">${title}</span>
             ${meta ? `<span class="public-cv-mini-meta">${Seav.escapeHtml(meta)}</span>` : ""}
           </div>
-          <span class="public-cv-mini-meta">
-            <span class="public-cv-status-dot${dotClass ? ` ${dotClass}` : ""}" aria-hidden="true"></span>
-            ${Seav.escapeHtml(statusInfo.label)}
-          </span>
         </div>
       `;
     }
@@ -329,10 +320,9 @@
         <div style="min-width:0;">
           <div class="list-title">${title}</div>
           <div class="list-sub">
-            ${Seav.escapeHtml(getLabel(entry.category))} • ${Seav.escapeHtml(statusInfo.label)}
+            ${Seav.escapeHtml(getLabel(entry.category))}
           </div>
         </div>
-        <span class="pill ${statusInfo.className}">${Seav.escapeHtml(statusInfo.label)}</span>
       </div>
     `;
   }

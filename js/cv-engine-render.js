@@ -47,13 +47,22 @@
       .join("")}</p>`;
   }
 
+  // Each line is tagged with what it actually is (Nationality/Passport/Visa)
+  // so e.g. a British nationality + a British passport don't show up as two
+  // unlabelled "British" lines with no indication of what either one means.
   function renderSeavNationality(profile) {
     const lines = [];
-    if (profile.nationality) lines.push(profile.nationality);
-    splitProfileList(profile.passportsHeld).forEach((line) => lines.push(line));
-    splitProfileLines(profile.visasHeld).forEach((line) => lines.push(line));
+    if (profile.nationality) lines.push({ label: "Nationality", value: profile.nationality });
+    splitProfileList(profile.passportsHeld).forEach((value) =>
+      lines.push({ label: "Passport", value })
+    );
+    splitProfileLines(profile.visasHeld).forEach((value) =>
+      lines.push({ label: "Visa", value })
+    );
     if (!lines.length) return "";
-    return lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("");
+    return lines
+      .map(({ label, value }) => `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`)
+      .join("");
   }
 
   function renderSeavExperience(vessels) {
