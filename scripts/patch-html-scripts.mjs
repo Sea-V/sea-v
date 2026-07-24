@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 219;
+const ASSET_VERSION = 220;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
@@ -22,6 +22,20 @@ function bumpAssetVersions(html) {
     /((?:href|src)="\/?(styles\.css|js\/[^"]+\.js))(?!\?v=)/g,
     `$1?v=${ASSET_VERSION}`
   );
+
+  // Favicons/apple-touch-icon: browsers cache these unusually aggressively
+  // (often ignoring normal cache-busting expectations), so a stale icon can
+  // keep showing in the browser tab long after the file on disk changes.
+  // Versioning them the same way as styles.css/js forces a re-fetch.
+  next = next.replace(
+    /((?:href|src)="\/?(?:favicon\.ico|img\/favicon-[^"?]+\.png|img\/apple-touch-icon\.png))\?v=\d+/g,
+    `$1?v=${ASSET_VERSION}`
+  );
+  next = next.replace(
+    /((?:href|src)="\/?(favicon\.ico|img\/favicon-[^"]+\.png|img\/apple-touch-icon\.png))(?!\?v=)/g,
+    `$1?v=${ASSET_VERSION}`
+  );
+
   return next;
 }
 
