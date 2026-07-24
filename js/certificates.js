@@ -29,6 +29,38 @@
       !!(meta?.url || meta?.dataUrl || meta?.path);
   }
 
+  // Mirrors the Sea Time/Vessels upload-box pattern (js/seatime.js
+  // renderSeatimeAttachmentHint) — previously ct_file was a bare
+  // <input type="file"> with no indication a certificate already had a
+  // file attached before re-uploading.
+  function renderCertAttachmentHint(attachmentMeta, { isNewSelection = false } = {}) {
+    const hint = document.getElementById("ctFileHint");
+    const btn = document.getElementById("ctFileBtn");
+
+    if (isNewSelection) {
+      if (hint) {
+        hint.textContent = attachmentMeta?.filename
+          ? `New file selected: ${attachmentMeta.filename} — click Save certificate to apply`
+          : "New file selected — click Save certificate to apply";
+      }
+      if (btn) btn.textContent = "Change file";
+      return;
+    }
+
+    const docUrl = attachmentMeta ? Seav.getFileDisplayUrl(attachmentMeta, CERT_FILE_BUCKET) : "";
+    const filename = attachmentMeta?.filename || "";
+
+    if (hint) {
+      hint.textContent = docUrl
+        ? (filename ? `Current file: ${filename}` : "Current file uploaded")
+        : "No file uploaded yet";
+    }
+
+    if (btn) {
+      btn.textContent = docUrl ? "Change file" : "Choose file";
+    }
+  }
+
   async function hydrateAttachment(meta) {
     if (!meta || !hasAttachment(meta)) return meta || null;
     if (!meta.path || !window.SeavApiCore?.hydrateFileMeta) return meta;
@@ -412,6 +444,7 @@
     Seav.clearDateTriplet("ct_expiry");
     fillTypeSelect("");
     onTypeChange();
+    renderCertAttachmentHint(null);
     window.SeavModals?.openModal?.("certModal");
   }
 
@@ -431,6 +464,7 @@
     Seav.setDateTriplet("ct_issued", cert.issued || "");
     Seav.setDateTriplet("ct_expiry", cert.expiry || "");
     document.getElementById("ct_file").value = "";
+    renderCertAttachmentHint(cert.attachment || null);
     window.SeavModals?.openModal?.("certModal");
   }
 
@@ -528,6 +562,20 @@
     });
 
     document.getElementById("ct_type")?.addEventListener("change", onTypeChange);
+
+    const ctFileInput = document.getElementById("ct_file");
+    const ctFileBtn = document.getElementById("ctFileBtn");
+    if (ctFileBtn && ctFileInput) {
+      ctFileBtn.addEventListener("click", () => ctFileInput.click());
+    }
+    if (ctFileInput) {
+      ctFileInput.addEventListener("change", () => {
+        const file = ctFileInput.files?.[0] || null;
+        if (file) {
+          renderCertAttachmentHint({ filename: file.name }, { isNewSelection: true });
+        }
+      });
+    }
 
     document.getElementById("certForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
