@@ -42,7 +42,30 @@
   }) {
     if (!file) return existingMeta || null;
 
-    const uploadFile = isHeicFile(file) ? await convertHeicToJpeg(file) : file;
+    const wasHeic = isHeicFile(file);
+    const uploadFile = wasHeic ? await convertHeicToJpeg(file) : file;
+
+    // Guard against the exact bug found 2026-07-24: three tender photos
+    // (Naiad, Rafnar, Axopar) were uploaded as raw, unconverted HEIC on
+    // 2026-07-06 — about 90 minutes before this HEIC->JPEG conversion step
+    // even existed in the codebase — and sat silently broken (invisible in
+    // Chrome/Firefox/Edge, fine in Safari) for weeks because the old code
+    // had no way to notice or report a failed/skipped conversion; it just
+    // uploaded whatever convertHeicToJpeg() returned. That gap is now closed
+    // for good: if the input was HEIC and what comes back is STILL HEIC
+    // (heic2any not loaded, or it threw on an unusual file like a Live Photo/
+    // portrait-depth HEIC), refuse the upload instead of silently storing a
+    // file most browsers can't render, and tell the user why.
+    if (wasHeic && isHeicFile(uploadFile)) {
+      const detail =
+        "This HEIC photo couldn't be converted for web display. Try again, or in your phone's camera settings switch to \"Most Compatible\" (JPEG) format and re-upload.";
+      if (window.SeavFeedback?.error) {
+        window.SeavFeedback.error("Photo not uploaded", detail);
+      } else if (window.Seav?.notify) {
+        window.Seav.notify("error", "Photo not uploaded", detail);
+      }
+      return existingMeta || null;
+    }
 
     if (window.SeavSupabase && window.SeavAPI) {
       const safeName = String(uploadFile.name || "file").replace(/[^a-zA-Z0-9._-]/g, "_");
