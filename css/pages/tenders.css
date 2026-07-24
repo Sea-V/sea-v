@@ -147,7 +147,16 @@
 ========================================================= */
 
 #tendersGrid .vessel-photo {
-  height: 190px;
+  /* Was a fixed height: 190px, which combined with object-fit: cover cropped
+     a visible chunk off the bottom of most tender photos (landscape shots
+     end up much taller than 190px once scaled to the card's width). Switched
+     to aspect-ratio, matching .dash-mini-photo / .vessel-history-photo
+     elsewhere, so the box's height follows the card width instead of being
+     fixed — same fix already applied there, just not here yet. This is a
+     different variable than the object-fit: cover/contain toggle already
+     tried and reverted for this selector (see git history) — that changed
+     how the image fills a fixed box; this changes the box itself. */
+  aspect-ratio: 16 / 10;
 
   overflow: hidden;
 
