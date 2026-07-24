@@ -126,13 +126,6 @@ async function checkHttp(page) {
     const res = await fetch(url);
     const text = await res.text();
     const hasLogo = /img\/logo\.png/.test(text);
-    const hasAuth = /js\/auth\.js/.test(text) || ![
-      "dashboard.html",
-      "profile.html",
-      "vessels.html"
-    ].includes(page)
-      ? true
-      : /js\/auth\.js/.test(text);
 
     return {
       page,

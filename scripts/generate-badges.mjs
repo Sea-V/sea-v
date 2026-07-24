@@ -182,7 +182,7 @@ function vertexTicks(uid) {
     .join("\n    ");
 }
 
-function buildSvg({ file, tier, hero, sub, page, locked = false }) {
+function buildSvg({ file: _file, tier, hero, sub, page, locked = false }) {
   const theme = PAGES[page] || PAGES.seatime;
   const ring = pageRing(theme);
   const inner = pageInner(theme);
