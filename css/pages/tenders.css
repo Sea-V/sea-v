@@ -126,10 +126,112 @@
 ========================================================= */
 
 #tendersGrid {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+/* =========================================================
+   VESSEL GROUPS
+   Same collapsible shell pattern as Navigation's passage log
+   (css/pages/navigation.css .navigation-vessel-group*), adapted
+   so the body holds a card grid instead of a row list.
+========================================================= */
+
+.tender-vessel-group {
+  border-radius: 14px;
+  border: 1px solid var(--surface-border);
+
+  background: rgba(255, 255, 255, 0.03);
+
+  overflow: hidden;
+}
+
+.tender-vessel-group-summary {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+
+  padding: 14px 16px;
+}
+
+.tender-vessel-group-summary::-webkit-details-marker {
+  display: none;
+}
+
+.tender-vessel-group-summary::before {
+  content: "›";
+  display: inline-block;
+
+  font-size: 16px;
+  line-height: 1;
+
+  color: rgba(255, 255, 255, 0.6);
+
+  transition: transform 0.15s ease;
+}
+
+.tender-vessel-group[open] .tender-vessel-group-summary::before {
+  transform: rotate(90deg);
+}
+
+.tender-vessel-group-title {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+  min-width: 0;
+}
+
+.tender-vessel-group-title strong {
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tender-vessel-group-title small {
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tender-vessel-group-count {
+  margin-left: auto;
+
+  min-width: 22px;
+  padding: 1px 8px;
+
+  border-radius: 999px;
+  background: rgba(76, 255, 184, 0.16);
+
+  color: #4cffb8;
+
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+
+  flex-shrink: 0;
+}
+
+.tender-vessel-group-body {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 16px;
+
+  padding: 0 14px 14px;
 }
 
 /* =========================================================
@@ -250,13 +352,13 @@
     margin-left: 0;
   }
 
-  #tendersGrid {
+  .tender-vessel-group-body {
     grid-template-columns: repeat(2, minmax(0,1fr));
   }
 }
 
 @media (max-width: 640px) {
-  #tendersGrid {
+  .tender-vessel-group-body {
     grid-template-columns: 1fr;
   }
 }

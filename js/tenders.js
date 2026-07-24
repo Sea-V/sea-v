@@ -68,6 +68,41 @@ function getVesselNameForTender(tender) {
   return vessel?.name || "Unknown Vessel";
 }
 
+// Buckets tenders by their linked vessel so the Tenders page can render a
+// collapsible group per vessel (same shape as Navigation's vessel-grouped
+// passage log — see js/navigation-list.js buildVesselGroups). Tenders with
+// no vesselId fall into a "Standalone / Chase" bucket, sorted last since it
+// isn't a real vessel. Real vessel groups are ordered to match the vessel
+// dropdown (getSortedVesselOptions — most recently active vessel first) so
+// group order stays consistent with the rest of the app.
+function buildTenderVesselGroups(tenders) {
+  const groups = new Map();
+
+  tenders.forEach((tender) => {
+    const key = tender.vesselId || "";
+    if (!groups.has(key)) {
+      groups.set(key, {
+        vesselId: key,
+        vesselName: getVesselNameForTender(tender),
+        tenders: []
+      });
+    }
+    groups.get(key).tenders.push(tender);
+  });
+
+  const vesselOrder = getSortedVesselOptions(getVessels()).map((v) => v.id);
+
+  return [...groups.values()].sort((a, b) => {
+    if (!a.vesselId && !b.vesselId) return 0;
+    if (!a.vesselId) return 1;
+    if (!b.vesselId) return -1;
+
+    const ai = vesselOrder.indexOf(a.vesselId);
+    const bi = vesselOrder.indexOf(b.vesselId);
+    return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+  });
+}
+
   const TENDER_PHOTO_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos";
 
@@ -219,7 +254,28 @@ function getVesselNameForTender(tender) {
     await hydrateTenderPhotos(tenders);
     window.SeavState?.syncCache?.();
 
-    tendersGrid.innerHTML = tenders.map((tender) => buildTenderCard(tender)).join("");
+    const groups = buildTenderVesselGroups(tenders);
+
+    tendersGrid.innerHTML = groups
+      .map((group, index) => {
+        const tenderWord = group.tenders.length === 1 ? "tender" : "tenders";
+
+        return `
+          <details class="tender-vessel-group"${index === 0 ? " open" : ""}>
+            <summary class="tender-vessel-group-summary">
+              <span class="tender-vessel-group-title">
+                <strong>${Seav.escapeHtml(group.vesselName)}</strong>
+                <small>${group.tenders.length} ${tenderWord}</small>
+              </span>
+              <span class="tender-vessel-group-count">${group.tenders.length}</span>
+            </summary>
+            <div class="tender-vessel-group-body">
+              ${group.tenders.map((tender) => buildTenderCard(tender)).join("")}
+            </div>
+          </details>
+        `;
+      })
+      .join("");
   }
 
   function fillTenderForm(tender) {
