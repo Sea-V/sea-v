@@ -84,9 +84,7 @@
 
     const entries = getEntries();
     const signed = entries.filter((e) => e.status === "Signed Off").length;
-    const pending = entries.filter(
-      (e) => e.status === "Pending Sign-off" || e.status === "Draft"
-    ).length;
+    const notSigned = entries.length - signed;
     const familiar = entries.filter((e) => e.isFamiliarisation).length;
 
     row.innerHTML = `
@@ -99,8 +97,8 @@
         <div class="kpi-label">Signed off</div>
       </div>
       <div class="onboard-kpi-box">
-        <div class="kpi-num">${pending}</div>
-        <div class="kpi-label">Awaiting sign-off</div>
+        <div class="kpi-num">${notSigned}</div>
+        <div class="kpi-label">Not signed off</div>
       </div>
       <div class="onboard-kpi-box">
         <div class="kpi-num">${familiar}</div>
@@ -109,14 +107,17 @@
     `;
   }
 
+  // Status is binary — Signed Off or Not Signed Off — driven entirely by
+  // whether senior crew sign-off has actually occurred (see the
+  // "Senior crew sign-off" modal/flow below), not a manual free-choice
+  // dropdown. Legacy rows saved before this change may still carry old
+  // values (Draft / Pending Sign-off / Declined) — anything that isn't
+  // exactly "Signed Off" falls back to "Not signed off" here.
   function getStatusDisplay(status) {
-    const map = {
-      Draft: { label: "Draft", className: "pill-neutral" },
-      "Pending Sign-off": { label: "Pending sign-off", className: "pill-pending" },
-      "Signed Off": { label: "Signed off", className: "pill-valid" },
-      Declined: { label: "Declined", className: "pill-expired" }
-    };
-    return map[status] || { label: status || "Draft", className: "pill-neutral" };
+    if (status === "Signed Off") {
+      return { label: "Signed off", className: "pill-valid" };
+    }
+    return { label: "Not signed off", className: "pill-neutral" };
   }
 
   function hasAttachment(attachment) {
@@ -154,6 +155,32 @@
     await window.SeavApiCore.hydrateItemsFileField(entries, "attachment", OE_FILE_BUCKET);
     window.SeavState?.syncCache?.();
     return true;
+  }
+
+  function renderAttachmentHint(attachmentMeta, { isNewSelection = false } = {}) {
+    const hint = document.getElementById("oeFileHint");
+    const btn = document.getElementById("oeFileBtn");
+
+    if (isNewSelection) {
+      if (hint) {
+        hint.textContent = attachmentMeta?.filename
+          ? `New file selected: ${attachmentMeta.filename} — click Save entry to apply`
+          : "New file selected — click Save entry to apply";
+      }
+      if (btn) btn.textContent = "Change file";
+      return;
+    }
+
+    const docUrl = attachmentMeta ? getAttachmentUrl(attachmentMeta) : "";
+    const filename = attachmentMeta?.filename || attachmentMeta?.name || "";
+    if (hint) {
+      hint.textContent = docUrl
+        ? (filename ? `Current file: ${filename}` : "Current file uploaded")
+        : "No file uploaded yet";
+    }
+    if (btn) {
+      btn.textContent = docUrl ? "Change file" : "Choose file";
+    }
   }
 
   function isImageAttachment(attachment, url) {
@@ -236,10 +263,8 @@
           return db - da;
         });
         const latestTime = sorted[0]?.dateFrom ? new Date(sorted[0].dateFrom).getTime() : 0;
-        const pendingCount = sorted.filter(
-          (e) => e.status === "Pending Sign-off" || e.status === "Draft" || !e.status
-        ).length;
         const signedCount = sorted.filter((e) => e.status === "Signed Off").length;
+        const pendingCount = sorted.length - signedCount;
 
         return {
           vesselId,
@@ -295,8 +320,7 @@
         `
             : "";
 
-        const canSignoff =
-          status === "Draft" || status === "Pending Sign-off" || !status;
+        const canSignoff = status !== "Signed Off";
 
         const familiarisationHtml = entry.isFamiliarisation
           ? `<span class="onboard-familiarisation-pill onboard-familiarisation-pill-compact">Familiarisation</span>`
@@ -359,15 +383,7 @@
                   "edit",
                   "Edit",
                   `data-edit-oe-id="${Seav.escapeHtml(entryId)}"`
-                )}${
-                  status === "Draft"
-                    ? Seav.seavAction(
-                        "secondary",
-                        "Request sign-off",
-                        `data-pending-oe-id="${Seav.escapeHtml(entryId)}"`
-                      )
-                    : ""
-                }${Seav.seavAction(
+                )}${Seav.seavAction(
                   "delete",
                   "Delete",
                   `data-del-oe-id="${Seav.escapeHtml(entryId)}"`
@@ -384,7 +400,7 @@
     const entryLabel = group.entries.length === 1 ? "entry" : "entries";
 
     const statusMetaParts = [`${group.entries.length} ${entryLabel}`];
-    if (group.pendingCount) statusMetaParts.push(`${group.pendingCount} awaiting sign-off`);
+    if (group.pendingCount) statusMetaParts.push(`${group.pendingCount} not signed off`);
     if (group.signedCount) statusMetaParts.push(`${group.signedCount} signed off`);
 
     return `
@@ -468,7 +484,6 @@
     document.getElementById("oe_edit_id").value = entry?.id || "";
     document.getElementById("oe_vessel").value = entry?.vesselId || "";
     document.getElementById("oe_category").value = entry?.category || "";
-    document.getElementById("oe_status").value = entry?.status || "Draft";
     document.getElementById("oe_familiarisation").checked = !!entry?.isFamiliarisation;
     document.getElementById("oe_title").value = entry?.title || "";
     document.getElementById("oe_description").value = entry?.description || "";
@@ -477,6 +492,28 @@
       entry?.hours != null && entry.hours !== "" ? String(entry.hours) : "";
     Seav.setDateTriplet("oe_date_from", entry?.dateFrom || "");
     Seav.setDateTriplet("oe_date_to", entry?.dateTo || "");
+    const fileInput = document.getElementById("oe_file");
+    if (fileInput) fileInput.value = "";
+    renderAttachmentHint(entry?.attachment || null);
+
+    if (window.SeavModals?.openModal) window.SeavModals.openModal("oeModal");
+  }
+
+  // Mirrors certificates.js's openAddModal() — the generic [data-open]
+  // handler in core.js only opens the modal, it never resets the form, so
+  // without this the "Add experience" button would keep showing whatever
+  // was last loaded into the form by an edit.
+  function openAddModal() {
+    const form = document.getElementById("oeForm");
+    if (!form) return;
+
+    form.reset();
+    document.getElementById("oe_edit_id").value = "";
+    Seav.clearDateTriplet("oe_date_from");
+    Seav.clearDateTriplet("oe_date_to");
+    populateVesselOptions();
+    populateCategoryOptions();
+    renderAttachmentHint(null);
 
     if (window.SeavModals?.openModal) window.SeavModals.openModal("oeModal");
   }
@@ -502,7 +539,6 @@
       id: document.getElementById("oe_edit_id")?.value || "",
       vesselId: document.getElementById("oe_vessel")?.value || "",
       category: document.getElementById("oe_category")?.value || "",
-      status: document.getElementById("oe_status")?.value || "Draft",
       isFamiliarisation: !!document.getElementById("oe_familiarisation")?.checked,
       title: document.getElementById("oe_title")?.value.trim() || "",
       description: document.getElementById("oe_description")?.value.trim() || "",
@@ -553,6 +589,25 @@
 
     Seav.bindStateRefresh(runRefresh, { label: "Onboard experience refresh" });
 
+    document.querySelectorAll('[data-open="oeModal"]').forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        openAddModal();
+      });
+    });
+
+    const oeFileInput = document.getElementById("oe_file");
+    const oeFileBtn = document.getElementById("oeFileBtn");
+    if (oeFileBtn && oeFileInput) {
+      oeFileBtn.addEventListener("click", () => oeFileInput.click());
+      oeFileInput.addEventListener("change", () => {
+        const file = oeFileInput.files?.[0] || null;
+        if (file) {
+          renderAttachmentHint({ filename: file.name }, { isNewSelection: true });
+        }
+      });
+    }
+
     const form = document.getElementById("oeForm");
     if (form) {
       form.addEventListener("submit", async (e) => {
@@ -597,7 +652,9 @@
           dateTo: formData.dateTo,
           hours: formData.hours,
           isFamiliarisation: formData.isFamiliarisation,
-          status: formData.status,
+          // Status is binary and derived, never a manual form field — editing
+          // an entry's details must not disturb its actual sign-off state.
+          status: existing?.signoff?.confirmed ? "Signed Off" : "Not Signed Off",
           signoff: existing?.signoff || {
             confirmed: false,
             note: "",
@@ -658,7 +715,7 @@
             signatureName: document.getElementById("oe_so_signature")?.value.trim() || "",
             signedAt: Seav.readDateTriplet("oe_so_signed_at")
           },
-          status: confirmed ? "Signed Off" : "Declined"
+          status: confirmed ? "Signed Off" : "Not Signed Off"
         };
 
         await SeavAPI.updateItemById(STORAGE_KEY, entryId, updated);
@@ -745,26 +802,6 @@
           (item) => item.id === signoffBtn.getAttribute("data-signoff-oe-id")
         );
         if (entry) openSignoffModal(entry);
-        return;
-      }
-
-      const pendingBtn = e.target.closest("[data-pending-oe-id]");
-      if (pendingBtn) {
-        e.preventDefault();
-        const entryId = pendingBtn.getAttribute("data-pending-oe-id");
-        const entry = getEntries().find((item) => item.id === entryId);
-        if (!entry) return;
-
-        await SeavAPI.updateItemById(STORAGE_KEY, entryId, {
-          ...entry,
-          status: "Pending Sign-off"
-        });
-
-        if (window.Seav.app?.refreshAll) {
-          await window.Seav.app.refreshAll();
-        } else {
-          await refreshView();
-        }
         return;
       }
 
