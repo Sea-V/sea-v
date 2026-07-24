@@ -155,7 +155,7 @@
     const linkWrap = document.getElementById("dashPublicLinkWrap");
     const urlEl = document.getElementById("dashPublicLinkUrl");
     const openEl = document.getElementById("dashPublicLinkOpen");
-    const usernameInput = document.getElementById("dashPublicUsername");
+    const usernameInput = document.getElementById("dashPublicSlug");
 
     if (checkbox) {
       checkbox.checked = !!currentProfile.publicEnabled;
@@ -199,15 +199,15 @@
   }
 
   function setUsernameHint(message, isError) {
-    const hintEl = document.getElementById("dashPublicUsernameHint");
+    const hintEl = document.getElementById("dashPublicSlugHint");
     if (!hintEl) return;
     hintEl.textContent = message || "";
     hintEl.classList.toggle("is-error", !!isError);
   }
 
   function initDashboardPublicUsername() {
-    const input = document.getElementById("dashPublicUsername");
-    const saveBtn = document.getElementById("dashPublicUsernameSave");
+    const input = document.getElementById("dashPublicSlug");
+    const saveBtn = document.getElementById("dashPublicSlugSave");
     if (!input || !saveBtn) return;
 
     saveBtn.addEventListener("click", async () => {
