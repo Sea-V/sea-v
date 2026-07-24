@@ -299,6 +299,34 @@ body.app-page::after {
 }
 
 /* =========================================================
+   VERSION BADGE (injected on every page by js/core.js)
+   Small, quiet build-version marker so a live page can be glanced
+   at to confirm which deploy is actually serving. Deliberately
+   plain — no glow/shadow/halo — low-opacity text only.
+========================================================= */
+
+.seav-version-badge {
+  position: fixed;
+  right: max(8px, env(safe-area-inset-right));
+  bottom: max(8px, env(safe-area-inset-bottom));
+  z-index: 40;
+
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+
+  color: rgba(255,255,255,0.32);
+  background: transparent;
+
+  padding: 3px 6px;
+  border-radius: 6px;
+
+  pointer-events: none;
+  user-select: none;
+}
+
+/* =========================================================
    SIDEBAR
 ========================================================= */
 

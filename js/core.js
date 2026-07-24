@@ -707,6 +707,25 @@ function renderSidebarAchievements() {
     }
   }
 
+  // Small, unobtrusive build-version badge on every page (public and
+  // logged-in) so it's possible to glance at a live page and confirm which
+  // deploy is actually serving — no dev tools required. Reads
+  // SeavConfig.ASSET_VERSION directly rather than duplicating the number
+  // anywhere, so it can never drift out of sync with the real deployed
+  // build. core.js runs on every page, so this needs no per-page HTML.
+  function mountVersionBadge() {
+    if (document.getElementById("seavVersionBadge")) return;
+
+    const version = window.SeavConfig?.ASSET_VERSION;
+    if (!version) return;
+
+    const badge = document.createElement("div");
+    badge.id = "seavVersionBadge";
+    badge.className = "seav-version-badge";
+    badge.textContent = `v${version}`;
+    document.body.appendChild(badge);
+  }
+
   /* =========================================================
      SIDEBAR ACTIVE LINK
   ========================================================= */
@@ -1019,6 +1038,7 @@ function renderSidebarAchievements() {
 
 document.addEventListener("DOMContentLoaded", function () {
   mountSharedLayout();
+  mountVersionBadge();
   mountDateFields();
   setActiveSidebarLink();
   setActiveTopbarLink();
