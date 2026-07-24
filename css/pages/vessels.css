@@ -438,6 +438,19 @@
   padding: 10px;
 }
 
+/* Matches #currentVesselCard .vessel-main-grid's own compact override just
+   above (Role Onboard / Dates Onboard / Program) — without this, GT/Length/
+   Build (the last section, with no border-bottom below it to create visual
+   separation) sat flush on the card's default 10px padding while the row
+   above got hand-tuned spacing, so the two rows looked inconsistent and the
+   bottom one read as "too close to the shell". Slightly more bottom padding
+   than top (12px vs 8px) since this row has nothing below it but the card's
+   rounded edge, unlike the row above. */
+#currentVesselCard .vessel-stats-grid {
+  gap: 7px;
+  padding: 8px 10px 12px;
+}
+
 .vessel-stats-grid div {
   min-width: 0;
   min-height: 48px;
@@ -452,6 +465,12 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+#currentVesselCard .vessel-stats-grid div {
+  min-height: 50px;
+  padding: 7px 9px;
+  border-radius: 13px;
 }
 
 /* =========================================================
