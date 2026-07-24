@@ -36,15 +36,10 @@
   gap: 16px;
 }
 
-/* --- Reference card header (avatar + title) ------------------------------ */
-
-#refsList .ref-card-head {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  margin-bottom: 14px;
-}
+/* --- Reference card avatar (used inside the collapsible summary row —
+   js/references.js .ref-compact-summary — not a standalone header anymore;
+   .ref-card-head / -head-text / -title-row / -title / -subtitle were
+   removed when the card became collapsible, see css/pages/references.css) */
 
 #refsList .ref-card-avatar {
   width: 48px;
@@ -66,38 +61,6 @@
   font-weight: 800;
   letter-spacing: 0.02em;
   line-height: 1;
-}
-
-#refsList .ref-card-head-text {
-  min-width: 0;
-  flex: 1;
-}
-
-#refsList .ref-card-title-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-#refsList .ref-card-title {
-  margin: 0;
-
-  color: #ffffff;
-
-  font-size: 18px;
-  line-height: 1.2;
-  font-weight: 900;
-}
-
-#refsList .ref-card-subtitle {
-  margin: 5px 0 0;
-
-  color: rgba(255, 255, 255, 0.70);
-
-  font-size: 14px;
-  line-height: 1.45;
-  font-weight: 500;
 }
 
 /* --- Meta grid ----------------------------------------------------------- */
@@ -126,10 +89,6 @@
   background: rgba(255, 255, 255, 0.035);
 }
 
-#refsList .ref-page-card .ref-meta-span-full {
-  grid-column: 1 / -1;
-}
-
 #tendersGrid .vessel-meta-label,
 #refsList .ref-page-card .vessel-meta-label {
   display: block;
@@ -152,11 +111,6 @@
   font-size: var(--seav-meta-value-size, 14px);
   line-height: 1.45;
   font-weight: var(--seav-meta-value-weight, 600);
-}
-
-#refsList .ref-page-card .ref-meta-excerpt {
-  font-style: italic;
-  line-height: 1.55;
 }
 
 #refsList .ref-page-card .ref-meta-muted {

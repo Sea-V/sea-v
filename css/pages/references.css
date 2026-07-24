@@ -128,11 +128,181 @@
 
 /* Reference list cards — shell + meta grid: css/components/meta-grid-cards.css */
 
-#refsList .ref-card-title-row .reference-verified-pill,
-#refsList .ref-card-title-row .reference-sent-pill,
-#refsList .ref-card-title-row .reference-declined-pill,
-#refsList .ref-card-title-row .pill {
+/* =========================================================
+   COLLAPSIBLE CARD (mirrors Certificates' cert-compact-card —
+   css/pages/certificates.css — collapsed summary row by default,
+   expand for quote/sectioned details/attachment/actions)
+========================================================= */
+
+#refsList .ref-page-card {
+  padding: 0;
+}
+
+#refsList .ref-page-card .vessel-body {
+  padding: 0;
+}
+
+.ref-compact-summary {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px 16px;
+
+  padding: 14px 18px;
+
+  border: 0;
+  background: transparent;
+  color: inherit;
+
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+
+  transition: background 0.15s ease;
+}
+
+.ref-compact-summary:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.ref-compact-summary:focus-visible {
+  outline: 2px solid rgba(209, 107, 255, 0.55);
+  outline-offset: -2px;
+}
+
+.ref-compact-summary-left {
+  min-width: 0;
+  flex: 1;
+}
+
+.ref-compact-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.ref-compact-summary-right .pill,
+.ref-compact-summary-right .reference-verified-pill,
+.ref-compact-summary-right .reference-sent-pill,
+.ref-compact-summary-right .reference-declined-pill {
   margin: 0;
+}
+
+.ref-compact-title {
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.25;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ref-compact-title small {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ref-compact-sub {
+  margin-top: 4px;
+
+  color: rgba(255, 255, 255, 0.62);
+
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+#refsList .ref-page-card.is-expanded .ref-compact-summary {
+  border-bottom: 1px solid rgba(209, 107, 255, 0.14);
+}
+
+#refsList .ref-page-card.is-expanded .ref-compact-title {
+  white-space: normal;
+  overflow: visible;
+}
+
+#refsList .ref-page-card.is-expanded .cert-chevron {
+  transform: rotate(180deg);
+  color: rgba(209, 107, 255, 0.9);
+}
+
+.ref-compact-body {
+  padding: 16px 18px 18px;
+}
+
+.ref-compact-position {
+  margin: 0 0 12px;
+
+  color: rgba(255, 255, 255, 0.7);
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ref-quote {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+
+  border-left: 2px solid rgba(209, 107, 255, 0.45);
+
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ref-quote-text {
+  display: block;
+  margin-top: 4px;
+
+  color: rgba(255, 255, 255, 0.84);
+
+  font-size: 14px;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.ref-detail-section {
+  margin-top: 16px;
+  padding-top: 14px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ref-detail-section:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.ref-section-label {
+  display: block;
+  margin-bottom: 8px;
+
+  color: #d16bff;
+
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.ref-verify-cta {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.62);
+
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.ref-verify-cta strong {
+  color: #ffffff;
 }
 
 /* =========================================================
@@ -176,25 +346,9 @@
 
 /* =========================================================
    CARD ATTACHMENT (large, visible — was a small text link)
+   Section shell + label now share .ref-detail-section / .ref-section-label
+   with the rest of the expanded card body.
 ========================================================= */
-
-.reference-attachment-section {
-  margin-top: 16px;
-  padding-top: 14px;
-
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.reference-attachment-label {
-  margin-bottom: 8px;
-
-  color: #d16bff;
-
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-}
 
 .reference-attachment-preview {
   box-sizing: border-box;

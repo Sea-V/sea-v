@@ -34,6 +34,10 @@
   const VERIFY_LINK_KEY_PREFIX = "seav_ref_verify_url_";
   const REF_FILES_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.REFERENCE_FILES || "reference-files";
+  // Mirrors js/certificates.js's expandedCertIds — cards render collapsed
+  // (name/vessel/role/period/status only) by default, expand for the quote,
+  // sectioned details, attachment, and actions.
+  const expandedRefIds = new Set();
 
   function rememberVerifyLink(refId, verifyUrl) {
     if (!refId || !verifyUrl) return;
@@ -64,6 +68,14 @@
 
   function getVessels() {
     return window.SeavState?.vessels || [];
+  }
+
+  function getSortedRefs() {
+    return [...getRefs()].sort((a, b) => {
+      const da = a.date ? new Date(a.date) : new Date(0);
+      const db = b.date ? new Date(b.date) : new Date(0);
+      return db - da;
+    });
   }
 
   // Mirrors Onboard Experience's formatDateRange (js/onboard-experience.js)
@@ -177,8 +189,8 @@
 
     if (isImageAttachment(attachment, fileUrl)) {
       return `
-        <div class="reference-attachment-section">
-          <div class="reference-attachment-label">Attachment</div>
+        <div class="ref-detail-section">
+          <div class="ref-section-label">Attachment</div>
           <a class="reference-attachment-preview" href="${safeUrl}" target="_blank" rel="noopener">
             <img class="reference-attachment-image" src="${safeUrl}" alt="${safeName}" loading="lazy" />
           </a>
@@ -187,8 +199,8 @@
     }
 
     return `
-      <div class="reference-attachment-section">
-        <div class="reference-attachment-label">Attachment</div>
+      <div class="ref-detail-section">
+        <div class="ref-section-label">Attachment</div>
         <a class="reference-attachment-file" href="${safeUrl}" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M7 3.5h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-16a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
@@ -240,7 +252,10 @@
 
     const statusValue =
       referenceStatusPill(status) ||
-      `<span class="ref-meta-muted">Draft</span>`;
+      `<span class="pill pill-neutral">Unverified</span>`;
+
+    const verificationSent =
+      status === "Sent for Verification" || status === "Verified" || status === "Declined";
 
     const verificationDetail =
       status === "Verified"
@@ -275,7 +290,7 @@
       : "";
 
     const initials = getRefereeInitials(r.name);
-    const titleLine = Seav.escapeHtml(r.title || "—");
+    const titleLine = r.title ? Seav.escapeHtml(r.title) : "";
 
     const rankValue =
       status === "Verified" || verification.rank
@@ -295,65 +310,107 @@
 
     const excerptHtml = excerpt
       ? `“${Seav.escapeHtml(truncateText(excerpt))}”`
-      : `<span class="ref-meta-muted">—</span>`;
+      : `<span class="ref-meta-muted">No reference text yet.</span>`;
 
-    return `
-    <article class="vessel-card ref-page-card">
-      <div class="vessel-body">
-        <div class="ref-card-head">
-          <div class="ref-card-avatar" aria-hidden="true">${initials}</div>
-          <div class="ref-card-head-text">
-            <div class="ref-card-title-row">
-              <h3 class="ref-card-title">${Seav.escapeHtml(r.name || "—")}</h3>
-              ${statusValue}
-            </div>
-            <p class="ref-card-subtitle">${titleLine}</p>
-          </div>
-        </div>
+    const periodText = formatDateRange(r.periodFrom, r.periodTo, r.period);
+    const subtitleLine =
+      [r.role, periodText !== "—" ? periodText : ""].filter(Boolean).join(" · ") || "—";
 
+    const isExpanded = expandedRefIds.has(refId);
+
+    // Collapses the whole Verification section down to one CTA line until a
+    // reference is actually sent — the individual Rank/CoC/Signed/Signature
+    // fields are all "—"/"Pending" placeholders until then, which was most
+    // of the clutter in the old flat grid.
+    const verificationSectionHtml = verificationSent
+      ? `
         <div class="vessel-meta-grid">
-          <div class="vessel-meta-item ref-meta-span-full">
-            <span class="vessel-meta-label">${Seav.escapeHtml(excerptLabel)}</span>
-            <span class="vessel-meta-value ref-meta-excerpt">${excerptHtml}</span>
-          </div>
-
           ${referenceMetaItem("Verification", verificationDetail)}
-
-          ${referenceMetaItem("Vessel", Seav.escapeHtml(vesselLabel || "—"))}
-          ${referenceMetaItem("Your role", Seav.escapeHtml(r.role || "—"))}
-          ${referenceMetaItem("Period", Seav.escapeHtml(formatDateRange(r.periodFrom, r.periodTo, r.period)))}
-          ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
-
-          ${referenceMetaItem("Referee email", Seav.escapeHtml(r.email || "—"))}
           ${referenceMetaItem("Rank", rankValue)}
           ${referenceMetaItem("CoC", cocValue)}
-
           ${referenceMetaItem("Signed", signedValue)}
           ${referenceMetaItem("Signature", signatureValue)}
         </div>
+      `
+      : `<p class="ref-verify-cta">Not yet sent for verification${
+          canSend ? " — use <strong>Share link</strong> below to request it from your referee." : "."
+        }</p>`;
 
-        ${attachmentSectionHtml}
+    return `
+    <article class="vessel-card ref-page-card ref-compact-card${isExpanded ? " is-expanded" : ""}" data-ref-id="${Seav.escapeHtml(refId)}">
+      <div class="vessel-body">
 
-        ${Seav.seavActions(
-          `${Seav.seavAction("edit", "Edit", `data-edit-ref-id="${Seav.escapeHtml(refId)}"`)}${
-            canSend
-              ? Seav.seavAction(
-                  "secondary",
-                  sendLabel,
-                  `data-send-ref-id="${Seav.escapeHtml(refId)}"`
-                )
-              : ""
-          }${
-            showOpenLink
-              ? Seav.seavAction(
-                  "secondary",
-                  "Copy link",
-                  `data-open-verify-link="${Seav.escapeHtml(refId)}"`
-                )
-              : ""
-          }${Seav.seavAction("delete", "Delete", `data-del-ref-id="${Seav.escapeHtml(refId)}"`)}`,
-          "seav-actions--compact"
-        )}
+        <button
+          type="button"
+          class="ref-compact-summary"
+          aria-expanded="${isExpanded ? "true" : "false"}"
+          data-toggle-ref-id="${Seav.escapeHtml(refId)}"
+        >
+          <div class="ref-card-avatar" aria-hidden="true">${initials}</div>
+          <div class="ref-compact-summary-left">
+            <div class="ref-compact-title">
+              ${Seav.escapeHtml(r.name || "—")}${vesselLabel ? ` <small>· ${Seav.escapeHtml(vesselLabel)}</small>` : ""}
+            </div>
+            <div class="ref-compact-sub">${Seav.escapeHtml(subtitleLine)}</div>
+          </div>
+          <div class="ref-compact-summary-right">
+            ${statusValue}
+            <span class="cert-chevron" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </button>
+
+        <div class="ref-compact-body"${isExpanded ? "" : " hidden"}>
+
+          ${titleLine ? `<p class="ref-compact-position">${titleLine}</p>` : ""}
+
+          <blockquote class="ref-quote">
+            <span class="ref-section-label">${Seav.escapeHtml(excerptLabel)}</span>
+            <span class="ref-quote-text">${excerptHtml}</span>
+          </blockquote>
+
+          <div class="ref-detail-section">
+            <div class="ref-section-label">Service details</div>
+            <div class="vessel-meta-grid">
+              ${referenceMetaItem("Vessel", Seav.escapeHtml(vesselLabel || "—"))}
+              ${referenceMetaItem("Your role", Seav.escapeHtml(r.role || "—"))}
+              ${referenceMetaItem("Period", Seav.escapeHtml(periodText))}
+              ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
+              ${referenceMetaItem("Referee email", Seav.escapeHtml(r.email || "—"))}
+            </div>
+          </div>
+
+          <div class="ref-detail-section">
+            <div class="ref-section-label">Verification</div>
+            ${verificationSectionHtml}
+          </div>
+
+          ${attachmentSectionHtml}
+
+          ${Seav.seavActions(
+            `${Seav.seavAction("edit", "Edit", `data-edit-ref-id="${Seav.escapeHtml(refId)}"`)}${
+              canSend
+                ? Seav.seavAction(
+                    "secondary",
+                    sendLabel,
+                    `data-send-ref-id="${Seav.escapeHtml(refId)}"`
+                  )
+                : ""
+            }${
+              showOpenLink
+                ? Seav.seavAction(
+                    "secondary",
+                    "Copy link",
+                    `data-open-verify-link="${Seav.escapeHtml(refId)}"`
+                  )
+                : ""
+            }${Seav.seavAction("delete", "Delete", `data-del-ref-id="${Seav.escapeHtml(refId)}"`)}`,
+            "seav-actions--compact"
+          )}
+        </div>
       </div>
     </article>
   `;
@@ -373,18 +430,14 @@
             <div class="list-title">No references yet</div>
             <div class="list-sub">Add one from a Captain or Senior Officer.</div>
           </div>
-          <span class="pill">Draft</span>
+          <span class="pill pill-neutral">Unverified</span>
         </div>
       `;
       updateReferencesSummary(refs);
       return;
     }
 
-    const sorted = [...refs].sort((a, b) => {
-      const da = a.date ? new Date(a.date) : new Date(0);
-      const db = b.date ? new Date(b.date) : new Date(0);
-      return db - da;
-    });
+    const sorted = getSortedRefs();
 
     try {
       await hydrateReferenceAttachments(sorted);
@@ -684,6 +737,21 @@ function readReferenceForm() {
     }
 
     document.addEventListener("click", async (e) => {
+      const toggleBtn = e.target.closest("[data-toggle-ref-id]");
+      if (toggleBtn) {
+        const refId = toggleBtn.getAttribute("data-toggle-ref-id");
+        if (expandedRefIds.has(refId)) expandedRefIds.delete(refId);
+        else expandedRefIds.add(refId);
+        // Re-render from the already-hydrated in-memory refs — same
+        // lightweight re-render certificates.js uses on toggle, no need to
+        // re-sort/re-hydrate for a pure expand/collapse.
+        const refsList = document.getElementById("refsList");
+        if (refsList) {
+          refsList.innerHTML = getSortedRefs().map((r) => buildReferenceCard(r)).join("");
+        }
+        return;
+      }
+
       const editBtn = e.target.closest("[data-edit-ref-id]");
       if (editBtn) {
         e.preventDefault();

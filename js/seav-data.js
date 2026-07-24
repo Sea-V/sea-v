@@ -1327,8 +1327,11 @@ function getSortedVesselOptions(vessels = []) {
       Declined: { label: "Declined", className: "reference-declined-pill" }
     };
     if (map[status]) return { ...map[status], visible: true };
-    if (status === "Draft") return { label: "Draft", className: "pill", visible: false };
-    return { label: status || "Draft", className: "pill", visible: true };
+    // "Draft" is the stored value (unchanged, used throughout the app) but
+    // crew now see it labeled "Unverified" everywhere it's displayed, to
+    // match the simplified rf_status dropdown (references.html).
+    if (status === "Draft") return { label: "Unverified", className: "pill pill-neutral", visible: false };
+    return { label: status || "Unverified", className: "pill", visible: true };
   }
 
   /* =========================================================
