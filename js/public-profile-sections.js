@@ -42,6 +42,7 @@
 
   let ppNavigationChart = null;
   let ppNavigationLayer = null;
+  let ppCountryHighlightLayer = null;
 
   // Tracks which vessel groups are open in the onboard experience section
   // (keyed by vesselId, "" for "no vessel linked"). Kept in a Set rather
@@ -58,6 +59,7 @@
     }
     ppNavigationChart = null;
     ppNavigationLayer = null;
+    ppCountryHighlightLayer = null;
   }
 
   function waitForLeaflet(maxMs = 10000) {
@@ -120,6 +122,16 @@
     if (!ppNavigationChart || !ppNavigationLayer) return;
 
     ppNavigationLayer.clearLayers();
+
+    const H = window.SeavNavigationHelpers;
+    if (H?.renderCountryHighlightLayer) {
+      H.renderCountryHighlightLayer(ppNavigationChart, navigationAreas, ppCountryHighlightLayer).then(
+        (layer) => {
+          ppCountryHighlightLayer = layer;
+        }
+      );
+    }
+
     const bounds = [];
     const routedEntryIds = new Set();
 

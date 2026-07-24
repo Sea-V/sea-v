@@ -229,12 +229,114 @@
 
   const pathLengthNm = window.SeavData.pathLengthNm;
 
+  // =========================================================
+  // COUNTRY HIGHLIGHT OVERLAY (shared)
+  // Fills whole countries green once any passage's departure or arrival
+  // country matches. Originally built only into js/navigation-map.js for the
+  // Navigation page's own map, but the Dashboard and Public Profile pages
+  // each render their own separate Leaflet map (js/dashboard-snippets.js,
+  // js/public-profile-sections.js) and never got this overlay ported over —
+  // reported as "green countries not showing on Dashboard/Public Profile".
+  // Lives here (rather than navigation-map.js) since this file is already
+  // loaded on all three pages. Callers keep their own module-scoped layer
+  // reference and pass it in as `previousLayer` so repeat calls replace
+  // rather than stack overlays; the new layer (or null) is returned.
+  // Depends on the topojson-client CDN script + Leaflet's `L` global being
+  // loaded on the page (see scripts/patch-html-scripts.mjs).
+  // =========================================================
+
+  const WORLD_TOPOJSON_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
+  const COUNTRY_HIGHLIGHT_COLOR = "#15803d";
+
+  let worldGeoJsonPromise = null;
+
+  function loadWorldGeoJson() {
+    if (!worldGeoJsonPromise) {
+      worldGeoJsonPromise = fetch(WORLD_TOPOJSON_URL)
+        .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+        .then((topology) => {
+          if (typeof topojson === "undefined" || !topology?.objects?.countries) {
+            throw new Error("world boundaries data missing expected structure");
+          }
+          return topojson.feature(topology, topology.objects.countries);
+        })
+        .catch((err) => {
+          console.warn("[SEA-V] Country highlight overlay unavailable:", err?.message || err);
+          return null;
+        });
+    }
+    return worldGeoJsonPromise;
+  }
+
+  function collectVisitedCountries(entries) {
+    const countries = new Set();
+    (entries || []).forEach((entry) => {
+      // snake_case fallbacks: navigation.html always hands this fully
+      // normalized (normalizeNavEntry), but the Public Profile page's own
+      // stats code (js/public-profile-utils.js buildPublicNavigationStats)
+      // defensively reads both shapes, so this does too — otherwise entries
+      // that slip through un-normalized would silently drop out of the
+      // highlight even though they still count toward the "Countries" stat.
+      const fromCountry = entry.fromCountry || entry.from_country;
+      const toCountry = entry.toCountry || entry.to_country || entry.country;
+      if (fromCountry) countries.add(fromCountry);
+      if (toCountry) countries.add(toCountry);
+    });
+    return countries;
+  }
+
+  async function renderCountryHighlightLayer(map, entries, previousLayer) {
+    if (previousLayer && map) {
+      map.removeLayer(previousLayer);
+    }
+    if (!map) return null;
+
+    const visited = collectVisitedCountries(entries);
+    if (!visited.size) return null;
+
+    const isoCodes = getCountryIsoNumeric();
+    const acceptedIds = new Set();
+    visited.forEach((country) => {
+      const id = isoCodes[country];
+      if (id) acceptedIds.add(id);
+    });
+    if (!acceptedIds.size) return null;
+
+    const geo = await loadWorldGeoJson();
+    if (!geo || !map) return null;
+
+    let layer;
+    try {
+      layer = L.geoJSON(geo, {
+        filter: (feature) => acceptedIds.has(String(feature.id)),
+        style: () => ({
+          fillColor: COUNTRY_HIGHLIGHT_COLOR,
+          fillOpacity: 0.32,
+          color: COUNTRY_HIGHLIGHT_COLOR,
+          weight: 1,
+          opacity: 0.65,
+          interactive: false
+        })
+      });
+    } catch (geoError) {
+      console.warn("[SEA-V] Country highlight overlay failed to render:", geoError);
+      return null;
+    }
+
+    if (!layer.getLayers().length) return null;
+
+    layer.addTo(map);
+    layer.bringToBack();
+    return layer;
+  }
+
   window.SeavNavigationHelpers = {
     STORAGE_KEY, MAP_TILE_URL, MAP_TILE_ATTRIBUTION, MAP_DEFAULT_VIEW,
     getPortList, getCountryList, getCountryIsoNumeric, roundCoord,
     getVessels, getSeatimes, getVesselName, getVesselColor, loadNavEntries,
     hasCoord, normalizeWaypointList, normalizeNavEntry, normalizeText, findPort,
     lookupPortByName, resolveNavEntryCoords,
-    haversineNm, formatNm, formatRouteLabel, entryHasRoute, pathLengthNm
+    haversineNm, formatNm, formatRouteLabel, entryHasRoute, pathLengthNm,
+    collectVisitedCountries, renderCountryHighlightLayer
   };
 })();

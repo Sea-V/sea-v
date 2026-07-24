@@ -25,6 +25,7 @@
   let dashNavigationChart = null;
   let dashNavigationLayer = null;
   let dashNavigationRenderId = 0;
+  let dashCountryHighlightLayer = null;
 
   // js/core.js's bindStateRefresh reruns the dashboard's full refresh() on
   // EVERY "seav:data-updated" event app-wide — not just changes to a given
@@ -480,6 +481,7 @@ function destroyDashboardNavigationChart() {
   }
   dashNavigationChart = null;
   dashNavigationLayer = null;
+  dashCountryHighlightLayer = null;
 }
 
 // Leaflet computes its tile grid against the container size at map creation.
@@ -705,13 +707,13 @@ async function renderNavigationSnippet() {
         renderId === dashNavigationRenderId &&
         document.getElementById("dashNavigationChart") === container
       ) {
-        drawDashboardNavigationChart(container, stats, 0, renderId);
+        drawDashboardNavigationChart(container, stats, entries, 0, renderId);
       }
     });
     return;
   }
 
-  drawDashboardNavigationChart(container, stats, 0, renderId);
+  drawDashboardNavigationChart(container, stats, entries, 0, renderId);
 }
 
 const DASH_NAV_LEAFLET_POLL_MS = 200;
@@ -736,12 +738,21 @@ function waitForLeaflet(onReady, attemptsLeft = DASH_NAV_LEAFLET_POLL_ATTEMPTS) 
   window.setTimeout(() => waitForLeaflet(onReady, attemptsLeft - 1), DASH_NAV_LEAFLET_POLL_MS);
 }
 
-function drawDashboardNavigationChart(container, stats, retryAttempt = 0, renderId = dashNavigationRenderId) {
+function drawDashboardNavigationChart(container, stats, entries = [], retryAttempt = 0, renderId = dashNavigationRenderId) {
   whenDashboardChartContainerReady(container, () => {
     if (renderId !== dashNavigationRenderId) return;
     if (!initDashboardNavigationChart(container) || !dashNavigationLayer) return;
 
     dashNavigationLayer.clearLayers();
+
+    const H = window.SeavNavigationHelpers;
+    if (H?.renderCountryHighlightLayer) {
+      H.renderCountryHighlightLayer(dashNavigationChart, entries, dashCountryHighlightLayer).then(
+        (layer) => {
+          dashCountryHighlightLayer = layer;
+        }
+      );
+    }
 
     const bounds = [];
     stats.paths.forEach((path) => {
@@ -798,7 +809,7 @@ function drawDashboardNavigationChart(container, stats, retryAttempt = 0, render
       // though the map object exists. Remount in-place instead of relying on a
       // manual browser refresh.
       destroyDashboardNavigationChart();
-      drawDashboardNavigationChart(container, stats, retryAttempt + 1);
+      drawDashboardNavigationChart(container, stats, entries, retryAttempt + 1);
     }, retryDelay);
   });
 }
