@@ -16,13 +16,34 @@
     return name.endsWith(".heic") || name.endsWith(".heif");
   }
 
+  // heic2any decodes HEIC entirely in the browser (WASM), and for some files
+  // — Live Photos, burst/multi-image HEIC containers, some Portrait-mode
+  // depth shots — it can hang indefinitely instead of ever resolving or
+  // rejecting. Without a bound on that, "Saving tender..." (or any photo
+  // save) just spins forever with no error, no rejection, nothing for
+  // withSaving()'s try/catch/finally to catch — because nothing ever
+  // settles. Racing against a timeout guarantees this always resolves one
+  // way or another, so a bad file surfaces as the same clear "couldn't be
+  // converted" error instead of a silent infinite spinner.
+  function withTimeout(promise, ms, label) {
+    let timer;
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`${label} timed out`)), ms);
+    });
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+  }
+
   async function convertHeicToJpeg(file) {
     if (typeof window.heic2any !== "function") {
       console.warn("[SEA-V] heic2any not loaded — uploading original HEIC file.");
       return file;
     }
     try {
-      const result = await window.heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
+      const result = await withTimeout(
+        window.heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 }),
+        30000,
+        "HEIC conversion"
+      );
       const jpegBlob = Array.isArray(result) ? result[0] : result;
       const newName = String(file.name || "photo").replace(/\.(heic|heif)$/i, "") + ".jpg";
       return new File([jpegBlob], newName, { type: "image/jpeg" });
@@ -71,17 +92,27 @@
       const safeName = String(uploadFile.name || "file").replace(/[^a-zA-Z0-9._-]/g, "_");
       const filePath = window.SeavAPI.buildStoragePath(entityId, safeName);
 
-      const { error } = await window.SeavSupabase.storage.from(bucket).upload(filePath, uploadFile, {
-        cacheControl: "3600",
-        upsert: true
-      });
+      let uploadError = null;
+      try {
+        const { error } = await withTimeout(
+          window.SeavSupabase.storage.from(bucket).upload(filePath, uploadFile, {
+            cacheControl: "3600",
+            upsert: true
+          }),
+          30000,
+          `${kind} upload`
+        );
+        uploadError = error;
+      } catch (timeoutErr) {
+        uploadError = timeoutErr;
+      }
 
-      if (error) {
-        console.error(`[SEA-V] ${kind} upload failed:`, error);
+      if (uploadError) {
+        console.error(`[SEA-V] ${kind} upload failed:`, uploadError);
         let detail =
-          errorHint && /row-level security|bucket not found|does not exist/i.test(error.message || "")
+          errorHint && /row-level security|bucket not found|does not exist/i.test(uploadError.message || "")
             ? errorHint
-            : error.message || `Could not upload ${kind.toLowerCase()}. Try a smaller file.`;
+            : uploadError.message || `Could not upload ${kind.toLowerCase()}. Try a smaller file.`;
         if (window.SeavFeedback?.error) {
           window.SeavFeedback.error("Upload failed", detail);
         } else if (window.Seav?.notify) {
