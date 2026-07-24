@@ -18,7 +18,16 @@
   background-image:
     linear-gradient(180deg, rgba(8, 18, 35, 0.2) 0%, rgba(11, 28, 46, 0.85) 100%),
     url("/img/ocean.png");
-  background-size: cover, cover;
+  /* The ocean.png layer must be sized at exactly 50% of this element's own
+     width (which is itself 200% of the viewport) so repeat-x lays down
+     exactly two tiles across it — matching the waveMove keyframes below,
+     which translate by exactly -50%. That makes tile #2's end line up
+     pixel-for-pixel with tile #1's start, so the loop reset is seamless.
+     It was "cover" before, which stretches the image into one non-repeating
+     copy spanning the full 200% box — repeat-x never gets a chance to
+     actually tile, so the hard cut between the image's unrelated left and
+     right edges was exactly the visible glitch on every 60s reset. */
+  background-size: cover, 50% 100%;
   background-repeat: no-repeat, repeat-x;
   animation: waveMove 60s linear infinite;
 }

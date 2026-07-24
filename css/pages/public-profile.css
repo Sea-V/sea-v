@@ -36,7 +36,11 @@ body.public-profile-page .ocean {
   background-image:
     linear-gradient(180deg, rgba(8, 18, 35, 0.2) 0%, rgba(11, 28, 46, 0.85) 100%),
     url("/img/ocean.png");
-  background-size: cover, cover;
+  /* See css/components/ocean-background.css for why this must be 50% (not
+     cover): it makes repeat-x lay down exactly two tiles across this
+     200%-wide element, matching the -50% translate below for a seamless
+     loop reset instead of a hard jump every 60s. */
+  background-size: cover, 50% 100%;
   background-repeat: no-repeat, repeat-x;
   animation: publicProfileWaveMove 60s linear infinite;
 }
