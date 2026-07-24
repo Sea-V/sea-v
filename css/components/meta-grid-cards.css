@@ -164,17 +164,6 @@
   font-weight: 500;
 }
 
-#refsList .ref-page-card .ref-meta-link {
-  color: var(--seav-meta-link-color, #9ddcff);
-  text-decoration: none;
-  word-break: break-word;
-}
-
-#refsList .ref-page-card .ref-meta-link:hover {
-  color: #ffffff;
-  text-decoration: underline;
-}
-
 #refsList .ref-page-card .vessel-meta-value:has(.reference-verified-pill),
 #refsList .ref-page-card .vessel-meta-value:has(.reference-sent-pill),
 #refsList .ref-page-card .vessel-meta-value:has(.reference-declined-pill) {

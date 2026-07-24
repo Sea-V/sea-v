@@ -66,6 +66,17 @@
     return window.SeavState?.vessels || [];
   }
 
+  // Mirrors Onboard Experience's formatDateRange (js/onboard-experience.js)
+  // for the same "Date from / Date to" picker pattern. Falls back to the
+  // legacy free-text r.period string for references saved before this field
+  // became a date range, so older entries don't just show "—".
+  function formatDateRange(from, to, legacyPeriod) {
+    if (!from && !to) return legacyPeriod ? legacyPeriod : "—";
+    const start = from ? formatDatePretty(from) : "—";
+    const end = to ? formatDatePretty(to) : "Ongoing";
+    return `${start} → ${end}`;
+  }
+
   function maskCoc(coc) {
     const raw = String(coc || "").trim();
     if (!raw) return "—";
@@ -145,6 +156,50 @@
     return ref.text || "";
   }
 
+  // Mirrors js/onboard-experience.js's isImageAttachment/renderAttachmentSection
+  // pattern — previously the reference attachment was just a small text link
+  // (.ref-meta-link) buried in the meta grid, easy to miss. This renders a
+  // large embedded preview (image thumbnail, or a prominent file tile for
+  // PDFs) as its own section on the card instead.
+  function isImageAttachment(attachment, url) {
+    const mime = String(attachment?.mime || attachment?.mimetype || "").toLowerCase();
+    const name = String(attachment?.filename || attachment?.name || url || "").toLowerCase();
+    if (mime.startsWith("image/")) return true;
+    return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
+  }
+
+  function renderReferenceAttachmentSection(attachment, fileUrl) {
+    if (!fileUrl) return "";
+
+    const filename = attachment?.filename || "Reference attachment";
+    const safeUrl = Seav.escapeHtml(fileUrl);
+    const safeName = Seav.escapeHtml(filename);
+
+    if (isImageAttachment(attachment, fileUrl)) {
+      return `
+        <div class="reference-attachment-section">
+          <div class="reference-attachment-label">Attachment</div>
+          <a class="reference-attachment-preview" href="${safeUrl}" target="_blank" rel="noopener">
+            <img class="reference-attachment-image" src="${safeUrl}" alt="${safeName}" loading="lazy" />
+          </a>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="reference-attachment-section">
+        <div class="reference-attachment-label">Attachment</div>
+        <a class="reference-attachment-file" href="${safeUrl}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 3.5h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-16a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M14 3.5V8h4" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          <span>${safeName}</span>
+        </a>
+      </div>
+    `;
+  }
+
   function referenceMetaItem(label, valueHtml) {
     return `
       <div class="vessel-meta-item">
@@ -215,9 +270,9 @@
       return `<span class="ref-meta-muted">—</span>`;
     })();
 
-    const attachValue = hasFile
-      ? `<a class="ref-meta-link" href="${Seav.escapeHtml(refFileUrl)}" target="_blank" rel="noopener">${Seav.escapeHtml(r.attachment?.filename || "View file")}</a>`
-      : "—";
+    const attachmentSectionHtml = hasFile
+      ? renderReferenceAttachmentSection(r.attachment, refFileUrl)
+      : "";
 
     const initials = getRefereeInitials(r.name);
     const titleLine = Seav.escapeHtml(r.title || "—");
@@ -266,7 +321,7 @@
 
           ${referenceMetaItem("Vessel", Seav.escapeHtml(vesselLabel || "—"))}
           ${referenceMetaItem("Your role", Seav.escapeHtml(r.role || "—"))}
-          ${referenceMetaItem("Period", Seav.escapeHtml(r.period || "—"))}
+          ${referenceMetaItem("Period", Seav.escapeHtml(formatDateRange(r.periodFrom, r.periodTo, r.period)))}
           ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
 
           ${referenceMetaItem("Referee email", Seav.escapeHtml(r.email || "—"))}
@@ -274,9 +329,10 @@
           ${referenceMetaItem("CoC", cocValue)}
 
           ${referenceMetaItem("Signed", signedValue)}
-          ${referenceMetaItem("Attachment", attachValue)}
           ${referenceMetaItem("Signature", signatureValue)}
         </div>
+
+        ${attachmentSectionHtml}
 
         ${Seav.seavActions(
           `${Seav.seavAction("edit", "Edit", `data-edit-ref-id="${Seav.escapeHtml(refId)}"`)}${
@@ -392,39 +448,38 @@
     if (emailField) emailField.readOnly = locked;
   }
 
-  async function renderFormAttachmentPreview(attachment) {
-    const preview = document.getElementById("rf_attachment_preview");
-    if (!preview) return;
+  // Mirrors the Certificates/Sea Time/Vessels upload-box pattern
+  // (js/certificates.js renderCertAttachmentHint) — previously rf_file was
+  // a bare <input type="file"> with a separate link-only preview block;
+  // this replaces both with the same Choose/Change-file + hint text used
+  // everywhere else so editing a reference with an attachment already
+  // shows it before re-uploading.
+  function renderReferenceAttachmentHint(attachmentMeta, { isNewSelection = false } = {}) {
+    const hint = document.getElementById("rfFileHint");
+    const btn = document.getElementById("rfFileBtn");
 
-    if (!attachment?.path && !attachment?.url && !attachment?.dataUrl) {
-      preview.hidden = true;
-      preview.innerHTML = "";
+    if (isNewSelection) {
+      if (hint) {
+        hint.textContent = attachmentMeta?.filename
+          ? `New file selected: ${attachmentMeta.filename} — click Save reference to apply`
+          : "New file selected — click Save reference to apply";
+      }
+      if (btn) btn.textContent = "Change file";
       return;
     }
 
-    let hydrated = attachment;
-    if (attachment?.path && window.SeavApiCore?.hydrateFileMeta) {
-      hydrated = await window.SeavApiCore.hydrateFileMeta(
-        attachment,
-        REF_FILES_BUCKET
-      );
+    const docUrl = attachmentMeta ? Seav.getFileDisplayUrl(attachmentMeta, REF_FILES_BUCKET) : "";
+    const filename = attachmentMeta?.filename || "";
+
+    if (hint) {
+      hint.textContent = docUrl
+        ? (filename ? `Current file: ${filename}` : "Current file uploaded")
+        : "No file uploaded yet";
     }
 
-    const url = Seav.getFileDisplayUrl(hydrated, REF_FILES_BUCKET);
-    const filename = attachment.filename || "View attachment";
-
-    preview.hidden = false;
-    preview.innerHTML = url
-      ? `
-        <span class="reference-form-attachment-label">Current attachment</span>
-        <a
-          class="reference-modern-attachment"
-          href="${Seav.escapeHtml(url)}"
-          target="_blank"
-          rel="noopener"
-        >${Seav.escapeHtml(filename)}</a>
-      `
-      : `<span class="muted">Attachment saved — preview unavailable</span>`;
+    if (btn) {
+      btn.textContent = docUrl ? "Change file" : "Choose file";
+    }
   }
 
   async function fillReferenceForm(ref) {
@@ -441,7 +496,8 @@
   }
 
   document.getElementById("rf_role").value = ref.role || "";
-  document.getElementById("rf_period").value = ref.period || "";
+  Seav.setDateTriplet("rf_period_from", ref.periodFrom || "");
+  Seav.setDateTriplet("rf_period_to", ref.periodTo || "");
   document.getElementById("rf_text").value = ref.text || "";
   Seav.setDateTriplet("rf_date", ref.date || "");
 
@@ -458,7 +514,8 @@
 
   clearFormFieldLocks();
   applyReferenceFormLocks(ref);
-  await renderFormAttachmentPreview(ref.attachment || null);
+  document.getElementById("rf_file").value = "";
+  renderReferenceAttachmentHint(ref.attachment || null);
 
   if (window.SeavModals?.openModal) window.SeavModals.openModal("refModal");
 }
@@ -470,6 +527,8 @@ function resetReferenceForm(form) {
   if (editId) editId.value = "";
 
   Seav.clearDateTriplet("rf_date");
+  Seav.clearDateTriplet("rf_period_from");
+  Seav.clearDateTriplet("rf_period_to");
 
   const statusField = document.getElementById("rf_status");
   if (statusField) {
@@ -478,11 +537,7 @@ function resetReferenceForm(form) {
   }
 
   clearFormFieldLocks();
-  const preview = document.getElementById("rf_attachment_preview");
-  if (preview) {
-    preview.hidden = true;
-    preview.innerHTML = "";
-  }
+  renderReferenceAttachmentHint(null);
 }
 
 function readReferenceForm() {
@@ -495,7 +550,8 @@ function readReferenceForm() {
     email: document.getElementById("rf_email")?.value.trim() || "",
     vesselId: vesselValue,
     role: document.getElementById("rf_role")?.value.trim() || "",
-    period: document.getElementById("rf_period")?.value.trim() || "",
+    periodFrom: Seav.readDateTriplet("rf_period_from"),
+    periodTo: Seav.readDateTriplet("rf_period_to"),
     text: document.getElementById("rf_text")?.value.trim() || "",
     date: Seav.readDateTriplet("rf_date"),
     status: document.getElementById("rf_status")?.value || "Draft",
@@ -529,6 +585,20 @@ function readReferenceForm() {
     };
 
     Seav.bindStateRefresh(runRefresh, { label: "References refresh" });
+
+    const rfFileInput = document.getElementById("rf_file");
+    const rfFileBtn = document.getElementById("rfFileBtn");
+    if (rfFileBtn && rfFileInput) {
+      rfFileBtn.addEventListener("click", () => rfFileInput.click());
+    }
+    if (rfFileInput) {
+      rfFileInput.addEventListener("change", () => {
+        const file = rfFileInput.files?.[0] || null;
+        if (file) {
+          renderReferenceAttachmentHint({ filename: file.name }, { isNewSelection: true });
+        }
+      });
+    }
 
     const refForm = document.getElementById("refForm");
     if (refForm) {
@@ -577,7 +647,12 @@ function readReferenceForm() {
         email: formData.email,
         vesselId: formData.vesselId,
         role: formData.role,
-        period: formData.period,
+        periodFrom: formData.periodFrom,
+        periodTo: formData.periodTo,
+        // Keep the legacy free-text period only until a real date range is
+        // entered for this reference — once periodFrom/periodTo are set,
+        // the date range is the source of truth and the old text retires.
+        period: formData.periodFrom || formData.periodTo ? "" : existingRef?.period || "",
         text: formData.text,
         date: formData.date,
         status: formData.status,

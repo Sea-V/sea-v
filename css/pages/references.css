@@ -175,7 +175,107 @@
 }
 
 /* =========================================================
-   FORM ATTACHMENT PREVIEW
+   CARD ATTACHMENT (large, visible — was a small text link)
+========================================================= */
+
+.reference-attachment-section {
+  margin-top: 16px;
+  padding-top: 14px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.reference-attachment-label {
+  margin-bottom: 8px;
+
+  color: #d16bff;
+
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.reference-attachment-preview {
+  box-sizing: border-box;
+  display: block;
+
+  width: 100%;
+  max-width: 100%;
+  min-height: 120px;
+  max-height: 280px;
+
+  padding: 10px;
+
+  overflow: hidden;
+
+  border-radius: 14px;
+  border: 1px solid rgba(209, 107, 255, 0.22);
+
+  background: rgba(0, 0, 0, 0.22);
+
+  line-height: 0;
+  text-align: center;
+}
+
+.reference-attachment-image {
+  display: inline-block;
+
+  max-width: 100%;
+  max-height: 260px;
+  width: auto;
+  height: auto;
+
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.reference-attachment-file {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 16px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(209, 107, 255, 0.28);
+
+  background: rgba(209, 107, 255, 0.1);
+
+  color: #ffffff;
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 750;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.reference-attachment-file svg {
+  width: 22px;
+  height: 22px;
+
+  flex-shrink: 0;
+
+  color: #d16bff;
+}
+
+.reference-attachment-file:hover {
+  background: rgba(209, 107, 255, 0.18);
+  border-color: rgba(209, 107, 255, 0.44);
+}
+
+/* =========================================================
+   VERIFY-REFERENCE PAGE ATTACHMENT LINK
+   (.reference-form-attachment / .reference-form-attachment-label used to
+   live here too, styling the modal's old link-only attachment preview —
+   removed along with that markup when the upload box switched to the
+   standard Choose/Change-file + hint pattern. .reference-modern-attachment
+   stays: js/verify-reference.js still uses it on the public referee page.)
 ========================================================= */
 
 .reference-modern-attachment {
@@ -211,30 +311,6 @@
   border-color: rgba(91,188,255,0.44);
 
   transform: translateY(-1px);
-}
-
-.reference-form-attachment {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-
-  margin-top: -4px;
-  margin-bottom: 4px;
-  padding: 12px 14px;
-
-  border-radius: 14px;
-  border: 1px solid rgba(209,107,255,0.18);
-
-  background: rgba(255,255,255,0.03);
-}
-
-.reference-form-attachment-label {
-  color: rgba(255,255,255,0.62);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
 }
 
 .dash-ref-quote {
