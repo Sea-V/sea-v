@@ -747,7 +747,16 @@ function drawDashboardNavigationChart(container, stats, entries = [], retryAttem
 
     const H = window.SeavNavigationHelpers;
     if (H?.renderCountryHighlightLayer) {
-      H.renderCountryHighlightLayer(dashNavigationChart, entries, dashCountryHighlightLayer).then(
+      // `entries` here is window.SeavState.navigationAreas straight from the
+      // API — raw, not run through H.normalizeNavEntry. Legacy/free-text
+      // entries can have valid lat/lng but a blank from_country/to_country
+      // (the exact Iceland/Greenland/Norway/UAE bug already fixed for the
+      // Navigation page — see resolveNavEntryCoords' name-only port lookup).
+      // That fix only takes effect via normalizeNavEntry, so without calling
+      // it here too the same countries would silently drop out of this
+      // overlay again even though the underlying data is fine.
+      const normalizedEntries = H.normalizeNavEntry ? entries.map(H.normalizeNavEntry) : entries;
+      H.renderCountryHighlightLayer(dashNavigationChart, normalizedEntries, dashCountryHighlightLayer).then(
         (layer) => {
           dashCountryHighlightLayer = layer;
         }

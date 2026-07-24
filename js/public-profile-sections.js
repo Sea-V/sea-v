@@ -125,7 +125,16 @@
 
     const H = window.SeavNavigationHelpers;
     if (H?.renderCountryHighlightLayer) {
-      H.renderCountryHighlightLayer(ppNavigationChart, navigationAreas, ppCountryHighlightLayer).then(
+      // navigationAreas here comes from the public loadPublicData() fetch —
+      // camelCase-mapped but not run through H.normalizeNavEntry, so it never
+      // gets the name-only port->country backfill that fixed the Iceland/
+      // Greenland/Norway/UAE "blank country field" bug on the Navigation
+      // page. Without normalizing here too, those same countries would drop
+      // out of this overlay again even though the underlying data is fine.
+      const normalizedAreas = H.normalizeNavEntry
+        ? navigationAreas.map(H.normalizeNavEntry)
+        : navigationAreas;
+      H.renderCountryHighlightLayer(ppNavigationChart, normalizedAreas, ppCountryHighlightLayer).then(
         (layer) => {
           ppCountryHighlightLayer = layer;
         }
