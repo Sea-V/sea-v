@@ -157,6 +157,27 @@
 ========================================================= */
 
 .vessel-profile-card {
+  /* All the --vessel-accent-* variables this card (and everything nested
+     inside it) relies on are normally defined by the .vessel-shell-card
+     wrapper around vessels.html's whole page. The public profile has no
+     such wrapper — it uses its own dash-card shell instead — so without a
+     fallback here every border/background using var(--vessel-accent-*)
+     silently went invalid there (no border, no accent tint at all), which
+     read as "the colors/boxes aren't right" compared to the Vessels page.
+     Re-declaring the same values directly on the card itself means it looks
+     identical everywhere, whether or not a .vessel-shell-card is present. */
+  --vessel-accent: #d6e2ee;
+  --vessel-accent-soft: rgba(214, 226, 238, 0.1);
+  --vessel-accent-soft-bg: rgba(214, 226, 238, 0.14);
+  --vessel-accent-border: rgba(214, 226, 238, 0.24);
+  --vessel-accent-border-mid: rgba(214, 226, 238, 0.28);
+  --vessel-accent-border-strong: rgba(214, 226, 238, 0.3);
+  --vessel-accent-border-heavy: rgba(214, 226, 238, 0.32);
+  --vessel-accent-line: rgba(214, 226, 238, 0.14);
+  --vessel-accent-line-soft: rgba(214, 226, 238, 0.1);
+  --vessel-accent-strong: rgba(214, 226, 238, 0.42);
+  --vessel-accent-hover: rgba(214, 226, 238, 0.55);
+
   padding: 16px 18px;
   border-radius: 24px;
   border: 1px solid var(--vessel-accent-border-mid);
@@ -222,38 +243,40 @@
 ========================================================= */
 
 .vessel-overview-card {
+  /* Was a hard height: 240px (matched to the photo) with overflow:hidden on
+     the shared panel rule above — harmless while content was short, but any
+     vessel with a longer Program/date value that wraps to a second line
+     (e.g. "Private/Charter/Explorer") pushed the Role/Dates/Program +
+     GT/Length/Build rows past 240px and silently clipped off the bottom of
+     the card. min-height keeps the two-column row matched to the photo when
+     content is short, but now lets it grow instead of truncating. */
   min-width: 0;
-  height: 240px;
+  min-height: 240px;
   padding: 0;
   display: flex;
   flex-direction: column;
 }
 
-#currentVesselCard .vessel-overview-card {
-  min-height: 240px;
-  max-height: 240px;
-}
-
-#currentVesselCard .vessel-overview-head {
+.vessel-profile-card .vessel-overview-head {
   padding: 12px 14px;
 }
 
-#currentVesselCard .vessel-section-label {
+.vessel-profile-card .vessel-section-label {
   margin-bottom: 5px;
   font-size: 10px;
 }
 
-#currentVesselCard .vessel-overview-head h2 {
+.vessel-profile-card .vessel-overview-head h2 {
   font-size: clamp(21px, 2.4vw, 26px);
 }
 
-#currentVesselCard .vessel-overview-head p {
+.vessel-profile-card .vessel-overview-head p {
   margin-top: 5px;
   font-size: 12px;
   line-height: 1.25;
 }
 
-#currentVesselCard .vessel-current-badge {
+.vessel-profile-card .vessel-current-badge {
   min-height: 30px;
   padding: 0 12px;
   font-size: 11px;
@@ -357,7 +380,7 @@
   border-bottom: 1px solid var(--vessel-accent-line);
 }
 
-#currentVesselCard .vessel-main-grid {
+.vessel-profile-card .vessel-main-grid {
   gap: 7px;
   padding: 8px 10px;
 }
@@ -378,7 +401,7 @@
   justify-content: center;
 }
 
-#currentVesselCard .vessel-main-item {
+.vessel-profile-card .vessel-main-item {
   min-height: 50px;
   padding: 7px 9px;
   border-radius: 13px;
@@ -438,15 +461,17 @@
   padding: 10px;
 }
 
-/* Matches #currentVesselCard .vessel-main-grid's own compact override just
+/* Matches .vessel-profile-card .vessel-main-grid's own compact override just
    above (Role Onboard / Dates Onboard / Program) — without this, GT/Length/
    Build (the last section, with no border-bottom below it to create visual
    separation) sat flush on the card's default 10px padding while the row
    above got hand-tuned spacing, so the two rows looked inconsistent and the
    bottom one read as "too close to the shell". Slightly more bottom padding
    than top (12px vs 8px) since this row has nothing below it but the card's
-   rounded edge, unlike the row above. */
-#currentVesselCard .vessel-stats-grid {
+   rounded edge, unlike the row above. Applies to every .vessel-profile-card
+   (dashboard's current vessel and every public-profile vessel card alike)
+   so spacing stays identical everywhere the rich card is used. */
+.vessel-profile-card .vessel-stats-grid {
   gap: 7px;
   padding: 8px 10px 12px;
 }
@@ -467,7 +492,7 @@
   justify-content: center;
 }
 
-#currentVesselCard .vessel-stats-grid div {
+.vessel-profile-card .vessel-stats-grid div {
   min-height: 50px;
   padding: 7px 9px;
   border-radius: 13px;
