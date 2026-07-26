@@ -127,7 +127,13 @@
     await Promise.all(
       refs.map(async (ref) => {
         const signatureImage = ref.verification?.signatureImage;
-        if (!signatureImage?.path || signatureImage.url || signatureImage.dataUrl) return;
+        // Always re-resolve via path when one exists — a stored .url is a
+        // short-lived (1hr) Supabase signed URL, never a permanent link, so
+        // treating its mere presence as "already fresh" (the old check here)
+        // let it silently expire in the DB and break the <img> forever.
+        // hydrateFileMeta/resolveStorageFileUrl already prefer path over a
+        // stale url and cache the result for the session, so this is cheap.
+        if (!signatureImage?.path || signatureImage.dataUrl) return;
         const hydrated = await window.SeavApiCore.hydrateFileMeta(
           signatureImage,
           REF_FILES_BUCKET
@@ -278,7 +284,13 @@
       const name = Seav.escapeHtml(verification.signatureName || r.name || "—");
 
       if (sigUrl) {
-        return `<div class="ref-signature-wrap ref-signature-wrap--meta"><div class="ref-signature-frame"><img class="seav-signature-display" src="${Seav.escapeHtml(sigUrl)}" alt="Referee signature" loading="lazy" /></div><span class="ref-signature-name">${name}</span></div>`;
+        // A signed URL that has since expired shows the browser's native
+        // broken-image icon with no useful information (reported as a
+        // "question mark in a blue square") — same class of issue already
+        // guarded against for photos in seav-cards.js. Fall back to the
+        // signer's typed name instead of leaving that icon on screen.
+        return `<div class="ref-signature-wrap ref-signature-wrap--meta"><div class="ref-signature-frame"><img class="seav-signature-display" src="${Seav.escapeHtml(sigUrl)}" alt="Referee signature" loading="lazy"
+          onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" /><span class="ref-signature-fallback muted" style="display:none;">${name}</span></div><span class="ref-signature-name">${name}</span></div>`;
       }
 
       if (verification.signatureName) return name;
@@ -693,6 +705,27 @@ function readReferenceForm() {
 
         const now = new Date().toISOString();
 
+        // Editing any reference field re-saves existingRef.verification as-is.
+        // By the time this form loads, hydrateReferenceAttachments() has
+        // already merged a live, 1-hour signed URL onto signatureImage in
+        // memory (to display it). Saving that mutated object straight back to
+        // the DB would permanently bake a URL that expires in an hour into
+        // storage — exactly what caused the signature to show a broken-image
+        // icon later. Strip the transient url/dataUrl back off before saving;
+        // path/bucket/filename are all that should ever be persisted.
+        const existingVerification = existingRef?.verification || null;
+        const sanitizedVerification = existingVerification
+          ? {
+              ...existingVerification,
+              signatureImage: window.SeavApiCore?.sanitizeFileForStorage
+                ? window.SeavApiCore.sanitizeFileForStorage(
+                    existingVerification.signatureImage,
+                    REF_FILES_BUCKET
+                  )
+                : existingVerification.signatureImage
+            }
+          : null;
+
         await saveReferenceData({
         id: refId,
         name: formData.name,
@@ -710,7 +743,7 @@ function readReferenceForm() {
         date: formData.date,
         status: formData.status,
         attachment,
-        verification: existingRef?.verification || {
+        verification: sanitizedVerification || {
         confirmed: false,
         note: "",
         rank: "",
