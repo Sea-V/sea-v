@@ -276,11 +276,20 @@
       .filter(Boolean);
   }
 
-  // Vessel card markup lives in js/seav-cards.js (shared with the dashboard
-  // snippet) — this wrapper just keeps the existing call signature used below.
-  function buildVesselCard(v, _onboardEntries, _seatimeGroups) {
-    return window.SeavCards.buildVesselCard(v, {
-      photoBucket: window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos"
+  // Vessel card markup lives in js/seav-cards.js. Every vessel on the public
+  // profile gets the same rich "overview" treatment the dashboard reserves
+  // for just the current vessel (buildVesselCardFull) rather than the
+  // smaller dash-mini-card — vessel history is one of the more attractive
+  // parts of a public profile, so it shouldn't look thinner for past boats.
+  // References are filtered to verified-only here (buildVesselCardFull has
+  // no concept of verification status) so the same privacy rule applied to
+  // the References section itself also applies inside vessel cards.
+  function buildVesselCard(v, seatimes, tenders, refs) {
+    return window.SeavCards.buildVesselCardFull(v, {
+      photoBucket: window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos",
+      seatimes: seatimes || [],
+      tenders: tenders || [],
+      refs: (refs || []).filter(isReferenceVerified)
     });
   }
 
@@ -350,7 +359,7 @@
     section.hidden = false;
   }
 
-  function renderVessels(vessels, onboardEntries, seatimes) {
+  function renderVessels(vessels, seatimes, tenders, refs) {
     const vesselBox = document.getElementById("ppVesselSnippet");
     const section = document.getElementById("ppVesselSection");
     if (!vesselBox) return;
@@ -368,21 +377,23 @@
       return db - da;
     });
 
-    const seatimeGroups = groupSeatimeByVessel(seatimes, vessels);
     const visible = sorted.slice(0, LIMITS.vessels);
     const hidden = sorted.slice(LIMITS.vessels);
     const moreId = "ppVesselMore";
 
+    // Full-width stack, not the small dash-mini-card-grid — every vessel now
+    // gets the same wide "overview" card the dashboard reserves for just the
+    // current vessel, so a 3-across grid would cramp it badly.
     vesselBox.innerHTML = `
-      <div class="dash-mini-card-grid">
+      <div class="pp-vessel-full-list">
         ${visible
-          .map((v) => buildVesselCard(v, onboardEntries, seatimeGroups).replace(" data-pp-more-item", ""))
+          .map((v) => buildVesselCard(v, seatimes, tenders, refs).replace(" data-pp-more-item", ""))
           .join("")}
       </div>
       ${
         hidden.length
-          ? `<div class="public-cv-more-block dash-mini-card-grid" id="${moreId}" hidden>
-              ${hidden.map((v) => buildVesselCard(v, onboardEntries, seatimeGroups)).join("")}
+          ? `<div class="public-cv-more-block pp-vessel-full-list" id="${moreId}" hidden>
+              ${hidden.map((v) => buildVesselCard(v, seatimes, tenders, refs)).join("")}
             </div>`
           : ""
       }

@@ -112,6 +112,182 @@
   }
 
   /**
+   * Build the richer "vessel overview" card — the same visual treatment
+   * js/vessels.js gives the dashboard's single current vessel — as a
+   * read-only version any number of vessels can use. Used by the public
+   * profile so every vessel gets that showcase treatment instead of the
+   * smaller dash-mini-card above, since vessel history is one of the more
+   * attractive parts of a public profile to recruiters/viewers.
+   *
+   * Deliberately omits Salary (private, per-vessel field) and the SEA
+   * document panel (private employment contract) — neither belongs on a
+   * public page — and has no Edit/Delete actions.
+   *
+   * options.seatimes / options.tenders / options.refs should be the full
+   * arrays for this profile; they're filtered down to this vessel's id
+   * here. Callers should pre-filter refs to verified-only before passing
+   * them in (this function doesn't know about verification status).
+   */
+  function buildVesselCardFull(vessel, options = {}) {
+    const photoBucket =
+      options.photoBucket ||
+      window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS ||
+      "vessel-photos";
+
+    const photoUrl = Seav.getFileDisplayUrl(vessel.photo, photoBucket);
+    const name = Seav.escapeHtml(vessel.name || "Unnamed Vessel");
+    const flag = Seav.escapeHtml(vessel.flag || "—");
+    const gt = Seav.escapeHtml(vessel.gt || "—");
+    const length = Seav.escapeHtml(vessel.vessel_length || vessel.length || "—");
+    const builder = Seav.escapeHtml(vessel.builder || "—");
+    const role = Seav.escapeHtml(vessel.vessel_role || vessel.role || "—");
+    const type = Seav.escapeHtml(vessel.vessel_type || vessel.type || "—");
+    const program = Seav.escapeHtml(vessel.program || "—");
+    const experience = vessel.experience_onboard || vessel.desc || "";
+    const from = vessel.from ? formatCardDate(vessel.from) : "—";
+    const to = vessel.to ? formatCardDate(vessel.to) : "Present";
+    const isCurrent = !vessel.to;
+
+    const safeAlt = Seav.escapeHtml(`${vessel.name || "Vessel"} photo`);
+    const photoHtml = photoUrl
+      ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${safeAlt}" loading="lazy"
+          onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+         <div class="vessel-photo-fallback" style="display:none;">Photo unavailable</div>`
+      : `<div class="vessel-photo-fallback">No Photo</div>`;
+
+    const totalDays = window.SeavData?.totalQualifyingDays || (() => 0);
+    const seatimes = (options.seatimes || []).filter((s) => s.vesselId === vessel.id);
+    const tenders = (options.tenders || []).filter((t) => t.vesselId === vessel.id);
+    const refs = (options.refs || []).filter((r) => r.vesselId === vessel.id);
+
+    const totalSeaDays = seatimes.reduce((sum, item) => sum + totalDays(item), 0);
+    const latestSeatimes = seatimes.slice(0, 3);
+    const latestTenders = tenders.slice(0, 3);
+    const latestRefs = refs.slice(0, 3);
+
+    const experienceHtml = experience
+      ? `
+        <div class="vessel-experience-row">
+          <section class="vessel-experience-card">
+            <span class="vessel-panel-label">Experience onboard</span>
+            <p class="vessel-experience-text">${Seav.escapeHtml(experience)}</p>
+          </section>
+        </div>
+      `
+      : "";
+
+    return `
+      <article class="vessel-profile-card" data-pp-more-item>
+
+        <div class="vessel-profile-top">
+
+          <div class="vessel-image-card">
+            ${photoHtml}
+          </div>
+
+          <div class="vessel-overview-card">
+            <div class="vessel-overview-head">
+              <div>
+                <div class="vessel-section-label">ⓘ Vessel Overview</div>
+                <h2>${name}</h2>
+                <p>${type} • ${flag}</p>
+              </div>
+
+              ${isCurrent ? `<span class="vessel-current-badge">Current</span>` : ``}
+            </div>
+
+            <div class="vessel-main-grid">
+              <div class="vessel-main-item">
+                <span>Role Onboard</span>
+                <strong>${role}</strong>
+              </div>
+
+              <div class="vessel-main-item">
+                <span>Dates Onboard</span>
+                <strong>${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}</strong>
+              </div>
+
+              <div class="vessel-main-item">
+                <span>Program</span>
+                <strong>${program}</strong>
+              </div>
+            </div>
+
+            <div class="vessel-stats-grid">
+              <div><span>GT</span><strong>${gt}</strong></div>
+              <div><span>Length</span><strong>${length}</strong></div>
+              <div><span>Build</span><strong>${builder}</strong></div>
+            </div>
+          </div>
+        </div>
+
+        ${experienceHtml}
+
+        <div class="vessel-linked-clean-grid">
+
+          <section class="vessel-linked-clean-card sea-card">
+            <h3>Sea Time</h3>
+
+            ${
+              latestSeatimes.length
+                ? latestSeatimes.map((item) => `
+                  <div class="vessel-linked-row">
+                    <div>
+                      <strong>${Seav.escapeHtml(item.capacityServed || "—")}</strong>
+                      <span>${item.dateJoined ? formatCardDate(item.dateJoined) : "—"} → ${item.dateLeft ? formatCardDate(item.dateLeft) : "Present"}</span>
+                    </div>
+                    <b>${totalDays(item)} days</b>
+                  </div>
+                `).join("")
+                : `<p>No linked sea time entries.</p>`
+            }
+
+            <div class="vessel-total-row">
+              <span>Total Sea Time</span>
+              <strong>${totalSeaDays} days</strong>
+            </div>
+          </section>
+
+          <section class="vessel-linked-clean-card tender-card">
+            <h3>Tenders</h3>
+
+            ${
+              latestTenders.length
+                ? latestTenders.map((item) => `
+                  <div class="vessel-linked-row">
+                    <div>
+                      <strong>${Seav.escapeHtml(item.name || "Unnamed Tender")}</strong>
+                      <span>${Seav.escapeHtml(item.type || item.model || "Tender")}</span>
+                    </div>
+                  </div>
+                `).join("")
+                : `<p>No linked tenders.</p>`
+            }
+          </section>
+
+          <section class="vessel-linked-clean-card reference-card">
+            <h3>References</h3>
+
+            ${
+              latestRefs.length
+                ? latestRefs.map((item) => `
+                  <div class="vessel-linked-row">
+                    <div>
+                      <strong>${Seav.escapeHtml(item.name || "—")}</strong>
+                      <span>${Seav.escapeHtml(item.title || "—")}</span>
+                    </div>
+                  </div>
+                `).join("")
+                : `<p>No linked references.</p>`
+            }
+          </section>
+
+        </div>
+      </article>
+    `;
+  }
+
+  /**
    * Build the shared read-only tender summary card used on the dashboard
    * "Tenders" snippet and the public profile tender section.
    */
@@ -437,6 +613,7 @@
 
   window.SeavCards = {
     buildVesselCard,
+    buildVesselCardFull,
     buildTenderCard,
     buildOnboardRow,
     buildSpecialistRow,

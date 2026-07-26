@@ -484,6 +484,20 @@ body.public-profile-page .overlay {
   display: none !important;
 }
 
+/* Every vessel on the public profile now uses the same wide "overview" card
+   (.vessel-profile-card, from css/pages/vessels.css) the dashboard reserves
+   for just the current vessel — so this is a simple vertical stack, not the
+   3-across .dash-mini-card-grid the smaller cards used. */
+.pp-vessel-full-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pp-vessel-full-list.public-cv-more-block:not([hidden]) {
+  margin-top: 16px;
+}
+
 /* =========================================================
    SEA SERVICE
 ========================================================= */

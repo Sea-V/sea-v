@@ -262,7 +262,7 @@
 
         renderHeaderProfile(profile, vessels, metrics);
         sections.renderSeatime(seatimes, vessels);
-        sections.renderVessels(vessels, onboardEntries, seatimes);
+        sections.renderVessels(vessels, seatimes, tenders, refs);
         sections.renderTenders(tenders, vessels);
         await sections.renderNavigation(navigationAreas, vessels, navigationDistanceMap);
         sections.renderOnboardExperience(onboardEntries, vessels);
