@@ -7,15 +7,14 @@
   background: transparent;
 }
 
-/* Career overview now lives inside .dashboard-profile-heading (next to the
-   photo) instead of below the whole profile-top row — see public-profile.html.
-   .dashboard-profile-bio's default margin-top:14px/width:100% (dashboard.css)
-   assumes the full-width-below-the-row position, so override both here:
-   .dashboard-profile-heading is already a flex column with its own 10px gap,
-   and this box is now the same width as the fields grid above it. */
+/* Career overview is a grid item of .dashboard-profile-top itself (not
+   nested inside .dashboard-profile-heading — see public-profile.html), so it
+   spans the FULL row width under both the photo and the fields column.
+   Being the 3rd item in that 2-column grid, it auto-flows into the row
+   right below the photo/fields row — same vertical position as before,
+   just full width instead of confined to the heading column. */
 body.public-profile-page #ppCareerOverview.dashboard-profile-bio {
-  margin-top: 0;
-  width: auto;
+  grid-column: 1 / -1;
 }
 
 /* Public profile shows 8 info boxes (no Email/Phone, unlike Dashboard's 10)
