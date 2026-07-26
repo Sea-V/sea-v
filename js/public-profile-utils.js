@@ -320,6 +320,42 @@
     return [...groups.values()].sort((a, b) => b.totals.total - a.totals.total);
   }
 
+  // Mirrors js/tenders.js's buildTenderVesselGroups (the collapsible
+  // per-vessel grouping on the Tenders page) so the public profile can show
+  // the same grouping — takes a vessels array directly rather than reading
+  // page-local state, since the public profile has no getVessels() of its
+  // own. Tenders with no vesselId land in a "Standalone / Chase" bucket,
+  // sorted last since it isn't a real vessel; real vessel groups follow the
+  // same recency order as everywhere else (getSortedVesselOptions).
+  function groupTendersByVessel(tenders, vessels) {
+    const vesselMap = new Map((vessels || []).map((v) => [v.id, v]));
+    const groups = new Map();
+
+    (tenders || []).forEach((tender) => {
+      const key = tender.vesselId || "";
+      if (!groups.has(key)) {
+        groups.set(key, {
+          vesselId: key,
+          vesselName: key ? (vesselMap.get(key)?.name || "Unknown Vessel") : "Standalone / Chase",
+          tenders: []
+        });
+      }
+      groups.get(key).tenders.push(tender);
+    });
+
+    const vesselOrder = (window.SeavData?.getSortedVesselOptions?.(vessels || []) || []).map((v) => v.id);
+
+    return [...groups.values()].sort((a, b) => {
+      if (!a.vesselId && !b.vesselId) return 0;
+      if (!a.vesselId) return 1;
+      if (!b.vesselId) return -1;
+
+      const ai = vesselOrder.indexOf(a.vesselId);
+      const bi = vesselOrder.indexOf(b.vesselId);
+      return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+    });
+  }
+
   function toNumber(value) {
     const num = Number(value);
     return Number.isFinite(num) ? num : 0;
@@ -746,7 +782,7 @@
     getPublicVesselName, getPublicVesselColor, buildPublicNavigationStats,
     getVesselRole, getVesselType, getVesselLength, getVesselExperience,
     isReferenceVerified, isTrustedVerificationStatus, getCertComplianceSummary,
-    groupSeatimeByVessel, toNumber, renderVerificationBadge,
+    groupSeatimeByVessel, groupTendersByVessel, toNumber, renderVerificationBadge,
     normalizeCode, parseMeters, formatExpiryShort, getComplianceClass,
     isMandatoryCert, isRecommendedCert, findCertByCode, findSavedCertByCode, getCertPublicStatus,
     buildCareerTagline, formatDates, truncate, setSectionCount, buildShowMoreButton,

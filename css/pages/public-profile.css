@@ -498,6 +498,19 @@ body.public-profile-page .overlay {
   margin-top: 16px;
 }
 
+/* Tenders grouped by vessel (.tender-vessel-group, from
+   css/pages/tenders.css) — same vertical stack as #tendersGrid on the
+   Tenders page itself, just under a class instead of that page's own id. */
+.tender-vessel-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tender-vessel-group-list.public-cv-more-block:not([hidden]) {
+  margin-top: 14px;
+}
+
 /* =========================================================
    SEA SERVICE
 ========================================================= */

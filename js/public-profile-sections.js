@@ -22,7 +22,7 @@
   const {
     LIMITS,
     truncate, setSectionCount, buildShowMoreButton,
-    groupSeatimeByVessel, formatNm, getPublicVesselColor, buildPublicNavigationStats,
+    groupSeatimeByVessel, groupTendersByVessel, formatNm, getPublicVesselColor, buildPublicNavigationStats,
     getNavigationEndpointMarkers, hasPlottableNavigationData,
     formatExpiryShort,
     renderVerificationBadge, isReferenceVerified
@@ -412,6 +412,30 @@
     });
   }
 
+  // Same collapsible per-vessel grouping as the Tenders page itself
+  // (js/tenders.js buildTenderVesselGroups + .tender-vessel-group markup) —
+  // reuses those exact CSS classes so it looks identical, just built from
+  // groupTendersByVessel (js/public-profile-utils.js) since this page has no
+  // getVessels()/getTenders() of its own to call the Tenders page's version.
+  function buildTenderVesselGroupHtml(group, vessels, { open = false } = {}) {
+    const tenderWord = group.tenders.length === 1 ? "tender" : "tenders";
+
+    return `
+      <details class="tender-vessel-group" data-pp-more-item${open ? " open" : ""}>
+        <summary class="tender-vessel-group-summary">
+          <span class="tender-vessel-group-title">
+            <strong>${Seav.escapeHtml(group.vesselName)}</strong>
+            <small>${group.tenders.length} ${tenderWord}</small>
+          </span>
+          <span class="tender-vessel-group-count">${group.tenders.length}</span>
+        </summary>
+        <div class="tender-vessel-group-body">
+          ${group.tenders.map((t) => buildTenderCard(t, vessels).replace(" data-pp-more-item", "")).join("")}
+        </div>
+      </details>
+    `;
+  }
+
   function renderTenders(tenders, vessels) {
     const tenderBox = document.getElementById("ppTenderSnippet");
     const section = document.getElementById("ppTenderSection");
@@ -423,33 +447,33 @@
       return;
     }
 
-    const sorted = [...tenders].sort((a, b) => {
-      const da = a.createdAt ? new Date(a.createdAt) : new Date(0);
-      const db = b.createdAt ? new Date(b.createdAt) : new Date(0);
-      return db - da;
-    });
+    const groups = groupTendersByVessel(tenders, vessels);
 
-    const visible = sorted.slice(0, LIMITS.tenders);
-    const hidden = sorted.slice(LIMITS.tenders);
+    // Paginate by vessel group (same unit as the Sea Time section's own
+    // groupSeatimeByVessel-based show-more just above), not by raw tender —
+    // splitting a single vessel's tenders across "visible" and "hidden"
+    // would be a confusing show-more experience.
+    const visible = groups.slice(0, LIMITS.tenders);
+    const hidden = groups.slice(LIMITS.tenders);
     const moreId = "ppTenderMore";
 
     tenderBox.innerHTML = `
-      <div class="dash-mini-card-grid">
+      <div class="tender-vessel-group-list">
         ${visible
-          .map((t) => buildTenderCard(t, vessels).replace(" data-pp-more-item", ""))
+          .map((g, i) => buildTenderVesselGroupHtml(g, vessels, { open: i === 0 }).replace(" data-pp-more-item", ""))
           .join("")}
       </div>
       ${
         hidden.length
-          ? `<div class="public-cv-more-block dash-mini-card-grid" id="${moreId}" hidden>
-              ${hidden.map((t) => buildTenderCard(t, vessels)).join("")}
+          ? `<div class="public-cv-more-block tender-vessel-group-list" id="${moreId}" hidden>
+              ${hidden.map((g) => buildTenderVesselGroupHtml(g, vessels)).join("")}
             </div>`
           : ""
       }
-      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "tenders") : ""}
+      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "vessels") : ""}
     `;
 
-    setSectionCount("ppTenderCount", sorted.length);
+    setSectionCount("ppTenderCount", tenders.length);
     section.hidden = false;
   }
 
