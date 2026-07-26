@@ -107,16 +107,20 @@
     clearNavEditForm();
     populateVesselOptions();
     populateSeatimeOptions();
-    // navFromCountry/navToCountry are now hidden inputs kept in sync by
-    // wireRouteSelects whenever the single visible port dropdown changes
-    // (see js/navigation-form.js) — there's no separate country control left
-    // for the user to change, so only the port "change" listeners are needed.
     wireRouteSelects(fromCountry, fromPort);
     wireRouteSelects(toCountry, toPort);
 
+    fromCountry.addEventListener("change", () => {
+      syncLocationFromPort("from");
+      renderWorkingRoute();
+    });
     fromPort.addEventListener("change", () => {
       syncLocationFromPort("from");
       updateEndpointFromPort("from");
+    });
+    toCountry.addEventListener("change", () => {
+      syncLocationFromPort("to");
+      renderWorkingRoute();
     });
     toPort.addEventListener("change", () => {
       syncLocationFromPort("to");

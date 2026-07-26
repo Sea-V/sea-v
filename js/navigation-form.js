@@ -17,68 +17,70 @@
   const buildRouteThroughAnchors = P.buildRouteThroughAnchors;
   const { formatDateRange } = M;
 
-  function portsForCountry(country) {
-    return getPortList()
-      .filter((item) => normalizeText(item.country) === normalizeText(country))
-      .sort((a, b) => a.port.localeCompare(b.port));
+  function buildCountryOptions(selectedValue = "") {
+    return getCountryList().map((country) => {
+      const selected = country === selectedValue ? " selected" : "";
+      return `<option value="${Seav.escapeHtml(country)}"${selected}>${Seav.escapeHtml(country)}</option>`;
+    }).join("");
   }
 
-  // Single dropdown, every country's ports grouped into <optgroup>s, so
-  // picking a port no longer needs a separate "choose country first" step —
-  // one tidy control instead of two side-by-side selects (there used to be
-  // a Country select cascading into a Port select; this replaces both).
-  // Each option's value is still just the plain port name, matching what
-  // findPort()/readEndpointDetails() have always expected, so nothing
-  // downstream of the form needed to change — only which country that
-  // value belongs to comes from the option's data-country attribute, read
-  // back in wireRouteSelects below.
-  function buildGroupedPortOptions(selectedCountry = "", selectedPort = "") {
-    const countries = getCountryList();
-    if (!countries.length) {
-      return `<option value="">Port list still loading…</option>`;
+  function buildPortOptions(country, selectedValue = "") {
+    if (!country) {
+      return `<option value="">Select country first</option>`;
     }
 
-    const groups = countries.map((country) => {
-      const ports = portsForCountry(country);
-      if (!ports.length) return "";
+    const ports = getPortList().filter(
+      (item) => normalizeText(item.country) === normalizeText(country)
+    ).sort((a, b) => a.port.localeCompare(b.port));
 
-      const options = ports
+    if (!ports.length) {
+      return `<option value="">No ports listed for this country</option>`;
+    }
+
+    return (
+      `<option value="">Select port / town</option>` +
+      ports
         .map((item) => {
-          const selected =
-            item.port === selectedPort && normalizeText(country) === normalizeText(selectedCountry)
-              ? " selected"
-              : "";
-          return `<option value="${Seav.escapeHtml(item.port)}" data-country="${Seav.escapeHtml(country)}"${selected}>${Seav.escapeHtml(item.port)}</option>`;
+          const selected = item.port === selectedValue ? " selected" : "";
+          return `<option value="${Seav.escapeHtml(item.port)}"${selected}>${Seav.escapeHtml(item.port)}</option>`;
         })
-        .join("");
-
-      return `<optgroup label="${Seav.escapeHtml(country)}">${options}</optgroup>`;
-    });
-
-    return `<option value="">Select port / town</option>` + groups.join("");
+        .join("")
+    );
   }
 
-  function populateCombinedPortSelect(portSelect, hiddenCountryInput, selectedCountry = "", selectedPort = "") {
+  function populateCountrySelect(selectEl, selectedValue = "") {
+    if (!selectEl) return;
+
+    const countries = getCountryList();
+    if (!countries.length) {
+      selectEl.innerHTML = `<option value="">Port list still loading…</option>`;
+      selectEl.disabled = true;
+      return;
+    }
+
+    selectEl.disabled = false;
+    selectEl.innerHTML =
+      `<option value="">Select country</option>` + buildCountryOptions(selectedValue);
+  }
+
+  function populatePortSelect(portSelect, country, selectedValue = "") {
     if (!portSelect) return;
 
-    portSelect.innerHTML = buildGroupedPortOptions(selectedCountry, selectedPort);
-    portSelect.disabled = false;
+    if (!country) {
+      portSelect.innerHTML = `<option value="">Select country first (optional)</option>`;
+      portSelect.disabled = true;
+      return;
+    }
 
-    // The dropdown only ever lands on a real match when the saved country
-    // and port line up with an actual option (see the "selected" check
-    // above) — but the hidden country field must reflect the saved value
-    // either way, so a legacy entry logged with a country but no matching
-    // port (or a port no longer in the list) doesn't silently lose its
-    // country on the next save.
-    if (hiddenCountryInput) hiddenCountryInput.value = selectedCountry || "";
+    portSelect.innerHTML = buildPortOptions(country, selectedValue);
+    portSelect.disabled = false;
   }
 
-  function wireRouteSelects(hiddenCountryInput, portSelect) {
-    if (!hiddenCountryInput || !portSelect) return;
+  function wireRouteSelects(countrySelect, portSelect) {
+    if (!countrySelect || !portSelect) return;
 
-    portSelect.addEventListener("change", () => {
-      const selectedOption = portSelect.selectedOptions?.[0] || null;
-      hiddenCountryInput.value = selectedOption?.dataset.country || "";
+    countrySelect.addEventListener("change", () => {
+      populatePortSelect(portSelect, countrySelect.value, "");
     });
   }
 
@@ -172,8 +174,10 @@
     const toCountry = document.getElementById("navToCountry");
     const toPort = document.getElementById("navToPort");
 
-    populateCombinedPortSelect(fromPort, fromCountry);
-    populateCombinedPortSelect(toPort, toCountry);
+    populateCountrySelect(fromCountry);
+    populateCountrySelect(toCountry);
+    populatePortSelect(fromPort, "");
+    populatePortSelect(toPort, "");
   }
 
   function setNavFormMode(editing) {
@@ -847,8 +851,10 @@
     if (editIdInput) editIdInput.value = normalized.id || "";
     if (passageNameInput) passageNameInput.value = normalized.passageName || "";
     populateSeatimeOptions(normalized.seatimeId || "");
-    populateCombinedPortSelect(fromPort, fromCountry, normalized.fromCountry, normalized.fromPort);
-    populateCombinedPortSelect(toPort, toCountry, normalized.toCountry, normalized.toPort);
+    populateCountrySelect(fromCountry, normalized.fromCountry);
+    populatePortSelect(fromPort, normalized.fromCountry, normalized.fromPort);
+    populateCountrySelect(toCountry, normalized.toCountry);
+    populatePortSelect(toPort, normalized.toCountry, normalized.toPort);
 
     const fromLocationInput = getEndpointLocationInput("from");
     const toLocationInput = getEndpointLocationInput("to");
@@ -894,7 +900,7 @@
 
 
   window.SeavNavigationForm = {
-    buildGroupedPortOptions, populateCombinedPortSelect,
+    buildCountryOptions, buildPortOptions, populateCountrySelect, populatePortSelect,
     wireRouteSelects, populateVesselOptions, buildSeatimeLabel,
     populateSeatimeOptions, applySeatimeLink, resetRouteForm, setNavFormMode,
     prefillFromSeatimeParam, getEndpointLocationInput, readEndpointDetails,

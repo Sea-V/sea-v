@@ -499,6 +499,15 @@
   overflow: hidden;
 }
 
+/* Body wrapper for the Port of departure / Port of arrival <details> panels —
+   gives the same left/right breathing room the waypoints panel gets from
+   per-element margins, but in one place since these panels hold several
+   different child element types (intro text, country+port grid, manual
+   override field, endpoint tools, add-waypoint row). */
+.navigation-route-panel-body {
+  padding: 0 16px 16px;
+}
+
 .navigation-waypoints-summary {
   display: flex;
   align-items: center;
