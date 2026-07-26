@@ -449,6 +449,17 @@
   line-height: 1.35;
 }
 
+/* Short explainer sitting between the route block's "Port of departure /
+   arrival" heading and the Country + Port dropdowns just below it, now that
+   those dropdowns are the primary way to set an endpoint (the free-text
+   field moved below them as an optional fallback for non-port locations). */
+.navigation-route-intro {
+  margin: 0 0 10px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .navigation-endpoint-tools .btn-ghost2 {
   padding: 8px 11px;
   font-size: 12px;

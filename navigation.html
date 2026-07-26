@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=243" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=243" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=243" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=243" />
+  <link rel="icon" href="/favicon.ico?v=244" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=244" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=244" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=244" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Navigation</title>
 
-  <link rel="stylesheet" href="styles.css?v=243" />
+  <link rel="stylesheet" href="styles.css?v=244" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -20,27 +20,27 @@
   />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=243"></script>
-  <script src="js/supabase.js?v=243"></script>
-  <script src="js/auth.js?v=243"></script>
-  <script src="js/feedback.js?v=243" defer></script>
-  <script src="js/core.js?v=243" defer></script>
+  <script src="js/seav-config.js?v=244"></script>
+  <script src="js/supabase.js?v=244"></script>
+  <script src="js/auth.js?v=244"></script>
+  <script src="js/feedback.js?v=244" defer></script>
+  <script src="js/core.js?v=244" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=243" defer></script>
-  <script src="js/seav-data.js?v=243" defer></script>
-  <script src="js/seav-badges.js?v=243" defer></script>
-  <script src="js/api-core.js?v=243" defer></script>
-  <script src="js/api-mappers.js?v=243" defer></script>
-  <script src="js/api.js?v=243" defer></script>
-  <script src="js/state.js?v=243" defer></script>
-  <script src="js/achievements-engine.js?v=243" defer></script>
-  <script src="js/badge-unlock.js?v=243" defer></script>
+  <script src="js/seav-upload.js?v=244" defer></script>
+  <script src="js/seav-data.js?v=244" defer></script>
+  <script src="js/seav-badges.js?v=244" defer></script>
+  <script src="js/api-core.js?v=244" defer></script>
+  <script src="js/api-mappers.js?v=244" defer></script>
+  <script src="js/api.js?v=244" defer></script>
+  <script src="js/state.js?v=244" defer></script>
+  <script src="js/achievements-engine.js?v=244" defer></script>
+  <script src="js/badge-unlock.js?v=244" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=243" defer></script>
-  <script src="js/navigation-helpers.js?v=243" defer></script>
-  <script src="js/navigation-passage.js?v=243" defer></script>
-  <script src="js/navigation-ports.js?v=243" defer></script>
-  <script src="js/navigation-routing.js?v=243" defer></script>
+  <script src="js/seav-share.js?v=244" defer></script>
+  <script src="js/navigation-helpers.js?v=244" defer></script>
+  <script src="js/navigation-passage.js?v=244" defer></script>
+  <script src="js/navigation-ports.js?v=244" defer></script>
+  <script src="js/navigation-routing.js?v=244" defer></script>
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -50,11 +50,11 @@
   <!-- Converts the world-atlas country boundaries (TopoJSON, compact) to
        GeoJSON for the "visited countries" highlight overlay on the chart. -->
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="js/navigation-state.js?v=243" defer></script>
-  <script src="js/navigation-map.js?v=243" defer></script>
-  <script src="js/navigation-form.js?v=243" defer></script>
-  <script src="js/navigation-list.js?v=243" defer></script>
-  <script src="js/navigation.js?v=243" defer></script>
+  <script src="js/navigation-state.js?v=244" defer></script>
+  <script src="js/navigation-map.js?v=244" defer></script>
+  <script src="js/navigation-form.js?v=244" defer></script>
+  <script src="js/navigation-list.js?v=244" defer></script>
+  <script src="js/navigation.js?v=244" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -201,31 +201,35 @@
 
             <div class="navigation-route-block">
               <p class="navigation-route-label">Port of departure</p>
-              <label>
-                Departure location
-                <input
-                  id="navFromLocation"
-                  type="text"
-                  placeholder="Type port, position, or RTZ waypoint name"
-                  autocomplete="off"
-                />
-              </label>
+              <p class="navigation-route-intro">
+                Select the country and port below if it's a known port — it fills in the
+                departure location for you and plots the exact position on your chart.
+                Setting just the country (no port) still counts toward your visited countries.
+              </p>
               <div class="modal-grid2">
                 <label>
-                  Country <span class="navigation-field-optional">(optional)</span>
+                  Country
                   <select id="navFromCountry">
                     <option value="">Select country</option>
                   </select>
-                  <span class="navigation-field-hint">You can set country without choosing a port from the list.</span>
                 </label>
 
                 <label>
-                  Port / town from list <span class="navigation-field-optional">(optional)</span>
+                  Port / town
                   <select id="navFromPort" disabled>
-                    <option value="">Select country first (optional)</option>
+                    <option value="">Select country first</option>
                   </select>
                 </label>
               </div>
+              <label>
+                Not listed? Type it manually <span class="navigation-field-optional">(optional)</span>
+                <input
+                  id="navFromLocation"
+                  type="text"
+                  placeholder="Open-ocean position, RTZ waypoint, or a port not in the list"
+                  autocomplete="off"
+                />
+              </label>
               <div class="navigation-endpoint-tools">
                 <span id="navFromPointStatus">Green start (S) — set from list, import, or pick on chart.</span>
                 <div class="navigation-endpoint-tools-actions">
@@ -237,31 +241,35 @@
 
             <div class="navigation-route-block">
               <p class="navigation-route-label">Port of arrival</p>
-              <label>
-                Arrival location
-                <input
-                  id="navToLocation"
-                  type="text"
-                  placeholder="Type port, position, or RTZ waypoint name"
-                  autocomplete="off"
-                />
-              </label>
+              <p class="navigation-route-intro">
+                Select the country and port below if it's a known port — it fills in the
+                arrival location for you and plots the exact position on your chart.
+                Setting just the country (no port) still counts toward your visited countries.
+              </p>
               <div class="modal-grid2">
                 <label>
-                  Country <span class="navigation-field-optional">(optional)</span>
+                  Country
                   <select id="navToCountry">
                     <option value="">Select country</option>
                   </select>
-                  <span class="navigation-field-hint">You can set country without choosing a port from the list.</span>
                 </label>
 
                 <label>
-                  Port / town from list <span class="navigation-field-optional">(optional)</span>
+                  Port / town
                   <select id="navToPort" disabled>
-                    <option value="">Select country first (optional)</option>
+                    <option value="">Select country first</option>
                   </select>
                 </label>
               </div>
+              <label>
+                Not listed? Type it manually <span class="navigation-field-optional">(optional)</span>
+                <input
+                  id="navToLocation"
+                  type="text"
+                  placeholder="Open-ocean position, RTZ waypoint, or a port not in the list"
+                  autocomplete="off"
+                />
+              </label>
               <div class="navigation-endpoint-tools">
                 <span id="navToPointStatus">Red finish (F) — set from list, import, or pick on chart.</span>
                 <div class="navigation-endpoint-tools-actions">
