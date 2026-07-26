@@ -12,24 +12,27 @@
   top: 0;
   left: 0;
   z-index: 0;
-  width: 200%;
+  width: 100%;
   height: 100%;
   background-color: #0b1c2e;
   background-image:
     linear-gradient(180deg, rgba(8, 18, 35, 0.2) 0%, rgba(11, 28, 46, 0.85) 100%),
     url("/img/ocean.png");
-  /* The ocean.png layer must be sized at exactly 50% of this element's own
-     width (which is itself 200% of the viewport) so repeat-x lays down
-     exactly two tiles across it — matching the waveMove keyframes below,
-     which translate by exactly -50%. That makes tile #2's end line up
-     pixel-for-pixel with tile #1's start, so the loop reset is seamless.
-     It was "cover" before, which stretches the image into one non-repeating
-     copy spanning the full 200% box — repeat-x never gets a chance to
-     actually tile, so the hard cut between the image's unrelated left and
-     right edges was exactly the visible glitch on every 60s reset. */
-  background-size: cover, 50% 100%;
-  background-repeat: no-repeat, repeat-x;
-  animation: waveMove 60s linear infinite;
+  /* This used to be a 200%-wide element scrolling via translateX, repeating
+     ocean.png with itself via repeat-x so it could loop forever. That only
+     works if the image tiles seamlessly with its own opposite edge — it
+     doesn't (ocean.png is a photo: bright wave crest on the left, dark
+     corner on the right), so the tile boundary was a hard, visible seam
+     that swept across the screen once every 60s loop — the "flickering"
+     every 60 seconds. No repeat-x/translateX combination can fix a seam
+     that's baked into the source image, so this now uses a single
+     non-repeating cover image with a slow scale+pan "Ken Burns" drift
+     instead — nothing ever repeats, so there is no seam to show. */
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  transform-origin: center center;
+  animation: oceanDrift 60s ease-in-out infinite alternate;
 }
 
 :is(body.index-page, body.landing-page, body.legal-page, body.public-profile-page) .overlay {
@@ -43,12 +46,12 @@
   pointer-events: none;
 }
 
-@keyframes waveMove {
+@keyframes oceanDrift {
   from {
-    transform: translateX(0);
+    transform: scale(1) translateX(0);
   }
 
   to {
-    transform: translateX(-50%);
+    transform: scale(1.06) translateX(-1.5%);
   }
 }

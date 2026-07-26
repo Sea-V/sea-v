@@ -246,7 +246,7 @@ body.app-page::before {
   left: 0;
   z-index: -2;
 
-  width: 200%;
+  width: 100%;
   height: 100%;
   min-height: 100vh;
 
@@ -256,20 +256,23 @@ body.app-page::before {
   background-image:
     linear-gradient(180deg, rgba(8, 18, 35, 0.2) 0%, rgba(11, 28, 46, 0.85) 100%),
     url("../../img/ocean.png");
-  /* See css/components/ocean-background.css for why this must be 50% (not
-     cover): it makes repeat-x lay down exactly two tiles across this
-     200%-wide element, matching appWaveMove's -50% translate below for a
-     seamless loop reset instead of a hard jump every 60s. */
-  background-size: cover, 50% 100%;
+  /* See css/components/ocean-background.css for the full story: img/ocean.png
+     is a photo, not a seamless tileable texture, so repeat-x scrolling always
+     showed a hard seam sweeping across the screen once per 60s loop — the
+     "flickering every 60 seconds". Switched to a single non-repeating cover
+     image with a slow scale+pan drift instead, so nothing ever repeats and
+     there's no seam left to show. */
+  background-size: cover, cover;
   background-position: center, center;
-  background-repeat: no-repeat, repeat-x;
+  background-repeat: no-repeat, no-repeat;
+  transform-origin: center center;
 
   filter:
     blur(1px)
     saturate(1.2);
 
   opacity: 0.95;
-  animation: appWaveMove 60s linear infinite;
+  animation: appOceanDrift 60s ease-in-out infinite alternate;
 }
 
 body.app-page::after {
@@ -288,13 +291,13 @@ body.app-page::after {
     rgba(8, 18, 35, 0.32);
 }
 
-@keyframes appWaveMove {
+@keyframes appOceanDrift {
   from {
-    transform: translateX(0);
+    transform: scale(1) translateX(0);
   }
 
   to {
-    transform: translateX(-50%);
+    transform: scale(1.06) translateX(-1.5%);
   }
 }
 
