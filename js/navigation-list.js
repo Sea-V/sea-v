@@ -146,12 +146,12 @@
     const groups = buildVesselGroups(sorted, distanceMap);
 
     list.innerHTML = groups
-      .map((group, index) => {
+      .map((group) => {
         const passageWord = group.entries.length === 1 ? "passage" : "passages";
         const totalNmText = group.totalNm ? formatNm(group.totalNm) : "";
 
         return `
-          <details class="navigation-vessel-group"${index === 0 ? " open" : ""}>
+          <details class="navigation-vessel-group">
             <summary class="navigation-vessel-group-summary">
               <span class="navigation-log-color" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>
               <span class="navigation-vessel-group-title">
