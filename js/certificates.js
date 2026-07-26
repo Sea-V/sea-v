@@ -527,6 +527,9 @@
     document.getElementById("ct_type_wrap").hidden = false;
     document.getElementById("ct_name_wrap").hidden = true;
 
+    const typeEl = document.getElementById("ct_type");
+    if (typeEl) typeEl.required = true;
+
     const nameEl = document.getElementById("ct_name");
     if (nameEl) nameEl.disabled = false;
 
@@ -544,6 +547,19 @@
     document.getElementById("certModalTitle").textContent = "Edit certificate";
     document.getElementById("ct_type_wrap").hidden = true;
     document.getElementById("ct_name_wrap").hidden = false;
+
+    // ct_type is hidden while editing (name/type can't change post-creation),
+    // but it's still `required` in the static HTML. Populate it with a real
+    // selected option and drop `required` explicitly rather than relying on
+    // the hidden wrapper alone to exempt it from native form validation —
+    // an empty required <select> here was silently blocking the browser's
+    // native "submit" event from ever firing (no console error, no network
+    // request), which made every edit-and-save on an existing certificate
+    // look like a no-op. Add-new never hit this because fillTypeSelect() is
+    // called there and the field is genuinely visible + filled in.
+    fillTypeSelect(cert.code || "");
+    const typeEl = document.getElementById("ct_type");
+    if (typeEl) typeEl.required = false;
 
     const nameEl = document.getElementById("ct_name");
     if (nameEl) {
