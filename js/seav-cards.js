@@ -165,9 +165,13 @@
     const latestTenders = tenders.slice(0, 3);
     const latestRefs = refs.slice(0, 3);
 
+    // Public profile has no SEA document column (unlike the Vessels page
+    // version of this row), so the shared 1fr/210px grid from vessels.css
+    // would leave a 210px gap on the right — "--solo" makes the experience
+    // card fill the whole row instead of only the first column.
     const experienceHtml = experience
       ? `
-        <div class="vessel-experience-row">
+        <div class="vessel-experience-row vessel-experience-row--solo">
           <section class="vessel-experience-card">
             <span class="vessel-panel-label">Experience onboard</span>
             <p class="vessel-experience-text">${Seav.escapeHtml(experience)}</p>

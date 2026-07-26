@@ -512,6 +512,13 @@
   margin-top: 14px;
 }
 
+/* Public profile's version of this row has no second (SEA document) column —
+   let the experience card use the full row instead of just the first
+   210px-short column. */
+.vessel-experience-row--solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .vessel-experience-card {
   min-height: 112px;
   padding: 14px 16px;
