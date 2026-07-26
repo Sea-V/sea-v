@@ -316,6 +316,19 @@
               <div class="cert-compact-detail-label">Type</div>
               <div class="cert-compact-detail-value">${Seav.escapeHtml(categoryLabel)}</div>
             </div>
+            ${
+              cert.issuingAuthority || cert.trainingProvider
+                ? `
+            <div class="cert-compact-detail-panel">
+              <div class="cert-compact-detail-label">Issuer &amp; training provider</div>
+              <div class="cert-compact-detail-value">
+                ${cert.issuingAuthority ? Seav.escapeHtml(cert.issuingAuthority) : "—"}<br>
+                ${cert.trainingProvider ? Seav.escapeHtml(cert.trainingProvider) : ""}
+              </div>
+            </div>
+            `
+                : ""
+            }
             <div class="cert-compact-detail-panel">
               <div class="cert-compact-detail-label">Attachment</div>
               <div class="cert-compact-detail-value">
@@ -410,6 +423,83 @@
     }
   }
 
+  // Issuing authority / training provider dropdowns — same "pick from a
+  // curated list, or type it yourself" shape as ct_type/ct_name above, just
+  // both optional (see js/seav-cert-issuers.js for the lists + why).
+  const CertIssuers = window.SeavCertIssuers || { OTHER: "Other", ISSUING_AUTHORITIES: [], TRAINING_PROVIDERS: [] };
+
+  function fillIssuerSelects(currentAuthority = "", currentProvider = "") {
+    const authoritySelect = document.getElementById("ct_authority");
+    const providerSelect = document.getElementById("ct_provider");
+
+    if (authoritySelect) {
+      const knownAuthority = CertIssuers.ISSUING_AUTHORITIES.includes(currentAuthority);
+      authoritySelect.innerHTML =
+        `<option value="">Not applicable / not listed</option>` +
+        CertIssuers.ISSUING_AUTHORITIES
+          .map((name) => `<option value="${Seav.escapeHtml(name)}"${name === currentAuthority ? " selected" : ""}>${Seav.escapeHtml(name)}</option>`)
+          .join("");
+      if (currentAuthority && !knownAuthority) {
+        authoritySelect.value = CertIssuers.OTHER;
+      }
+    }
+
+    if (providerSelect) {
+      const knownProvider = CertIssuers.TRAINING_PROVIDERS.includes(currentProvider);
+      providerSelect.innerHTML =
+        `<option value="">Not applicable / not listed</option>` +
+        CertIssuers.TRAINING_PROVIDERS
+          .map((name) => `<option value="${Seav.escapeHtml(name)}"${name === currentProvider ? " selected" : ""}>${Seav.escapeHtml(name)}</option>`)
+          .join("");
+      if (currentProvider && !knownProvider) {
+        providerSelect.value = CertIssuers.OTHER;
+      }
+    }
+
+    onAuthorityChange(currentAuthority);
+    onProviderChange(currentProvider);
+  }
+
+  function onAuthorityChange(presetOtherValue = "") {
+    const select = document.getElementById("ct_authority");
+    const otherWrap = document.getElementById("ct_authority_other_wrap");
+    const otherInput = document.getElementById("ct_authority_other");
+    const isOther = select?.value === CertIssuers.OTHER;
+
+    if (otherWrap) otherWrap.hidden = !isOther;
+    if (otherInput && isOther && presetOtherValue && presetOtherValue !== CertIssuers.OTHER) {
+      otherInput.value = presetOtherValue;
+    } else if (otherInput && !isOther) {
+      otherInput.value = "";
+    }
+  }
+
+  function onProviderChange(presetOtherValue = "") {
+    const select = document.getElementById("ct_provider");
+    const otherWrap = document.getElementById("ct_provider_other_wrap");
+    const otherInput = document.getElementById("ct_provider_other");
+    const isOther = select?.value === CertIssuers.OTHER;
+
+    if (otherWrap) otherWrap.hidden = !isOther;
+    if (otherInput && isOther && presetOtherValue && presetOtherValue !== CertIssuers.OTHER) {
+      otherInput.value = presetOtherValue;
+    } else if (otherInput && !isOther) {
+      otherInput.value = "";
+    }
+  }
+
+  function readIssuerFields() {
+    const authoritySelect = document.getElementById("ct_authority")?.value || "";
+    const providerSelect = document.getElementById("ct_provider")?.value || "";
+    const authorityOther = document.getElementById("ct_authority_other")?.value.trim() || "";
+    const providerOther = document.getElementById("ct_provider_other")?.value.trim() || "";
+
+    return {
+      issuingAuthority: authoritySelect === CertIssuers.OTHER ? authorityOther : authoritySelect,
+      trainingProvider: providerSelect === CertIssuers.OTHER ? providerOther : providerSelect
+    };
+  }
+
   function onTypeChange() {
     const code = document.getElementById("ct_type")?.value || "";
     const nameWrap = document.getElementById("ct_name_wrap");
@@ -444,6 +534,7 @@
     Seav.clearDateTriplet("ct_expiry");
     fillTypeSelect("");
     onTypeChange();
+    fillIssuerSelects("", "");
     renderCertAttachmentHint(null);
     window.SeavModals?.openModal?.("certModal");
   }
@@ -463,6 +554,7 @@
 
     Seav.setDateTriplet("ct_issued", cert.issued || "");
     Seav.setDateTriplet("ct_expiry", cert.expiry || "");
+    fillIssuerSelects(cert.issuingAuthority || "", cert.trainingProvider || "");
     document.getElementById("ct_file").value = "";
     renderCertAttachmentHint(cert.attachment || null);
     window.SeavModals?.openModal?.("certModal");
@@ -498,6 +590,8 @@
       code = name ? name.slice(0, 24).toUpperCase().replace(/\s+/g, "_") : CUSTOM;
     }
 
+    const { issuingAuthority, trainingProvider } = readIssuerFields();
+
     return {
       id: editId,
       code,
@@ -507,6 +601,8 @@
       noExpiry,
       isMandatory,
       isTemplate,
+      issuingAuthority,
+      trainingProvider,
       file: document.getElementById("ct_file")?.files?.[0] || null
     };
   }
@@ -562,6 +658,8 @@
     });
 
     document.getElementById("ct_type")?.addEventListener("change", onTypeChange);
+    document.getElementById("ct_authority")?.addEventListener("change", () => onAuthorityChange());
+    document.getElementById("ct_provider")?.addEventListener("change", () => onProviderChange());
 
     const ctFileInput = document.getElementById("ct_file");
     const ctFileBtn = document.getElementById("ctFileBtn");
@@ -628,7 +726,9 @@
           attachment: attachment || existing?.attachment || null,
           noExpiry: data.noExpiry,
           isMandatory: data.isMandatory,
-          isTemplate: data.isTemplate
+          isTemplate: data.isTemplate,
+          issuingAuthority: data.issuingAuthority,
+          trainingProvider: data.trainingProvider
         });
 
         window.SeavModals?.closeAllModals?.();
