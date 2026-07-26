@@ -478,10 +478,12 @@
     }
   }
 
-// dob intentionally excluded — anon no longer has SELECT on profile.dob
-// (exact date of birth is an identity-theft risk and was never shown on
-// the public profile UI). Requesting it here would make PostgREST reject
-// the whole query for anon callers, not just omit the column.
+// dob/passports_held/visas_held re-added 2026-07-26 at Jack's explicit
+// request (standard fields on a maritime crew CV) — anon's column grant was
+// updated to match, see docs/schema-public-profile-add-dob-passports-visas.sql.
+// Any column listed here that anon doesn't have SELECT on makes PostgREST
+// reject the whole query for anon callers, not just omit the column, so
+// this list must always match that grant exactly.
 const PUBLIC_PROFILE_COLUMNS = [
   "id",
   "user_id",
@@ -490,6 +492,9 @@ const PUBLIC_PROFILE_COLUMNS = [
   "rank",
   "qualification",
   "nationality",
+  "dob",
+  "passports_held",
+  "visas_held",
   "location",
   "availability",
   "bio",

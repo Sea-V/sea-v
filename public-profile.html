@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=251" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=251" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=251" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=251" />
+  <link rel="icon" href="/favicon.ico?v=252" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=252" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=252" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=252" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Public Profile</title>
@@ -20,7 +20,7 @@
     knows to keep the leading slash on this file — don't "simplify" these
     back to relative.
   -->
-  <link rel="stylesheet" href="/styles.css?v=251" />
+  <link rel="stylesheet" href="/styles.css?v=252" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -32,28 +32,28 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
-  <script src="/js/feedback.js?v=251" defer></script>
-  <script src="/js/core.js?v=251" defer></script>
+  <script src="/js/feedback.js?v=252" defer></script>
+  <script src="/js/core.js?v=252" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="/js/seav-upload.js?v=251" defer></script>
-  <script src="/js/seav-data.js?v=251" defer></script>
-  <script src="/js/seav-badges.js?v=251" defer></script>
+  <script src="/js/seav-upload.js?v=252" defer></script>
+  <script src="/js/seav-data.js?v=252" defer></script>
+  <script src="/js/seav-badges.js?v=252" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/seav-config.js?v=251"></script>
-  <script src="/js/supabase.js?v=251" defer></script>
-  <script src="/js/auth.js?v=251"></script>
-  <script src="/js/api-core.js?v=251" defer></script>
-  <script src="/js/api-mappers.js?v=251" defer></script>
-  <script src="/js/api.js?v=251" defer></script>
+  <script src="/js/seav-config.js?v=252"></script>
+  <script src="/js/supabase.js?v=252" defer></script>
+  <script src="/js/auth.js?v=252"></script>
+  <script src="/js/api-core.js?v=252" defer></script>
+  <script src="/js/api-mappers.js?v=252" defer></script>
+  <script src="/js/api.js?v=252" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="/js/navigation-ports.js?v=251" defer></script>
-  <script src="/js/navigation-helpers.js?v=251" defer></script>
-  <script src="/js/navigation-passage.js?v=251" defer></script>
-  <script src="/js/navigation-routing.js?v=251" defer></script>
-  <script src="/js/public-profile-utils.js?v=251" defer></script>
-  <script src="/js/seav-cards.js?v=251" defer></script>
-  <script src="/js/public-profile-sections.js?v=251" defer></script>
-  <script src="/js/public-profile.js?v=251" defer></script>
+  <script src="/js/navigation-ports.js?v=252" defer></script>
+  <script src="/js/navigation-helpers.js?v=252" defer></script>
+  <script src="/js/navigation-passage.js?v=252" defer></script>
+  <script src="/js/navigation-routing.js?v=252" defer></script>
+  <script src="/js/public-profile-utils.js?v=252" defer></script>
+  <script src="/js/seav-cards.js?v=252" defer></script>
+  <script src="/js/public-profile-sections.js?v=252" defer></script>
+  <script src="/js/public-profile.js?v=252" defer></script>
 </head>
 
 <body class="public-page public-profile-page">
@@ -148,15 +148,35 @@
                           <span class="dashboard-info-value" id="ppProfileNationality">—</span>
                         </div>
                         <div class="dashboard-info-box">
+                          <span class="dashboard-info-label">Date of birth</span>
+                          <span class="dashboard-info-value" id="ppProfileDob">—</span>
+                        </div>
+                        <div class="dashboard-info-box">
                           <span class="dashboard-info-label">Location</span>
                           <span class="dashboard-info-value" id="ppProfileLocation">—</span>
                         </div>
+                        <div class="dashboard-info-box">
+                          <span class="dashboard-info-label">Passports held</span>
+                          <span class="dashboard-info-value" id="ppProfilePassports">—</span>
+                        </div>
+                        <div class="dashboard-info-box">
+                          <span class="dashboard-info-label">Visas held</span>
+                          <span class="dashboard-info-value" id="ppProfileVisas">—</span>
+                        </div>
+                      </div>
+                      <!-- Moved up from below the whole profile-top row: with the
+                           avatar fixed at 200px tall and only a handful of info
+                           boxes, this column was often shorter than the photo,
+                           leaving a visible gap before Career overview started
+                           underneath everything. Nesting it here fills that gap
+                           right next to the photo instead (public profile only —
+                           see .dashboard-profile-bio overrides in
+                           css/pages/public-profile.css). -->
+                      <div class="dashboard-bio-under dashboard-profile-bio" id="ppCareerOverview" hidden>
+                        <span class="dashboard-info-label">Career overview</span>
+                        <p class="dashboard-summary-text" id="pp_bio"></p>
                       </div>
                     </div>
-                  </div>
-                  <div class="dashboard-bio-under dashboard-profile-bio" id="ppCareerOverview" hidden>
-                    <span class="dashboard-info-label">Career overview</span>
-                    <p class="dashboard-summary-text" id="pp_bio"></p>
                   </div>
                 </div>
               </article>

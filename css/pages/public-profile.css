@@ -7,6 +7,24 @@
   background: transparent;
 }
 
+/* Career overview now lives inside .dashboard-profile-heading (next to the
+   photo) instead of below the whole profile-top row — see public-profile.html.
+   .dashboard-profile-bio's default margin-top:14px/width:100% (dashboard.css)
+   assumes the full-width-below-the-row position, so override both here:
+   .dashboard-profile-heading is already a flex column with its own 10px gap,
+   and this box is now the same width as the fields grid above it. */
+body.public-profile-page #ppCareerOverview.dashboard-profile-bio {
+  margin-top: 0;
+  width: auto;
+}
+
+/* Public profile shows 8 info boxes (no Email/Phone, unlike Dashboard's 10)
+   — exactly 2 full rows of 4, so the 3rd row dashboard.css reserves for the
+   Dashboard version would just be empty vertical space here. */
+body.public-profile-page .dashboard-profile-fields {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
 /* Hide the default browser scrollbar on this page — html has overflow-y:
    scroll globally (core/reset.css) so the track always reserves space, and
    its unstyled light-grey default look stands out against the dark theme.
