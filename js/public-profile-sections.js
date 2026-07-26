@@ -1018,7 +1018,7 @@
           ? `
         <div class="achievement-vessel-group-list">
           ${visibleGroups
-            .map((g, i) => buildAchievementVesselGroupHtml(g, { open: i === 0 }).replace(" data-pp-more-item", ""))
+            .map((g) => buildAchievementVesselGroupHtml(g).replace(" data-pp-more-item", ""))
             .join("")}
         </div>
         ${
@@ -1036,20 +1036,28 @@
       ${
         auto.length
           ? `
-        <div class="achievement-auto-block">
-          <p class="achievement-auto-heading">Automatically tracked</p>
-          <div class="public-cv-highlight-list">
-            ${visibleAuto.map((item) => buildAchievementHighlightCard(item)).join("")}
+        <details class="achievement-vessel-group achievement-auto-block">
+          <summary class="achievement-vessel-group-summary">
+            <span class="achievement-vessel-group-title">
+              <strong>Automatically tracked</strong>
+              <small>System-detected career milestones</small>
+            </span>
+            <span class="achievement-vessel-group-count">${auto.length}</span>
+          </summary>
+          <div class="achievement-vessel-group-body">
+            <div class="public-cv-highlight-list">
+              ${visibleAuto.map((item) => buildAchievementHighlightCard(item)).join("")}
+            </div>
+            ${
+              hiddenAuto.length
+                ? `<div class="public-cv-more-block public-cv-highlight-list" id="${autoMoreId}" hidden>
+                    ${hiddenAuto.map((item) => buildAchievementHighlightCard(item, true)).join("")}
+                  </div>
+                  ${buildShowMoreButton(autoMoreId, hiddenAuto.length, "highlights")}`
+                : ""
+            }
           </div>
-          ${
-            hiddenAuto.length
-              ? `<div class="public-cv-more-block public-cv-highlight-list" id="${autoMoreId}" hidden>
-                  ${hiddenAuto.map((item) => buildAchievementHighlightCard(item, true)).join("")}
-                </div>
-                ${buildShowMoreButton(autoMoreId, hiddenAuto.length, "highlights")}`
-              : ""
-          }
-        </div>
+        </details>
       `
           : ""
       }
