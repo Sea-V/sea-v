@@ -827,6 +827,112 @@ body.public-profile-page .overlay {
 }
 
 /* =========================================================
+   MILESTONES — grouped by vessel (manual entries) + a separate
+   flat list for auto-awarded/career-wide badges. Group shell reuses the
+   same look as .tender-vessel-group (css/pages/tenders.css) so it's
+   visually consistent with the other collapsible groupings on this page.
+========================================================= */
+
+.achievement-vessel-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.achievement-vessel-group-list.public-cv-more-block:not([hidden]) {
+  margin-top: 14px;
+}
+
+.achievement-vessel-group {
+  border-radius: 14px;
+  border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.achievement-vessel-group-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  padding: 14px 16px;
+}
+
+.achievement-vessel-group-summary::-webkit-details-marker {
+  display: none;
+}
+
+.achievement-vessel-group-summary::before {
+  content: "›";
+  display: inline-block;
+  font-size: 16px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.6);
+  transition: transform 0.15s ease;
+}
+
+.achievement-vessel-group[open] .achievement-vessel-group-summary::before {
+  transform: rotate(90deg);
+}
+
+.achievement-vessel-group-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.achievement-vessel-group-title strong {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.achievement-vessel-group-title small {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.achievement-vessel-group-count {
+  margin-left: auto;
+  min-width: 22px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(76, 255, 184, 0.16);
+  color: #4cffb8;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.achievement-vessel-group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+
+.achievement-auto-block {
+  margin-top: 16px;
+}
+
+.achievement-auto-heading {
+  margin: 0 0 8px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* =========================================================
    VESSEL TABLE (legacy fallback)
 ========================================================= */
 

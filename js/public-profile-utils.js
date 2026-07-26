@@ -25,6 +25,7 @@
     references: 3,
     specialist: 5,
     achievements: 8,
+    achievementVesselGroups: 6,
     additionalCerts: 8,
     certificates: 6
   };
@@ -341,6 +342,41 @@
         });
       }
       groups.get(key).tenders.push(tender);
+    });
+
+    const vesselOrder = (window.SeavData?.getSortedVesselOptions?.(vessels || []) || []).map((v) => v.id);
+
+    return [...groups.values()].sort((a, b) => {
+      if (!a.vesselId && !b.vesselId) return 0;
+      if (!a.vesselId) return 1;
+      if (!b.vesselId) return -1;
+
+      const ai = vesselOrder.indexOf(a.vesselId);
+      const bi = vesselOrder.indexOf(b.vesselId);
+      return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+    });
+  }
+
+  // Mirrors groupTendersByVessel — used only for manually-logged milestones
+  // (achievements.js requires a vessel on every manual entry, so this should
+  // rarely hit the fallback bucket, but legacy rows without one still need
+  // somewhere to land). Auto-awarded milestones are shown separately in
+  // their own section on the public profile, not grouped here — see
+  // renderAchievements in public-profile-sections.js.
+  function groupAchievementsByVessel(achievements, vessels) {
+    const vesselMap = new Map((vessels || []).map((v) => [v.id, v]));
+    const groups = new Map();
+
+    (achievements || []).forEach((item) => {
+      const key = item.vesselId || "";
+      if (!groups.has(key)) {
+        groups.set(key, {
+          vesselId: key,
+          vesselName: key ? (vesselMap.get(key)?.name || item.vessel || "Unknown Vessel") : "Unlinked milestone",
+          items: []
+        });
+      }
+      groups.get(key).items.push(item);
     });
 
     const vesselOrder = (window.SeavData?.getSortedVesselOptions?.(vessels || []) || []).map((v) => v.id);
@@ -782,7 +818,7 @@
     getPublicVesselName, getPublicVesselColor, buildPublicNavigationStats,
     getVesselRole, getVesselType, getVesselLength, getVesselExperience,
     isReferenceVerified, isTrustedVerificationStatus, getCertComplianceSummary,
-    groupSeatimeByVessel, groupTendersByVessel, toNumber, renderVerificationBadge,
+    groupSeatimeByVessel, groupTendersByVessel, groupAchievementsByVessel, toNumber, renderVerificationBadge,
     normalizeCode, parseMeters, formatExpiryShort, getComplianceClass,
     isMandatoryCert, isRecommendedCert, findCertByCode, findSavedCertByCode, getCertPublicStatus,
     buildCareerTagline, formatDates, truncate, setSectionCount, buildShowMoreButton,

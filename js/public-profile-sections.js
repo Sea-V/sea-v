@@ -22,7 +22,7 @@
   const {
     LIMITS,
     truncate, setSectionCount, buildShowMoreButton,
-    groupSeatimeByVessel, groupTendersByVessel, formatNm, getPublicVesselColor, buildPublicNavigationStats,
+    groupSeatimeByVessel, groupTendersByVessel, groupAchievementsByVessel, formatNm, getPublicVesselColor, buildPublicNavigationStats,
     getNavigationEndpointMarkers, hasPlottableNavigationData,
     formatExpiryShort,
     renderVerificationBadge, isReferenceVerified
@@ -928,7 +928,55 @@
     section.hidden = false;
   }
 
-  function renderAchievements(achievements) {
+  // Shared badge/title card markup for a single milestone. `hideVesselMeta`
+  // is used inside a per-vessel group (see buildAchievementVesselGroupHtml)
+  // where repeating the vessel name on every card would just restate the
+  // group heading — description (or a generic fallback) is shown instead.
+  function buildAchievementHighlightCard(item, isMoreItem = false, hideVesselMeta = false) {
+    const vessel = !hideVesselMeta && item.vessel ? item.vessel : "";
+    const title = item.title || "Milestone";
+    const meta =
+      vessel ||
+      (item.description ? truncate(item.description, 70) : hideVesselMeta ? "Logged milestone" : "Career-wide milestone");
+    const imagePath = window.SeavBadges?.resolveItemBadgeImage?.(item) || "";
+    const initial = Seav.escapeHtml((title || "M").trim().charAt(0).toUpperCase() || "M");
+    const badgeInner = imagePath
+      ? `<img src="${Seav.escapeHtml(imagePath)}" alt="" loading="lazy" />`
+      : `<span class="public-cv-highlight-badge-fallback">${initial}</span>`;
+
+    return `
+      <article class="public-cv-highlight-card"${isMoreItem ? " data-pp-more-item" : ""}>
+        <span class="public-cv-highlight-badge">${badgeInner}</span>
+        <div class="public-cv-highlight-body">
+          <p class="public-cv-highlight-title">${Seav.escapeHtml(title)}</p>
+          <p class="public-cv-highlight-desc">${Seav.escapeHtml(meta)}</p>
+        </div>
+      </article>
+    `;
+  }
+
+  // Same collapsible per-vessel grouping as Tenders/Sea Time — only used for
+  // manually-logged milestones, which always carry a vessel.
+  function buildAchievementVesselGroupHtml(group, { open = false } = {}) {
+    const word = group.items.length === 1 ? "milestone" : "milestones";
+
+    return `
+      <details class="achievement-vessel-group" data-pp-more-item${open ? " open" : ""}>
+        <summary class="achievement-vessel-group-summary">
+          <span class="achievement-vessel-group-title">
+            <strong>${Seav.escapeHtml(group.vesselName)}</strong>
+            <small>${group.items.length} ${word}</small>
+          </span>
+          <span class="achievement-vessel-group-count">${group.items.length}</span>
+        </summary>
+        <div class="achievement-vessel-group-body">
+          ${group.items.map((item) => buildAchievementHighlightCard(item, false, true)).join("")}
+        </div>
+      </details>
+    `;
+  }
+
+  function renderAchievements(achievements, vessels) {
     const box = document.getElementById("ppAchievementSnippet");
     const section = document.getElementById("ppAchievementSection");
     if (!box || !section) return;
@@ -941,32 +989,22 @@
       return;
     }
 
-    const visible = approved.slice(0, LIMITS.achievements);
-    const hidden = approved.slice(LIMITS.achievements);
-    const moreId = "ppAchievementMore";
+    // Manually-logged milestones always carry a vessel (achievements.js
+    // requires one on every manual entry, even "career-wide" ones), so they
+    // group naturally by vessel like Tenders/Sea Time. Auto-awarded
+    // milestones are system-detected career totals/badges and read better
+    // as their own flat list, not folded into a specific vessel's group.
+    const manual = approved.filter((item) => !item.autoAwarded);
+    const auto = approved.filter((item) => item.autoAwarded);
 
-    const buildHighlightCard = (item, isMoreItem = false) => {
-      const vessel = item.vessel ? item.vessel : "";
-      const title = item.title || "Milestone";
-      const meta =
-        vessel ||
-        (item.description ? truncate(item.description, 70) : "Career-wide milestone");
-      const imagePath = window.SeavBadges?.resolveItemBadgeImage?.(item) || "";
-      const initial = Seav.escapeHtml((title || "M").trim().charAt(0).toUpperCase() || "M");
-      const badgeInner = imagePath
-        ? `<img src="${Seav.escapeHtml(imagePath)}" alt="" loading="lazy" />`
-        : `<span class="public-cv-highlight-badge-fallback">${initial}</span>`;
+    const groups = groupAchievementsByVessel(manual, vessels);
+    const visibleGroups = groups.slice(0, LIMITS.achievementVesselGroups);
+    const hiddenGroups = groups.slice(LIMITS.achievementVesselGroups);
+    const groupMoreId = "ppAchievementGroupMore";
 
-      return `
-        <article class="public-cv-highlight-card"${isMoreItem ? " data-pp-more-item" : ""}>
-          <span class="public-cv-highlight-badge">${badgeInner}</span>
-          <div class="public-cv-highlight-body">
-            <p class="public-cv-highlight-title">${Seav.escapeHtml(title)}</p>
-            <p class="public-cv-highlight-desc">${Seav.escapeHtml(meta)}</p>
-          </div>
-        </article>
-      `;
-    };
+    const visibleAuto = auto.slice(0, LIMITS.achievements);
+    const hiddenAuto = auto.slice(LIMITS.achievements);
+    const autoMoreId = "ppAchievementAutoMore";
 
     box.innerHTML = `
       <div class="dashboard-card-headline">
@@ -974,17 +1012,47 @@
         <span class="public-profile-section-count" id="ppAchievementCount" hidden></span>
       </div>
       <p class="public-profile-section-note">Career highlights logged in SEA-V.</p>
-      <div class="public-cv-highlight-list">
-        ${visible.map((item) => buildHighlightCard(item)).join("")}
-      </div>
+
       ${
-        hidden.length
-          ? `<div class="public-cv-more-block public-cv-highlight-list" id="${moreId}" hidden>
-              ${hidden.map((item) => buildHighlightCard(item, true)).join("")}
-            </div>`
+        groups.length
+          ? `
+        <div class="achievement-vessel-group-list">
+          ${visibleGroups
+            .map((g, i) => buildAchievementVesselGroupHtml(g, { open: i === 0 }).replace(" data-pp-more-item", ""))
+            .join("")}
+        </div>
+        ${
+          hiddenGroups.length
+            ? `<div class="public-cv-more-block achievement-vessel-group-list" id="${groupMoreId}" hidden>
+                ${hiddenGroups.map((g) => buildAchievementVesselGroupHtml(g)).join("")}
+              </div>
+              ${buildShowMoreButton(groupMoreId, hiddenGroups.length, "vessels")}`
+            : ""
+        }
+      `
           : ""
       }
-      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "highlights") : ""}
+
+      ${
+        auto.length
+          ? `
+        <div class="achievement-auto-block">
+          <p class="achievement-auto-heading">Automatically tracked</p>
+          <div class="public-cv-highlight-list">
+            ${visibleAuto.map((item) => buildAchievementHighlightCard(item)).join("")}
+          </div>
+          ${
+            hiddenAuto.length
+              ? `<div class="public-cv-more-block public-cv-highlight-list" id="${autoMoreId}" hidden>
+                  ${hiddenAuto.map((item) => buildAchievementHighlightCard(item, true)).join("")}
+                </div>
+                ${buildShowMoreButton(autoMoreId, hiddenAuto.length, "highlights")}`
+              : ""
+          }
+        </div>
+      `
+          : ""
+      }
     `;
 
     setSectionCount("ppAchievementCount", approved.length);

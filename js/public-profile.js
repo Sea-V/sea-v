@@ -270,7 +270,7 @@
         sections.renderSpecialistQualifications(specialistEntries);
         sections.renderCertificates(certs);
         sections.renderReferences(refs, vessels);
-        sections.renderAchievements(achievements);
+        sections.renderAchievements(achievements, vessels);
 
         bindExpandToggles(document.getElementById("ppContent"));
         renderSectionNav();
