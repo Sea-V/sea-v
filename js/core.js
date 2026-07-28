@@ -353,6 +353,29 @@ const app = {
           </a>
 
           <div class="nav-right">
+            <div class="notif-bell-wrap">
+              <button
+                type="button"
+                class="icon notif-bell-btn"
+                id="notifBellBtn"
+                aria-label="Notifications"
+                aria-haspopup="true"
+                aria-expanded="false"
+                title="Notifications"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3.5c-2.6 0-4.5 2-4.5 4.6v2.4c0 .7-.25 1.4-.7 2l-1.1 1.4c-.5.6-.05 1.6.75 1.6h11c.8 0 1.25-1 .75-1.6l-1.1-1.4c-.45-.6-.7-1.3-.7-2V8.1c0-2.6-1.9-4.6-4.5-4.6Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                  <path d="M10 18.5a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+                <span class="notif-bell-count" id="notifBellCount" hidden>0</span>
+              </button>
+
+              <div class="notif-bell-panel" id="notifBellPanel" hidden>
+                <div class="notif-bell-panel-head">Notifications</div>
+                <div class="notif-bell-panel-list" id="notifBellPanelList"></div>
+              </div>
+            </div>
+
             <a
               class="icon insta-link"
               href="https://instagram.com/seav_crew"
