@@ -122,14 +122,15 @@
 
     list.innerHTML = items.length
       ? items
-          .map(
-            (item) => `
-        <a class="notif-item notif-item--${Seav.escapeHtml(item.severity)}" href="${Seav.escapeHtml(item.link)}">
+          .map((item) => {
+            const pillClass = item.severity === "critical" ? "pill-expired" : "pill-warning";
+            return `
+        <a class="notif-item" href="${Seav.escapeHtml(item.link)}">
           <span class="notif-item-title">${Seav.escapeHtml(item.title)}</span>
-          <span class="notif-item-message">${Seav.escapeHtml(item.message)}</span>
+          <span class="pill ${pillClass}">${Seav.escapeHtml(item.message)}</span>
         </a>
-      `
-          )
+      `;
+          })
           .join("")
       : `<p class="notif-empty">No notifications right now.</p>`;
   }
