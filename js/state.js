@@ -354,6 +354,31 @@
       return this.data;
     },
 
+    // Pulls one state key fresh from Supabase, bypassing the cache, without
+    // touching the rest of the cached snapshot or forcing a full page
+    // reload. Meant for data that can change out-of-band from outside this
+    // browser tab entirely — e.g. reference verification status, which a
+    // referee completes from their own device with no way for an already-
+    // open tab to know. Silently keeps the existing (possibly stale) value
+    // on any failure rather than surfacing an error for a background check.
+    async refreshKey(key) {
+      let userId = window.SeavAuth?.getUserId?.() || null;
+      if (!userId) {
+        userId = await window.SeavAPI?.resolveAuthUserId?.() || null;
+      }
+      if (!userId) return this.data[key];
+
+      try {
+        const fresh = await fetchStateKey(key, userId);
+        this.patchData({ [key]: fresh });
+        document.dispatchEvent(new CustomEvent("seav:data-updated"));
+      } catch (err) {
+        console.warn(`[SEA-V] refreshKey(${key}) failed:`, err);
+      }
+
+      return this.data[key];
+    },
+
     updateCerts(certs) {
       this.data.certs = safeArray(certs);
       writeCachedData(this.data);

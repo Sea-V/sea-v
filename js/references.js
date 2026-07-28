@@ -655,6 +655,20 @@ function readReferenceForm() {
 
     Seav.bindStateRefresh(runRefresh, { label: "References refresh" });
 
+    // Reference verification status can change from outside this browser
+    // entirely — a referee completes or declines it on their own device,
+    // and this tab has no way to know until it asks again. The shared
+    // 5-minute state cache (js/state.js) can otherwise serve an already-
+    // stale snapshot on load, so pull a fresh copy of just the refs table
+    // in the background right away rather than waiting out the cache TTL.
+    // runRefresh above is already wired to re-render on "seav:data-updated",
+    // so this just corrects the cards in place once the fresh data lands.
+    if (window.SeavState?.refreshKey) {
+      window.SeavState.refreshKey("refs").catch((err) => {
+        console.warn("[SEA-V] Background refs refresh failed:", err);
+      });
+    }
+
     const rfFileInput = document.getElementById("rf_file");
     const rfFileBtn = document.getElementById("rfFileBtn");
     if (rfFileBtn && rfFileInput) {
@@ -845,7 +859,24 @@ function readReferenceForm() {
           errorTitle: "Verification failed"
         });
 
-        if (!sendResult) return;
+        if (!sendResult) {
+          // A failure here (e.g. "Reference is already verified") usually
+          // means the card is showing an out-of-date status — the referee
+          // completed or declined it from their own device since this tab
+          // last loaded, which this tab has no way to know about until it
+          // asks again. Refresh so the card corrects itself instead of
+          // staying stuck on stale "Sent for Verification" state forever.
+          try {
+            if (window.Seav.app?.refreshAll) {
+              await window.Seav.app.refreshAll();
+            } else {
+              await renderRefs();
+            }
+          } catch (refreshErr) {
+            console.warn("[SEA-V] Refresh after failed verification send failed:", refreshErr);
+          }
+          return;
+        }
 
         if (sendResult?.verifyUrl) {
           rememberVerifyLink(refId, sendResult.verifyUrl);
