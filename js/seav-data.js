@@ -1038,7 +1038,7 @@ function getEmptyTenderEntry() {
     return String(cert.status || "").trim().toLowerCase() === "no expiry";
   }
 
-  function isCertExpiringOrExpired(cert, warningDays = 60) {
+  function isCertExpiringOrExpired(cert, warningDays = 90) {
     if (!cert || isCertNoExpiry(cert) || !cert.expiry) return false;
 
     const today = new Date();
@@ -1053,7 +1053,7 @@ function getEmptyTenderEntry() {
   }
 
   function getCertExpiryInfo(expiry, options = {}) {
-    const warningDays = options.warningDays ?? 60;
+    const warningDays = options.warningDays ?? 90;
 
     if (!expiry) {
       return {

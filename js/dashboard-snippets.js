@@ -140,8 +140,6 @@
     `;
   }
 
-const DASH_CERT_WARNING_DAYS = 90;
-
 function updateCertCardCompleteState(displayCount, attentionCount) {
   const container = document.getElementById("dashCertSnippet");
   const badge = document.getElementById("dashboardCertCompleteBadge");
@@ -171,9 +169,7 @@ async function renderCertSnippet() {
     return !!String(cert.expiry || "").trim();
   });
 
-  const attentionCerts = expiryCerts.filter((cert) =>
-    isExpiringOrExpired?.(cert, DASH_CERT_WARNING_DAYS)
-  );
+  const attentionCerts = expiryCerts.filter((cert) => isExpiringOrExpired?.(cert));
 
   updateCertCardCompleteState(expiryCerts.length, attentionCerts.length);
 
@@ -191,7 +187,7 @@ async function renderCertSnippet() {
   }
 
   function getDashboardCertStatus(cert) {
-    return getCertExpiryInfo(cert.expiry, { warningDays: DASH_CERT_WARNING_DAYS });
+    return getCertExpiryInfo(cert.expiry);
   }
 
   const sortedCerts = [...expiryCerts].sort((a, b) => {
