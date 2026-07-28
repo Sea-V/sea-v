@@ -869,16 +869,15 @@
       const status = getReferenceStatus(ref);
       const verification = ref.verification || {};
       const vesselName = ref.vessel || vesselMap.get(ref.vesselId) || "";
-      const maskedCoc = verification.cocNumber
-        ? (() => {
-            const raw = String(verification.cocNumber).trim();
-            if (raw.length <= 4) return raw;
-            return `${"*".repeat(Math.max(0, raw.length - 4))}${raw.slice(-4)}`;
-          })()
-        : "";
+      // verification.cocNumber arrives here as boolean `true` (never the
+      // real number — the DB's verification_public generated column already
+      // stripped it before this ever reached the client, see
+      // docs/schema-public-profile-age-and-coc-redaction.sql). No partial
+      // reveal: just note that a CoC was entered and is hidden.
+      const cocNote = verification.cocNumber === true ? "★ CoC on file — hidden for privacy" : "";
       const verifierMeta = [
         verification.rank,
-        maskedCoc ? `CoC ${maskedCoc}` : "",
+        cocNote,
         verification.signedAt ? formatExpiryShort(verification.signedAt) : ""
       ]
         .filter(Boolean)

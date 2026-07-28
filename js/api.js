@@ -104,9 +104,14 @@
       "id", "user_id", "code", "name", "issue_date", "expiry_date", "status",
       "is_mandatory", "is_template", "created_at", "updated_at"
     ].join(","),
+    // "verification" (raw) is deliberately excluded — it holds the referee's
+    // real CoC number. verification_public is a generated column that keeps
+    // rank/signedAt/signatureImage/note but replaces cocNumber with boolean
+    // `true` (entered but hidden) instead of the real value. See
+    // docs/schema-public-profile-age-and-coc-redaction.sql.
     sea_references: [
       "id", "user_id", "name", "title", "vessel_id", "role", "period", "reference_text",
-      "reference_date", "status", "attachment", "verification", "created_at", "updated_at"
+      "reference_date", "status", "attachment", "verification_public", "created_at", "updated_at"
     ].join(","),
     achievements: [
       "id", "user_id", "code", "title", "category", "dashboard_section", "badge_key",
@@ -478,31 +483,13 @@
     }
   }
 
-// dob/passports_held/visas_held re-added 2026-07-26 at Jack's explicit
-// request (standard fields on a maritime crew CV) — anon's column grant was
-// updated to match, see docs/schema-public-profile-add-dob-passports-visas.sql.
-// Any column listed here that anon doesn't have SELECT on makes PostgREST
-// reject the whole query for anon callers, not just omit the column, so
-// this list must always match that grant exactly.
-const PUBLIC_PROFILE_COLUMNS = [
-  "id",
-  "user_id",
-  "username",
-  "name",
-  "rank",
-  "qualification",
-  "nationality",
-  "dob",
-  "passports_held",
-  "visas_held",
-  "location",
-  "availability",
-  "bio",
-  "photo",
-  "public_enabled",
-  "created_at",
-  "updated_at"
-].join(",");
+// passports_held/visas_held re-added 2026-07-26 at Jack's explicit request
+// (standard fields on a maritime crew CV). dob was re-added at the same time
+// but reverted 2026-07-29: raw date of birth is an identity-theft risk to
+// publish, so anon's column grant on dob was revoked and the public profile
+// now gets a computed `age` instead via the get_public_profile() RPC (see
+// docs/schema-public-profile-age-and-coc-redaction.sql) rather than a direct
+// table select. This column list is now only used by the OWNER path.
 
 /** Owner read — includes private fields; never use select("*") (blocked after column hardening). */
 const OWNER_PROFILE_COLUMNS = [
@@ -558,37 +545,22 @@ const SeavAPI = {
     const client = clientForOptions({ public: true });
     if (!client || !profileId) return null;
 
-    const baseQuery = () =>
-      client
-        .from("profile")
-        .select(PUBLIC_PROFILE_COLUMNS)
-        .eq("public_enabled", true);
-
-    // Username is the common case going forward (the /u/<username> link),
-    // so it's tried first; the raw-UUID ?p=<id> link some crew already
-    // shared keeps working via the id/user_id fallbacks below.
-    let { data, error } = await baseQuery()
-      .eq("username", String(profileId).toLowerCase())
-      .maybeSingle();
-
-    if (!error && !data) {
-      const byId = await baseQuery().eq("id", profileId).maybeSingle();
-      data = byId.data;
-      error = byId.error;
-    }
-
-    if (!error && !data) {
-      const byUser = await baseQuery().eq("user_id", profileId).maybeSingle();
-      data = byUser.data;
-      error = byUser.error;
-    }
+    // Routed through the get_public_profile() RPC instead of a direct table
+    // select (see docs/schema-public-profile-age-and-coc-redaction.sql).
+    // The RPC does the username → id → user_id fallback lookup itself and
+    // returns a computed `age` in place of the raw dob column, which anon no
+    // longer has SELECT on at all.
+    const { data, error } = await client.rpc("get_public_profile", {
+      p_lookup: String(profileId)
+    });
 
     if (error) {
       console.error("[SEA-V] Public profile fetch failed:", error);
       return null;
     }
 
-    const profile = data ? mapProfileFromSupabase(data) : null;
+    const row = Array.isArray(data) ? data[0] : data;
+    const profile = row ? mapProfileFromSupabase(row) : null;
     return profile ? hydrateProfilePhoto(profile, { client }) : null;
   },
 

@@ -16,14 +16,13 @@
     return waitForDependency(() => window.SeavSupabase, maxMs);
   }
 
-  // Same "DD/MM/YYYY" formatting as the private profile page's preview
-  // (js/profile.js formatDobForPreview) — dob is stored as "YYYY-MM-DD".
-  function formatDobPublic(value) {
-    const raw = String(value || "").trim();
-    if (!raw || !raw.includes("-")) return "—";
-    const [year = "", month = "", day = ""] = raw.split("-");
-    if (!year || !month || !day) return "—";
-    return `${day}/${month}/${year}`;
+  // Public profile shows a computed age, never the raw date of birth (dob
+  // stays intact and full-precision in the private profile edit form — see
+  // docs/schema-public-profile-age-and-coc-redaction.sql). profile.age comes
+  // from the get_public_profile() RPC, which is the only path anon has to
+  // this data at all now.
+  function formatAgePublic(value) {
+    return typeof value === "number" && Number.isFinite(value) ? `${value}` : "—";
   }
 
   function populateSectionIcons() {
@@ -105,7 +104,7 @@
       const availabilityEl = document.getElementById("ppProfileAvailability");
       const nationalityEl = document.getElementById("ppProfileNationality");
       const locationEl = document.getElementById("ppProfileLocation");
-      const dobEl = document.getElementById("ppProfileDob");
+      const ageEl = document.getElementById("ppProfileAge");
       const passportsEl = document.getElementById("ppProfilePassports");
       const visasEl = document.getElementById("ppProfileVisas");
       const bioEl = document.getElementById("pp_bio");
@@ -124,7 +123,7 @@
       if (availabilityEl) availabilityEl.textContent = profile.availability || "—";
       if (nationalityEl) nationalityEl.textContent = profile.nationality || "—";
       if (locationEl) locationEl.textContent = profile.location || "—";
-      if (dobEl) dobEl.textContent = formatDobPublic(profile.dob);
+      if (ageEl) ageEl.textContent = formatAgePublic(profile.age);
       if (passportsEl) passportsEl.textContent = profile.passportsHeld || "—";
       if (visasEl) visasEl.textContent = profile.visasHeld || "—";
 

@@ -29,6 +29,11 @@ function mapProfileFromSupabase(p) {
     qualification: p.qualification || "",
     nationality: p.nationality || "",
     dob: p.dob || "",
+    // age comes from the get_public_profile() RPC for the public-profile
+    // path (p.dob is never present there — anon has no SELECT on it). Owner
+    // reads still get real dob and no age; that's fine, the owner's own
+    // edit form never needs age.
+    age: typeof p.age === "number" ? p.age : null,
     location: p.location || "",
     email: p.email || "",
     phone: p.phone || "",
@@ -234,7 +239,12 @@ function mapVesselToSupabase(item) {
       messageToReferee: r.message_to_referee || "",
       status: r.status || "Draft",
       attachment: r.attachment || null,
-      verification: r.verification || null,
+      // Owner reads (select("*")) carry the real `verification`, which wins
+      // here. Public/anon reads only ever carry `verification_public` (the
+      // raw column isn't in their SELECT list at all — see
+      // PUBLIC_ARRAY_COLUMNS.sea_references in js/api.js), where cocNumber
+      // has been replaced with boolean `true` rather than the real number.
+      verification: r.verification || r.verification_public || null,
       createdAt: r.created_at || "",
       updatedAt: r.updated_at || ""
     };
