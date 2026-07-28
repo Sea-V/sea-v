@@ -283,6 +283,37 @@
     `;
   }
 
+  // Every other call on this page goes through window.SeavPublicSupabase,
+  // created with persistSession:false specifically so a real referee (who
+  // has no SEA-V account) can call these RPCs anonymously. That means
+  // auth.uid() is always null inside complete_reference_verification*
+  // regardless of whether the crew member who owns this reference is
+  // logged into their own account elsewhere in the same browser — a
+  // same-account self-signing guard added at the database level there can
+  // never actually fire. The only place that can see "is this browser also
+  // logged into the owning account" is window.SeavSupabase (the main
+  // client, which does persist/detect sessions) — checked here, separately,
+  // using an authenticated-only RPC so auth.uid() means something. This is
+  // best-effort (a private/incognito window still bypasses it, same as the
+  // DB guard would), but it catches the common case: testing the link
+  // while still signed in as yourself.
+  async function checkOwnSessionBlock() {
+    try {
+      if (!window.SeavSupabase?.auth?.getSession) return false;
+      const { data } = await window.SeavSupabase.auth.getSession();
+      if (!data?.session) return false;
+
+      const { data: isOwn, error } = await window.SeavSupabase.rpc(
+        "is_own_reference_verification_link",
+        { p_token: token }
+      );
+      if (error) return false;
+      return isOwn === true;
+    } catch {
+      return false;
+    }
+  }
+
   async function loadPreview() {
     if (!token) {
       showError("Missing verification token. Check the link in your email.");
@@ -291,6 +322,13 @@
 
     if (!window.SeavReferenceVerification?.preview) {
       showError("Verification service unavailable.");
+      return;
+    }
+
+    if (await checkOwnSessionBlock()) {
+      showError(
+        "You're signed into the SEA-V account this reference belongs to. To keep verification honest, it needs to be confirmed by your referee, not from the crew member's own device or account. Sign out, or open this link in a private/incognito window, and try again."
+      );
       return;
     }
 

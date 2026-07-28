@@ -51,6 +51,15 @@
   text-align: center;
 }
 
+.verify-reference-close-hint {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .verify-reference-form-section {
   margin-top: 18px;
   padding-top: 18px;
