@@ -22,10 +22,14 @@
   /* TEST (2026-07-29): slight transparent white instead of the dark navy
      wash, so the ocean image behind body.app-page::before shows through and
      the shell reads lighter than the .dash-card panels sitting on it
-     (those stay solid --page-shell-panel). Revert to the line below to go
-     back to the old dark-navy shell:
+     (those stay solid --page-shell-panel). First pass at 0.08 was invisible
+     — the shell only shows in the thin gutter around/between cards, and it
+     sits on top of body.app-page::after's ~35-60%-opacity dark navy overlay,
+     so a faint tint barely moved the needle. Bumped hard for this test so
+     it's unmistakable; dial back once you've seen it. Revert to the line
+     below to go back to the old dark-navy shell:
      background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85)); */
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .dashboard-shell-card .dash-card {
