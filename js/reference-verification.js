@@ -168,7 +168,7 @@
 
           <div class="seav-verify-link-actions">
             <button type="button" class="btn-blue" id="seavVerifyEmailCopy">Copy email</button>
-            <button type="button" class="btn-ghost2" id="seavVerifyLinkCopy">Copy link</button>
+            <button type="button" class="btn-ghost2" id="seavVerifyLinkShare">Share link</button>
             <button type="button" class="btn-ghost2" id="seavVerifyPreviewToggle" aria-expanded="false">Preview reference</button>
           </div>
 
@@ -198,8 +198,8 @@
       await copyText(draft.fullText, draftField, "Email copied", "Select the email text and copy it.");
     });
 
-    overlay.querySelector("#seavVerifyLinkCopy")?.addEventListener("click", async () => {
-      await copyText(verifyUrl, field, "Link copied", "Select the link and copy it.");
+    overlay.querySelector("#seavVerifyLinkShare")?.addEventListener("click", async () => {
+      await shareOrCopyLink(verifyUrl, field, options.refereeName);
     });
 
     const previewToggle = overlay.querySelector("#seavVerifyPreviewToggle");
@@ -237,6 +237,32 @@
         Seav.notify("info", "Copy manually", fallbackDetail);
       }
     }
+  }
+
+  // Hands the link to the OS share sheet (AirDrop, WhatsApp, Messages, Notes,
+  // etc. on iOS/Android — same pattern as js/seav-share.js elsewhere on
+  // SEA-V) instead of only ever copying to the clipboard. Falls back to the
+  // old copy-to-clipboard behavior on desktop browsers or anywhere
+  // navigator.share isn't available, and on any share failure that isn't
+  // just the user cancelling the share sheet.
+  async function shareOrCopyLink(verifyUrl, fieldEl, refereeName) {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "SEA-V reference verification",
+          text: refereeName
+            ? `Hi ${refereeName}, could you confirm this reference for me on SEA-V?`
+            : "Could you confirm this reference for me on SEA-V?",
+          url: verifyUrl
+        });
+        return;
+      } catch (err) {
+        if (err?.name === "AbortError") return;
+        // Any other failure: fall through to the clipboard-copy fallback.
+      }
+    }
+
+    await copyText(verifyUrl, fieldEl, "Link copied", "Select the link and copy it.");
   }
 
   async function sendViaRpc(referenceId) {
