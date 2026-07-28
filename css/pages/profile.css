@@ -12,8 +12,14 @@
   border-radius: 30px;
   border: 1px solid rgba(66,214,181,0.24);
 
-  background: rgba(14, 28, 46, 0.85);
-  background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85));
+  /* TEST (2026-07-29): same diagnostic as dashboard.css's
+     .dash-content .dashboard-shell-card — isolating whether the "shell
+     tint doesn't show" issue is specific to the dashboard page or a
+     browser/cache issue that would show up here too. Revert to the two
+     lines below once confirmed either way:
+     background: rgba(14, 28, 46, 0.85);
+     background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85)); */
+  background: rgba(255, 255, 255, 0.28);
 
   box-shadow:
     0 20px 48px rgba(0,0,0,0.28);
