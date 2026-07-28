@@ -554,6 +554,86 @@
   }
 }
 
+.seav-verify-preview-panel {
+  margin-top: 4px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.seav-verify-preview-note {
+  margin: 0 0 12px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  line-height: 1.55;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.seav-verify-preview-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.seav-verify-preview-row:last-of-type {
+  border-bottom: none;
+}
+
+.seav-verify-preview-label {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.seav-verify-preview-value {
+  color: rgba(255, 255, 255, 0.9);
+  text-align: right;
+}
+
+.seav-verify-preview-quote {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border-left: 3px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.seav-verify-preview-empty {
+  margin: 10px 0 0;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.seav-verify-preview-attachment {
+  margin: 10px 0 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.seav-verify-preview-attachment a {
+  color: var(--gold, #e0b64d);
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */

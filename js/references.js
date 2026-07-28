@@ -840,13 +840,21 @@ function readReferenceForm() {
 
         const vessel = getVessels().find((item) => item.id === ref.vesselId);
         const crewName = String(window.SeavState?.profile?.name || "").trim();
+        const attachmentUrl = Seav.getFileDisplayUrl(ref.attachment, REF_FILES_BUCKET);
 
         if (sendResult?.verifyUrl) {
           window.SeavReferenceVerification.showVerifyLinkDialog(sendResult.verifyUrl, {
             refereeEmail: sendResult.refereeEmail || ref.email,
             refereeName: ref.name,
+            refereeTitle: ref.title || "",
             crewName: crewName || "A SEA-V member",
-            vesselName: vessel?.name || ""
+            crewRole: ref.role || "",
+            vesselName: vessel?.name || "",
+            periodText: formatDateRange(ref.periodFrom, ref.periodTo, ref.period),
+            dateText: formatDatePretty(ref.date),
+            referenceText: ref.text || "",
+            attachmentUrl,
+            attachmentFilename: ref.attachment?.filename || ""
           });
         }
 
@@ -887,11 +895,19 @@ function readReferenceForm() {
           const ref = getRefs().find((item) => item.id === refId);
           const vessel = getVessels().find((item) => item.id === ref?.vesselId);
           const crewName = String(window.SeavState?.profile?.name || "").trim();
+          const attachmentUrl = ref ? Seav.getFileDisplayUrl(ref.attachment, REF_FILES_BUCKET) : "";
           window.SeavReferenceVerification.showVerifyLinkDialog(verifyUrl, {
             refereeEmail: ref?.email || "",
             refereeName: ref?.name || "",
+            refereeTitle: ref?.title || "",
             crewName: crewName || "A SEA-V member",
-            vesselName: vessel?.name || ""
+            crewRole: ref?.role || "",
+            vesselName: vessel?.name || "",
+            periodText: ref ? formatDateRange(ref.periodFrom, ref.periodTo, ref.period) : "",
+            dateText: ref ? formatDatePretty(ref.date) : "",
+            referenceText: ref?.text || "",
+            attachmentUrl,
+            attachmentFilename: ref?.attachment?.filename || ""
           });
         } else {
           window.open(verifyUrl, "_blank", "noopener");

@@ -82,6 +82,49 @@
     };
   }
 
+  // Read-only rendering of exactly what the referee will see — no form
+  // fields, no token, no submit path. This used to be a "Preview link"
+  // button that opened the live verify-reference.html page with the real
+  // token, which meant the crew member could just fill out the confirm
+  // form themselves and self-verify their own reference (that page has no
+  // separate view-only mode — see js/verify-reference.js). Building the
+  // preview from data already on the crew member's own dashboard avoids
+  // touching the live token/RPC entirely, so there's nothing here to submit.
+  function referencePreviewRowsHtml(options) {
+    const rows = [
+      ["Referee", options.refereeName],
+      ["Title / position", options.refereeTitle],
+      ["Vessel", options.vesselName],
+      ["Your role", options.crewRole],
+      ["Service period", options.periodText],
+      ["Reference date", options.dateText]
+    ].filter(([, value]) => !!String(value || "").trim());
+
+    return rows
+      .map(
+        ([label, value]) => `
+        <div class="seav-verify-preview-row">
+          <span class="seav-verify-preview-label">${escapeHtml(label)}</span>
+          <span class="seav-verify-preview-value">${escapeHtml(value)}</span>
+        </div>`
+      )
+      .join("");
+  }
+
+  function referencePreviewHtml(options) {
+    const rowsHtml = referencePreviewRowsHtml(options);
+
+    const textHtml = String(options.referenceText || "").trim()
+      ? `<blockquote class="seav-verify-preview-quote">"${escapeHtml(options.referenceText)}"</blockquote>`
+      : `<p class="seav-verify-preview-empty">No reference text added yet.</p>`;
+
+    const attachmentHtml = options.attachmentUrl
+      ? `<p class="seav-verify-preview-attachment">Attachment: <a href="${escapeHtml(options.attachmentUrl)}" target="_blank" rel="noopener">${escapeHtml(options.attachmentFilename || "View file")}</a></p>`
+      : "";
+
+    return `${rowsHtml}${textHtml}${attachmentHtml}`;
+  }
+
   function showVerifyLinkDialog(verifyUrl, options = {}) {
     if (!verifyUrl) return;
 
@@ -126,7 +169,16 @@
           <div class="seav-verify-link-actions">
             <button type="button" class="btn-blue" id="seavVerifyEmailCopy">Copy email</button>
             <button type="button" class="btn-ghost2" id="seavVerifyLinkCopy">Copy link</button>
-            <a class="btn-ghost2" id="seavVerifyLinkOpen" target="_blank" rel="noopener">Preview link</a>
+            <button type="button" class="btn-ghost2" id="seavVerifyPreviewToggle" aria-expanded="false">Preview reference</button>
+          </div>
+
+          <div class="seav-verify-preview-panel" id="seavVerifyPreviewPanel" hidden>
+            <p class="seav-verify-preview-note">
+              This is a locked, read-only preview of what your referee will see — it can't be
+              signed or submitted from here. Only your referee, using the link above, can
+              confirm or decline it.
+            </p>
+            ${referencePreviewHtml(options)}
           </div>
         </div>
       </div>
@@ -138,9 +190,6 @@
     const field = overlay.querySelector("#seavVerifyLinkField");
     const draftField = overlay.querySelector("#seavVerifyEmailDraft");
 
-    const openLink = overlay.querySelector("#seavVerifyLinkOpen");
-    if (openLink) openLink.href = verifyUrl;
-
     overlay.querySelector("[data-close-verify-link]")?.addEventListener("click", () => {
       overlay.remove();
     });
@@ -151,6 +200,15 @@
 
     overlay.querySelector("#seavVerifyLinkCopy")?.addEventListener("click", async () => {
       await copyText(verifyUrl, field, "Link copied", "Select the link and copy it.");
+    });
+
+    const previewToggle = overlay.querySelector("#seavVerifyPreviewToggle");
+    const previewPanel = overlay.querySelector("#seavVerifyPreviewPanel");
+    previewToggle?.addEventListener("click", () => {
+      const willShow = previewPanel.hidden;
+      previewPanel.hidden = !willShow;
+      previewToggle.setAttribute("aria-expanded", willShow ? "true" : "false");
+      previewToggle.textContent = willShow ? "Hide preview" : "Preview reference";
     });
 
     console.info("[SEA-V] Reference verification link:", verifyUrl);
