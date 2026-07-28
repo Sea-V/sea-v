@@ -114,15 +114,26 @@
   function referencePreviewHtml(options) {
     const rowsHtml = referencePreviewRowsHtml(options);
 
+    const messageHtml = String(options.messageToReferee || "").trim()
+      ? `
+        <div class="seav-verify-preview-message">
+          <span class="seav-verify-preview-label">Your message to the referee</span>
+          <p class="seav-verify-preview-message-text">${escapeHtml(options.messageToReferee)}</p>
+        </div>`
+      : "";
+
+    // The referee writes the actual reference text themselves on the verify
+    // page (js/verify-reference.js) — it genuinely doesn't exist yet at send
+    // time, so an empty quote here is the normal/expected state, not a gap.
     const textHtml = String(options.referenceText || "").trim()
       ? `<blockquote class="seav-verify-preview-quote">"${escapeHtml(options.referenceText)}"</blockquote>`
-      : `<p class="seav-verify-preview-empty">No reference text added yet.</p>`;
+      : `<p class="seav-verify-preview-empty">Your referee writes the actual reference themselves when they verify — nothing to show yet.</p>`;
 
     const attachmentHtml = options.attachmentUrl
       ? `<p class="seav-verify-preview-attachment">Attachment: <a href="${escapeHtml(options.attachmentUrl)}" target="_blank" rel="noopener">${escapeHtml(options.attachmentFilename || "View file")}</a></p>`
       : "";
 
-    return `${rowsHtml}${textHtml}${attachmentHtml}`;
+    return `${rowsHtml}${messageHtml}${textHtml}${attachmentHtml}`;
   }
 
   function showVerifyLinkDialog(verifyUrl, options = {}) {

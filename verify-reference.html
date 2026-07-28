@@ -4,25 +4,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=262" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=262" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=262" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=262" />
+  <link rel="icon" href="/favicon.ico?v=263" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=263" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=263" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=263" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Verify Reference</title>
 
-  <link rel="stylesheet" href="styles.css?v=262" />
+  <link rel="stylesheet" href="styles.css?v=263" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=262"></script>
-  <script src="js/supabase.js?v=262"></script>
-  <script src="js/feedback.js?v=262" defer></script>
-  <script src="js/core.js?v=262" defer></script>
-  <script src="js/api-core.js?v=262" defer></script>
-  <script src="js/seav-signature-pad.js?v=262" defer></script>
-  <script src="js/reference-verification.js?v=262" defer></script>
-  <script src="js/verify-reference.js?v=262" defer></script>
+  <script src="js/seav-config.js?v=263"></script>
+  <script src="js/supabase.js?v=263"></script>
+  <script src="js/feedback.js?v=263" defer></script>
+  <script src="js/core.js?v=263" defer></script>
+  <script src="js/api-core.js?v=263" defer></script>
+  <script src="js/seav-signature-pad.js?v=263" defer></script>
+  <script src="js/reference-verification.js?v=263" defer></script>
+  <script src="js/verify-reference.js?v=263" defer></script>
 </head>
 
 <body class="landing-page verify-reference-page">
@@ -65,7 +65,7 @@
                 <h1 class="ref-card-title">Verify reference</h1>
               </div>
               <p class="ref-card-subtitle" id="vrIntro">
-                Please confirm whether the reference below is accurate.
+                Please write and confirm a reference for this crew member.
               </p>
             </div>
           </div>
@@ -81,6 +81,11 @@
 
           <div class="verify-reference-form-section">
             <form id="vrForm" class="verify-reference-form modal-form">
+
+              <label>
+                Write the reference
+                <textarea id="vrReferenceText" required rows="6" placeholder="Write your reference for this crew member — their role, the dates you knew them, and your assessment of their work."></textarea>
+              </label>
 
               <label class="modal-check">
                 <input type="checkbox" id="vrConfirmed" required />
@@ -117,7 +122,7 @@
                 </label>
 
                 <label>
-                  Date signed
+                  Reference date
                   <input type="date" id="vrSignedAt" />
                 </label>
               </div>

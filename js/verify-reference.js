@@ -16,6 +16,7 @@
     avatar: document.getElementById("vrAvatar"),
     intro: document.getElementById("vrIntro"),
     form: document.getElementById("vrForm"),
+    referenceText: document.getElementById("vrReferenceText"),
     confirmed: document.getElementById("vrConfirmed"),
     note: document.getElementById("vrNote"),
     rank: document.getElementById("vrRank"),
@@ -126,10 +127,13 @@
 
     const items = [];
 
-    if (data.reference_text) {
+    // The crew member's own context/instructions for this request — not the
+    // reference itself. The reference text doesn't exist yet at this point;
+    // the referee writes it below, in the form.
+    if (data.message_to_referee) {
       items.push({
-        label: "Reference",
-        value: data.reference_text,
+        label: "Message from the crew member",
+        value: data.message_to_referee,
         excerpt: true,
         full: true
       });
@@ -138,8 +142,7 @@
     [
       { label: "Vessel", value: data.vessel_name },
       { label: "Role", value: data.crew_role },
-      { label: "Period", value: data.service_period },
-      { label: "Reference date", value: formatDatePretty(data.reference_date) }
+      { label: "Period", value: data.service_period }
     ].forEach((item) => {
       if (item.value) items.push(item);
     });
@@ -168,7 +171,7 @@
       ? `, <span>${escapeHtml(refereeTitle)}</span>`
       : "";
 
-    els.intro.innerHTML = `<strong>${refereeName}</strong>${titleBit} — please confirm whether the reference below for <strong>${crewName}</strong> is accurate.`;
+    els.intro.innerHTML = `<strong>${refereeName}</strong>${titleBit} — please write and confirm a reference for <strong>${crewName}</strong>.`;
   }
 
   function todayIso() {
@@ -330,6 +333,17 @@
     if (submitting || !token) return;
     submitting = true;
 
+    const referenceText = els.referenceText?.value?.trim() || "";
+    if (confirmed && !referenceText) {
+      submitting = false;
+      if (window.Seav?.notify) {
+        Seav.notify("error", "Reference required", "Write the reference before confirming.");
+      } else {
+        alert("Please write the reference before confirming.");
+      }
+      return;
+    }
+
     if (confirmed && els.confirmed && !els.confirmed.checked) {
       submitting = false;
       if (window.Seav?.notify) {
@@ -363,6 +377,7 @@
 
     const payload = {
       confirmed,
+      referenceText,
       note: els.note?.value?.trim() || "",
       rank: els.rank?.value?.trim() || "",
       cocNumber: els.coc?.value?.trim() || "",

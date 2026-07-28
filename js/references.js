@@ -169,8 +169,13 @@
       : String(text || "").trim().slice(0, max);
   }
 
-  function getReferenceExcerpt(ref, verification) {
-    if (verification.note) return verification.note;
+  // ref.text is now always referee-authored (written on verify-reference.html
+  // when they confirm), never crew-supplied, so it's the excerpt on its own
+  // merit — no need to prefer verification.note over it like before, when
+  // ref.text was self-reported by the crew member. verification.note is a
+  // separate, optional short confirmation blurb, shown in its own meta item
+  // in the Verification section instead (see buildReferenceCard).
+  function getReferenceExcerpt(ref) {
     return ref.text || "";
   }
 
@@ -237,11 +242,8 @@
 
     const verification = r.verification || {};
     const status = getReferenceStatus(r);
-    const excerpt = getReferenceExcerpt(r, verification);
-    const excerptLabel =
-      verification.note && (status === "Verified" || status === "Declined")
-        ? "Captain's confirmation"
-        : "Reference";
+    const excerpt = getReferenceExcerpt(r);
+    const excerptLabel = "Reference";
 
     const canSend =
       !!r.email &&
@@ -342,6 +344,7 @@
           ${referenceMetaItem("CoC", cocValue)}
           ${referenceMetaItem("Signed", signedValue)}
           ${referenceMetaItem("Signature", signatureValue)}
+          ${verification.note ? referenceMetaItem("Note", Seav.escapeHtml(verification.note)) : ""}
         </div>
       `
       : `<p class="ref-verify-cta">Not yet sent for verification${
@@ -392,6 +395,11 @@
               ${referenceMetaItem("Period", Seav.escapeHtml(periodText))}
               ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
               ${referenceMetaItem("Referee email", Seav.escapeHtml(r.email || "—"))}
+              ${
+                status === "Verified" && r.messageToReferee
+                  ? referenceMetaItem("Your message to referee", Seav.escapeHtml(r.messageToReferee))
+                  : ""
+              }
             </div>
           </div>
 
@@ -494,7 +502,7 @@
   }
 
   function clearFormFieldLocks() {
-    ["rf_name", "rf_text", "rf_email"].forEach((id) => {
+    ["rf_name", "rf_email"].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.readOnly = false;
     });
@@ -560,8 +568,8 @@
   document.getElementById("rf_role").value = ref.role || "";
   Seav.setDateTriplet("rf_period_from", ref.periodFrom || "");
   Seav.setDateTriplet("rf_period_to", ref.periodTo || "");
-  document.getElementById("rf_text").value = ref.text || "";
-  Seav.setDateTriplet("rf_date", ref.date || "");
+  const messageField = document.getElementById("rf_message");
+  if (messageField) messageField.value = ref.messageToReferee || "";
 
   const status = getReferenceStatus(ref);
 
@@ -587,7 +595,6 @@ function resetReferenceForm(form) {
   const editId = document.getElementById("rf_edit_id");
   if (editId) editId.value = "";
 
-  Seav.clearDateTriplet("rf_date");
   Seav.clearDateTriplet("rf_period_from");
   Seav.clearDateTriplet("rf_period_to");
 
@@ -610,8 +617,7 @@ function readReferenceForm() {
     role: document.getElementById("rf_role")?.value.trim() || "",
     periodFrom: Seav.readDateTriplet("rf_period_from"),
     periodTo: Seav.readDateTriplet("rf_period_to"),
-    text: document.getElementById("rf_text")?.value.trim() || "",
-    date: Seav.readDateTriplet("rf_date"),
+    messageToReferee: document.getElementById("rf_message")?.value.trim() || "",
     // Status is never hand-picked in this form — a reference starts Draft
     // (shown as "Unverified") and only moves to Sent for Verification /
     // Verified / Declined via the Share-link + referee-response flow. The
@@ -669,11 +675,11 @@ function readReferenceForm() {
         e.preventDefault();
 
         const formData = readReferenceForm();
-        if (!formData.name || !formData.text) {
+        if (!formData.name) {
           Seav.notify(
             "error",
             "Reference details missing",
-            "Add the referee name and reference text before saving."
+            "Add the referee's name before saving."
           );
           return;
         }
@@ -721,6 +727,12 @@ function readReferenceForm() {
         // storage — exactly what caused the signature to show a broken-image
         // icon later. Strip the transient url/dataUrl back off before saving;
         // path/bucket/filename are all that should ever be persisted.
+        // The reference text/date are now written by the referee themselves
+        // (verify-reference.html), not the crew member — so this form never
+        // supplies them. Preserve whatever the referee last wrote unless
+        // we're voiding, in which case it belonged to the now-invalidated
+        // verification round and gets cleared along with it.
+        const clearedReferenceContent = wasUnderVerification;
         const existingVerification = wasUnderVerification ? null : existingRef?.verification || null;
         const sanitizedVerification = existingVerification
           ? {
@@ -747,8 +759,9 @@ function readReferenceForm() {
         // entered for this reference — once periodFrom/periodTo are set,
         // the date range is the source of truth and the old text retires.
         period: formData.periodFrom || formData.periodTo ? "" : existingRef?.period || "",
-        text: formData.text,
-        date: formData.date,
+        text: clearedReferenceContent ? "" : (existingRef?.text || ""),
+        date: clearedReferenceContent ? "" : (existingRef?.date || ""),
+        messageToReferee: formData.messageToReferee,
         status: formData.status,
         attachment,
         verification: sanitizedVerification || {
@@ -852,6 +865,7 @@ function readReferenceForm() {
             vesselName: vessel?.name || "",
             periodText: formatDateRange(ref.periodFrom, ref.periodTo, ref.period),
             dateText: formatDatePretty(ref.date),
+            messageToReferee: ref.messageToReferee || "",
             referenceText: ref.text || "",
             attachmentUrl,
             attachmentFilename: ref.attachment?.filename || ""
@@ -905,6 +919,7 @@ function readReferenceForm() {
             vesselName: vessel?.name || "",
             periodText: ref ? formatDateRange(ref.periodFrom, ref.periodTo, ref.period) : "",
             dateText: ref ? formatDatePretty(ref.date) : "",
+            messageToReferee: ref?.messageToReferee || "",
             referenceText: ref?.text || "",
             attachmentUrl,
             attachmentFilename: ref?.attachment?.filename || ""
