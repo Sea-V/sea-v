@@ -19,11 +19,15 @@
    and has no override of its own for this background — an unscoped rule
    here would silently make the public profile's shell translucent too. */
 .dash-content .dashboard-shell-card {
-  /* TEST (2026-07-29): solid opaque yellow, impossible to miss regardless
-     of opacity/blend/overlay questions — pure visibility-pipeline check.
-     Revert to the line below once confirmed either way:
+  /* Slight transparent white instead of the dark navy wash, so the ocean
+     image behind body.app-page::before shows through and the shell reads
+     lighter than the .dash-card panels sitting on it (those stay solid
+     --page-shell-panel). Confirmed working 2026-07-29 (deploy pipeline was
+     just slow/inconsistent, not blocked — a solid yellow test at this same
+     selector rendered correctly). Revert to the line below to go back to
+     the old dark-navy shell:
      background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85)); */
-  background: #ffe600 !important;
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .dashboard-shell-card .dash-card {
