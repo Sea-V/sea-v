@@ -19,8 +19,13 @@
    and has no override of its own for this background — an unscoped rule
    here would silently make the public profile's shell translucent too. */
 .dash-content .dashboard-shell-card {
-  background: rgba(14, 28, 46, 0.85);
-  background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85));
+  /* TEST (2026-07-29): slight transparent white instead of the dark navy
+     wash, so the ocean image behind body.app-page::before shows through and
+     the shell reads lighter than the .dash-card panels sitting on it
+     (those stay solid --page-shell-panel). Revert to the line below to go
+     back to the old dark-navy shell:
+     background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85)); */
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .dashboard-shell-card .dash-card {
