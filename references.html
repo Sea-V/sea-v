@@ -4,37 +4,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=259" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=259" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=259" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=259" />
+  <link rel="icon" href="/favicon.ico?v=260" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=260" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=260" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=260" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • References</title>
 
-  <link rel="stylesheet" href="styles.css?v=259" />
+  <link rel="stylesheet" href="styles.css?v=260" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=259"></script>
-  <script src="js/supabase.js?v=259"></script>
-  <script src="js/auth.js?v=259"></script>
-  <script src="js/feedback.js?v=259" defer></script>
-  <script src="js/core.js?v=259" defer></script>
+  <script src="js/seav-config.js?v=260"></script>
+  <script src="js/supabase.js?v=260"></script>
+  <script src="js/auth.js?v=260"></script>
+  <script src="js/feedback.js?v=260" defer></script>
+  <script src="js/core.js?v=260" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=259" defer></script>
-  <script src="js/seav-data.js?v=259" defer></script>
-  <script src="js/seav-badges.js?v=259" defer></script>
-  <script src="js/api-core.js?v=259" defer></script>
-  <script src="js/api-mappers.js?v=259" defer></script>
-  <script src="js/api.js?v=259" defer></script>
-  <script src="js/state.js?v=259" defer></script>
-  <script src="js/seav-notifications.js?v=259" defer></script>
-  <script src="js/achievements-engine.js?v=259" defer></script>
-  <script src="js/badge-unlock.js?v=259" defer></script>
+  <script src="js/seav-upload.js?v=260" defer></script>
+  <script src="js/seav-data.js?v=260" defer></script>
+  <script src="js/seav-badges.js?v=260" defer></script>
+  <script src="js/api-core.js?v=260" defer></script>
+  <script src="js/api-mappers.js?v=260" defer></script>
+  <script src="js/api.js?v=260" defer></script>
+  <script src="js/state.js?v=260" defer></script>
+  <script src="js/seav-notifications.js?v=260" defer></script>
+  <script src="js/achievements-engine.js?v=260" defer></script>
+  <script src="js/badge-unlock.js?v=260" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=259" defer></script>
-  <script src="js/reference-verification.js?v=259" defer></script>
-  <script src="js/references.js?v=259" defer></script>     
+  <script src="js/seav-share.js?v=260" defer></script>
+  <script src="js/reference-verification.js?v=260" defer></script>
+  <script src="js/references.js?v=260" defer></script>     
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -168,30 +168,15 @@
           <textarea required id="rf_text" rows="5" placeholder="What they wrote about your work and character"></textarea>
         </label>
 
-        <div class="modal-grid2">
-          <div data-date-field="rf_date" data-date-label="Reference date"></div>
-
-          <label>
-            Status
-            <!-- Value stays "Draft" internally (unchanged everywhere else in
-                 the codebase — getReferenceStatus/getReferenceStatusDisplay,
-                 dashboard snippets, canSend logic) — only the crew-facing
-                 label and the manually-selectable option set changed. "Sent
-                 for Verification" and "Declined" are set automatically by
-                 the referee link flow (js/reference-verification.js), not
-                 manually chosen, so they're no longer offered here; the
-                 field is disabled anyway once a reference reaches either of
-                 those states (see fillReferenceForm). Note: saving any edit
-                 to a Verified/Sent/Declined reference voids it back to Draft
-                 regardless of this field's value — see the
-                 wasUnderVerification handling in the refForm submit handler
-                 in js/references.js. -->
-            <select id="rf_status">
-              <option value="Draft">Unverified</option>
-              <option value="Verified">Verified</option>
-            </select>
-          </label>
-        </div>
+        <!-- No manual Status field: status is always derived, never
+             hand-picked. A reference is Unverified (Draft) until you send it
+             — via the Share link action on the card, which is the only
+             transition available from here — then Sent for Verification
+             (awaiting the referee) until they respond with Verified or
+             Declined. See getReferenceStatus/getReferenceStatusDisplay in
+             js/seav-data.js and the wasUnderVerification void-on-edit logic
+             in the refForm submit handler in js/references.js. -->
+        <div data-date-field="rf_date" data-date-label="Reference date"></div>
 
         <label>
           Attachment (PDF / image)

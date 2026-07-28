@@ -256,6 +256,10 @@
       status === "Sent for Verification" &&
       !!storedVerifyLink;
 
+    const statusValue =
+      referenceStatusPill(status) ||
+      `<span class="pill pill-neutral">Unverified</span>`;
+
     const verificationSent =
       status === "Sent for Verification" || status === "Verified" || status === "Declined";
 
@@ -362,6 +366,7 @@
             <div class="ref-compact-sub">${Seav.escapeHtml(subtitleLine)}</div>
           </div>
           <div class="ref-compact-summary-right">
+            ${statusValue}
             <span class="cert-chevron" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -560,16 +565,6 @@
 
   const status = getReferenceStatus(ref);
 
-  const statusField = document.getElementById("rf_status");
-  if (statusField) {
-    statusField.value = status;
-    const locked =
-      status === "Verified" ||
-      status === "Declined" ||
-      status === "Sent for Verification";
-    statusField.disabled = locked;
-  }
-
   const voidNotice = document.getElementById("rfVoidNotice");
   if (voidNotice) {
     voidNotice.hidden = !(
@@ -596,12 +591,6 @@ function resetReferenceForm(form) {
   Seav.clearDateTriplet("rf_period_from");
   Seav.clearDateTriplet("rf_period_to");
 
-  const statusField = document.getElementById("rf_status");
-  if (statusField) {
-    statusField.value = "Draft";
-    statusField.disabled = false;
-  }
-
   const voidNotice = document.getElementById("rfVoidNotice");
   if (voidNotice) voidNotice.hidden = true;
 
@@ -623,7 +612,12 @@ function readReferenceForm() {
     periodTo: Seav.readDateTriplet("rf_period_to"),
     text: document.getElementById("rf_text")?.value.trim() || "",
     date: Seav.readDateTriplet("rf_date"),
-    status: document.getElementById("rf_status")?.value || "Draft",
+    // Status is never hand-picked in this form — a reference starts Draft
+    // (shown as "Unverified") and only moves to Sent for Verification /
+    // Verified / Declined via the Share-link + referee-response flow. The
+    // refForm submit handler overrides this to "Draft" whenever the edit
+    // targets a reference that was under verification, voiding it.
+    status: "Draft",
     file: document.getElementById("rf_file")?.files?.[0] || null
   };
 }
