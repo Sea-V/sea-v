@@ -256,10 +256,6 @@
       status === "Sent for Verification" &&
       !!storedVerifyLink;
 
-    const statusValue =
-      referenceStatusPill(status) ||
-      `<span class="pill pill-neutral">Unverified</span>`;
-
     const verificationSent =
       status === "Sent for Verification" || status === "Verified" || status === "Declined";
 
@@ -366,7 +362,6 @@
             <div class="ref-compact-sub">${Seav.escapeHtml(subtitleLine)}</div>
           </div>
           <div class="ref-compact-summary-right">
-            ${statusValue}
             <span class="cert-chevron" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -500,17 +495,14 @@
     });
   }
 
-  function applyReferenceFormLocks(ref) {
-    const status = getReferenceStatus(ref);
-    const locked = status === "Verified" || status === "Declined";
-
-    const nameField = document.getElementById("rf_name");
-    const textField = document.getElementById("rf_text");
-    const emailField = document.getElementById("rf_email");
-
-    if (nameField) nameField.readOnly = locked;
-    if (textField) textField.readOnly = locked;
-    if (emailField) emailField.readOnly = locked;
+  function applyReferenceFormLocks() {
+    // Previously name/text/email were locked read-only once a reference was
+    // Verified/Declined, so the (misleading) status label could never drift
+    // from what was actually confirmed. Saving an edit now voids the
+    // verification back to Draft instead (see the wasUnderVerification
+    // handling in the refForm submit handler), so editing is always allowed —
+    // there's nothing left to protect by locking these fields.
+    clearFormFieldLocks();
   }
 
   // Mirrors the Certificates/Sea Time/Vessels upload-box pattern
@@ -566,9 +558,10 @@
   document.getElementById("rf_text").value = ref.text || "";
   Seav.setDateTriplet("rf_date", ref.date || "");
 
+  const status = getReferenceStatus(ref);
+
   const statusField = document.getElementById("rf_status");
   if (statusField) {
-    const status = getReferenceStatus(ref);
     statusField.value = status;
     const locked =
       status === "Verified" ||
@@ -577,8 +570,16 @@
     statusField.disabled = locked;
   }
 
-  clearFormFieldLocks();
-  applyReferenceFormLocks(ref);
+  const voidNotice = document.getElementById("rfVoidNotice");
+  if (voidNotice) {
+    voidNotice.hidden = !(
+      status === "Verified" ||
+      status === "Declined" ||
+      status === "Sent for Verification"
+    );
+  }
+
+  applyReferenceFormLocks();
   document.getElementById("rf_file").value = "";
   renderReferenceAttachmentHint(ref.attachment || null);
 
@@ -600,6 +601,9 @@ function resetReferenceForm(form) {
     statusField.value = "Draft";
     statusField.disabled = false;
   }
+
+  const voidNotice = document.getElementById("rfVoidNotice");
+  if (voidNotice) voidNotice.hidden = true;
 
   clearFormFieldLocks();
   renderReferenceAttachmentHint(null);
@@ -684,13 +688,20 @@ function readReferenceForm() {
          ? getRefs().find((item) => item.id === formData.id) || null
          : null;
 
-        if (
-          existingRef &&
-          (getReferenceStatus(existingRef) === "Verified" ||
-            getReferenceStatus(existingRef) === "Sent for Verification" ||
-            getReferenceStatus(existingRef) === "Declined")
-        ) {
-          formData.status = getReferenceStatus(existingRef);
+        const existingStatus = existingRef ? getReferenceStatus(existingRef) : "Draft";
+        const wasUnderVerification =
+          existingStatus === "Verified" ||
+          existingStatus === "Sent for Verification" ||
+          existingStatus === "Declined";
+
+        // Once a verification request has gone out — or come back signed or
+        // declined — the referee's response refers to the reference exactly
+        // as it stood at that moment. Editing the content afterwards has to
+        // void that verification rather than silently keep a Verified/
+        // Declined status pinned to wording that's since changed: reset to
+        // Draft so the crew member has to re-send and get it confirmed again.
+        if (wasUnderVerification) {
+          formData.status = "Draft";
         }
 
         await Seav.withSaving(async () => {
@@ -705,15 +716,18 @@ function readReferenceForm() {
 
         const now = new Date().toISOString();
 
-        // Editing any reference field re-saves existingRef.verification as-is.
-        // By the time this form loads, hydrateReferenceAttachments() has
-        // already merged a live, 1-hour signed URL onto signatureImage in
+        // Voiding a Verified/Sent/Declined reference clears its verification
+        // data entirely (rank/CoC/signature/note all belonged to the old,
+        // now-edited wording) rather than carrying it forward. Otherwise,
+        // editing any reference field re-saves existingRef.verification
+        // as-is. By the time this form loads, hydrateReferenceAttachments()
+        // has already merged a live, 1-hour signed URL onto signatureImage in
         // memory (to display it). Saving that mutated object straight back to
         // the DB would permanently bake a URL that expires in an hour into
         // storage — exactly what caused the signature to show a broken-image
         // icon later. Strip the transient url/dataUrl back off before saving;
         // path/bucket/filename are all that should ever be persisted.
-        const existingVerification = existingRef?.verification || null;
+        const existingVerification = wasUnderVerification ? null : existingRef?.verification || null;
         const sanitizedVerification = existingVerification
           ? {
               ...existingVerification,
