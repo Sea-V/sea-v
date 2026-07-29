@@ -22,13 +22,6 @@
     return `<div class="${className}"><img src="${escapeHtml(photoUrl)}" alt="" /></div>`;
   }
 
-  function renderBullets(items) {
-    if (!items.length) return "";
-    return `<ul class="cv-seav-bullets">${items
-      .map((item) => `<li>${escapeHtml(item)}</li>`)
-      .join("")}</ul>`;
-  }
-
   function renderSeavSidebarBlock(title, bodyHtml) {
     if (!bodyHtml) return "";
     return `
@@ -91,7 +84,6 @@
             </h3>
             ${subline ? `<p class="cv-seav-job-subline">${escapeHtml(subline)}</p>` : ""}
             ${descriptionHtml}
-            ${renderBullets(vessel.cvBullets)}
           </article>
         `;
       })
@@ -200,7 +192,6 @@
   window.SeavCvRender = {
     renderBrandMark,
     renderPhoto,
-    renderBullets,
     renderSeavSidebarBlock,
     renderSeavContact,
     renderSeavNationality,

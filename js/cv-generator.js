@@ -88,11 +88,10 @@
       .map((id) => map.get(id))
       .filter(Boolean)
       .map((vessel) => {
-        const entry = draft.vessels[vessel.id] || { included: true, includeBio: true, bullets: "" };
+        const entry = draft.vessels[vessel.id] || { included: true, includeText: true, experienceText: "" };
         const role = window.SeavCvEngine.getVesselRole(vessel);
         const label = `${vessel.name || "Yacht"} · ${role || "Crew"}`;
-        const experienceText = window.SeavCvEngine.getVesselExperience(vessel);
-        const includeBio = entry.includeBio !== false;
+        const includeText = entry.includeText !== false;
         return `
           <article class="cvgen-vessel-card" data-vessel-id="${Seav.escapeHtml(vessel.id)}">
             <label class="cvgen-vessel-head">
@@ -107,28 +106,25 @@
             <label class="cvgen-check cvgen-vessel-bio-toggle">
               <input
                 type="checkbox"
-                class="cv-vessel-bio"
+                class="cv-vessel-text-include"
                 data-vessel-id="${Seav.escapeHtml(vessel.id)}"
-                ${includeBio ? "checked" : ""}
-                ${experienceText ? "" : "disabled"}
+                ${includeText ? "checked" : ""}
               />
-              <span>Include vessel experience notes${
-                experienceText ? "" : " (none saved on vessel)"
-              }</span>
+              <span>Show experience notes on this CV</span>
             </label>
             <label class="cvgen-vessel-bullets-label">
-              CV highlights
+              Vessel experience — tailor this for the employer you're sending this CV to
               <textarea
-                class="cv-vessel-bullets"
+                class="cv-vessel-experience"
                 data-vessel-id="${Seav.escapeHtml(vessel.id)}"
-                rows="4"
-                placeholder="One bullet per line — written for employers, not your vessel log."
-              >${Seav.escapeHtml(entry.bullets || "")}</textarea>
+                rows="5"
+                placeholder="Describe your role and responsibilities aboard this vessel."
+              >${Seav.escapeHtml(entry.experienceText || "")}</textarea>
             </label>
             <button type="button" class="cvgen-reset-vessel btn-ghost2" data-vessel-id="${Seav.escapeHtml(
               vessel.id
             )}">
-              Reset bullets from SEA-V
+              Reset from SEA-V vessel record
             </button>
           </article>
         `;
@@ -249,9 +245,9 @@
           return;
         }
 
-        if (target.classList.contains("cv-vessel-bio")) {
+        if (target.classList.contains("cv-vessel-text-include")) {
           draft.vessels[id] = draft.vessels[id] || {};
-          draft.vessels[id].includeBio = target.checked;
+          draft.vessels[id].includeText = target.checked;
           scheduleSave();
           renderPreview();
         }
@@ -260,11 +256,11 @@
       list.addEventListener("input", (event) => {
         const target = event.target;
         if (!(target instanceof HTMLTextAreaElement)) return;
-        if (!target.classList.contains("cv-vessel-bullets")) return;
+        if (!target.classList.contains("cv-vessel-experience")) return;
         const id = target.getAttribute("data-vessel-id");
         if (!id) return;
         draft.vessels[id] = draft.vessels[id] || {};
-        draft.vessels[id].bullets = target.value;
+        draft.vessels[id].experienceText = target.value;
         scheduleSave();
         renderPreview();
       });
@@ -278,10 +274,9 @@
         const vessel = source.vessels.find((v) => v.id === id);
         if (!vessel) return;
         draft.vessels[id] = draft.vessels[id] || {};
-        draft.vessels[id].bullets = window.SeavCvEngine.buildAutoBullets(
-          vessel,
-          source.onboard
-        ).join("\n");
+        draft.vessels[id].experienceText =
+          window.SeavCvEngine.getVesselExperience(vessel) ||
+          window.SeavCvEngine.buildAutoExperienceText(vessel, source.onboard);
         scheduleSave();
         renderVesselEditor(source);
         renderPreview();

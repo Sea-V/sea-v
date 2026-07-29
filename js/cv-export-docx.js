@@ -227,10 +227,6 @@
             parts.push(paragraph(p, { size: 20 }, { spacingAfter: 70 }));
           });
         }
-
-        (vessel.cvBullets || []).forEach((b) => {
-          parts.push(bulletParagraph(b, { size: 20 }, { spacingAfter: 30 }));
-        });
       });
     }
 

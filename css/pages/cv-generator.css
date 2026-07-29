@@ -496,18 +496,6 @@
   color: #374151;
 }
 
-.cv-seav-bullets {
-  margin: 0;
-  padding-left: 4.5mm;
-}
-
-.cv-seav-bullets li {
-  margin-bottom: 1.5mm;
-  font-size: 10pt;
-  line-height: 1.45;
-  color: #374151;
-}
-
 .cv-seav-side-title {
   margin: 0 0 2.5mm;
   font-size: 8pt;
@@ -635,12 +623,34 @@
        the actual saved/printed CV should stay a normal rectangular page. */
     border-radius: 0;
     box-shadow: none;
-    break-inside: avoid;
+    /* NOTE: no break-inside:avoid here — this box legitimately spans
+       multiple printed pages for anyone with a full career history
+       (several vessels, certs, references). Telling the browser to avoid
+       breaking inside a box that's taller than one page is impossible to
+       honour and risks confused pagination (e.g. a blank first page). */
+  }
+
+  /* CSS Grid does not reliably fragment across printed pages in Chromium —
+     content past page 1 of a multi-page CV can be cut off or duplicated
+     when the sidebar/main layout stays a grid. Switch to a float-based
+     two-column layout for print only, which paginates correctly. On-screen
+     editing (.cv-seav-layout as display:grid) is untouched. */
+  body.cvgen-printing .cv-seav-layout {
+    display: block;
+    min-height: 0;
   }
 
   body.cvgen-printing .cv-seav-sidebar {
+    float: left;
+    width: 34%;
+    min-height: 0;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  body.cvgen-printing .cv-seav-content {
+    overflow: hidden; /* new block-formatting context so it sits beside the float instead of wrapping under it */
+    min-width: 0;
   }
 }
 

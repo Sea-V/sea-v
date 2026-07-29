@@ -300,6 +300,26 @@
     return bullets.slice(0, 5);
   }
 
+  // Starting-point prose paragraph for the per-vessel "experience" editor
+  // when the vessel has no saved experience_onboard/desc text yet — a
+  // flowing sentence or two, not a bullet fragment, since this text now
+  // renders as the CV's main descriptive paragraph for that role.
+  function buildAutoExperienceText(vessel, onboardEntries) {
+    const role = getVesselRole(vessel) || "crew member";
+    const sentences = [`Served as ${role} aboard ${vessel.name || "the yacht"}.`];
+
+    onboardEntries
+      .filter((entry) => entry.vesselId === vessel.id)
+      .slice(0, 3)
+      .forEach((entry) => {
+        const label = entry.title || getOnboardCategoryLabel(entry.category);
+        if (!label) return;
+        sentences.push(entry.description ? `${label}: ${entry.description}` : `${label}.`);
+      });
+
+    return sentences.join(" ");
+  }
+
   function getProfileCareerOverview(source) {
     return String(source?.profile?.bio || "").trim();
   }
@@ -374,8 +394,8 @@
     source.vessels.forEach((vessel) => {
       vesselEntries[vessel.id] = {
         included: true,
-        includeBio: Boolean(getVesselExperience(vessel)),
-        bullets: buildAutoBullets(vessel, source.onboard).join("\n")
+        includeText: true,
+        experienceText: getVesselExperience(vessel) || buildAutoExperienceText(vessel, source.onboard)
       };
     });
 
@@ -404,15 +424,28 @@
     const sourceIds = new Set(source.vessels.map((v) => v.id));
 
     source.vessels.forEach((vessel) => {
-      if (!next.vessels[vessel.id]) {
+      const entry = next.vessels[vessel.id];
+      if (!entry) {
         next.vessels[vessel.id] = {
           included: true,
-          includeBio: Boolean(getVesselExperience(vessel)),
-          bullets: buildAutoBullets(vessel, source.onboard).join("\n")
+          includeText: true,
+          experienceText: getVesselExperience(vessel) || buildAutoExperienceText(vessel, source.onboard)
         };
         next.vesselOrder.unshift(vessel.id);
-      } else if (next.vessels[vessel.id].includeBio === undefined) {
-        next.vessels[vessel.id].includeBio = Boolean(getVesselExperience(vessel));
+        return;
+      }
+
+      // Migrate drafts saved before the per-vessel box was switched from
+      // "CV highlights" bullets to an editable experience-notes paragraph —
+      // carry over anything the crew member already customised rather than
+      // discarding it.
+      if (entry.experienceText === undefined) {
+        const legacyBullets = typeof entry.bullets === "string" ? entry.bullets.trim() : "";
+        entry.experienceText =
+          legacyBullets || getVesselExperience(vessel) || buildAutoExperienceText(vessel, source.onboard);
+        entry.includeText = entry.includeBio !== undefined ? entry.includeBio !== false : true;
+        delete entry.bullets;
+        delete entry.includeBio;
       }
     });
 
@@ -555,20 +588,18 @@
     const profile = source.profile;
     const vessels = getOrderedVessels(source, draft).map((vessel) => {
       const entry = draft?.vessels?.[vessel.id] || {};
-      const customBullets = splitBullets(entry.bullets);
-      const bullets = customBullets.length
-        ? customBullets
-        : buildAutoBullets(vessel, source.onboard);
-
-      const experienceText = getVesselExperience(vessel);
-      const includeBio = entry.includeBio !== false;
+      const includeText = entry.includeText !== false;
+      // Draft experience text is a per-CV override — it starts out equal to
+      // the vessel's saved experience_onboard/desc field but can be rewritten
+      // here for a specific employer without touching the vessel record.
+      const experienceText =
+        String(entry.experienceText ?? "").trim() || getVesselExperience(vessel);
 
       return {
         ...vessel,
         cvRole: getVesselRole(vessel),
         cvMeta: formatVesselMeta(vessel),
-        cvDescription: includeBio && experienceText ? experienceText : "",
-        cvBullets: bullets.slice(0, 8),
+        cvDescription: includeText && experienceText ? experienceText : "",
         dateRange: formatCvDateRange(vessel.from, vessel.to)
       };
     });
@@ -603,7 +634,7 @@
     splitParagraphs, splitBullets, sortByDateDesc, compareVesselsChronologicalDesc,
     getVesselRole, getVesselType, formatVesselSize, formatVesselMeta, formatVesselSubline,
     formatProfileDob, getReferenceItems, splitProfileLines, splitProfileList, certPriority, getCertDisplayName,
-    getPhotoUrl, buildCvSource, getVesselExperience, buildAutoBullets,
+    getPhotoUrl, buildCvSource, getVesselExperience, buildAutoBullets, buildAutoExperienceText,
     getProfileCareerOverview, buildFallbackSummary, buildAutoSummary, normalizeOverviewText,
     shouldUseProfileCareerOverview, buildAutoHeadline, getDefaultSections,
     createDefaultDraft, syncDraftWithSource, loadDraft, saveDraft, resetDraftFromSource,
