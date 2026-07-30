@@ -15,6 +15,21 @@
   const ACCENT = "1F3864";
   const MUTED = "555555";
 
+  // Word colours (hex, no leading #) per sidebar colour scheme — mirrors
+  // the CSS custom-property overrides in cv-generator.css so the exported
+  // Word doc's sidebar matches whatever's shown on screen/PDF.
+  const SIDEBAR_COLOR_SCHEMES = {
+    seav: { fill: "172438", text: "FFFFFF", heading: "5BBCFF" },
+    "ocean-blue": { fill: "123A4A", text: "FFFFFF", heading: "38B2AC" },
+    "simple-green": { fill: "1C3A22", text: "FFFFFF", heading: "8DC63F" },
+    "pearl-grey": { fill: "D7DADD", text: "1F2933", heading: "2F4858" },
+    "night-watch": { fill: "0A0F1A", text: "FFFFFF", heading: "6F93B8" }
+  };
+
+  function getSidebarScheme(template) {
+    return SIDEBAR_COLOR_SCHEMES[template] || SIDEBAR_COLOR_SCHEMES.seav;
+  }
+
   const SIDEBAR_WIDTH_DXA = 3060;
   const MAIN_WIDTH_DXA = 6578;
   const PHOTO_DISPLAY_WIDTH_PX = 132;
@@ -101,8 +116,8 @@
     return paragraph(text, { bold: true, size: 26, color: ACCENT }, { spacingBefore: 220, spacingAfter: 100 });
   }
 
-  function sidebarHeading(text) {
-    return paragraph(text, { bold: true, size: 19, color: ACCENT }, { spacingBefore: 160, spacingAfter: 50 });
+  function sidebarHeading(text, color = ACCENT) {
+    return paragraph(text, { bold: true, size: 19, color }, { spacingBefore: 160, spacingAfter: 50 });
   }
 
   function photoParagraph(photoAsset) {
@@ -127,6 +142,7 @@
   function buildSidebarCell(doc, photoAsset) {
     const profile = doc.profile || {};
     const sections = doc.sections || {};
+    const scheme = getSidebarScheme(doc.template);
     const parts = [];
 
     if (photoAsset) parts.push(photoParagraph(photoAsset));
@@ -134,15 +150,15 @@
     if (sections.showContact) {
       const contactParts = [profile.phone, profile.email, profile.location].filter(Boolean);
       if (contactParts.length) {
-        parts.push(sidebarHeading("Contact"));
-        contactParts.forEach((p) => parts.push(paragraph(p, { size: 18 }, { spacingAfter: 30 })));
+        parts.push(sidebarHeading("Contact", scheme.heading));
+        contactParts.forEach((p) => parts.push(paragraph(p, { size: 18, color: scheme.text }, { spacingAfter: 30 })));
       }
     }
 
     const dob = formatProfileDob ? formatProfileDob(profile.dob) : profile.dob || "";
     if (dob) {
-      parts.push(sidebarHeading("Date of Birth"));
-      parts.push(paragraph(dob, { size: 18 }, { spacingAfter: 30 }));
+      parts.push(sidebarHeading("Date of Birth", scheme.heading));
+      parts.push(paragraph(dob, { size: 18, color: scheme.text }, { spacingAfter: 30 }));
     }
 
     // Each line is tagged with what it actually is (Nationality/Passport/Visa)
@@ -157,31 +173,35 @@
       nationalityLines.push(`Visa: ${l}`)
     );
     if (nationalityLines.length) {
-      parts.push(sidebarHeading("Nationality & Visas"));
-      nationalityLines.forEach((l) => parts.push(paragraph(l, { size: 18 }, { spacingAfter: 20 })));
+      parts.push(sidebarHeading("Nationality & Visas", scheme.heading));
+      nationalityLines.forEach((l) => parts.push(paragraph(l, { size: 18, color: scheme.text }, { spacingAfter: 20 })));
     }
 
     if (profile.availability) {
-      parts.push(sidebarHeading("Availability"));
-      parts.push(paragraph(profile.availability, { size: 18 }, { spacingAfter: 30 }));
+      parts.push(sidebarHeading("Availability", scheme.heading));
+      parts.push(paragraph(profile.availability, { size: 18, color: scheme.text }, { spacingAfter: 30 }));
     }
 
     if (sections.showCerts && doc.certStrip?.length) {
-      parts.push(sidebarHeading("Yacht Qualifications"));
-      doc.certStrip.forEach((c) => parts.push(bulletParagraph(c, { size: 18 }, { spacingAfter: 20 })));
+      parts.push(sidebarHeading("Yacht Qualifications", scheme.heading));
+      doc.certStrip.forEach((c) =>
+        parts.push(bulletParagraph(c, { size: 18, color: scheme.text }, { spacingAfter: 20 }))
+      );
     }
 
     if (sections.showEducation && doc.specialistQualifications?.length) {
-      parts.push(sidebarHeading("Other Qualifications"));
+      parts.push(sidebarHeading("Other Qualifications", scheme.heading));
       doc.specialistQualifications.forEach((item) => {
         const label = [item.title, item.year ? `(${item.year})` : ""].filter(Boolean).join(" ");
-        parts.push(bulletParagraph(label, { size: 18 }, { spacingAfter: 20 }));
+        parts.push(bulletParagraph(label, { size: 18, color: scheme.text }, { spacingAfter: 20 }));
       });
     }
 
     if (sections.showHighlights && doc.highlights?.length) {
-      parts.push(sidebarHeading("Milestones"));
-      doc.highlights.forEach((h) => parts.push(bulletParagraph(h, { size: 18 }, { spacingAfter: 20 })));
+      parts.push(sidebarHeading("Milestones", scheme.heading));
+      doc.highlights.forEach((h) =>
+        parts.push(bulletParagraph(h, { size: 18, color: scheme.text }, { spacingAfter: 20 }))
+      );
     }
 
     if (!parts.length) parts.push(emptyParagraph());
@@ -245,6 +265,7 @@
 
   function buildDocumentXml(doc, photoAsset) {
     const sections = doc.sections || {};
+    const scheme = getSidebarScheme(doc.template);
     const body = [];
 
     if (sections.showSeavBranding) {
@@ -274,7 +295,7 @@
       "</w:tblPr>" +
       `<w:tblGrid><w:gridCol w:w="${SIDEBAR_WIDTH_DXA}"/><w:gridCol w:w="${MAIN_WIDTH_DXA}"/></w:tblGrid>` +
       "<w:tr>" +
-      `<w:tc><w:tcPr><w:tcW w:w="${SIDEBAR_WIDTH_DXA}" w:type="dxa"/><w:vAlign w:val="top"/></w:tcPr>${sidebarCellXml}</w:tc>` +
+      `<w:tc><w:tcPr><w:tcW w:w="${SIDEBAR_WIDTH_DXA}" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="${scheme.fill}"/><w:vAlign w:val="top"/></w:tcPr>${sidebarCellXml}</w:tc>` +
       `<w:tc><w:tcPr><w:tcW w:w="${MAIN_WIDTH_DXA}" w:type="dxa"/><w:vAlign w:val="top"/></w:tcPr>${mainCellXml}</w:tc>` +
       "</w:tr>" +
       "</w:tbl>";
@@ -286,260 +307,6 @@
       "<w:sectPr>" +
       '<w:pgSz w:w="11906" w:h="16838"/>' +
       '<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/>' +
-      "</w:sectPr>";
-
-    return (
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-      '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
-      `<w:body>${body.join("")}${sectPr}</w:body>` +
-      "</w:document>"
-    );
-  }
-
-  // =========================================================
-  // "Shipshape" template — single column, plain, ATS-friendly.
-  // No photo embedded, no colour accents — matches the on-screen/print
-  // template's deliberately software-parseable design.
-  // =========================================================
-
-  function buildPersonalDetailsParts(profile) {
-    const parts = [];
-    if (profile.nationality) parts.push(`Nationality: ${profile.nationality}`);
-    (splitProfileList ? splitProfileList(profile.passportsHeld) : []).forEach((v) =>
-      parts.push(`Passport: ${v}`)
-    );
-    (splitProfileLines ? splitProfileLines(profile.visasHeld) : []).forEach((v) =>
-      parts.push(`Visa: ${v}`)
-    );
-    const dob = formatProfileDob ? formatProfileDob(profile.dob) : "";
-    if (dob) parts.push(`Date of Birth: ${dob}`);
-    if (profile.availability) parts.push(`Availability: ${profile.availability}`);
-    return parts;
-  }
-
-  function buildClassicBody(doc) {
-    const profile = doc.profile || {};
-    const sections = doc.sections || {};
-    const parts = [];
-
-    parts.push(
-      paragraph(profile.name || "Your Name", { bold: true, size: 44 }, { spacingAfter: 30, align: "center" })
-    );
-    if (doc.headline) {
-      parts.push(paragraph(doc.headline, { size: 21 }, { spacingAfter: 60, align: "center" }));
-    }
-
-    const contactParts = sections.showContact
-      ? [profile.phone, profile.email, profile.location].filter(Boolean)
-      : [];
-    if (contactParts.length) {
-      parts.push(
-        paragraph(contactParts.join("   |   "), { size: 18, color: MUTED }, { spacingAfter: 20, align: "center" })
-      );
-    }
-
-    const detailsParts = buildPersonalDetailsParts(profile);
-    if (detailsParts.length) {
-      parts.push(
-        paragraph(detailsParts.join("   |   "), { size: 18, color: MUTED }, { spacingAfter: 160, align: "center" })
-      );
-    }
-
-    parts.push(sectionHeading("Professional Summary"));
-    (doc.summaryParagraphs || []).forEach((p) => parts.push(paragraph(p, { size: 20 }, { spacingAfter: 100 })));
-
-    parts.push(sectionHeading("Yachting Experience"));
-    if (!doc.vessels?.length) {
-      parts.push(
-        paragraph(
-          "Include at least one vessel in the CV editor.",
-          { italic: true, size: 20, color: MUTED },
-          { spacingAfter: 140 }
-        )
-      );
-    } else {
-      doc.vessels.forEach((vessel) => {
-        const role = vessel.cvRole || "Crew member";
-        parts.push(
-          paragraph(`${role} — ${vessel.name || "Yacht"}`, { bold: true, size: 20 }, { spacingBefore: 120, spacingAfter: 10 })
-        );
-        parts.push(paragraph(vessel.dateRange || "", { italic: true, size: 18, color: MUTED }, { spacingAfter: 30 }));
-        const subline = formatVesselSubline ? formatVesselSubline(vessel) : "";
-        if (subline) parts.push(paragraph(subline, { italic: true, size: 18, color: MUTED }, { spacingAfter: 40 }));
-        if (vessel.cvDescription) {
-          (splitParagraphs ? splitParagraphs(vessel.cvDescription) : [vessel.cvDescription]).forEach((p) => {
-            parts.push(paragraph(p, { size: 20 }, { spacingAfter: 60 }));
-          });
-        }
-      });
-    }
-
-    if (sections.showCerts && doc.certStrip?.length) {
-      parts.push(sectionHeading("Certifications"));
-      parts.push(paragraph(doc.certStrip.join(", "), { size: 20 }, { spacingAfter: 100 }));
-    }
-
-    if (sections.showEducation && doc.specialistQualifications?.length) {
-      parts.push(sectionHeading("Specialist Qualifications"));
-      parts.push(
-        paragraph(doc.specialistQualifications.map((i) => i.title).join(", "), { size: 20 }, { spacingAfter: 100 })
-      );
-    }
-
-    if (sections.showHighlights && doc.highlights?.length) {
-      parts.push(sectionHeading("Milestones"));
-      parts.push(paragraph(doc.highlights.join(" · "), { size: 20 }, { spacingAfter: 100 }));
-    }
-
-    if (sections.showReferences && doc.references?.length) {
-      parts.push(sectionHeading("References"));
-      doc.references.forEach((ref) => {
-        const line = [ref.name, ref.detail, ref.email].filter(Boolean).join("  —  ");
-        parts.push(paragraph(line, { size: 20 }, { spacingAfter: 30 }));
-      });
-    }
-
-    if (sections.showSeavBranding) {
-      parts.push(paragraph("Built with SEA-V", { italic: true, size: 15, color: MUTED }, { spacingBefore: 160, align: "right" }));
-    }
-
-    if (!parts.length) parts.push(emptyParagraph());
-    return parts.join("");
-  }
-
-  function buildClassicDocumentXml(doc) {
-    const sectPr =
-      "<w:sectPr>" +
-      '<w:pgSz w:w="11906" w:h="16838"/>' +
-      '<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/>' +
-      "</w:sectPr>";
-
-    return (
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-      '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
-      `<w:body>${buildClassicBody(doc)}${sectPr}</w:body>` +
-      "</w:document>"
-    );
-  }
-
-  // =========================================================
-  // "Tight Ship" template — dense single column, smaller type. Keeps
-  // the photo (centered, no sidebar table), drops the section separation
-  // to fit more onto fewer pages.
-  // =========================================================
-
-  function buildCompactBody(doc, photoAsset) {
-    const profile = doc.profile || {};
-    const sections = doc.sections || {};
-    const parts = [];
-
-    if (photoAsset) parts.push(photoParagraph(photoAsset));
-
-    parts.push(
-      paragraph(
-        profile.name || "Your Name",
-        { bold: true, size: 32, color: ACCENT },
-        { spacingAfter: 20, align: photoAsset ? "center" : undefined }
-      )
-    );
-    if (doc.headline) {
-      parts.push(
-        paragraph(
-          doc.headline,
-          { bold: true, size: 17, color: MUTED },
-          { spacingAfter: 60, align: photoAsset ? "center" : undefined }
-        )
-      );
-    }
-
-    const contactParts = sections.showContact
-      ? [profile.phone, profile.email, profile.location].filter(Boolean)
-      : [];
-    if (contactParts.length) {
-      parts.push(
-        paragraph(
-          contactParts.join("   |   "),
-          { size: 15, color: MUTED },
-          { spacingAfter: 10, align: photoAsset ? "center" : undefined }
-        )
-      );
-    }
-
-    const detailsParts = buildPersonalDetailsParts(profile);
-    if (detailsParts.length) {
-      parts.push(
-        paragraph(
-          detailsParts.join("   |   "),
-          { size: 15, color: MUTED },
-          { spacingAfter: 120, align: photoAsset ? "center" : undefined }
-        )
-      );
-    }
-
-    (doc.summaryParagraphs || []).forEach((p) => parts.push(paragraph(p, { size: 17 }, { spacingAfter: 80 })));
-
-    parts.push(sidebarHeading("Yachting Experience"));
-    if (!doc.vessels?.length) {
-      parts.push(
-        paragraph(
-          "Include at least one vessel in the CV editor.",
-          { italic: true, size: 17, color: MUTED },
-          { spacingAfter: 100 }
-        )
-      );
-    } else {
-      doc.vessels.forEach((vessel) => {
-        const role = vessel.cvRole || "Crew member";
-        const titleLine = [vessel.dateRange, role, vessel.name || "Yacht"].filter(Boolean).join("   ·   ");
-        parts.push(paragraph(titleLine, { bold: true, size: 16 }, { spacingBefore: 80, spacingAfter: 10 }));
-        const subline = formatVesselSubline ? formatVesselSubline(vessel) : "";
-        if (subline) parts.push(paragraph(subline, { italic: true, size: 14, color: MUTED }, { spacingAfter: 20 }));
-        if (vessel.cvDescription) {
-          (splitParagraphs ? splitParagraphs(vessel.cvDescription) : [vessel.cvDescription]).forEach((p) => {
-            parts.push(paragraph(p, { size: 16 }, { spacingAfter: 30 }));
-          });
-        }
-      });
-    }
-
-    if (sections.showCerts && doc.certStrip?.length) {
-      parts.push(sidebarHeading("Certifications"));
-      parts.push(paragraph(doc.certStrip.join(", "), { size: 16 }, { spacingAfter: 80 }));
-    }
-    if (sections.showEducation && doc.specialistQualifications?.length) {
-      parts.push(sidebarHeading("Specialist Qualifications"));
-      parts.push(
-        paragraph(doc.specialistQualifications.map((i) => i.title).join(", "), { size: 16 }, { spacingAfter: 80 })
-      );
-    }
-    if (sections.showHighlights && doc.highlights?.length) {
-      parts.push(sidebarHeading("Milestones"));
-      parts.push(paragraph(doc.highlights.join(" · "), { size: 16 }, { spacingAfter: 80 }));
-    }
-    if (sections.showReferences && doc.references?.length) {
-      parts.push(sidebarHeading("References"));
-      doc.references.forEach((ref) => {
-        const line = [ref.name, ref.detail, ref.email].filter(Boolean).join("  —  ");
-        parts.push(paragraph(line, { size: 16 }, { spacingAfter: 20 }));
-      });
-    }
-
-    if (!parts.length) parts.push(emptyParagraph());
-    return parts.join("");
-  }
-
-  function buildCompactDocumentXml(doc, photoAsset) {
-    const sections = doc.sections || {};
-    const body = [];
-    if (sections.showSeavBranding) {
-      body.push(paragraph("Built with SEA-V", { italic: true, size: 13, color: MUTED }, { spacingAfter: 60, align: "right" }));
-    }
-    body.push(buildCompactBody(doc, photoAsset));
-
-    const sectPr =
-      "<w:sectPr>" +
-      '<w:pgSz w:w="11906" w:h="16838"/>' +
-      '<w:pgMar w:top="850" w:right="850" w:bottom="850" w:left="850" w:header="708" w:footer="708" w:gutter="0"/>' +
       "</w:sectPr>";
 
     return (
@@ -638,25 +405,14 @@
       throw new Error("Export library not loaded. Refresh the page and try again.");
     }
 
-    const template = documentModel?.template || "seav";
-    // Shipshape is deliberately ATS-plain — no embedded photo, so skip
-    // fetching it entirely rather than fetching and then discarding it.
-    const wantsPhoto = template !== "classic";
-    const photoAsset = wantsPhoto ? await tryLoadPhotoAsset(documentModel?.photoUrl) : null;
+    const photoAsset = await tryLoadPhotoAsset(documentModel?.photoUrl);
 
     const zip = new JSZip();
     zip.file("[Content_Types].xml", contentTypesXml(!!photoAsset));
     zip.folder("_rels").file(".rels", RELS_XML);
 
-    const documentXml =
-      template === "classic"
-        ? buildClassicDocumentXml(documentModel)
-        : template === "compact"
-          ? buildCompactDocumentXml(documentModel, photoAsset)
-          : buildDocumentXml(documentModel, photoAsset);
-
     const wordFolder = zip.folder("word");
-    wordFolder.file("document.xml", documentXml);
+    wordFolder.file("document.xml", buildDocumentXml(documentModel, photoAsset));
     if (photoAsset) {
       wordFolder.folder("_rels").file("document.xml.rels", DOCUMENT_RELS_XML);
       wordFolder.folder("media").file("photo.png", photoAsset.arrayBuffer);

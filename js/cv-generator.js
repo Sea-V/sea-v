@@ -66,7 +66,9 @@
 
     const source = getSource();
     const documentModel = window.SeavCvEngine.buildCvDocument(source, draft);
-    preview.className = `cv-document cv-document--${documentModel.template}`;
+    // Single layout now — the colour scheme class lives on the inner
+    // .cv-seav wrapper (added by renderSeav itself), not this outer one.
+    preview.className = "cv-document cv-document--seav";
     preview.innerHTML = window.SeavCvEngine.renderCvHtml(documentModel);
   }
 

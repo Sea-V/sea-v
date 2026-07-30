@@ -389,12 +389,15 @@
 
   const CV_TEMPLATE = "seav";
 
-  // Internal ids stay stable (and match existing CSS/render/docx code) —
-  // only the label shown in the template picker needs to be fun/on-brand.
+  // One layout, five colour schemes — internal ids stay stable (matching
+  // the "cv-color-<id>" CSS classes and the docx colour lookup) while the
+  // label shown in the picker carries the fun/on-brand name.
   const CV_TEMPLATES = [
-    { id: "seav", label: "Flagship — sidebar photo, SEA-V colours" },
-    { id: "classic", label: "Shipshape — single column, plain & ATS-friendly" },
-    { id: "compact", label: "Tight Ship — dense single column, fits more per page" }
+    { id: "seav", label: "Sea-V Original — navy sidebar, the signature look" },
+    { id: "ocean-blue", label: "Ocean Blue — deeper teal-blue sidebar" },
+    { id: "simple-green", label: "Simple Green — dark green sidebar, bright green accent" },
+    { id: "pearl-grey", label: "Pearl Grey — light grey sidebar, dark text" },
+    { id: "night-watch", label: "Night Watch — near-black sidebar, muted steel-blue accent" }
   ];
 
   function isValidTemplate(id) {
