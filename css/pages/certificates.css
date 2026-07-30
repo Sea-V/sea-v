@@ -217,13 +217,13 @@
 
 .cert-status-pill.pill-valid {
   /* Same pastel mint as the shared .pill-valid (css/components/pills.css) —
-     was a dark saturated green here. */
+     was a dark saturated green here. No box-shadow — Jack doesn't want
+     glow/halo effects on pills, and every other status variant on this
+     page (missing/pending/neutral/warning/expired) is already flat
+     border+background with none. */
   border: 1px solid rgba(94, 230, 168, 0.42);
   background: rgba(94, 230, 168, 0.16);
   color: #eaffef;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 4px 12px rgba(94, 230, 168, 0.14);
 }
 
 .cert-status-pill.pill-warning {
