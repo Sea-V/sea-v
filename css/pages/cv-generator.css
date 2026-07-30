@@ -300,6 +300,10 @@
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 10.5pt;
+  /* Reset — this is a simulated printed document, not app UI chrome, so it
+     shouldn't inherit body.app-page's semi-bold (600) default UI weight.
+     Headings/labels opt back into bold explicitly where they need it. */
+  font-weight: 400;
   line-height: 1.45;
   overflow: hidden;
 }

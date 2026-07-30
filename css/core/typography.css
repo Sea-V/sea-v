@@ -46,13 +46,17 @@ body.signup-page input {
   font-family: inherit;
 }
 
-/* Remove CSS-driven ALL CAPS everywhere in the product */
-body.app-page *,
-body.public-page *,
-body.public-profile-page *,
-body.landing-page *,
-body.index-page *,
-body.signup-page * {
+/* Remove CSS-driven ALL CAPS everywhere in the product.
+   Excludes .cv-document: the CV generator's preview/print output is a
+   simulated printed page with its own deliberate uppercase/letter-spacing
+   typography (name, section titles), not app UI chrome — without this
+   exclusion this blanket rule silently flattens that back to normal case. */
+body.app-page *:not(.cv-document, .cv-document *),
+body.public-page *:not(.cv-document, .cv-document *),
+body.public-profile-page *:not(.cv-document, .cv-document *),
+body.landing-page *:not(.cv-document, .cv-document *),
+body.index-page *:not(.cv-document, .cv-document *),
+body.signup-page *:not(.cv-document, .cv-document *) {
   text-transform: none !important;
   letter-spacing: normal !important;
 }
@@ -148,7 +152,7 @@ body.landing-page .info-title {
   .seatime-stat-value,
   .profile-field-label,
   .profile-field-value
-):not(.legal-topbar *, .legal-footer *) {
+):not(.legal-topbar *, .legal-footer *, .cv-document, .cv-document *) {
   font-family: inherit !important;
   font-size: var(--font-body) !important;
 }
@@ -175,7 +179,9 @@ body.app-page :where(
   line-height: var(--pill-line-height) !important;
 }
 
-/* Section / card headings match body size (not page titles) */
+/* Section / card headings match body size (not page titles).
+   Excludes .cv-document — the CV's vessel job titles are h3s but need the
+   CV's own point-size scale, not the app's flat 14px UI heading size. */
 :is(body.app-page, body.public-profile-page, body.landing-page) :where(
   h3,
   h4,
@@ -184,7 +190,7 @@ body.app-page :where(
   [class$="-shell-section-head"] h3,
   [class$="-section-head"] h3,
   .dash-card h3
-) {
+):not(.cv-document, .cv-document *) {
   font-family: inherit !important;
   font-size: var(--font-body) !important;
   font-weight: 700 !important;
