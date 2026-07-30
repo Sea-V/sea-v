@@ -257,6 +257,33 @@
     });
   }
 
+  // Collapsed by default (see dashboard.html comment) — a plain
+  // expand/collapse chevron, not tied to saved state, since this is just
+  // reducing header clutter, not a preference worth persisting.
+  function expandDashboardPublicDetails() {
+    const toggleBtn = document.getElementById("dashPublicShareToggle");
+    const details = document.getElementById("dashPublicShareDetails");
+    if (!toggleBtn || !details) return;
+
+    toggleBtn.setAttribute("aria-expanded", "true");
+    toggleBtn.setAttribute("aria-label", "Hide your public link");
+    details.hidden = false;
+  }
+
+  function initDashboardPublicDetailsToggle() {
+    const toggleBtn = document.getElementById("dashPublicShareToggle");
+    const details = document.getElementById("dashPublicShareDetails");
+    if (!toggleBtn || !details) return;
+
+    toggleBtn.addEventListener("click", () => {
+      const expanded = toggleBtn.getAttribute("aria-expanded") === "true";
+      const next = !expanded;
+      toggleBtn.setAttribute("aria-expanded", String(next));
+      toggleBtn.setAttribute("aria-label", next ? "Hide your public link" : "Show your public link");
+      details.hidden = !next;
+    });
+  }
+
   function initDashboardPublicToggle() {
     const checkbox = document.getElementById("dashPublicEnabled");
     const copyBtn = document.getElementById("dashPublicLinkCopy");
@@ -265,6 +292,7 @@
 
     syncDashboardPublicPanel();
     initDashboardPublicUsername();
+    initDashboardPublicDetailsToggle();
 
     copyBtn?.addEventListener("click", () => {
       copyDashboardPublicProfileLink();
@@ -296,6 +324,14 @@
         }, { sub: "Updating public profile" });
 
         syncDashboardPublicPanel(updated);
+
+        // Turning visibility on is exactly the moment someone wants their
+        // link — auto-expand so it's not hidden behind the chevron right
+        // when it becomes useful. Turning it off doesn't collapse it back;
+        // no need to yank the panel shut if they're actively looking at it.
+        if (updated.publicEnabled) {
+          expandDashboardPublicDetails();
+        }
 
         Seav.notify(
           "success",
