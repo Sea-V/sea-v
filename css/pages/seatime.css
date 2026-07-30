@@ -386,9 +386,113 @@
   background: rgba(255,255,255,0.025);
 }
 
-.seatime-empty-row td {
-  padding: 0 !important;
-  border-bottom: 0 !important;
+/* =========================================================
+   VESSEL GROUPS
+   Entries are grouped per vessel as a collapsible <details>,
+   each wrapping its own .seatime-table-wrap — same pattern as
+   .tender-vessel-group on the Tenders page (css/pages/tenders.css),
+   just built around a table instead of a card grid. All closed by
+   default, matching the Tenders/public-profile convention.
+========================================================= */
+
+.seatime-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.seatime-vessel-group {
+  border-radius: 18px;
+  border: 1px solid rgba(130, 158, 255, 0.28);
+
+  background: rgba(255, 255, 255, 0.02);
+
+  overflow: hidden;
+}
+
+.seatime-vessel-group-summary {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+
+  padding: 14px 18px;
+}
+
+.seatime-vessel-group-summary::-webkit-details-marker {
+  display: none;
+}
+
+.seatime-vessel-group-summary::before {
+  content: "›";
+  display: inline-block;
+
+  font-size: 16px;
+  line-height: 1;
+
+  color: rgba(255, 255, 255, 0.6);
+
+  transition: transform 0.15s ease;
+}
+
+.seatime-vessel-group[open] .seatime-vessel-group-summary::before {
+  transform: rotate(90deg);
+}
+
+.seatime-vessel-group-title {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+  min-width: 0;
+}
+
+.seatime-vessel-group-title strong {
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seatime-vessel-group-title small {
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.seatime-vessel-group-count {
+  margin-left: auto;
+
+  min-width: 22px;
+  padding: 1px 8px;
+
+  border-radius: 999px;
+  background: rgba(130, 158, 255, 0.16);
+
+  color: var(--seatime-accent);
+
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+
+  flex-shrink: 0;
+}
+
+.seatime-vessel-group .seatime-table-wrap {
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid rgba(130, 158, 255, 0.14);
+
+  box-shadow: none;
 }
 
 .seatime-empty-state {

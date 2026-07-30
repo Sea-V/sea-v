@@ -811,14 +811,14 @@
    SEA SERVICE TABLE FIXES
 ========================================================= */
 
-#seatimeBody td:nth-child(2) {
+.seatime-table tbody td:nth-child(2) {
   min-width: 170px;
 
   white-space: nowrap;
 }
 
-#seatimeBody td:nth-child(4),
-#seatimeBody td:nth-child(5) {
+.seatime-table tbody td:nth-child(4),
+.seatime-table tbody td:nth-child(5) {
   min-width: 120px;
 
   white-space: nowrap;

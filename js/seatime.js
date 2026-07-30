@@ -29,6 +29,7 @@
     totalQualifyingDays,
     getSeatimeTotals,
     getSortedVesselOptions,
+    getVesselColor,
     formatDatePretty
   } = window.SeavData;
 
@@ -365,80 +366,172 @@
     }
   }
 
+  const SEATIME_TABLE_HEAD = `
+    <thead>
+      <tr>
+        <th colspan="3">Vessel &amp; capacity</th>
+        <th colspan="2">Service period</th>
+        <th colspan="5">Qualifying days</th>
+        <th colspan="3">Evidence</th>
+      </tr>
+      <tr>
+        <th>Vessel</th>
+        <th>Flag / GT</th>
+        <th>Capacity</th>
+        <th>Signed on</th>
+        <th>Signed off</th>
+        <th>Sea</th>
+        <th>Standby</th>
+        <th>Yard</th>
+        <th>Watch</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Testimonial</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+  `;
+
+  function buildSeatimeRowHtml(x) {
+    const seatimeId = x.id || "";
+    const linkedVessel = getVesselById(x.vesselId);
+
+    const displayVesselName = getDisplayVesselName(x);
+    const flag = x.flag || linkedVessel?.flag || "—";
+    const gt = x.gt || linkedVessel?.gt || "";
+
+    const flagGt = [
+      flag ? Seav.escapeHtml(flag) : "—",
+      gt ? `${Seav.escapeHtml(gt)} GT` : "—"
+    ].join(" • ");
+
+    const total = totalQualifyingDays(x);
+
+    const attachmentUrl = getSeatimeAttachmentUrl(x.attachment);
+    const hasAttachment = hasSeatimeAttachment(x.attachment);
+
+    const attachCell = attachmentUrl
+      ? `<a class="seav-action seav-action--secondary seatime-testimonial-link" href="${Seav.escapeHtml(attachmentUrl)}" target="_blank" rel="noopener">View SST</a>`
+      : hasAttachment
+        ? `<span class="seatime-no-file muted">Loading…</span>`
+        : `<span class="seatime-no-file">Not uploaded</span>`;
+
+    return `
+      <tr>
+        <td>${Seav.escapeHtml(displayVesselName)}</td>
+        <td>${flagGt}</td>
+        <td>${Seav.escapeHtml(x.capacityServed || "—")}</td>
+        <td>${formatDatePretty(x.dateJoined)}${x.locationJoined ? `<br><small class="muted">${Seav.escapeHtml(x.locationJoined)}</small>` : ""}</td>
+        <td>${x.dateLeft ? formatDatePretty(x.dateLeft) : "Present"}${x.locationLeft ? `<br><small class="muted">${Seav.escapeHtml(x.locationLeft)}</small>` : ""}</td>
+        <td>${getSeatimeDayValue(x, "actualSeaServiceDays", "actualSea")}</td>
+        <td>${getSeatimeDayValue(x, "standbyServiceDays", "standby")}</td>
+        <td>${getSeatimeDayValue(x, "yardServiceDays", "yard")}</td>
+        <td>${getSeatimeDayValue(x, "watchkeepingDays", "watchkeeping")}</td>
+        <td>${total}</td>
+        <td><span class="pill">${Seav.escapeHtml(x.verificationStatus || "Logged")}</span></td>
+        <td>${attachCell}</td>
+        <td class="row-actions">
+          <a
+            class="seav-action seav-action--secondary"
+            href="navigation.html?seatime=${encodeURIComponent(seatimeId)}"
+          >Add passage plan</a>
+          ${Seav.seavAction(
+            "edit",
+            "Edit",
+            `data-edit-seatime-id="${Seav.escapeHtml(seatimeId)}"`
+          )}
+          ${Seav.seavAction(
+            "delete",
+            "Delete",
+            `data-del-seatime-id="${Seav.escapeHtml(seatimeId)}"`
+          )}
+        </td>
+      </tr>
+    `;
+  }
+
+  // Groups entries by linked vessel so the entries table can render a
+  // collapsible section per vessel (same shape as js/tenders.js
+  // buildTenderVesselGroups). Vessel order matches the vessel dropdown
+  // (getSortedVesselOptions — most recently active first); entries within
+  // a group keep whatever order they arrive in (already date-sorted by
+  // renderSeatimes before this runs). Purely a rendering change — the
+  // flat `seatimes` array passed in is untouched, so OOW/Master tracker
+  // math (updateOowTracker/updateMasterTracker) and CSV export
+  // (exportSeatimeCsv), which both read straight from getSeatimes(), are
+  // unaffected by how entries are grouped for display.
+  function buildSeatimeVesselGroups(seatimes) {
+    const vessels = getVessels();
+    const groups = new Map();
+
+    seatimes.forEach((entry) => {
+      const key = entry.vesselId || "";
+      if (!groups.has(key)) {
+        groups.set(key, {
+          vesselId: key,
+          vesselName: key ? getDisplayVesselName(entry) : "Unlinked entries",
+          vesselColor: key ? getVesselColor(key, vessels) : "",
+          entries: []
+        });
+      }
+      groups.get(key).entries.push(entry);
+    });
+
+    const vesselOrder = getSortedVesselOptions(vessels).map((v) => v.id);
+
+    return [...groups.values()].sort((a, b) => {
+      if (!a.vesselId && !b.vesselId) return 0;
+      if (!a.vesselId) return 1;
+      if (!b.vesselId) return -1;
+
+      const ai = vesselOrder.indexOf(a.vesselId);
+      const bi = vesselOrder.indexOf(b.vesselId);
+      return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+    });
+  }
+
   function renderSeatimeRows(seatimes) {
-    const seatimeBody = document.getElementById("seatimeBody");
-    if (!seatimeBody) return;
+    const container = document.getElementById("seatimeGroups");
+    if (!container) return;
 
     if (!seatimes.length) {
-      seatimeBody.innerHTML = `
-        <tr class="seatime-empty-row">
-          <td colspan="13">
-            <div class="seatime-empty-state">
-              <strong>No sea service entries yet</strong>
-              <span>Add your first vessel engagement with joined/left dates and day breakdown.</span>
-            </div>
-          </td>
-        </tr>
+      container.innerHTML = `
+        <div class="seatime-table-wrap">
+          <div class="seatime-empty-state">
+            <strong>No sea service entries yet</strong>
+            <span>Add your first vessel engagement with joined/left dates and day breakdown.</span>
+          </div>
+        </div>
       `;
       return;
     }
 
-    seatimeBody.innerHTML = seatimes
-      .map((x) => {
-        const seatimeId = x.id || "";
-        const linkedVessel = getVesselById(x.vesselId);
+    const groups = buildSeatimeVesselGroups(seatimes);
 
-        const displayVesselName = getDisplayVesselName(x);
-        const flag = x.flag || linkedVessel?.flag || "—";
-        const gt = x.gt || linkedVessel?.gt || "";
-
-        const flagGt = [
-          flag ? Seav.escapeHtml(flag) : "—",
-          gt ? `${Seav.escapeHtml(gt)} GT` : "—"
-        ].join(" • ");
-
-        const total = totalQualifyingDays(x);
-
-        const attachmentUrl = getSeatimeAttachmentUrl(x.attachment);
-        const hasAttachment = hasSeatimeAttachment(x.attachment);
-
-        const attachCell = attachmentUrl
-          ? `<a class="seav-action seav-action--secondary seatime-testimonial-link" href="${Seav.escapeHtml(attachmentUrl)}" target="_blank" rel="noopener">View SST</a>`
-          : hasAttachment
-            ? `<span class="seatime-no-file muted">Loading…</span>`
-            : `<span class="seatime-no-file">Not uploaded</span>`;
+    container.innerHTML = groups
+      .map((group) => {
+        const totalDays = group.entries.reduce(
+          (sum, entry) => sum + totalQualifyingDays(entry),
+          0
+        );
 
         return `
-          <tr>
-            <td>${Seav.escapeHtml(displayVesselName)}</td>
-            <td>${flagGt}</td>
-            <td>${Seav.escapeHtml(x.capacityServed || "—")}</td>
-            <td>${formatDatePretty(x.dateJoined)}${x.locationJoined ? `<br><small class="muted">${Seav.escapeHtml(x.locationJoined)}</small>` : ""}</td>
-            <td>${x.dateLeft ? formatDatePretty(x.dateLeft) : "Present"}${x.locationLeft ? `<br><small class="muted">${Seav.escapeHtml(x.locationLeft)}</small>` : ""}</td>
-            <td>${getSeatimeDayValue(x, "actualSeaServiceDays", "actualSea")}</td>
-            <td>${getSeatimeDayValue(x, "standbyServiceDays", "standby")}</td>
-            <td>${getSeatimeDayValue(x, "yardServiceDays", "yard")}</td>
-            <td>${getSeatimeDayValue(x, "watchkeepingDays", "watchkeeping")}</td>
-            <td>${total}</td>
-            <td><span class="pill">${Seav.escapeHtml(x.verificationStatus || "Logged")}</span></td>
-            <td>${attachCell}</td>
-            <td class="row-actions">
-              <a
-                class="seav-action seav-action--secondary"
-                href="navigation.html?seatime=${encodeURIComponent(seatimeId)}"
-              >Add passage plan</a>
-              ${Seav.seavAction(
-                "edit",
-                "Edit",
-                `data-edit-seatime-id="${Seav.escapeHtml(seatimeId)}"`
-              )}
-              ${Seav.seavAction(
-                "delete",
-                "Delete",
-                `data-del-seatime-id="${Seav.escapeHtml(seatimeId)}"`
-              )}
-            </td>
-          </tr>
+          <details class="seatime-vessel-group">
+            <summary class="seatime-vessel-group-summary">
+              ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
+              <span class="seatime-vessel-group-title">
+                <strong>${Seav.escapeHtml(group.vesselName)}</strong>
+                <small>${group.entries.length} ${group.entries.length === 1 ? "entry" : "entries"} • ${totalDays} qualifying days</small>
+              </span>
+              <span class="seatime-vessel-group-count">${group.entries.length}</span>
+            </summary>
+            <div class="seatime-table-wrap">
+              <table class="seatime-table">
+                ${SEATIME_TABLE_HEAD}
+                <tbody>${group.entries.map(buildSeatimeRowHtml).join("")}</tbody>
+              </table>
+            </div>
+          </details>
         `;
       })
       .join("");
