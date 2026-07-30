@@ -657,8 +657,13 @@
   transition: width 0.35s ease;
 }
 
+/* This sits right under the bordered KPI box grid (both in the OOW
+   section and the Master section below it), so 14px read as barely any
+   gap at all against a strong box edge — bumped to a more generous 20px,
+   matching the gap already used above the grid itself
+   (.seatime-oow-panel > .kpi-row-grid). */
 .seatime-oow-breakdown {
-  margin-top: 14px;
+  margin-top: 20px;
   font-size: 13px;
   line-height: 1.5;
   color: rgba(214, 226, 238, 0.82);
