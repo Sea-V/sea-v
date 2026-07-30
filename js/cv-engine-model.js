@@ -389,7 +389,19 @@
 
   const CV_TEMPLATE = "seav";
 
-  function createDefaultDraft(source, _template = CV_TEMPLATE) {
+  // Internal ids stay stable (and match existing CSS/render/docx code) —
+  // only the label shown in the template picker needs to be fun/on-brand.
+  const CV_TEMPLATES = [
+    { id: "seav", label: "Flagship — sidebar photo, SEA-V colours" },
+    { id: "classic", label: "Shipshape — single column, plain & ATS-friendly" },
+    { id: "compact", label: "Tight Ship — dense single column, fits more per page" }
+  ];
+
+  function isValidTemplate(id) {
+    return CV_TEMPLATES.some((t) => t.id === id);
+  }
+
+  function createDefaultDraft(source, template = CV_TEMPLATE) {
     const vesselEntries = {};
     source.vessels.forEach((vessel) => {
       vesselEntries[vessel.id] = {
@@ -402,7 +414,7 @@
     const profileOverview = getProfileCareerOverview(source);
 
     return {
-      template: CV_TEMPLATE,
+      template: isValidTemplate(template) ? template : CV_TEMPLATE,
       summary: buildAutoSummary(source),
       profileBioSynced: profileOverview,
       headline: buildAutoHeadline(source),
@@ -491,7 +503,7 @@
     }
 
     if (!next.headline) next.headline = buildAutoHeadline(source);
-    next.template = CV_TEMPLATE;
+    next.template = isValidTemplate(next.template) ? next.template : CV_TEMPLATE;
 
     return next;
   }
@@ -522,8 +534,8 @@
     return userId ? `${KEYS.CV_DRAFT}_${userId}` : KEYS.CV_DRAFT;
   }
 
-  function resetDraftFromSource(source) {
-    const draft = createDefaultDraft(source);
+  function resetDraftFromSource(source, template) {
+    const draft = createDefaultDraft(source, template);
     return saveDraft(draft);
   }
 
@@ -628,6 +640,7 @@
     return {
       profile,
       photoUrl: getPhotoUrl(profile),
+      template: isValidTemplate(draft?.template) ? draft.template : CV_TEMPLATE,
       headline,
       summaryParagraphs: splitParagraphs(summaryText).length
         ? splitParagraphs(summaryText)
@@ -656,6 +669,6 @@
     shouldUseProfileCareerOverview, buildAutoHeadline, getDefaultSections,
     createDefaultDraft, syncDraftWithSource, loadDraft, saveDraft, resetDraftFromSource,
     getOrderedVessels, getCertStrip, getSpecialistQualificationItems, getHighlightLines,
-    buildCvDocument, CV_TEMPLATE, LOGO_SRC
+    buildCvDocument, CV_TEMPLATE, CV_TEMPLATES, isValidTemplate, LOGO_SRC
   };
 })();

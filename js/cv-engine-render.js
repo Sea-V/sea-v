@@ -185,7 +185,258 @@
     `;
   }
 
+  // =========================================================
+  // "Shipshape" template — single column, plain & ATS-friendly.
+  // Deliberately no photo, no colour accents, no tables/columns, so
+  // resume-parsing software can read it cleanly.
+  // =========================================================
+
+  function buildPersonalDetailsLine(profile) {
+    const parts = [];
+    if (profile.nationality) parts.push(`Nationality: ${profile.nationality}`);
+    splitProfileList(profile.passportsHeld).forEach((v) => parts.push(`Passport: ${v}`));
+    splitProfileLines(profile.visasHeld).forEach((v) => parts.push(`Visa: ${v}`));
+    const dob = formatProfileDob(profile.dob);
+    if (dob) parts.push(`Date of Birth: ${dob}`);
+    if (profile.availability) parts.push(`Availability: ${profile.availability}`);
+    return parts;
+  }
+
+  function renderClassicExperience(vessels) {
+    if (!vessels.length) {
+      return `<p class="cv-empty-copy">Include at least one vessel in the CV editor.</p>`;
+    }
+    return vessels
+      .map((vessel) => {
+        const role = vessel.cvRole || getVesselRole(vessel);
+        const subline = formatVesselSubline(vessel);
+        const descriptionHtml = vessel.cvDescription
+          ? splitParagraphs(vessel.cvDescription)
+              .map((p) => `<p class="cv-classic-job-desc">${escapeHtml(p)}</p>`)
+              .join("")
+          : "";
+        return `
+          <article class="cv-classic-job">
+            <h3 class="cv-classic-job-title">${escapeHtml(role || "Crew member")} — ${escapeHtml(
+              vessel.name || "Yacht"
+            )}</h3>
+            <p class="cv-classic-job-dates">${escapeHtml(vessel.dateRange)}</p>
+            ${subline ? `<p class="cv-classic-job-subline">${escapeHtml(subline)}</p>` : ""}
+            ${descriptionHtml}
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  function renderClassicReferences(references) {
+    if (!references.length) return "";
+    return `
+      <section class="cv-classic-section">
+        <h2 class="cv-classic-section-title">References</h2>
+        ${references
+          .map((ref) => {
+            const line = [ref.name, ref.detail, ref.email].filter(Boolean);
+            return `<p class="cv-classic-ref"><strong>${escapeHtml(ref.name)}</strong>${
+              ref.detail ? ` — ${escapeHtml(ref.detail)}` : ""
+            }${ref.email ? ` — ${escapeHtml(ref.email)}` : ""}</p>`;
+          })
+          .join("")}
+      </section>
+    `;
+  }
+
+  function renderClassic(doc) {
+    const { profile, sections } = doc;
+
+    const contactParts = sections.showContact
+      ? [profile.phone, profile.email, profile.location].filter(Boolean)
+      : [];
+    const detailsParts = buildPersonalDetailsLine(profile);
+
+    const certLine =
+      sections.showCerts && doc.certStrip.length
+        ? `<p class="cv-classic-plain-line">${escapeHtml(doc.certStrip.join(", "))}</p>`
+        : "";
+    const specialistLine =
+      sections.showEducation && doc.specialistQualifications.length
+        ? `<p class="cv-classic-plain-line">${escapeHtml(
+            doc.specialistQualifications.map((i) => i.title).join(", ")
+          )}</p>`
+        : "";
+    const milestonesHtml =
+      sections.showHighlights && doc.highlights.length
+        ? `<p class="cv-classic-plain-line">${escapeHtml(doc.highlights.join(" · "))}</p>`
+        : "";
+
+    return `
+      <div class="cv-classic">
+        <header class="cv-classic-header">
+          <h1 class="cv-classic-name">${escapeHtml(profile.name || "Your Name")}</h1>
+          <p class="cv-classic-rank">${escapeHtml(doc.headline)}</p>
+          ${contactParts.length ? `<p class="cv-classic-contact">${escapeHtml(contactParts.join("   |   "))}</p>` : ""}
+          ${detailsParts.length ? `<p class="cv-classic-details">${escapeHtml(detailsParts.join("   |   "))}</p>` : ""}
+        </header>
+
+        <section class="cv-classic-section">
+          <h2 class="cv-classic-section-title">Professional Summary</h2>
+          ${doc.summaryParagraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join("")}
+        </section>
+
+        <section class="cv-classic-section">
+          <h2 class="cv-classic-section-title">Yachting Experience</h2>
+          ${renderClassicExperience(doc.vessels)}
+        </section>
+
+        ${
+          certLine
+            ? `<section class="cv-classic-section"><h2 class="cv-classic-section-title">Certifications</h2>${certLine}</section>`
+            : ""
+        }
+        ${
+          specialistLine
+            ? `<section class="cv-classic-section"><h2 class="cv-classic-section-title">Specialist Qualifications</h2>${specialistLine}</section>`
+            : ""
+        }
+        ${
+          milestonesHtml
+            ? `<section class="cv-classic-section"><h2 class="cv-classic-section-title">Milestones</h2>${milestonesHtml}</section>`
+            : ""
+        }
+
+        ${sections.showReferences ? renderClassicReferences(doc.references) : ""}
+
+        ${sections.showSeavBranding ? `<p class="cv-classic-brand">Built with SEA-V</p>` : ""}
+      </div>
+    `;
+  }
+
+  // =========================================================
+  // "Tight Ship" template — dense single column, smaller type,
+  // fits more onto fewer pages. Keeps the photo, drops the sidebar.
+  // =========================================================
+
+  function renderCompactExperience(vessels) {
+    if (!vessels.length) {
+      return `<p class="cv-empty-copy">Include at least one vessel in the CV editor.</p>`;
+    }
+    return vessels
+      .map((vessel) => {
+        const role = vessel.cvRole || getVesselRole(vessel);
+        const subline = formatVesselSubline(vessel);
+        const descriptionHtml = vessel.cvDescription
+          ? splitParagraphs(vessel.cvDescription)
+              .map((p) => `<p class="cv-compact-job-desc">${escapeHtml(p)}</p>`)
+              .join("")
+          : "";
+        return `
+          <article class="cv-compact-job">
+            <h3 class="cv-compact-job-title">
+              <span>${escapeHtml(vessel.dateRange)}</span> · <span>${escapeHtml(
+                role || "Crew member"
+              )}</span> · <span>${escapeHtml(vessel.name || "Yacht")}</span>
+            </h3>
+            ${subline ? `<p class="cv-compact-job-subline">${escapeHtml(subline)}</p>` : ""}
+            ${descriptionHtml}
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  function renderCompactReferences(references) {
+    if (!references.length) return "";
+    return `
+      <section class="cv-compact-section">
+        <h2 class="cv-compact-section-title">References</h2>
+        <div class="cv-compact-ref-grid">
+          ${references
+            .map(
+              (ref) =>
+                `<p class="cv-compact-ref"><strong>${escapeHtml(ref.name)}</strong>${
+                  ref.detail ? ` — ${escapeHtml(ref.detail)}` : ""
+                }${ref.email ? ` — ${escapeHtml(ref.email)}` : ""}</p>`
+            )
+            .join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderCompact(doc) {
+    const { profile, sections } = doc;
+
+    const contactParts = sections.showContact
+      ? [profile.phone, profile.email, profile.location].filter(Boolean)
+      : [];
+    const detailsParts = buildPersonalDetailsLine(profile);
+
+    const certLine =
+      sections.showCerts && doc.certStrip.length
+        ? `<p class="cv-compact-plain-line">${escapeHtml(doc.certStrip.join(", "))}</p>`
+        : "";
+    const specialistLine =
+      sections.showEducation && doc.specialistQualifications.length
+        ? `<p class="cv-compact-plain-line">${escapeHtml(
+            doc.specialistQualifications.map((i) => i.title).join(", ")
+          )}</p>`
+        : "";
+    const milestonesHtml =
+      sections.showHighlights && doc.highlights.length
+        ? `<p class="cv-compact-plain-line">${escapeHtml(doc.highlights.join(" · "))}</p>`
+        : "";
+
+    const photoHtml = doc.photoUrl
+      ? `<div class="cv-compact-photo"><img src="${escapeHtml(doc.photoUrl)}" alt="" /></div>`
+      : "";
+
+    return `
+      <div class="cv-compact">
+        <header class="cv-compact-header">
+          ${photoHtml}
+          <div class="cv-compact-head-text">
+            <h1 class="cv-compact-name">${escapeHtml(profile.name || "Your Name")}</h1>
+            <p class="cv-compact-rank">${escapeHtml(doc.headline)}</p>
+            ${contactParts.length ? `<p class="cv-compact-contact">${escapeHtml(contactParts.join("  |  "))}</p>` : ""}
+            ${detailsParts.length ? `<p class="cv-compact-details">${escapeHtml(detailsParts.join("  |  "))}</p>` : ""}
+          </div>
+        </header>
+
+        <div class="cv-compact-summary">
+          ${doc.summaryParagraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join("")}
+        </div>
+
+        <section class="cv-compact-section">
+          <h2 class="cv-compact-section-title">Yachting Experience</h2>
+          ${renderCompactExperience(doc.vessels)}
+        </section>
+
+        ${
+          certLine
+            ? `<section class="cv-compact-section"><h2 class="cv-compact-section-title">Certifications</h2>${certLine}</section>`
+            : ""
+        }
+        ${
+          specialistLine
+            ? `<section class="cv-compact-section"><h2 class="cv-compact-section-title">Specialist Qualifications</h2>${specialistLine}</section>`
+            : ""
+        }
+        ${
+          milestonesHtml
+            ? `<section class="cv-compact-section"><h2 class="cv-compact-section-title">Milestones</h2>${milestonesHtml}</section>`
+            : ""
+        }
+
+        ${sections.showReferences ? renderCompactReferences(doc.references) : ""}
+
+        ${sections.showSeavBranding ? `<p class="cv-compact-brand">Built with SEA-V</p>` : ""}
+      </div>
+    `;
+  }
+
   function renderCvHtml(document) {
+    if (document?.template === "classic") return renderClassic(document);
+    if (document?.template === "compact") return renderCompact(document);
     return renderSeav(document);
   }
 
@@ -198,6 +449,8 @@
     renderSeavExperience,
     renderSeavReferences,
     renderSeav,
+    renderClassic,
+    renderCompact,
     renderCvHtml
   };
 })();

@@ -66,7 +66,7 @@
 
     const source = getSource();
     const documentModel = window.SeavCvEngine.buildCvDocument(source, draft);
-    preview.className = "cv-document cv-document--seav";
+    preview.className = `cv-document cv-document--${documentModel.template}`;
     preview.innerHTML = window.SeavCvEngine.renderCvHtml(documentModel);
   }
 
@@ -135,9 +135,11 @@
   function syncEditorFields() {
     const summaryInput = document.getElementById("cvSummaryInput");
     const headlineInput = document.getElementById("cvHeadlineInput");
+    const templateSelect = document.getElementById("cvTemplateSelect");
 
     if (summaryInput) summaryInput.value = draft.summary || "";
     if (headlineInput) headlineInput.value = draft.headline || "";
+    if (templateSelect) templateSelect.value = draft.template || window.SeavCvEngine.CV_TEMPLATE;
 
     document.querySelectorAll("[data-cv-section]").forEach((input) => {
       const key = input.getAttribute("data-cv-section");
@@ -151,10 +153,22 @@
 
     const summaryInput = document.getElementById("cvSummaryInput");
     const headlineInput = document.getElementById("cvHeadlineInput");
+    const templateSelect = document.getElementById("cvTemplateSelect");
     const resetBtn = document.getElementById("btnResetCvDraft");
     const printBtn = document.getElementById("btnPrintCv");
     const docxBtn = document.getElementById("btnExportCvDocx");
     const list = document.getElementById("cvVesselEditor");
+
+    if (templateSelect) {
+      templateSelect.innerHTML = (window.SeavCvEngine.CV_TEMPLATES || [])
+        .map((t) => `<option value="${Seav.escapeHtml(t.id)}">${Seav.escapeHtml(t.label)}</option>`)
+        .join("");
+      templateSelect.addEventListener("change", () => {
+        draft.template = templateSelect.value;
+        scheduleSave();
+        renderPreview();
+      });
+    }
 
     if (summaryInput) {
       summaryInput.addEventListener("input", () => {
@@ -189,7 +203,7 @@
           "Reset the CV draft from your latest SEA-V records?\n\nYour vessel logs and profile will not change — only this CV draft."
         );
         if (!ok) return;
-        draft = window.SeavCvEngine.resetDraftFromSource(getSource());
+        draft = window.SeavCvEngine.resetDraftFromSource(getSource(), draft?.template);
         refreshUi();
         Seav.notify("success", "CV refreshed", "Draft rebuilt from your SEA-V records.");
       });
