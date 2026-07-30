@@ -369,8 +369,16 @@
     const statusFallback = options.statusFallback ?? "—";
     // Same green pill used on the onboard-experience edit page (js/onboard-experience.js)
     // — was plain unstyled text here before, which is why it didn't match.
+    // Sits alongside the status pill in .onboard-row-actions, NOT inline
+    // inside the meta text line — a pill is a full 30px-tall element
+    // (--pill-height), and stuffing one into a 12px text line was forcing
+    // that whole row taller than every other dashboard list-row (certs,
+    // hobbies, specialist quals, etc.), which don't have a second inline
+    // pill. Living beside the status pill instead costs nothing extra:
+    // the row's height is set by its tallest flex child either way, and
+    // that was already the title+meta text block.
     const familiarisationHtml = entry.isFamiliarisation
-      ? ` <span class="onboard-familiarisation-pill">Familiarisation</span>`
+      ? `<span class="onboard-familiarisation-pill">Familiarisation</span>`
       : "";
 
     // When entries are already grouped under a vessel heading (public profile's
@@ -390,10 +398,13 @@
           <div style="min-width:0;">
             <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
             <div class="list-sub">
-              ${metaLine}${familiarisationHtml}
+              ${metaLine}
             </div>
           </div>
-          <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
+          <div class="onboard-row-actions">
+            ${familiarisationHtml}
+            <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
+          </div>
         </div>
       `;
     }
@@ -438,10 +449,11 @@
         <div style="min-width:0;">
           <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
           <div class="list-sub">
-            ${metaLine}${familiarisationHtml}
+            ${metaLine}
           </div>
         </div>
         <div class="onboard-row-actions">
+          ${familiarisationHtml}
           <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
           ${
             hasDetail
