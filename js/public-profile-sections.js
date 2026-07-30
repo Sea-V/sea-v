@@ -461,7 +461,7 @@
     tenderBox.innerHTML = `
       <div class="tender-vessel-group-list">
         ${visible
-          .map((g, i) => buildTenderVesselGroupHtml(g, vessels, { open: i === 0 }).replace(" data-pp-more-item", ""))
+          .map((g) => buildTenderVesselGroupHtml(g, vessels).replace(" data-pp-more-item", ""))
           .join("")}
       </div>
       ${
