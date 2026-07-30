@@ -274,11 +274,11 @@ function buildTenderVesselGroups(tenders) {
     const groups = buildTenderVesselGroups(tenders);
 
     tendersGrid.innerHTML = groups
-      .map((group, index) => {
+      .map((group) => {
         const tenderWord = group.tenders.length === 1 ? "tender" : "tenders";
 
         return `
-          <details class="tender-vessel-group"${index === 0 ? " open" : ""}>
+          <details class="tender-vessel-group">
             <summary class="tender-vessel-group-summary">
               <span class="tender-vessel-group-title">
                 <strong>${Seav.escapeHtml(group.vesselName)}</strong>
