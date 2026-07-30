@@ -549,7 +549,11 @@
   border-radius: 999px;
   border: 1px solid rgba(76, 217, 123, 0.35);
   background: rgba(76, 217, 123, 0.12);
-  color: #4cd97b;
+  /* "Eligibility complete" text is white on request — border/background
+     stay green, and the checkmark icon keeps its own green color below
+     (it uses stroke="currentColor", so it needs its own override now
+     that the parent's text color no longer doubles as its color too). */
+  color: #ffffff;
   font-size: 12px;
   font-weight: 700;
 }
@@ -557,6 +561,7 @@
 .seatime-oow-status svg {
   width: 14px;
   height: 14px;
+  color: #4cd97b;
 }
 
 .seatime-oow-box {
