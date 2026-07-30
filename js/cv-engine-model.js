@@ -395,7 +395,7 @@
   const CV_TEMPLATES = [
     { id: "seav", label: "Sea-V Original — navy sidebar, the signature look" },
     { id: "ocean-blue", label: "Ocean Blue — deeper teal-blue sidebar" },
-    { id: "simple-green", label: "Simple Green — dark green sidebar, bright green accent" },
+    { id: "simple-green", label: "Simple Green — pastel sage sidebar, soft green accent" },
     { id: "pearl-grey", label: "Pearl Grey — light grey sidebar, dark text" },
     { id: "night-watch", label: "Night Watch — near-black sidebar, muted steel-blue accent" }
   ];

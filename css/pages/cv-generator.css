@@ -584,18 +584,24 @@
   --cv-sidebar-title: #7ee8dc;
 }
 
+/* Simple Green is a soft pastel-sage sidebar, so text flips to dark rather
+   than the usual white-on-dark (same treatment as Pearl Grey below). */
 .cv-color-simple-green .cv-seav-sidebar {
-  --cv-sidebar-grad-1: #2b5a34;
-  --cv-sidebar-grad-2: #1c3a22;
-  --cv-sidebar-grad-3: #142a19;
-  --cv-sidebar-accent-1: #b6e388;
-  --cv-sidebar-accent-2: #8dc63f;
-  --cv-sidebar-accent-3: #5a9c2f;
-  --cv-sidebar-title: #a4d65e;
+  --cv-sidebar-grad-1: #eaf5e3;
+  --cv-sidebar-grad-2: #dcedd2;
+  --cv-sidebar-grad-3: #cce3bd;
+  --cv-sidebar-accent-1: #7fa872;
+  --cv-sidebar-accent-2: #5c8a4d;
+  --cv-sidebar-accent-3: #436636;
+  --cv-sidebar-text: #2b3b27;
+  --cv-sidebar-text-muted: rgba(43, 59, 39, 0.65);
+  --cv-sidebar-title: #3d5c34;
+  --cv-sidebar-photo-bg: rgba(0, 0, 0, 0.08);
 }
 
-/* Pearl Grey is the one light-sidebar scheme (Awlgrip-style pale grey),
-   so text flips to dark rather than the usual white-on-dark. */
+/* Pearl Grey is the other light-sidebar scheme (Awlgrip-style pale grey,
+   alongside Simple Green above), so text flips to dark rather than the
+   usual white-on-dark. */
 .cv-color-pearl-grey .cv-seav-sidebar {
   --cv-sidebar-grad-1: #eef0f1;
   --cv-sidebar-grad-2: #d7dadd;

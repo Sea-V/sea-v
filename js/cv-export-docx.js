@@ -21,7 +21,7 @@
   const SIDEBAR_COLOR_SCHEMES = {
     seav: { fill: "172438", text: "FFFFFF", heading: "5BBCFF" },
     "ocean-blue": { fill: "123A4A", text: "FFFFFF", heading: "38B2AC" },
-    "simple-green": { fill: "1C3A22", text: "FFFFFF", heading: "8DC63F" },
+    "simple-green": { fill: "DCEDD2", text: "2B3B27", heading: "3D5C34" },
     "pearl-grey": { fill: "D7DADD", text: "1F2933", heading: "2F4858" },
     "night-watch": { fill: "0A0F1A", text: "FFFFFF", heading: "6F93B8" }
   };
