@@ -443,9 +443,26 @@
         const legacyBullets = typeof entry.bullets === "string" ? entry.bullets.trim() : "";
         entry.experienceText =
           legacyBullets || getVesselExperience(vessel) || buildAutoExperienceText(vessel, source.onboard);
-        entry.includeText = entry.includeBio !== undefined ? entry.includeBio !== false : true;
+        // Old drafts auto-set includeBio:false whenever the vessel simply had
+        // no saved experience text yet (nothing to show, not a deliberate
+        // hide) — that default no longer applies now the box is freely
+        // editable. Only honour a stored false as an intentional "hide" when
+        // the vessel actually had text at the time, otherwise default on.
+        const hadSavedText = Boolean(getVesselExperience(vessel));
+        entry.includeText =
+          entry.includeBio !== undefined && hadSavedText ? entry.includeBio !== false : true;
         delete entry.bullets;
         delete entry.includeBio;
+      }
+
+      // Self-heal drafts that already went through an earlier, buggy version
+      // of the migration above (before it distinguished "nothing to show"
+      // from "deliberately hidden") and got left with includeText:false. A
+      // vessel with no saved experience text has no realistic reason to have
+      // its now-editable experience box hidden — that combination can only
+      // be a hangover from the old auto-default, never an intentional choice.
+      if (entry.includeText === false && !getVesselExperience(vessel)) {
+        entry.includeText = true;
       }
     });
 
