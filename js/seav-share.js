@@ -35,7 +35,12 @@
     return username ? `sea-v.com/u/${username}` : "sea-v.com";
   }
 
-  function cardShell(innerHtml) {
+  // showLink lets a card opt out of printing the raw sea-v.com/u/<username>
+  // text on the image itself (see buildProfileCardHtml) — used when a pill
+  // already inside the card serves as the visible call-to-action and the
+  // real URL should only travel via the share caption / clipboard-copy
+  // fallback (see copyLinkFallback), not as text baked into the picture.
+  function cardShell(innerHtml, { showLink = true } = {}) {
     return `
       <div style="
         width:${CARD_WIDTH}px;height:${CARD_HEIGHT}px;box-sizing:border-box;
@@ -46,9 +51,13 @@
           SEA-V
         </div>
         ${innerHtml}
-        <div style="border-top:1px solid rgba(255,255,255,0.14);padding-top:20px;text-align:center;">
+        ${
+          showLink
+            ? `<div style="border-top:1px solid rgba(255,255,255,0.14);padding-top:20px;text-align:center;">
           <p style="font-size:20px;color:var(--logo-sky,#72e4ff);margin:0;font-weight:600;">${escapeHtml(profileShareLine())}</p>
-        </div>
+        </div>`
+            : ""
+        }
       </div>
     `;
   }
@@ -77,7 +86,12 @@
   }
 
   function buildProfileCardHtml(data) {
-    return cardShell(`
+    // showLink: false — the statLabel pill below ("View my SEA-V career
+    // profile") is the only call-to-action printed on this card; the actual
+    // sea-v.com/u/<username> URL is deliberately left off the image and only
+    // travels via the share caption / clipboard-copy fallback in generate().
+    return cardShell(
+      `
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center;">
         <div style="width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.08);border:3px solid var(--logo-sky,#72e4ff);display:flex;align-items:center;justify-content:center;overflow:hidden;">
           ${
@@ -96,7 +110,9 @@
             : ""
         }
       </div>
-    `);
+    `,
+      { showLink: false }
+    );
   }
 
   function buildPassageCardHtml(data) {
