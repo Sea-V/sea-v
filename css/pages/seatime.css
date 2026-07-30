@@ -301,6 +301,12 @@
    TABLE
 ========================================================= */
 
+/* Background was a flat rgba(255,255,255,0.025) — nearly colorless, and
+   different from every other table/list surface on the site, which use
+   the shared --surface-bg-soft bluish gradient (css/components/tables.css
+   .table-wrap, css/components/lists.css .list-row). Border stays on the
+   page's own periwinkle accent — per the file-header note, --seatime-accent
+   is meant for the shell border/dividers/icon, just not labels or fills. */
 .seatime-table-wrap {
   width: 100%;
   max-width: 100%;
@@ -313,7 +319,7 @@
   border-radius: 18px;
   border: 1px solid rgba(130, 158, 255, 0.14);
 
-  background: rgba(255,255,255,0.025);
+  background: var(--surface-bg-soft);
 }
 
 .seatime-table-wrap table {
@@ -323,16 +329,18 @@
   border-collapse: collapse;
 }
 
-/* Was var(--accent-blue) (#5bbcff, the dashboard/generic blue) — every
-   other accent on this page (icon, card border, KPI highlights) uses the
-   page's own --seatime-accent (#829eff), so the table header sat there in
-   a visibly different, brighter blue than everything around it. */
+/* Labels/titles use the standard site blue (--accent-blue), same as
+   every other page — see file-header note. Header row background
+   matches the generic th { background: rgba(255,255,255,0.04); }
+   convention (css/components/tables.css) instead of staying transparent
+   over the wrap's own background. */
 .seatime-table-wrap thead th {
   padding: 14px;
 
   border-bottom: 1px solid rgba(130, 158, 255, 0.14);
 
-  color: var(--seatime-accent);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--accent-blue);
 
   font-size: 11px;
   font-weight: 800;
@@ -350,7 +358,7 @@
 
   border-bottom: 1px solid rgba(130, 158, 255, 0.18);
 
-  color: var(--seatime-accent);
+  color: var(--accent-blue);
 
   font-size: 10px;
   letter-spacing: 1px;
