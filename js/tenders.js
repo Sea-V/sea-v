@@ -25,7 +25,8 @@
  const {
   KEYS,
   createId,
-  getSortedVesselOptions
+  getSortedVesselOptions,
+  getVesselColor
 } = window.SeavData;
 
   const STORAGE_KEY = KEYS.TENDERS;
@@ -84,6 +85,11 @@ function buildTenderVesselGroups(tenders) {
       groups.set(key, {
         vesselId: key,
         vesselName: getVesselNameForTender(tender),
+        // Same vessel-identity colour used on the Navigation page's passage
+        // log and map legend (js/seav-data.js getVesselColor) — kept
+        // consistent here so a vessel's colour matches everywhere it shows
+        // up in a vessel dropdown/grouping across the app.
+        vesselColor: key ? getVesselColor(key, getVessels()) : "",
         tenders: []
       });
     }
@@ -280,6 +286,7 @@ function buildTenderVesselGroups(tenders) {
         return `
           <details class="tender-vessel-group">
             <summary class="tender-vessel-group-summary">
+              ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
               <span class="tender-vessel-group-title">
                 <strong>${Seav.escapeHtml(group.vesselName)}</strong>
                 <small>${group.tenders.length} ${tenderWord}</small>

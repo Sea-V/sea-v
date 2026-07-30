@@ -11,6 +11,7 @@
     KEYS,
     createId,
     getSortedVesselOptions,
+    getVesselColor,
     formatDatePretty,
     ONBOARD_EXPERIENCE_CATEGORIES,
     getOnboardCategoryLabel
@@ -269,6 +270,9 @@
         return {
           vesselId,
           vesselName: vessel?.name || (vesselId ? "Unknown vessel" : "No vessel linked"),
+          // Same vessel-identity colour used on the Navigation page (js/seav-data.js
+          // getVesselColor), kept consistent everywhere vessels are grouped.
+          vesselColor: vesselId ? getVesselColor(vesselId, vessels) : "",
           entries: sorted,
           latestTime,
           pendingCount,
@@ -413,7 +417,10 @@
           data-toggle-vessel-id="${Seav.escapeHtml(group.vesselId)}"
         >
           <div class="onboard-vessel-summary-left">
-            <h3 class="onboard-vessel-name">${Seav.escapeHtml(group.vesselName)}</h3>
+            <h3 class="onboard-vessel-name">
+              ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
+              ${Seav.escapeHtml(group.vesselName)}
+            </h3>
             <span class="onboard-vessel-meta">${Seav.escapeHtml(statusMetaParts.join(" • "))}</span>
           </div>
           <div class="onboard-vessel-summary-right">

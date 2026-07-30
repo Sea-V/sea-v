@@ -338,6 +338,7 @@
         groups.set(key, {
           vesselId: key,
           vesselName: key ? (vesselMap.get(key)?.name || "Unknown Vessel") : "Standalone / Chase",
+          vesselColor: key ? getPublicVesselColor(key, vessels) : "",
           tenders: []
         });
       }
@@ -373,6 +374,7 @@
         groups.set(key, {
           vesselId: key,
           vesselName: key ? (vesselMap.get(key)?.name || item.vessel || "Unknown Vessel") : "Unlinked milestone",
+          vesselColor: key ? getPublicVesselColor(key, vessels) : "",
           items: []
         });
       }

@@ -171,6 +171,23 @@
   border-color: rgba(207,168,106,0.52);
 }
 
+/* Vessel-identity colour dot — shared across every "grouped by vessel"
+   summary (Tenders, Onboard Experience, Navigation passage log/map legend,
+   and the public-profile equivalents of all three) so the same vessel
+   always shows the same colour everywhere it appears. Colour itself comes
+   from js/seav-data.js getVesselColor(); this class just standardises the
+   dot's size/border so it looks identical wherever it's used. Mirrors the
+   sizing already used for .navigation-log-color / the nav map legend dot. */
+.vessel-color-dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
 /* =========================================================
    GRID SYSTEM
 ========================================================= */

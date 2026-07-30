@@ -423,6 +423,7 @@
     return `
       <details class="tender-vessel-group" data-pp-more-item${open ? " open" : ""}>
         <summary class="tender-vessel-group-summary">
+          ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
           <span class="tender-vessel-group-title">
             <strong>${Seav.escapeHtml(group.vesselName)}</strong>
             <small>${group.tenders.length} ${tenderWord}</small>
@@ -585,6 +586,7 @@
         return {
           vesselId,
           vesselName: vessel?.name || (vesselId ? "Unknown vessel" : "No vessel linked"),
+          vesselColor: vesselId ? getPublicVesselColor(vesselId, vessels) : "",
           entries: sorted,
           latestTime
         };
@@ -631,7 +633,10 @@
           aria-expanded="${isExpanded ? "true" : "false"}"
           aria-controls="${groupId}"
         >
-          <span class="public-onboard-vessel-name">${Seav.escapeHtml(group.vesselName)}</span>
+          <span class="public-onboard-vessel-name">
+            ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
+            ${Seav.escapeHtml(group.vesselName)}
+          </span>
           <span class="public-onboard-vessel-count">${group.entries.length} ${entryLabel}</span>
           <span class="public-onboard-vessel-chevron" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none">
@@ -962,6 +967,7 @@
     return `
       <details class="achievement-vessel-group" data-pp-more-item${open ? " open" : ""}>
         <summary class="achievement-vessel-group-summary">
+          ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
           <span class="achievement-vessel-group-title">
             <strong>${Seav.escapeHtml(group.vesselName)}</strong>
             <small>${group.items.length} ${word}</small>
