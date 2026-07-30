@@ -163,14 +163,34 @@
       }
     }
 
+    // The /u/:username -> /public-profile.html?u=:username rule (netlify.toml/
+    // vercel.json) is a server-side rewrite: the proxy fetches this static
+    // file using the rewritten URL, but it never hands that rewritten query
+    // string to the browser — window.location (and anything reading it, like
+    // URLSearchParams) always reflects the URL actually typed/shared, i.e.
+    // "/u/jack-sorrell" with NO query string at all. That's true of every
+    // static host (Vercel/Netlify included) doing a query-string rewrite for
+    // a plain HTML file, not something we misconfigured. So the username has
+    // to be recovered from location.pathname directly — relying on ?u= alone
+    // silently fell through to "no profileId", which made this page treat
+    // every /u/<username> link (the one people actually share) as if no
+    // profile was requested at all: the not-public gate for logged-out
+    // visitors, or whichever account happened to be logged in for anyone
+    // who was signed in in that browser.
+    function getUsernameFromPrettyPath() {
+      const match = location.pathname.match(/\/u\/([^/?#]+)\/?$/i);
+      return match ? decodeURIComponent(match[1]) : null;
+    }
+
     async function loadProfile() {
       const params = new URLSearchParams(location.search);
-      // "u" is the clean /u/<username> link (rewritten to
-      // public-profile.html?u=<username> — see netlify.toml/vercel.json);
-      // "p"/"id" are the older raw-UUID link, kept working for anything
-      // already shared. SeavAPI.getPublicProfile tries all three column
-      // matches regardless of which param supplied the value.
-      const profileId = params.get("u") || params.get("p") || params.get("id");
+      // "u" (query form, or recovered from the /u/<username> pretty path)
+      // is the clean link; "p"/"id" are the older raw-UUID link, kept
+      // working for anything already shared. SeavAPI.getPublicProfile tries
+      // all three column matches regardless of which param supplied the
+      // value.
+      const profileId =
+        params.get("u") || getUsernameFromPrettyPath() || params.get("p") || params.get("id");
 
       if (profileId) {
         const publicProfile = await SeavAPI.getPublicProfile(profileId);
