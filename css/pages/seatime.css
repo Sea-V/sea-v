@@ -681,7 +681,13 @@
   border-top: 1px solid rgba(130, 158, 255, 0.10);
 }
 
+/* margin-top was missing entirely, so whatever sits above this (the OOW
+   confirm checkbox, or the Master breakdown paragraph) had zero gap
+   before it — same 14px rhythm already used by .seatime-oow-breakdown
+   and similar stacked elements elsewhere on this page. */
 .seatime-checklist-panel {
+  margin-top: 14px;
+
   border-radius: 18px;
   border: 1px solid rgba(130, 158, 255, 0.18);
   background: rgba(255, 255, 255, 0.025);
