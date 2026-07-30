@@ -507,7 +507,11 @@
   grid-template-columns: minmax(0, 1fr) 210px;
 
   gap: 12px;
-  align-items: start;
+  /* Stretch (not start) so the experience card and SEA card always match
+     height and stay lined up, regardless of how much text is in either —
+     the shorter one just gets extra breathing room instead of looking
+     mismatched next to a much taller neighbour. */
+  align-items: stretch;
 
   margin-top: 14px;
 }
@@ -526,7 +530,6 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  align-self: start;
 }
 
 .vessel-experience-card .vessel-panel-label {
