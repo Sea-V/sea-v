@@ -113,61 +113,34 @@ body.public-profile-page .overlay {
 
 /* =========================================================
    GUEST TOPBAR
+   Markup now reuses the shared .topbar/.app-topbar component
+   (css/components/topbar.css — the same sticky pill + gradient
+   border + centered logo used on every private page) instead of
+   a separate flat bar, so the two match. .public-profile-topbar
+   and .public-profile-brand stay as class hooks for JS
+   (js/public-profile-utils.js getSectionNavOffset, js/public-profile.js
+   wirePublicProfileNav) — no positioning/background rules needed
+   here anymore, .topbar already provides those. Only the CTA link
+   needs its own look, styled to match .public-topbar .login.
 ========================================================= */
 
-.public-profile-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  border-bottom: 1px solid rgba(91, 188, 255, 0.12);
-  background: rgba(8, 16, 28, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-.public-profile-topbar-inner {
-  width: min(75vw, 1180px);
-  max-width: 75vw;
-  margin: 0 auto;
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.public-profile-brand img {
-  display: block;
-}
-
-.public-profile-topbar-links {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.public-profile-topbar-links a {
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 12px;
-  font-weight: 750;
-  text-decoration: none;
-}
-
-.public-profile-topbar-links a:hover {
-  color: #ffffff;
-}
-
 .public-profile-topbar-cta {
-  padding: 7px 12px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 18px;
   border-radius: 999px;
-  border: 1px solid rgba(91, 188, 255, 0.35);
-  background: rgba(91, 188, 255, 0.12);
+  border: 1px solid rgba(114, 228, 255, 0.3);
+  background: rgba(114, 228, 255, 0.1);
   color: #ffffff !important;
   font-weight: 850 !important;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.15s ease;
 }
 
 .public-profile-topbar-cta:hover {
-  background: rgba(91, 188, 255, 0.2);
+  background: rgba(114, 228, 255, 0.18);
 }
 
 .public-profile-page .dashboard-shell-head {
@@ -1484,8 +1457,7 @@ body.public-profile-page .overlay {
 }
 
 @media (max-width: 900px) {
-  .public-profile-main,
-  .public-profile-topbar-inner {
+  .public-profile-main {
     width: min(94vw, 100%);
     max-width: 94vw;
   }
