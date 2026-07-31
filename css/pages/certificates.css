@@ -200,6 +200,20 @@
   min-width: 0;
 }
 
+/* Read-only "Not on CV" flag on the collapsed row — see js/certificates.js
+   buildRow(). Deliberately plainer than .cert-status-pill (no border/bg
+   tint) so it doesn't compete with the expiry status pill next to it; it's
+   secondary information, not a warning. */
+.cert-cv-flag {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
 .cert-status-pill.pill-missing {
   border: 1px solid rgba(255, 109, 125, 0.34);
   background: rgba(255, 109, 125, 0.18);

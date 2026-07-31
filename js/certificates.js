@@ -284,6 +284,18 @@
             </div>
           </div>
           <div class="cert-compact-summary-right">
+            ${
+              // Read-only indicator, not an interactive control — the row
+              // summary is itself a <button> (toggles expand/collapse), so a
+              // clickable checkbox here would be a nested-interactive-element
+              // bug. Only flag the exception (off) case; "on" is the default
+              // for every cert so showing it every time would clutter every
+              // row for no informational gain. To change it, expand the row
+              // and use Edit (js/certificates.js openEditModal).
+              !cert.isMandatory && cert.showOnCv === false
+                ? `<span class="cert-cv-flag">Not on CV</span>`
+                : ""
+            }
             <span class="cert-status-pill ${Seav.escapeHtml(status.statusClass)}">
               ${Seav.escapeHtml(status.badge)}
             </span>
