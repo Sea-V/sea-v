@@ -28,6 +28,7 @@
     toNumber,
     totalQualifyingDays,
     getSeatimeTotals,
+    getSeatimeVerificationDisplay,
     getSortedVesselOptions,
     getVesselColor,
     formatDatePretty
@@ -406,6 +407,7 @@
     ].join(" • ");
 
     const total = totalQualifyingDays(x);
+    const verificationDisplay = getSeatimeVerificationDisplay(x.verificationStatus || "Logged");
 
     const attachmentUrl = getSeatimeAttachmentUrl(x.attachment);
     const hasAttachment = hasSeatimeAttachment(x.attachment);
@@ -428,7 +430,7 @@
         <td>${getSeatimeDayValue(x, "yardServiceDays", "yard")}</td>
         <td>${getSeatimeDayValue(x, "watchkeepingDays", "watchkeeping")}</td>
         <td>${total}</td>
-        <td><span class="pill">${Seav.escapeHtml(x.verificationStatus || "Logged")}</span></td>
+        <td><span class="${Seav.escapeHtml(verificationDisplay.className)}">${Seav.escapeHtml(verificationDisplay.label)}</span></td>
         <td>${attachCell}</td>
         <td class="row-actions">
           <a

@@ -989,6 +989,27 @@ function getEmptyTenderEntry() {
     return totals;
   }
 
+  // Single source of truth for the Sea Time verification-status pill —
+  // was previously just `<span class="pill">${status}</span>` in both
+  // js/seatime.js and js/dashboard-snippets.js, which meant the pill got
+  // the shared .pill base styling (outline only, no fill) with no color
+  // at all. Dedicated classes mirror the same pattern already used for
+  // reference-verified-pill/reference-sent-pill/reference-declined-pill
+  // (css/pages/seatime.css has the actual color rules; css/components/
+  // pills.css lists these class names in the shared pill base selector
+  // for the shape/white-text/shadow that every pill gets).
+  function getSeatimeVerificationDisplay(status) {
+    const map = {
+      Verified: { label: "Verified", className: "seatime-verified-pill" },
+      "Pending Verification": {
+        label: "Pending Verification",
+        className: "seatime-pending-pill"
+      },
+      Logged: { label: "Logged", className: "seatime-logged-pill" }
+    };
+    return map[status] || map.Logged;
+  }
+
   function isProfilePublic(profile) {
     if (!profile) return false;
 
@@ -1380,6 +1401,7 @@ window.SeavData = {
   toNumber,
   totalQualifyingDays,
   getSeatimeTotals,
+  getSeatimeVerificationDisplay,
   getCertExpiryInfo,
   isCertNoExpiry,
   isCertExpiringOrExpired,

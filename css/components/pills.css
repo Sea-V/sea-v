@@ -113,6 +113,9 @@
 .reference-verified-pill,
 .reference-sent-pill,
 .reference-declined-pill,
+.seatime-verified-pill,
+.seatime-pending-pill,
+.seatime-logged-pill,
 .tender-proficiency-pill {
   box-sizing: border-box;
   flex-shrink: 0;

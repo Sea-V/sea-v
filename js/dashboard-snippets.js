@@ -12,6 +12,7 @@
     totalQualifyingDays,
     getCertExpiryInfo,
     getReferenceStatus,
+    getSeatimeVerificationDisplay,
     formatDatePretty
   } = window.SeavData;
 
@@ -119,6 +120,7 @@
                 item.flag ? Seav.escapeHtml(item.flag) : "—",
                 item.gt ? `${Seav.escapeHtml(item.gt)} GT` : "—"
               ].join(" • ");
+              const verificationDisplay = getSeatimeVerificationDisplay(item.verificationStatus || "Logged");
 
               return `
                 <tr>
@@ -130,7 +132,7 @@
                   <td>${Seav.escapeHtml(item.dateJoined || "—")}</td>
                   <td>${Seav.escapeHtml(item.dateLeft || "—")}</td>
                   <td>${totalQualifyingDays(item)}</td>
-                  <td><span class="pill">${Seav.escapeHtml(item.verificationStatus || "Logged")}</span></td>
+                  <td><span class="${Seav.escapeHtml(verificationDisplay.className)}">${Seav.escapeHtml(verificationDisplay.label)}</span></td>
                 </tr>
               `;
             }).join("")}
