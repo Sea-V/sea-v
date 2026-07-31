@@ -140,17 +140,14 @@
     `;
   }
 
-function updateCertCardCompleteState(displayCount, attentionCount) {
+function updateCertCardCompleteState(displayCount) {
   const container = document.getElementById("dashCertSnippet");
-  const badge = document.getElementById("dashboardCertCompleteBadge");
   const card = container?.closest(".dash-card");
   const heading = card?.querySelector(".dashboard-card-headline h3, .dash-card > h3");
 
   if (heading) {
     setHeadingText(heading, displayCount > 0 ? `Certificates (${displayCount})` : "Certificates");
   }
-
-  if (badge) badge.hidden = attentionCount > 0;
 }
 
 async function renderCertSnippet() {
@@ -162,16 +159,13 @@ async function renderCertSnippet() {
   );
 
   const isNoExpiry = window.SeavData?.isCertNoExpiry;
-  const isExpiringOrExpired = window.SeavData?.isCertExpiringOrExpired;
 
   const expiryCerts = certs.filter((cert) => {
     if (isNoExpiry?.(cert)) return false;
     return !!String(cert.expiry || "").trim();
   });
 
-  const attentionCerts = expiryCerts.filter((cert) => isExpiringOrExpired?.(cert));
-
-  updateCertCardCompleteState(expiryCerts.length, attentionCerts.length);
+  updateCertCardCompleteState(expiryCerts.length);
 
   if (!expiryCerts.length) {
     dashCertSnippet.innerHTML = `

@@ -1418,10 +1418,6 @@
   position: relative;
 }
 
-.dash-card-certs:has(#dashboardCertCompleteBadge:not([hidden])) .dashboard-card-headline {
-  padding-right: 48px;
-}
-
 .dashboard-cert-attention-note {
   margin: 0 0 12px;
   font-size: 13px;
