@@ -49,6 +49,17 @@
   function ensurePageLoader() {
     if (pageLoader) return pageLoader;
 
+    // App-pages ship a static #appPageLoader in their HTML (already visible
+    // on first paint, before any JS runs — see each app-page's <body>) so
+    // the loading state is instant instead of waiting on deferred scripts
+    // to execute. Reuse that element instead of creating a second,
+    // duplicate overlay.
+    const existing = document.getElementById("appPageLoader");
+    if (existing) {
+      pageLoader = existing;
+      return pageLoader;
+    }
+
     pageLoader = document.createElement("div");
     pageLoader.className = "seav-page-loader";
     pageLoader.hidden = true;

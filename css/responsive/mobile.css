@@ -22,7 +22,15 @@
   color: #72e4ff;
 }
 
-html.auth-pending body {
+/* Only hides the body on the login/signup pages (the only pages that ship
+   class="auth-pending" already in their static HTML) — there the goal is
+   avoiding a flash of the wrong form before the auto-redirect resolves.
+   App-pages are excluded: they get their own visible loading overlay
+   instead (#appPageLoader, css/components/feedback.css .seav-page-loader —
+   see each app-page's <body>). Hiding the whole body via opacity gave zero
+   visual feedback while auth/session initialized (can take several
+   seconds on a slow connection), which read as a broken/blank page. */
+html.auth-pending body:not(.app-page) {
   opacity: 0;
   pointer-events: none;
 }

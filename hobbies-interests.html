@@ -3,39 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=297" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=297" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=297" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=297" />
+  <link rel="icon" href="/favicon.ico?v=298" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=298" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=298" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=298" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Hobbies & Interests</title>
 
-  <link rel="stylesheet" href="styles.css?v=297" />
+  <link rel="stylesheet" href="styles.css?v=298" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=297"></script>
-  <script src="js/supabase.js?v=297"></script>
-  <script src="js/auth.js?v=297"></script>
-  <script src="js/feedback.js?v=297" defer></script>
-  <script src="js/core.js?v=297" defer></script>
+  <script src="js/seav-config.js?v=298"></script>
+  <script src="js/supabase.js?v=298"></script>
+  <script src="js/auth.js?v=298"></script>
+  <script src="js/feedback.js?v=298" defer></script>
+  <script src="js/core.js?v=298" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=297" defer></script>
-  <script src="js/seav-data.js?v=297" defer></script>
-  <script src="js/seav-badges.js?v=297" defer></script>
-  <script src="js/api-core.js?v=297" defer></script>
-  <script src="js/api-mappers.js?v=297" defer></script>
-  <script src="js/api.js?v=297" defer></script>
-  <script src="js/state.js?v=297" defer></script>
-  <script src="js/seav-notifications.js?v=297" defer></script>
-  <script src="js/achievements-engine.js?v=297" defer></script>
-  <script src="js/badge-unlock.js?v=297" defer></script>
+  <script src="js/seav-upload.js?v=298" defer></script>
+  <script src="js/seav-data.js?v=298" defer></script>
+  <script src="js/seav-badges.js?v=298" defer></script>
+  <script src="js/api-core.js?v=298" defer></script>
+  <script src="js/api-mappers.js?v=298" defer></script>
+  <script src="js/api.js?v=298" defer></script>
+  <script src="js/state.js?v=298" defer></script>
+  <script src="js/seav-notifications.js?v=298" defer></script>
+  <script src="js/achievements-engine.js?v=298" defer></script>
+  <script src="js/badge-unlock.js?v=298" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=297" defer></script>
-  <script src="js/hobbies-interests.js?v=297" defer></script>
+  <script src="js/seav-share.js?v=298" defer></script>
+  <script src="js/hobbies-interests.js?v=298" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
+
+  <!--
+    Static, JS-independent loading overlay — visible on first paint (no
+    JS execution required), so slow auth/data loads never show a blank
+    page. js/feedback.js's ensurePageLoader() reuses this element instead
+    of creating a duplicate; js/state.js hides it once data is ready.
+  -->
+  <div id="appPageLoader" class="seav-page-loader is-visible" role="status" aria-live="polite">
+    <div class="seav-page-loader-card">
+      <div class="seav-page-loader-mark">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 18c1.2-.9 2.4-.9 3.6 0 1.2.9 2.4.9 3.6 0 1.2-.9 2.4-.9 3.6 0 1.2.9 2.4.9 3.6 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M8 14.5h8l-1.4-3.5H9.4L8 14.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="seav-page-loader-text">Setting sail…</p>
+      <p class="seav-page-loader-sub">Loading your career records</p>
+      <div class="seav-loader-ocean" aria-hidden="true">
+        <svg class="seav-wave-a" viewBox="0 0 720 48" preserveAspectRatio="none">
+          <path d="M0 24 C120 8 240 32 360 16 C480 0 600 24 720 12 V48 H0 Z" fill="rgba(91,188,255,0.35)"/>
+        </svg>
+        <svg class="seav-wave-b" viewBox="0 0 720 48" preserveAspectRatio="none">
+          <path d="M0 24 C120 8 240 32 360 16 C480 0 600 24 720 12 V48 H0 Z" fill="rgba(114,228,255,0.55)"/>
+        </svg>
+      </div>
+    </div>
+  </div>
 
   <div id="topbarMount"></div>
 
