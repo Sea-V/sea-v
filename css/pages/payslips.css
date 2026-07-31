@@ -110,8 +110,27 @@
   font-weight: 850;
 }
 
+/* Matches the styled select used everywhere else on the site
+   (.modal-form select — css/components/modals.css): these toolbar
+   filter selects had no box styling at all beyond min-width, so they
+   rendered as plain unstyled native dropdowns against the dark theme. */
 .ps-filter-label select {
   min-width: 180px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--field-value-color);
+  color-scheme: dark;
+  font-size: 14px;
+  line-height: 1.4;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ps-filter-label select:focus {
+  outline: none;
+  border-color: rgba(207, 168, 106, 0.45);
+  box-shadow: 0 0 0 3px rgba(207, 168, 106, 0.12);
 }
 
 .ps-toolbar-actions {
@@ -126,15 +145,10 @@
   align-items: end;
   justify-content: space-between;
   gap: 10px 14px;
-  margin-bottom: 8px;
 }
 
 .ps-filter-label--inline {
   margin: 0;
-}
-
-.ps-filter-label--inline select {
-  min-width: 180px;
 }
 
 .ps-section-head {
@@ -173,6 +187,17 @@
 }
 
 .ps-compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Each month's card was a plain block-flow sibling with no gap of its
+   own — the compact list's 8px gap only ever applied *between* tax-year
+   groups, never between cards within one, so months sat flush against
+   each other. Matches the 8px gap used everywhere else (.cert-compact-list,
+   .ps-compact-list itself). */
+.ps-year-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
