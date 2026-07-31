@@ -344,12 +344,10 @@ body.public-profile-page .overlay {
 }
 
 /* Legacy alias — section renderers still use public-cv-* content classes */
-
 .public-cv-kicker,
 .public-cv-section-kicker,
 .public-cv-fact-label,
-.public-cv-vessel-label,
-.public-cv-cert-group-label {
+.public-cv-vessel-label {
   margin: 0;
   color: #5bbcff;
   font-size: 10px;
@@ -592,100 +590,12 @@ body.public-profile-page .overlay {
   font-weight: 800;
 }
 
-/* =========================================================
-   VESSEL CARDS
-========================================================= */
-
-.public-cv-vessel-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.public-cv-vessel-card {
-  padding: 10px 11px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.public-cv-vessel-card--highlight {
-  border-color: rgba(91, 188, 255, 0.22);
-  background: rgba(91, 188, 255, 0.05);
-}
-
-.public-cv-vessel-card-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.public-cv-vessel-card-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.public-cv-vessel-thumb {
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background-size: cover;
-  background-position: center;
-}
-
-.public-cv-vessel-card-name {
-  margin: 0;
-  color: #ffffff;
-  font-size: 13px;
-  line-height: 1.25;
-  font-weight: 850;
-}
-
-.public-cv-vessel-card-dates {
-  margin: 2px 0 0;
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 10px;
-  font-weight: 650;
-}
-
-.public-cv-vessel-card-days {
-  flex-shrink: 0;
-  color: #5bbcff;
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.public-cv-vessel-card-meta,
-.public-cv-vessel-card-story,
-.public-cv-op-desc,
 .public-cv-signoff-line {
   margin: 6px 0 0;
   color: rgba(255, 255, 255, 0.62);
   font-size: 10px;
   line-height: 1.5;
   font-weight: 550;
-}
-
-.public-cv-vessel-card-meta {
-  color: rgba(255, 255, 255, 0.52);
-  font-weight: 650;
-}
-
-.public-cv-vessel-card-highlights {
-  margin: 8px 0 0;
-  padding-left: 16px;
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 10px;
-  line-height: 1.45;
-}
-
-.public-cv-vessel-card-highlights li + li {
-  margin-top: 2px;
 }
 
 .public-cv-mini-row--stacked {
@@ -711,25 +621,6 @@ body.public-profile-page .overlay {
   color: rgba(255, 255, 255, 0.72);
   font-size: 10px;
   font-weight: 650;
-}
-
-.public-cv-port-when {
-  color: rgba(255, 255, 255, 0.42);
-  font-size: 9px;
-  font-weight: 700;
-}
-
-.public-cv-badge-item--rich {
-  width: 72px;
-}
-
-.public-cv-badge-desc,
-.public-cv-badge-witness {
-  display: block;
-  color: rgba(255, 255, 255, 0.42);
-  font-size: 8px;
-  line-height: 1.25;
-  font-weight: 600;
 }
 
 /* =========================================================
@@ -926,116 +817,6 @@ body.public-profile-page .overlay {
 }
 
 /* =========================================================
-   VESSEL TABLE (legacy fallback)
-========================================================= */
-
-.public-cv-vessel-table {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.public-cv-vessel-table .public-cv-more-block:not([hidden]) {
-  display: flex;
-  flex-direction: column;
-}
-
-.public-cv-vessel-head,
-.public-cv-vessel-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) 0.9fr 0.55fr 0.85fr;
-  gap: 8px;
-  align-items: center;
-  padding: 7px 10px;
-}
-
-.public-cv-vessel-head {
-  background: rgba(91, 188, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.public-cv-vessel-head span {
-  color: #5bbcff;
-  font-size: 9px;
-  font-weight: 850;
-  line-height: 1.2;
-}
-
-.public-cv-vessel-row {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  background: rgba(255, 255, 255, 0.015);
-}
-
-.public-cv-vessel-row:last-child {
-  border-bottom: none;
-}
-
-.public-cv-vessel-name {
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 12px;
-  font-weight: 750;
-  line-height: 1.3;
-  word-break: break-word;
-}
-
-.public-cv-vessel-cell {
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 11px;
-  line-height: 1.35;
-  font-weight: 600;
-}
-
-.public-cv-vessel-row--highlight {
-  background: rgba(91, 188, 255, 0.06);
-}
-
-.public-cv-vessel-row--highlight .public-cv-vessel-name {
-  color: #ffffff;
-}
-
-/* =========================================================
-   PUBLIC PROFILE CERT LIST (matches certificates page)
-========================================================= */
-
-.public-cv-cert-block + .public-cv-cert-block {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.public-cv-cert-group-label {
-  margin-bottom: 8px;
-}
-
-.public-cv-cert-row .cert-compact-summary {
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  font: inherit;
-  color: inherit;
-}
-
-.public-cv-cert-row .cert-compact-title {
-  font-size: 13px;
-}
-
-.public-cv-cert-row .cert-compact-sub {
-  font-size: 11px;
-}
-
-.public-cv-cert-row .cert-status-pill {
-  font-size: 10px;
-  padding: 4px 8px;
-}
-
-.public-cv-cert-row .cert-compact-body {
-  padding: 0 14px 14px;
-}
-
-/* =========================================================
    COMPACT LISTS
 ========================================================= */
 
@@ -1103,33 +884,6 @@ body.public-profile-page .overlay {
   border: 1px solid rgba(232, 121, 249, 0.24);
 }
 
-.public-cv-chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.public-cv-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 22px;
-  padding: 0 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 10px;
-  font-weight: 650;
-}
-
-.public-cv-nav-summary {
-  margin: 0 0 6px;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 10px;
-  line-height: 1.4;
-  font-weight: 600;
-}
-
 /* =========================================================
    REFERENCES
 ========================================================= */
@@ -1194,51 +948,6 @@ body.public-profile-page .overlay {
 
 .public-cv-status-dot.is-expired {
   background: #dc3545;
-}
-
-/* =========================================================
-   BADGES
-========================================================= */
-
-.public-cv-badge-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.public-cv-badge-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  width: 56px;
-  text-align: center;
-}
-
-.public-cv-badge-item img {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-}
-
-.public-cv-badge-fallback {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.public-cv-badge-label {
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 9px;
-  line-height: 1.25;
-  font-weight: 650;
 }
 
 /* =========================================================
@@ -1430,34 +1139,6 @@ body.public-profile-page .overlay {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .public-cv-vessel-head {
-    display: none;
-  }
-
-  .public-cv-vessel-row {
-    grid-template-columns: 1fr;
-    gap: 2px;
-    padding: 8px 10px;
-  }
-
-  .public-cv-vessel-cell::before {
-    color: #5bbcff;
-    font-size: 9px;
-    font-weight: 800;
-    margin-right: 4px;
-  }
-
-  .public-cv-vessel-row .public-cv-vessel-cell:nth-child(2)::before {
-    content: "Role: ";
-  }
-
-  .public-cv-vessel-row .public-cv-vessel-cell:nth-child(3)::before {
-    content: "Size: ";
-  }
-
-  .public-cv-vessel-row .public-cv-vessel-cell:nth-child(4)::before {
-    content: "Dates: ";
-  }
 }
 
 @media (max-width: 900px) {

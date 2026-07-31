@@ -228,14 +228,6 @@
     populateDatePartSelects(root);
   }
 
-  function daysBetween(from, to) {
-    const a = new Date(from);
-    const b = new Date(to);
-    const ms = b - a;
-    if (Number.isNaN(ms)) return 0;
-    return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)) + 1);
-  }
-
   function readFileAsDataURL(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -1031,7 +1023,6 @@ function renderSidebarAchievements() {
     clearDateTriplet,
     populateDatePartSelects,
     mountDateFields,
-    daysBetween,
     readFileAsDataURL,
     buildStoredFile,
     setActiveSidebarLink,

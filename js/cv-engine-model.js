@@ -32,7 +32,8 @@
       .replaceAll("&", "&amp;")
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;");
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
   function formatCvDate(value) {
