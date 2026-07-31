@@ -32,7 +32,13 @@
   background-position: center, center;
   background-repeat: no-repeat, no-repeat;
   transform-origin: center center;
-  animation: oceanDrift 60s ease-in-out infinite alternate;
+  /* 60s per direction (120s full cycle) with a 6% scale / 1.5% pan was
+     technically animating but imperceptible on a normal glance at the
+     login page — nobody watches one spot for a full minute to see it
+     move. Sped up and the motion magnitude increased so the drift reads
+     as "moving" within a few seconds, while staying within the same
+     non-repeating single-image technique (still no seam — see below). */
+  animation: oceanDrift 22s ease-in-out infinite alternate;
 }
 
 :is(body.index-page, body.landing-page, body.legal-page, body.public-profile-page) .overlay {
@@ -52,6 +58,9 @@
   }
 
   to {
-    transform: scale(1.06) translateX(-1.5%);
+    /* Scale headroom (12%) stays comfortably ahead of the translate (3%)
+       so the pan never reveals an edge of the image — same seam-free
+       guarantee as before, just a bigger, faster sweep. */
+    transform: scale(1.12) translateX(-3%);
   }
 }
