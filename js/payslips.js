@@ -9,7 +9,7 @@
   const {
     STORAGE_KEY, populateTaxYearOptions, populateCurrencyOptions,
     populateMonthOptions, populateVesselOptions, renderKpis,
-    expandedPsIds, activeYearMonthFilters, getEntries, getAttachmentUrl
+    expandedPsIds, expandedTaxYears, activeYearMonthFilters, getEntries, getAttachmentUrl
   } = C;
   const { renderList } = R;
   const { downloadPayslipPack, sharePayslipPack } = X;
@@ -317,6 +317,25 @@
           expandedPsIds.add(entryId);
         }
         renderList();
+        return;
+      }
+
+      const yearToggle = e.target.closest("[data-toggle-ps-year]");
+      if (yearToggle) {
+        const year = yearToggle.getAttribute("data-toggle-ps-year");
+        if (expandedTaxYears.has(year)) {
+          expandedTaxYears.delete(year);
+        } else {
+          expandedTaxYears.add(year);
+        }
+        renderList();
+        return;
+      }
+
+      const revealBtn = e.target.closest("[data-toggle-ps-net-reveal]");
+      if (revealBtn) {
+        C.netTotalRevealed = !C.netTotalRevealed;
+        renderKpis();
         return;
       }
 

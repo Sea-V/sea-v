@@ -23,8 +23,28 @@
   const PS_FILE_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.PAYSLIP_FILES || "payslip-files";
   const expandedPsIds = new Set();
+  // Tracks which tax-year groups are open in the "All tax years" view —
+  // empty by default so every group starts collapsed, matching the
+  // vessel-group convention used on Tenders/Sea Time.
+  const expandedTaxYears = new Set();
   let activeTaxYearFilter = "";
   const activeYearMonthFilters = {};
+  // Net total starts masked (like a password field) so a shoulder-surfer
+  // can't read it at a glance — crew explicitly clicks to reveal it.
+  let netTotalRevealed = false;
+
+  const EYE_ICON = `
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
+    </svg>
+  `;
+  const EYE_OFF_ICON = `
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M2.5 12S6 5.5 12 5.5c1.7 0 3.2.4 4.5 1M21.5 12S18 18.5 12 18.5c-1.7 0-3.2-.4-4.5-1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M9.5 9.5a3 3 0 0 0 4.2 4.2M4 4l16 16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+  `;
 
   function hasStoredAttachment(attachment) {
     return (
@@ -227,6 +247,10 @@
       ? getPayslipMonthsLogged(taxYear, getEntries()).size
       : "—";
 
+    const netTotalDisplay = entries.length
+      ? (netTotalRevealed ? formatMoneyAmount(totalNet, currency) : "••••••")
+      : "—";
+
     row.innerHTML = `
       <div class="ps-kpi-box">
         <div class="kpi-num">${entries.length}</div>
@@ -240,8 +264,22 @@
         <div class="kpi-num">${taxYear ? `${monthsLogged}/12` : taxYears || "—"}</div>
         <div class="kpi-label">${taxYear ? "Months this year" : "Tax years"}</div>
       </div>
-      <div class="ps-kpi-box">
-        <div class="kpi-num">${entries.length ? formatMoneyAmount(totalNet, currency) : "—"}</div>
+      <div class="ps-kpi-box ps-kpi-box--private">
+        <div class="ps-kpi-num-row">
+          <div class="kpi-num${netTotalRevealed ? "" : " is-masked"}">${netTotalDisplay}</div>
+          ${
+            entries.length
+              ? `<button
+                  type="button"
+                  class="ps-privacy-toggle"
+                  data-toggle-ps-net-reveal
+                  aria-pressed="${netTotalRevealed ? "true" : "false"}"
+                  aria-label="${netTotalRevealed ? "Hide net total" : "Reveal net total"}"
+                  title="${netTotalRevealed ? "Hide net total" : "Reveal net total"}"
+                >${netTotalRevealed ? EYE_OFF_ICON : EYE_ICON}</button>`
+              : ""
+          }
+        </div>
         <div class="kpi-label">Net total (filtered)</div>
       </div>
     `;
@@ -249,9 +287,11 @@
 
 
   window.SeavPayslipsCore = {
-    STORAGE_KEY, expandedPsIds, PS_FILE_BUCKET,
+    STORAGE_KEY, expandedPsIds, expandedTaxYears, PS_FILE_BUCKET,
     get activeTaxYearFilter() { return activeTaxYearFilter; },
     set activeTaxYearFilter(v) { activeTaxYearFilter = v; },
+    get netTotalRevealed() { return netTotalRevealed; },
+    set netTotalRevealed(v) { netTotalRevealed = v; },
     activeYearMonthFilters,
     getEntries, getFilteredEntries, getVesselName, getTaxYearsForFilter,
     getMonthFilterOptionsHtml, filterEntriesForYear, populateTaxYearOptions,

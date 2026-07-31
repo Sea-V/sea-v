@@ -88,6 +88,54 @@
   color: rgba(255, 255, 255, 0.55);
 }
 
+/* Net total — masked by default (like a password field) so it can't be
+   read at a glance over your shoulder onboard; click the eye to reveal. */
+.ps-kpi-num-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ps-kpi-box--private .kpi-num.is-masked {
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.ps-privacy-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.ps-privacy-toggle svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.ps-privacy-toggle:hover {
+  color: #ffffff;
+  border-color: rgba(207, 168, 106, 0.4);
+  background: rgba(207, 168, 106, 0.1);
+}
+
+.ps-privacy-toggle[aria-pressed="true"] {
+  color: #cfa86a;
+  border-color: rgba(207, 168, 106, 0.4);
+  background: rgba(207, 168, 106, 0.12);
+}
+
 .ps-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -142,9 +190,33 @@
 .ps-year-head {
   display: flex;
   flex-wrap: wrap;
-  align-items: end;
+  align-items: center;
   justify-content: space-between;
   gap: 10px 14px;
+}
+
+/* Collapsible tax-year toggle — separate clickable button rather than a
+   native <details>/<summary> so the Month select next to it (also inside
+   .ps-year-head) stays independently clickable without also toggling the
+   group open/closed. */
+.ps-year-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.ps-year-toggle .ps-year-label {
+  margin: 0;
+}
+
+.ps-year-group.is-open .ps-year-toggle .ps-chevron {
+  transform: rotate(180deg);
+  color: rgba(207, 168, 106, 0.9);
 }
 
 .ps-filter-label--inline {
@@ -205,6 +277,12 @@
 
 .ps-year-group + .ps-year-group {
   margin-top: 14px;
+}
+
+.ps-year-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .ps-year-label {
