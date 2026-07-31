@@ -329,7 +329,6 @@ const app = {
       <header class="topbar app-topbar">
         <div class="topbar-inner">
           <nav class="nav-left" aria-label="Quick links">
-            <a href="dashboard.html">Dashboard</a>
             <a href="#" data-open="contactInfoModal">Contact</a>
             <a href="#" data-open="aboutInfoModal">About</a>
           </nav>
