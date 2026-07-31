@@ -240,7 +240,7 @@ body.public-profile-page .overlay {
   border-radius: 999px;
   border: 1px solid rgba(91, 188, 255, 0.2);
   background: rgba(91, 188, 255, 0.08);
-  color: rgba(255, 255, 255, 0.72);
+  color: #ffffff;
   font-size: 10px;
   font-weight: 800;
   line-height: 22px;
@@ -789,7 +789,7 @@ body.public-profile-page .overlay {
   padding: 1px 8px;
   border-radius: 999px;
   background: rgba(76, 255, 184, 0.16);
-  color: #4cffb8;
+  color: #ffffff;
   font-size: 11px;
   font-weight: 800;
   text-align: center;
