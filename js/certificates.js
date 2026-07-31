@@ -500,6 +500,17 @@
     };
   }
 
+  // Mandatory CoC/STCW certificates always show on the CV Generator
+  // regardless of this checkbox (enforced in js/cv-engine-model.js), so
+  // the checkbox itself is hidden for them — ticking/unticking it would
+  // have no visible effect and would just be confusing.
+  function toggleShowOnCvVisibility(isMandatory) {
+    const wrap = document.getElementById("ct_show_on_cv_wrap");
+    const checkbox = document.getElementById("ct_show_on_cv");
+    if (wrap) wrap.hidden = isMandatory;
+    if (checkbox && isMandatory) checkbox.checked = true;
+  }
+
   function onTypeChange() {
     const code = document.getElementById("ct_type")?.value || "";
     const nameWrap = document.getElementById("ct_name_wrap");
@@ -512,8 +523,10 @@
     if (!isCustom) {
       const item = findCatalog(code);
       if (nameEl && item) nameEl.value = item.name;
+      toggleShowOnCvVisibility(!!item?.isMandatory);
     } else if (nameEl) {
       nameEl.value = "";
+      toggleShowOnCvVisibility(false);
     }
   }
 
@@ -573,6 +586,9 @@
     fillIssuerSelects(cert.issuingAuthority || "", cert.trainingProvider || "");
     document.getElementById("ct_file").value = "";
     renderCertAttachmentHint(cert.attachment || null);
+    const showOnCvEl = document.getElementById("ct_show_on_cv");
+    if (showOnCvEl) showOnCvEl.checked = cert.showOnCv !== false;
+    toggleShowOnCvVisibility(!!cert.isMandatory);
     window.SeavModals?.openModal?.("certModal");
   }
 
@@ -617,6 +633,11 @@
       noExpiry,
       isMandatory,
       isTemplate,
+      // Mandatory certs always show on the CV Generator regardless of this
+      // flag (enforced in js/cv-engine-model.js) — the checkbox is hidden
+      // for them (see toggleShowOnCvVisibility), so it stays at its
+      // checked-by-default state and is simply ignored for those rows.
+      showOnCv: document.getElementById("ct_show_on_cv")?.checked ?? true,
       issuingAuthority,
       trainingProvider,
       file: document.getElementById("ct_file")?.files?.[0] || null
@@ -743,6 +764,7 @@
           noExpiry: data.noExpiry,
           isMandatory: data.isMandatory,
           isTemplate: data.isTemplate,
+          showOnCv: data.showOnCv,
           issuingAuthority: data.issuingAuthority,
           trainingProvider: data.trainingProvider
         });

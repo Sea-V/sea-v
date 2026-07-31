@@ -679,6 +679,7 @@ function getEmptySeatimeEntry() {
       attachment: null,
       isMandatory: false,
       isTemplate: false,
+      showOnCv: true,
       noExpiry: false
     };
   }

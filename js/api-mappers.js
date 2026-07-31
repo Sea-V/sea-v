@@ -200,6 +200,9 @@ function mapVesselToSupabase(item) {
       attachment: parseJsonField(c.attachment),
       isMandatory: !!c.is_mandatory,
       isTemplate: !!c.is_template,
+      // Defaults to true (matches the DB column default) so certificates
+      // saved before this field existed still show on the CV Generator.
+      showOnCv: c.show_on_cv !== false,
       noExpiry: !c.expiry_date,
       createdAt: c.created_at || "",
       updatedAt: c.updated_at || ""
@@ -219,6 +222,7 @@ function mapVesselToSupabase(item) {
       attachment: sanitizeFileForStorage(item.attachment, STORAGE_BUCKETS.CERTIFICATE_FILES),
       is_mandatory: !!item.isMandatory,
       is_template: !!item.isTemplate,
+      show_on_cv: item.showOnCv !== false,
       updated_at: new Date().toISOString()
     };
   }

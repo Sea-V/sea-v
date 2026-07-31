@@ -264,9 +264,16 @@
     const vessels = sortByDateDesc(state?.vessels || [], "from").sort(
       compareVesselsChronologicalDesc
     );
-    const certs = (state?.certs || []).filter((cert) =>
-      typeof isSavedCert === "function" ? isSavedCert(cert) : !!cert?.name
-    );
+    // Mandatory CoC/STCW certificates always appear on the CV regardless
+    // of the "Display on CV Generator" checkbox (certificates.html) —
+    // that checkbox only controls additional/optional certificates. See
+    // js/certificates.js's toggleShowOnCvVisibility, which hides the
+    // checkbox entirely for mandatory certs so it can't be unticked.
+    const certs = (state?.certs || []).filter((cert) => {
+      const isSaved = typeof isSavedCert === "function" ? isSavedCert(cert) : !!cert?.name;
+      if (!isSaved) return false;
+      return !!cert.isMandatory || cert.showOnCv !== false;
+    });
     const specialist = sortByDateDesc(state?.specialistQualifications || [], "dateObtained");
     const onboard = state?.onboardExperiences || [];
     const achievements = state?.achievements || [];
