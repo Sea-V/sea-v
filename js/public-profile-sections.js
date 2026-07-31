@@ -268,6 +268,28 @@
     });
   }
 
+  // Empty-state block shown for a section with no data instead of hiding it
+  // outright — every public-profile section is always rendered now (per
+  // Jack's 2026-07-31 request) so the page itself teaches a visiting crew
+  // member what to log to build out their profile. The CTA button only
+  // renders for `isOwner` (the profile owner previewing their own page) —
+  // a stranger viewing someone else's public profile has no use for a link
+  // that would just dead-end at a login gate for them, and doesn't need
+  // "add yours" copy directed at them.
+  function buildEmptyState({ heading, body, ctaLabel, ctaHref, isOwner }) {
+    return `
+      <div class="public-cv-empty-state">
+        <strong>${Seav.escapeHtml(heading)}</strong>
+        <span>${Seav.escapeHtml(body)}</span>
+        ${
+          isOwner && ctaLabel && ctaHref
+            ? `<a class="btn-blue public-cv-empty-cta" href="${Seav.escapeHtml(ctaHref)}">${Seav.escapeHtml(ctaLabel)}</a>`
+            : ""
+        }
+      </div>
+    `;
+  }
+
   function buildVesselHighlights(vessel, onboardEntries) {
     return onboardEntries
       .filter((entry) => entry.vesselId === vessel.id && entry.status === "Signed Off")
@@ -293,13 +315,21 @@
     });
   }
 
-  function renderSeatime(seatimes, vessels) {
+  function renderSeatime(seatimes, vessels, isOwner) {
     const box = document.getElementById("ppSeatimeSnippet");
     const section = document.getElementById("ppSeatimeSection");
     if (!box || !section) return;
 
     if (!seatimes.length) {
-      section.hidden = true;
+      box.innerHTML = buildEmptyState({
+        heading: "No sea time logged yet",
+        body:
+          "Add your sea service records to show verifiable days at sea — essential for CoC progression and for employers to trust your experience.",
+        ctaLabel: "Log sea time",
+        ctaHref: "/seatime.html",
+        isOwner
+      });
+      section.hidden = false;
       return;
     }
 
@@ -359,13 +389,20 @@
     section.hidden = false;
   }
 
-  function renderVessels(vessels, seatimes, tenders, refs) {
+  function renderVessels(vessels, seatimes, tenders, refs, isOwner) {
     const vesselBox = document.getElementById("ppVesselSnippet");
     const section = document.getElementById("ppVesselSection");
     if (!vesselBox) return;
 
     if (!vessels.length) {
-      vesselBox.innerHTML = `<div class="muted">No vessel experience added yet.</div>`;
+      vesselBox.innerHTML = buildEmptyState({
+        heading: "No vessel experience yet",
+        body:
+          "This is the anchor of your profile — add your vessels to show your career history, roles, and time onboard each ship.",
+        ctaLabel: "Add a vessel",
+        ctaHref: "/vessels.html",
+        isOwner
+      });
       setSectionCount("ppVesselCount", 0);
       if (section) section.hidden = false;
       return;
@@ -437,14 +474,22 @@
     `;
   }
 
-  function renderTenders(tenders, vessels) {
+  function renderTenders(tenders, vessels, isOwner) {
     const tenderBox = document.getElementById("ppTenderSnippet");
     const section = document.getElementById("ppTenderSection");
     if (!tenderBox || !section) return;
 
     if (!tenders.length) {
-      section.hidden = true;
+      tenderBox.innerHTML = buildEmptyState({
+        heading: "No tenders logged yet",
+        body:
+          "Add tenders under a vessel to show your small-craft handling — a real differentiator for deck and interior crew.",
+        ctaLabel: "Log a tender",
+        ctaHref: "/tenders.html",
+        isOwner
+      });
       setSectionCount("ppTenderCount", 0);
+      section.hidden = false;
       return;
     }
 
@@ -478,7 +523,7 @@
     section.hidden = false;
   }
 
-  async function renderNavigation(navigationAreas, vessels, distanceMap) {
+  async function renderNavigation(navigationAreas, vessels, distanceMap, isOwner) {
     const box = document.getElementById("ppNavigationSnippet");
     const section = document.getElementById("ppNavigationSection");
     if (!box || !section) return;
@@ -486,7 +531,15 @@
     destroyPublicNavigationChart();
 
     if (!navigationAreas.length) {
-      section.hidden = true;
+      box.innerHTML = buildEmptyState({
+        heading: "No passages logged yet",
+        body:
+          "Add navigation entries to build a visual map of the routes, miles, and countries you've sailed.",
+        ctaLabel: "Log a passage",
+        ctaHref: "/navigation.html",
+        isOwner
+      });
+      section.hidden = false;
       return;
     }
 
@@ -651,7 +704,7 @@
     `;
   }
 
-  function renderOnboardExperience(onboardEntries, vessels) {
+  function renderOnboardExperience(onboardEntries, vessels, isOwner) {
     const box = document.getElementById("ppOperationsSnippet");
     const section = document.getElementById("ppOperationsSection");
     if (!box || !section) return;
@@ -659,8 +712,16 @@
     const entries = onboardEntries || [];
 
     if (!entries.length) {
-      section.hidden = true;
+      box.innerHTML = buildEmptyState({
+        heading: "No onboard experience logged yet",
+        body:
+          "Add operations and familiarisations to show hands-on competence beyond your CoC.",
+        ctaLabel: "Add onboard experience",
+        ctaHref: "/onboard-experience.html",
+        isOwner
+      });
       setSectionCount("ppOnboardCount", 0);
+      section.hidden = false;
       return;
     }
 
@@ -704,7 +765,7 @@
     }
   });
 
-  function renderHobbiesInterests(entries) {
+  function renderHobbiesInterests(entries, isOwner) {
     const box = document.getElementById("ppHobbiesSnippet");
     const section = document.getElementById("ppHobbiesSection");
     if (!box || !section) return;
@@ -718,7 +779,15 @@
       });
 
     if (!published.length) {
-      section.hidden = true;
+      box.innerHTML = buildEmptyState({
+        heading: "No hobbies or interests yet",
+        body:
+          "A few personal touches help owners and crew agencies get a sense of who you are, not just what you're qualified for.",
+        ctaLabel: "Add hobbies & interests",
+        ctaHref: "/hobbies-interests.html",
+        isOwner
+      });
+      section.hidden = false;
       return;
     }
 
@@ -758,7 +827,7 @@
    * replaces a much heavier expandable-accordion design that was never
    * actually wired into public-profile.html in the first place.
    */
-  function renderCertificates(certs) {
+  function renderCertificates(certs, isOwner) {
     const box = document.getElementById("ppCertSnippet");
     const section = document.getElementById("ppCertSection");
     if (!box || !section) return;
@@ -768,7 +837,15 @@
     );
 
     if (!saved.length) {
-      section.hidden = true;
+      box.innerHTML = buildEmptyState({
+        heading: "No certificates recorded yet",
+        body:
+          "Add your CoC and STCW certificates so recruiters can see your compliance status at a glance.",
+        ctaLabel: "Add a certificate",
+        ctaHref: "/certificates.html",
+        isOwner
+      });
+      section.hidden = false;
       return;
     }
 
@@ -800,7 +877,7 @@
     section.hidden = false;
   }
 
-  function renderSpecialistQualifications(entries) {
+  function renderSpecialistQualifications(entries, isOwner) {
     const box = document.getElementById("ppSpecialistSnippet");
     const section = document.getElementById("ppSpecialistSection");
     if (!box || !section) return;
@@ -814,7 +891,15 @@
       });
 
     if (!sorted.length) {
-      section.hidden = true;
+      box.innerHTML = buildEmptyState({
+        heading: "No specialist qualifications yet",
+        body:
+          "Add courses like PDSD, ENG1, or tickets relevant to your role to stand out for specialist positions.",
+        ctaLabel: "Add a qualification",
+        ctaHref: "/specialist-qualifications.html",
+        isOwner
+      });
+      section.hidden = false;
       return;
     }
 
@@ -847,7 +932,7 @@
     section.hidden = false;
   }
 
-  function renderReferences(refs, vessels = []) {
+  function renderReferences(refs, vessels = [], isOwner) {
     const box = document.getElementById("ppRefSnippet");
     const section = document.getElementById("ppRefSection");
     if (!box || !section) return;
@@ -856,7 +941,26 @@
     const verifiedRefs = refs.filter(isReferenceVerified);
 
     if (!verifiedRefs.length) {
-      section.hidden = true;
+      // "Pending" copy only ever runs for the owner's own preview — refs
+      // includes unverified rows for everyone (see js/api.js's
+      // PUBLIC_ARRAY_COLUMNS.sea_references, which doesn't filter by status),
+      // so surfacing a pending count to a stranger would leak whether an
+      // unconfirmed reference exists. Gating this on isOwner keeps that
+      // detail visible only to the person it belongs to.
+      const pendingCount = isOwner ? refs.length : 0;
+      box.innerHTML = buildEmptyState({
+        heading: pendingCount > 0 ? "References awaiting verification" : "No verified references yet",
+        body:
+          pendingCount > 0
+            ? `${pendingCount} reference${pendingCount === 1 ? "" : "s"} awaiting verification — ${
+                pendingCount === 1 ? "it'll" : "they'll"
+              } appear here once confirmed.`
+            : "Request a verification link from a previous captain or HOD — a verified reference is the strongest trust signal on your profile.",
+        ctaLabel: "Manage references",
+        ctaHref: "/references.html",
+        isOwner
+      });
+      section.hidden = false;
       return;
     }
 
@@ -981,7 +1085,7 @@
     `;
   }
 
-  function renderAchievements(achievements, vessels) {
+  function renderAchievements(achievements, vessels, isOwner) {
     const box = document.getElementById("ppAchievementSnippet");
     const section = document.getElementById("ppAchievementSection");
     if (!box || !section) return;
@@ -990,7 +1094,27 @@
       (item) => item.status === "Verified" || (item.status !== "Declined" && item.autoAwarded)
     );
     if (!approved.length) {
-      section.hidden = true;
+      // This section has no static <h3> in the HTML (unlike the others) —
+      // the header is normally built inline below along with the content, so
+      // the empty state has to include it too rather than relying on markup
+      // that isn't there.
+      box.innerHTML = `
+        <div class="dashboard-card-headline">
+          <h3><span class="public-profile-section-icon" data-pp-icon="achievements" aria-hidden="true"></span>Milestones</h3>
+        </div>
+        ${buildEmptyState({
+          heading: "No milestones yet",
+          body:
+            "Log career highlights, or keep using SEA-V — some milestones are awarded automatically as you build your record.",
+          ctaLabel: "View milestones",
+          ctaHref: "/achievements.html",
+          isOwner
+        })}
+      `;
+      // populateSectionIcons() in public-profile.js runs once after every
+      // section has rendered and fills in every [data-pp-icon] element on
+      // the page, including this one — no separate call needed here.
+      section.hidden = false;
       return;
     }
 

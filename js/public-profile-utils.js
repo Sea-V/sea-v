@@ -765,10 +765,22 @@
     setActiveSectionNavLink(visible[0].id);
   }
 
+  // Gated specifically on sea time (not "any metric present") per Jack:
+  // an empty strip with a couple of stray boxes (e.g. just "Vessels: 1")
+  // before any real sea time is logged looks sparse and unfinished, so the
+  // whole Career snapshot card stays hidden until there's an actual sea
+  // service record to build it from.
   function renderTrustStrip(metrics) {
     const strip = document.getElementById("ppTrustStrip");
     const kpiCard = document.getElementById("ppKpiCard");
     if (!strip) return;
+
+    if (!(metrics.seaDays > 0)) {
+      strip.innerHTML = "";
+      strip.hidden = true;
+      if (kpiCard) kpiCard.hidden = true;
+      return;
+    }
 
     const items = [];
 

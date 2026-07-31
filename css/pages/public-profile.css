@@ -1117,6 +1117,44 @@ body.public-profile-page .overlay {
   gap: 5px;
 }
 
+/* Empty-state block shown inside a section with no data yet — every
+   public-profile section always renders now (see js/public-profile-sections.js
+   buildEmptyState), so this replaces the old "hide the whole card" behavior.
+   Mirrors the existing .seatime-empty-state pattern (css/pages/seatime.css)
+   for visual consistency: centered, muted, no glow. */
+.public-cv-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 140px;
+  padding: 28px 24px;
+
+  text-align: center;
+}
+
+.public-cv-empty-state strong {
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.public-cv-empty-state span {
+  max-width: 440px;
+
+  color: rgba(255, 255, 255, 0.58);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.public-cv-empty-cta {
+  margin-top: 6px;
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */

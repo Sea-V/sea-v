@@ -261,6 +261,13 @@
           throw new Error("Public profile owner id missing.");
         }
 
+        // Computed once and threaded into every section renderer below —
+        // only the profile owner previewing their own public page gets the
+        // empty-state "Add X" CTA buttons (see js/public-profile-sections.js
+        // buildEmptyState). A stranger viewing this profile just sees the
+        // plain guidance text, no dead-end edit links.
+        const isOwner = isOwnProfilePreview(ownerId, profile);
+
         const [
           vessels,
           tenders,
@@ -296,16 +303,16 @@
         };
 
         renderHeaderProfile(profile, vessels, metrics);
-        sections.renderSeatime(seatimes, vessels);
-        sections.renderVessels(vessels, seatimes, tenders, refs);
-        sections.renderTenders(tenders, vessels);
-        await sections.renderNavigation(navigationAreas, vessels, navigationDistanceMap);
-        sections.renderOnboardExperience(onboardEntries, vessels);
-        sections.renderHobbiesInterests(hobbyEntries);
-        sections.renderSpecialistQualifications(specialistEntries);
-        sections.renderCertificates(certs);
-        sections.renderReferences(refs, vessels);
-        sections.renderAchievements(achievements, vessels);
+        sections.renderSeatime(seatimes, vessels, isOwner);
+        sections.renderVessels(vessels, seatimes, tenders, refs, isOwner);
+        sections.renderTenders(tenders, vessels, isOwner);
+        await sections.renderNavigation(navigationAreas, vessels, navigationDistanceMap, isOwner);
+        sections.renderOnboardExperience(onboardEntries, vessels, isOwner);
+        sections.renderHobbiesInterests(hobbyEntries, isOwner);
+        sections.renderSpecialistQualifications(specialistEntries, isOwner);
+        sections.renderCertificates(certs, isOwner);
+        sections.renderReferences(refs, vessels, isOwner);
+        sections.renderAchievements(achievements, vessels, isOwner);
 
         bindExpandToggles(document.getElementById("ppContent"));
         renderSectionNav();
