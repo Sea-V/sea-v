@@ -600,12 +600,12 @@
     const info = window.SeavData.getCertExpiryInfo(expiry);
     const formatDate = window.SeavData.formatDatePretty;
 
-    const DOT_CLASS_BY_PILL = {
-      "pill pill-valid": "is-valid",
-      "pill pill-warning": "is-pending",
-      "pill pill-expired": "is-expired"
-    };
-    const dotClass = DOT_CLASS_BY_PILL[info.statusClass] || "";
+    // Reuse the exact same .cert-status-pill.pill-* classes the private
+    // Certificates page uses (css/pages/certificates.css) so "Valid" /
+    // "Expires Soon" / "Expired" etc. render as an identical pill here —
+    // info.statusClass already comes back as "pill pill-valid" etc., so
+    // just drop the leading "pill " and keep the modifier.
+    const pillModifier = Seav.escapeHtml(String(info.statusClass || "pill-neutral").replace(/^pill\s+/, ""));
 
     const expiryMeta = expiry
       ? `${info.badge === "Expired" ? "Expired" : "Expires"} ${formatDate(expiry)}`
@@ -619,10 +619,7 @@
           <span class="public-cv-mini-title">${title}</span>
           <span class="public-cv-mini-meta">${Seav.escapeHtml(meta)}</span>
         </div>
-        <span class="public-cv-mini-meta">
-          <span class="public-cv-status-dot${dotClass ? ` ${dotClass}` : ""}" aria-hidden="true"></span>
-          ${Seav.escapeHtml(info.badge)}
-        </span>
+        <span class="cert-status-pill ${pillModifier}">${Seav.escapeHtml(info.badge)}</span>
       </div>
     `;
   }

@@ -187,38 +187,6 @@
   gap: 8px;
 }
 
-.ps-year-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px 14px;
-}
-
-/* Collapsible tax-year toggle — separate clickable button rather than a
-   native <details>/<summary> so the Month select next to it (also inside
-   .ps-year-head) stays independently clickable without also toggling the
-   group open/closed. */
-.ps-year-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  text-align: left;
-}
-
-.ps-year-toggle .ps-year-label {
-  margin: 0;
-}
-
-.ps-year-group.is-open .ps-year-toggle .ps-chevron {
-  transform: rotate(180deg);
-  color: rgba(207, 168, 106, 0.9);
-}
-
 .ps-filter-label--inline {
   margin: 0;
 }
@@ -264,32 +232,101 @@
   gap: 8px;
 }
 
-/* Each month's card was a plain block-flow sibling with no gap of its
-   own — the compact list's 8px gap only ever applied *between* tax-year
-   groups, never between cards within one, so months sat flush against
-   each other. Matches the 8px gap used everywhere else (.cert-compact-list,
-   .ps-compact-list itself). */
+/* Tax-year group — same bordered "pill card" pattern as .ps-compact-card /
+   .cert-compact-card / .onboard-vessel-group / .seatime-vessel-group, so
+   the collapsed year row reads as one consistent shape sitewide instead of
+   plain unbordered text. */
 .ps-year-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(207, 168, 106, 0.2);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .ps-year-group + .ps-year-group {
   margin-top: 14px;
 }
 
+.ps-year-summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px 16px;
+  padding: 14px 18px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: background 0.15s ease;
+}
+
+.ps-year-summary:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.ps-year-summary:focus-visible {
+  outline: 2px solid rgba(207, 168, 106, 0.55);
+  outline-offset: -2px;
+}
+
+.ps-year-group.is-open .ps-year-summary {
+  border-bottom: 1px solid rgba(207, 168, 106, 0.12);
+}
+
+.ps-year-group.is-open .ps-chevron {
+  transform: rotate(180deg);
+  color: rgba(207, 168, 106, 0.9);
+}
+
+.ps-year-summary-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ps-year-summary-title strong {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ps-year-summary-title small {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ps-year-summary-count {
+  flex-shrink: 0;
+  min-width: 26px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(207, 168, 106, 0.16);
+  color: #cfa86a;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
 .ps-year-body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 14px 18px 16px;
 }
 
-.ps-year-label {
-  margin: 0 0 8px;
-  color: #5bbcff;
-  font-size: 11px;
-  font-weight: 850;
+/* Month filter now lives inside the expanded body (moved out of the
+   collapsed summary row) — the pill pattern this matches never shows
+   extra controls in its collapsed header. */
+.ps-year-month-filter {
+  margin: 0 0 4px;
 }
 
 .ps-compact-card {

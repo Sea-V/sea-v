@@ -200,31 +200,35 @@
           ? getPayslipMonthLabel(monthFilter, year)
           : "";
         const isOpen = expandedTaxYears.has(year);
+        const payslipLabel = items.length === 1 ? "payslip" : "payslips";
+        const monthsLogged = getPayslipMonthsLogged(year, getEntries()).size;
 
         return `
           <div class="ps-year-group${isOpen ? " is-open" : ""}">
-            <div class="ps-year-head">
-              <button
-                type="button"
-                class="ps-year-toggle"
-                aria-expanded="${isOpen ? "true" : "false"}"
-                data-toggle-ps-year="${Seav.escapeHtml(year)}"
-              >
-                <span class="ps-chevron" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </span>
-                <h4 class="ps-year-label">Tax year ${Seav.escapeHtml(year)} · ${getPayslipMonthsLogged(year, getEntries()).size}/12 months</h4>
-              </button>
-              <label class="ps-filter-label ps-filter-label--inline">
+            <button
+              type="button"
+              class="ps-year-summary"
+              aria-expanded="${isOpen ? "true" : "false"}"
+              data-toggle-ps-year="${Seav.escapeHtml(year)}"
+            >
+              <span class="ps-chevron" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="ps-year-summary-title">
+                <strong>Tax year ${Seav.escapeHtml(year)}</strong>
+                <small>${items.length} ${payslipLabel} • ${monthsLogged}/12 months</small>
+              </span>
+              <span class="ps-year-summary-count">${items.length}</span>
+            </button>
+            <div class="ps-year-body"${isOpen ? "" : " hidden"}>
+              <label class="ps-filter-label ps-filter-label--inline ps-year-month-filter">
                 Month
                 <select data-ps-year-month-filter="${Seav.escapeHtml(year)}">
                   ${getMonthFilterOptionsHtml(year, monthFilter)}
                 </select>
               </label>
-            </div>
-            <div class="ps-year-body"${isOpen ? "" : " hidden"}>
               ${
                 sortedItems.length
                   ? sortedItems.map(buildRow).join("")
