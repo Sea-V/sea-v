@@ -383,7 +383,12 @@ body.app-page::before {
     saturate(1.2);
 
   opacity: 0.95;
-  animation: appOceanDrift 60s ease-in-out infinite alternate;
+  /* 60s per direction with only a 6% scale / 1.5% pan was technically
+     animating but imperceptible on a normal glance — same issue fixed on
+     the public pages in css/components/ocean-background.css. Sped up and
+     enlarged to match (12% scale / 3% translateX headroom stays ahead of
+     the pan, so no edge of the source image is ever exposed). */
+  animation: appOceanDrift 22s ease-in-out infinite alternate;
 }
 
 body.app-page::after {
@@ -408,7 +413,7 @@ body.app-page::after {
   }
 
   to {
-    transform: scale(1.06) translateX(-1.5%);
+    transform: scale(1.12) translateX(-3%);
   }
 }
 
