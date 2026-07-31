@@ -624,21 +624,18 @@ function renderSidebarAchievements() {
 
           <div class="modal-form">
             <p class="modal-intro">
-              Product feedback, support, partnerships, or early access — we’d love to hear from you.
+              Product feedback, support, partnerships, or early access requests — we’d love to hear from you.
             </p>
 
-            <div class="modal-info-box">
+            <a class="modal-info-box modal-info-box--link" href="mailto:admin@sea-v.com">
               <span class="modal-info-label">Email</span>
-              <span class="modal-info-value"><a href="mailto:admin@sea-v.com">admin@sea-v.com</a></span>
-            </div>
+              <span class="modal-info-value">admin@sea-v.com</span>
+            </a>
 
-            <div class="modal-info-box">
-              <span class="modal-info-label">We welcome</span>
-              <span class="modal-info-value">Product feedback, partnerships, account support, and early access requests.</span>
+            <div class="dash-actions">
+              <a class="btn-blue" href="mailto:admin@sea-v.com">Email us</a>
+              <a class="btn-ghost2" href="contact.html" target="_blank" rel="noopener">Full contact page</a>
             </div>
-
-            <a class="btn-blue" href="mailto:admin@sea-v.com">Email us</a>
-            <a class="modal-link-more" href="contact.html" target="_blank" rel="noopener">Open the full contact page →</a>
           </div>
         </div>
       </div>
@@ -665,7 +662,10 @@ function renderSidebarAchievements() {
               <span class="modal-info-value">Built to modernise how maritime careers are recorded, presented, and shared.</span>
             </div>
 
-            <a class="modal-link-more" href="about.html" target="_blank" rel="noopener">Read the full story →</a>
+            <div class="dash-actions">
+              <a class="btn-blue" href="about.html" target="_blank" rel="noopener">Read the full story</a>
+              <a class="btn-ghost2" href="#" data-open="contactInfoModal">Get in touch</a>
+            </div>
           </div>
         </div>
       </div>

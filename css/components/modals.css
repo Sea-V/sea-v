@@ -662,29 +662,28 @@
   color: rgba(196, 160, 255, 0.92);
 }
 
-.modal-info-value a {
+/* Whole info box acting as a link (e.g. the Contact modal's email row) —
+   same card look as a plain .modal-info-box, just clickable end to end
+   instead of only the value text, with a subtle hover state matching the
+   rest of the app's card-hover language. */
+.modal-info-box--link {
+  text-decoration: none;
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.modal-info-box--link:hover,
+.modal-info-box--link:focus-visible {
+  border-color: rgba(91, 188, 255, 0.32);
+  background: rgba(91, 188, 255, 0.06);
+}
+
+.modal-info-box--link .modal-info-value {
   color: var(--accent-blue);
   font-weight: 700;
-  text-decoration: none;
-}
-
-.modal-info-value a:hover {
-  text-decoration: underline;
-}
-
-.modal-link-more {
-  align-self: flex-start;
-  margin-top: -2px;
-
-  color: rgba(255, 255, 255, 0.56);
-
-  font-size: 12px;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.modal-link-more:hover {
-  color: #ffffff;
 }
 
 /* =========================================================
@@ -794,6 +793,10 @@
 .modal-form .dash-actions .btn-blue,
 .modal-form .dash-actions .btn-ghost2 {
   flex: 0 0 auto;
+  /* Cancels .modal-form .btn-blue's own margin-top: 4px (meant for a
+     single button sitting right under a field) so both buttons in this
+     row line up evenly against .dash-actions' align-items: center. */
+  margin-top: 0;
 }
 
 /* =========================================================
