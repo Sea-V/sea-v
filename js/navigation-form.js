@@ -116,6 +116,11 @@
       `;
       filterSelect.value = currentFilter;
     }
+
+    // Linking a vessel is optional here, so zero vessels doesn't block the
+    // form -- just note it so it reads as a deliberate choice, not a bug.
+    const note = document.getElementById("navNoVesselNote");
+    if (note) note.hidden = vessels.length > 0;
   }
 
   function buildSeatimeLabel(entry) {

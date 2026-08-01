@@ -227,6 +227,11 @@
         .join("")}
     `;
     if (current) select.value = current;
+
+    // Linking a vessel is optional here, so zero vessels doesn't block the
+    // form -- just note it so it reads as a deliberate choice, not a bug.
+    const note = document.getElementById("psNoVesselNote");
+    if (note) note.hidden = options.length > 0;
   }
 
   function renderKpis() {

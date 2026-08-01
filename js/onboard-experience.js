@@ -77,6 +77,12 @@
         .join("")}
     `;
     if (current) select.value = current;
+
+    // Onboard experience requires a vessel to submit -- with zero vessels
+    // the select is empty and the form can't be completed, so say so
+    // plainly instead of letting the user hit a silent validation error.
+    const notice = document.getElementById("oeNoVesselNotice");
+    if (notice) notice.hidden = vessels.length > 0;
   }
 
   function renderKpis() {

@@ -568,6 +568,13 @@
     if (currentValue) {
       select.value = currentValue;
     }
+
+    // Sea Time requires a vessel to submit (see readSeatimeForm validation) --
+    // with zero vessels on file the select is empty and the form can't be
+    // completed, so surface that plainly instead of letting the user hit a
+    // silent validation error after filling in everything else.
+    const notice = document.getElementById("stNoVesselNotice");
+    if (notice) notice.hidden = vessels.length > 0;
   }
 
   function csvEscape(value) {

@@ -116,6 +116,11 @@
   if (currentValue) {
     select.value = currentValue;
   }
+
+  // Linking a vessel is optional here, so zero vessels doesn't block the
+  // form -- just note it so it reads as a deliberate choice, not a bug.
+  const note = document.getElementById("rfNoVesselNote");
+  if (note) note.hidden = vessels.length > 0;
 }
 
   async function hydrateReferenceAttachments(refs) {

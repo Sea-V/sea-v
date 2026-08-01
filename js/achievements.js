@@ -115,6 +115,12 @@
     `;
 
     if (currentValue) select.value = currentValue;
+
+    // Logging a milestone requires a vessel to submit -- with zero vessels
+    // the select is empty and the form can't be completed, so say so
+    // plainly instead of letting the user hit a silent validation error.
+    const notice = document.getElementById("achNoVesselNotice");
+    if (notice) notice.hidden = sorted.length > 0;
   }
 
   function populateAchievementOptions() {

@@ -60,6 +60,12 @@ function populateTenderVesselOptions() {
   if (currentValue) {
     select.value = currentValue;
   }
+
+  // Linking a vessel is optional here, so zero vessels doesn't block the
+  // form -- just note it, since the "leave blank" option alone can read
+  // like something's missing rather than like a deliberate choice.
+  const note = document.getElementById("tdNoVesselNote");
+  if (note) note.hidden = vessels.length > 0;
 }
 
 function getVesselNameForTender(tender) {

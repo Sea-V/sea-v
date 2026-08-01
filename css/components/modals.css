@@ -385,6 +385,11 @@
   letter-spacing: normal;
 }
 
+.modal-note a {
+  color: var(--accent-blue, #5bbcff);
+  font-weight: 700;
+}
+
 .modal-note--warning {
   margin: 0 0 4px;
   padding: 10px 12px;
@@ -396,6 +401,13 @@
 
   font-size: 12.5px;
   line-height: 1.5;
+}
+
+/* Links inside a warning note (e.g. "add a vessel first") keep the same
+   accent color as .modal-note a, just underlined for extra emphasis
+   against the amber warning background. */
+.modal-note--warning a {
+  text-decoration: underline;
 }
 
 /* =========================================================
