@@ -677,8 +677,11 @@
   gap: 6px;
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(76, 217, 123, 0.35);
-  background: rgba(76, 217, 123, 0.12);
+  /* Matches .pill-valid (pills.css) — same mint green used by the TRB
+     "Completed" pill and certs/references verified pills, so all green
+     "complete"-style pills read as one consistent color across the page. */
+  border: 1px solid rgba(94, 230, 168, 0.42);
+  background: rgba(94, 230, 168, 0.16);
   /* "Eligibility complete" text is white on request — border/background
      stay green, and the checkmark icon keeps its own green color below
      (it uses stroke="currentColor", so it needs its own override now
@@ -691,7 +694,7 @@
 .seatime-oow-status svg {
   width: 14px;
   height: 14px;
-  color: #4cd97b;
+  color: #5ee6a8;
 }
 
 .seatime-oow-box {
