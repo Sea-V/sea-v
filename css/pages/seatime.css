@@ -366,6 +366,14 @@
    .tender-vessel-group on the Tenders page (css/pages/tenders.css),
    just built around a table instead of a card grid. All closed by
    default, matching the Tenders/public-profile convention.
+
+   Border/background/count-badge colors match .tender-vessel-group /
+   .achievement-vessel-group exactly (var(--surface-border) neutral
+   border, shared green count badge) instead of this page's own
+   periwinkle accent -- the accent stays scoped to the page shell
+   border/divider/icon per the file-header note, not repeated
+   per-vessel components, so these groups look the same everywhere
+   the vessel-grouping pattern is used across the site.
 ========================================================= */
 
 .seatime-groups {
@@ -376,9 +384,9 @@
 
 .seatime-vessel-group {
   border-radius: 18px;
-  border: 1px solid rgba(130, 158, 255, 0.28);
+  border: 1px solid var(--surface-border);
 
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.03);
 
   overflow: hidden;
 }
@@ -449,7 +457,7 @@
   padding: 1px 8px;
 
   border-radius: 999px;
-  background: rgba(130, 158, 255, 0.16);
+  background: rgba(76, 255, 184, 0.16);
 
   color: #ffffff;
 
@@ -489,7 +497,7 @@
 .seatime-vessel-group .seatime-table-wrap {
   border-radius: 0;
   border: 0;
-  border-top: 1px solid rgba(130, 158, 255, 0.14);
+  border-top: 1px solid var(--surface-border);
 
   box-shadow: none;
 }
