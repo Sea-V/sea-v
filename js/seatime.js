@@ -789,24 +789,22 @@
     const notes = document.getElementById("trb_notes")?.value.trim() || "";
 
     const existingProfile = window.SeavState?.profile || {};
+    const updatedProfile = {
+      ...existingProfile,
+      trbStatus: status,
+      trbTargetQualification: target,
+      trbNotes: notes
+    };
 
     await Seav.withSaving(async () => {
-      await window.SeavAPI.save(KEYS.PROFILE, {
-        ...existingProfile,
-        trbStatus: status,
-        trbTargetQualification: target,
-        trbNotes: notes
-      });
+      await window.SeavAPI.save(KEYS.PROFILE, updatedProfile);
 
-      if (window.SeavState) {
-        window.SeavState.profile = {
-          ...existingProfile,
-          trbStatus: status,
-          trbTargetQualification: target,
-          trbNotes: notes
-        };
-        window.SeavState.syncCache?.();
-      }
+      // window.SeavState.profile is a read-only getter (see js/state.js) --
+      // assigning to it directly throws "Attempted to assign to readonly
+      // property" in strict mode. patchData() is the actual public API for
+      // updating the in-memory snapshot after a save, and it already
+      // writes the cache itself (no separate syncCache() call needed).
+      window.SeavState?.patchData?.({ profile: updatedProfile });
 
       renderTrbPanel();
       Seav.notify("success", "TRB progress saved", "Your Training Record Book status is up to date.");
