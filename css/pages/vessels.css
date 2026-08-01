@@ -452,9 +452,16 @@
    STATS GRID
 ========================================================= */
 
+/* Flex, not grid — GT/Length/Build always render, but IMO/MMSI/onboard
+   duties are all optional, so this box can hold anywhere from 3 to 6
+   items. A fixed 3-column grid left a partial last row (e.g. just IMO
+   with no MMSI/duties) sitting flush-left with empty cells trailing it.
+   flex-wrap + flex-grow lets a short last row's boxes stretch to fill the
+   full width instead, while the calc() basis below still targets exactly
+   3 per row whenever there are enough items to fill it. */
 .vessel-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
 
   gap: 8px;
 
@@ -477,6 +484,12 @@
 }
 
 .vessel-stats-grid div {
+  /* Targets exactly 3 per row (matching the base 8px gap above) whenever
+     there are enough items to fill it; flex-grow lets a shorter last row
+     stretch past this to fill the remaining width instead of leaving
+     empty space. */
+  flex: 1 1 calc((100% - 16px) / 3);
+
   min-width: 0;
   min-height: 48px;
 
@@ -493,6 +506,9 @@
 }
 
 .vessel-profile-card .vessel-stats-grid div {
+  /* Re-targets 3 per row for this context's 7px gap. */
+  flex-basis: calc((100% - 14px) / 3);
+
   min-height: 50px;
   padding: 7px 9px;
   border-radius: 13px;
@@ -926,10 +942,17 @@
   }
 
   .vessel-main-grid,
-  .vessel-stats-grid,
   .vessel-linked-clean-grid,
   .vessel-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* .vessel-stats-grid is flex (not grid, see above) — one box per row
+     on narrow screens, same end result as the grid-template-columns: 1fr
+     override used for its siblings above. */
+  .vessel-stats-grid div,
+  .vessel-profile-card .vessel-stats-grid div {
+    flex-basis: 100%;
   }
 
   .vessel-image-card {
