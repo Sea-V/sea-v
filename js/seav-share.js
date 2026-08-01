@@ -78,7 +78,7 @@
         </div>
         ${
           data.statLabel
-            ? `<div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:26px;padding:12px 26px;font-size:22px;font-weight:600;">${escapeHtml(data.statLabel)}</div>`
+            ? `<div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:26px;padding:12px 26px;font-size:22px;font-weight:600;line-height:1;display:flex;align-items:center;justify-content:center;">${escapeHtml(data.statLabel)}</div>`
             : ""
         }
       </div>
@@ -106,7 +106,7 @@
         </div>
         ${
           data.statLabel
-            ? `<div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:26px;padding:12px 26px;font-size:22px;font-weight:600;">${escapeHtml(data.statLabel)}</div>`
+            ? `<div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:26px;padding:12px 26px;font-size:22px;font-weight:600;line-height:1;display:flex;align-items:center;justify-content:center;">${escapeHtml(data.statLabel)}</div>`
             : ""
         }
       </div>
@@ -302,15 +302,29 @@
     );
   }
 
-  function shareProfile() {
-    const profile = window.SeavState?.profile || {};
+  async function shareProfile() {
+    let profile = window.SeavState?.profile || {};
+    const bucket = window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos";
+
+    // js/state.js hydrates profile.photo's signed URL in the background
+    // after the dashboard loads (hydrateStoredFilesInBackground) — if Share
+    // is clicked before that finishes, or a previously-signed URL has since
+    // expired, profile.photo has no usable url yet and the card silently
+    // fell back to the initials avatar instead of the real photo. Hydrate
+    // it here, synchronously with the click, so the share card is never
+    // missing the photo. Fetched into a local copy, not written back to
+    // SeavState, to keep this a read-only side effect of sharing.
+    if (
+      window.SeavApiCore?.storedFileNeedsHydration?.(profile.photo, bucket) &&
+      window.SeavApiCore?.hydrateProfilePhoto
+    ) {
+      profile = await window.SeavApiCore.hydrateProfilePhoto(profile);
+    }
+
     const name = profile.name || "Seafarer";
     const subtitleParts = [profile.rank, profile.qualification].filter(Boolean);
     const imageSrc = window.Seav?.getFileDisplayUrl
-      ? window.Seav.getFileDisplayUrl(
-          profile.photo,
-          window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
-        )
+      ? window.Seav.getFileDisplayUrl(profile.photo, bucket)
       : "";
     const initial = String(name).trim().charAt(0).toUpperCase() || "S";
 

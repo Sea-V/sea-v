@@ -3,13 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=312" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=312" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=312" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=312" />
+  <link rel="icon" href="/favicon.ico?v=313" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=313" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=313" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=313" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Public Profile</title>
+
+  <!--
+    Open Graph / Twitter Card — generic, same for every /u/:username link.
+    WhatsApp, iMessage, and Slack read these tags (not the JS-set document
+    title) when unfurling a shared link into a preview card, so without
+    them a shared profile link showed no image and a bare "SEA-V • Public
+    Profile" title — worse, some previewers fall back to a plain
+    initial-in-a-circle placeholder when og:image is missing entirely.
+    This isn't personalized per-crew-member (that needs a server-side/edge
+    function to inject each person's name+photo before the crawler request
+    reaches this static file — a bigger post-launch project) but it turns
+    every shared link into a real, tappable branded card instead of
+    nothing. og:url intentionally points at the site root, not a specific
+    /u/:username, since this same file serves every profile.
+  -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SEA-V" />
+  <meta property="og:title" content="SEA-V — Maritime Career Platform" />
+  <meta property="og:description" content="View a verified maritime career profile on SEA-V — sea time, certificates, vessels, and more." />
+  <meta property="og:image" content="https://www.sea-v.com/img/og-share-card.jpg?v=313" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="https://www.sea-v.com/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SEA-V — Maritime Career Platform" />
+  <meta name="twitter:description" content="View a verified maritime career profile on SEA-V." />
+  <meta name="twitter:image" content="https://www.sea-v.com/img/og-share-card.jpg?v=313" />
 
   <!--
     Root-absolute paths below (not the site's usual relative "js/x.js")
@@ -20,7 +47,7 @@
     knows to keep the leading slash on this file — don't "simplify" these
     back to relative.
   -->
-  <link rel="stylesheet" href="/styles.css?v=312" />
+  <link rel="stylesheet" href="/styles.css?v=313" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -32,28 +59,28 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
-  <script src="/js/feedback.js?v=312" defer></script>
-  <script src="/js/core.js?v=312" defer></script>
+  <script src="/js/feedback.js?v=313" defer></script>
+  <script src="/js/core.js?v=313" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="/js/seav-upload.js?v=312" defer></script>
-  <script src="/js/seav-data.js?v=312" defer></script>
-  <script src="/js/seav-badges.js?v=312" defer></script>
+  <script src="/js/seav-upload.js?v=313" defer></script>
+  <script src="/js/seav-data.js?v=313" defer></script>
+  <script src="/js/seav-badges.js?v=313" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/seav-config.js?v=312"></script>
-  <script src="/js/supabase.js?v=312" defer></script>
-  <script src="/js/auth.js?v=312"></script>
-  <script src="/js/api-core.js?v=312" defer></script>
-  <script src="/js/api-mappers.js?v=312" defer></script>
-  <script src="/js/api.js?v=312" defer></script>
+  <script src="/js/seav-config.js?v=313"></script>
+  <script src="/js/supabase.js?v=313" defer></script>
+  <script src="/js/auth.js?v=313"></script>
+  <script src="/js/api-core.js?v=313" defer></script>
+  <script src="/js/api-mappers.js?v=313" defer></script>
+  <script src="/js/api.js?v=313" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="/js/navigation-ports.js?v=312" defer></script>
-  <script src="/js/navigation-helpers.js?v=312" defer></script>
-  <script src="/js/navigation-passage.js?v=312" defer></script>
-  <script src="/js/navigation-routing.js?v=312" defer></script>
-  <script src="/js/public-profile-utils.js?v=312" defer></script>
-  <script src="/js/seav-cards.js?v=312" defer></script>
-  <script src="/js/public-profile-sections.js?v=312" defer></script>
-  <script src="/js/public-profile.js?v=312" defer></script>
+  <script src="/js/navigation-ports.js?v=313" defer></script>
+  <script src="/js/navigation-helpers.js?v=313" defer></script>
+  <script src="/js/navigation-passage.js?v=313" defer></script>
+  <script src="/js/navigation-routing.js?v=313" defer></script>
+  <script src="/js/public-profile-utils.js?v=313" defer></script>
+  <script src="/js/seav-cards.js?v=313" defer></script>
+  <script src="/js/public-profile-sections.js?v=313" defer></script>
+  <script src="/js/public-profile.js?v=313" defer></script>
 </head>
 
 <body class="public-page public-profile-page">
