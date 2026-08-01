@@ -294,8 +294,9 @@
   // chart screenshot (not a dark silhouette), every nearby country in view
   // (not just the two endpoints), the real routed track through any
   // waypoints (falls back to a simple curve if no route was passed), and
-  // labelled start/finish/waypoint markers using the same colors as the
-  // live navigation map (green start, red finish, amber waypoints).
+  // labelled start/finish markers only (green start, red finish) -- the
+  // route line itself already shows the course through any waypoints, so
+  // no separate waypoint dots are drawn on top of it.
   async function buildPassageMapSvg(entry, routeCoords) {
     if (!entry) return null;
     if (!hasRealCoord(entry.fromLat, entry.fromLng) || !hasRealCoord(entry.toLat, entry.toLng)) {
@@ -367,16 +368,12 @@
     const routeD = hasRoute ? buildRoutePathD(routePts) : buildRouteCurveD(fromPt, toPt);
     const routeColor = window.SeavNavigationHelpers?.getVesselColor?.(entry.vesselId) || "#0f9c86";
     const markerR = Math.max(viewBox.w, viewBox.h) * 0.014;
-    const waypointR = markerR * 0.65;
     const strokeUnit = viewBox.w * 0.0022;
     const vb = `${viewBox.x.toFixed(1)} ${viewBox.y.toFixed(1)} ${viewBox.w.toFixed(1)} ${viewBox.h.toFixed(1)}`;
 
-    const waypointDots = waypointPts
-      .map(
-        (p) =>
-          `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${waypointR.toFixed(1)}" fill="#b45309" stroke="#ffffff" stroke-width="${(waypointR * 0.35).toFixed(1)}"></circle>`
-      )
-      .join("");
+    // Waypoint markers deliberately omitted from the card -- only the real
+    // start/finish points are shown (see markers below); waypointPts above
+    // is still used to keep the crop framed around the whole route.
 
     // Labels get a light pill behind the text so they stay legible over
     // varied land/ocean colors -- width is an estimate (no canvas text
@@ -407,7 +404,6 @@
         ${toCountryD ? `<path d="${toCountryD}" fill="rgba(57,224,196,0.4)" stroke="#0f9c86" stroke-width="${(strokeUnit * 1.4).toFixed(2)}"></path>` : ""}
         <path d="${routeD}" fill="none" stroke="#ffffff" stroke-width="${(viewBox.w * 0.006).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"></path>
         <path d="${routeD}" fill="none" stroke="${escapeHtml(routeColor)}" stroke-width="${(viewBox.w * 0.0032).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"></path>
-        ${waypointDots}
         <circle cx="${fromPt.x.toFixed(1)}" cy="${fromPt.y.toFixed(1)}" r="${markerR.toFixed(1)}" fill="#15803d" stroke="#ffffff" stroke-width="${(markerR * 0.32).toFixed(1)}"></circle>
         <circle cx="${toPt.x.toFixed(1)}" cy="${toPt.y.toFixed(1)}" r="${markerR.toFixed(1)}" fill="#b91c1c" stroke="#ffffff" stroke-width="${(markerR * 0.32).toFixed(1)}"></circle>
         ${labelGroup(fromPt, entry.fromPort, "start")}
