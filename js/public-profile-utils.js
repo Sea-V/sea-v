@@ -399,10 +399,17 @@
     return Number.isFinite(num) ? num : 0;
   }
 
+  // Mirrors js/seav-data.js's getSeatimeVerificationDisplay() three-state
+  // color scheme (Verified/green, Pending Verification/orange, Logged/red)
+  // so the Sea Time verification badge on the public profile matches the
+  // private Sea Time page instead of collapsing "pending" and "logged"
+  // into the same plain gray badge.
   function renderVerificationBadge(status, label) {
     const trusted = isTrustedVerificationStatus(status);
+    const pending = !trusted && /pending/i.test(String(status || ""));
+    const stateClass = trusted ? " is-trusted" : pending ? " is-pending" : "";
     return `
-      <span class="public-cv-verify-badge${trusted ? " is-trusted" : ""}">
+      <span class="public-cv-verify-badge${stateClass}">
         ${Seav.escapeHtml(label || status || "Logged")}
       </span>
     `;
