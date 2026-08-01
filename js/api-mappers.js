@@ -85,6 +85,9 @@ function mapProfileToSupabase(item) {
     vessel_length: v.vessel_length || "",
     builder: v.builder || "",
 
+    imo: v.imo || "",
+    mmsi: v.mmsi || "",
+
     vessel_role: v.vessel_role || "",
     vessel_type: v.vessel_type || "",
 
@@ -113,6 +116,8 @@ function mapVesselToSupabase(item) {
     gt: item.gt || "",
     vessel_length: item.vessel_length || item.length || "",
     builder: item.builder || "",
+    imo: item.imo || "",
+    mmsi: item.mmsi || "",
     vessel_role: item.vessel_role || item.role || "",
     vessel_type: item.vessel_type || item.type || "",
     program: item.program || "",

@@ -108,6 +108,8 @@ function buildVesselCard(v, options = {}) {
   const gt = v.gt ? Seav.escapeHtml(v.gt) : "—";
   const length = v.vessel_length || v.length ? Seav.escapeHtml(v.vessel_length || v.length) : "—";
   const builder = v.builder ? Seav.escapeHtml(v.builder) : "—";
+  const imo = v.imo ? Seav.escapeHtml(v.imo) : "";
+  const mmsi = v.mmsi ? Seav.escapeHtml(v.mmsi) : "";
   const role = v.vessel_role || v.role ? Seav.escapeHtml(v.vessel_role || v.role) : "—";
   const type = v.vessel_type || v.type ? Seav.escapeHtml(v.vessel_type || v.type) : "—";
   const program = v.program ? Seav.escapeHtml(v.program) : "—";
@@ -177,6 +179,9 @@ function buildVesselCard(v, options = {}) {
               <span>Dates</span>
               <strong>${dateLine}</strong>
             </div>
+
+            ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
+            ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
           </div>
 
           <div class="vessel-history-counts">
@@ -248,6 +253,8 @@ function buildVesselCard(v, options = {}) {
             <div><span>GT</span><strong>${gt}</strong></div>
             <div><span>Length</span><strong>${length}</strong></div>
             <div><span>Build</span><strong>${builder}</strong></div>
+            ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
+            ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
           </div>
         </div>
       </div>
@@ -483,6 +490,11 @@ function fillVesselForm(vessel) {
 
   document.getElementById("vs_builder").value = vessel.builder || "";
 
+  const imoEl = document.getElementById("vs_imo");
+  const mmsiEl = document.getElementById("vs_mmsi");
+  if (imoEl) imoEl.value = vessel.imo || "";
+  if (mmsiEl) mmsiEl.value = vessel.mmsi || "";
+
   document.getElementById("vs_desc").value =
     vessel.experience_onboard || vessel.desc || "";
 
@@ -565,6 +577,8 @@ function readVesselForm() {
     gt: document.getElementById("vs_gt")?.value.trim() || "",
     length: document.getElementById("vs_length")?.value.trim() || "",
     builder: document.getElementById("vs_builder")?.value.trim() || "",
+    imo: document.getElementById("vs_imo")?.value.trim() || "",
+    mmsi: document.getElementById("vs_mmsi")?.value.trim() || "",
     desc: document.getElementById("vs_desc")?.value.trim() || "",
     from,
     to,
@@ -707,6 +721,8 @@ async function saveVesselData(vesselData) {
   gt: formData.gt,
   vessel_length: formData.length,
   builder: formData.builder,
+  imo: formData.imo,
+  mmsi: formData.mmsi,
   vessel_role: formData.role,
   vessel_type: formData.type,
   program: formData.program,
