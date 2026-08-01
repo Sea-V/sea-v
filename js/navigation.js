@@ -388,7 +388,11 @@
           routeLabel: formatRouteLabel(entry),
           vesselName: getVesselName(entry.vesselId),
           dateText,
-          distanceText: route?.distanceNm ? formatNm(route.distanceNm) : ""
+          distanceText: route?.distanceNm ? formatNm(route.distanceNm) : "",
+          // The share card's mini map draws this exact routed path (through
+          // any waypoints) instead of guessing a straight line -- same
+          // coords already computed here for the distance text above.
+          routeCoords: route?.coords || []
         });
         return;
       }

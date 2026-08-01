@@ -182,19 +182,28 @@
     return feature ? geometryToPathD(feature.geometry) : "";
   }
 
-  // Crops/zooms to the two real points, like the live map's fitBounds --
-  // generous padding on short hops so nearby coastline still shows, capped
+  // Crops/zooms to a set of real projected points, like the live map's
+  // fitBounds -- generous padding so nearby coastline still shows, capped
   // at the whole world for passages that cross an ocean.
-  function computeRouteViewBox(fromPt, toPt) {
-    const minX = Math.min(fromPt.x, toPt.x);
-    const maxX = Math.max(fromPt.x, toPt.x);
-    const minY = Math.min(fromPt.y, toPt.y);
-    const maxY = Math.max(fromPt.y, toPt.y);
+  function computeViewBoxForPoints(points, paddingFactor, minPad) {
+    if (!points.length) return { x: 0, y: 0, w: WORLD_MAP_W, h: WORLD_MAP_H };
+
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    points.forEach((p) => {
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.y > maxY) maxY = p.y;
+    });
+
     const spanX = Math.max(maxX - minX, 1);
     const spanY = Math.max(maxY - minY, 1);
 
-    let padX = Math.max(spanX * 0.7, 70);
-    let padY = Math.max(spanY * 0.7, 70);
+    let padX = Math.max(spanX * paddingFactor, minPad);
+    let padY = Math.max(spanY * paddingFactor, minPad);
     let w = spanX + padX * 2;
     let h = spanY + padY * 2;
 
@@ -233,21 +242,61 @@
     return `M${fromPt.x.toFixed(1)},${fromPt.y.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${toPt.x.toFixed(1)},${toPt.y.toFixed(1)}`;
   }
 
-  function buildGraticule(viewBox) {
-    const step = 100; // world units -- roughly 18 degrees at this projection
-    const lines = [];
-    const startX = Math.floor(viewBox.x / step) * step;
-    for (let gx = startX; gx <= viewBox.x + viewBox.w; gx += step) {
-      lines.push(`<line x1="${gx}" y1="${viewBox.y}" x2="${gx}" y2="${viewBox.y + viewBox.h}"></line>`);
-    }
-    const startY = Math.floor(viewBox.y / step) * step;
-    for (let gy = startY; gy <= viewBox.y + viewBox.h; gy += step) {
-      lines.push(`<line x1="${viewBox.x}" y1="${gy}" x2="${viewBox.x + viewBox.w}" y2="${gy}"></line>`);
-    }
-    return lines.join("");
+  function buildRoutePathD(points) {
+    if (points.length < 2) return "";
+    return points
+      .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+      .join(" ");
   }
 
-  async function buildPassageMapSvg(entry) {
+  // Bounding box of a feature's own geometry, projected, so it can be
+  // cheaply tested against the crop viewport -- lets the map draw every
+  // nearby landmass in view (not just the two highlighted countries), like
+  // a real map screenshot, without paying to render all ~180 countries
+  // worldwide on every card.
+  function projectedFeatureBBox(geometry) {
+    if (!geometry) return null;
+    const polys =
+      geometry.type === "Polygon"
+        ? [geometry.coordinates]
+        : geometry.type === "MultiPolygon"
+          ? geometry.coordinates
+          : [];
+    let minLng = Infinity;
+    let maxLng = -Infinity;
+    let minLat = Infinity;
+    let maxLat = -Infinity;
+    polys.forEach((poly) => {
+      (poly[0] || []).forEach(([lng, lat]) => {
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+      });
+    });
+    if (!Number.isFinite(minLng)) return null;
+    const topLeft = projectLngLat(minLng, maxLat);
+    const bottomRight = projectLngLat(maxLng, minLat);
+    return { x1: topLeft.x, y1: topLeft.y, x2: bottomRight.x, y2: bottomRight.y };
+  }
+
+  function bboxIntersectsViewBox(bbox, viewBox) {
+    if (!bbox) return false;
+    return !(
+      bbox.x2 < viewBox.x ||
+      bbox.x1 > viewBox.x + viewBox.w ||
+      bbox.y2 < viewBox.y ||
+      bbox.y1 > viewBox.y + viewBox.h
+    );
+  }
+
+  // Bright, real-map-style mini map: light land/ocean colors like an actual
+  // chart screenshot (not a dark silhouette), every nearby country in view
+  // (not just the two endpoints), the real routed track through any
+  // waypoints (falls back to a simple curve if no route was passed), and
+  // labelled start/finish/waypoint markers using the same colors as the
+  // live navigation map (green start, red finish, amber waypoints).
+  async function buildPassageMapSvg(entry, routeCoords) {
     if (!entry) return null;
     if (!hasRealCoord(entry.fromLat, entry.fromLng) || !hasRealCoord(entry.toLat, entry.toLng)) {
       return null;
@@ -266,7 +315,23 @@
 
     const fromPt = projectLngLat(entry.fromLng, entry.fromLat);
     const toPt = projectLngLat(entry.toLng, entry.toLat);
-    const viewBox = computeRouteViewBox(fromPt, toPt);
+
+    const hasRoute = Array.isArray(routeCoords) && routeCoords.length >= 2;
+    const routePts = hasRoute
+      ? routeCoords.map(([lat, lng]) => projectLngLat(lng, lat))
+      : [fromPt, toPt];
+
+    // Waypoints are every point in the route between the true start/end --
+    // drawn as their own markers (see below) so the exact course logged
+    // shows up, not just a straight departure-to-arrival guess.
+    const waypointPts =
+      Array.isArray(entry.waypoints) && entry.waypoints.length
+        ? entry.waypoints
+            .filter((wp) => hasRealCoord(wp?.lat, wp?.lng))
+            .map((wp) => projectLngLat(wp.lng, wp.lat))
+        : [];
+
+    const viewBox = computeViewBoxForPoints(routePts.concat(waypointPts), 0.5, 70);
 
     let fromCountryD = "";
     let toCountryD = "";
@@ -281,19 +346,72 @@
       toCountryD = "";
     }
 
-    const routeD = buildRouteCurveD(fromPt, toPt);
+    // Every other nearby landmass in the cropped view, so the card reads
+    // like a real map screenshot instead of two shapes floating in empty
+    // ocean. Kept as one combined path (not one <path> per country) so
+    // html2canvas has far fewer elements to parse.
+    let landD = "";
+    try {
+      landD = (geo.features || [])
+        .map((feature) => {
+          const bbox = projectedFeatureBBox(feature.geometry);
+          if (!bboxIntersectsViewBox(bbox, viewBox)) return "";
+          return geometryToPathD(feature.geometry);
+        })
+        .filter(Boolean)
+        .join(" ");
+    } catch {
+      landD = "";
+    }
+
+    const routeD = hasRoute ? buildRoutePathD(routePts) : buildRouteCurveD(fromPt, toPt);
+    const routeColor = window.SeavNavigationHelpers?.getVesselColor?.(entry.vesselId) || "#0f9c86";
     const markerR = Math.max(viewBox.w, viewBox.h) * 0.014;
+    const waypointR = markerR * 0.65;
+    const strokeUnit = viewBox.w * 0.0022;
     const vb = `${viewBox.x.toFixed(1)} ${viewBox.y.toFixed(1)} ${viewBox.w.toFixed(1)} ${viewBox.h.toFixed(1)}`;
+
+    const waypointDots = waypointPts
+      .map(
+        (p) =>
+          `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${waypointR.toFixed(1)}" fill="#b45309" stroke="#ffffff" stroke-width="${(waypointR * 0.35).toFixed(1)}"></circle>`
+      )
+      .join("");
+
+    // Labels get a light pill behind the text so they stay legible over
+    // varied land/ocean colors -- width is an estimate (no canvas text
+    // measurement available at build time), generous enough not to clip
+    // typical port names.
+    function labelGroup(point, label, anchor) {
+      if (!label) return "";
+      const text = escapeHtml(label);
+      const fontSize = viewBox.w * 0.017;
+      const estWidth = Math.max(label.length * fontSize * 0.56, fontSize * 2);
+      const padX = fontSize * 0.5;
+      const boxH = fontSize * 1.7;
+      const boxY = point.y - markerR - boxH - fontSize * 0.3;
+      const boxX = anchor === "end" ? point.x - estWidth - padX : point.x - padX * 0.5;
+      return `
+        <g>
+          <rect x="${boxX.toFixed(1)}" y="${boxY.toFixed(1)}" width="${(estWidth + padX).toFixed(1)}" height="${boxH.toFixed(1)}" rx="${(boxH * 0.28).toFixed(1)}" fill="rgba(255,255,255,0.94)"></rect>
+          <text x="${(boxX + (estWidth + padX) / 2).toFixed(1)}" y="${(boxY + boxH * 0.68).toFixed(1)}" fill="#0b1c2e" font-size="${fontSize.toFixed(1)}" font-weight="700" text-anchor="middle">${text}</text>
+        </g>
+      `;
+    }
 
     return `
       <svg viewBox="${vb}" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <rect x="${viewBox.x.toFixed(1)}" y="${viewBox.y.toFixed(1)}" width="${viewBox.w.toFixed(1)}" height="${viewBox.h.toFixed(1)}" fill="#0b1c2e"></rect>
-        <g stroke="rgba(255,255,255,0.07)" stroke-width="${(viewBox.w * 0.001).toFixed(2)}">${buildGraticule(viewBox)}</g>
-        ${fromCountryD ? `<path d="${fromCountryD}" fill="rgba(57,224,196,0.30)" stroke="rgba(57,224,196,0.7)" stroke-width="${(viewBox.w * 0.0025).toFixed(2)}"></path>` : ""}
-        ${toCountryD ? `<path d="${toCountryD}" fill="rgba(57,224,196,0.30)" stroke="rgba(57,224,196,0.7)" stroke-width="${(viewBox.w * 0.0025).toFixed(2)}"></path>` : ""}
-        <path d="${routeD}" fill="none" stroke="#39e0c4" stroke-width="${(viewBox.w * 0.0035).toFixed(2)}" stroke-dasharray="${(viewBox.w * 0.006).toFixed(1)} ${(viewBox.w * 0.009).toFixed(1)}" stroke-linecap="round"></path>
-        <circle cx="${fromPt.x.toFixed(1)}" cy="${fromPt.y.toFixed(1)}" r="${markerR.toFixed(1)}" fill="#39e0c4" stroke="#ffffff" stroke-width="${(markerR * 0.3).toFixed(1)}"></circle>
-        <circle cx="${toPt.x.toFixed(1)}" cy="${toPt.y.toFixed(1)}" r="${markerR.toFixed(1)}" fill="#ffffff" stroke="#39e0c4" stroke-width="${(markerR * 0.3).toFixed(1)}"></circle>
+        <rect x="${viewBox.x.toFixed(1)}" y="${viewBox.y.toFixed(1)}" width="${viewBox.w.toFixed(1)}" height="${viewBox.h.toFixed(1)}" fill="#bfe3f0"></rect>
+        ${landD ? `<path d="${landD}" fill="#f4efe1" stroke="#c9c2ab" stroke-width="${strokeUnit.toFixed(2)}"></path>` : ""}
+        ${fromCountryD ? `<path d="${fromCountryD}" fill="rgba(57,224,196,0.4)" stroke="#0f9c86" stroke-width="${(strokeUnit * 1.4).toFixed(2)}"></path>` : ""}
+        ${toCountryD ? `<path d="${toCountryD}" fill="rgba(57,224,196,0.4)" stroke="#0f9c86" stroke-width="${(strokeUnit * 1.4).toFixed(2)}"></path>` : ""}
+        <path d="${routeD}" fill="none" stroke="#ffffff" stroke-width="${(viewBox.w * 0.006).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="${routeD}" fill="none" stroke="${escapeHtml(routeColor)}" stroke-width="${(viewBox.w * 0.0032).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"></path>
+        ${waypointDots}
+        <circle cx="${fromPt.x.toFixed(1)}" cy="${fromPt.y.toFixed(1)}" r="${markerR.toFixed(1)}" fill="#15803d" stroke="#ffffff" stroke-width="${(markerR * 0.32).toFixed(1)}"></circle>
+        <circle cx="${toPt.x.toFixed(1)}" cy="${toPt.y.toFixed(1)}" r="${markerR.toFixed(1)}" fill="#b91c1c" stroke="#ffffff" stroke-width="${(markerR * 0.32).toFixed(1)}"></circle>
+        ${labelGroup(fromPt, entry.fromPort, "start")}
+        ${labelGroup(toPt, entry.toPort, "end")}
       </svg>
     `;
   }
@@ -508,7 +626,7 @@
 
     let mapSvg = null;
     try {
-      mapSvg = await buildPassageMapSvg(entry);
+      mapSvg = await buildPassageMapSvg(entry, extra.routeCoords);
     } catch (err) {
       // Real map is a nice-to-have on top of the always-working abstract
       // fallback in buildPassageCardHtml -- never let its failure block
