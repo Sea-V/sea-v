@@ -152,6 +152,43 @@
       </div>
     </article>
 
+    <!-- TRAINING RECORD BOOK (TRB) TRACKER -->
+    <details class="dash-card dash-kpis-row seatime-oow-panel" id="seatimeTrbPanel">
+      <summary class="seatime-oow-head seatime-oow-summary">
+        <h3 class="kpi-title">Training Record Book (TRB) progress</h3>
+        <span class="pill pill-neutral" id="seatimeTrbStatusBadge"></span>
+      </summary>
+
+      <p class="seatime-oow-breakdown">
+        Track your MCA-approved Training Record Book — the task-by-task book ratings and
+        trainee officers fill in, signed off by the Master, required to submit for OOW/CoC
+        progression.
+      </p>
+
+      <form class="modal-form seatime-trb-form" id="seatimeTrbForm">
+        <div class="modal-grid2">
+          <label>Status
+            <select id="trb_status">
+              <option value="not_started">Not started</option>
+              <option value="in_progress">In progress</option>
+              <option value="submitted_to_mca">Submitted to MCA</option>
+              <option value="completed">Completed</option>
+            </select>
+          </label>
+
+          <label>Target qualification (optional)
+            <input id="trb_target_qualification" placeholder="e.g. OOW Yachts <3000GT" />
+          </label>
+        </div>
+
+        <label>Notes (optional)
+          <textarea id="trb_notes" rows="3" placeholder="e.g. Started Jan 2026 — captain signing off bridge watchkeeping tasks"></textarea>
+        </label>
+
+        <button class="btn-blue" type="submit">Save TRB progress</button>
+      </form>
+    </details>
+
     <!-- OOW / MASTER ELIGIBILITY TRACKER -->
     <details class="dash-card dash-kpis-row seatime-oow-panel">
       <summary class="seatime-oow-head seatime-oow-summary">
@@ -305,43 +342,6 @@
           </div>
         </details>
       </div>
-    </details>
-
-    <!-- TRAINING RECORD BOOK (TRB) TRACKER -->
-    <details class="dash-card dash-kpis-row seatime-oow-panel" id="seatimeTrbPanel">
-      <summary class="seatime-oow-head seatime-oow-summary">
-        <h3 class="kpi-title">Training Record Book (TRB) progress</h3>
-        <span class="pill pill-neutral" id="seatimeTrbStatusBadge"></span>
-      </summary>
-
-      <p class="seatime-oow-breakdown">
-        Track your MCA-approved Training Record Book — the task-by-task book ratings and
-        trainee officers fill in, signed off by the Master, required to submit for OOW/CoC
-        progression.
-      </p>
-
-      <form class="modal-form seatime-trb-form" id="seatimeTrbForm">
-        <div class="modal-grid2">
-          <label>Status
-            <select id="trb_status">
-              <option value="not_started">Not started</option>
-              <option value="in_progress">In progress</option>
-              <option value="submitted_to_mca">Submitted to MCA</option>
-              <option value="completed">Completed</option>
-            </select>
-          </label>
-
-          <label>Target qualification (optional)
-            <input id="trb_target_qualification" placeholder="e.g. OOW Yachts <3000GT" />
-          </label>
-        </div>
-
-        <label>Notes (optional)
-          <textarea id="trb_notes" rows="3" placeholder="e.g. Started Jan 2026 — captain signing off bridge watchkeeping tasks"></textarea>
-        </label>
-
-        <button class="btn-blue" type="submit">Save TRB progress</button>
-      </form>
     </details>
 
     <!-- TABLE SECTION -->
