@@ -116,7 +116,8 @@
 .seatime-verified-pill,
 .seatime-pending-pill,
 .seatime-logged-pill,
-.tender-proficiency-pill {
+.tender-proficiency-pill,
+.public-cv-verify-badge {
   box-sizing: border-box;
   flex-shrink: 0;
 

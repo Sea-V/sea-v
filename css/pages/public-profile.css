@@ -363,10 +363,11 @@ body.public-profile-page .overlay {
 }
 
 .public-cv-verify-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 20px;
-  padding: 0 7px;
+  /* Sizing (min-height/padding/font-size/etc.) now comes from the unified
+     pill base in css/components/pills.css — .public-cv-verify-badge was
+     added to that shared selector list so it renders at the same standard
+     pill size as certs/onboard/tenders/specialist-qual pills instead of
+     its own smaller hand-rolled size (was min-height:20px/font-size:9px). */
   border-radius: 999px;
   /* Base state = "Logged" / not yet verified. Colors below are copied
      exactly from css/pages/seatime.css's .seatime-verified-pill /
@@ -378,9 +379,6 @@ body.public-profile-page .overlay {
   border: 1px solid rgba(220, 53, 69, 0.45);
   background: rgba(220, 53, 69, 0.28);
   color: #ffffff;
-  font-size: 9px;
-  font-weight: 800;
-  line-height: 1;
 }
 
 .public-cv-verify-badge.is-pending {
