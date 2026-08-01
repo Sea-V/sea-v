@@ -314,6 +314,7 @@
               <div class="cert-compact-detail-value">
                 ${Seav.escapeHtml(cert.name || "—")}<br>
                 ${Seav.escapeHtml(typeLabel)}
+                ${cert.certificateNumber ? `<br>No. ${Seav.escapeHtml(cert.certificateNumber)}` : ""}
               </div>
             </div>
             <div class="cert-compact-detail-panel">
@@ -596,6 +597,8 @@
     Seav.setDateTriplet("ct_issued", cert.issued || "");
     Seav.setDateTriplet("ct_expiry", cert.expiry || "");
     fillIssuerSelects(cert.issuingAuthority || "", cert.trainingProvider || "");
+    const certNumberEl = document.getElementById("ct_cert_number");
+    if (certNumberEl) certNumberEl.value = cert.certificateNumber || "";
     document.getElementById("ct_file").value = "";
     renderCertAttachmentHint(cert.attachment || null);
     const showOnCvEl = document.getElementById("ct_show_on_cv");
@@ -652,6 +655,7 @@
       showOnCv: document.getElementById("ct_show_on_cv")?.checked ?? true,
       issuingAuthority,
       trainingProvider,
+      certificateNumber: document.getElementById("ct_cert_number")?.value.trim() || "",
       file: document.getElementById("ct_file")?.files?.[0] || null
     };
   }
@@ -778,7 +782,8 @@
           isTemplate: data.isTemplate,
           showOnCv: data.showOnCv,
           issuingAuthority: data.issuingAuthority,
-          trainingProvider: data.trainingProvider
+          trainingProvider: data.trainingProvider,
+          certificateNumber: data.certificateNumber
         });
 
         window.SeavModals?.closeAllModals?.();
