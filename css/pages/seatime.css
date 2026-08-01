@@ -151,12 +151,12 @@
 .seatime-portal-link {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 16px;
 
-  min-height: 118px;
-  padding: 18px;
+  min-height: 84px;
+  padding: 18px 20px;
 
   border-radius: 18px;
   border: 1px solid rgba(130, 158, 255, 0.22);
@@ -192,33 +192,6 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-}
-
-.seatime-portal-logo {
-  width: 118px;
-  min-height: 74px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: #ffffff;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 12px 24px rgba(0, 0, 0, 0.14);
-}
-
-.seatime-portal-logo img {
-  display: block;
-  width: 100%;
-  max-width: 94px;
-  max-height: 56px;
-  object-fit: contain;
-}
-
-.seatime-portal-logo--nautilus img {
-  max-height: 62px;
 }
 
 .seatime-portal-name {
@@ -942,10 +915,7 @@
 @media (max-width: 620px) {
   .seatime-portal-link {
     grid-template-columns: 1fr auto;
-  }
-
-  .seatime-portal-logo {
-    grid-column: 1 / -1;
-    width: 100%;
+    min-height: unset;
+    padding: 16px;
   }
 }
