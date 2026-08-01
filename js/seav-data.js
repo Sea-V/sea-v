@@ -224,7 +224,15 @@
         { code: "Y1", name: "Yacht Engineer Y1 (MCA, legacy)" },
         { code: "Y2", name: "Yacht Engineer Y2 (MCA, legacy)" },
         { code: "Y3", name: "Yacht Engineer Y3 (MCA, legacy)" },
-        { code: "Y4", name: "Yacht Engineer Y4 (MCA, legacy)" }
+        { code: "Y4", name: "Yacht Engineer Y4 (MCA, legacy)" },
+        // Required for officers without a UK CoC serving on UK/Red-Ensign
+        // flagged yachts (REG Code / MCA MSN 1867) — distinct from holding
+        // a national CoC, which they keep and carry alongside this.
+        { code: "UK CEC", name: "UK Certificate of Equivalent Competency (CEC)" },
+        // Distinct from the generic RFPNW/RFPEW watch-rating certs above —
+        // the REG Code specifically calls out a Yacht Rating Certificate
+        // (STCW II/4) as the yacht-specific version some employers require.
+        { code: "YACHT RATING", name: "Yacht Rating Certificate", stcwRef: "STCW II/4" }
       ]
     },
     {

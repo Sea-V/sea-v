@@ -142,6 +142,7 @@
     const builder = Seav.escapeHtml(vessel.builder || "—");
     const imo = vessel.imo ? Seav.escapeHtml(vessel.imo) : "";
     const mmsi = vessel.mmsi ? Seav.escapeHtml(vessel.mmsi) : "";
+    const additionalDuties = vessel.additional_duties ? Seav.escapeHtml(vessel.additional_duties) : "";
     const role = Seav.escapeHtml(vessel.vessel_role || vessel.role || "—");
     const type = Seav.escapeHtml(vessel.vessel_type || vessel.type || "—");
     const program = Seav.escapeHtml(vessel.program || "—");
@@ -225,6 +226,7 @@
               <div><span>Build</span><strong>${builder}</strong></div>
               ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
               ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
+              ${additionalDuties ? `<div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>` : ""}
             </div>
           </div>
         </div>

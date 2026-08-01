@@ -43,6 +43,9 @@ function mapProfileFromSupabase(p) {
     bio: p.bio || "",
     photo: p.photo || null,
     publicEnabled: readPublicEnabledFromRow(p),
+    trbStatus: p.trb_status || "not_started",
+    trbTargetQualification: p.trb_target_qualification || "",
+    trbNotes: p.trb_notes || "",
     createdAt: p.created_at || "",
     updatedAt: p.updated_at || ""
   };
@@ -71,6 +74,9 @@ function mapProfileToSupabase(item) {
     bio: item.bio || "",
     photo: sanitizePhotoForStorage(item.photo),
     public_enabled: !!item.publicEnabled,
+    trb_status: item.trbStatus || "not_started",
+    trb_target_qualification: item.trbTargetQualification || "",
+    trb_notes: item.trbNotes || "",
     updated_at: new Date().toISOString()
   };
 }
@@ -93,6 +99,8 @@ function mapProfileToSupabase(item) {
 
     program: v.program || "",
     salary: v.salary || "",
+    leave_package: v.leave_package || "",
+    additional_duties: v.additional_duties || "",
 
     experience_onboard: v.experience_onboard || "",
 
@@ -122,6 +130,8 @@ function mapVesselToSupabase(item) {
     vessel_type: item.vessel_type || item.type || "",
     program: item.program || "",
     salary: item.salary || "",
+    leave_package: item.leave_package || "",
+    additional_duties: item.additional_duties || "",
     experience_onboard: item.experience_onboard || item.desc || "",
     date_from: item.from || item.date_from || "",
     date_to: item.to || item.date_to || "",
@@ -245,6 +255,7 @@ function mapVesselToSupabase(item) {
       period: r.period || "",
       periodFrom: r.period_from || "",
       periodTo: r.period_to || "",
+      docType: r.doc_type || "reference",
       text: r.reference_text || "",
       date: r.reference_date || "",
       messageToReferee: r.message_to_referee || "",
@@ -272,6 +283,7 @@ function mapVesselToSupabase(item) {
       period: item.period || "",
       period_from: item.periodFrom || null,
       period_to: item.periodTo || null,
+      doc_type: item.docType || "reference",
       reference_text: item.text || "",
       reference_date: item.date || "",
       message_to_referee: item.messageToReferee || "",

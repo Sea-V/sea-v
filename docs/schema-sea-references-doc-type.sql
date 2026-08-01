@@ -1,0 +1,24 @@
+-- Add a "document type" field to references, to distinguish a general
+-- Reference / Recommendation letter from a Sea Service Testimonial (the
+-- specific term the REG Yacht Code / MCA use for the signed document
+-- proving sea time for CoC revalidation or upgrade -- functionally the
+-- same verified-referee-sign-off flow SEA-V already has, just framed and
+-- labelled the way examiners/recruiters expect for that use case).
+--
+-- Applied to the live project on 2026-08-01 via migration
+-- `add_sea_references_doc_type`.
+--
+-- Additive with a default: `not null default 'reference'` backfills every
+-- existing row to the current behaviour/wording (a metadata-only op in
+-- Postgres 11+ for a constant default, no table rewrite) -- nothing about
+-- an existing reference changes unless the crew member explicitly edits
+-- it and picks "Sea Service Testimonial" instead.
+--
+-- Scope: only changes labelling/wording on the crew-facing References
+-- page (js/references.js). The referee verification flow
+-- (verify-reference.html/js) is left untouched -- it's already been
+-- fixed for several subtle bugs (self-signing loophole, stale-card race,
+-- etc.) and its generic wording ("confirm this reference") reads fine
+-- for a testimonial too, so there was no need to touch that pipeline.
+
+alter table public.sea_references add column doc_type text not null default 'reference';

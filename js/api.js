@@ -88,7 +88,7 @@
     vessels: [
       "id", "user_id", "name", "flag", "gt", "vessel_length", "builder", "vessel_role",
       "vessel_type", "program", "experience_onboard", "date_from", "date_to", "photo",
-      "imo", "mmsi", "created_at", "updated_at"
+      "imo", "mmsi", "additional_duties", "created_at", "updated_at"
     ].join(","),
     seatimes: [
       "id", "user_id", "vessel_id", "flag", "gt", "capacity_served", "date_joined",
@@ -111,7 +111,8 @@
     // docs/schema-public-profile-age-and-coc-redaction.sql.
     sea_references: [
       "id", "user_id", "name", "title", "vessel_id", "role", "period", "reference_text",
-      "reference_date", "status", "attachment", "verification_public", "created_at", "updated_at"
+      "reference_date", "status", "attachment", "verification_public", "doc_type",
+      "created_at", "updated_at"
     ].join(","),
     achievements: [
       "id", "user_id", "code", "title", "category", "dashboard_section", "badge_key",
@@ -511,6 +512,9 @@ const OWNER_PROFILE_COLUMNS = [
   "bio",
   "photo",
   "public_enabled",
+  "trb_status",
+  "trb_target_qualification",
+  "trb_notes",
   "created_at",
   "updated_at"
 ].join(",");
@@ -699,7 +703,7 @@ const SeavAPI = {
 
       const { data, error } = await window.SeavSupabase
         .from("certificate_catalog")
-        .select("code, name, category, is_mandatory, sort_order")
+        .select("code, name, category, is_mandatory, sort_order, stcw_ref")
         .order("sort_order", { ascending: true });
 
       if (error) {

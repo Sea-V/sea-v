@@ -243,7 +243,8 @@
     const verification = r.verification || {};
     const status = getReferenceStatus(r);
     const excerpt = getReferenceExcerpt(r);
-    const excerptLabel = "Reference";
+    const isTestimonial = r.docType === "sea_service_testimonial";
+    const excerptLabel = isTestimonial ? "Sea Service Testimonial" : "Reference";
 
     const canSend =
       !!r.email &&
@@ -369,6 +370,13 @@
             <div class="ref-compact-sub">${Seav.escapeHtml(subtitleLine)}</div>
           </div>
           <div class="ref-compact-summary-right">
+            ${
+              // Mirrors js/certificates.js's cert-cv-flag pattern -- only
+              // flag the exception case (testimonial); "Reference" is the
+              // default for every entry so labelling it every time would
+              // just clutter the row for no informational gain.
+              isTestimonial ? `<span class="cert-cv-flag">Testimonial</span>` : ""
+            }
             ${statusValue}
             <span class="cert-chevron" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
@@ -556,6 +564,9 @@
   const editId = document.getElementById("rf_edit_id");
   if (editId) editId.value = ref.id || "";
 
+  const docTypeEl = document.getElementById("rf_doc_type");
+  if (docTypeEl) docTypeEl.value = ref.docType || "reference";
+
   document.getElementById("rf_name").value = ref.name || "";
   document.getElementById("rf_title").value = ref.title || "";
   document.getElementById("rf_email").value = ref.email || "";
@@ -610,6 +621,7 @@ function readReferenceForm() {
 
   return {
     id: document.getElementById("rf_edit_id")?.value || "",
+    docType: document.getElementById("rf_doc_type")?.value || "reference",
     name: document.getElementById("rf_name")?.value.trim(),
     title: document.getElementById("rf_title")?.value.trim() || "",
     email: document.getElementById("rf_email")?.value.trim() || "",
@@ -762,6 +774,7 @@ function readReferenceForm() {
 
         await saveReferenceData({
         id: refId,
+        docType: formData.docType,
         name: formData.name,
         title: formData.title,
         email: formData.email,

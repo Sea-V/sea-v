@@ -747,6 +747,72 @@
     await SeavAPI.upsertItemById(STORAGE_KEY, seatimeData);
   }
 
+  // Training Record Book (TRB) tracker -- a simple status/notes form, not
+  // a list like the rest of this page. One TRB per crew member (they carry
+  // it across placements until submitted), so it's stored on `profile`
+  // (single row per user) rather than a new table, saved through the same
+  // SeavAPI.save(KEYS.PROFILE, ...) path profile.js already uses. Must
+  // spread the existing profile object first -- mapProfileToSupabase
+  // upserts the whole row, so saving a bare {trbStatus: ...} object would
+  // wipe every other profile field back to blank.
+  const TRB_STATUS_LABELS = {
+    not_started: { label: "Not started", pillClass: "pill-neutral" },
+    in_progress: { label: "In progress", pillClass: "pill-warning" },
+    submitted_to_mca: { label: "Submitted to MCA", pillClass: "pill-valid" },
+    completed: { label: "Completed", pillClass: "pill-valid" }
+  };
+
+  function renderTrbPanel() {
+    const statusEl = document.getElementById("trb_status");
+    const targetEl = document.getElementById("trb_target_qualification");
+    const notesEl = document.getElementById("trb_notes");
+    const badgeEl = document.getElementById("seatimeTrbStatusBadge");
+    if (!statusEl && !badgeEl) return;
+
+    const profile = window.SeavState?.profile || {};
+    const status = profile.trbStatus || "not_started";
+
+    if (statusEl) statusEl.value = status;
+    if (targetEl) targetEl.value = profile.trbTargetQualification || "";
+    if (notesEl) notesEl.value = profile.trbNotes || "";
+
+    if (badgeEl) {
+      const info = TRB_STATUS_LABELS[status] || TRB_STATUS_LABELS.not_started;
+      badgeEl.textContent = info.label;
+      badgeEl.className = `pill ${info.pillClass}`;
+    }
+  }
+
+  async function saveTrbForm() {
+    const status = document.getElementById("trb_status")?.value || "not_started";
+    const target = document.getElementById("trb_target_qualification")?.value.trim() || "";
+    const notes = document.getElementById("trb_notes")?.value.trim() || "";
+
+    const existingProfile = window.SeavState?.profile || {};
+
+    await Seav.withSaving(async () => {
+      await window.SeavAPI.save(KEYS.PROFILE, {
+        ...existingProfile,
+        trbStatus: status,
+        trbTargetQualification: target,
+        trbNotes: notes
+      });
+
+      if (window.SeavState) {
+        window.SeavState.profile = {
+          ...existingProfile,
+          trbStatus: status,
+          trbTargetQualification: target,
+          trbNotes: notes
+        };
+        window.SeavState.syncCache?.();
+      }
+
+      renderTrbPanel();
+      Seav.notify("success", "TRB progress saved", "Your Training Record Book status is up to date.");
+    }, { sub: "Saving TRB progress" });
+  }
+
   function initSeatime() {
     if (
       !document.getElementById("seatimeBody") &&
@@ -762,9 +828,18 @@
       }
       populateSeattimeVesselOptions();
       renderSeatimes();
+      renderTrbPanel();
     };
 
     Seav.bindStateRefresh(runRefresh, { label: "Sea time refresh" });
+
+    const trbForm = document.getElementById("seatimeTrbForm");
+    if (trbForm) {
+      trbForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        saveTrbForm();
+      });
+    }
 
     const exportBtn = document.getElementById("btnExportSeatimeCsv");
     if (exportBtn) {

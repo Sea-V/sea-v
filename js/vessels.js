@@ -42,6 +42,62 @@
     return { currency: "OTHER", amount: str };
   }
 
+  // Onboard duties (Safety Officer, Safety Representative, Ship Security
+  // Officer, Person in Charge of Medical Care) are stored as a single
+  // comma-joined text column -- same convention as profile.passportsHeld /
+  // profile.visasHeld -- so no schema change is needed to add more duties
+  // later. The fixed checkboxes cover the roles the REG Yacht Code names
+  // as mandatory appointments on commercial yachts; anything typed into
+  // "Other duty" is appended as-is.
+  const DUTY_CHECKBOX_IDS = [
+    "vs_duty_safety_officer",
+    "vs_duty_safety_rep",
+    "vs_duty_sso",
+    "vs_duty_medical"
+  ];
+
+  function fillDutiesCheckboxes(dutiesString) {
+    const values = String(dutiesString || "")
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+
+    const knownValues = new Set();
+    DUTY_CHECKBOX_IDS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const isChecked = values.includes(el.value);
+      el.checked = isChecked;
+      if (isChecked) knownValues.add(el.value);
+    });
+
+    const otherEl = document.getElementById("vs_duty_other");
+    if (otherEl) {
+      const leftover = values.filter((v) => !knownValues.has(v));
+      otherEl.value = leftover.join(", ");
+    }
+  }
+
+  function readDutiesString() {
+    const checked = DUTY_CHECKBOX_IDS
+      .map((id) => document.getElementById(id))
+      .filter((el) => el?.checked)
+      .map((el) => el.value);
+
+    const other = document.getElementById("vs_duty_other")?.value.trim() || "";
+
+    return [...checked, ...(other ? [other] : [])].join(", ");
+  }
+
+  function resetDutiesCheckboxes() {
+    DUTY_CHECKBOX_IDS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.checked = false;
+    });
+    const otherEl = document.getElementById("vs_duty_other");
+    if (otherEl) otherEl.value = "";
+  }
+
   function populateVesselCurrencyOptions() {
     const select = document.getElementById("vs_salary_currency");
     if (!select || !PAYSLIP_CURRENCIES) return;
@@ -114,6 +170,8 @@ function buildVesselCard(v, options = {}) {
   const type = v.vessel_type || v.type ? Seav.escapeHtml(v.vessel_type || v.type) : "—";
   const program = v.program ? Seav.escapeHtml(v.program) : "—";
   const salary = v.salary ? Seav.escapeHtml(v.salary) : "—";
+  const leavePackage = v.leave_package ? Seav.escapeHtml(v.leave_package) : "";
+  const additionalDuties = v.additional_duties ? Seav.escapeHtml(v.additional_duties) : "";
   const experience = v.experience_onboard || v.desc || "";
   const experienceHtml = buildExperienceSection(experience);
   const from = v.from ? formatDatePretty(v.from) : "—";
@@ -182,6 +240,7 @@ function buildVesselCard(v, options = {}) {
 
             ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
             ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
+            ${additionalDuties ? `<div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>` : ""}
           </div>
 
           <div class="vessel-history-counts">
@@ -247,6 +306,12 @@ function buildVesselCard(v, options = {}) {
               <span>Salary</span>
               <strong>${salary}</strong>
             </div>
+
+            ${
+              leavePackage
+                ? `<div class="vessel-main-item"><span>Leave / rotation</span><strong>${leavePackage}</strong></div>`
+                : ""
+            }
           </div>
 
           <div class="vessel-stats-grid">
@@ -255,6 +320,7 @@ function buildVesselCard(v, options = {}) {
             <div><span>Build</span><strong>${builder}</strong></div>
             ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
             ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
+            ${additionalDuties ? `<div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>` : ""}
           </div>
         </div>
       </div>
@@ -524,6 +590,11 @@ function fillVesselForm(vessel) {
   if (salaryCurrencyEl) salaryCurrencyEl.value = parsedSalary.currency;
   if (salaryAmountEl) salaryAmountEl.value = parsedSalary.amount;
 
+  const leavePackageEl = document.getElementById("vs_leave_package");
+  if (leavePackageEl) leavePackageEl.value = vessel.leave_package || "";
+
+  fillDutiesCheckboxes(vessel.additional_duties || "");
+
   renderVesselPhotoThumb(vessel.photo || null, { isNewSelection: false });
   renderVesselSeaHint(vessel.sea_attachment || vessel.seaAttachment || null, { isNewSelection: false });
 
@@ -561,6 +632,8 @@ function resetVesselFormState() {
   const salaryCurrencyEl = document.getElementById("vs_salary_currency");
   if (salaryCurrencyEl) salaryCurrencyEl.value = "GBP";
 
+  resetDutiesCheckboxes();
+
   renderVesselPhotoThumb(null, { isNewSelection: false });
   renderVesselSeaHint(null, { isNewSelection: false });
 }
@@ -591,6 +664,8 @@ function readVesselForm() {
       const currency = document.getElementById("vs_salary_currency")?.value || "GBP";
       return currency === "OTHER" ? amount : `${currency} ${amount}`;
     })(),
+    leavePackage: document.getElementById("vs_leave_package")?.value.trim() || "",
+    additionalDuties: readDutiesString(),
     file: document.getElementById("vs_photo")?.files?.[0] || null,
     seaFile: document.getElementById("vs_sea")?.files?.[0] || null
   };
@@ -727,6 +802,8 @@ async function saveVesselData(vesselData) {
   vessel_type: formData.type,
   program: formData.program,
   salary: formData.salary,
+  leave_package: formData.leavePackage,
+  additional_duties: formData.additionalDuties,
   experience_onboard: formData.desc,
   from: formData.from,
   to: formData.to,

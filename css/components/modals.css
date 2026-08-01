@@ -581,6 +581,33 @@
   letter-spacing: normal !important;
 }
 
+/* Group of modal-check checkboxes (+ an optional trailing text field) with
+   its own heading — e.g. vessels.html's "Additional onboard duties". Resets
+   the native <fieldset>/<legend> chrome so it reads as part of the same
+   form flow rather than a separate boxed-off browser widget. */
+.modal-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.modal-fieldset legend {
+  padding: 0;
+  margin-bottom: 2px;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 12px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
+}
+
 .modal-check input[type="checkbox"] {
   width: 18px;
   height: 18px;
