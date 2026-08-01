@@ -18,3 +18,10 @@
 alter table public.vessels
   add column imo text,
   add column mmsi text;
+
+-- Anon's SELECT grant on vessels is column-scoped (see
+-- docs/schema-phase2-public-hardening.sql), so new columns aren't
+-- automatically visible to the public profile just by existing --
+-- they need an explicit grant. Applied on the live project on
+-- 2026-08-01 via migration `grant_anon_vessels_imo_mmsi`.
+grant select (imo, mmsi) on table public.vessels to anon;

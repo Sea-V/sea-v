@@ -140,6 +140,8 @@
     const gt = Seav.escapeHtml(vessel.gt || "—");
     const length = Seav.escapeHtml(vessel.vessel_length || vessel.length || "—");
     const builder = Seav.escapeHtml(vessel.builder || "—");
+    const imo = vessel.imo ? Seav.escapeHtml(vessel.imo) : "";
+    const mmsi = vessel.mmsi ? Seav.escapeHtml(vessel.mmsi) : "";
     const role = Seav.escapeHtml(vessel.vessel_role || vessel.role || "—");
     const type = Seav.escapeHtml(vessel.vessel_type || vessel.type || "—");
     const program = Seav.escapeHtml(vessel.program || "—");
@@ -221,6 +223,8 @@
               <div><span>GT</span><strong>${gt}</strong></div>
               <div><span>Length</span><strong>${length}</strong></div>
               <div><span>Build</span><strong>${builder}</strong></div>
+              ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
+              ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
             </div>
           </div>
         </div>
