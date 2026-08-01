@@ -581,6 +581,10 @@
     filterEntries, buildMapPoints, collectVisitedCountries, buildNavigationStats,
     renderStats, renderVesselLegend, fitMapToData, formatDateRange, buildPathPopup, buildPointPopup,
     buildEndpointMarker, buildWaypointMarker, buildSavedTrackLine, addWrappingPolylines,
-    renderCountryHighlights, refreshMap, initNavigationMap
+    renderCountryHighlights, refreshMap, initNavigationMap,
+    // Exposed so js/seav-share.js can reuse the same cached world boundaries
+    // fetch/convert for the passage share-card mini map, instead of every
+    // consumer re-fetching+re-converting the same TopoJSON independently.
+    loadWorldGeoJson
   };
 })();
