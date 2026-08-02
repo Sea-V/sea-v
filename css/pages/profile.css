@@ -425,6 +425,16 @@
   font-size: 12px;
 }
 
+/* Static format/size disclaimer under the dynamic "No photo uploaded yet" /
+   "Current photo" hint above — shared across every page using the
+   .profile-photo-field component (Profile, Vessels, Tenders). Added after a
+   HEIC photo upload silently failed to render in Chrome. */
+.profile-photo-format-note {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */

@@ -677,7 +677,8 @@ async function buildVesselPhoto(file, existingPhoto, vesselId) {
     entityId: vesselId,
     file,
     existingMeta: existingPhoto,
-    kind: "Photo"
+    kind: "Photo",
+    maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES
   }) ?? existingPhoto ?? null;
 }
 
@@ -732,10 +733,30 @@ async function saveVesselData(vesselData) {
       vsPhotoBtn.addEventListener("click", () => vsPhotoInput.click());
     }
     if (vsPhotoInput) {
-      vsPhotoInput.addEventListener("change", () => {
+      // A raw createObjectURL() on a HEIC file can't be decoded by Chrome/
+      // Firefox/Edge, so the thumbnail would go blank/broken the instant a
+      // HEIC photo was picked — well before Save's real HEIC->JPEG
+      // conversion ever runs. Routing through SeavUpload.buildPreviewUrl
+      // (same conversion Save uses) keeps this preview honest.
+      vsPhotoInput.addEventListener("change", async () => {
         const file = vsPhotoInput.files?.[0] || null;
-        if (file) {
+        if (!file) return;
+
+        if (!window.SeavUpload?.isHeicFile?.(file)) {
           renderVesselPhotoThumb({ dataUrl: URL.createObjectURL(file) }, { isNewSelection: true });
+          return;
+        }
+
+        const hint = document.getElementById("vsPhotoHint");
+        if (hint) hint.textContent = "Converting HEIC photo for preview…";
+        const url = await window.SeavUpload.buildPreviewUrl(file);
+        if (vsPhotoInput.files?.[0] !== file) return; // selection changed mid-conversion
+
+        if (url) {
+          renderVesselPhotoThumb({ dataUrl: url }, { isNewSelection: true });
+        } else if (hint) {
+          hint.textContent =
+            "HEIC photo selected — preview unavailable, but Save will still try to convert it. If that fails, switch your camera to JPEG (\"Most Compatible\") and re-upload.";
         }
       });
     }

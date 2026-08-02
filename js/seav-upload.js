@@ -53,15 +53,35 @@
     }
   }
 
+  // Default matches the storage buckets' own file_size_limit (10MB). Photo
+  // fields (profile/vessel/tender/hobby photos) pass a tighter maxBytes —
+  // a 10MB cap made sense for document/certificate scans, but an avatar-style
+  // photo only ever displays as a small thumbnail, so 10MB was needlessly
+  // generous and let people upload much larger files than the page needed.
+  const DEFAULT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
   async function uploadToStorage({
     bucket,
     entityId,
     file,
     existingMeta,
     kind = "File",
-    errorHint = null
+    errorHint = null,
+    maxBytes = DEFAULT_MAX_UPLOAD_BYTES
   }) {
     if (!file) return existingMeta || null;
+
+    if (file.size > maxBytes) {
+      const msg = `${kind} too large. Please upload a file under ${Math.round(maxBytes / (1024 * 1024))}MB.`;
+      if (window.SeavFeedback?.error) {
+        window.SeavFeedback.error("File too large", msg);
+      } else if (window.Seav?.notify) {
+        window.Seav.notify("error", "File too large", msg);
+      } else {
+        alert(msg);
+      }
+      return existingMeta || null;
+    }
 
     const wasHeic = isHeicFile(file);
     const uploadFile = wasHeic ? await convertHeicToJpeg(file) : file;
@@ -134,5 +154,28 @@
     return existingMeta || null;
   }
 
-  window.SeavUpload = { uploadToStorage };
+  // Live "you just picked a file" thumbnail previews (Profile, Vessels,
+  // Tenders) used to call URL.createObjectURL() directly on whatever the
+  // <input type=file> gave them. That's fine for JPEG/PNG, but for a HEIC
+  // photo it produces a blob URL Chrome/Firefox/Edge can't decode either —
+  // same root cause as the upload bug above, just one step earlier — so the
+  // thumbnail box goes blank/broken the instant a HEIC file is chosen, well
+  // before Save ever runs the real conversion. Routing previews through this
+  // shared helper (same HEIC->JPEG conversion as uploadToStorage) means the
+  // preview matches what actually gets saved, instead of lying about it.
+  async function buildPreviewUrl(file) {
+    if (!file) return null;
+    const source = isHeicFile(file) ? await convertHeicToJpeg(file) : file;
+    if (isHeicFile(source)) return null; // conversion failed/skipped — unsafe to preview
+    try {
+      return URL.createObjectURL(source);
+    } catch (error) {
+      console.warn("[SEA-V] Could not build preview URL:", error);
+      return null;
+    }
+  }
+
+  const PHOTO_MAX_BYTES = 5 * 1024 * 1024;
+
+  window.SeavUpload = { uploadToStorage, isHeicFile, buildPreviewUrl, PHOTO_MAX_BYTES };
 })();

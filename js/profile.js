@@ -489,7 +489,8 @@
         entityId: profileId,
         file,
         existingMeta: existingPhoto,
-        kind: "Photo"
+        kind: "Photo",
+        maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES
       }) ?? existingPhoto ?? null;
     }
 
@@ -533,21 +534,30 @@
       renderPreview(profile);
     }
 
+    // previewFromForm runs on every keystroke in the form (see the "input"
+    // listener below), so it must never touch the photo thumbnail for a HEIC
+    // file — that's handled once, asynchronously, by handlePhotoFileChange.
+    // Re-deriving a raw createObjectURL() from a HEIC file on every keystroke
+    // would both be wasteful and re-introduce the broken-preview bug.
     function previewFromForm() {
-      if (previewObjectUrl) {
-        URL.revokeObjectURL(previewObjectUrl);
-        previewObjectUrl = null;
-      }
-
       const current = loadProfile();
       const formData = readProfileForm();
-      let previewPhoto = current.photo;
-      if (formData.file) {
-        previewObjectUrl = URL.createObjectURL(formData.file);
-        previewPhoto = { dataUrl: previewObjectUrl };
-      }
+      const file = formData.file;
+      const fileIsHeic = !!(file && window.SeavUpload?.isHeicFile?.(file));
 
-      renderPhotoThumb(previewPhoto, { isNewSelection: !!formData.file });
+      if (file && !fileIsHeic) {
+        if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+        previewObjectUrl = URL.createObjectURL(file);
+        renderPhotoThumb({ dataUrl: previewObjectUrl }, { isNewSelection: true });
+      } else if (!file) {
+        if (previewObjectUrl) {
+          URL.revokeObjectURL(previewObjectUrl);
+          previewObjectUrl = null;
+        }
+        renderPhotoThumb(current.photo, { isNewSelection: false });
+      }
+      // else: file is HEIC — leave whatever handlePhotoFileChange already
+      // rendered (converted preview, or the "preview unavailable" hint) alone.
 
       renderPreview({
         ...current,
@@ -563,13 +573,40 @@
         visasHeld: formData.visasHeld,
         availability: formData.availability,
         bio: formData.bio,
-        photo: previewPhoto
+        photo: previewObjectUrl ? { dataUrl: previewObjectUrl } : current.photo
       });
+    }
+
+    // Runs once per file selection (not on every keystroke, unlike
+    // previewFromForm above). For a HEIC photo this awaits the same
+    // HEIC->JPEG conversion Save will use, so the preview shown here always
+    // matches what actually gets saved — instead of the old behavior of
+    // handing a raw HEIC blob URL to an <img>/background-image, which Chrome,
+    // Firefox, and Edge simply can't decode and render as blank/broken.
+    async function handlePhotoFileChange() {
+      const file = fields.photo?.files?.[0] || null;
+      if (!file || !window.SeavUpload?.isHeicFile?.(file)) {
+        previewFromForm();
+        return;
+      }
+
+      if (photoHint) photoHint.textContent = "Converting HEIC photo for preview…";
+      const url = await window.SeavUpload.buildPreviewUrl(file);
+      if (fields.photo?.files?.[0] !== file) return; // selection changed mid-conversion
+
+      if (url) {
+        if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+        previewObjectUrl = url;
+        renderPhotoThumb({ dataUrl: url }, { isNewSelection: true });
+      } else if (photoHint) {
+        photoHint.textContent =
+          "HEIC photo selected — preview unavailable, but Save will still try to convert it. If that fails, switch your camera to JPEG (\"Most Compatible\") and re-upload.";
+      }
     }
 
     form.addEventListener("input", previewFromForm);
     if (fields.photo) {
-      fields.photo.addEventListener("change", previewFromForm);
+      fields.photo.addEventListener("change", handlePhotoFileChange);
     }
 
     if (fields.dobYear) {

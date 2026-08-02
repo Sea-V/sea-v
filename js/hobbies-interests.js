@@ -295,7 +295,8 @@
       file,
       existingMeta: null,
       kind: "Photo",
-      errorHint: "Run docs/hobbies-interests-table.sql in Supabase (storage bucket + policies)."
+      errorHint: "Run docs/hobbies-interests-table.sql in Supabase (storage bucket + policies).",
+      maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES
     });
   }
 
