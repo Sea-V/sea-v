@@ -390,6 +390,19 @@ const app = {
   function renderSidebarLink(href, label, iconSvg, options = {}) {
     const target = options.newTab ? ' target="_blank" rel="noopener"' : "";
     const idAttr = options.id ? ` id="${options.id}"` : "";
+
+    if (options.disabled) {
+      // Not-yet-built page: render as a non-navigating span so it can't be
+      // clicked/tabbed into like a real link, but keeps the same visual
+      // slot in the list so it reads as "on the roadmap" rather than missing.
+      return `
+        <span class="dash-link dash-link--disabled" aria-disabled="true" title="Coming soon"${idAttr}>
+          <span class="dash-icon" aria-hidden="true">${iconSvg}</span>
+          <span>${label} <span class="dash-link-soon">(Coming Soon)</span></span>
+        </span>
+      `;
+    }
+
     return `
       <a class="dash-link" href="${href}"${idAttr}${target}>
         <span class="dash-icon" aria-hidden="true">${iconSvg}</span>
@@ -424,6 +437,7 @@ const app = {
   const iconHobbies = `<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="6.5" width="16" height="12" rx="2.2" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12.5" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M9 6.5l1.1-2.2h3.8L15 6.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
   const iconPayslips = `<svg viewBox="0 0 24 24" fill="none"><circle cx="8.5" cy="15" r="3.8" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="11.5" r="3.8" stroke="currentColor" stroke-width="1.8"/><circle cx="15.5" cy="8" r="3.8" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 6.6v2.8M14.2 8h2.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`;
   const iconPublicProfile = `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M4 12h16M12 4c2.2 2.8 3.2 5.7 3.2 8s-1 5.2-3.2 8M12 4c-2.2 2.8-3.2 5.7-3.2 8s1 5.2 3.2 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+  const iconLandExperience = `<svg viewBox="0 0 24 24" fill="none"><rect x="5" y="9.5" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 9.5V7.3A1.8 1.8 0 0 1 10.8 5.5h2.4A1.8 1.8 0 0 1 15 7.3v2.2" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M5 13.5h14" stroke="currentColor" stroke-width="1.8"/></svg>`;
   const iconLogout = `<svg viewBox="0 0 24 24" fill="none"><path d="M10 6H7.5A1.5 1.5 0 0 0 6 7.5v9A1.5 1.5 0 0 0 7.5 18H10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M13 8.5 16.5 12 13 15.5M9.5 12h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
   // Reuse the same sidebar-nav icon set elsewhere on the site (e.g. the
@@ -443,7 +457,8 @@ const app = {
     references: iconReferences,
     hobbies: iconHobbies,
     payslips: iconPayslips,
-    publicProfile: iconPublicProfile
+    publicProfile: iconPublicProfile,
+    landExperience: iconLandExperience
   };
 
 function renderAppSidebar() {
@@ -496,6 +511,9 @@ function renderAppSidebar() {
           ${renderSidebarGroup(
             "Highlights",
             [
+              renderSidebarLink("#", "Land-Based Experience", iconLandExperience, {
+                disabled: true
+              }),
               renderSidebarLink("achievements.html", "Milestones", iconAchievements, {
                 id: "sidebarAchievementsLink"
               }),

@@ -83,6 +83,11 @@
   --page-onboard-experience: #ff8fab;
   --page-hobbies-interests: #e879f9;
 
+  /* Reserved for the not-yet-built Land-Based Experience page — color
+     confirmed with Jack 2026-08-02, wired into the sidebar disabled state
+     now; apply to .dash-link[href="land-experience.html"] once it ships. */
+  --page-land-experience: #ff7a5c;
+
   /* =========================================================
      META-GRID CARDS (tenders, references, future list pages)
      Shell uses shared navy gradient; accent border varies by section.

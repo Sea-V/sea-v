@@ -638,6 +638,28 @@ body.app-page::after {
   border-color: currentColor;
 }
 
+/* Roadmap items that aren't built yet — same slot in the list as a real
+   link, but visibly inert: dimmed, no hover lift, not clickable/focusable.
+   Tinted with the page's future accent color (--page-land-experience) at
+   low opacity so it previews the eventual branding without looking active. */
+.dash-link.dash-link--disabled {
+  color: rgba(255, 122, 92, 0.42);
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.05);
+  cursor: default;
+  pointer-events: none;
+}
+
+.dash-link.dash-link--disabled span:last-child {
+  color: rgba(255,255,255,0.4);
+}
+
+.dash-link-soon {
+  font-weight: 600;
+  font-size: 12px;
+  color: rgba(255, 122, 92, 0.55);
+}
+
 .dash-logout {
   margin-top: 0;
 
