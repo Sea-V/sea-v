@@ -16,8 +16,10 @@
     avatar: document.getElementById("vrAvatar"),
     intro: document.getElementById("vrIntro"),
     form: document.getElementById("vrForm"),
+    referenceTextLabel: document.getElementById("vrReferenceTextLabel"),
     referenceText: document.getElementById("vrReferenceText"),
     confirmed: document.getElementById("vrConfirmed"),
+    confirmedText: document.getElementById("vrConfirmedText"),
     note: document.getElementById("vrNote"),
     rank: document.getElementById("vrRank"),
     coc: document.getElementById("vrCoc"),
@@ -161,7 +163,7 @@
     els.metaGrid.innerHTML = items.map(renderMetaItem).join("");
   }
 
-  function renderIntro(data) {
+  function renderIntro(data, attachmentProvided) {
     if (!els.intro) return;
 
     const refereeName = escapeHtml(data.referee_name || "Referee");
@@ -171,7 +173,37 @@
       ? `, <span>${escapeHtml(refereeTitle)}</span>`
       : "";
 
-    els.intro.innerHTML = `<strong>${refereeName}</strong>${titleBit} — please write and confirm a reference for <strong>${crewName}</strong>.`;
+    const ask = attachmentProvided
+      ? `please confirm the attached reference for <strong>${crewName}</strong> is true`
+      : `please write and confirm a reference for <strong>${crewName}</strong>`;
+
+    els.intro.innerHTML = `<strong>${refereeName}</strong>${titleBit} — ${ask}.`;
+  }
+
+  // A crew member can attach an already-written reference letter/document
+  // instead of asking the referee to type the whole thing out again. When
+  // that attachment is present, the referee's job shifts from "write the
+  // reference" to "confirm the attached one is accurate" — so the textarea
+  // becomes an optional note instead of a required field, and the copy
+  // around it changes to match. Without an attachment, nothing changes:
+  // the referee still writes the reference themselves, same as before.
+  function applyReferenceTextMode(attachmentProvided) {
+    if (els.referenceTextLabel) {
+      els.referenceTextLabel.textContent = attachmentProvided
+        ? "Additional comments (optional)"
+        : "Write the reference";
+    }
+    if (els.referenceText) {
+      els.referenceText.required = !attachmentProvided;
+      els.referenceText.placeholder = attachmentProvided
+        ? "Add anything else you'd like to note about this crew member (optional)."
+        : "Write your reference for this crew member — their role, the dates you knew them, and your assessment of their work.";
+    }
+    if (els.confirmedText) {
+      els.confirmedText.textContent = attachmentProvided
+        ? "I confirm the attached reference is true and approved by me."
+        : "I confirm this reference is true and approved by me.";
+    }
   }
 
   function todayIso() {
@@ -342,7 +374,9 @@
         els.avatar.textContent = getInitials(previewData.referee_name);
       }
 
-      renderIntro(previewData);
+      const attachmentProvided = hasAttachment(previewData.attachment);
+      renderIntro(previewData, attachmentProvided);
+      applyReferenceTextMode(attachmentProvided);
       renderMetaGrid(previewData);
       await renderAttachment(previewData.attachment);
       if (els.rank) {
@@ -372,7 +406,8 @@
     submitting = true;
 
     const referenceText = els.referenceText?.value?.trim() || "";
-    if (confirmed && !referenceText) {
+    const attachmentProvided = hasAttachment(previewData?.attachment);
+    if (confirmed && !attachmentProvided && !referenceText) {
       submitting = false;
       if (window.Seav?.notify) {
         Seav.notify("error", "Reference required", "Write the reference before confirming.");
