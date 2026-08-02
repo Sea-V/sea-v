@@ -484,7 +484,7 @@
 
 .dashboard-public-share-link-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
   gap: 8px;
 }
 
@@ -545,11 +545,51 @@
 }
 
 .dashboard-public-share-copy,
+.dashboard-public-share-qr-toggle,
 .dashboard-public-share-open {
   min-height: 34px;
   padding: 0 12px;
 
   font-size: 11px;
+}
+
+/* QR panel — appears below the link row once toggled. White background
+   behind the code itself (not the page's dark shell) since a QR reader
+   needs strong light/dark contrast; the dark-theme framing lives in the
+   side column instead. */
+.dashboard-public-share-qr {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  padding: 12px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.dashboard-public-share-qr-canvas {
+  flex-shrink: 0;
+  display: inline-flex;
+  padding: 8px;
+  border-radius: 8px;
+  background: #ffffff;
+  line-height: 0;
+}
+
+.dashboard-public-share-qr-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.dashboard-public-share-qr-hint {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 @media (max-width: 960px) {
@@ -567,8 +607,23 @@
   }
 
   .dashboard-public-share-copy,
+  .dashboard-public-share-qr-toggle,
   .dashboard-public-share-open {
     width: 100%;
+  }
+
+  .dashboard-public-share-qr {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .dashboard-public-share-qr-canvas {
+    align-self: center;
+  }
+
+  .dashboard-public-share-qr-side {
+    align-items: center;
   }
 
   .dashboard-public-share-username-row {

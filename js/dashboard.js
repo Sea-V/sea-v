@@ -191,6 +191,24 @@
       openEl.href = url;
     }
 
+    // If the QR panel is already open, keep it open across unrelated
+    // dashboard refreshes (renderDashboardProfile can re-run from any
+    // seav:data-updated event, not just a public-link change) — someone may
+    // be mid-scan of it on another device. Just quietly regenerate against
+    // the current url so a slug change doesn't leave a stale code showing.
+    // Only force it closed if the profile just went private, since the
+    // link it points at no longer resolves.
+    const qrToggle = document.getElementById("dashPublicQrToggle");
+    const qrWrap = document.getElementById("dashPublicQrWrap");
+    if (qrWrap && !qrWrap.hidden) {
+      if (!enabled) {
+        qrWrap.hidden = true;
+        qrToggle?.setAttribute("aria-expanded", "false");
+      } else {
+        renderDashboardPublicQr(url);
+      }
+    }
+
     // Don't clobber the field mid-edit — only sync it in from the saved
     // profile when the user isn't actively typing in it.
     if (usernameInput && document.activeElement !== usernameInput) {
@@ -257,6 +275,71 @@
     });
   }
 
+  // QR code for the public profile link -- lets a crew member hand their
+  // profile to someone in person (a dock, a crew agency desk) by having
+  // them scan it, instead of only being able to send a message. Generated
+  // entirely client-side via qrcodejs (js/dashboard.html script tag): no
+  // third-party "QR image API" is called, so the profile URL is never sent
+  // anywhere just to render the code. Regenerated on every open (not
+  // cached) so it always reflects the current username/slug.
+  let dashPublicQrInstance = null;
+
+  function renderDashboardPublicQr(url) {
+    const canvasHost = document.getElementById("dashPublicQrCanvas");
+    if (!canvasHost || !url) return;
+
+    if (typeof window.QRCode !== "function") {
+      // Library still loading (it's deferred) -- try again shortly rather
+      // than silently leaving the panel blank.
+      window.setTimeout(() => renderDashboardPublicQr(url), 200);
+      return;
+    }
+
+    canvasHost.innerHTML = "";
+    dashPublicQrInstance = new window.QRCode(canvasHost, {
+      text: url,
+      width: 168,
+      height: 168,
+      colorDark: "#0b1c2e",
+      colorLight: "#ffffff",
+      correctLevel: window.QRCode.CorrectLevel.M
+    });
+  }
+
+  function initDashboardPublicQr() {
+    const toggleBtn = document.getElementById("dashPublicQrToggle");
+    const wrap = document.getElementById("dashPublicQrWrap");
+    const downloadBtn = document.getElementById("dashPublicQrDownload");
+    if (!toggleBtn || !wrap) return;
+
+    toggleBtn.addEventListener("click", () => {
+      const expanded = toggleBtn.getAttribute("aria-expanded") === "true";
+      const next = !expanded;
+      toggleBtn.setAttribute("aria-expanded", String(next));
+      wrap.hidden = !next;
+
+      if (next) {
+        renderDashboardPublicQr(resolveDashboardPublicProfileUrl());
+      }
+    });
+
+    downloadBtn?.addEventListener("click", () => {
+      const canvas = document.querySelector("#dashPublicQrCanvas canvas");
+      if (!canvas) {
+        Seav.notify("error", "QR code not ready", "Open the QR code first, then try downloading.");
+        return;
+      }
+      const profile = loadProfile();
+      const filename = `seav-profile-qr-${(profile.username || "career").toLowerCase()}.png`;
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    });
+  }
+
   // Collapsed by default (see dashboard.html comment) — a plain
   // expand/collapse chevron, not tied to saved state, since this is just
   // reducing header clutter, not a preference worth persisting.
@@ -293,6 +376,7 @@
     syncDashboardPublicPanel();
     initDashboardPublicUsername();
     initDashboardPublicDetailsToggle();
+    initDashboardPublicQr();
 
     copyBtn?.addEventListener("click", () => {
       copyDashboardPublicProfileLink();
