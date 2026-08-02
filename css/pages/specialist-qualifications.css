@@ -67,26 +67,26 @@
   margin-bottom: 22px;
 }
 
+/* Matches Seatime's "Service summary" KPI box treatment (Jack flagged the
+   mismatch 2026-08-02) — bordered dark panel instead of the old barely-there
+   translucent tile, white number + blue label instead of blue number + grey
+   label. Also styles Certificates' KPI row, which reuses this exact class
+   (see js/certificates.js). Not a glow: box-shadow here is a plain elevation
+   shadow, same family as every other dash-card on the site. */
 .sq-kpi-box {
   padding: 14px 16px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(130, 158, 255, 0.34);
+  background: var(--page-shell-panel);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 24px rgba(0, 0, 0, 0.16);
 }
 
 .sq-kpi-box .kpi-num {
   font-size: 22px;
   font-weight: 800;
-  color: #5bbcff;
-}
-
-.sq-kpi-box .kpi-label {
-  margin-top: 4px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: #ffffff;
 }
 
 .sq-section-head {
