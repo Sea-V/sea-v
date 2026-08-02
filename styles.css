@@ -1,71 +1,71 @@
-@import url("./css/core/variables.css?v=340");
-@import url("./css/core/reset.css?v=340");
-@import url("./css/core/layout.css?v=340");
-@import url("./css/components/ocean-background.css?v=340");
-@import url("./css/components/landing-brand.css?v=340");
-@import url("./css/components/topbar.css?v=340");
-@import url("./css/core/utilities.css?v=340");
+@import url("./css/core/variables.css?v=341");
+@import url("./css/core/reset.css?v=341");
+@import url("./css/core/layout.css?v=341");
+@import url("./css/components/ocean-background.css?v=341");
+@import url("./css/components/landing-brand.css?v=341");
+@import url("./css/components/topbar.css?v=341");
+@import url("./css/core/utilities.css?v=341");
 
 /* =========================================
    COMPONENTS
 ========================================= */
 
-@import url("./css/components/cards.css?v=340");
-@import url("./css/components/buttons.css?v=340");
-@import url("./css/components/forms.css?v=340");
-@import url("./css/components/modals.css?v=340");
-@import url("./css/components/pills.css?v=340");
-@import url("./css/components/lists.css?v=340");
-@import url("./css/components/actions.css?v=340");
-@import url("./css/components/meta-grid-cards.css?v=340");
-@import url("./css/components/tables.css?v=340");
-@import url("./css/components/badges.css?v=340");
-@import url("./css/components/badge-unlock.css?v=340");
-@import url("./css/components/feedback.css?v=340");
-@import url("./css/components/signature-pad.css?v=340");
+@import url("./css/components/cards.css?v=341");
+@import url("./css/components/buttons.css?v=341");
+@import url("./css/components/forms.css?v=341");
+@import url("./css/components/modals.css?v=341");
+@import url("./css/components/pills.css?v=341");
+@import url("./css/components/lists.css?v=341");
+@import url("./css/components/actions.css?v=341");
+@import url("./css/components/meta-grid-cards.css?v=341");
+@import url("./css/components/tables.css?v=341");
+@import url("./css/components/badges.css?v=341");
+@import url("./css/components/badge-unlock.css?v=341");
+@import url("./css/components/feedback.css?v=341");
+@import url("./css/components/signature-pad.css?v=341");
 /* progress bar styles live in css/components/pills.css */
 
 /* =========================================
    PAGE STYLES
 ========================================= */
 
-@import url("./css/pages/dashboard.css?v=340");
-@import url("./css/pages/profile.css?v=340");
-@import url("./css/pages/certificates.css?v=340");
-@import url("./css/pages/seatime.css?v=340");
-@import url("./css/pages/references.css?v=340");
-@import url("./css/pages/vessels.css?v=340");
-@import url("./css/pages/tenders.css?v=340");
-@import url("./css/pages/achievements.css?v=340");
-@import url("./css/pages/navigation.css?v=340");
-@import url("./css/pages/onboard-experience.css?v=340");
-@import url("./css/pages/hobbies-interests.css?v=340");
-@import url("./css/pages/specialist-qualifications.css?v=340");
-@import url("./css/pages/payslips.css?v=340");
-@import url("./css/pages/public-profile.css?v=340");
-@import url("./css/pages/verify-reference.css?v=340");
-@import url("./css/pages/confirm-account.css?v=340");
-@import url("./css/pages/reset-password.css?v=340");
-@import url("./css/pages/cv-generator.css?v=340");
-@import url("./css/pages/info.css?v=340");
-@import url("./css/pages/legal.css?v=340");
+@import url("./css/pages/dashboard.css?v=341");
+@import url("./css/pages/profile.css?v=341");
+@import url("./css/pages/certificates.css?v=341");
+@import url("./css/pages/seatime.css?v=341");
+@import url("./css/pages/references.css?v=341");
+@import url("./css/pages/vessels.css?v=341");
+@import url("./css/pages/tenders.css?v=341");
+@import url("./css/pages/achievements.css?v=341");
+@import url("./css/pages/navigation.css?v=341");
+@import url("./css/pages/onboard-experience.css?v=341");
+@import url("./css/pages/hobbies-interests.css?v=341");
+@import url("./css/pages/specialist-qualifications.css?v=341");
+@import url("./css/pages/payslips.css?v=341");
+@import url("./css/pages/public-profile.css?v=341");
+@import url("./css/pages/verify-reference.css?v=341");
+@import url("./css/pages/confirm-account.css?v=341");
+@import url("./css/pages/reset-password.css?v=341");
+@import url("./css/pages/cv-generator.css?v=341");
+@import url("./css/pages/info.css?v=341");
+@import url("./css/pages/legal.css?v=341");
 
 /* Auth / Public */
-@import url("./css/pages/index.css?v=340");
-@import url("./css/pages/signup.css?v=340");
-@import url("./css/pages/auth.css?v=340");
+@import url("./css/pages/index.css?v=341");
+@import url("./css/pages/signup.css?v=341");
+@import url("./css/pages/auth.css?v=341");
 
 /* =========================================
    TYPOGRAPHY (after pages — wins over page rules)
 ========================================= */
 
-@import url("./css/core/typography.css?v=340");
+@import url("./css/core/typography.css?v=341");
 
 /* =========================================
    RESPONSIVE
 ========================================= */
 
-@import url("./css/responsive/mobile.css?v=340");
+@import url("./css/responsive/mobile.css?v=341");
 
 /* Logo sizes — embedded in styles.css (not @import) so cache cannot drop them */
 
@@ -415,7 +415,7 @@ body.public-profile-page .ocean {
   background-color: #0b1c2e !important;
   background-image:
     linear-gradient(180deg, rgba(8, 18, 35, 0.2) 0%, rgba(11, 28, 46, 0.85) 100%),
-    url("/img/ocean.jpg?v=340") !important;
+    url("/img/ocean.jpg?v=341") !important;
   background-size: cover, cover !important;
   background-position: center, center !important;
   background-repeat: no-repeat, no-repeat !important;

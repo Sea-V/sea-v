@@ -145,6 +145,17 @@
     document.body.classList.add("seav-is-loading");
   }
 
+  /** Update the visible loader's text in place, without touching loaderCount
+      (showPageLoader increments a show/hide counter — calling it again just
+      to change the message would require an extra hidePageLoader to match). */
+  function updatePageLoaderText(message, submessage) {
+    if (!pageLoader) return;
+    const textEl = pageLoader.querySelector(".seav-page-loader-text");
+    const subEl = pageLoader.querySelector(".seav-page-loader-sub");
+    if (message != null && textEl) textEl.textContent = message;
+    if (submessage != null && subEl) subEl.textContent = submessage;
+  }
+
   function hidePageLoader() {
     if (!pageLoader) return;
 
@@ -219,6 +230,7 @@
     error,
     info,
     showPageLoader,
+    updatePageLoaderText,
     hidePageLoader,
     showSaving,
     hideSaving,

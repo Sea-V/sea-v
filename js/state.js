@@ -17,6 +17,11 @@
   const CACHE_TTL_MS = 5 * 60 * 1000;
   const SETUP_CHECK_KEY = "seav_setup_checked_v1";
   const PAGE_LOADER_MIN_MS = 0;
+  /** Cap on how long the page loader waits for photo/file hydration before
+      hiding anyway — keeps a slow connection from trapping the user behind
+      the overlay forever. Any hydration still in flight past this point
+      keeps running in the background as before. */
+  const HYDRATION_LOADER_MAX_WAIT_MS = 8000;
 
   const FILE_HYDRATION_TABLES = [
     { stateKey: "seatimes", table: "seatimes" },
@@ -553,32 +558,47 @@
       const core = window.SeavApiCore;
       if (!core?.hydrateArrayFiles) return false;
 
+      // Run every table's file hydration concurrently instead of one at a
+      // time — each table's createSignedUrl calls are an independent network
+      // round trip, and dashboard.html alone hydrates 10 of them. Awaiting
+      // them sequentially in a for-loop was the main reason photos could
+      // take up to 30s to appear (Jack reported this 2026-08-02): 10 tables
+      // x a few seconds each of round-trip latency adds up fast when done
+      // one after another, even though within a table Promise.all was
+      // already used. Doing all tables at once cuts the worst case down to
+      // roughly the slowest single table instead of the sum of all of them.
+      const results = await Promise.all(
+        fileHydrationTablesForPage(page).map(async ({ stateKey, table }) => {
+          const items = state.data[stateKey];
+          if (!Array.isArray(items) || !items.length) return null;
+
+          const fields = core.ENTITY_FILE_FIELDS?.[table];
+          if (!fields?.length) return null;
+
+          const needsHydration = items.some((item) =>
+            fields.some((cfg) => {
+              if (cfg.isArray) {
+                const files = item[cfg.field];
+                return (
+                  Array.isArray(files) &&
+                  files.some((file) => core.storedFileNeedsHydration?.(file, cfg.bucket))
+                );
+              }
+              const file = item[cfg.field];
+              return core.storedFileNeedsHydration?.(file, cfg.bucket);
+            })
+          );
+
+          if (!needsHydration) return null;
+
+          return { stateKey, hydrated: await core.hydrateArrayFiles(items, table) };
+        })
+      );
+
       let changed = false;
-
-      for (const { stateKey, table } of fileHydrationTablesForPage(page)) {
-        const items = state.data[stateKey];
-        if (!Array.isArray(items) || !items.length) continue;
-
-        const fields = core.ENTITY_FILE_FIELDS?.[table];
-        if (!fields?.length) continue;
-
-        const needsHydration = items.some((item) =>
-          fields.some((cfg) => {
-            if (cfg.isArray) {
-              const files = item[cfg.field];
-              return (
-                Array.isArray(files) &&
-                files.some((file) => core.storedFileNeedsHydration?.(file, cfg.bucket))
-              );
-            }
-            const file = item[cfg.field];
-            return core.storedFileNeedsHydration?.(file, cfg.bucket);
-          })
-        );
-
-        if (!needsHydration) continue;
-
-        state.data[stateKey] = await core.hydrateArrayFiles(items, table);
+      for (const result of results) {
+        if (!result) continue;
+        state.data[result.stateKey] = result.hydrated;
         changed = true;
       }
 
@@ -712,6 +732,27 @@
     try {
       if (loadUserData) {
         await ensureUserDataLoaded(false);
+
+        // ensureUserDataLoaded only awaits the raw record fetch — photo/file
+        // signed URLs are hydrated separately in the background (by design,
+        // so a slow photo doesn't block the records themselves from
+        // rendering). That meant the "Setting sail" loader hid the instant
+        // raw data resolved, then photos kept popping in afterwards with no
+        // loading indicator at all — confusing, and worse on dashboard.html
+        // where up to 10 tables of photos hydrate at once (Jack reported
+        // this 2026-08-02). Keep the loader up through that first hydration
+        // pass too, with a capped wait so a slow/broken connection can't
+        // trap someone behind the overlay indefinitely — remaining photos
+        // still finish hydrating in the background after the cap.
+        if (showedPageLoader && window.SeavFeedback?.updatePageLoaderText) {
+          window.SeavFeedback.updatePageLoaderText(null, "Loading your photos and documents…");
+        }
+        await Promise.race([
+          hydrateStoredFilesInBackground(currentPageFile()).catch((err) => {
+            console.warn("[SEA-V] Foreground file hydration wait failed:", err);
+          }),
+          new Promise((resolve) => window.setTimeout(resolve, HYDRATION_LOADER_MAX_WAIT_MS))
+        ]);
 
         if (window.SeavConfig?.SHOW_DEV_VERIFY_LINK && !sessionStorage.getItem("seav_local_hint_shown")) {
           sessionStorage.setItem("seav_local_hint_shown", "1");
