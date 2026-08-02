@@ -501,7 +501,7 @@
 
 .onboard-skill-add-row {
   display: grid;
-  grid-template-columns: 1fr 1fr auto auto;
+  grid-template-columns: 1fr 1fr auto;
   align-items: end;
   gap: 14px;
   margin-bottom: 20px;
@@ -514,10 +514,41 @@
 .onboard-skill-add-row label {
   display: block;
   color: rgba(255, 255, 255, 0.78);
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.55px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.onboard-skill-note-field {
+  grid-column: 1 / -1;
+}
+
+.onboard-skill-note-field textarea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--field-value-color);
+  caret-color: var(--field-value-color);
+  color-scheme: dark;
+  font: inherit;
+  resize: vertical;
+  min-height: 56px;
+}
+
+.onboard-skill-note-field textarea:focus {
+  outline: none;
+  border-color: rgba(255, 143, 171, 0.45);
+  box-shadow: 0 0 0 3px rgba(255, 143, 171, 0.12);
+}
+
+.onboard-skill-add-row .btn-blue {
+  grid-column: 1 / -1;
+  justify-self: start;
+  height: 46px;
+  white-space: nowrap;
 }
 
 .onboard-skill-add-row select {
@@ -552,10 +583,8 @@
 
 .onboard-skill-rating-field-label {
   color: rgba(255, 255, 255, 0.78);
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.55px;
+  font-size: 13px;
+  font-weight: 400;
 }
 
 .onboard-skill-stars {
@@ -593,11 +622,6 @@
   color: #ff8fab;
 }
 
-.onboard-skill-add-row .btn-blue {
-  height: 46px;
-  white-space: nowrap;
-}
-
 .onboard-skill-groups {
   display: flex;
   flex-direction: column;
@@ -627,13 +651,19 @@
 
 .onboard-skill-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 16px;
+  flex-direction: column;
+  gap: 8px;
   padding: 10px 14px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
+}
+
+.onboard-skill-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
 }
 
 .onboard-skill-row-name {
@@ -641,6 +671,15 @@
   color: rgba(255, 255, 255, 0.88);
   font-size: 14px;
   font-weight: 600;
+}
+
+.onboard-skill-row-note {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .onboard-skill-row-right {

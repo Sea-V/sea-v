@@ -837,6 +837,7 @@ function getEmptyOnboardSkillEntry() {
     category: "",
     skill: "",
     rating: 0,
+    note: "",
     createdAt: "",
     updatedAt: ""
   };

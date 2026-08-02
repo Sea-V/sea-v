@@ -556,6 +556,7 @@ function mapOnboardSkillFromSupabase(row) {
     category: row.category || "",
     skill: row.skill || "",
     rating: row.rating || 0,
+    note: row.note || "",
     createdAt: row.created_at || "",
     updatedAt: row.updated_at || ""
   };
@@ -567,6 +568,7 @@ function mapOnboardSkillToSupabase(item) {
     category: item.category || "",
     skill: item.skill || "",
     rating: item.rating || 0,
+    note: item.note || "",
     updated_at: new Date().toISOString()
   };
 }

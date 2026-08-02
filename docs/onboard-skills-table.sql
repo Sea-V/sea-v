@@ -13,10 +13,18 @@ create table if not exists public.onboard_skills (
   category text not null check (category in ('deck', 'engineering')),
   skill text not null,
   rating smallint not null check (rating between 1 and 5),
+  -- Short free-text note explaining the rating (e.g. what vessel/task it's
+  -- based on) — added so a rating isn't just an unsupported tap on a star.
+  -- Added 2026-08-02, see docs/onboard-skills-table.sql migration history.
+  note text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (user_id, category, skill)
 );
+
+-- 2026-08-02: added `note` column to an already-live table via a follow-up
+-- migration (add_note_to_onboard_skills). Kept here so a fresh
+-- create-from-scratch run of this file matches production.
 
 create index if not exists onboard_skills_user_id_idx on public.onboard_skills(user_id);
 

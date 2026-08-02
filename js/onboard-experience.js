@@ -682,27 +682,34 @@
   }
 
   function renderSkillRow(entry) {
+    const noteHtml = entry.note
+      ? `<p class="onboard-skill-row-note">${Seav.escapeHtml(entry.note)}</p>`
+      : "";
+
     return `
       <div class="onboard-skill-row">
-        <span class="onboard-skill-row-name">${Seav.escapeHtml(entry.skill)}</span>
-        <div class="onboard-skill-row-right">
-          <div class="onboard-skill-stars" data-skill-id="${Seav.escapeHtml(entry.id)}">
-            ${renderStarButtons(entry.rating)}
+        <div class="onboard-skill-row-top">
+          <span class="onboard-skill-row-name">${Seav.escapeHtml(entry.skill)}</span>
+          <div class="onboard-skill-row-right">
+            <div class="onboard-skill-stars" data-skill-id="${Seav.escapeHtml(entry.id)}">
+              ${renderStarButtons(entry.rating)}
+            </div>
+            <span class="onboard-skill-row-label">${Seav.escapeHtml(
+              getOnboardSkillRatingLabel(entry.rating)
+            )}</span>
+            <button
+              type="button"
+              class="onboard-skill-remove"
+              data-remove-skill-id="${Seav.escapeHtml(entry.id)}"
+              aria-label="Remove ${Seav.escapeHtml(entry.skill)}"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
           </div>
-          <span class="onboard-skill-row-label">${Seav.escapeHtml(
-            getOnboardSkillRatingLabel(entry.rating)
-          )}</span>
-          <button
-            type="button"
-            class="onboard-skill-remove"
-            data-remove-skill-id="${Seav.escapeHtml(entry.id)}"
-            aria-label="Remove ${Seav.escapeHtml(entry.skill)}"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
         </div>
+        ${noteHtml}
       </div>
     `;
   }
@@ -740,10 +747,12 @@
     const categorySelect = document.getElementById("skillCategorySelect");
     const skillSelect = document.getElementById("skillNameSelect");
     const ratingInput = document.getElementById("skillRatingInput");
+    const noteInput = document.getElementById("skillNoteInput");
 
     const category = categorySelect?.value || "";
     const skill = skillSelect?.value || "";
     const rating = Number(ratingInput?.getAttribute("data-rating") || 0);
+    const note = noteInput?.value.trim() || "";
 
     if (!category || !skill) {
       Seav.notify("error", "Missing details", "Choose a category and a skill first.");
@@ -751,6 +760,14 @@
     }
     if (!rating) {
       Seav.notify("error", "Missing rating", "Tap a star to set your level before adding.");
+      return;
+    }
+    if (!note) {
+      Seav.notify(
+        "error",
+        "Missing explanation",
+        "Briefly explain how you know this skill before adding it."
+      );
       return;
     }
 
@@ -762,11 +779,13 @@
           category,
           skill,
           rating,
+          note,
           createdAt: now,
           updatedAt: now
         });
 
         if (skillSelect) skillSelect.value = "";
+        if (noteInput) noteInput.value = "";
         renderSkillRatingInput(0);
         populateSkillNameOptions(category);
 
