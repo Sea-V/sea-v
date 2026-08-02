@@ -215,13 +215,31 @@
       return false;
     }
 
+    // Only these three sections actually render a photo on the public
+    // profile (vessel/tender photo, hobby photo gallery). Certificates,
+    // references, onboard experience, specialist qualifications, payslips,
+    // and sea time all carry a file/attachment field too, but this page
+    // never displays it — no <img>, no download link, nothing. Before this
+    // fix, every single one of those attachments still got hydrated into a
+    // signed URL (one Supabase Storage API round-trip each) on every public
+    // profile load, for no visible benefit — pure wasted latency that grows
+    // with how much a crew member has logged. Skipping hydration for the
+    // fields that are genuinely unused here was the main fix for "public
+    // profile photos took ages to load."
+    const PHOTO_RENDERING_KEYS = new Set([
+      KEYS.VESSELS,
+      KEYS.TENDERS,
+      KEYS.HOBBIES_INTERESTS
+    ]);
+
     async function loadPublicData(ownerUserId, key, profile) {
       if (!ownerUserId || !SeavAPI.getArrayForUser) return [];
       const useOwnerAccess = isOwnProfilePreview(ownerUserId, profile);
+      const skipFiles = !PHOTO_RENDERING_KEYS.has(key);
       return SeavAPI.getArrayForUser(
         key,
         ownerUserId,
-        useOwnerAccess ? {} : { public: true }
+        useOwnerAccess ? { skipFiles } : { public: true, skipFiles }
       );
     }
 

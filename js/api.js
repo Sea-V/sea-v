@@ -184,7 +184,7 @@
     const mapped = (data || []).map(mapper);
     const shouldHydrateFiles = bulkHydrateFiles || options.public === true;
     if (!shouldHydrateFiles) return mapped;
-    return hydrateArrayFiles(mapped, table, { client });
+    return hydrateArrayFiles(mapped, table, { client, skipFiles: options.skipFiles });
   }
 
   async function fetchArrayByKey(key, userId, options = {}) {

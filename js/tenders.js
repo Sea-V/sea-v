@@ -165,8 +165,21 @@ function buildTenderVesselGroups(tenders) {
   );
   const hasPhoto = !!photoUrl;
 
+  // loading="lazy" so cards further down the (often vessel-grouped, multi-
+  // tender) list don't all fetch their full-size photo the instant the page
+  // loads — several of these photos are multiple MB (nothing resizes/
+  // compresses an image before upload today), and fetching a handful of
+  // them simultaneously on a slow connection is what was causing slow loads
+  // and timeouts. The onerror fallback matches the same pattern already
+  // used in seav-cards.js: a photo that fails to render (e.g. a HEIC file
+  // uploaded before the auto-convert fix existed) swaps to a clean text
+  // fallback instead of leaving the browser's native broken-image icon on
+  // screen with no explanation.
+  const safeAlt = Seav.escapeHtml(tender.name || "Tender");
   const photoHtml = hasPhoto
-    ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(tender.name || "Tender")}" />`
+    ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${safeAlt}" loading="lazy" decoding="async"
+        onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+       <div class="vessel-photo-fallback" style="display:none;">Photo unavailable</div>`
     : `<div class="vessel-photo-fallback">No Photo</div>`;
 
   const vesselName = getVesselNameForTender(tender);
