@@ -56,6 +56,14 @@
   font-weight: 500;
 }
 
+.ps-shell-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .ps-section {
   padding: 26px 28px 30px;
 }
@@ -179,12 +187,6 @@
   outline: none;
   border-color: rgba(207, 168, 106, 0.45);
   box-shadow: 0 0 0 3px rgba(207, 168, 106, 0.12);
-}
-
-.ps-toolbar-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
 }
 
 .ps-filter-label--inline {
@@ -522,11 +524,8 @@
     align-items: stretch;
   }
 
-  .ps-toolbar-actions {
-    width: 100%;
-  }
-
-  .ps-toolbar-actions .btn-ghost2 {
+  .ps-shell-actions .btn-ghost2,
+  .ps-shell-actions .btn-blue {
     flex: 1;
     text-align: center;
   }

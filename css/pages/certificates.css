@@ -58,15 +58,10 @@
 
 .cert-shell-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-}
-
-.cert-section-actions {
-  justify-content: flex-end;
-  margin-top: 28px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255, 210, 90, 0.12);
+  gap: 12px;
 }
 
 /* Section uses sq-section / sq-kpi-row / sq-section-head from specialist-qualifications.css */

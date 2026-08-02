@@ -17,11 +17,15 @@
   background-color: #0b1c2e;
   background-image:
     linear-gradient(180deg, rgba(8, 18, 35, 0.2) 0%, rgba(11, 28, 46, 0.85) 100%),
-    url("/img/ocean.png");
-  /* This used to be a 200%-wide element scrolling via translateX, repeating
-     ocean.png with itself via repeat-x so it could loop forever. That only
-     works if the image tiles seamlessly with its own opposite edge — it
-     doesn't (ocean.png is a photo: bright wave crest on the left, dark
+    url("/img/ocean.jpg?v=339");
+  /* Re-encoded from ocean.png (1.3MB) to a quality-82 JPEG (~113KB) on
+     2026-08-02 — no visible quality loss since it's a cover photo with no
+     transparency, and it was the single biggest "improve image delivery"
+     item PageSpeed flagged. This used to be a 200%-wide element scrolling
+     via translateX, repeating ocean.jpg with itself via repeat-x so it
+     could loop forever. That only works if the image tiles seamlessly
+     with its own opposite edge — it doesn't (it's a photo: bright wave
+     crest on the left, dark
      corner on the right), so the tile boundary was a hard, visible seam
      that swept across the screen once every 60s loop — the "flickering"
      every 60 seconds. No repeat-x/translateX combination can fix a seam

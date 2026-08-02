@@ -366,8 +366,12 @@ body.app-page::before {
   background-color: #0b1c2e;
   background-image:
     linear-gradient(180deg, rgba(8, 18, 35, 0.2) 0%, rgba(11, 28, 46, 0.85) 100%),
-    url("../../img/ocean.png");
-  /* See css/components/ocean-background.css for the full story: img/ocean.png
+    url("../../img/ocean.jpg?v=339");
+  /* Re-encoded from ocean.png (1.3MB) to a quality-82 JPEG (~113KB) on
+     2026-08-02 — PageSpeed flagged this as the single biggest "improve
+     image delivery" opportunity on the site. It's a photographic cover
+     background with no transparency, so JPEG loses nothing visible.
+     See css/components/ocean-background.css for the full story: ocean.jpg
      is a photo, not a seamless tileable texture, so repeat-x scrolling always
      showed a hard seam sweeping across the screen once per 60s loop — the
      "flickering every 60 seconds". Switched to a single non-repeating cover
