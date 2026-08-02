@@ -2,7 +2,23 @@
 <html lang="en">
 
 <head>
-  <!-- Sentry error monitoring — loaded first so it can catch errors from anything below -->
+  <!-- Sentry error monitoring — loaded first so it can catch errors from anything below.
+       window.sentryOnLoad runs once the loader's bundle is ready and lets us
+       apply extra Sentry.init() options on top of the dashboard defaults.
+       SEA-V's API traffic carries maritime crew PII (payslips, certificates,
+       references, DOB, addresses) — don't let Sentry attach reporter IP/user
+       info or capture request/response bodies to error events. See:
+       https://docs.sentry.io/platforms/javascript/configuration/options/#dataCollection -->
+  <script>
+    window.sentryOnLoad = function () {
+      Sentry.init({
+        dataCollection: {
+          userInfo: false,
+          httpBodies: []
+        }
+      });
+    };
+  </script>
   <script
     src="https://js-de.sentry-cdn.com/daebc8b90d74e12665f57000fe529d6a.min.js"
     crossorigin="anonymous"
