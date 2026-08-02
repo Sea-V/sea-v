@@ -1,16 +1,19 @@
--- Onboard Skills — self-assessed skills profile (Deck/Officer + Engineering only)
+-- Onboard Skills — self-assessed skills profile (Deck/Officer, Engineering,
+-- Bridge Equipment)
 --
 -- Distinct from onboard_experiences: this is a fast, self-rated skills
 -- snapshot (category -> skill -> 1-5 star rating), not a dated/vessel-linked/
 -- signed-off logbook entry. Inspired by Yotspot's skills matrix (see
--- Sea-V/Sea-v Onboard Experience screenshots) but scoped down to just Deck
--- and Engineering per Jack's direction 2026-08-02. No file attachments, no
--- public/anon exposure yet (owner-only for now).
+-- Sea-V/Sea-v Onboard Experience screenshots), reviewed against that source
+-- and expanded 2026-08-02 to add missed Deck/Engineering items plus a new
+-- Bridge Equipment category (radar, ECDIS, GPS, etc — previously just one
+-- vague "Navigation and radar systems" line under Engineering). No file
+-- attachments, no public/anon exposure yet (owner-only for now).
 
 create table if not exists public.onboard_skills (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  category text not null check (category in ('deck', 'engineering')),
+  category text not null check (category in ('deck', 'engineering', 'bridge')),
   skill text not null,
   rating smallint not null check (rating between 1 and 5),
   -- Short free-text note explaining the rating (e.g. what vessel/task it's
@@ -25,6 +28,9 @@ create table if not exists public.onboard_skills (
 -- 2026-08-02: added `note` column to an already-live table via a follow-up
 -- migration (add_note_to_onboard_skills). Kept here so a fresh
 -- create-from-scratch run of this file matches production.
+--
+-- 2026-08-02: widened the category check constraint to add 'bridge' via a
+-- follow-up migration (add_bridge_category_to_onboard_skills).
 
 create index if not exists onboard_skills_user_id_idx on public.onboard_skills(user_id);
 

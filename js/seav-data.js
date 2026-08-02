@@ -752,14 +752,20 @@ function getOnboardCategoryLabel(value) {
 
 /* =========================================================
    ONBOARD SKILLS — self-assessed skills profile
-   Deck/Officer + Engineering only (scope confirmed with Jack 2026-08-02).
-   Separate from the dated/signed-off Onboard Experience logbook above:
-   this is a fast tap-to-rate skills snapshot, no vessel/dates/sign-off.
+   Deck/Officer, Engineering, and Bridge Equipment (scope expanded with
+   Jack 2026-08-02 after a full review against the Yotspot source list —
+   nothing trimmed, everything reviewed added). Separate from the dated/
+   signed-off Onboard Experience logbook above: this is a fast tap-to-rate
+   skills snapshot, no vessel/dates/sign-off.
+   "Navigation and radar systems" moved out of Engineering into the new
+   Bridge Equipment category, broken into its actual instruments
+   (radar/ARPA, ECDIS, GPS, etc) instead of one vague line.
 ========================================================= */
 
 const ONBOARD_SKILL_CATEGORIES = [
   { value: "deck", label: "Deck / Officer" },
-  { value: "engineering", label: "Engineering" }
+  { value: "engineering", label: "Engineering" },
+  { value: "bridge", label: "Bridge Equipment" }
 ];
 
 const ONBOARD_SKILL_CATALOG = {
@@ -773,40 +779,74 @@ const ONBOARD_SKILL_CATALOG = {
     "Rigging",
     "Whipping and splicing",
     "Line handling",
+    "Docking and mooring",
     "Anchor handling",
     "Crane operation",
     "Tender maintenance",
     "Tender driving",
     "Small boat handling",
     "Piloting and manoeuvring",
+    "Sail handling and trimming",
+    "Sail repairs",
     "Watchkeeping (navigation and seamanship)",
+    "Passage planning and chart work",
+    "COLREGs and navigation rules",
     "Underwater maintenance",
     "Scuba diving and water sports",
+    "Crew management and leadership",
     "Safety and emergency response",
+    "Firefighting systems and drills",
     "Ship security",
-    "ISM / ISPS management and procedures"
+    "ISM / ISPS management and procedures",
+    "Helicopter operations",
+    "Helicopter refuelling"
   ],
   engineering: [
     "Diesel engines",
+    "Diesel-electric propulsion",
     "Mechanical systems",
     "Generators and alternators",
     "Electrical systems",
+    "High voltage systems and safety",
     "Hydraulic systems",
+    "Electro-hydraulic controls",
     "Refrigeration",
     "Air conditioning",
     "Water makers",
     "Water and waste treatment",
+    "Ballast systems",
     "Plumbing systems",
-    "Navigation and radar systems",
     "Gearboxes",
     "Steering gear",
     "Propeller systems",
-    "AV and IT",
-    "Planned maintenance software (AMOS, IDEA, TRITON etc)",
     "Bow thruster",
     "Stabilisers",
     "Dynamic positioning systems",
-    "High voltage systems and safety"
+    "Automation and control systems (PLC/SCADA)",
+    "AV and IT",
+    "Cybersecurity",
+    "Planned maintenance software (AMOS, IDEA, TRITON etc)",
+    "Fuel cell systems",
+    "Biodiesel fuel",
+    "Solar power",
+    "Gas fuel / tri-fuel systems"
+  ],
+  bridge: [
+    "Radar / ARPA",
+    "ECDIS",
+    "GPS / GNSS",
+    "AIS",
+    "Autopilot",
+    "Gyrocompass and magnetic compass",
+    "Echo sounder / depth sounder",
+    "Speed log",
+    "VHF radio and GMDSS",
+    "Satellite communications (VSAT / FleetBroadband)",
+    "Chart plotter",
+    "Voyage data recorder (VDR)",
+    "Bridge navigational watch alarm system (BNWAS)",
+    "Weather routing and forecasting tools",
+    "CCTV and bridge monitoring systems"
   ]
 };
 
