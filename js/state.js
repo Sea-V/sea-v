@@ -275,14 +275,28 @@
 
       let userId = await window.SeavAPI?.resolveAuthUserId?.() || window.SeavAuth?.getUserId?.() || null;
       if (!userId) {
-        for (let attempt = 0; attempt < 4 && !userId; attempt += 1) {
-          await new Promise((resolve) => window.setTimeout(resolve, 150));
+        // A brief session-token refresh (e.g. right after page load, or a
+        // background tab being resumed) can leave resolveAuthUserId() unable
+        // to answer for a moment. The old retry budget here was only 600ms
+        // (4 x 150ms) — too short for that, and on timeout this silently
+        // returned the empty default state with nothing telling the user why
+        // (Jack reported "everything gone" 2026-08-02, resolved by a reload —
+        // consistent with this window being missed once). Give it more
+        // margin before giving up.
+        for (let attempt = 0; attempt < 8 && !userId; attempt += 1) {
+          await new Promise((resolve) => window.setTimeout(resolve, 250));
           userId = await window.SeavAPI?.resolveAuthUserId?.() || window.SeavAuth?.getUserId?.() || null;
         }
       }
 
       if (!userId) {
         console.warn("[SEA-V] No active session — cannot load Supabase records.");
+        if (window.SeavFeedback?.error) {
+          window.SeavFeedback.error(
+            "Couldn't load your records",
+            "We couldn't confirm your session in time. Please refresh the page — your data is safe."
+          );
+        }
         this.ready = true;
         return this.data;
       }
@@ -601,7 +615,17 @@
 
           if (!needsHydration) return null;
 
-          return { stateKey, hydrated: await core.hydrateArrayFiles(items, table) };
+          // Each table's hydration is independent — if one table's signed-URL
+          // request fails (bad row, transient network blip), it must not
+          // reject this whole Promise.all and block every OTHER table's
+          // already-successful photos from applying. Isolate failures per
+          // table instead of letting one bad apple block the batch.
+          try {
+            return { stateKey, hydrated: await core.hydrateArrayFiles(items, table) };
+          } catch (err) {
+            console.warn(`[SEA-V] File hydration failed for ${table}:`, err);
+            return null;
+          }
         })
       );
 
