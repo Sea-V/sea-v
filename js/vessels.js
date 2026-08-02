@@ -179,7 +179,7 @@ function buildVesselCard(v, options = {}) {
   const dateLine = `${from} → ${to}`;
 
   const photoHtml = photoUrl
-    ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${vesselName}" />`
+    ? `<img src="${Seav.escapeHtml(photoUrl)}" alt="${vesselName}" loading="lazy" decoding="async" />`
     : `<div class="vessel-photo-fallback">No Photo</div>`;
 
   const linkedSeatimes = getSeatimes().filter((item) => item.vesselId === v.id);
@@ -678,7 +678,8 @@ async function buildVesselPhoto(file, existingPhoto, vesselId) {
     file,
     existingMeta: existingPhoto,
     kind: "Photo",
-    maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES
+    maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES,
+    resizeImage: true
   }) ?? existingPhoto ?? null;
 }
 

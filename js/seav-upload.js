@@ -67,7 +67,8 @@
     existingMeta,
     kind = "File",
     errorHint = null,
-    maxBytes = DEFAULT_MAX_UPLOAD_BYTES
+    maxBytes = DEFAULT_MAX_UPLOAD_BYTES,
+    resizeImage = false
   }) {
     if (!file) return existingMeta || null;
 
@@ -84,7 +85,15 @@
     }
 
     const wasHeic = isHeicFile(file);
-    const uploadFile = wasHeic ? await convertHeicToJpeg(file) : file;
+    let uploadFile = wasHeic ? await convertHeicToJpeg(file) : file;
+
+    // Shrink display photos to a sane max dimension before they ever reach
+    // storage — see resizePhotoIfNeeded's comment above for why. Runs after
+    // HEIC conversion so a huge HEIC-turned-JPEG still gets shrunk, not just
+    // re-encoded at full resolution.
+    if (resizeImage) {
+      uploadFile = await resizePhotoIfNeeded(uploadFile);
+    }
 
     // Guard against the exact bug found 2026-07-24: three tender photos
     // (Naiad, Rafnar, Axopar) were uploaded as raw, unconverted HEIC on
@@ -177,5 +186,78 @@
 
   const PHOTO_MAX_BYTES = 5 * 1024 * 1024;
 
-  window.SeavUpload = { uploadToStorage, isHeicFile, buildPreviewUrl, PHOTO_MAX_BYTES };
+  // Real upload sizes checked 2026-08-02 (Jack reported slow photo loads):
+  // tender photos averaged 810KB (up to 4.8MB), hobby photos 566KB (up to
+  // 2MB), vessel photos 304KB (up to 1.5MB) — full-resolution camera/phone
+  // photos, despite every one of them only ever rendering as a small
+  // thumbnail card. uploadToStorage previously only capped file size
+  // (PHOTO_MAX_BYTES) and fixed HEIC decoding; it never actually shrank the
+  // image, so a 4000px-wide photo was downloaded at full resolution just to
+  // show at ~200px. This resizes to a sane max dimension and re-encodes as
+  // JPEG before upload — only for photo fields that opt in via
+  // resizeImage:true (profile/vessel/tender/hobby photos), never for
+  // document/attachment uploads (certs, payslips, references, seatime,
+  // specialist quals, onboard-experience, vessel SEA docs), which need to
+  // stay exactly as scanned/provided.
+  const PHOTO_RESIZE_MAX_DIMENSION = 1600;
+  const PHOTO_RESIZE_QUALITY = 0.82;
+
+  async function resizePhotoIfNeeded(file, options = {}) {
+    const maxDimension = options.maxDimension || PHOTO_RESIZE_MAX_DIMENSION;
+    const quality = options.quality || PHOTO_RESIZE_QUALITY;
+
+    if (!file || !String(file.type || "").startsWith("image/")) return file;
+    // Vector — nothing to rasterize/shrink.
+    if (file.type === "image/svg+xml") return file;
+
+    let bitmap = null;
+    try {
+      bitmap = await withTimeout(createImageBitmap(file), 15000, "Photo resize");
+      const { width, height } = bitmap;
+
+      // Already small enough — skip re-encoding entirely rather than
+      // recompress-for-no-size-benefit and risk visible quality loss.
+      if (width <= maxDimension && height <= maxDimension) {
+        return file;
+      }
+
+      const scale = maxDimension / Math.max(width, height);
+      const targetW = Math.max(1, Math.round(width * scale));
+      const targetH = Math.max(1, Math.round(height * scale));
+
+      const canvas = document.createElement("canvas");
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(bitmap, 0, 0, targetW, targetH);
+
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(
+          (result) => (result ? resolve(result) : reject(new Error("Canvas toBlob failed"))),
+          "image/jpeg",
+          quality
+        );
+      });
+
+      // Always re-encoded as JPEG (matches the existing HEIC->JPEG
+      // conversion above) — these are camera photos, not transparent PNG
+      // graphics, so this trade-off is consistent with what already happens
+      // to every HEIC upload on this same code path.
+      const baseName = String(file.name || "photo").replace(/\.[a-z0-9]+$/i, "");
+      return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
+    } catch (error) {
+      console.warn("[SEA-V] Photo resize failed, uploading original file:", error);
+      return file;
+    } finally {
+      bitmap?.close?.();
+    }
+  }
+
+  window.SeavUpload = {
+    uploadToStorage,
+    isHeicFile,
+    buildPreviewUrl,
+    PHOTO_MAX_BYTES,
+    resizePhotoIfNeeded
+  };
 })();

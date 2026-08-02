@@ -383,7 +383,8 @@ function readTenderForm() {
       file,
       existingMeta: existingPhoto,
       kind: "Tender photo",
-      maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES
+      maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES,
+      resizeImage: true
     }) ?? existingPhoto ?? null;
   }
 

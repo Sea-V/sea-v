@@ -490,7 +490,8 @@
         file,
         existingMeta: existingPhoto,
         kind: "Photo",
-        maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES
+        maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES,
+        resizeImage: true
       }) ?? existingPhoto ?? null;
     }
 

@@ -244,7 +244,7 @@
       .map(
         (photo, index) => `
           <div class="hi-modal-photo-thumb">
-            <img src="${Seav.escapeHtml(getPhotoUrl(photo))}" alt="" />
+            <img src="${Seav.escapeHtml(getPhotoUrl(photo))}" alt="" loading="lazy" />
             <button type="button" class="hi-modal-photo-remove" data-remove-hi-photo="${index}" aria-label="Remove photo">&times;</button>
           </div>
         `
@@ -296,7 +296,8 @@
       existingMeta: null,
       kind: "Photo",
       errorHint: "Run docs/hobbies-interests-table.sql in Supabase (storage bucket + policies).",
-      maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES
+      maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES,
+      resizeImage: true
     });
   }
 

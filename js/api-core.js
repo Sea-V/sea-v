@@ -260,30 +260,152 @@ async function hydrateEntityFiles(item, table, options = {}) {
   return next;
 }
 
+/** Fetch many signed URLs for one bucket in a single request instead of one
+    createSignedUrl call per file. Jack reported slow photo loads 2026-08-02
+    — part of the cause was that even though individual createSignedUrl
+    calls ran concurrently (Promise.all), a page with N photos still meant N
+    separate authenticated Storage API requests. createSignedUrls (plural)
+    batches an entire bucket's worth into a single HTTP round trip. Every
+    path is checked against the sessionStorage cache first, so a warm cache
+    costs nothing here regardless of how many files are requested. */
+async function batchResolveSignedUrls(bucket, paths, expiresIn, clientOverride = null) {
+  const result = {};
+  if (!bucket || !Array.isArray(paths) || !paths.length) return result;
+
+  const uncached = [];
+  paths.forEach((path) => {
+    const cached = readSignedUrlCache(bucket, path);
+    if (cached) {
+      result[path] = cached;
+    } else {
+      uncached.push(path);
+    }
+  });
+  if (!uncached.length) return result;
+
+  const client = clientOverride || window.SeavSupabase;
+  if (!client) return result;
+
+  try {
+    const { data, error } = await client.storage.from(bucket).createSignedUrls(uncached, expiresIn);
+    if (!error && Array.isArray(data)) {
+      data.forEach((entry) => {
+        if (entry?.signedUrl && !entry.error) {
+          writeSignedUrlCache(bucket, entry.path, entry.signedUrl, expiresIn);
+          result[entry.path] = entry.signedUrl;
+        }
+      });
+    }
+  } catch (err) {
+    console.warn(`[SEA-V] Batch signed URL fetch failed for bucket "${bucket}":`, err);
+  }
+  return result;
+}
+
+function fileNeedsBatchHydration(fileMeta, bucket) {
+  if (!fileMeta || typeof fileMeta === "string" || fileMeta.dataUrl || !fileMeta.path) return false;
+  const b = fileMeta.bucket || bucket;
+  return !!b && storedFileNeedsHydration(fileMeta, b);
+}
+
+/** List-level hydration (many items x possibly-multiple file fields, e.g. the
+    dashboard/state.js background pass over vessels/tenders/hobbies/etc). One
+    pass collects every distinct (bucket, path) across all items and fields,
+    then batchResolveSignedUrls fetches each bucket's paths in a single
+    request instead of hydrateEntityFiles' old one-call-per-file approach. */
 async function hydrateArrayFiles(items, table, options = {}) {
   if (!Array.isArray(items) || !items.length) return items || [];
   if (options.skipFiles) return items;
-  return Promise.all(items.map((item) => hydrateEntityFiles(item, table, options)));
+
+  const fields = ENTITY_FILE_FIELDS[table];
+  if (!fields?.length) return items;
+
+  const client = options.client || window.SeavSupabase;
+  const pathsByBucket = new Map();
+
+  function collect(fileMeta, bucket) {
+    if (!fileNeedsBatchHydration(fileMeta, bucket)) return;
+    const b = fileMeta.bucket || bucket;
+    if (!pathsByBucket.has(b)) pathsByBucket.set(b, new Set());
+    pathsByBucket.get(b).add(fileMeta.path);
+  }
+
+  items.forEach((item) => {
+    if (!item) return;
+    fields.forEach((cfg) => {
+      if (cfg.isArray) {
+        (Array.isArray(item[cfg.field]) ? item[cfg.field] : []).forEach((f) => collect(f, cfg.bucket));
+      } else {
+        collect(item[cfg.field], cfg.bucket);
+      }
+    });
+  });
+
+  if (!pathsByBucket.size) return items;
+
+  const urlsByBucket = {};
+  await Promise.all(
+    Array.from(pathsByBucket.entries()).map(async ([bucket, pathSet]) => {
+      urlsByBucket[bucket] = await batchResolveSignedUrls(
+        bucket,
+        Array.from(pathSet),
+        signedUrlExpiry(bucket),
+        client
+      );
+    })
+  );
+
+  function applyUrl(fileMeta, bucket) {
+    if (!fileMeta || typeof fileMeta === "string" || fileMeta.dataUrl || !fileMeta.path) return fileMeta;
+    const b = fileMeta.bucket || bucket;
+    const url = urlsByBucket[b]?.[fileMeta.path];
+    return url ? { ...fileMeta, url } : fileMeta;
+  }
+
+  return items.map((item) => {
+    if (!item) return item;
+    const next = { ...item };
+    fields.forEach((cfg) => {
+      if (cfg.isArray) {
+        const files = Array.isArray(next[cfg.field]) ? next[cfg.field] : [];
+        next[cfg.field] = files.map((f) => applyUrl(f, cfg.bucket));
+      } else if (next[cfg.field]) {
+        next[cfg.field] = applyUrl(next[cfg.field], cfg.bucket);
+      }
+    });
+    return next;
+  });
 }
 
-/** Hydrate one file field on in-memory items before rendering (photos, attachments). */
+/** Hydrate one file field on in-memory items before rendering (photos,
+    attachments) — the page-level equivalent of hydrateArrayFiles above, used
+    by vessels/tenders/references/seatime/etc's own list loaders. Mutates
+    items in place (callers rely on this, e.g. vessels.js doesn't reassign
+    its own array), just like before; the difference is a single batched
+    createSignedUrls call per invocation instead of one createSignedUrl call
+    per item. */
 async function hydrateItemsFileField(items, field, bucket, options = {}) {
   if (!Array.isArray(items) || !items.length) return items;
   const client = options.client || window.SeavSupabase;
 
-  await Promise.all(
-    items.map(async (item) => {
-      if (!item) return;
-      const file = item[field];
-      if (!file || file.dataUrl || typeof file === "string") return;
-      if (!file.path) return;
+  const pathSet = new Set();
+  items.forEach((item) => {
+    const file = item?.[field];
+    if (fileNeedsBatchHydration(file, bucket)) pathSet.add(file.path);
+  });
 
-      const hasDisplayUrl = !!getStoredFileDisplayUrl(file, bucket);
-      if (!storedFileNeedsHydration(file, bucket) && hasDisplayUrl) return;
+  if (!pathSet.size) return items;
 
-      item[field] = await hydrateFileMeta(file, bucket, client);
-    })
-  );
+  const urls = await batchResolveSignedUrls(bucket, Array.from(pathSet), signedUrlExpiry(bucket), client);
+  if (!Object.keys(urls).length) return items;
+
+  items.forEach((item) => {
+    if (!item) return;
+    const file = item[field];
+    if (!file || typeof file === "string" || !file.path) return;
+    const url = urls[file.path];
+    if (url) item[field] = { ...file, url };
+  });
 
   return items;
 }
