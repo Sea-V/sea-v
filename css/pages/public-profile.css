@@ -1084,6 +1084,148 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   gap: 5px;
 }
 
+/* =========================================================
+   ONBOARD SKILLS — collapsible self-assessment sub-section
+   nested inside the Onboard experience card. Read-only stars:
+   plain <span> markup, no hover/cursor affordance, since a
+   stranger viewing this profile can never edit it. Mirrors the
+   vessel-group toggle language above but is a single on/off
+   region rather than one-per-vessel.
+========================================================= */
+
+.public-onboard-skills-wrap {
+  margin-top: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+}
+
+.public-onboard-skills-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.public-onboard-skills-toggle:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.public-onboard-skills-toggle:focus-visible {
+  outline: 2px solid rgba(91, 188, 255, 0.6);
+  outline-offset: -2px;
+}
+
+.public-onboard-skills-toggle-label {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.public-onboard-skills-wrap.is-expanded .public-onboard-vessel-chevron {
+  transform: rotate(180deg);
+}
+
+.public-onboard-skills-body {
+  padding: 0 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.public-onboard-skill-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.public-onboard-skill-group-title {
+  margin: 0;
+  color: var(--page-onboard-experience, #ff8fab);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.public-onboard-skill-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.public-onboard-skill-row:last-child {
+  border-bottom: none;
+}
+
+.public-onboard-skill-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.public-onboard-skill-name {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 11.5px;
+  font-weight: 400;
+}
+
+.public-onboard-skill-row-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.public-onboard-skill-stars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.public-onboard-skill-star {
+  display: inline-flex;
+  width: 13px;
+  height: 13px;
+  color: rgba(255, 255, 255, 0.18);
+}
+
+.public-onboard-skill-star svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.public-onboard-skill-star.is-filled {
+  color: var(--page-onboard-experience, #ff8fab);
+}
+
+.public-onboard-skill-row-label {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.public-onboard-skill-note {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 /* Empty-state block shown inside a section with no data yet — every
    public-profile section always renders now (see js/public-profile-sections.js
    buildEmptyState), so this replaces the old "hide the whole card" behavior.

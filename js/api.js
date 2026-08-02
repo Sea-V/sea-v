@@ -140,6 +140,9 @@
       "position_held", "date_from", "date_to", "hours", "is_familiarisation", "status",
       "attachment", "created_at", "updated_at"
     ].join(","),
+    onboard_skills: [
+      "id", "user_id", "category", "skill", "rating", "note", "created_at", "updated_at"
+    ].join(","),
     hobbies_interests: [
       "id", "user_id", "category", "title", "description", "date_from", "date_to",
       "status", "photos", "created_at", "updated_at"

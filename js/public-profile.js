@@ -292,6 +292,7 @@
           refs,
           navigationAreas,
           onboardEntries,
+          onboardSkills,
           hobbyEntries,
           specialistEntries,
           achievements,
@@ -303,6 +304,7 @@
           loadPublicData(ownerId, KEYS.REFS, profile),
           loadPublicData(ownerId, KEYS.NAVIGATION_AREAS, profile),
           loadPublicData(ownerId, KEYS.ONBOARD_EXPERIENCES, profile),
+          loadPublicData(ownerId, KEYS.ONBOARD_SKILLS, profile),
           loadPublicData(ownerId, KEYS.HOBBIES_INTERESTS, profile),
           loadPublicData(ownerId, KEYS.SPECIALIST_QUALIFICATIONS, profile),
           loadPublicData(ownerId, KEYS.ACHIEVEMENTS, profile),
@@ -326,6 +328,7 @@
         sections.renderTenders(tenders, vessels, isOwner);
         await sections.renderNavigation(navigationAreas, vessels, navigationDistanceMap, isOwner);
         sections.renderOnboardExperience(onboardEntries, vessels, isOwner);
+        sections.renderOnboardSkills(onboardSkills, isOwner);
         sections.renderHobbiesInterests(hobbyEntries, isOwner);
         sections.renderSpecialistQualifications(specialistEntries, isOwner);
         sections.renderCertificates(certs, isOwner);

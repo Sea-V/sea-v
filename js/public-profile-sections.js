@@ -15,7 +15,10 @@
     getCertExpiryInfo,
     isSuppressedAdditionalCert,
     isSavedCert,
-    getSeatimeTotals
+    getSeatimeTotals,
+    ONBOARD_SKILL_CATEGORIES,
+    getOnboardSkillCategoryLabel,
+    getOnboardSkillRatingLabel
   } = window.SeavData;
 
   const U = window.SeavPublicProfileUtils || {};
@@ -40,9 +43,21 @@
   // No CERT_FILE_BUCKET here — the public certificate row never links to the
   // attachment file (see js/api.js's certificates PUBLIC_ARRAY_COLUMNS note).
 
+  // Same star glyph as the editable rating widget in js/onboard-experience.js
+  // (renderStarButtons) — kept as plain <span> markup here (no <button>, no
+  // click handlers) since a stranger viewing a public profile must never be
+  // able to interact with someone else's self-assessment.
+  const PP_SKILL_STAR_PATH =
+    "M12 2.5l2.95 5.98 6.6.96-4.78 4.66 1.13 6.57L12 17.77l-5.9 3.1 1.13-6.57L2.45 9.44l6.6-.96L12 2.5z";
+
   let ppNavigationChart = null;
   let ppNavigationLayer = null;
   let ppCountryHighlightLayer = null;
+
+  // Whether the "Skills self-assessment" collapsible sub-block is open.
+  // Just one boolean (not a per-category Set like the onboard-experience
+  // vessel groups) since there's a single toggle for the whole sub-section.
+  let ppOnboardSkillsExpanded = false;
 
   // Tracks which vessel groups are open in the onboard experience section
   // (keyed by vesselId, "" for "no vessel linked"). Kept in a Set rather
@@ -737,6 +752,105 @@
     section.hidden = false;
   }
 
+  function buildReadOnlyStars(rating) {
+    const value = Number(rating) || 0;
+    let html = "";
+    for (let i = 1; i <= 5; i += 1) {
+      const filled = i <= value;
+      html += `<span class="public-onboard-skill-star${filled ? " is-filled" : ""}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="${PP_SKILL_STAR_PATH}"/></svg></span>`;
+    }
+    return html;
+  }
+
+  function buildSkillRow(entry) {
+    const noteHtml = entry.note
+      ? `<p class="public-onboard-skill-note">${Seav.escapeHtml(entry.note)}</p>`
+      : "";
+
+    return `
+      <div class="public-onboard-skill-row">
+        <div class="public-onboard-skill-row-top">
+          <span class="public-onboard-skill-name">${Seav.escapeHtml(entry.skill)}</span>
+          <div class="public-onboard-skill-row-right">
+            <div class="public-onboard-skill-stars" role="img" aria-label="${Seav.escapeHtml(
+              getOnboardSkillRatingLabel(entry.rating) || `${Number(entry.rating) || 0} out of 5`
+            )}">
+              ${buildReadOnlyStars(entry.rating)}
+            </div>
+            <span class="public-onboard-skill-row-label">${Seav.escapeHtml(
+              getOnboardSkillRatingLabel(entry.rating)
+            )}</span>
+          </div>
+        </div>
+        ${noteHtml}
+      </div>
+    `;
+  }
+
+  function buildSkillCategoryGroup(category, items) {
+    return `
+      <div class="public-onboard-skill-group">
+        <h4 class="public-onboard-skill-group-title">${Seav.escapeHtml(
+          getOnboardSkillCategoryLabel(category)
+        )}</h4>
+        ${items.map(buildSkillRow).join("")}
+      </div>
+    `;
+  }
+
+  // Collapsible "Skills self-assessment" sub-section nested inside the
+  // Onboard experience card — see #ppOnboardSkillsWrap in public-profile.html.
+  // Hidden entirely (not an empty-state CTA) when the profile owner hasn't
+  // rated any skills, since this is a bonus add-on to the main logbook above.
+  function renderOnboardSkills(skillEntries) {
+    const wrap = document.getElementById("ppOnboardSkillsWrap");
+    const body = document.getElementById("ppOnboardSkillsBody");
+    const toggle = document.getElementById("ppOnboardSkillsToggle");
+    if (!wrap || !body || !toggle) return;
+
+    const entries = skillEntries || [];
+
+    if (!entries.length) {
+      wrap.hidden = true;
+      body.innerHTML = "";
+      return;
+    }
+
+    const groups = ONBOARD_SKILL_CATEGORIES.map((cat) => ({
+      category: cat.value,
+      items: entries.filter((entry) => entry.category === cat.value)
+    })).filter((group) => group.items.length);
+
+    body.innerHTML = groups
+      .map((group) => buildSkillCategoryGroup(group.category, group.items))
+      .join("");
+
+    setSectionCount("ppOnboardSkillsCount", entries.length);
+
+    toggle.setAttribute("aria-expanded", ppOnboardSkillsExpanded ? "true" : "false");
+    wrap.classList.toggle("is-expanded", ppOnboardSkillsExpanded);
+    body.hidden = !ppOnboardSkillsExpanded;
+    wrap.hidden = false;
+  }
+
+  // Single delegated toggle for the whole Skills sub-block (simpler than the
+  // per-vessel-group Set used for onboard experience above — there's only
+  // ever one collapsible region here).
+  document.addEventListener("click", (e) => {
+    const toggleBtn = e.target.closest("#ppOnboardSkillsToggle");
+    if (!toggleBtn) return;
+    e.preventDefault();
+
+    const wrap = document.getElementById("ppOnboardSkillsWrap");
+    const body = document.getElementById("ppOnboardSkillsBody");
+    if (!wrap || !body) return;
+
+    ppOnboardSkillsExpanded = !ppOnboardSkillsExpanded;
+    toggleBtn.setAttribute("aria-expanded", ppOnboardSkillsExpanded ? "true" : "false");
+    wrap.classList.toggle("is-expanded", ppOnboardSkillsExpanded);
+    body.hidden = !ppOnboardSkillsExpanded;
+  });
+
   // Delegated, bound once at script load — mirrors the edit page's own
   // [data-toggle-vessel-id] handler in js/onboard-experience.js. Reading
   // expand state back out of expandedOnboardVesselIds (rather than the DOM)
@@ -1205,6 +1319,7 @@
     renderTenders,
     renderNavigation,
     renderOnboardExperience,
+    renderOnboardSkills,
     renderHobbiesInterests,
     renderCertificates,
     renderSpecialistQualifications,
