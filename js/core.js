@@ -66,15 +66,17 @@
     return new Date().getFullYear();
   }
 
+  // Plain chronological order (oldest at top, newest at bottom) — scrolling
+  // up in the list means further into the past, scrolling down means further
+  // into the future, matching how every other date picker on the web orders
+  // years. This used to list the current year first, then jump up through
+  // future years, then jump back down through past years, which read as a
+  // random shuffle rather than a year list.
   function buildYearOptionsHtml() {
     const now = getCurrentYear();
     const options = ['<option value="">Year</option>'];
 
-    for (let year = now; year <= now + DATE_YEAR_FUTURE; year += 1) {
-      options.push(`<option value="${year}">${year}</option>`);
-    }
-
-    for (let year = now - 1; year >= DATE_YEAR_MIN; year -= 1) {
+    for (let year = DATE_YEAR_MIN; year <= now + DATE_YEAR_FUTURE; year += 1) {
       options.push(`<option value="${year}">${year}</option>`);
     }
 
