@@ -550,6 +550,27 @@ function mapOnboardExperienceToSupabase(item) {
   };
 }
 
+function mapOnboardSkillFromSupabase(row) {
+  return {
+    id: row.id,
+    category: row.category || "",
+    skill: row.skill || "",
+    rating: row.rating || 0,
+    createdAt: row.created_at || "",
+    updatedAt: row.updated_at || ""
+  };
+}
+
+function mapOnboardSkillToSupabase(item) {
+  return {
+    id: item.id,
+    category: item.category || "",
+    skill: item.skill || "",
+    rating: item.rating || 0,
+    updated_at: new Date().toISOString()
+  };
+}
+
 function mapHobbyInterestFromSupabase(row) {
   return {
     id: row.id,
@@ -662,6 +683,7 @@ function mapPayslipToSupabase(item) {
     mapNavigationAreaFromSupabase, mapNavigationAreaToSupabase, normalizeWaypoints,
     mapSignoffFromSupabase, mapSignoffToSupabase,
     mapOnboardExperienceFromSupabase, mapOnboardExperienceToSupabase,
+    mapOnboardSkillFromSupabase, mapOnboardSkillToSupabase,
     mapHobbyInterestFromSupabase, mapHobbyInterestToSupabase,
     mapSpecialistQualificationFromSupabase, mapSpecialistQualificationToSupabase,
     mapPayslipFromSupabase, mapPayslipToSupabase

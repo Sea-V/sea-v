@@ -14,10 +14,15 @@
     getVesselColor,
     formatDatePretty,
     ONBOARD_EXPERIENCE_CATEGORIES,
-    getOnboardCategoryLabel
+    getOnboardCategoryLabel,
+    ONBOARD_SKILL_CATEGORIES,
+    getOnboardSkillCategoryLabel,
+    getOnboardSkillsForCategory,
+    getOnboardSkillRatingLabel
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.ONBOARD_EXPERIENCES;
+  const SKILL_STORAGE_KEY = KEYS.ONBOARD_SKILLS;
   const OE_FILE_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.ONBOARD_EXPERIENCE_FILES ||
     "onboard-experience-files";
@@ -579,6 +584,289 @@
     }) ?? existing ?? null;
   }
 
+  /* =========================================================
+     SKILLS — self-assessed skills profile (Deck/Officer + Engineering)
+     Separate from the logbook above: fast tap-to-rate, no vessel/dates/
+     sign-off. See docs/onboard-skills-table.sql.
+  ========================================================= */
+
+  const STAR_PATH =
+    "M12 2.5l2.95 5.98 6.6.96-4.78 4.66 1.13 6.57L12 17.77l-5.9 3.1 1.13-6.57L2.45 9.44l6.6-.96L12 2.5z";
+
+  function getSkillEntries() {
+    return window.SeavState?.onboardSkills || [];
+  }
+
+  function renderStarButtons(rating) {
+    const value = Number(rating) || 0;
+    let html = "";
+    for (let i = 1; i <= 5; i += 1) {
+      const filled = i <= value;
+      html += `
+        <button
+          type="button"
+          class="onboard-star-btn${filled ? " is-filled" : ""}"
+          data-star-value="${i}"
+          aria-label="${i} star${i > 1 ? "s" : ""}"
+          aria-pressed="${filled ? "true" : "false"}"
+        ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${STAR_PATH}"/></svg></button>
+      `;
+    }
+    return html;
+  }
+
+  function populateSkillCategoryOptions() {
+    const select = document.getElementById("skillCategorySelect");
+    if (!select) return;
+
+    const current = select.value || "";
+    select.innerHTML = `
+      <option value="">Choose a category</option>
+      ${ONBOARD_SKILL_CATEGORIES.map(
+        (item) =>
+          `<option value="${Seav.escapeHtml(item.value)}">${Seav.escapeHtml(item.label)}</option>`
+      ).join("")}
+    `;
+    if (current) select.value = current;
+  }
+
+  function populateSkillNameOptions(category) {
+    const select = document.getElementById("skillNameSelect");
+    if (!select) return;
+
+    if (!category) {
+      select.innerHTML = `<option value="">Choose a category first</option>`;
+      select.disabled = true;
+      return;
+    }
+
+    const already = new Set(
+      getSkillEntries()
+        .filter((s) => s.category === category)
+        .map((s) => s.skill)
+    );
+    const available = getOnboardSkillsForCategory(category).filter(
+      (skill) => !already.has(skill)
+    );
+
+    if (!available.length) {
+      select.innerHTML = `<option value="">All ${Seav.escapeHtml(
+        getOnboardSkillCategoryLabel(category)
+      )} skills added</option>`;
+      select.disabled = true;
+      return;
+    }
+
+    select.innerHTML = `
+      <option value="">Choose a skill</option>
+      ${available
+        .map((skill) => `<option value="${Seav.escapeHtml(skill)}">${Seav.escapeHtml(skill)}</option>`)
+        .join("")}
+    `;
+    select.disabled = false;
+  }
+
+  function renderSkillRatingInput(rating) {
+    const container = document.getElementById("skillRatingInput");
+    if (!container) return;
+    container.setAttribute("data-rating", String(rating));
+    container.innerHTML = renderStarButtons(rating);
+  }
+
+  function groupSkillsByCategory(skills) {
+    return ONBOARD_SKILL_CATEGORIES.map((cat) => ({
+      category: cat.value,
+      label: cat.label,
+      items: skills.filter((s) => s.category === cat.value)
+    })).filter((group) => group.items.length);
+  }
+
+  function renderSkillRow(entry) {
+    return `
+      <div class="onboard-skill-row">
+        <span class="onboard-skill-row-name">${Seav.escapeHtml(entry.skill)}</span>
+        <div class="onboard-skill-row-right">
+          <div class="onboard-skill-stars" data-skill-id="${Seav.escapeHtml(entry.id)}">
+            ${renderStarButtons(entry.rating)}
+          </div>
+          <span class="onboard-skill-row-label">${Seav.escapeHtml(
+            getOnboardSkillRatingLabel(entry.rating)
+          )}</span>
+          <button
+            type="button"
+            class="onboard-skill-remove"
+            data-remove-skill-id="${Seav.escapeHtml(entry.id)}"
+            aria-label="Remove ${Seav.escapeHtml(entry.skill)}"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSkillGroups() {
+    const list = document.getElementById("skillGroupsList");
+    if (!list) return;
+
+    const skills = getSkillEntries();
+    if (!skills.length) {
+      list.innerHTML = `
+        <p class="muted onboard-skill-empty">
+          No skills rated yet — pick a category and skill above to get started.
+        </p>
+      `;
+      return;
+    }
+
+    const groups = groupSkillsByCategory(skills);
+    list.innerHTML = groups
+      .map(
+        (group) => `
+          <div class="onboard-skill-group">
+            <h4 class="onboard-skill-group-title">${Seav.escapeHtml(group.label)}</h4>
+            <div class="onboard-skill-group-list">
+              ${group.items.map(renderSkillRow).join("")}
+            </div>
+          </div>
+        `
+      )
+      .join("");
+  }
+
+  async function addSkill() {
+    const categorySelect = document.getElementById("skillCategorySelect");
+    const skillSelect = document.getElementById("skillNameSelect");
+    const ratingInput = document.getElementById("skillRatingInput");
+
+    const category = categorySelect?.value || "";
+    const skill = skillSelect?.value || "";
+    const rating = Number(ratingInput?.getAttribute("data-rating") || 0);
+
+    if (!category || !skill) {
+      Seav.notify("error", "Missing details", "Choose a category and a skill first.");
+      return;
+    }
+    if (!rating) {
+      Seav.notify("error", "Missing rating", "Tap a star to set your level before adding.");
+      return;
+    }
+
+    await Seav.withSaving(
+      async () => {
+        const now = new Date().toISOString();
+        await SeavAPI.upsertItemById(SKILL_STORAGE_KEY, {
+          id: createId("skill"),
+          category,
+          skill,
+          rating,
+          createdAt: now,
+          updatedAt: now
+        });
+
+        if (skillSelect) skillSelect.value = "";
+        renderSkillRatingInput(0);
+        populateSkillNameOptions(category);
+
+        Seav.notify("success", "Skill added", `${skill} saved to your skills profile.`);
+
+        if (window.Seav.app?.refreshAll) {
+          await window.Seav.app.refreshAll();
+        } else {
+          await refreshView();
+        }
+      },
+      { sub: "Saving skill" }
+    );
+  }
+
+  async function updateSkillRating(skillId, rating) {
+    const entry = getSkillEntries().find((item) => item.id === skillId);
+    if (!entry) return;
+
+    await Seav.withSaving(
+      async () => {
+        await SeavAPI.updateItemById(SKILL_STORAGE_KEY, skillId, { ...entry, rating });
+
+        if (window.Seav.app?.refreshAll) {
+          await window.Seav.app.refreshAll();
+        } else {
+          await refreshView();
+        }
+      },
+      { sub: "Updating skill rating" }
+    );
+  }
+
+  async function removeSkill(skillId) {
+    const entry = getSkillEntries().find((item) => item.id === skillId);
+    if (
+      !Seav.confirmDelete({
+        itemName: entry?.skill || "",
+        itemLabel: "skill"
+      })
+    ) {
+      return;
+    }
+
+    await SeavAPI.deleteItemById(SKILL_STORAGE_KEY, skillId);
+
+    if (window.Seav.app?.refreshAll) {
+      await window.Seav.app.refreshAll();
+    } else {
+      await refreshView();
+    }
+  }
+
+  function initSkillsSection() {
+    if (!document.getElementById("skillGroupsList")) return;
+
+    populateSkillCategoryOptions();
+    renderSkillRatingInput(0);
+
+    const categorySelect = document.getElementById("skillCategorySelect");
+    if (categorySelect) {
+      categorySelect.addEventListener("change", () => {
+        populateSkillNameOptions(categorySelect.value);
+        renderSkillRatingInput(0);
+      });
+    }
+
+    const addBtn = document.getElementById("addSkillBtn");
+    if (addBtn) {
+      addBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        addSkill();
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      const starBtn = e.target.closest(".onboard-star-btn");
+      if (starBtn) {
+        e.preventDefault();
+        const value = Number(starBtn.getAttribute("data-star-value") || 0);
+        const container = starBtn.closest(".onboard-skill-stars");
+        if (!container) return;
+
+        const skillId = container.getAttribute("data-skill-id");
+        if (skillId) {
+          updateSkillRating(skillId, value);
+        } else if (container.id === "skillRatingInput") {
+          renderSkillRatingInput(value);
+        }
+        return;
+      }
+
+      const removeBtn = e.target.closest("[data-remove-skill-id]");
+      if (removeBtn) {
+        e.preventDefault();
+        removeSkill(removeBtn.getAttribute("data-remove-skill-id"));
+      }
+    });
+  }
+
   async function refreshView() {
     try {
       await ensureOnboardAttachmentsHydrated();
@@ -590,6 +878,12 @@
     populateCategoryOptions();
     renderKpis();
     renderList();
+
+    if (document.getElementById("skillGroupsList")) {
+      const categorySelect = document.getElementById("skillCategorySelect");
+      populateSkillNameOptions(categorySelect?.value || "");
+      renderSkillGroups();
+    }
   }
 
   function initOnboardExperience() {
@@ -602,6 +896,7 @@
     }
 
     populateCategoryOptions();
+    initSkillsSection();
 
     const runRefresh = () => refreshView();
 

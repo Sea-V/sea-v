@@ -16,6 +16,7 @@
     ACHIEVEMENTS: "seav_achievements",
     TENDERS: "seav_tenders",
     ONBOARD_EXPERIENCES: "seav_onboard_experiences",
+    ONBOARD_SKILLS: "seav_onboard_skills",
     HOBBIES_INTERESTS: "seav_hobbies_interests",
     SPECIALIST_QUALIFICATIONS: "seav_specialist_qualifications",
     PAYSLIPS: "seav_payslips",
@@ -749,6 +750,98 @@ function getOnboardCategoryLabel(value) {
   return match?.label || value || "—";
 }
 
+/* =========================================================
+   ONBOARD SKILLS — self-assessed skills profile
+   Deck/Officer + Engineering only (scope confirmed with Jack 2026-08-02).
+   Separate from the dated/signed-off Onboard Experience logbook above:
+   this is a fast tap-to-rate skills snapshot, no vessel/dates/sign-off.
+========================================================= */
+
+const ONBOARD_SKILL_CATEGORIES = [
+  { value: "deck", label: "Deck / Officer" },
+  { value: "engineering", label: "Engineering" }
+];
+
+const ONBOARD_SKILL_CATALOG = {
+  deck: [
+    "General repairs and maintenance",
+    "Teak deck care",
+    "Painting",
+    "Varnishing",
+    "Carpentry",
+    "Filling and fairing",
+    "Rigging",
+    "Whipping and splicing",
+    "Line handling",
+    "Anchor handling",
+    "Crane operation",
+    "Tender maintenance",
+    "Tender driving",
+    "Small boat handling",
+    "Piloting and manoeuvring",
+    "Watchkeeping (navigation and seamanship)",
+    "Underwater maintenance",
+    "Scuba diving and water sports",
+    "Safety and emergency response",
+    "Ship security",
+    "ISM / ISPS management and procedures"
+  ],
+  engineering: [
+    "Diesel engines",
+    "Mechanical systems",
+    "Generators and alternators",
+    "Electrical systems",
+    "Hydraulic systems",
+    "Refrigeration",
+    "Air conditioning",
+    "Water makers",
+    "Water and waste treatment",
+    "Plumbing systems",
+    "Navigation and radar systems",
+    "Gearboxes",
+    "Steering gear",
+    "Propeller systems",
+    "AV and IT",
+    "Planned maintenance software (AMOS, IDEA, TRITON etc)",
+    "Bow thruster",
+    "Stabilisers",
+    "Dynamic positioning systems",
+    "High voltage systems and safety"
+  ]
+};
+
+const ONBOARD_SKILL_RATING_LABELS = {
+  1: "Novice",
+  2: "Some experience",
+  3: "Competent",
+  4: "Very good",
+  5: "Proficient"
+};
+
+function getOnboardSkillCategoryLabel(value) {
+  const match = ONBOARD_SKILL_CATEGORIES.find((item) => item.value === value);
+  return match?.label || value || "—";
+}
+
+function getOnboardSkillsForCategory(category) {
+  return ONBOARD_SKILL_CATALOG[category] || [];
+}
+
+function getOnboardSkillRatingLabel(rating) {
+  return ONBOARD_SKILL_RATING_LABELS[toNumber(rating)] || "";
+}
+
+function getEmptyOnboardSkillEntry() {
+  return {
+    id: createId("skill"),
+    category: "",
+    skill: "",
+    rating: 0,
+    createdAt: "",
+    updatedAt: ""
+  };
+}
+
 function getEmptyHobbyInterestEntry() {
   return {
     id: createId("hobby"),
@@ -1387,6 +1480,11 @@ window.SeavData = {
   ONBOARD_EXPERIENCE_CATEGORIES,
   getEmptyOnboardExperienceEntry,
   getOnboardCategoryLabel,
+  ONBOARD_SKILL_CATEGORIES,
+  getOnboardSkillCategoryLabel,
+  getOnboardSkillsForCategory,
+  getOnboardSkillRatingLabel,
+  getEmptyOnboardSkillEntry,
   HOBBIES_INTEREST_CATEGORIES,
   getEmptyHobbyInterestEntry,
   getHobbyInterestCategoryLabel,

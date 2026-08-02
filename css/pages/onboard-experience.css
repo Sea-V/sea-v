@@ -486,6 +486,240 @@
 }
 
 
+/* =========================================================
+   SKILLS — self-assessed skills profile
+   Deck/Officer + Engineering only. Separate visual language from the
+   logbook cards above (no vessel grouping, no sign-off panels) — this is
+   a fast add-row plus a flat rated list.
+========================================================= */
+
+.onboard-skills-section {
+  margin-top: 8px;
+  padding-top: 26px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.onboard-skill-add-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  align-items: end;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 143, 171, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.onboard-skill-add-row label {
+  display: block;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
+}
+
+.onboard-skill-add-row select {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--field-value-color);
+  color-scheme: dark;
+  font: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.onboard-skill-add-row select:disabled {
+  opacity: 0.55;
+}
+
+.onboard-skill-add-row select:focus {
+  outline: none;
+  border-color: rgba(255, 143, 171, 0.45);
+  box-shadow: 0 0 0 3px rgba(255, 143, 171, 0.12);
+}
+
+.onboard-skill-rating-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.onboard-skill-rating-field-label {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
+}
+
+.onboard-skill-stars {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.onboard-star-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: color 0.12s ease, transform 0.12s ease;
+}
+
+.onboard-star-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.onboard-star-btn:hover {
+  color: rgba(255, 143, 171, 0.6);
+  transform: scale(1.08);
+}
+
+.onboard-star-btn.is-filled {
+  color: #ff8fab;
+}
+
+.onboard-skill-add-row .btn-blue {
+  height: 46px;
+  white-space: nowrap;
+}
+
+.onboard-skill-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.onboard-skill-empty {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+}
+
+.onboard-skill-group-title {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.onboard-skill-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.onboard-skill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.onboard-skill-row-name {
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.onboard-skill-row-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.onboard-skill-row-right .onboard-skill-stars {
+  margin-top: 0;
+}
+
+.onboard-skill-row-right .onboard-star-btn {
+  width: 22px;
+  height: 22px;
+}
+
+.onboard-skill-row-right .onboard-star-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.onboard-skill-row-label {
+  min-width: 92px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.onboard-skill-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.onboard-skill-remove svg {
+  width: 14px;
+  height: 14px;
+}
+
+.onboard-skill-remove:hover {
+  color: #ff8fab;
+  background: rgba(255, 143, 171, 0.12);
+}
+
+@media (max-width: 900px) {
+  .onboard-skill-add-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .onboard-skill-add-row .btn-blue {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .onboard-skill-add-row {
+    grid-template-columns: 1fr;
+  }
+
+  .onboard-skill-row {
+    flex-wrap: wrap;
+  }
+
+  .onboard-skill-row-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
 @media (max-width: 900px) {
   .onboard-shell-head {
     grid-template-columns: 1fr;

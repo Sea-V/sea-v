@@ -10,7 +10,7 @@
     STORAGE_BUCKETS, ENTITY_FILE_FIELDS, getAuthUserId, resolveAuthUserId,
     isVesselKey, isSeatimeKey, isCertKey, isRefKey, isProfileKey,
     isTenderKey, isAchievementKey, isNavigationAreaKey, isOnboardExperienceKey,
-    isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,
+    isOnboardSkillKey, isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,
     resolveStorageFileUrl, sanitizeFileForStorage, buildUploadedFileMeta,
     hydrateProfilePhoto, withUserId, findIndexById, hydrateArrayFiles
   } = Core;
@@ -25,6 +25,7 @@
     mapAchievementFromSupabase, mapAchievementToSupabase,
     mapNavigationAreaFromSupabase, mapNavigationAreaToSupabase,
     mapOnboardExperienceFromSupabase, mapOnboardExperienceToSupabase,
+    mapOnboardSkillFromSupabase, mapOnboardSkillToSupabase,
     mapHobbyInterestFromSupabase, mapHobbyInterestToSupabase,
     mapSpecialistQualificationFromSupabase, mapSpecialistQualificationToSupabase,
     mapPayslipFromSupabase, mapPayslipToSupabase
@@ -48,6 +49,7 @@
       [K.NAVIGATION_AREAS]: "navigationAreas",
       [K.TENDERS]: "tenders",
       [K.ONBOARD_EXPERIENCES]: "onboardExperiences",
+      [K.ONBOARD_SKILLS]: "onboardSkills",
       [K.HOBBIES_INTERESTS]: "hobbiesInterests",
       [K.SPECIALIST_QUALIFICATIONS]: "specialistQualifications",
       [K.PAYSLIPS]: "payslips"
@@ -218,6 +220,10 @@
 
     if (isOnboardExperienceKey(key)) {
       return await fetchSupabaseArray("onboard_experiences", mapOnboardExperienceFromSupabase, "date_from", userId, options);
+    }
+
+    if (isOnboardSkillKey(key)) {
+      return await fetchSupabaseArray("onboard_skills", mapOnboardSkillFromSupabase, "created_at", userId, options);
     }
 
     if (isHobbyInterestKey(key)) {
@@ -799,6 +805,16 @@ const SeavAPI = {
         });
       }
 
+      if (isOnboardSkillKey(key)) {
+        await upsertSupabaseItem("onboard_skills", mapOnboardSkillToSupabase(item));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
+      }
+
       if (isHobbyInterestKey(key)) {
         await upsertSupabaseItem("hobbies_interests", mapHobbyInterestToSupabase(item));
         return resolveArrayAfterMutation(key, (items) => {
@@ -922,6 +938,16 @@ const SeavAPI = {
         });
       }
 
+      if (isOnboardSkillKey(key)) {
+        await updateSupabaseItem("onboard_skills", id, mapOnboardSkillToSupabase(merged));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
+      }
+
       if (isHobbyInterestKey(key)) {
         await updateSupabaseItem(
           "hobbies_interests",
@@ -1002,6 +1028,11 @@ const SeavAPI = {
 
         if (isOnboardExperienceKey(key)) {
           await deleteSupabaseItem("onboard_experiences", id);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
+        }
+
+        if (isOnboardSkillKey(key)) {
+          await deleteSupabaseItem("onboard_skills", id);
           return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 

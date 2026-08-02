@@ -349,6 +349,14 @@ function isOnboardExperienceKey(key) {
   return key === onboardExperienceKey();
 }
 
+function onboardSkillKey() {
+  return window.SeavData?.KEYS?.ONBOARD_SKILLS || "seav_onboard_skills";
+}
+
+function isOnboardSkillKey(key) {
+  return key === onboardSkillKey();
+}
+
 function hobbyInterestKey() {
   return window.SeavData?.KEYS?.HOBBIES_INTERESTS || "seav_hobbies_interests";
 }
@@ -380,10 +388,10 @@ function isPayslipKey(key) {
     getAuthUserId, resolveAuthUserId,
     vesselKey, seatimeKey, certKey, refKey, profileKey,
     tenderKey, achievementKey, navigationAreaKey, onboardExperienceKey,
-    hobbyInterestKey, specialistQualificationKey, payslipKey,
+    onboardSkillKey, hobbyInterestKey, specialistQualificationKey, payslipKey,
     isVesselKey, isSeatimeKey, isCertKey, isRefKey, isProfileKey,
     isTenderKey, isAchievementKey, isNavigationAreaKey, isOnboardExperienceKey,
-    isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,
+    isOnboardSkillKey, isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,
     resolveStorageFileUrl, getStoredFileDisplayUrl, storedFileNeedsHydration,
     hasStoredFile, sanitizeFileForStorage, sanitizeFileArrayForStorage,
     buildUploadedFileMeta, hydrateFileMeta, hydrateEntityFiles, hydrateArrayFiles,

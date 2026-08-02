@@ -46,6 +46,7 @@
     "navigationAreas",
     "tenders",
     "onboardExperiences",
+    "onboardSkills",
     "hobbiesInterests",
     "specialistQualifications",
     "payslips"
@@ -86,7 +87,7 @@
     "achievements.html": ["seatimes", "vessels", "tenders"],
     "tenders.html": ["tenders", "vessels"],
     "navigation.html": ["navigationAreas", "vessels", "seatimes"],
-    "onboard-experience.html": ["onboardExperiences", "vessels"],
+    "onboard-experience.html": ["onboardExperiences", "onboardSkills", "vessels"],
     "hobbies-interests.html": ["hobbiesInterests"],
     "specialist-qualifications.html": ["specialistQualifications"],
     "payslips.html": ["payslips"]
@@ -155,6 +156,8 @@
         return window.SeavAPI.getArray(KEYS.TENDERS);
       case "onboardExperiences":
         return window.SeavAPI.getArray(KEYS.ONBOARD_EXPERIENCES);
+      case "onboardSkills":
+        return window.SeavAPI.getArray(KEYS.ONBOARD_SKILLS);
       case "hobbiesInterests":
         return window.SeavAPI.getArray(KEYS.HOBBIES_INTERESTS);
       case "specialistQualifications":
@@ -227,6 +230,7 @@
       navigationAreas: safeArray(snapshot.navigationAreas),
       tenders: safeArray(snapshot.tenders),
       onboardExperiences: safeArray(snapshot.onboardExperiences),
+      onboardSkills: safeArray(snapshot.onboardSkills),
       hobbiesInterests: safeArray(snapshot.hobbiesInterests),
       specialistQualifications: safeArray(snapshot.specialistQualifications),
       payslips: safeArray(snapshot.payslips)
@@ -246,6 +250,7 @@
       navigationAreas: [],
       tenders: [],
       onboardExperiences: [],
+      onboardSkills: [],
       hobbiesInterests: [],
       specialistQualifications: [],
       payslips: []
@@ -322,6 +327,7 @@
         navigationAreas: snapshot.navigationAreas ?? this.data.navigationAreas,
         tenders: snapshot.tenders ?? this.data.tenders,
         onboardExperiences: snapshot.onboardExperiences ?? this.data.onboardExperiences,
+        onboardSkills: snapshot.onboardSkills ?? this.data.onboardSkills,
         hobbiesInterests: snapshot.hobbiesInterests ?? this.data.hobbiesInterests,
         specialistQualifications:
           snapshot.specialistQualifications ?? this.data.specialistQualifications,
@@ -440,6 +446,10 @@
 
     get onboardExperiences() {
       return this.data.onboardExperiences;
+    },
+
+    get onboardSkills() {
+      return this.data.onboardSkills;
     },
 
     get hobbiesInterests() {
