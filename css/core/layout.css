@@ -1068,18 +1068,18 @@ body.app-page::after {
   .dash-sidebar {
     display: flex;
     /*
-     * Row, matching desktop's single-column feel (nav flows straight into
-     * Logout). This only works because the nav's scrollbar is hidden below
-     * (touch/swipe scrolling still works without a visible bar) — with the
-     * scrollbar visible, it rendered right behind the pinned Logout button,
-     * which read as "stuck". Don't re-show that scrollbar without also
-     * moving Logout out of this row again. See
-     * feedback_mobile_sidebar_scrollbar memory if this regresses.
+     * Column: scrollable nav gets its own full-width row, Logout + legal
+     * links sit in a second row below. Previously this was a single row
+     * (nav + Logout side by side), which forced the nav's scrollbar to
+     * render right behind the pinned Logout button — Logout visually
+     * covered it and looked "stuck" (reported again 2026-08-02). Moving
+     * Logout to its own row below, instead of hiding the scrollbar, is the
+     * real fix. See feedback_mobile_sidebar_scrollbar memory.
      */
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
 
-    gap: 10px;
+    gap: 8px;
     overflow: visible;
 
     width: 100%;
@@ -1099,18 +1099,13 @@ body.app-page::after {
     flex-wrap: nowrap;
     align-items: center;
     gap: 8px;
-    flex: 1;
+    width: 100%;
     min-width: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-
-    /* Scrollbar hidden on purpose — see note on .dash-sidebar above. */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .dash-nav::-webkit-scrollbar {
-    display: none;
+    /* Scrollbar shown on purpose now that Logout no longer shares this row
+       with it — gives a visible cue that the nav scrolls. */
+    padding-bottom: 4px;
   }
 
   .dash-nav-group {
@@ -1127,9 +1122,10 @@ body.app-page::after {
 
   .dash-sidebar-footer {
     margin-top: 0;
-    padding-top: 0;
-    border-top: none;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
     flex: 0 0 auto;
+    width: 100%;
   }
 
   .dash-sidebar-footer .dash-link.dash-logout {
