@@ -392,6 +392,7 @@
     // row inside that group is redundant — same fix already applied to the
     // edit page's per-entry meta line when it moved to vessel grouping.
     const metaLine = [
+      entry.positionHeld ? Seav.escapeHtml(entry.positionHeld) : null,
       options.hideVesselName ? null : Seav.escapeHtml(vessel?.name || "—"),
       Seav.escapeHtml(getLabel(entry.category))
     ]

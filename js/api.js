@@ -135,7 +135,7 @@
     // exclude signoff too (docs/schema-phase2-public-hardening.sql).
     onboard_experiences: [
       "id", "user_id", "vessel_id", "category", "title", "description", "location_onboard",
-      "date_from", "date_to", "hours", "is_familiarisation", "status",
+      "position_held", "date_from", "date_to", "hours", "is_familiarisation", "status",
       "attachment", "created_at", "updated_at"
     ].join(","),
     hobbies_interests: [

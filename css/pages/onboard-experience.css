@@ -247,6 +247,14 @@
   flex-shrink: 0;
 }
 
+.onboard-modern-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
 .onboard-modern-name {
   margin: 0;
   font-size: 15px;
@@ -256,6 +264,25 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* "Position held onboard" — shown right under the title so it reads like a
+   CV line item (title, then the role performed), not just buried inside
+   the expanded detail view. */
+.onboard-modern-position {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.onboard-modern-card.is-expanded .onboard-modern-position {
+  font-size: 13px;
+  white-space: normal;
+  overflow: visible;
 }
 
 .onboard-modern-card.is-expanded .onboard-modern-summary {

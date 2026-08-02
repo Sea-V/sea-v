@@ -8,6 +8,10 @@ create table if not exists public.onboard_experiences (
   title text not null default '',
   description text not null default '',
   location_onboard text default '',
+  -- Per-entry role, distinct from vessels.vessel_role (the crew's overall
+  -- rank for the whole vessel assignment) — a specific logged task can be
+  -- performed under a different duty (e.g. covering a watch).
+  position_held text default '',
   date_from date,
   date_to date,
   hours numeric default 0,

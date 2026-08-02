@@ -99,10 +99,13 @@ grant select (
 -- revoke after finding it granted in full. The public onboard-experience
 -- row's expandable "Details" panel (added 2026-07-16) does render
 -- description/dates/hours/location/attachment, but never signoff.
+-- position_held added 2026-08-02 (per-entry role, see
+-- docs/onboard-experiences-table.sql) — re-granted with it included so it
+-- isn't silently dropped from public reads.
 grant select (
   id, user_id, vessel_id, category, title, description, location_onboard,
-  date_from, date_to, hours, is_familiarisation, status, attachment,
-  created_at, updated_at
+  position_held, date_from, date_to, hours, is_familiarisation, status,
+  attachment, created_at, updated_at
 ) on table public.onboard_experiences to anon;
 
 grant select (

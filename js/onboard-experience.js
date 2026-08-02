@@ -348,7 +348,10 @@
               data-toggle-oe-id="${Seav.escapeHtml(entryId)}"
             >
               <div class="onboard-modern-summary-left">
-                <h3 class="onboard-modern-name">${Seav.escapeHtml(entry.title || "Untitled")}</h3>
+                <div class="onboard-modern-title-block">
+                  <h3 class="onboard-modern-name">${Seav.escapeHtml(entry.title || "Untitled")}</h3>
+                  ${entry.positionHeld ? `<p class="onboard-modern-position">${Seav.escapeHtml(entry.positionHeld)}</p>` : ""}
+                </div>
                 ${familiarisationHtml}
               </div>
               <div class="onboard-modern-summary-right">
@@ -498,6 +501,7 @@
     document.getElementById("oe_vessel").value = entry?.vesselId || "";
     document.getElementById("oe_category").value = entry?.category || "";
     document.getElementById("oe_familiarisation").checked = !!entry?.isFamiliarisation;
+    document.getElementById("oe_position").value = entry?.positionHeld || "";
     document.getElementById("oe_title").value = entry?.title || "";
     document.getElementById("oe_description").value = entry?.description || "";
     document.getElementById("oe_location").value = entry?.locationOnboard || "";
@@ -553,6 +557,7 @@
       vesselId: document.getElementById("oe_vessel")?.value || "",
       category: document.getElementById("oe_category")?.value || "",
       isFamiliarisation: !!document.getElementById("oe_familiarisation")?.checked,
+      positionHeld: document.getElementById("oe_position")?.value.trim() || "",
       title: document.getElementById("oe_title")?.value.trim() || "",
       description: document.getElementById("oe_description")?.value.trim() || "",
       locationOnboard: document.getElementById("oe_location")?.value.trim() || "",
@@ -659,6 +664,7 @@
           vesselId: formData.vesselId,
           category: formData.category,
           title: formData.title,
+          positionHeld: formData.positionHeld,
           description: formData.description,
           locationOnboard: formData.locationOnboard,
           dateFrom: formData.dateFrom,

@@ -720,6 +720,7 @@ function getEmptyOnboardExperienceEntry() {
     title: "",
     description: "",
     locationOnboard: "",
+    positionHeld: "",
     dateFrom: "",
     dateTo: "",
     hours: 0,
