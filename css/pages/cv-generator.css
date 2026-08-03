@@ -160,7 +160,7 @@
   padding: 16px;
   border-radius: 18px;
   border: 1px solid rgba(124, 156, 184, 0.18);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .cvgen-editor-block {
@@ -226,7 +226,7 @@
   padding: 12px;
   border-radius: 14px;
   border: 1px solid rgba(124, 156, 184, 0.16);
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .cvgen-vessel-head {
@@ -272,7 +272,7 @@
   padding: 18px;
   border-radius: 18px;
   border: 1px solid rgba(124, 156, 184, 0.18);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.035);
   overflow-x: auto;
   position: sticky;
   top: 110px;

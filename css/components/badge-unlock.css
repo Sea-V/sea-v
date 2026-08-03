@@ -226,7 +226,7 @@ body.badge-unlock-open {
   padding: 11px 12px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.035);
   text-align: left;
   animation: badgeUnlockReasonIn 0.9s ease;
 }

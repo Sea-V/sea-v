@@ -137,7 +137,7 @@
   padding: 10px 12px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.035);
   text-align: center;
 }
 
@@ -419,7 +419,7 @@
   padding: 16px;
   border-radius: 18px;
   border: 1px solid rgba(91, 188, 255, 0.14);
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .navigation-route-block + .navigation-route-block {

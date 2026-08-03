@@ -253,7 +253,7 @@
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid rgba(232, 121, 249, 0.22);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.035);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
 }
 
@@ -330,7 +330,7 @@
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(232, 121, 249, 0.24);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .hi-modal-photo-thumb img {

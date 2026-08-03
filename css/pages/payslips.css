@@ -241,8 +241,8 @@
 .ps-year-group {
   overflow: hidden;
   border-radius: 18px;
-  border: 1px solid rgba(207, 168, 106, 0.2);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .ps-year-group + .ps-year-group {

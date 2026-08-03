@@ -491,7 +491,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   padding: 8px 6px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.035);
   text-align: center;
 }
 
@@ -521,7 +521,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   padding: 8px 9px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .public-cv-seatime-main {
@@ -584,7 +584,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   padding: 5px 8px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.035);
   color: rgba(255, 255, 255, 0.72);
   font-size: 10px;
   font-weight: 650;
@@ -801,7 +801,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   padding: 6px 8px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .public-cv-mini-title {
@@ -859,7 +859,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   padding: 8px 9px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .public-cv-ref-block + .public-cv-ref-block {
@@ -1011,8 +1011,8 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-onboard-vessel-group {
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.03);
   overflow: hidden;
 }
 
@@ -1096,8 +1096,8 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 .public-onboard-skills-wrap {
   margin-top: 10px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.03);
   overflow: hidden;
 }
 
