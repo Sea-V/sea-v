@@ -117,9 +117,17 @@
 }
 
 .seatime-shell-card .kpi-box {
-  border: 1.5px solid rgba(130, 158, 255, 0.34);
+  /* !important needed here: css/components/pills.css has a bare .kpi-box
+     rule (border/background/radius, all !important) meant for the public
+     profile's plain .kpi-box usage. Every other page dodges it by using its
+     own page-specific class (.hi-kpi-box, .ach-kpi-box, etc.), but Seatime's
+     markup uses the bare "kpi-box" class directly, so that shared rule was
+     silently winning over these declarations and rendering a near-invisible
+     white border + a lighter background instead of the intended ones.
+     2026-08-03. */
+  border: 1.5px solid rgba(130, 158, 255, 0.34) !important;
 
-  background: var(--page-shell-panel);
+  background: var(--page-shell-panel) !important;
 
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
