@@ -148,10 +148,6 @@
    SEA-V • VESSELS PAGE V3
 ========================================================= */
 
-#currentVesselCard {
-  width: 100%;
-}
-
 /* =========================================================
    MAIN CURRENT VESSEL CARD
 ========================================================= */
@@ -368,9 +364,17 @@
    MAIN INFO GRID
 ========================================================= */
 
+/* auto-fit (not a fixed column count) so this looks right regardless of how
+   many items are in it — the Vessels page's own card always shows 5 items
+   now (Role/Dates/Program/Salary/Leave, all reserved slots — see
+   js/vessels.js buildVesselCardBody), while the public-profile version of
+   this same card only ever shows 3 (no Salary/Leave, private fields). A
+   fixed repeat(4, ...) left a lonely orphan cell on one of those two and
+   would again on any future field count; auto-fit fills the row evenly
+   either way. */
 .vessel-main-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 
   gap: 8px;
 
@@ -511,6 +515,142 @@
   min-height: 50px;
   padding: 7px 9px;
   border-radius: 13px;
+}
+
+/* =========================================================
+   VESSEL SPECS (nested toggle)
+   Build/IMO/MMSI/onboard duties used to sit conditionally in the stats
+   grid above (only rendering if filled, which produced a ragged last row
+   — see git history). They're looked up occasionally, not at a glance, so
+   they now live in their own small nested expander with all 4 slots always
+   present (em-dash fallback), matching the outer card's own collapsible
+   pattern at a smaller scale.
+========================================================= */
+
+.vessel-specs-toggle {
+  margin: 10px;
+
+  border-radius: 14px;
+  border: 1px solid var(--vessel-accent-line);
+
+  background: rgba(255, 255, 255, 0.02);
+
+  overflow: hidden;
+}
+
+.vessel-specs-toggle-summary {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 10px 12px;
+
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.vessel-specs-toggle-summary::-webkit-details-marker {
+  display: none;
+}
+
+.vessel-specs-toggle-summary::after {
+  content: "›";
+  margin-left: auto;
+
+  font-size: 15px;
+  line-height: 1;
+
+  color: rgba(255, 255, 255, 0.5);
+
+  transition: transform 0.15s ease;
+}
+
+.vessel-specs-toggle[open] .vessel-specs-toggle-summary::after {
+  transform: rotate(90deg);
+}
+
+.vessel-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 7px;
+
+  padding: 0 12px 12px;
+}
+
+.vessel-specs-grid div {
+  min-width: 0;
+
+  padding: 7px 9px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(214, 226, 238, 0.14);
+
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.vessel-specs-grid span {
+  display: block;
+  margin-bottom: 4px;
+
+  color: var(--seav-field-label-color, #5bbcff);
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.vessel-specs-grid strong {
+  display: block;
+
+  color: rgba(255, 255, 255, 0.88);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   SALARY REVEAL
+   The one genuinely sensitive field on this card — masked behind a plain-
+   text "Tap to reveal" button rather than shown outright, and rather than
+   an icon-only affordance (Jack prefers legible words over icons here).
+========================================================= */
+
+.vessel-salary-reveal {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.vessel-salary-reveal .vessel-salary-masked {
+  display: block;
+
+  color: var(--seav-field-value-color, #ffffff);
+
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 500;
+}
+
+.vessel-salary-reveal small {
+  display: block;
+  margin-top: 2px;
+
+  color: #5bbcff;
+
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 /* =========================================================
@@ -655,6 +795,13 @@
   font-weight: 500;
 }
 
+/* .vessel-linked-row / .vessel-total-row below: this page's own vessel card
+   (js/vessels.js buildVesselCardBody) no longer renders these — it shows a
+   count + link instead (.vessel-linked-summary / .vessel-linked-link,
+   further down) so a long vessel history doesn't dump 3 preview rows per
+   linked record type into every collapsed card. The public-profile version
+   of this same card (js/seav-cards.js buildVesselCardFull) still uses the
+   row/list style below, so keep these rules — they are not dead. */
 .vessel-linked-row {
   display: flex;
   justify-content: space-between;
@@ -724,6 +871,49 @@
   color: #ffffff;
   font-size: 13px;
   font-weight: 850;
+}
+
+/* Replaces the up-to-3-item preview list on this page's own vessel card —
+   Sea Time/Tenders/References already each have their own dedicated page,
+   so a big number + short caption + link there is enough context here
+   without duplicating rows that are one click away regardless. */
+.vessel-linked-summary {
+  display: flex;
+  align-items: baseline;
+
+  gap: 8px;
+
+  margin-bottom: 10px;
+}
+
+.vessel-linked-summary strong {
+  color: #ffffff;
+
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.vessel-linked-summary span {
+  color: rgba(255, 255, 255, 0.58);
+
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.vessel-linked-link {
+  margin-top: auto;
+
+  color: #5bbcff;
+
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.vessel-linked-link:hover {
+  text-decoration: underline;
 }
 
 /* =========================================================

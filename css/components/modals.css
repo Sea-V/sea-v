@@ -636,6 +636,83 @@
   accent-color: var(--accent-blue);
 }
 
+/* =========================================================
+   PROGRESSIVE DISCLOSURE ("Add more details")
+   Generic collapsible section for any modal form that wants a short
+   required set of fields visible by default, with everything optional/
+   advanced tucked away — e.g. vessels.html's Add Vessel form (name/role/
+   dates visible, specs/salary/documents behind this).
+========================================================= */
+
+.modal-more-details {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  background: rgba(255, 255, 255, 0.03);
+
+  overflow: hidden;
+}
+
+.modal-more-details-summary {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 12px 14px;
+
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+
+  color: rgba(255, 255, 255, 0.86);
+
+  font-size: 13px;
+  font-weight: 800;
+
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.modal-more-details-summary::-webkit-details-marker {
+  display: none;
+}
+
+.modal-more-details-summary::after {
+  content: "›";
+  margin-left: auto;
+
+  font-size: 16px;
+  line-height: 1;
+
+  color: rgba(255, 255, 255, 0.55);
+
+  transition: transform 0.15s ease;
+}
+
+.modal-more-details[open] .modal-more-details-summary::after {
+  transform: rotate(90deg);
+}
+
+.modal-more-details-hint {
+  color: rgba(255, 255, 255, 0.5);
+
+  font-weight: 600;
+  font-size: 12px;
+
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.modal-more-details-body {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+
+  padding: 0 14px 14px;
+}
+
 .modal-date-group.is-disabled {
   opacity: 0.55;
 }

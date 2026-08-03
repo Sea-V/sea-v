@@ -146,16 +146,27 @@ function buildExperienceSection(experience) {
   `;
 }
 
-function buildVesselCard(v, options = {}) {
-  // Previous vessels used to render as a stripped-down .vessel-card-compact
-  // (photo + a handful of stats, no experience/linked-data sections). Jack
-  // asked 2026-08-03 for every vessel card — current AND history — to look
-  // like the one rich "current vessel" card, just collapsed by default and
-  // colour-coded per vessel the same way Tenders/Sea Time already group by
-  // vessel colour (js/seav-data.js getVesselColor). So there is no more
-  // separate compact template: history cards now render the exact same
-  // markup as the current card below, just wrapped in a <details> shell.
-  const isHistory = !!options.history;
+// Cheap per-vessel info needed for the always-visible collapsed summary row
+// (dot, name, dates). Deliberately excludes anything that requires
+// filtering the seatime/tender/reference arrays — that work is deferred to
+// buildVesselCardBody() below, which only runs for the vessel that's
+// actually open (see the lazy-render toggle listener in initVessels()).
+function buildVesselSummary(v) {
+  const vesselId = v.id || "";
+  const vesselName = Seav.escapeHtml(v.name || "Unnamed Vessel");
+  const from = v.from ? formatDatePretty(v.from) : "—";
+  const to = v.to ? formatDatePretty(v.to) : "Present";
+  const dateLine = `${from} → ${to}`;
+  const vesselColor = vesselId ? getVesselColor(vesselId, getVessels()) : "";
+  return { vesselId, vesselName, dateLine, vesselColor };
+}
+
+// The full rich card content — photo, overview, specs, experience, SEA
+// document, and linked-record summary. Every vessel (current and history
+// alike) renders through this one template now; only the "Current"/
+// "Previous" badge differs.
+function buildVesselCardBody(v, options = {}) {
+  const isCurrent = !!options.isCurrent;
   const vesselId = v.id || "";
 
   const photoUrl = Seav.getFileDisplayUrl(
@@ -172,14 +183,14 @@ function buildVesselCard(v, options = {}) {
   const gt = v.gt ? Seav.escapeHtml(v.gt) : "—";
   const length = v.vessel_length || v.length ? Seav.escapeHtml(v.vessel_length || v.length) : "—";
   const builder = v.builder ? Seav.escapeHtml(v.builder) : "—";
-  const imo = v.imo ? Seav.escapeHtml(v.imo) : "";
-  const mmsi = v.mmsi ? Seav.escapeHtml(v.mmsi) : "";
+  const imo = v.imo ? Seav.escapeHtml(v.imo) : "—";
+  const mmsi = v.mmsi ? Seav.escapeHtml(v.mmsi) : "—";
   const role = v.vessel_role || v.role ? Seav.escapeHtml(v.vessel_role || v.role) : "—";
   const type = v.vessel_type || v.type ? Seav.escapeHtml(v.vessel_type || v.type) : "—";
   const program = v.program ? Seav.escapeHtml(v.program) : "—";
-  const salary = v.salary ? Seav.escapeHtml(v.salary) : "—";
-  const leavePackage = v.leave_package ? Seav.escapeHtml(v.leave_package) : "";
-  const additionalDuties = v.additional_duties ? Seav.escapeHtml(v.additional_duties) : "";
+  const rawSalary = v.salary ? String(v.salary) : "";
+  const leavePackage = v.leave_package ? Seav.escapeHtml(v.leave_package) : "—";
+  const additionalDuties = v.additional_duties ? Seav.escapeHtml(v.additional_duties) : "—";
   const experience = v.experience_onboard || v.desc || "";
   const experienceHtml = buildExperienceSection(experience);
   const from = v.from ? formatDatePretty(v.from) : "—";
@@ -198,17 +209,18 @@ function buildVesselCard(v, options = {}) {
     return sum + totalQualifyingDays(item);
   }, 0);
 
-  const latestSeatimes = [...linkedSeatimes].slice(0, 3);
-  const latestTenders = [...linkedTenders].slice(0, 3);
-  const latestRefs = [...linkedRefs].slice(0, 3);
+  // Salary is the one genuinely sensitive field on this card — masked by
+  // default behind a text "Tap to reveal" button (no icon-only affordance;
+  // Jack prefers legible words over icons here) instead of always showing
+  // the number plainly. Toggled in the shared document click handler below.
+  const salaryHtml = rawSalary
+    ? `<button type="button" class="vessel-salary-reveal" data-salary-value="${Seav.escapeHtml(rawSalary)}" data-revealed="0">
+        <strong class="vessel-salary-masked">Hidden</strong>
+        <small>Tap to reveal</small>
+      </button>`
+    : `<strong>—</strong>`;
 
-  // Same vessel-identity colour used on Tenders/Sea Time's vessel groupings
-  // (js/seav-data.js getVesselColor) — only actually needed for the history
-  // wrapper below, but computed here since it's cheap and keeps the colour
-  // lookup next to the rest of this card's per-vessel data.
-  const vesselColor = vesselId ? getVesselColor(vesselId, getVessels()) : "";
-
-  const cardMarkup = `
+  return `
     <article class="vessel-profile-card">
 
       <div class="vessel-profile-top">
@@ -225,7 +237,7 @@ function buildVesselCard(v, options = {}) {
               <p>${type} • ${flag}</p>
             </div>
 
-            <span class="vessel-current-badge">${isHistory ? "Previous" : "Current"}</span>
+            <span class="vessel-current-badge">${isCurrent ? "Current" : "Previous"}</span>
           </div>
 
           <div class="vessel-main-grid">
@@ -246,24 +258,29 @@ function buildVesselCard(v, options = {}) {
 
             <div class="vessel-main-item">
               <span>Salary</span>
-              <strong>${salary}</strong>
+              ${salaryHtml}
             </div>
 
-            ${
-              leavePackage
-                ? `<div class="vessel-main-item"><span>Leave / rotation</span><strong>${leavePackage}</strong></div>`
-                : ""
-            }
+            <div class="vessel-main-item">
+              <span>Leave / rotation</span>
+              <strong>${leavePackage}</strong>
+            </div>
           </div>
 
           <div class="vessel-stats-grid">
             <div><span>GT</span><strong>${gt}</strong></div>
             <div><span>Length</span><strong>${length}</strong></div>
-            <div><span>Build</span><strong>${builder}</strong></div>
-            ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
-            ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
-            ${additionalDuties ? `<div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>` : ""}
           </div>
+
+          <details class="vessel-specs-toggle">
+            <summary class="vessel-specs-toggle-summary">Vessel specs</summary>
+            <div class="vessel-specs-grid">
+              <div><span>Build</span><strong>${builder}</strong></div>
+              <div><span>IMO</span><strong>${imo}</strong></div>
+              <div><span>MMSI</span><strong>${mmsi}</strong></div>
+              <div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -285,61 +302,29 @@ function buildVesselCard(v, options = {}) {
 
         <section class="vessel-linked-clean-card sea-card">
           <h3>Sea Time</h3>
-
-          ${
-            latestSeatimes.length
-              ? latestSeatimes.map((item) => `
-                <div class="vessel-linked-row">
-                  <div>
-                    <strong>${Seav.escapeHtml(item.capacityServed || "—")}</strong>
-                    <span>${item.dateJoined ? formatDatePretty(item.dateJoined) : "—"} → ${item.dateLeft ? formatDatePretty(item.dateLeft) : "Present"}</span>
-                  </div>
-                  <b>${totalQualifyingDays(item)} days</b>
-                </div>
-              `).join("")
-              : `<p>No linked sea time entries.</p>`
-          }
-
-          <div class="vessel-total-row">
-            <span>Total Sea Time</span>
-            <strong>${totalSeaDays} days</strong>
+          <div class="vessel-linked-summary">
+            <strong>${linkedSeatimes.length}</strong>
+            <span>${linkedSeatimes.length === 1 ? "entry" : "entries"} · ${totalSeaDays} days total</span>
           </div>
+          <a class="vessel-linked-link" href="seatime.html">View sea time →</a>
         </section>
 
         <section class="vessel-linked-clean-card tender-card">
           <h3>Tenders</h3>
-
-          ${
-            latestTenders.length
-              ? latestTenders.map((item) => `
-                <div class="vessel-linked-row">
-                  <div>
-                    <strong>${Seav.escapeHtml(item.name || "Unnamed Tender")}</strong>
-                    <span>${Seav.escapeHtml(item.type || item.model || "Tender")}</span>
-                  </div>
-                  <b>›</b>
-                </div>
-              `).join("")
-              : `<p>No linked tenders.</p>`
-          }
+          <div class="vessel-linked-summary">
+            <strong>${linkedTenders.length}</strong>
+            <span>${linkedTenders.length === 1 ? "tender" : "tenders"} logged</span>
+          </div>
+          <a class="vessel-linked-link" href="tenders.html">View tenders →</a>
         </section>
 
         <section class="vessel-linked-clean-card reference-card">
           <h3>References</h3>
-
-          ${
-            latestRefs.length
-              ? latestRefs.map((item) => `
-                <div class="vessel-linked-row">
-                  <div>
-                    <strong>${Seav.escapeHtml(item.name || "—")}</strong>
-                    <span>${Seav.escapeHtml(item.title || "—")} • ${Seav.escapeHtml(item.status || "Draft")}</span>
-                  </div>
-                  <b>›</b>
-                </div>
-              `).join("")
-              : `<p>No linked references.</p>`
-          }
+          <div class="vessel-linked-summary">
+            <strong>${linkedRefs.length}</strong>
+            <span>${linkedRefs.length === 1 ? "reference" : "references"} on file</span>
+          </div>
+          <a class="vessel-linked-link" href="references.html">View references →</a>
         </section>
 
       </div>
@@ -358,20 +343,26 @@ function buildVesselCard(v, options = {}) {
 
     </article>
   `;
+}
 
-  if (!isHistory) return cardMarkup;
+// Every vessel — current and history alike — is now one collapsible card
+// (previously current was a separate always-open element and history was a
+// different, stripped-down template; Jack asked 2026-08-03 to unify these
+// into a single consistent list). The current vessel opens by default; the
+// rest start closed. Closed cards don't build their (expensive) body markup
+// at all until first expanded — see the capture-phase 'toggle' listener in
+// initVessels() — so a long vessel history doesn't cost anything up front.
+function buildVesselCard(v, options = {}) {
+  const isCurrent = !!options.isCurrent;
+  const { vesselId, vesselName, dateLine, vesselColor } = buildVesselSummary(v);
 
-  // History cards are the same rich card as above, just collapsed by
-  // default inside a <details> shell (closed to start — matches Tenders'
-  // vessel groups, js/tenders.js) so a long vessel history doesn't dump
-  // every past vessel's full experience/linked-data sections onto the page
-  // at once. Only the dot below carries the per-vessel getVesselColor()
-  // colour — the shell's own border stays the same neutral colour as every
-  // other border on this page (css/pages/vessels.css), matching how
-  // Tenders/Sea Time keep their vessel-group borders neutral too and put
-  // the colour on the dot alone.
   return `
-    <details class="vessel-history-collapsible">
+    <details
+      class="vessel-history-collapsible"
+      data-vessel-id="${Seav.escapeHtml(vesselId)}"
+      data-is-current="${isCurrent ? "1" : "0"}"
+      ${isCurrent ? "open" : ""}
+    >
       <summary class="vessel-history-summary">
         ${vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(vesselColor)}"></span>` : ""}
         <span class="vessel-history-summary-title">
@@ -379,8 +370,8 @@ function buildVesselCard(v, options = {}) {
           <small>${dateLine}</small>
         </span>
       </summary>
-      <div class="vessel-history-collapsible-body">
-        ${cardMarkup}
+      <div class="vessel-history-collapsible-body" data-rendered="${isCurrent ? "1" : "0"}">
+        ${isCurrent ? buildVesselCardBody(v, { isCurrent }) : ""}
       </div>
     </details>
   `;
@@ -391,65 +382,92 @@ function buildVesselCard(v, options = {}) {
   const VESSEL_DOC_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_DOCUMENTS || "vessel-documents";
 
-  // Mirrors the Profile page's photo-thumb pattern — previously vs_photo/vs_sea
-  // were bare <input type="file"> controls with no indication a file already
-  // existed, which read as empty even when editing a vessel that had one.
-  function renderVesselPhotoThumb(photoMeta, { isNewSelection = false } = {}) {
-    const thumb = document.getElementById("vsPhotoThumb");
-    const hint = document.getElementById("vsPhotoHint");
-    const btn = document.getElementById("vsPhotoBtn");
-    if (!thumb) return;
+  // Shared by both the vessel photo field and the SEA document field below —
+  // they used to be two separate, nearly-identical hand-written functions
+  // (one with a thumbnail preview, one without). Text/behavior for each
+  // caller is unchanged; only the duplicate DOM-update logic is merged.
+  function renderAttachmentField(config) {
+    const {
+      thumbId,
+      hintId,
+      btnId,
+      meta,
+      bucket,
+      isNewSelection = false,
+      emptyText = "No file uploaded yet",
+      currentText = () => "Current file",
+      newSelectionText = () => "New file selected — click Save vessel to apply",
+      chooseLabel = "Choose file",
+      changeLabel = "Change file"
+    } = config;
 
-    const photoUrl = Seav.getFileDisplayUrl(photoMeta, VESSEL_PHOTO_BUCKET);
+    const thumb = thumbId ? document.getElementById(thumbId) : null;
+    const hint = hintId ? document.getElementById(hintId) : null;
+    const btn = btnId ? document.getElementById(btnId) : null;
 
-    if (photoUrl) {
-      const safeUrl = String(photoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-      thumb.style.backgroundImage = `url("${safeUrl}")`;
-    } else {
-      thumb.style.backgroundImage = "";
+    if (thumbId && !thumb) return;
+
+    const url = meta ? Seav.getFileDisplayUrl(meta, bucket) : "";
+
+    if (thumb) {
+      if (url) {
+        const safeUrl = String(url).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+        thumb.style.backgroundImage = `url("${safeUrl}")`;
+      } else {
+        thumb.style.backgroundImage = "";
+      }
     }
 
     if (hint) {
       if (isNewSelection) {
-        hint.textContent = "New photo selected — click Save vessel to apply";
-      } else if (photoUrl) {
-        hint.textContent = "Current photo";
+        hint.textContent = newSelectionText(meta);
+      } else if (url) {
+        hint.textContent = currentText(meta);
       } else {
-        hint.textContent = "No photo uploaded yet";
+        hint.textContent = emptyText;
       }
     }
 
     if (btn) {
-      btn.textContent = photoUrl ? "Change photo" : "Choose photo";
+      btn.textContent = url ? changeLabel : chooseLabel;
     }
   }
 
+  // Mirrors the Profile page's photo-thumb pattern — previously vs_photo/vs_sea
+  // were bare <input type="file"> controls with no indication a file already
+  // existed, which read as empty even when editing a vessel that had one.
+  function renderVesselPhotoThumb(photoMeta, { isNewSelection = false } = {}) {
+    renderAttachmentField({
+      thumbId: "vsPhotoThumb",
+      hintId: "vsPhotoHint",
+      btnId: "vsPhotoBtn",
+      meta: photoMeta,
+      bucket: VESSEL_PHOTO_BUCKET,
+      isNewSelection,
+      emptyText: "No photo uploaded yet",
+      currentText: () => "Current photo",
+      newSelectionText: () => "New photo selected — click Save vessel to apply",
+      chooseLabel: "Choose photo",
+      changeLabel: "Change photo"
+    });
+  }
+
   function renderVesselSeaHint(attachmentMeta, { isNewSelection = false } = {}) {
-    const hint = document.getElementById("vsSeaHint");
-    const btn = document.getElementById("vsSeaBtn");
-
-    if (isNewSelection) {
-      if (hint) {
-        hint.textContent = attachmentMeta?.filename
-          ? `New file selected: ${attachmentMeta.filename} — click Save vessel to apply`
-          : "New file selected — click Save vessel to apply";
-      }
-      if (btn) btn.textContent = "Change file";
-      return;
-    }
-
-    const docUrl = attachmentMeta ? Seav.getFileDisplayUrl(attachmentMeta, VESSEL_DOC_BUCKET) : "";
-    const filename = attachmentMeta?.filename || "";
-
-    if (hint) {
-      hint.textContent = docUrl
-        ? (filename ? `Current document: ${filename}` : "Current document uploaded")
-        : "No document uploaded yet";
-    }
-
-    if (btn) {
-      btn.textContent = docUrl ? "Change file" : "Choose file";
-    }
+    renderAttachmentField({
+      hintId: "vsSeaHint",
+      btnId: "vsSeaBtn",
+      meta: attachmentMeta,
+      bucket: VESSEL_DOC_BUCKET,
+      isNewSelection,
+      emptyText: "No document uploaded yet",
+      currentText: (meta) => (meta?.filename ? `Current document: ${meta.filename}` : "Current document uploaded"),
+      newSelectionText: (meta) =>
+        meta?.filename
+          ? `New file selected: ${meta.filename} — click Save vessel to apply`
+          : "New file selected — click Save vessel to apply",
+      chooseLabel: "Choose file",
+      changeLabel: "Change file"
+    });
   }
 
   async function hydrateVesselFiles(vessels) {
@@ -464,22 +482,16 @@ function buildVesselCard(v, options = {}) {
   }
 
 async function renderVessels() {
-  const currentVesselCard = document.getElementById("currentVesselCard");
   const vesselsGrid = document.getElementById("vesselsGrid");
 
-  if (!currentVesselCard && !vesselsGrid && !document.getElementById("vesselForm")) return;
+  if (!vesselsGrid && !document.getElementById("vesselForm")) return;
 
   const vessels = getVessels();
 
   if (!vessels.length) {
-    if (currentVesselCard) {
-      currentVesselCard.innerHTML = `<p class="muted">No current vessel added yet.</p>`;
-    }
-
     if (vesselsGrid) {
-      vesselsGrid.innerHTML = `<p class="muted">No vessel history yet.</p>`;
+      vesselsGrid.innerHTML = `<p class="muted">No vessels added yet.</p>`;
     }
-
     return;
   }
 
@@ -496,21 +508,16 @@ async function renderVessels() {
     sortedVessels.find((v) => !v.to) ||
     sortedVessels[0];
 
-  const history = sortedVessels.filter((v) => v.id !== current.id);
-
-  if (currentVesselCard) {
-    currentVesselCard.innerHTML = buildVesselCard(current);
-  }
-
   if (!vesselsGrid) return;
 
-  if (!history.length) {
-    vesselsGrid.innerHTML = `<p class="muted">No vessel history yet.</p>`;
-    return;
-  }
-
-  vesselsGrid.innerHTML = history
-    .map((v) => buildVesselCard(v, { history: true }))
+  // Current + history are now one unified list — every vessel goes through
+  // the same collapsible card (js/vessels.js buildVesselCard), current one
+  // opened by default and pinned first since sortedVessels is already
+  // most-recent-first. Previously these were two separate render targets
+  // with two different templates; consolidating removes that duplicate
+  // code path and the visual inconsistency between them.
+  vesselsGrid.innerHTML = sortedVessels
+    .map((v) => buildVesselCard(v, { isCurrent: v.id === current.id }))
     .join("");
 }
 
@@ -566,6 +573,13 @@ function fillVesselForm(vessel) {
   renderVesselPhotoThumb(vessel.photo || null, { isNewSelection: false });
   renderVesselSeaHint(vessel.sea_attachment || vessel.seaAttachment || null, { isNewSelection: false });
 
+  // The "Add more details" section is collapsed by default for a brand-new
+  // vessel (readVesselForm below), but always opened when editing an
+  // existing one — otherwise a vessel that already has specs/salary/leave
+  // filled in would look like that data vanished the moment you opened Edit.
+  const moreDetails = document.getElementById("vs_more_details");
+  if (moreDetails) moreDetails.open = true;
+
   const editId = document.getElementById("vs_edit_index");
   if (editId) editId.value = vessel.id || "";
 
@@ -604,6 +618,9 @@ function resetVesselFormState() {
 
   renderVesselPhotoThumb(null, { isNewSelection: false });
   renderVesselSeaHint(null, { isNewSelection: false });
+
+  const moreDetails = document.getElementById("vs_more_details");
+  if (moreDetails) moreDetails.open = false;
 }
 
 function readVesselForm() {
@@ -679,7 +696,6 @@ async function saveVesselData(vesselData) {
 
   function initVessels() {
     if (
-      !document.getElementById("currentVesselCard") &&
       !document.getElementById("vesselsGrid") &&
       !document.getElementById("vesselForm")
     ) return;
@@ -689,6 +705,34 @@ async function saveVesselData(vesselData) {
     };
 
     Seav.bindStateRefresh(runRefresh, { label: "Vessels refresh" });
+
+    const vesselsGridEl = document.getElementById("vesselsGrid");
+    if (vesselsGridEl) {
+      // 'toggle' events on <details> don't reliably bubble across browsers,
+      // but the capturing phase always fires regardless of the bubbles
+      // flag — so capture:true here still catches every card's toggle from
+      // one listener instead of needing one per card. Builds a history
+      // card's (expensive) full body markup the first time it's opened,
+      // then leaves it in place; a nested "Vessel specs" toggle inside an
+      // already-rendered body also fires 'toggle' here, but its body is
+      // already marked rendered so this is a harmless no-op for it.
+      vesselsGridEl.addEventListener("toggle", (e) => {
+        const details = e.target.closest?.(".vessel-history-collapsible");
+        if (!details || !details.open) return;
+
+        const body = details.querySelector(".vessel-history-collapsible-body");
+        if (!body || body.dataset.rendered === "1") return;
+
+        const vesselId = details.getAttribute("data-vessel-id");
+        const vessel = getVessels().find((item) => item.id === vesselId);
+        if (!vessel) return;
+
+        body.innerHTML = buildVesselCardBody(vessel, {
+          isCurrent: details.getAttribute("data-is-current") === "1"
+        });
+        body.dataset.rendered = "1";
+      }, true);
+    }
 
     const vesselForm = document.getElementById("vesselForm");
     const currentCheckbox = document.getElementById("vs_current");
@@ -821,6 +865,22 @@ async function saveVesselData(vesselData) {
 }
 
     document.addEventListener("click", async (e) => {
+  const salaryBtn = e.target.closest(".vessel-salary-reveal");
+  if (salaryBtn) {
+    const strongEl = salaryBtn.querySelector("strong");
+    if (strongEl) {
+      const revealed = salaryBtn.getAttribute("data-revealed") === "1";
+      if (revealed) {
+        strongEl.textContent = "Hidden";
+        salaryBtn.setAttribute("data-revealed", "0");
+      } else {
+        strongEl.textContent = salaryBtn.getAttribute("data-salary-value") || "—";
+        salaryBtn.setAttribute("data-revealed", "1");
+      }
+    }
+    return;
+  }
+
   const editBtn = e.target.closest("[data-edit-vessel-id]");
   if (editBtn) {
     e.preventDefault();

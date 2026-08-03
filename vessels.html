@@ -24,35 +24,35 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=355" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=355" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=355" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=355" />
+  <link rel="icon" href="/favicon.ico?v=356" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=356" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=356" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=356" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Vessels</title>
 
-<link rel="stylesheet" href="styles.css?v=355" />
+<link rel="stylesheet" href="styles.css?v=356" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=355"></script>
-  <script src="js/supabase.js?v=355"></script>
-  <script src="js/auth.js?v=355"></script>
-  <script src="js/feedback.js?v=355" defer></script>
-  <script src="js/core.js?v=355" defer></script>
+  <script src="js/seav-config.js?v=356"></script>
+  <script src="js/supabase.js?v=356"></script>
+  <script src="js/auth.js?v=356"></script>
+  <script src="js/feedback.js?v=356" defer></script>
+  <script src="js/core.js?v=356" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=355" defer></script>
-<script src="js/seav-data.js?v=355" defer></script>
-<script src="js/seav-badges.js?v=355" defer></script>
-<script src="js/api-core.js?v=355" defer></script>
-  <script src="js/api-mappers.js?v=355" defer></script>
-  <script src="js/api.js?v=355" defer></script>
-<script src="js/state.js?v=355" defer></script>
-  <script src="js/seav-notifications.js?v=355" defer></script>
-<script src="js/achievements-engine.js?v=355" defer></script>
-  <script src="js/badge-unlock.js?v=355" defer></script>
+  <script src="js/seav-upload.js?v=356" defer></script>
+<script src="js/seav-data.js?v=356" defer></script>
+<script src="js/seav-badges.js?v=356" defer></script>
+<script src="js/api-core.js?v=356" defer></script>
+  <script src="js/api-mappers.js?v=356" defer></script>
+  <script src="js/api.js?v=356" defer></script>
+<script src="js/state.js?v=356" defer></script>
+  <script src="js/seav-notifications.js?v=356" defer></script>
+<script src="js/achievements-engine.js?v=356" defer></script>
+  <script src="js/badge-unlock.js?v=356" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=355" defer></script>
-<script src="js/vessels.js?v=355" defer></script>
+  <script src="js/seav-share.js?v=356" defer></script>
+<script src="js/vessels.js?v=356" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -114,17 +114,8 @@
 
     <section class="vessel-shell-section">
       <div class="vessel-shell-section-head">
-        <h3>Current Vessel</h3>
-        <p>Your active vessel profile and linked operational records.</p>
-      </div>
-
-      <div id="currentVesselCard"></div>
-    </section>
-
-    <section class="vessel-shell-section vessel-shell-history">
-      <div class="vessel-shell-section-head">
-        <h3>Vessel History</h3>
-        <p>Previous vessels saved to your SEA-V profile.</p>
+        <h3>Your vessels</h3>
+        <p>Your current vessel is expanded below — tap any previous vessel to see its full record.</p>
       </div>
 
       <div class="vessel-grid" id="vesselsGrid"></div>
@@ -147,46 +138,12 @@
         <input type="hidden" id="vs_edit_index" value="" />
 
         <p class="modal-intro">
-          Build your vessel portfolio — dates, role, specifications, and documents
-          link to sea time, references, and your public profile.
+          Name, role, and dates get you saved — add specs, salary, and documents
+          any time from "Add more details" below.
         </p>
 
         <label>Vessel name
           <input required id="vs_name" placeholder="Name of the yacht you worked on" />
-        </label>
-
-        <div class="modal-grid2">
-          <label>Flag (optional)
-            <input id="vs_flag" placeholder="Country where the vessel is registered" />
-          </label>
-
-          <label>Gross tonnage (optional)
-            <input id="vs_gt" placeholder="Vessel gross tonnage — check the crew list if unsure" />
-          </label>
-        </div>
-
-        <div class="modal-grid2">
-          <label>Length
-            <input type="text" id="vs_length" placeholder="Overall length of the vessel" />
-          </label>
-
-          <label>Build
-            <input id="vs_builder" placeholder="Shipyard or builder name" />
-          </label>
-        </div>
-
-        <div class="modal-grid2">
-          <label>IMO number (optional)
-            <input id="vs_imo" placeholder="7-digit IMO number, if the vessel has one" />
-          </label>
-
-          <label>MMSI number (optional)
-            <input id="vs_mmsi" placeholder="9-digit MMSI number, if known" />
-          </label>
-        </div>
-
-        <label>Experience onboard
-          <textarea id="vs_desc" rows="4" placeholder="Where you sailed, your duties, charters, yard periods…"></textarea>
         </label>
 
         <div class="modal-grid2">
@@ -202,78 +159,121 @@
           <span>Currently onboard</span>
         </label>
 
-        <div class="modal-grid2">
-          <label>Role on vessel
-            <input id="vs_role" placeholder="Your rank or position on board" />
-          </label>
-
-          <label>Vessel type
-            <input id="vs_type" placeholder="Motor yacht, explorer, sailing yacht…" />
-          </label>
-        </div>
-
-        <label>Owner / program notes
-          <input id="vs_program" placeholder="Private owner, charter, or expedition use" />
+        <label>Role on vessel
+          <input id="vs_role" placeholder="Your rank or position on board" />
         </label>
 
-        <fieldset class="modal-fieldset" id="vs_duties_wrap">
-          <legend>Additional onboard duties <span class="navigation-field-optional">(optional)</span></legend>
-          <label class="modal-check">
-            <input type="checkbox" id="vs_duty_safety_officer" value="Safety Officer" />
-            <span>Safety Officer</span>
-          </label>
-          <label class="modal-check">
-            <input type="checkbox" id="vs_duty_safety_rep" value="Safety Representative" />
-            <span>Safety Representative</span>
-          </label>
-          <label class="modal-check">
-            <input type="checkbox" id="vs_duty_sso" value="Ship Security Officer (SSO)" />
-            <span>Ship Security Officer (SSO)</span>
-          </label>
-          <label class="modal-check">
-            <input type="checkbox" id="vs_duty_medical" value="Person in Charge of Medical Care" />
-            <span>Person in Charge of Medical Care</span>
-          </label>
-          <label>Other duty (optional)
-            <input id="vs_duty_other" placeholder="Any other appointed role held onboard" />
-          </label>
-        </fieldset>
+        <details class="modal-more-details" id="vs_more_details">
+          <summary class="modal-more-details-summary">
+            Add more details
+            <span class="modal-more-details-hint">(specs, salary, experience, documents)</span>
+          </summary>
 
-        <div class="modal-grid2">
-          <label>Salary currency (optional)
-            <select id="vs_salary_currency"></select>
-          </label>
+          <div class="modal-more-details-body">
+            <div class="modal-grid2">
+              <label>Flag (optional)
+                <input id="vs_flag" placeholder="Country where the vessel is registered" />
+              </label>
 
-          <label>Salary amount (optional)
-            <input id="vs_salary_amount" placeholder="Salary on this vessel — private, only visible to you" />
-          </label>
-        </div>
-
-        <label>Leave / rotation package (optional)
-          <input id="vs_leave_package" placeholder="e.g. 2:1 rotation, 8 weeks on/4 off, 20 days/year — private, only visible to you" />
-        </label>
-
-        <label>Vessel photo (optional)
-          <div class="profile-photo-field">
-            <div class="profile-photo-thumb" id="vsPhotoThumb" aria-label="Current vessel photo"></div>
-            <div class="profile-photo-actions">
-              <button type="button" class="btn-ghost2" id="vsPhotoBtn">Choose photo</button>
-              <input type="file" id="vs_photo" accept="image/*" hidden />
-              <p class="profile-photo-hint muted" id="vsPhotoHint">No photo uploaded yet</p>
-              <p class="profile-photo-format-note muted">JPEG or PNG, up to 5MB. HEIC photos (iPhone default) are converted automatically.</p>
+              <label>Gross tonnage (optional)
+                <input id="vs_gt" placeholder="Vessel gross tonnage — check the crew list if unsure" />
+              </label>
             </div>
-          </div>
-        </label>
 
-        <label>Seafarer employment agreement (optional)
-          <div class="profile-photo-field">
-            <div class="profile-photo-actions">
-              <button type="button" class="btn-ghost2" id="vsSeaBtn">Choose file</button>
-              <input type="file" id="vs_sea" accept=".pdf,.doc,.docx,image/*" hidden />
-              <p class="profile-photo-hint muted" id="vsSeaHint">No document uploaded yet</p>
+            <div class="modal-grid2">
+              <label>Length
+                <input type="text" id="vs_length" placeholder="Overall length of the vessel" />
+              </label>
+
+              <label>Build
+                <input id="vs_builder" placeholder="Shipyard or builder name" />
+              </label>
             </div>
+
+            <div class="modal-grid2">
+              <label>IMO number (optional)
+                <input id="vs_imo" placeholder="7-digit IMO number, if the vessel has one" />
+              </label>
+
+              <label>MMSI number (optional)
+                <input id="vs_mmsi" placeholder="9-digit MMSI number, if known" />
+              </label>
+            </div>
+
+            <div class="modal-grid2">
+              <label>Vessel type
+                <input id="vs_type" placeholder="Motor yacht, explorer, sailing yacht…" />
+              </label>
+
+              <label>Owner / program notes
+                <input id="vs_program" placeholder="Private owner, charter, or expedition use" />
+              </label>
+            </div>
+
+            <label>Experience onboard
+              <textarea id="vs_desc" rows="4" placeholder="Where you sailed, your duties, charters, yard periods…"></textarea>
+            </label>
+
+            <fieldset class="modal-fieldset" id="vs_duties_wrap">
+              <legend>Additional onboard duties <span class="navigation-field-optional">(optional)</span></legend>
+              <label class="modal-check">
+                <input type="checkbox" id="vs_duty_safety_officer" value="Safety Officer" />
+                <span>Safety Officer</span>
+              </label>
+              <label class="modal-check">
+                <input type="checkbox" id="vs_duty_safety_rep" value="Safety Representative" />
+                <span>Safety Representative</span>
+              </label>
+              <label class="modal-check">
+                <input type="checkbox" id="vs_duty_sso" value="Ship Security Officer (SSO)" />
+                <span>Ship Security Officer (SSO)</span>
+              </label>
+              <label class="modal-check">
+                <input type="checkbox" id="vs_duty_medical" value="Person in Charge of Medical Care" />
+                <span>Person in Charge of Medical Care</span>
+              </label>
+              <label>Other duty (optional)
+                <input id="vs_duty_other" placeholder="Any other appointed role held onboard" />
+              </label>
+            </fieldset>
+
+            <div class="modal-grid2">
+              <label>Salary currency (optional)
+                <select id="vs_salary_currency"></select>
+              </label>
+
+              <label>Salary amount (optional)
+                <input id="vs_salary_amount" placeholder="Salary on this vessel — private, only visible to you" />
+              </label>
+            </div>
+
+            <label>Leave / rotation package (optional)
+              <input id="vs_leave_package" placeholder="e.g. 2:1 rotation, 8 weeks on/4 off, 20 days/year — private, only visible to you" />
+            </label>
+
+            <label>Vessel photo (optional)
+              <div class="profile-photo-field">
+                <div class="profile-photo-thumb" id="vsPhotoThumb" aria-label="Current vessel photo"></div>
+                <div class="profile-photo-actions">
+                  <button type="button" class="btn-ghost2" id="vsPhotoBtn">Choose photo</button>
+                  <input type="file" id="vs_photo" accept="image/*" hidden />
+                  <p class="profile-photo-hint muted" id="vsPhotoHint">No photo uploaded yet</p>
+                  <p class="profile-photo-format-note muted">JPEG or PNG, up to 5MB. HEIC photos (iPhone default) are converted automatically.</p>
+                </div>
+              </div>
+            </label>
+
+            <label>Seafarer employment agreement (optional)
+              <div class="profile-photo-field">
+                <div class="profile-photo-actions">
+                  <button type="button" class="btn-ghost2" id="vsSeaBtn">Choose file</button>
+                  <input type="file" id="vs_sea" accept=".pdf,.doc,.docx,image/*" hidden />
+                  <p class="profile-photo-hint muted" id="vsSeaHint">No document uploaded yet</p>
+                </div>
+              </div>
+            </label>
           </div>
-        </label>
+        </details>
 
         <button class="btn-blue" type="submit">Save vessel</button>
         <p class="modal-footnote">Saved to your SEA-V profile. Flag and GT pre-fill sea service entries.</p>
