@@ -354,6 +354,12 @@ function buildVesselCardBody(v, options = {}) {
 // initVessels() — so a long vessel history doesn't cost anything up front.
 function buildVesselCard(v, options = {}) {
   const isCurrent = !!options.isCurrent;
+  // forceOpen keeps a just-saved vessel's card open across the full-list
+  // re-render that happens on every save — without this, editing any
+  // vessel other than the current one snapped its card shut with no
+  // visible change, which read as "the edit didn't save" even though it
+  // had (Jack, 2026-08-03). See renderVessels()'s keepOpenId param.
+  const isOpen = isCurrent || !!options.forceOpen;
   const { vesselId, vesselName, dateLine, vesselColor } = buildVesselSummary(v);
 
   return `
@@ -361,7 +367,7 @@ function buildVesselCard(v, options = {}) {
       class="vessel-history-collapsible"
       data-vessel-id="${Seav.escapeHtml(vesselId)}"
       data-is-current="${isCurrent ? "1" : "0"}"
-      ${isCurrent ? "open" : ""}
+      ${isOpen ? "open" : ""}
     >
       <summary class="vessel-history-summary">
         ${vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(vesselColor)}"></span>` : ""}
@@ -370,8 +376,8 @@ function buildVesselCard(v, options = {}) {
           <small>${dateLine}</small>
         </span>
       </summary>
-      <div class="vessel-history-collapsible-body" data-rendered="${isCurrent ? "1" : "0"}">
-        ${isCurrent ? buildVesselCardBody(v, { isCurrent }) : ""}
+      <div class="vessel-history-collapsible-body" data-rendered="${isOpen ? "1" : "0"}">
+        ${isOpen ? buildVesselCardBody(v, { isCurrent }) : ""}
       </div>
     </details>
   `;
@@ -481,7 +487,8 @@ function buildVesselCard(v, options = {}) {
     return vessels;
   }
 
-async function renderVessels() {
+async function renderVessels(options = {}) {
+  const keepOpenId = options.keepOpenId || "";
   const vesselsGrid = document.getElementById("vesselsGrid");
 
   if (!vesselsGrid && !document.getElementById("vesselForm")) return;
@@ -517,7 +524,12 @@ async function renderVessels() {
   // with two different templates; consolidating removes that duplicate
   // code path and the visual inconsistency between them.
   vesselsGrid.innerHTML = sortedVessels
-    .map((v) => buildVesselCard(v, { isCurrent: v.id === current.id }))
+    .map((v) =>
+      buildVesselCard(v, {
+        isCurrent: v.id === current.id,
+        forceOpen: !!keepOpenId && v.id === keepOpenId
+      })
+    )
     .join("");
 }
 
@@ -689,7 +701,7 @@ async function saveVesselData(vesselData) {
     await window.SeavAchievementEngine.runAchievementEvaluation();
   }
 
-  renderVessels();
+  renderVessels({ keepOpenId: vesselData.id });
 
   document.dispatchEvent(new CustomEvent("seav:data-updated"));
 }
@@ -705,6 +717,28 @@ async function saveVesselData(vesselData) {
     };
 
     Seav.bindStateRefresh(runRefresh, { label: "Vessels refresh" });
+
+    // "Add Vessel" used to rely entirely on core.js's generic [data-open]
+    // modal handler, which just opens the modal and never touches the
+    // form — so closing an in-progress Edit without saving (X, overlay,
+    // Escape) left vs_edit_index pointing at that vessel. Clicking
+    // "Add Vessel" straight after would silently overwrite that vessel
+    // instead of creating a new one. Same fix pattern already used for
+    // certModal in js/certificates.js openAddModal(): a dedicated handler
+    // that always resets the form before opening, so Add always starts
+    // clean regardless of what the modal was doing last.
+    document.querySelectorAll('[data-open="vesselModal"]').forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        resetVesselFormState();
+        if (window.SeavModals?.openModal) {
+          window.SeavModals.openModal("vesselModal");
+        } else {
+          const modal = document.getElementById("vesselModal");
+          if (modal) modal.hidden = false;
+        }
+      });
+    });
 
     const vesselsGridEl = document.getElementById("vesselsGrid");
     if (vesselsGridEl) {
@@ -856,7 +890,11 @@ async function saveVesselData(vesselData) {
         if (modal) modal.hidden = true;
       }
 
-      Seav.notify("success", "Vessel logged", "Added to your fleet record.");
+      Seav.notify(
+        "success",
+        existingVessel ? "Vessel updated" : "Vessel logged",
+        existingVessel ? "Your changes were saved." : "Added to your fleet record."
+      );
     }, { sub: "Saving vessel" }).catch((err) => {
       console.error("[SEA-V] Vessel save failed:", err);
       Seav.notify("error", "Vessel not saved", "Something went wrong. Check the browser console (F12).");
