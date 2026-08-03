@@ -370,6 +370,53 @@
     `;
   }
 
+  // Groups saved certs by the same category labels the "Add certificate"
+  // dropdown uses (js/certificates.js fillTypeSelect -> catalogGroups()),
+  // in the same order the dropdown lists them (Minimum mandatory first,
+  // then each catalog section) so the two stay visually consistent. Any
+  // cert whose code isn't in the catalog (custom/"Other" certs, or legacy
+  // data) falls into a trailing group named after whatever
+  // certCategoryLabel() returns for it (usually "Other").
+  function buildCertCategoryGroups(certs) {
+    const byLabel = new Map();
+    certs.forEach((cert) => {
+      const label = certCategoryLabel(cert);
+      if (!byLabel.has(label)) byLabel.set(label, []);
+      byLabel.get(label).push(cert);
+    });
+
+    const ordered = [];
+    catalogGroups().forEach((group) => {
+      if (byLabel.has(group.label)) {
+        ordered.push({ label: group.label, certs: byLabel.get(group.label) });
+        byLabel.delete(group.label);
+      }
+    });
+    // Anything left didn't match a known catalog group label — append at
+    // the end instead of dropping it, so a cert never silently disappears.
+    byLabel.forEach((certsInGroup, label) => {
+      ordered.push({ label, certs: certsInGroup });
+    });
+
+    return ordered;
+  }
+
+  function buildCertCategoryGroupHtml(group) {
+    return `
+      <details class="cert-category-group">
+        <summary class="cert-category-group-summary">
+          <span class="cert-category-group-title">
+            <strong>${Seav.escapeHtml(group.label)}</strong>
+          </span>
+          <span class="cert-category-group-count">${group.certs.length}</span>
+        </summary>
+        <div class="cert-category-group-body">
+          ${group.certs.map(buildRow).join("")}
+        </div>
+      </details>
+    `;
+  }
+
   function renderList() {
     const list = document.getElementById("certsList");
     if (!list) return;
@@ -391,7 +438,8 @@
       return;
     }
 
-    list.innerHTML = certs.map(buildRow).join("");
+    const groups = buildCertCategoryGroups(certs);
+    list.innerHTML = groups.map(buildCertCategoryGroupHtml).join("");
   }
 
   function fillTypeSelect(currentCode) {

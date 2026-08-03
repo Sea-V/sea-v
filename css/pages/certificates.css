@@ -91,6 +91,102 @@
   gap: 8px;
 }
 
+/* =========================================================
+   CATEGORY GROUPS (2026-08-03) — certs grouped to match the same
+   categories the "Add certificate" dropdown uses (js/certificates.js
+   catalogGroups()), same collapsible pattern as the vessel groups on
+   Seatime/Tenders/Navigation (border/background/title/count-badge
+   conventions match those exactly, just page-accent-gold instead of
+   page-accent-green/-blue).
+========================================================= */
+
+.cert-category-group {
+  border-radius: 14px;
+  border: 1px solid var(--surface-border);
+
+  background: rgba(255, 255, 255, 0.03);
+
+  overflow: hidden;
+}
+
+.cert-category-group-summary {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+
+  padding: 14px 16px;
+}
+
+.cert-category-group-summary::-webkit-details-marker {
+  display: none;
+}
+
+.cert-category-group-summary::before {
+  content: "›";
+  display: inline-block;
+
+  font-size: 16px;
+  line-height: 1;
+
+  color: rgba(255, 255, 255, 0.6);
+
+  transition: transform 0.15s ease;
+}
+
+.cert-category-group[open] .cert-category-group-summary::before {
+  transform: rotate(90deg);
+}
+
+.cert-category-group-title {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+  min-width: 0;
+}
+
+.cert-category-group-title strong {
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cert-category-group-count {
+  margin-left: auto;
+
+  min-width: 22px;
+  padding: 1px 8px;
+
+  border-radius: 999px;
+  background: rgba(255, 210, 90, 0.16);
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+
+  flex-shrink: 0;
+}
+
+.cert-category-group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  padding: 0 14px 14px;
+}
+
 .cert-compact-card {
   padding: 0;
   overflow: hidden;
