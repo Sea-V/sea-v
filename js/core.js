@@ -157,6 +157,17 @@
 
   function clearDateTriplet(prefix) {
     setDateTriplet(prefix, "");
+
+    // Anchor the year select on the current year instead of leaving it
+    // blank. The list runs oldest (1950) at top through to the
+    // furthest-future year at the bottom, so with nothing selected the
+    // browser opens the dropdown at 1950 every time — every fresh date
+    // field looks identical until you scroll ~75 rows down. Prefilling
+    // just the year means it opens already sitting on "now", with past
+    // years above and future years below, and day/month stay blank so
+    // the field still isn't a complete date until those are chosen too.
+    const yearEl = document.getElementById(`${prefix}_year`);
+    if (yearEl) yearEl.value = String(getCurrentYear());
   }
 
   function populateDatePartSelects(root = document) {
