@@ -229,3 +229,17 @@
   --progress-green: #5ee6a8;
   --progress-cyan: #72e4ff;
 }
+
+/* =========================================================
+   TEMP PREVIEW — white shells/sidebar/topbar
+   Jack asked 2026-08-03 to see a rough white version of just the topbar,
+   sidebar, and each page's large shell-card containers (all three read
+   --page-shell-bg / --page-shell-bg-translucent). This is a quick visual
+   gut-check only — text/icons inside those areas were designed for the
+   dark background and will be hard to read against white right now.
+   To revert: delete this block.
+========================================================= */
+:root {
+  --page-shell-bg: #ffffff;
+  --page-shell-bg-translucent: #ffffff;
+}
