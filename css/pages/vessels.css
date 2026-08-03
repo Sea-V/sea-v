@@ -230,8 +230,7 @@
   align-self: start;
 }
 
-.vessel-image-card img,
-.vessel-history-photo img {
+.vessel-image-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -737,183 +736,95 @@
 
 /* =========================================================
    HISTORY CARDS
+   Previous vessels now render the exact same rich card as the current
+   vessel (js/vessels.js buildVesselCard) instead of a separate stripped-
+   down compact template, each wrapped in a collapsible shell — same
+   <details>/<summary> pattern as Tenders' vessel groups
+   (css/pages/tenders.css .tender-vessel-group*) and colored the same
+   way, via the shared getVesselColor() convention.
 ========================================================= */
 
 .vessel-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
 
   gap: 12px;
 }
 
-.vessel-card-compact {
-  min-width: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+.vessel-history-collapsible {
+  --vessel-history-color: rgba(214, 226, 238, 0.6);
 
   border-radius: 18px;
-  border: 1px solid rgba(214, 226, 238, 0.22);
+  border: 1px solid color-mix(in srgb, var(--vessel-history-color) 45%, transparent);
 
-  background:
-    linear-gradient(180deg, rgba(20, 38, 61, 0.92), rgba(12, 28, 48, 0.88));
+  background: rgba(255, 255, 255, 0.03);
 
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
 }
 
-.vessel-history-photo {
-  /* Matches .dash-mini-photo on the dashboard (aspect-ratio, not a fixed
-     height) so these history cards show as much of the photo as the
-     dashboard's vessel mini-cards do, instead of a smaller fixed crop. */
-  aspect-ratio: 16 / 10;
-  background: rgba(0, 0, 0, 0.28);
-  border-bottom: 1px solid rgba(214, 226, 238, 0.12);
-}
-
-.vessel-history-photo .vessel-photo-fallback {
-  height: 100%;
-
+.vessel-history-summary {
   display: flex;
   align-items: center;
-  justify-content: center;
 
-  color: rgba(255, 255, 255, 0.48);
+  gap: 10px;
 
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+
+  padding: 16px 18px;
 }
 
-.vessel-history-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding: 14px 14px 12px;
+.vessel-history-summary::-webkit-details-marker {
+  display: none;
 }
 
-.vessel-history-head {
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
+.vessel-history-summary::before {
+  content: "›";
+  display: inline-block;
 
-.vessel-history-label {
-  display: block;
-  margin: 0 0 8px;
-
-  color: var(--seav-field-label-color, #5bbcff);
-
-  font-size: 10px;
-  line-height: 1.2;
-  font-weight: 850;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.vessel-history-head h3 {
-  margin: 0 0 6px;
-
-  color: #ffffff;
+  margin-left: auto;
 
   font-size: 18px;
-  line-height: 1.2;
-  font-weight: 900;
-  letter-spacing: 0.01em;
+  line-height: 1;
 
-  overflow-wrap: anywhere;
+  color: rgba(255, 255, 255, 0.6);
+
+  transition: transform 0.15s ease;
 }
 
-.vessel-history-meta {
-  margin: 0;
-
-  color: rgba(255, 255, 255, 0.58);
-
-  font-size: 12px;
-  line-height: 1.4;
-  font-weight: 600;
+.vessel-history-collapsible[open] .vessel-history-summary::before {
+  transform: rotate(90deg);
 }
 
-.vessel-history-info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.vessel-history-summary-title {
+  display: flex;
+  flex-direction: column;
 
-  gap: 8px;
-}
-
-.vessel-history-info-grid div {
-  min-height: 54px;
-
-  padding: 10px 11px;
-
-  border-radius: 14px;
-  border: 1px solid var(--vessel-accent-line);
-
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.vessel-history-info-grid span {
-  display: block;
-
-  margin-bottom: 4px;
-
-  color: var(--seav-field-label-color, #5bbcff);
-
-  font-size: 10px;
-  line-height: 1.2;
-  font-weight: 800;
-}
-
-.vessel-history-info-grid strong {
-  display: block;
-
-  color: rgba(255, 255, 255, 0.88);
-
-  font-size: 12px;
-  line-height: 1.35;
-  font-weight: 700;
-
-  overflow-wrap: anywhere;
-}
-
-.vessel-history-counts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-
-  gap: 6px;
-
-  margin-top: 12px;
-}
-
-.vessel-history-counts span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
+  gap: 2px;
   min-width: 0;
-  min-height: 26px;
-  padding: 0 6px;
+}
 
-  border-radius: 999px;
-  border: 1px solid rgba(214, 226, 238, 0.18);
-
-  background: rgba(214, 226, 238, 0.07);
-
+.vessel-history-summary-title strong {
   color: #ffffff;
 
-  font-size: 9px;
-  font-weight: 800;
-  line-height: 1.2;
-  text-align: center;
+  font-size: 15px;
+  font-weight: 850;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.vessel-card-compact .seav-actions {
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+.vessel-history-summary-title small {
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.vessel-history-collapsible-body {
+  padding: 0 14px 14px;
 }
 
 /* =========================================================
@@ -925,8 +836,7 @@
     grid-template-columns: 1fr;
   }
 
-  .vessel-linked-clean-grid,
-  .vessel-grid {
+  .vessel-linked-clean-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -942,8 +852,7 @@
   }
 
   .vessel-main-grid,
-  .vessel-linked-clean-grid,
-  .vessel-grid {
+  .vessel-linked-clean-grid {
     grid-template-columns: 1fr;
   }
 
@@ -960,10 +869,6 @@
     height: auto;
     min-height: 220px;
     max-height: 280px;
-  }
-
-  .vessel-history-photo {
-    height: 180px;
   }
 
   .vessel-experience-row {

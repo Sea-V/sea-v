@@ -22,7 +22,7 @@
     return;
   }
 
-  const { KEYS, createId, totalQualifyingDays, formatDatePretty, PAYSLIP_CURRENCIES } = window.SeavData;
+  const { KEYS, createId, totalQualifyingDays, formatDatePretty, PAYSLIP_CURRENCIES, getVesselColor } = window.SeavData;
   const STORAGE_KEY = KEYS.VESSELS;
 
   /**
@@ -147,7 +147,15 @@ function buildExperienceSection(experience) {
 }
 
 function buildVesselCard(v, options = {}) {
-  const isCompact = !!options.compact;
+  // Previous vessels used to render as a stripped-down .vessel-card-compact
+  // (photo + a handful of stats, no experience/linked-data sections). Jack
+  // asked 2026-08-03 for every vessel card — current AND history — to look
+  // like the one rich "current vessel" card, just collapsed by default and
+  // colour-coded per vessel the same way Tenders/Sea Time already group by
+  // vessel colour (js/seav-data.js getVesselColor). So there is no more
+  // separate compact template: history cards now render the exact same
+  // markup as the current card below, just wrapped in a <details> shell.
+  const isHistory = !!options.history;
   const vesselId = v.id || "";
 
   const photoUrl = Seav.getFileDisplayUrl(
@@ -194,79 +202,13 @@ function buildVesselCard(v, options = {}) {
   const latestTenders = [...linkedTenders].slice(0, 3);
   const latestRefs = [...linkedRefs].slice(0, 3);
 
-  if (isCompact) {
-    return `
-      <article class="vessel-card-compact">
-        <div class="vessel-history-photo">
-          ${photoHtml}
-        </div>
+  // Same vessel-identity colour used on Tenders/Sea Time's vessel groupings
+  // (js/seav-data.js getVesselColor) — only actually needed for the history
+  // wrapper below, but computed here since it's cheap and keeps the colour
+  // lookup next to the rest of this card's per-vessel data.
+  const vesselColor = vesselId ? getVesselColor(vesselId, getVessels()) : "";
 
-        <div class="vessel-history-body">
-          <div class="vessel-history-head">
-            <span class="vessel-history-label">Previous vessel</span>
-            <h3>${vesselName}</h3>
-          </div>
-
-          <div class="vessel-history-info-grid">
-            <div>
-              <span>Build</span>
-              <strong>${builder}</strong>
-            </div>
-
-            <div>
-              <span>Flag state</span>
-              <strong>${flag}</strong>
-            </div>
-
-            <div>
-              <span>Role</span>
-              <strong>${role}</strong>
-            </div>
-
-            <div>
-              <span>GT</span>
-              <strong>${gt}</strong>
-            </div>
-
-            <div>
-              <span>Length</span>
-              <strong>${length}</strong>
-            </div>
-
-            <div>
-              <span>Dates</span>
-              <strong>${dateLine}</strong>
-            </div>
-
-            ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
-            ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
-            ${additionalDuties ? `<div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>` : ""}
-          </div>
-
-          <div class="vessel-history-counts">
-            <span>Sea time ${linkedSeatimes.length}</span>
-            <span>Tenders ${linkedTenders.length}</span>
-            <span>References ${linkedRefs.length}</span>
-          </div>
-
-          <div class="seav-actions seav-actions--compact">
-            ${Seav.seavAction(
-              "edit",
-              "Edit",
-              `data-edit-vessel-id="${Seav.escapeHtml(vesselId)}"`
-            )}
-            ${Seav.seavAction(
-              "delete",
-              "Delete",
-              `data-del-vessel-id="${Seav.escapeHtml(vesselId)}"`
-            )}
-          </div>
-        </div>
-      </article>
-    `;
-  }
-
-  return `
+  const cardMarkup = `
     <article class="vessel-profile-card">
 
       <div class="vessel-profile-top">
@@ -283,7 +225,7 @@ function buildVesselCard(v, options = {}) {
               <p>${type} • ${flag}</p>
             </div>
 
-            <span class="vessel-current-badge">Current</span>
+            <span class="vessel-current-badge">${isHistory ? "Previous" : "Current"}</span>
           </div>
 
           <div class="vessel-main-grid">
@@ -416,6 +358,30 @@ function buildVesselCard(v, options = {}) {
 
     </article>
   `;
+
+  if (!isHistory) return cardMarkup;
+
+  // History cards are the same rich card as above, just collapsed by
+  // default inside a <details> shell (closed to start — matches Tenders'
+  // vessel groups, js/tenders.js) so a long vessel history doesn't dump
+  // every past vessel's full experience/linked-data sections onto the page
+  // at once. The dot + border colour reuse the exact same getVesselColor()
+  // value Tenders/Sea Time use for this vessel, so it's the same colour
+  // everywhere that vessel shows up.
+  return `
+    <details class="vessel-history-collapsible" style="${vesselColor ? `--vessel-history-color:${Seav.escapeHtml(vesselColor)}` : ""}">
+      <summary class="vessel-history-summary">
+        ${vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(vesselColor)}"></span>` : ""}
+        <span class="vessel-history-summary-title">
+          <strong>${vesselName}</strong>
+          <small>${dateLine}</small>
+        </span>
+      </summary>
+      <div class="vessel-history-collapsible-body">
+        ${cardMarkup}
+      </div>
+    </details>
+  `;
 }
 
   const VESSEL_PHOTO_BUCKET =
@@ -542,7 +508,7 @@ async function renderVessels() {
   }
 
   vesselsGrid.innerHTML = history
-    .map((v) => buildVesselCard(v, { compact: true }))
+    .map((v) => buildVesselCard(v, { history: true }))
     .join("");
 }
 

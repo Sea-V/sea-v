@@ -232,7 +232,6 @@ body.app-page :where(
   .vessel-linked-clean-card,
   .vessel-experience-card,
   .vessel-sea-card,
-  .vessel-card-compact,
   .reference-modern-card,
   .cert-modern-card,
   .ps-kpi-box,
@@ -255,7 +254,6 @@ body.app-page .navigation-stat--highlight {
 
 body.app-page :where(
   .vessel-image-card,
-  .vessel-history-photo,
   .vessel-photo,
   .achievement-card .achievement-photo,
   #tendersGrid .vessel-photo
