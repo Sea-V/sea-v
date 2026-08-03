@@ -651,6 +651,45 @@ const SeavAPI = {
     }
   },
 
+  // Same as get(), but for callers that have already resolved the auth
+  // userId themselves (e.g. SeavState, which resolves it once per load
+  // cycle). Skips the redundant resolveAuthUserId() call so a momentary
+  // resolution hiccup on one of many concurrent fetches can't silently
+  // fall back to `fallback` while sibling fetches succeed. Only handles
+  // the profile-key path — non-profile keys should use get() directly.
+  async getForUser(key, userId, fallback = null) {
+    if (!isProfileKey(key)) return this.get(key, fallback);
+    if (!window.SeavSupabase || !userId) return fallback;
+
+    const { data, error } = await fetchOwnerProfileRow(userId);
+
+    if (error) {
+      console.error("[SEA-V] Supabase profile fetch failed:", error);
+      if (window.SeavFeedback?.error) {
+        window.SeavFeedback.error(
+          "Profile did not load",
+          "Run grant select on profile to authenticated in Supabase, then reload. Details: " +
+            (error.message || "permission denied")
+        );
+      }
+      return fallback;
+    }
+
+    if (!data) {
+      console.warn("[SEA-V] No profile row for signed-in user — bootstrap may be needed.");
+      return {
+        ...(fallback || {}),
+        id: userId,
+        email: window.SeavAuth?.getUserEmail?.() || fallback?.email || ""
+      };
+    }
+
+    const profile = mapProfileFromSupabase(data);
+    if (!profile) return fallback;
+    if (!bulkHydrateFiles) return profile;
+    return hydrateProfilePhoto(profile);
+  },
+
     async save(key, value) {
   if (isProfileKey(key)) {
     if (!window.SeavSupabase) return value;

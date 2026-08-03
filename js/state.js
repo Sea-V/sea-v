@@ -136,34 +136,75 @@
     return FILE_HYDRATION_TABLES.filter((entry) => allowed.has(entry.stateKey));
   }
 
-  async function fetchStateKey(key, _userId) {
+  async function fetchStateKey(key, userId) {
+    // Reuse the userId the caller already resolved (loadAll/loadDeferredKeys/
+    // refreshKey each resolve it once, up front) instead of letting every
+    // individual fetch re-resolve its own auth session independently. That
+    // redundant per-key resolution used to race against Supabase's background
+    // token refresh — when it momentarily failed, getArray()/get() silently
+    // fell back to [] / DEFAULT_PROFILE for that one key only, and the empty
+    // result then got written into the 5-minute cache, making entire sections
+    // vanish until the cache expired. Falls back to the old (unsafe) path
+    // only if no userId was resolved at all, to avoid a plain crash.
+    if (!userId) {
+      switch (key) {
+        case "profile":
+          return window.SeavAPI.get(KEYS.PROFILE, DEFAULT_PROFILE);
+        case "seatimes":
+          return window.SeavAPI.getArray(KEYS.SEATIMES);
+        case "certs":
+          return window.SeavAPI.getArray(KEYS.CERTS);
+        case "vessels":
+          return window.SeavAPI.getArray(KEYS.VESSELS);
+        case "refs":
+          return window.SeavAPI.getArray(KEYS.REFS);
+        case "achievements":
+          return window.SeavAPI.getArray(KEYS.ACHIEVEMENTS);
+        case "navigationAreas":
+          return window.SeavAPI.getArray(KEYS.NAVIGATION_AREAS);
+        case "tenders":
+          return window.SeavAPI.getArray(KEYS.TENDERS);
+        case "onboardExperiences":
+          return window.SeavAPI.getArray(KEYS.ONBOARD_EXPERIENCES);
+        case "onboardSkills":
+          return window.SeavAPI.getArray(KEYS.ONBOARD_SKILLS);
+        case "hobbiesInterests":
+          return window.SeavAPI.getArray(KEYS.HOBBIES_INTERESTS);
+        case "specialistQualifications":
+          return window.SeavAPI.getArray(KEYS.SPECIALIST_QUALIFICATIONS);
+        case "payslips":
+          return window.SeavAPI.getArray(KEYS.PAYSLIPS);
+        default:
+          return [];
+      }
+    }
     switch (key) {
       case "profile":
-        return window.SeavAPI.get(KEYS.PROFILE, DEFAULT_PROFILE);
+        return window.SeavAPI.getForUser(KEYS.PROFILE, userId, DEFAULT_PROFILE);
       case "seatimes":
-        return window.SeavAPI.getArray(KEYS.SEATIMES);
+        return window.SeavAPI.getArrayForUser(KEYS.SEATIMES, userId);
       case "certs":
-        return window.SeavAPI.getArray(KEYS.CERTS);
+        return window.SeavAPI.getArrayForUser(KEYS.CERTS, userId);
       case "vessels":
-        return window.SeavAPI.getArray(KEYS.VESSELS);
+        return window.SeavAPI.getArrayForUser(KEYS.VESSELS, userId);
       case "refs":
-        return window.SeavAPI.getArray(KEYS.REFS);
+        return window.SeavAPI.getArrayForUser(KEYS.REFS, userId);
       case "achievements":
-        return window.SeavAPI.getArray(KEYS.ACHIEVEMENTS);
+        return window.SeavAPI.getArrayForUser(KEYS.ACHIEVEMENTS, userId);
       case "navigationAreas":
-        return window.SeavAPI.getArray(KEYS.NAVIGATION_AREAS);
+        return window.SeavAPI.getArrayForUser(KEYS.NAVIGATION_AREAS, userId);
       case "tenders":
-        return window.SeavAPI.getArray(KEYS.TENDERS);
+        return window.SeavAPI.getArrayForUser(KEYS.TENDERS, userId);
       case "onboardExperiences":
-        return window.SeavAPI.getArray(KEYS.ONBOARD_EXPERIENCES);
+        return window.SeavAPI.getArrayForUser(KEYS.ONBOARD_EXPERIENCES, userId);
       case "onboardSkills":
-        return window.SeavAPI.getArray(KEYS.ONBOARD_SKILLS);
+        return window.SeavAPI.getArrayForUser(KEYS.ONBOARD_SKILLS, userId);
       case "hobbiesInterests":
-        return window.SeavAPI.getArray(KEYS.HOBBIES_INTERESTS);
+        return window.SeavAPI.getArrayForUser(KEYS.HOBBIES_INTERESTS, userId);
       case "specialistQualifications":
-        return window.SeavAPI.getArray(KEYS.SPECIALIST_QUALIFICATIONS);
+        return window.SeavAPI.getArrayForUser(KEYS.SPECIALIST_QUALIFICATIONS, userId);
       case "payslips":
-        return window.SeavAPI.getArray(KEYS.PAYSLIPS);
+        return window.SeavAPI.getArrayForUser(KEYS.PAYSLIPS, userId);
       default:
         return [];
     }
