@@ -205,9 +205,9 @@
   border-radius: 24px;
   border: 1.5px solid rgba(91, 188, 255, 0.24);
   overflow: hidden;
-  background:
-    radial-gradient(circle at center, rgba(91, 188, 255, 0.06), transparent 55%),
-    #050c16;
+  /* Solid fill, not a radial-gradient glow — Jack wants solid colors
+     site-wide 2026-08-03, no corner glow. */
+  background: #050c16;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
   z-index: 0;
 }

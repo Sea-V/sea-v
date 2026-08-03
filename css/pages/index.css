@@ -99,7 +99,9 @@ body.signup-page .login-btn {
   height: 40px;
   border: none;
   border-radius: 20px;
-  background: linear-gradient(135deg, #5bbcff, #2d7cff);
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. Value is the midpoint of the old gradient. */
+  background: #449cff;
   color: white;
   font-weight: 600;
   cursor: pointer;

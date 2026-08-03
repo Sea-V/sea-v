@@ -153,7 +153,9 @@
   margin-bottom: 22px;
   border-radius: 20px;
   border: 1px solid rgba(91, 188, 255, 0.22);
-  background: linear-gradient(135deg, rgba(91, 188, 255, 0.08), rgba(255, 179, 71, 0.06));
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. */
+  background: rgba(91, 188, 255, 0.07);
 }
 
 .ach-next-badge {
@@ -209,7 +211,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #5bbcff, #ffb347);
+  background: #5bbcff;
   transition: width 0.35s ease;
 }
 
@@ -271,7 +273,9 @@
 
 .ach-trophy.is-unlocked {
   border-color: rgba(255, 179, 71, 0.28);
-  background: linear-gradient(180deg, rgba(255, 179, 71, 0.08), rgba(255, 255, 255, 0.03));
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. */
+  background: rgba(255, 179, 71, 0.06);
 }
 
 .ach-trophy.is-unlocked:hover {
@@ -296,7 +300,9 @@
   position: absolute;
   inset: -10px;
   clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
-  background: radial-gradient(circle at 50% 40%, rgba(56, 189, 248, 0.32), transparent 70%);
+  /* Solid fill, not a radial-gradient glow — Jack wants solid colors
+     site-wide 2026-08-03, no glow/halo effects. */
+  background: rgba(56, 189, 248, 0.14);
   pointer-events: none;
 }
 
@@ -582,19 +588,19 @@
 .ach-trophy.is-unlocked[data-source-page="hobbies-interests"] { border-color: color-mix(in srgb, var(--page-hobbies-interests) 38%, transparent); }
 
 .ach-trophy.is-unlocked[data-source-page="seatime"] .ach-trophy-glow {
-  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--page-seatime) 32%, transparent), transparent 70%);
+  background: color-mix(in srgb, var(--page-seatime) 14%, transparent);
 }
 
 .ach-trophy.is-unlocked[data-source-page="navigation"] .ach-trophy-glow {
-  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--page-navigation) 32%, transparent), transparent 70%);
+  background: color-mix(in srgb, var(--page-navigation) 14%, transparent);
 }
 
 .ach-trophy.is-unlocked[data-source-page="vessels"] .ach-trophy-glow {
-  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--page-vessels) 32%, transparent), transparent 70%);
+  background: color-mix(in srgb, var(--page-vessels) 14%, transparent);
 }
 
 .ach-trophy.is-unlocked[data-source-page="profile"] .ach-trophy-glow {
-  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--page-profile) 32%, transparent), transparent 70%);
+  background: color-mix(in srgb, var(--page-profile) 14%, transparent);
 }
 
 /* Responsive */

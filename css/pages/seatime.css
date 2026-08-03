@@ -161,9 +161,9 @@
   border-radius: 18px;
   border: 1px solid rgba(130, 158, 255, 0.22);
 
-  background:
-    radial-gradient(circle at 12% 0%, rgba(130, 158, 255, 0.16), transparent 34%),
-    rgba(255, 255, 255, 0.028);
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03, no corner glow/shading. */
+  background: rgba(130, 158, 255, 0.05);
 
   color: inherit;
   text-decoration: none;
@@ -175,9 +175,7 @@
 }
 
 .seatime-portal-link:hover {
-  background:
-    radial-gradient(circle at 12% 0%, rgba(130, 158, 255, 0.24), transparent 36%),
-    rgba(130, 158, 255, 0.06);
+  background: rgba(130, 158, 255, 0.1);
   border-color: rgba(130, 158, 255, 0.34);
   transform: translateY(-1px);
 }
@@ -274,11 +272,10 @@
    TABLE
 ========================================================= */
 
-/* Background/border now use the same neutral --surface-border /
-   --surface-bg-soft pairing as every other table/list surface on the
-   site (css/components/tables.css .table-wrap, css/components/lists.css
-   .list-row) instead of the page's own periwinkle accent — Jack flagged
-   2026-08-03 that the blue tint didn't match the rest of the site. */
+/* Solid flat panel, not a gradient — Jack flagged the light-to-dark
+   shading 2026-08-03 (var(--surface-bg-soft) is a top-to-bottom
+   gradient) and wants solid fills site-wide, easier to work with than
+   gradients. Same solid navy as the page's KPI boxes/panels. */
 .seatime-table-wrap {
   width: 100%;
   max-width: 100%;
@@ -291,7 +288,7 @@
   border-radius: 18px;
   border: 1px solid var(--surface-border);
 
-  background: var(--surface-bg-soft);
+  background: var(--page-shell-panel);
 }
 
 .seatime-table-wrap table {
@@ -766,7 +763,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--seatime-accent), #5bbcff);
+  background: #5bbcff;
   transition: width 0.35s ease;
 }
 

@@ -385,12 +385,11 @@
   font-size: 9pt;
   line-height: 1.45;
   color: var(--cv-sidebar-text);
-  background: linear-gradient(
-    180deg,
-    var(--cv-sidebar-grad-1) 0%,
-    var(--cv-sidebar-grad-2) 52%,
-    var(--cv-sidebar-grad-3) 100%
-  );
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. Uses the middle stop of the old 3-stop gradient as the
+     flat representative colour; still themed per cv-color-* scheme since
+     --cv-sidebar-grad-2 is overridden by each scheme block below. */
+  background: var(--cv-sidebar-grad-2);
 }
 
 .cv-seav-sidebar::before {
@@ -400,12 +399,11 @@
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(
-    180deg,
-    var(--cv-sidebar-accent-1) 0%,
-    var(--cv-sidebar-accent-2) 50%,
-    var(--cv-sidebar-accent-3) 100%
-  );
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. Uses the middle stop of the old 3-stop gradient; still
+     themed per cv-color-* scheme since --cv-sidebar-accent-2 is overridden
+     by each scheme block below. */
+  background: var(--cv-sidebar-accent-2);
   z-index: 1;
 }
 

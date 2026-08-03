@@ -54,7 +54,9 @@
   border: none;
   border-radius: 22px;
 
-  background: linear-gradient(135deg, #5bbcff, #2d7cff);
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. Value is the midpoint of the old gradient. */
+  background: #449cff;
 
   color: white;
 

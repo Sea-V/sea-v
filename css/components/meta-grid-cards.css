@@ -11,10 +11,9 @@
   overflow: hidden;
 
   border-radius: var(--seav-meta-card-radius, 24px);
-  background: var(
-    --seav-meta-card-bg,
-    linear-gradient(180deg, rgba(20, 38, 61, 0.82), rgba(12, 28, 48, 0.76))
-  );
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. Fallback matches the flattened --seav-meta-card-bg value. */
+  background: var(--seav-meta-card-bg, rgba(16, 33, 55, 0.79));
   box-shadow: var(--seav-meta-card-shadow, 0 12px 26px rgba(0, 0, 0, 0.18));
 }
 
@@ -53,7 +52,9 @@
 
   border-radius: 50%;
 
-  background: linear-gradient(145deg, #6f42ff, #d16bff);
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. Value is the midpoint of the old gradient. */
+  background: #a057ff;
 
   color: #ffffff;
 
@@ -152,10 +153,9 @@
   overflow: hidden;
 
   border-radius: var(--seav-meta-card-radius, 24px);
-  background: var(
-    --seav-meta-card-bg,
-    linear-gradient(180deg, rgba(20, 38, 61, 0.82), rgba(12, 28, 48, 0.76))
-  );
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. Fallback matches the flattened --seav-meta-card-bg value. */
+  background: var(--seav-meta-card-bg, rgba(16, 33, 55, 0.79));
   border: 1px solid var(--seav-meta-card-border-purple, rgba(209, 107, 255, 0.24));
   box-shadow: var(--seav-meta-card-shadow, 0 12px 26px rgba(0, 0, 0, 0.18));
 }
@@ -184,7 +184,9 @@
 
   border-radius: 50%;
 
-  background: linear-gradient(145deg, #6f42ff, #d16bff);
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. Value is the midpoint of the old gradient. */
+  background: #a057ff;
 
   color: #ffffff;
 

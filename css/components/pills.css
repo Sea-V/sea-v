@@ -49,24 +49,23 @@
    PROGRESS STATES
 ========================================================= */
 
+/* Solid fills, not gradients — Jack wants solid colors site-wide
+   2026-08-03. Each value is the midpoint of the old left-to-right gradient. */
+
 .progress-low {
-  background:
-    linear-gradient(90deg, #ff6b6b, #ff8a8a);
+  background: #ff7b7b;
 }
 
 .progress-mid {
-  background:
-    linear-gradient(90deg, #ffb86b, #ffd28a);
+  background: #ffc57b;
 }
 
 .progress-good {
-  background:
-    linear-gradient(90deg, #5bbcff, #72e4ff);
+  background: #67d0ff;
 }
 
 .progress-complete {
-  background:
-    linear-gradient(90deg, #5ee6a8, #72ffd2);
+  background: #68f3bd;
 
   box-shadow:
     0 0 12px rgba(94,230,168,0.6);

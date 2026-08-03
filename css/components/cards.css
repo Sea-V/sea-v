@@ -12,17 +12,9 @@
   border-radius: 30px;
   border: 1px solid rgba(91,188,255,0.28);
 
-  background:
-    radial-gradient(
-      circle at top left,
-      rgba(91,188,255,0.12),
-      transparent 34%
-    ),
-    linear-gradient(
-      145deg,
-      rgba(9,24,42,0.96),
-      rgba(20,43,70,0.88)
-    );
+  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+     2026-08-03. Value is the midpoint of the old gradient, no corner glow. */
+  background: rgba(15,34,56,0.92);
 
   box-shadow:
     0 20px 48px rgba(0,0,0,0.28);
