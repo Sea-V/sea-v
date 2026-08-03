@@ -97,9 +97,18 @@
    catalogGroups()). Was a collapsible <details>/<summary> dropdown per
    category; Jack found the click-to-expand behavior unnecessary here
    (2026-08-03) — this is now a static section divider (title + count),
-   nothing to open/close. Border/background/title/count-badge conventions
-   still match the vessel-group pattern used on Seatime/Tenders/Navigation,
-   just page-accent-gold instead of page-accent-green/-blue.
+   nothing to open/close.
+
+   Restyled the same day (2026-08-03, second pass) — at 8px apart (the
+   shared .cert-compact-list gap, same value used for individual cert
+   rows) adjacent category boxes read as one crowded block, and the
+   title sat inline with the count at the same size/weight/color as a
+   cert row's own title, so a category heading didn't register as a
+   heading. Fixed with: (1) real spacing between sections instead of
+   list-row spacing, (2) a header/body divider line, (3) a centered,
+   gold, larger title that reads as a section label rather than another
+   list item — count badge stays pinned to the right via a mirrored
+   empty grid column so centering holds regardless of the count's width.
 ========================================================= */
 
 .cert-category-group {
@@ -111,28 +120,38 @@
   overflow: hidden;
 }
 
+.cert-category-group + .cert-category-group {
+  margin-top: 24px;
+}
+
 .cert-category-group-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr);
   align-items: center;
 
   gap: 10px;
 
-  padding: 14px 16px;
+  padding: 16px 18px;
+
+  border-bottom: 1px solid var(--surface-border);
+  background: rgba(255, 210, 90, 0.045);
 }
 
 .cert-category-group-title {
-  display: flex;
-  flex-direction: column;
+  grid-column: 2;
 
-  gap: 2px;
+  display: flex;
+  justify-content: center;
   min-width: 0;
 }
 
 .cert-category-group-title strong {
-  color: #ffffff;
+  color: #ffd25a;
 
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
+  letter-spacing: 0.2px;
+  text-align: center;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -140,7 +159,8 @@
 }
 
 .cert-category-group-count {
-  margin-left: auto;
+  grid-column: 3;
+  justify-self: end;
 
   min-width: 22px;
   padding: 1px 8px;
@@ -162,7 +182,7 @@
   flex-direction: column;
   gap: 8px;
 
-  padding: 0 14px 14px;
+  padding: 16px 14px 16px;
 }
 
 .cert-compact-card {
