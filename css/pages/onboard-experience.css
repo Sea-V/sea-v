@@ -45,9 +45,9 @@
 .onboard-shell-head h2 {
   margin: 0 0 8px;
   color: #ffffff;
-  font-size: 24px;
-  line-height: 1.1;
-  font-weight: 900;
+  font-size: var(--font-page-title);
+  line-height: 1.25;
+  font-weight: var(--font-weight-title);
 }
 
 .onboard-shell-head p {
@@ -98,8 +98,8 @@
 .onboard-section-head h3 {
   margin: 0 0 5px;
   color: #ffffff;
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .onboard-section-head p {

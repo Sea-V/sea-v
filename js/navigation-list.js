@@ -147,7 +147,6 @@
 
     list.innerHTML = groups
       .map((group) => {
-        const passageWord = group.entries.length === 1 ? "passage" : "passages";
         const totalNmText = group.totalNm ? formatNm(group.totalNm) : "";
 
         return `
@@ -156,7 +155,7 @@
               <span class="navigation-log-color" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>
               <span class="navigation-vessel-group-title">
                 <strong>${Seav.escapeHtml(group.vesselName)}</strong>
-                <small>${group.entries.length} ${passageWord}${totalNmText ? ` · ${Seav.escapeHtml(totalNmText)}` : ""}</small>
+                ${totalNmText ? `<small>${Seav.escapeHtml(totalNmText)}</small>` : ""}
               </span>
               <span class="navigation-vessel-group-count">${group.entries.length}</span>
             </summary>

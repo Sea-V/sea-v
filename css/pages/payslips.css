@@ -42,9 +42,9 @@
 .ps-shell-head h2 {
   margin: 0 0 8px;
   color: #ffffff;
-  font-size: 24px;
-  line-height: 1.1;
-  font-weight: 900;
+  font-size: var(--font-page-title);
+  line-height: 1.25;
+  font-weight: var(--font-weight-title);
 }
 
 .ps-shell-head p {
@@ -210,8 +210,8 @@
 .ps-section-head h3 {
   margin: 0 0 5px;
   color: #ffffff;
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .ps-section-head p {
@@ -292,7 +292,7 @@
 
 .ps-year-summary-title strong {
   color: #ffffff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -300,19 +300,19 @@
 }
 
 .ps-year-summary-title small {
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
   font-weight: 600;
 }
 
 .ps-year-summary-count {
   flex-shrink: 0;
-  min-width: 26px;
-  padding: 3px 9px;
+  min-width: 22px;
+  padding: 1px 8px;
   border-radius: 999px;
   background: rgba(207, 168, 106, 0.16);
   color: #ffffff;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   text-align: center;
 }

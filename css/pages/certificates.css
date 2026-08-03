@@ -42,9 +42,9 @@
 .cert-shell-head h2 {
   margin: 0 0 8px;
   color: #ffffff;
-  font-size: 24px;
-  line-height: 1.1;
-  font-weight: 900;
+  font-size: var(--font-page-title);
+  line-height: 1.25;
+  font-weight: var(--font-weight-title);
 }
 
 .cert-shell-head p {

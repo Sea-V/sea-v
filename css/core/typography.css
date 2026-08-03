@@ -108,9 +108,6 @@ body.landing-page .info-title {
   .dash-card h3,
   .dash-card p,
   .dash-list,
-  .btn-blue,
-  .btn-ghost2,
-  .btn-attach,
   .list-title,
   .list-sub,
   .nav-left,
@@ -157,7 +154,13 @@ body.landing-page .info-title {
   font-size: var(--font-body) !important;
 }
 
-/* Status pills keep compact sizing — generic span rule above would force 14px */
+/* Status pills keep compact sizing — generic span/a rule above would force 14px.
+   .seav-action/.btn-blue/.btn-ghost2/.btn-attach added 2026-08-03: these are
+   all built as 999px-radius pill-shaped buttons (pill-height/pill-padding-x
+   vars) and already declare pill-font-size themselves in their own CSS, but
+   being <a>/<button> elements they were being swept into the bare-tag rule
+   above and silently rendered at 14px instead of their intended compact
+   size — dead declarations, not an intentional size. */
 body.app-page :where(
   .pill,
   .status-pill,
@@ -172,7 +175,11 @@ body.app-page :where(
   .reference-verified-pill,
   .reference-sent-pill,
   .reference-declined-pill,
-  .tender-proficiency-pill
+  .tender-proficiency-pill,
+  .seav-action,
+  .btn-blue,
+  .btn-ghost2,
+  .btn-attach
 ) {
   font-size: var(--pill-font-size) !important;
   font-weight: var(--pill-font-weight) !important;

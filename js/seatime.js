@@ -523,7 +523,7 @@
               ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
               <span class="seatime-vessel-group-title">
                 <strong>${Seav.escapeHtml(group.vesselName)}</strong>
-                <small>${group.entries.length} ${group.entries.length === 1 ? "entry" : "entries"} • ${totalDays} qualifying days</small>
+                <small>${totalDays} qualifying days</small>
               </span>
               <span class="seatime-vessel-group-count">${group.entries.length}</span>
             </summary>

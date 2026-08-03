@@ -76,9 +76,9 @@
 
   color: #ffffff;
 
-  font-size: 22px;
-  line-height: 1.1;
-  font-weight: 900;
+  font-size: var(--font-page-title);
+  line-height: 1.25;
+  font-weight: var(--font-weight-title);
 }
 
 .tender-shell-head p {
@@ -108,8 +108,8 @@
 
   color: #ffffff;
 
-  font-size: 18px;
-  font-weight: 850;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .tender-section-head p {

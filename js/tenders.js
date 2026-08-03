@@ -300,15 +300,12 @@ function buildTenderVesselGroups(tenders) {
 
     tendersGrid.innerHTML = groups
       .map((group) => {
-        const tenderWord = group.tenders.length === 1 ? "tender" : "tenders";
-
         return `
           <details class="tender-vessel-group">
             <summary class="tender-vessel-group-summary">
               ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
               <span class="tender-vessel-group-title">
                 <strong>${Seav.escapeHtml(group.vesselName)}</strong>
-                <small>${group.tenders.length} ${tenderWord}</small>
               </span>
               <span class="tender-vessel-group-count">${group.tenders.length}</span>
             </summary>

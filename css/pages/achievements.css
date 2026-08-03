@@ -41,9 +41,9 @@
 .ach-shell-head h2 {
   margin: 0 0 8px;
   color: #ffffff;
-  font-size: 24px;
-  line-height: 1.1;
-  font-weight: 900;
+  font-size: var(--font-page-title);
+  line-height: 1.25;
+  font-weight: var(--font-weight-title);
 }
 
 .ach-shell-head p {
@@ -96,7 +96,7 @@
 .ach-kpi-box .kpi-label {
   margin-top: 4px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--seav-field-label-color, #5bbcff);
@@ -499,8 +499,8 @@
 .ach-section-head h3 {
   margin: 0 0 4px;
   color: #fff;
-  font-size: 17px;
-  font-weight: 850;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .ach-section-head p {

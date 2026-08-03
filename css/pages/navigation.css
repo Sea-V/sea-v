@@ -57,9 +57,9 @@
 .navigation-shell-head h2 {
   margin: 0 0 8px;
   color: #ffffff;
-  font-size: 24px;
-  line-height: 1.1;
-  font-weight: 900;
+  font-size: var(--font-page-title);
+  line-height: 1.25;
+  font-weight: var(--font-weight-title);
 }
 
 .navigation-shell-head p {
@@ -85,8 +85,8 @@
 .navigation-section-head h3 {
   margin: 0 0 5px;
   color: #ffffff;
-  font-size: 18px;
-  font-weight: 850;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .navigation-section-head p {
@@ -157,8 +157,8 @@
 .navigation-stat-label {
   display: block;
   margin-top: 4px;
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 10px;
+  color: #5bbcff;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.6px;
   text-transform: uppercase;

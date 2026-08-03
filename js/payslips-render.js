@@ -200,7 +200,6 @@
           ? getPayslipMonthLabel(monthFilter, year)
           : "";
         const isOpen = expandedTaxYears.has(year);
-        const payslipLabel = items.length === 1 ? "payslip" : "payslips";
         const monthsLogged = getPayslipMonthsLogged(year, getEntries()).size;
 
         return `
@@ -218,7 +217,7 @@
               </span>
               <span class="ps-year-summary-title">
                 <strong>Tax year ${Seav.escapeHtml(year)}</strong>
-                <small>${items.length} ${payslipLabel} • ${monthsLogged}/12 months</small>
+                <small>${monthsLogged}/12 months</small>
               </span>
               <span class="ps-year-summary-count">${items.length}</span>
             </button>

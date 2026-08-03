@@ -78,9 +78,9 @@
 
   color: #ffffff;
 
-  font-size: 24px;
-  line-height: 1.1;
-  font-weight: 900;
+  font-size: var(--font-page-title);
+  line-height: 1.25;
+  font-weight: var(--font-weight-title);
 }
 
 .vessel-shell-head p {
@@ -119,8 +119,8 @@
 
   color: #ffffff;
 
-  font-size: 18px;
-  font-weight: 850;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .vessel-shell-section-head p {
@@ -291,8 +291,8 @@
 
   color: var(--seav-field-label-color, #5bbcff);
 
-  font-size: 12px;
-  font-weight: 950;
+  font-size: 11px;
+  font-weight: 800;
   text-transform: uppercase;
 }
 
@@ -420,9 +420,9 @@
 
   color: var(--seav-field-label-color, #5bbcff);
 
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.2;
-  font-weight: 850;
+  font-weight: 800;
 
   letter-spacing: 0.02em;
   text-transform: none;
@@ -436,7 +436,7 @@
 
   font-size: 14px;
   line-height: 1.25;
-  font-weight: 500;
+  font-weight: 700;
 
   letter-spacing: 0;
 
@@ -611,8 +611,8 @@
 
   color: rgba(255, 255, 255, 0.88);
 
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
 
   overflow-wrap: anywhere;
 }

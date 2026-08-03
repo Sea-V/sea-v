@@ -28,6 +28,18 @@
   --muted: rgba(255,255,255,0.82);
   --muted2: rgba(255,255,255,0.68);
 
+  /* Shared typography tokens — referenced by dashboard.css's "typography
+     normalisation" block and profile.css, but were never defined here
+     (broken custom properties, silently falling back to inherited size).
+     Values match what css/core/typography.css already forces/expects
+     everywhere else on the site, so defining them corrects real drift on
+     .dashboard-shell-card without changing anything typography.css already
+     enforces elsewhere. Added 2026-08-03. */
+  --font-section-title: 14px;
+  --font-label: 11px;
+  --font-value: 14px;
+  --font-kpi: 22px;
+
   /* Empty form fields — hint text (not filled-in values) */
   --field-hint-color: rgba(148, 163, 184, 0.55);
   --field-value-color: #ffffff;

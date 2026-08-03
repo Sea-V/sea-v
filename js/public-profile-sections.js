@@ -470,15 +470,12 @@
   // groupTendersByVessel (js/public-profile-utils.js) since this page has no
   // getVessels()/getTenders() of its own to call the Tenders page's version.
   function buildTenderVesselGroupHtml(group, vessels, { open = false } = {}) {
-    const tenderWord = group.tenders.length === 1 ? "tender" : "tenders";
-
     return `
       <details class="tender-vessel-group" data-pp-more-item${open ? " open" : ""}>
         <summary class="tender-vessel-group-summary">
           ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
           <span class="tender-vessel-group-title">
             <strong>${Seav.escapeHtml(group.vesselName)}</strong>
-            <small>${group.tenders.length} ${tenderWord}</small>
           </span>
           <span class="tender-vessel-group-count">${group.tenders.length}</span>
         </summary>
@@ -1180,15 +1177,12 @@
   // Same collapsible per-vessel grouping as Tenders/Sea Time — only used for
   // manually-logged milestones, which always carry a vessel.
   function buildAchievementVesselGroupHtml(group, { open = false } = {}) {
-    const word = group.items.length === 1 ? "milestone" : "milestones";
-
     return `
       <details class="achievement-vessel-group" data-pp-more-item${open ? " open" : ""}>
         <summary class="achievement-vessel-group-summary">
           ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
           <span class="achievement-vessel-group-title">
             <strong>${Seav.escapeHtml(group.vesselName)}</strong>
-            <small>${group.items.length} ${word}</small>
           </span>
           <span class="achievement-vessel-group-count">${group.items.length}</span>
         </summary>
