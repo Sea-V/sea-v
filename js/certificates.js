@@ -21,6 +21,14 @@
   const STORAGE_KEY = KEYS.CERTS;
   const CUSTOM = "__CUSTOM__";
   const expandedCertIds = new Set();
+  // Which category groups the crew has opened — renderList() rebuilds the
+  // whole #certsList innerHTML on every change (including just expanding a
+  // single cert row), which would otherwise create fresh <details> elements
+  // that default closed every time, snapping an open category shut the
+  // moment you click a cert inside it. Reapplied in
+  // buildCertCategoryGroupHtml() and kept in sync by a "toggle" listener
+  // on #certsList (see wireCertCategoryToggleTracking()).
+  const expandedCertCategories = new Set();
   const CERT_FILE_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.CERTIFICATE_FILES || "certificate-files";
 
@@ -403,7 +411,7 @@
 
   function buildCertCategoryGroupHtml(group) {
     return `
-      <details class="cert-category-group">
+      <details class="cert-category-group"${expandedCertCategories.has(group.label) ? " open" : ""}>
         <summary class="cert-category-group-summary">
           <span class="cert-category-group-title">
             <strong>${Seav.escapeHtml(group.label)}</strong>
@@ -869,6 +877,29 @@
       expandedCertIds.delete(delBtn.getAttribute("data-del-cert-id"));
       refreshView();
     });
+
+    // Track which category <details> are open so renderList() (which
+    // rebuilds this container's innerHTML from scratch on every change,
+    // including just expanding a single cert row) can reopen them instead
+    // of every category silently snapping shut. Attached once to the
+    // container itself (not a fresh element each render) with capture:true
+    // so it still catches the "toggle" event, which doesn't reliably
+    // bubble in every browser.
+    const certsListEl = document.getElementById("certsList");
+    if (certsListEl) {
+      certsListEl.addEventListener(
+        "toggle",
+        (e) => {
+          const details = e.target.closest?.(".cert-category-group");
+          if (!details) return;
+          const label = details.querySelector(".cert-category-group-title strong")?.textContent || "";
+          if (!label) return;
+          if (details.open) expandedCertCategories.add(label);
+          else expandedCertCategories.delete(label);
+        },
+        true
+      );
+    }
 
     const exportApi = window.SeavCertificatesExport;
     const bulkMsg = document.getElementById("certBulkMsg");
