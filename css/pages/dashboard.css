@@ -1303,6 +1303,73 @@
   gap: 10px;
 }
 
+/* =========================================================
+   DASHBOARD SNIPPET ROWS — Sea Time / Certificates / References
+   Scoped to these preview cards only (not the shared .list/.list-row
+   component in css/components/lists.css, which 9 other files still use).
+   Reuses the same solid color tokens and 18px card radius the redesigned
+   Seatime/Certificates/References pages already use, so these previews
+   read as current SEA-V style. No gradients (2026-08-03 site-wide
+   solid-color policy). Restyle only — the render logic in
+   js/dashboard-snippets.js that builds these rows (sorting, verification
+   status, expiry status, quote text) is untouched.
+========================================================= */
+
+.dash-snippet-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  margin-top: 8px;
+}
+
+.dash-snippet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 12px 14px;
+
+  border-radius: 14px;
+  border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.dash-snippet-row-main {
+  min-width: 0;
+}
+
+.dash-snippet-row-title {
+  color: rgba(255, 255, 255, 0.95);
+
+  font-size: 13px;
+  font-weight: 800;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-snippet-row-meta {
+  margin-top: 3px;
+
+  color: rgba(255, 255, 255, 0.6);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dash-snippet-row-quote {
+  margin-top: 4px;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 11px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
 .dash-mini-card {
   display: flex;
   flex-direction: column;

@@ -101,43 +101,28 @@
     if (skipUnchangedRender("seatime", fingerprint)) return;
 
     dashSeatimeSnippet.innerHTML = `
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Vessel Name</th>
-              <th>Flag / GT</th>
-              <th>Capacity Served</th>
-              <th>Date Joined</th>
-              <th>Date Left</th>
-              <th>Total Qualifying Service</th>
-              <th>Verification Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${latestThree.map((item) => {
-              const flagGt = [
-                item.flag ? Seav.escapeHtml(item.flag) : "—",
-                item.gt ? `${Seav.escapeHtml(item.gt)} GT` : "—"
-              ].join(" • ");
-              const verificationDisplay = getSeatimeVerificationDisplay(item.verificationStatus || "Logged");
+      <div class="dash-snippet-rows">
+        ${latestThree.map((item) => {
+          const flagGt = [
+            item.flag ? Seav.escapeHtml(item.flag) : "—",
+            item.gt ? `${Seav.escapeHtml(item.gt)} GT` : "—"
+          ].join(" • ");
+          const verificationDisplay = getSeatimeVerificationDisplay(item.verificationStatus || "Logged");
+          const vesselName = Seav.escapeHtml(
+            (window.SeavState?.vessels || []).find((v) => v.id === item.vesselId)?.name || "—"
+          );
+          const dateRange = `${Seav.escapeHtml(item.dateJoined || "—")} – ${Seav.escapeHtml(item.dateLeft || "Present")}`;
 
-              return `
-                <tr>
-                  <td>${Seav.escapeHtml(
-                  (window.SeavState?.vessels || []).find((v) => v.id === item.vesselId)?.name || "—"
-                  )}</td>
-                  <td>${flagGt}</td>
-                  <td>${Seav.escapeHtml(item.capacityServed || "—")}</td>
-                  <td>${Seav.escapeHtml(item.dateJoined || "—")}</td>
-                  <td>${Seav.escapeHtml(item.dateLeft || "—")}</td>
-                  <td>${totalQualifyingDays(item)}</td>
-                  <td><span class="${Seav.escapeHtml(verificationDisplay.className)}">${Seav.escapeHtml(verificationDisplay.label)}</span></td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
+          return `
+            <div class="dash-snippet-row">
+              <div class="dash-snippet-row-main">
+                <div class="dash-snippet-row-title">${vesselName}</div>
+                <div class="dash-snippet-row-meta">${dateRange} • ${flagGt} • ${totalQualifyingDays(item)} qualifying days</div>
+              </div>
+              <span class="${Seav.escapeHtml(verificationDisplay.className)}">${Seav.escapeHtml(verificationDisplay.label)}</span>
+            </div>
+          `;
+        }).join("")}
       </div>
     `;
   }
@@ -210,19 +195,19 @@ async function renderCertSnippet() {
   if (skipUnchangedRender("cert", JSON.stringify(sortedCerts))) return;
 
   dashCertSnippet.innerHTML = `
-    <div class="list">
+    <div class="dash-snippet-rows">
       ${sortedCerts
         .map((cert) => {
           const statusInfo = getDashboardCertStatus(cert);
           const expiryDisplay = cert.expiry ? formatDatePretty(cert.expiry) : "—";
 
           return `
-            <div class="list-row">
-              <div style="min-width:0;">
-                <div class="list-title">
+            <div class="dash-snippet-row">
+              <div class="dash-snippet-row-main">
+                <div class="dash-snippet-row-title">
                   ${Seav.escapeHtml(cert.code || "—")} • ${Seav.escapeHtml(cert.name || "—")}
                 </div>
-                <div class="list-sub">
+                <div class="dash-snippet-row-meta">
                   Expiry: ${Seav.escapeHtml(expiryDisplay)} • ${Seav.escapeHtml(statusInfo.label)}
                 </div>
               </div>
@@ -844,19 +829,19 @@ function drawDashboardNavigationChart(container, stats, entries = [], retryAttem
     if (skipUnchangedRender("reference", JSON.stringify(latestThree))) return;
 
     dashRefSnippet.innerHTML = `
-      <div class="list">
+      <div class="dash-snippet-rows">
         ${latestThree.map((ref) => {
           const status = getReferenceStatus(ref);
           const statusInfo = window.SeavData.getReferenceStatusDisplay(status);
           const quote = truncateText(ref.text, 140);
           return `
-            <div class="list-row">
-              <div style="min-width:0;">
-                <div class="list-title">${Seav.escapeHtml(ref.name || "—")}</div>
-                <div class="list-sub">${Seav.escapeHtml(ref.title || "—")} • ${Seav.escapeHtml(formatDatePretty(ref.date))}</div>
+            <div class="dash-snippet-row">
+              <div class="dash-snippet-row-main">
+                <div class="dash-snippet-row-title">${Seav.escapeHtml(ref.name || "—")}</div>
+                <div class="dash-snippet-row-meta">${Seav.escapeHtml(ref.title || "—")} • ${Seav.escapeHtml(formatDatePretty(ref.date))}</div>
                 ${
                   quote
-                    ? `<div class="list-sub dash-ref-quote">“${Seav.escapeHtml(quote)}”</div>`
+                    ? `<div class="dash-snippet-row-quote">“${Seav.escapeHtml(quote)}”</div>`
                     : ``
                 }
               </div>

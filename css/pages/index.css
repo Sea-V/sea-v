@@ -9,7 +9,11 @@ body.signup-page {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: Arial, Helvetica, sans-serif;
+  /* css/core/typography.css loads after this file and sets font-family:
+     var(--font-app) on this same selector at equal specificity, so it
+     always wins by source order — this Arial declaration never actually
+     rendered. Matching it here so the source isn't misleading. 2026-08-03 */
+  font-family: var(--font-app);
   color: white;
 }
 
