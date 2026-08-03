@@ -40,9 +40,6 @@
       rank: el("pf_rank"),
       qualification: el("pf_qualification"),
       nationality: el("pf_nationality"),
-      dobDay: el("pf_dob_day"),
-      dobMonth: el("pf_dob_month"),
-      dobYear: el("pf_dob_year"),
       location: el("pf_location"),
       email: el("pf_email"),
       phoneCountry: el("pf_phone_country"),
@@ -202,32 +199,16 @@
       };
     }
 
-    function splitDob(value) {
-      const raw = String(value || "").trim();
-      if (!raw || !raw.includes("-")) {
-        return { year: "", month: "", day: "" };
-      }
-
-      const [year = "", month = "", day = ""] = raw.split("-");
-      return { year, month, day };
-    }
-
-    function buildDob(day, month, year) {
-      const d = String(day || "").trim();
-      const m = String(month || "").trim();
-      const y = String(year || "").trim();
-
-      if (!d || !m || !y) return "";
-
-      if (!/^\d{4}$/.test(y)) return "";
-      if (!/^\d{2}$/.test(m)) return "";
-      if (!/^\d{2}$/.test(d)) return "";
-
-      return `${y}-${m}-${d}`;
-    }
-
+    // DOB used to be a hand-rolled day/month <select> + free-text year
+    // <input>, with its own split/build ISO helpers duplicating
+    // Seav.splitIsoDate/buildIsoDate. Converted (2026-08-03) to the same
+    // data-date-field triplet every other date on the site uses (see
+    // profile.html "pf_dob" and Seav.readDateTriplet/setDateTriplet below)
+    // so it behaves identically — same year range/order, same "sits on
+    // current year" default. formatDobForPreview() just needs the split,
+    // which the shared Seav.splitIsoDate now provides.
     function formatDobForPreview(value) {
-      const parts = splitDob(value);
+      const parts = Seav.splitIsoDate(value);
       if (!parts.year || !parts.month || !parts.day) return "—";
       return `${parts.day}/${parts.month}/${parts.year}`;
     }
@@ -467,11 +448,7 @@
         rank: fields.rank?.value.trim() || "",
         qualification: fields.qualification?.value.trim() || "",
         nationality: fields.nationality?.value.trim() || "",
-        dob: buildDob(
-          fields.dobDay?.value || "",
-          fields.dobMonth?.value || "",
-          fields.dobYear?.value || ""
-        ),
+        dob: Seav.readDateTriplet("pf_dob"),
         location: fields.location?.value.trim() || "",
         email: fields.email?.value.trim() || "",
         phone: buildPhone(fields.phoneCountry?.value || "", fields.phoneNumber?.value || ""),
@@ -496,8 +473,6 @@
     }
 
     function fillForm(profile) {
-      const dobParts = splitDob(profile.dob);
-
       if (fields.name) fields.name.value = profile.name || "";
       if (fields.rank) fields.rank.value = profile.rank || "";
       if (fields.qualification) {
@@ -508,9 +483,7 @@
         ensureSelectHasValue(fields.nationality, profile.nationality);
         fields.nationality.value = profile.nationality || "";
       }
-      if (fields.dobDay) fields.dobDay.value = dobParts.day || "";
-      if (fields.dobMonth) fields.dobMonth.value = dobParts.month || "";
-      if (fields.dobYear) fields.dobYear.value = dobParts.year || "";
+      Seav.setDateTriplet("pf_dob", profile.dob || "");
       if (fields.location) fields.location.value = profile.location || "";
       if (fields.email) fields.email.value = profile.email || "";
 
@@ -608,12 +581,6 @@
     form.addEventListener("input", previewFromForm);
     if (fields.photo) {
       fields.photo.addEventListener("change", handlePhotoFileChange);
-    }
-
-    if (fields.dobYear) {
-      fields.dobYear.addEventListener("input", () => {
-        fields.dobYear.value = fields.dobYear.value.replace(/\D/g, "").slice(0, 4);
-      });
     }
 
     async function saveProfileFromForm() {

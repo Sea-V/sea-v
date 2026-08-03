@@ -25,25 +25,25 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=367" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=367" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=367" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=367" />
+  <link rel="icon" href="/favicon.ico?v=368" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=368" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=368" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=368" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Verify Reference</title>
 
-  <link rel="stylesheet" href="styles.css?v=367" />
+  <link rel="stylesheet" href="styles.css?v=368" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=367"></script>
-  <script src="js/supabase.js?v=367"></script>
-  <script src="js/feedback.js?v=367" defer></script>
-  <script src="js/core.js?v=367" defer></script>
-  <script src="js/api-core.js?v=367" defer></script>
-  <script src="js/seav-signature-pad.js?v=367" defer></script>
-  <script src="js/reference-verification.js?v=367" defer></script>
-  <script src="js/verify-reference.js?v=367" defer></script>
+  <script src="js/seav-config.js?v=368"></script>
+  <script src="js/supabase.js?v=368"></script>
+  <script src="js/feedback.js?v=368" defer></script>
+  <script src="js/core.js?v=368" defer></script>
+  <script src="js/api-core.js?v=368" defer></script>
+  <script src="js/seav-signature-pad.js?v=368" defer></script>
+  <script src="js/reference-verification.js?v=368" defer></script>
+  <script src="js/verify-reference.js?v=368" defer></script>
 </head>
 
 <body class="landing-page verify-reference-page">
@@ -143,17 +143,18 @@
                 <span class="verify-signature-hint">Use your finger or mouse in the box above.</span>
               </div>
 
-              <div class="modal-grid2">
-                <label>
-                  Signature (full name)
-                  <input id="vrSignature" required placeholder="Type your full name to sign" />
-                </label>
+              <label>
+                Signature (full name)
+                <input id="vrSignature" required placeholder="Type your full name to sign" />
+              </label>
 
-                <label>
-                  Reference date
-                  <input type="date" id="vrSignedAt" />
-                </label>
-              </div>
+              <!-- Same day/month/year triplet as every logged-in page
+                   (js/core.js mountDateFields) instead of a native
+                   <input type="date"> — this is the one public/no-account
+                   page on the site, but it still loads js/core.js, so
+                   there's no reason for it to look or behave differently
+                   (2026-08-03). -->
+              <div data-date-field="vr_signed_at" data-date-label="Reference date"></div>
 
               <div class="verify-reference-actions">
                 <button class="btn-blue" type="submit" id="vrConfirmBtn">Confirm reference</button>

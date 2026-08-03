@@ -391,6 +391,13 @@
       populateTaxYearOptions("ps_tax_year", false);
       if (C.activeTaxYearFilter) {
         document.getElementById("ps_tax_year").value = C.activeTaxYearFilter;
+      } else {
+        // Anchor on the current UK tax year by default instead of leaving
+        // this blank — same "sits on now" behavior every other date field
+        // gets from js/core.js clearDateTriplet(). getUkTaxYearOptions()[0]
+        // is always the current tax year (6 April cutoff already applied).
+        const currentTaxYear = window.SeavData?.getUkTaxYearOptions?.(1)?.[0] || "";
+        if (currentTaxYear) document.getElementById("ps_tax_year").value = currentTaxYear;
       }
       populateMonthOptions(document.getElementById("ps_tax_year")?.value || "", null);
       populateCurrencyOptions();

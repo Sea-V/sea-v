@@ -25,7 +25,6 @@
     coc: document.getElementById("vrCoc"),
     signature: document.getElementById("vrSignature"),
     signaturePadMount: document.getElementById("vrSignaturePadMount"),
-    signedAt: document.getElementById("vrSignedAt"),
     confirmBtn: document.getElementById("vrConfirmBtn"),
     declineBtn: document.getElementById("vrDeclineBtn"),
     success: document.getElementById("vrSuccess"),
@@ -385,9 +384,11 @@
       if (els.signature && previewData.referee_name) {
         els.signature.placeholder = `Type your full name (${previewData.referee_name})`;
       }
-      if (els.signedAt) {
-        els.signedAt.value = todayIso();
-      }
+      // "Reference date" is now the same day/month/year triplet as every
+      // other date field on the site (js/core.js), not a raw <input
+      // type="date">, so it's set/read via the shared prefix helpers
+      // rather than a cached els.signedAt element reference.
+      Seav.setDateTriplet("vr_signed_at", todayIso());
 
       initSignaturePad();
 
@@ -455,7 +456,7 @@
       rank: els.rank?.value?.trim() || "",
       cocNumber: els.coc?.value?.trim() || "",
       signatureName,
-      signedAt: els.signedAt?.value || todayIso()
+      signedAt: Seav.readDateTriplet("vr_signed_at") || todayIso()
     };
 
     if (els.confirmBtn) els.confirmBtn.disabled = true;

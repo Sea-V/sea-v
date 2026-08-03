@@ -85,13 +85,19 @@
     return vessel?.name || "";
   }
 
+  // Ascending (oldest tax year first, current/most-recent last) — matches
+  // the ordering convention used by every other date control on the site
+  // (js/core.js buildYearOptionsHtml: earlier above, later below), so
+  // scrolling behaves the same way here as it does on a normal
+  // day/month/year field. Used to be newest-first (the opposite
+  // direction), the one dropdown on the site that broke that pattern.
   function getTaxYearsForFilter() {
     const years = getUkTaxYearOptions();
     const loggedYears = [
       ...new Set(getEntries().map((entry) => entry.taxYear).filter(Boolean))
     ].filter((year) => !years.includes(year));
 
-    return [...new Set([...years, ...loggedYears])].sort().reverse();
+    return [...new Set([...years, ...loggedYears])].sort();
   }
 
   function getMonthFilterOptionsHtml(taxYear, selectedMonth = "") {
