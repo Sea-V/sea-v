@@ -365,11 +365,13 @@ function buildVesselCard(v, options = {}) {
   // default inside a <details> shell (closed to start — matches Tenders'
   // vessel groups, js/tenders.js) so a long vessel history doesn't dump
   // every past vessel's full experience/linked-data sections onto the page
-  // at once. The dot + border colour reuse the exact same getVesselColor()
-  // value Tenders/Sea Time use for this vessel, so it's the same colour
-  // everywhere that vessel shows up.
+  // at once. Only the dot below carries the per-vessel getVesselColor()
+  // colour — the shell's own border stays the same neutral colour as every
+  // other border on this page (css/pages/vessels.css), matching how
+  // Tenders/Sea Time keep their vessel-group borders neutral too and put
+  // the colour on the dot alone.
   return `
-    <details class="vessel-history-collapsible" style="${vesselColor ? `--vessel-history-color:${Seav.escapeHtml(vesselColor)}` : ""}">
+    <details class="vessel-history-collapsible">
       <summary class="vessel-history-summary">
         ${vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(vesselColor)}"></span>` : ""}
         <span class="vessel-history-summary-title">

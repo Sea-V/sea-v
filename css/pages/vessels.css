@@ -752,10 +752,14 @@
 }
 
 .vessel-history-collapsible {
-  --vessel-history-color: rgba(214, 226, 238, 0.6);
-
+  /* Neutral border matching every other border on this page (.vessel-
+     shell-card, .vessel-profile-card, etc — --vessel-accent-border,
+     inherited down from .vessel-shell-card since custom properties cascade)
+     — only the dot below carries the per-vessel colour, same split
+     Tenders/Sea Time use on their own vessel groups (border: shared
+     var(--surface-border), colour: dot only). */
   border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--vessel-history-color) 45%, transparent);
+  border: 1px solid var(--vessel-accent-border, rgba(214, 226, 238, 0.24));
 
   background: rgba(255, 255, 255, 0.03);
 
@@ -783,8 +787,13 @@
   content: "›";
   display: inline-block;
 
-  margin-left: auto;
-
+  /* This ::before is generated BEFORE the dot/title spans in the DOM, so
+     it's the first flex item, not the last — margin-left: auto here (an
+     earlier mistake) absorbed all the row's free space in front of itself,
+     shoving the whole chevron+dot+name group to the right edge instead of
+     just nudging the chevron. Matches Tenders/Sea Time's own vessel-group
+     chevron (css/pages/tenders.css .tender-vessel-group-summary::before),
+     which also has no margin — content sits left, right side stays empty. */
   font-size: 18px;
   line-height: 1;
 
