@@ -219,71 +219,89 @@
   margin-top: 10px;
 }
 
-/* Category tabs */
+/* Deck Progression — permanent stacked list, above Seafarer Awards. Unlike
+   the trophy grid below, the progress bar always stays visible (even once
+   a milestone is met) since these are a real sea-time checklist, not a
+   collectible showcase. */
 
-.ach-toolbar {
-  margin-bottom: 18px;
+.ach-progress-section {
+  margin-bottom: 28px;
 }
 
-/* Stacked vertically (not side-by-side columns) so each group's label sits
-   directly above its own full-width row of pills with clear air between
-   groups — a row-of-columns layout looked like one continuous tab row with
-   two stray labels floating above it, since nothing visually separated
-   adjacent groups' pill rows from each other. */
-.ach-category-tabs {
+.ach-progress-list {
   display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+.ach-progress-row {
+  display: flex;
+  align-items: center;
   gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
 }
 
-.ach-tab-group {
+.ach-progress-row.is-unlocked {
+  border-color: rgba(255, 179, 71, 0.28);
+  background: rgba(255, 179, 71, 0.06);
+}
+
+.ach-progress-row-badge {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+}
+
+.ach-progress-row-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.16));
+}
+
+.ach-progress-row.is-locked .ach-progress-row-badge img {
+  filter: grayscale(0.65) brightness(0.88);
+  opacity: 0.72;
+}
+
+.ach-progress-row-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ach-progress-row-title-wrap {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 8px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 4px;
 }
 
-.ach-tab-group:first-of-type {
-  padding-top: 0;
-  border-top: none;
+.ach-progress-row-title {
+  color: var(--seav-entity-name-color, #fff);
+  font-size: 14px;
+  font-weight: 800;
 }
 
-.ach-tab-group-label {
-  font-size: 11px;
-  font-weight: 700;
+.ach-progress-row-pill {
+  flex: 0 0 auto;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
+  color: #ffb347;
+  border: 1px solid rgba(255, 179, 71, 0.35);
+  background: rgba(255, 179, 71, 0.12);
 }
 
-.ach-tab-group-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.ach-tab {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.72);
-  border-radius: 999px;
-  padding: 8px 14px;
+.ach-progress-row-label {
+  margin: 0 0 6px;
   font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.ach-tab:hover {
-  border-color: rgba(91, 188, 255, 0.35);
-  color: #fff;
-}
-
-.ach-tab.is-active {
-  border-color: rgba(255, 179, 71, 0.45);
-  background: rgba(255, 179, 71, 0.14);
-  color: #fff;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Trophy grid */
@@ -522,10 +540,11 @@
   display: inline-block;
 }
 
-/* Recent feed */
+/* Section headers — shared by the Deck Progression and Seafarer Awards
+   sections. */
 
 .ach-section-head {
-  margin: 28px 0 14px;
+  margin: 0 0 14px;
 }
 
 .ach-section-head h3 {
@@ -539,48 +558,6 @@
   margin: 0;
   color: rgba(255, 255, 255, 0.58);
   font-size: 12px;
-}
-
-.ach-recent-feed {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.ach-recent-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.ach-recent-badge {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  flex: 0 0 40px;
-}
-
-.ach-recent-copy {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.ach-recent-copy strong {
-  color: var(--seav-entity-name-color, #fff);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.ach-recent-copy span {
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 11px;
 }
 
 .ach-empty {
@@ -654,5 +631,9 @@
 
   .ach-trophy-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ach-progress-row {
+    align-items: flex-start;
   }
 }

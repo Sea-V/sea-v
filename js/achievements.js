@@ -12,14 +12,15 @@
   const STORAGE_KEY = KEYS.ACHIEVEMENTS;
 
   const TIER_RANK = { default: 0, bronze: 1, silver: 2, gold: 3, platinum: 4 };
-  let activeCategory = "all";
 
-  // Two-tier badge taxonomy: "Career Path Milestones" are objectively
-  // calculated against a real CoC sea-service threshold (MSN 1858 etc.) —
-  // "Seafarer Awards" cover everything else (vessel/passage/ops experience,
-  // rank self-reporting). Categories stay fully dynamic (see
-  // getUniqueCategories) — this list only decides which banner a known
-  // category sits under; anything not listed here falls back to Seafarer
+  // Two permanent sections, Deck Progression always rendered above Seafarer
+  // Awards — not a filter, both are always visible. "Deck Progression" (and
+  // any future "Engineering Progression") are objectively calculated against
+  // a real CoC sea-service threshold (MSN 1858 etc.) and rendered as a
+  // stacked checklist with the progress bar staying visible even once met.
+  // Everything else — vessel/passage/ops experience, rank self-reporting —
+  // is a Seafarer Award and rendered as the trophy-grid showcase. Categories
+  // stay fully dynamic; anything not listed here falls back to Seafarer
   // Awards so a future category never goes missing from the page.
   const CAREER_PATH_CATEGORIES = ["Deck Progression", "Engineering Progression"];
 
@@ -241,37 +242,6 @@
     `;
   }
 
-  function renderTabButton(category) {
-    return `<button type="button" class="ach-tab ${activeCategory === category ? "is-active" : ""}" data-ach-category="${Seav.escapeHtml(category)}">${Seav.escapeHtml(category)}</button>`;
-  }
-
-  function renderTabGroup(label, categories) {
-    if (!categories.length) return "";
-    return `
-      <div class="ach-tab-group">
-        <span class="ach-tab-group-label">${Seav.escapeHtml(label)}</span>
-        <div class="ach-tab-group-row">${categories.map(renderTabButton).join("")}</div>
-      </div>
-    `;
-  }
-
-  function renderCategoryTabs() {
-    const mount = document.getElementById("achCategoryTabs");
-    if (!mount) return;
-
-    const categories = getUniqueCategories();
-    const careerPath = categories.filter((cat) => CAREER_PATH_CATEGORIES.includes(cat));
-    const seafarerAwards = categories.filter((cat) => !CAREER_PATH_CATEGORIES.includes(cat));
-
-    mount.innerHTML = `
-      <div class="ach-tab-group-row">
-        <button type="button" class="ach-tab ${activeCategory === "all" ? "is-active" : ""}" data-ach-category="all">All</button>
-      </div>
-      ${renderTabGroup("Career Path Milestones", careerPath)}
-      ${renderTabGroup("Seafarer Awards", seafarerAwards)}
-    `;
-  }
-
   function buildInstanceRow(item) {
     const vesselLabel = item.vessel || "Unknown vessel";
     const dateLabel = formatAchievementDate(item.date);
@@ -391,73 +361,90 @@
     `;
   }
 
-  function renderTrophyCase() {
-    const grid = document.getElementById("achTrophyGrid");
-    if (!grid) return;
+  // Deck Progression is a checklist toward a real cert, not a collectible
+  // showcase — so it's rendered as a stacked list (one row per milestone,
+  // in catalog/ladder order) and the progress bar stays visible even once
+  // a row is unlocked, instead of switching to the trophy tile's "unlocked"
+  // summary view.
+  function buildProgressRow(definition, instances) {
+    const full = getAchievementWithBadge(definition.code);
+    if (!full) return "";
+
+    const unlocked = instances.length > 0;
+    const tier = full.badge?.tier || "default";
+    const imagePath = window.SeavBadges.resolveBadgeImage(definition.badgeKey, unlocked);
+    const progress = window.SeavAchievementEngine?.getProgressForDefinition?.(definition) || {
+      percent: unlocked ? 100 : 0,
+      label: ""
+    };
+
+    const primary = instances[0];
+    const unlockedLabel = unlocked
+      ? `Unlocked${primary?.date ? ` · ${formatAchievementDate(primary.date)}` : ""}`
+      : "";
+
+    return `
+      <article class="ach-progress-row ${unlocked ? "is-unlocked" : "is-locked"}" data-tier="${Seav.escapeHtml(tier)}">
+        <div class="ach-progress-row-badge">
+          <img src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(full.title || "")}" />
+        </div>
+        <div class="ach-progress-row-body">
+          <div class="ach-progress-row-title-wrap">
+            <span class="ach-progress-row-title">${Seav.escapeHtml(full.title || "")}</span>
+            ${unlocked ? `<span class="ach-progress-row-pill">${Seav.escapeHtml(unlockedLabel)}</span>` : ""}
+          </div>
+          <p class="ach-progress-row-label">${Seav.escapeHtml(progress.label || full.description || "")}</p>
+          <div class="ach-progress-bar" role="progressbar" aria-valuenow="${progress.percent}" aria-valuemin="0" aria-valuemax="100">
+            <span style="width: ${progress.percent}%"></span>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderDeckProgression() {
+    const mount = document.getElementById("achDeckProgressionList");
+    if (!mount) return;
 
     const earnedGroups = groupEarnedByCode();
-    const definitions = listAchievements().sort((a, b) => {
-      const aUnlocked = earnedGroups.has(a.code);
-      const bUnlocked = earnedGroups.has(b.code);
-      if (aUnlocked !== bUnlocked) return aUnlocked ? -1 : 1;
+    const definitions = listAchievements().filter((definition) =>
+      CAREER_PATH_CATEGORIES.includes(definition.category)
+    );
 
-      const cat = String(a.category || "").localeCompare(String(b.category || ""));
-      if (cat !== 0) return cat;
-      return String(a.title || "").localeCompare(String(b.title || ""));
-    });
-
-    const filtered =
-      activeCategory === "all"
-        ? definitions
-        : definitions.filter((definition) => definition.category === activeCategory);
-
-    if (!filtered.length) {
-      grid.innerHTML = `<div class="ach-empty">No badges in this category yet.</div>`;
+    if (!definitions.length) {
+      mount.innerHTML = `<div class="ach-empty">No progression milestones yet.</div>`;
       return;
     }
 
-    grid.innerHTML = filtered
-      .map((definition) => buildTrophyTile(definition, earnedGroups.get(definition.code) || []))
+    mount.innerHTML = definitions
+      .map((definition) => buildProgressRow(definition, earnedGroups.get(definition.code) || []))
       .join("");
   }
 
-  function renderRecentFeed() {
-    const section = document.getElementById("achRecentSection");
-    const feed = document.getElementById("achRecentFeed");
-    if (!section || !feed) return;
+  function renderSeafarerAwards() {
+    const grid = document.getElementById("achSeafarerAwardsGrid");
+    if (!grid) return;
 
-    const recent = getAchievements()
-      .filter(isEarnedRecord)
+    const earnedGroups = groupEarnedByCode();
+    const definitions = listAchievements()
+      .filter((definition) => !CAREER_PATH_CATEGORIES.includes(definition.category))
       .sort((a, b) => {
-        const da = a.date ? new Date(a.date) : new Date(a.createdAt || 0);
-        const db = b.date ? new Date(b.date) : new Date(b.createdAt || 0);
-        return db - da;
-      })
-      .slice(0, 8);
+        const aUnlocked = earnedGroups.has(a.code);
+        const bUnlocked = earnedGroups.has(b.code);
+        if (aUnlocked !== bUnlocked) return aUnlocked ? -1 : 1;
 
-    if (!recent.length) {
-      section.hidden = true;
+        const cat = String(a.category || "").localeCompare(String(b.category || ""));
+        if (cat !== 0) return cat;
+        return String(a.title || "").localeCompare(String(b.title || ""));
+      });
+
+    if (!definitions.length) {
+      grid.innerHTML = `<div class="ach-empty">No badges here yet.</div>`;
       return;
     }
 
-    section.hidden = false;
-    feed.innerHTML = recent
-      .map((item) => {
-        const imagePath =
-          window.SeavBadges.resolveItemBadgeImage({ ...item, status: "Verified" }) ||
-          window.SeavBadges.resolveBadgeImage(item.badgeKey, true);
-
-        return `
-          <article class="ach-recent-item">
-            <img class="ach-recent-badge" src="${Seav.escapeHtml(imagePath)}" alt="" />
-            <div class="ach-recent-copy">
-              <strong>${Seav.escapeHtml(item.title || "Milestone")}</strong>
-              <span>${Seav.escapeHtml(item.vessel || (item.autoAwarded ? "Career-wide" : "Logged milestone"))} · ${Seav.escapeHtml(formatAchievementDate(item.date))}</span>
-            </div>
-            ${item.autoAwarded ? `<span class="pill pill-neutral">Auto</span>` : `<span class="pill pill-valid">Logged</span>`}
-          </article>
-        `;
-      })
+    grid.innerHTML = definitions
+      .map((definition) => buildTrophyTile(definition, earnedGroups.get(definition.code) || []))
       .join("");
   }
 
@@ -465,9 +452,8 @@
     const earnedGroups = groupEarnedByCode();
     renderKpis(earnedGroups);
     renderNextMilestone(earnedGroups);
-    renderCategoryTabs();
-    renderTrophyCase();
-    renderRecentFeed();
+    renderDeckProgression();
+    renderSeafarerAwards();
   }
 
   function readAchievementForm() {
@@ -537,14 +523,6 @@
     Seav.bindStateRefresh(runRefresh, { label: "Achievements refresh" });
 
     document.getElementById("ach_code")?.addEventListener("change", updateAchievementBadgePreview);
-
-    document.getElementById("achCategoryTabs")?.addEventListener("click", (e) => {
-      const tab = e.target.closest("[data-ach-category]");
-      if (!tab) return;
-      activeCategory = tab.getAttribute("data-ach-category") || "all";
-      renderCategoryTabs();
-      renderTrophyCase();
-    });
 
     const form = document.getElementById("achievementForm");
     if (form) {
