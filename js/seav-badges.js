@@ -59,6 +59,22 @@ master_200gt_sea_service: {
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
+master_500gt_sea_service: {
+  key: "master_500gt_sea_service",
+  label: "Master <500GT — Sea Service Complete",
+  fileName: "master-500gt-sea-service.svg",
+  image: "/img/badges/master-500gt-sea-service.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "platinum"
+},
+master_3000gt_sea_service: {
+  key: "master_3000gt_sea_service",
+  label: "Master <3000GT — Sea Service Complete",
+  fileName: "master-3000gt-sea-service.svg",
+  image: "/img/badges/master-3000gt-sea-service.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "platinum"
+},
 
 atlantic_crossing: {
   key: "atlantic_crossing",
@@ -156,6 +172,32 @@ pacific_crossing: {
       description: "Logged 6 months' seagoing service while holding RYA Yachtmaster Offshore — the sea-service requirement for Master (Code Vessel) <200GT (MSN 1858 §3.1). Only sea time logged after your Yachtmaster Offshore issue date counts.",
       approvalRequired: false,
       trigger: { type: "master_200gt_gated_sea_service", gatingCertCode: "RYA YMO" }
+    },
+
+    master_500gt_sea_service: {
+      code: "master_500gt_sea_service",
+      title: "Master <500GT — Sea Service Complete",
+      category: "Deck Progression",
+      certGroup: "Master <500GT",
+      dashboardSection: "seatime",
+      sourcePage: "seatime",
+      badgeKey: "master_500gt_sea_service",
+      description: "Logged 12 months onboard as deck officer, including 120 days' watchkeeping service on vessels 15m or over, while holding OOW Yachts <3000GT — the sea-service requirement for Master (Yacht) <500GT (MSN 1858 §3.5). Only sea time logged after your OOW <3000GT issue date counts.",
+      approvalRequired: false,
+      trigger: { type: "master_500gt_gated_sea_service", gatingCertCode: "OOW YACHT" }
+    },
+
+    master_3000gt_sea_service: {
+      code: "master_3000gt_sea_service",
+      title: "Master <3000GT — Sea Service Complete",
+      category: "Deck Progression",
+      certGroup: "Master <3000GT",
+      dashboardSection: "seatime",
+      sourcePage: "seatime",
+      badgeKey: "master_3000gt_sea_service",
+      description: "Logged 240 watchkeeping days on vessels 15m or over, plus 12 months on 500GT+ vessels or 24 months on 24m+ vessels, while holding OOW Yachts <3000GT — the sea-service requirement for Master (Yacht) <3000GT (MSN 1858 §3.6(a)). Only sea time logged after your OOW <3000GT issue date counts.",
+      approvalRequired: false,
+      trigger: { type: "master_3000gt_gated_sea_service", gatingCertCode: "OOW YACHT" }
     },
 
     atlantic_crossing: {

@@ -15,6 +15,8 @@
     isOowSeaTimeComplete: sharedIsOowSeaTimeComplete,
     computeYachtmasterOffshoreMiles,
     computeMaster200SeaService,
+    computeMaster500SeaService,
+    computeMaster3000SeaService,
     seatimesGatedByCertIssueDate
   } = window.SeavData;
   const { listAchievements, getAchievementWithBadge } = window.SeavBadges;
@@ -222,7 +224,9 @@
         if (!last?.vesselId) return { vesselId: "", vessel: "" };
         return vesselContextFromRecord(getVesselById(last.vesselId));
       }
-      case "master_200gt_gated_sea_service": {
+      case "master_200gt_gated_sea_service":
+      case "master_500gt_gated_sea_service":
+      case "master_3000gt_gated_sea_service": {
         const gated = seatimesGatedByCertIssueDate(getSeatimes(), getCerts(), trigger.gatingCertCode);
         if (!gated.held) return { vesselId: "", vessel: "" };
         const entries = sortSeatimesChronologically(gated.gatedEntries);
@@ -254,6 +258,12 @@
 
       case "master_200gt_gated_sea_service":
         return computeMaster200SeaService(getSeatimes(), getCerts()).met;
+
+      case "master_500gt_gated_sea_service":
+        return computeMaster500SeaService(getSeatimes(), getCerts(), getVessels()).met;
+
+      case "master_3000gt_gated_sea_service":
+        return computeMaster3000SeaService(getSeatimes(), getCerts(), getVessels()).allMasterMet;
 
       case "manual":
       default:
@@ -315,7 +325,9 @@
     "oow_qualifying_days",
     "oow_eligible",
     "yachtmaster_offshore_miles",
-    "master_200gt_gated_sea_service"
+    "master_200gt_gated_sea_service",
+    "master_500gt_gated_sea_service",
+    "master_3000gt_gated_sea_service"
   ]);
 
   async function evaluateAutomaticAchievements() {
@@ -497,6 +509,61 @@
             ? Math.min(100, Math.round((result.months / result.TARGET_MONTHS) * 100))
             : 0,
           label: `${monthsRounded} / ${result.TARGET_MONTHS} months' seagoing service (since holding Yachtmaster Offshore)`
+        };
+      }
+      case "master_500gt_gated_sea_service": {
+        // Two independent thresholds (onboard months AND watchkeeping days)
+        // — same "weakest link" bar approach as yachtmaster_offshore_miles,
+        // so the bar never shows 100% until both are actually met.
+        const result = computeMaster500SeaService(getSeatimes(), getCerts(), getVessels());
+        if (!result.held) {
+          return {
+            current: 0,
+            target: result.ONBOARD_TARGET_MONTHS,
+            percent: 0,
+            label: "Hold OOW Yachts <3000GT first"
+          };
+        }
+        const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
+        const onboardPct = result.ONBOARD_TARGET_MONTHS
+          ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+          : 0;
+        const watchPct = result.WATCHKEEPING_TARGET
+          ? Math.min(100, Math.round((result.watchkeepingDays / result.WATCHKEEPING_TARGET) * 100))
+          : 0;
+        return {
+          current: onboardMonthsRounded,
+          target: result.ONBOARD_TARGET_MONTHS,
+          percent: Math.min(onboardPct, watchPct),
+          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months onboard (${result.watchkeepingDays} / ${result.WATCHKEEPING_TARGET} watchkeeping days) — since holding OOW <3000GT`
+        };
+      }
+      case "master_3000gt_gated_sea_service": {
+        // Same weakest-link approach as the Sea Time page's own Master
+        // <3000GT tracker: watchkeeping days AND the faster of the two
+        // special-experience paths (24m+ vessels or 500GT+ vessels) both
+        // have to clear before the bar reads 100%.
+        const result = computeMaster3000SeaService(getSeatimes(), getCerts(), getVessels());
+        if (!result.held) {
+          return {
+            current: 0,
+            target: result.WATCHKEEPING_TARGET,
+            percent: 0,
+            label: "Hold OOW Yachts <3000GT first"
+          };
+        }
+        const watchPct = result.WATCHKEEPING_TARGET
+          ? Math.min(100, Math.round((result.totalWatchkeeping15m / result.WATCHKEEPING_TARGET) * 100))
+          : 0;
+        const specialPct = result.specialTarget
+          ? Math.min(100, Math.round((result.specialValue / result.specialTarget) * 100))
+          : 0;
+        const specialLabel = result.use500gtPath ? "months on 500GT+ vessels" : "months on 24m+ vessels";
+        return {
+          current: result.totalWatchkeeping15m,
+          target: result.WATCHKEEPING_TARGET,
+          percent: Math.min(watchPct, specialPct),
+          label: `${result.totalWatchkeeping15m} / ${result.WATCHKEEPING_TARGET} watchkeeping days (${result.specialValue.toFixed(1)} / ${result.specialTarget} ${specialLabel}) — since holding OOW <3000GT`
         };
       }
       case "manual":

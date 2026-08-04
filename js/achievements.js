@@ -32,10 +32,14 @@
   // Jack confirmed this ordering 2026-08-04. Any definition whose certGroup
   // isn't listed here sorts to the end rather than disappearing, so a future
   // cert group never silently vanishes off the page.
+  // Master <200GT only needs 6 months' seagoing service after Yachtmaster
+  // Offshore (MSN 1858 §3.1), versus OOW <3000GT's 365 qualifying days +
+  // 36 months onboard (§3.3) — both are gated on Yachtmaster Offshore, but
+  // Master <200GT is reachable far sooner, so it sits above OOW <3000GT here.
   const DECK_CERT_GROUP_ORDER = [
     "RYA Yachtmaster Offshore",
-    "OOW Yachts <3000GT",
     "Master <200GT",
+    "OOW Yachts <3000GT",
     "Master <500GT",
     "Master <3000GT"
   ];
