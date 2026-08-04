@@ -11,15 +11,10 @@
     KEYS,
     createId,
     totalQualifyingDays,
-    getPassageDistanceNm,
     computeOowSeaService,
     isOowSeaTimeComplete: sharedIsOowSeaTimeComplete
   } = window.SeavData;
   const { listAchievements, getAchievementWithBadge } = window.SeavBadges;
-
-  function getProfile() {
-    return window.SeavState?.profile || {};
-  }
 
   function getSeatimes() {
     return window.SeavState?.seatimes || [];
@@ -29,89 +24,17 @@
     return window.SeavState?.vessels || [];
   }
 
-  function getTenders() {
-    return window.SeavState?.tenders || [];
-  }
-
-  function getNavigationAreas() {
-    return window.SeavState?.navigationAreas || [];
-  }
-
-  // A single logged passage's distance, not a cumulative total — Strava-style
-  // "you did a 500nm passage" means one leg was that long, not that all your
-  // passages added up to it. Uses straight-line distance (see
-  // SeavData.getPassageDistanceNm) rather than the routed sea-lane engine —
-  // simple, dependency-free, and never over-awards since a straight line is
-  // always the shortest possible estimate of the real route.
-  function getLongestPassageNm() {
-    return getNavigationAreas().reduce(
-      (best, entry) => Math.max(best, getPassageDistanceNm(entry)),
-      0
-    );
-  }
-
-  function firstQualifyingPassageEntry(minNm) {
-    const sorted = [...getNavigationAreas()].sort((a, b) => {
-      const da = a.departureDate || a.visitedDate || a.createdAt || "";
-      const db = b.departureDate || b.visitedDate || b.createdAt || "";
-      return String(da).localeCompare(String(db));
-    });
-
-    return sorted.find((entry) => getPassageDistanceNm(entry) >= minNm) || null;
-  }
-
   function getAchievements() {
     return window.SeavState?.achievements || [];
-  }
-
-  function normalize(value) {
-    return String(value || "").trim().toLowerCase();
-  }
-
-  function includesAny(value, terms) {
-    const text = normalize(value);
-    return terms.some((term) => text.includes(normalize(term)));
   }
 
   function getTotalSeaDays() {
     return getSeatimes().reduce((sum, item) => sum + totalQualifyingDays(item), 0);
   }
 
-  function getTotalWatchkeepingDays() {
-    return getSeatimes().reduce(
-      (sum, item) => sum + Number(item.watchkeepingDays || 0),
-      0
-    );
-  }
-
-  // Vessel records are saved with prefixed field names (vessel_type,
-  // vessel_length, experience_onboard — see js/vessels.js's submit handler),
-  // not the bare `type`/`length`/`desc` this file used to check. Those bare
-  // fields don't exist on real vessel records, so getVesselTypeCount() always
-  // returned 0 and hasLargeVessel()/hasVesselType() only ever matched by
-  // accident (e.g. parsing a stray number out of the vessel's name). Fixed to
-  // read the real fields, same fallback pattern as public-profile-utils.js.
-  function getVesselTypeCount() {
-    const types = getVessels()
-      .map((v) => normalize(v.vessel_type || v.type))
-      .filter(Boolean);
-
-    return new Set(types).size;
-  }
-
   function parseMeters(value) {
     const match = String(value || "").match(/(\d+(\.\d+)?)/);
     return match ? Number(match[1]) : 0;
-  }
-
-  function hasLargeVessel(minMeters) {
-    return getVessels().find((v) => {
-      // Length only — deliberately not falling back to GT (gross tonnage) or
-      // name/description text like before: GT is a volume, not a length, and
-      // parsing a stray number out of a vessel's name/model risks false
-      // positives (e.g. "Sunseeker 68" is a 68-foot boat, not a 68m one).
-      return parseMeters(v.vessel_length || v.length) >= minMeters;
-    }) || null;
   }
 
   // --- Deck Progression / Career Path Milestones (MSN 1858 OOW Yachts <3000GT) helpers ---
@@ -172,14 +95,6 @@
     );
   }
 
-  function hasVesselType(value) {
-    return getVessels().find((v) => {
-      return normalize(v.vessel_type || v.type).includes(normalize(value)) ||
-        normalize(v.program).includes(normalize(value)) ||
-        normalize(v.experience_onboard || v.desc).includes(normalize(value));
-    }) || null;
-  }
-
   function vesselContextFromRecord(vessel) {
     if (!vessel) {
       return { vesselId: "", vessel: "" };
@@ -215,33 +130,10 @@
     });
   }
 
-  function seatimesWithWatchkeeping() {
-    return sortSeatimesChronologically(
-      getSeatimes().filter((item) => Number(item.watchkeepingDays || 0) > 0)
-    );
-  }
-
   function seatimesWithSeaDays() {
     return sortSeatimesChronologically(
       getSeatimes().filter((item) => totalQualifyingDays(item) > 0)
     );
-  }
-
-  function seatimeEntryForWatchkeepingThreshold(entries, targetDays) {
-    if (!entries.length) return null;
-    if (targetDays <= 1) return entries[0];
-
-    let cumulative = 0;
-    for (const entry of entries) {
-      cumulative += Number(entry.watchkeepingDays || 0);
-      if (cumulative >= targetDays) return entry;
-    }
-
-    return entries.reduce((best, entry) => {
-      return Number(entry.watchkeepingDays || 0) > Number(best?.watchkeepingDays || 0)
-        ? entry
-        : best;
-    }, entries[0]);
   }
 
   function seatimeEntryForSeaDayThreshold(entries, targetDays) {
@@ -258,30 +150,10 @@
     }, entries[0]);
   }
 
-  function vesselContextFromNavEntry(entry) {
-    const vesselId = entry?.vesselId || entry?.vessel_id || "";
-    if (!vesselId) return { vesselId: "", vessel: "" };
-    const vessel = getVesselById(vesselId);
-    if (vessel) return vesselContextFromRecord(vessel);
-    return { vesselId, vessel: "Linked vessel" };
-  }
-
   function resolveVesselContext(definition) {
     const trigger = definition.trigger || {};
-    const vessels = getVessels().sort((a, b) => {
-      const da = a.from ? new Date(a.from) : new Date(0);
-      const db = b.from ? new Date(b.from) : new Date(0);
-      return db - da;
-    });
 
     switch (trigger.type) {
-      case "watchkeeping_days": {
-        const entries = seatimesWithWatchkeeping();
-        const target = Number(trigger.minDays || 0);
-        return vesselContextFromSeatimeEntry(
-          seatimeEntryForWatchkeepingThreshold(entries, target)
-        );
-      }
       case "sea_days": {
         const entries = seatimesWithSeaDays();
         const target = Number(trigger.minDays || 0);
@@ -289,22 +161,6 @@
           seatimeEntryForSeaDayThreshold(entries, target)
         );
       }
-      case "vessel_count":
-      case "vessel_type_count":
-        return vesselContextFromRecord(vessels[0] || null);
-      case "vessel_size":
-        return vesselContextFromRecord(hasLargeVessel(Number(trigger.minMeters || 0)));
-      case "vessel_type_match":
-        return vesselContextFromRecord(hasVesselType(trigger.value));
-      case "tender_count": {
-        const tender = getTenders()[0];
-        if (!tender?.vesselId) return { vesselId: "", vessel: "" };
-        return vesselContextFromRecord(vessels.find((v) => v.id === tender.vesselId) || null);
-      }
-      case "passage_distance":
-        return vesselContextFromNavEntry(
-          firstQualifyingPassageEntry(Number(trigger.minNm || 0))
-        );
       case "oow_actual_sea_days": {
         const entries = sortSeatimesChronologically(
           seatimesOnVesselsAtLeast(Number(trigger.minVesselMeters || 0))
@@ -347,33 +203,6 @@
     switch (trigger.type) {
       case "sea_days":
         return getTotalSeaDays() >= Number(trigger.minDays || 0);
-
-      case "watchkeeping_days":
-        return getTotalWatchkeepingDays() >= Number(trigger.minDays || 0);
-
-      case "vessel_count":
-        return getVessels().length >= Number(trigger.minCount || 0);
-
-      case "vessel_type_count":
-        return getVesselTypeCount() >= Number(trigger.minCount || 0);
-
-      case "vessel_size":
-        return !!hasLargeVessel(Number(trigger.minMeters || 0));
-
-      case "vessel_type_match":
-        return !!hasVesselType(trigger.value);
-
-      case "tender_count":
-        return getTenders().length >= Number(trigger.minCount || 0);
-
-      case "passage_distance":
-        return getLongestPassageNm() >= Number(trigger.minNm || 0);
-
-      case "rank_match":
-        return includesAny(getProfile().rank, trigger.values || []);
-
-      case "profile_or_manual":
-        return normalize(getProfile()[trigger.field]).includes(normalize(trigger.contains));
 
       case "oow_actual_sea_days":
         return getActualSeaDaysOnVessels() >= Number(trigger.minDays || 0);
@@ -429,17 +258,21 @@
     };
   }
 
-  // Data for these trigger types can legitimately be [] for a moment on page
-  // load — window.SeavState lazy-loads most collections per page (see
-  // js/state.js's PAGE_LOAD_KEYS) and only backfills navigationAreas/vessels/
-  // tenders in the background on pages that don't need them for their own UI
-  // (certificates.html, hobbies-interests.html, payslips.html, etc). Without
-  // this, a passage badge earned on the navigation page could get silently
-  // revoked the next time achievement evaluation runs on an unrelated page,
-  // purely because that page hadn't fetched the navigation log yet — not
-  // because the passage was actually removed. Once earned, these stay earned
-  // (matches how Strava/Garmin trophies behave — they don't get taken back).
-  const PERMANENT_ONCE_EARNED_TRIGGERS = new Set(["passage_distance"]);
+  // Vessels can legitimately be [] for a moment on page load — window.SeavState
+  // lazy-loads most collections per page (see js/state.js's PAGE_LOAD_KEYS)
+  // and only backfills vessels in the background on pages that don't need it
+  // for their own UI (certificates.html, hobbies-interests.html, payslips.html,
+  // etc). Without this, an OOW badge earned on the Sea Time page could get
+  // silently revoked the next time achievement evaluation runs on an
+  // unrelated page, purely because that page hadn't fetched vessels yet — not
+  // because the sea-time requirement was actually un-met. Once earned, these
+  // stay earned (matches how Strava/Garmin trophies behave — they don't get
+  // taken back).
+  const PERMANENT_ONCE_EARNED_TRIGGERS = new Set([
+    "oow_actual_sea_days",
+    "oow_qualifying_days",
+    "oow_eligible"
+  ]);
 
   async function evaluateAutomaticAchievements() {
     const existing = getAchievements();
@@ -552,87 +385,6 @@
           target,
           percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
           label: `${current} / ${target} qualifying days`
-        };
-      }
-      case "watchkeeping_days": {
-        const current = getTotalWatchkeepingDays();
-        const target = Number(trigger.minDays || 0);
-        return {
-          current,
-          target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
-          label: `${current} / ${target} watchkeeping days`
-        };
-      }
-      case "vessel_count": {
-        const current = getVessels().length;
-        const target = Number(trigger.minCount || 0);
-        return {
-          current,
-          target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
-          label: `${current} / ${target} vessels logged`
-        };
-      }
-      case "vessel_type_count": {
-        const current = getVesselTypeCount();
-        const target = Number(trigger.minCount || 0);
-        return {
-          current,
-          target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
-          label: `${current} / ${target} vessel types`
-        };
-      }
-      case "vessel_size": {
-        const minMeters = Number(trigger.minMeters || 0);
-        const matched = hasLargeVessel(minMeters);
-        return {
-          current: matched ? minMeters : 0,
-          target: minMeters,
-          percent: matched ? 100 : 0,
-          label: matched
-            ? `${minMeters}m+ vessel logged`
-            : `Log a ${minMeters}m+ vessel`
-        };
-      }
-      case "vessel_type_match": {
-        const matched = hasVesselType(trigger.value);
-        return {
-          current: matched ? 1 : 0,
-          target: 1,
-          percent: matched ? 100 : 0,
-          label: matched ? "Vessel type matched" : `Log ${trigger.value || "matching"} experience`
-        };
-      }
-      case "tender_count": {
-        const current = getTenders().length;
-        const target = Number(trigger.minCount || 0);
-        return {
-          current,
-          target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
-          label: `${current} / ${target} tenders logged`
-        };
-      }
-      case "passage_distance": {
-        const current = Math.round(getLongestPassageNm());
-        const target = Number(trigger.minNm || 0);
-        return {
-          current,
-          target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
-          label: `${current} / ${target} NM longest passage`
-        };
-      }
-      case "rank_match":
-      case "profile_or_manual": {
-        const met = isTriggerMet(definition);
-        return {
-          current: met ? 1 : 0,
-          target: 1,
-          percent: met ? 100 : 0,
-          label: met ? "Requirement met" : "Update profile or log manually"
         };
       }
       case "oow_actual_sea_days": {
