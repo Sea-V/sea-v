@@ -486,16 +486,77 @@
   min-width: 0;
 }
 
-.dashboard-public-share-link-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+/* Groups the QR code and the link/action row into one compact unit
+   (2026-08-04) — previously a separate link row plus a collapsible QR
+   section below it, which read as two disconnected features instead of
+   one share action. */
+.dashboard-public-share-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dashboard-public-share-qr-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+}
+
+.dashboard-public-share-qr-btn:hover {
+  transform: translateY(-1px);
+}
+
+.dashboard-public-share-qr-btn:focus-visible {
+  outline: 2px solid var(--logo-sky, #72e4ff);
+  outline-offset: 2px;
+}
+
+/* Small and always visible now instead of a toggle-to-reveal panel. White
+   background behind the code itself (not the page's dark shell) since a QR
+   reader needs strong light/dark contrast. The underlying canvas is
+   generated at a higher pixel resolution (see js/dashboard.js
+   renderDashboardPublicQr) and just displayed smaller here, so a
+   saved/shared copy still scans and prints cleanly. */
+.dashboard-public-share-qr-canvas {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  padding: 6px;
+  border-radius: 10px;
+  background: #ffffff;
+  line-height: 0;
+}
+
+.dashboard-public-share-qr-canvas canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.dashboard-public-share-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
-/* Matches the Save/Copy/Open buttons in this row (all btn-ghost2) instead of
-   its previous standalone cyan treatment — Save, Share, Copy, and Open are
+.dashboard-public-share-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Matches the Copy/Open buttons in this row (all btn-ghost2) instead of
+   its previous standalone cyan treatment — Share, Copy, and Open are
    meant to read as one consistent button group. */
 .dashboard-public-share-image {
+  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -549,51 +610,13 @@
 }
 
 .dashboard-public-share-copy,
-.dashboard-public-share-qr-toggle,
 .dashboard-public-share-open {
+  flex: 1;
   min-height: 34px;
   padding: 0 12px;
 
   font-size: 11px;
-}
-
-/* QR panel — appears below the link row once toggled. White background
-   behind the code itself (not the page's dark shell) since a QR reader
-   needs strong light/dark contrast; the dark-theme framing lives in the
-   side column instead. */
-.dashboard-public-share-qr {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 10px;
-  padding: 12px;
-
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.18);
-}
-
-.dashboard-public-share-qr-canvas {
-  flex-shrink: 0;
-  display: inline-flex;
-  padding: 8px;
-  border-radius: 8px;
-  background: #ffffff;
-  line-height: 0;
-}
-
-.dashboard-public-share-qr-side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.dashboard-public-share-qr-hint {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 11px;
-  line-height: 1.4;
+  text-align: center;
 }
 
 @media (max-width: 960px) {
@@ -606,28 +629,21 @@
     flex-wrap: wrap;
   }
 
-  .dashboard-public-share-link-row {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-public-share-copy,
-  .dashboard-public-share-qr-toggle,
-  .dashboard-public-share-open {
-    width: 100%;
-  }
-
-  .dashboard-public-share-qr {
-    flex-direction: column;
-    align-items: stretch;
+  .dashboard-public-share-group {
+    flex-wrap: wrap;
+    justify-content: center;
     text-align: center;
   }
 
-  .dashboard-public-share-qr-canvas {
-    align-self: center;
+  .dashboard-public-share-actions {
+    flex-wrap: wrap;
   }
 
-  .dashboard-public-share-qr-side {
-    align-items: center;
+  .dashboard-public-share-image,
+  .dashboard-public-share-copy,
+  .dashboard-public-share-open {
+    flex: 1 1 auto;
+    min-width: 90px;
   }
 
   .dashboard-public-share-username-row {

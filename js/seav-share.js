@@ -5,13 +5,17 @@
 //
 // The pipeline (off-screen render -> html2canvas -> share/download) is meant
 // to be solid long-term; the card layouts (buildBadgeCardHtml /
-// buildPassageCardHtml / buildProfileCardHtml) are what actually change the
-// image's look. The passage card renders a real to-scale mini map (real
-// country shapes + the entry's actual fromLat/fromLng/toLat/toLng) using the
-// same world boundary data js/navigation-map.js uses for the live map's
-// green country highlight -- see buildPassageMapSvg. It falls back to a
-// plain abstract curve if the entry has no coordinates or the boundary data
-// can't be loaded, so sharing never breaks.
+// buildPassageCardHtml) are what actually change the image's look. The
+// passage card renders a real to-scale mini map (real country shapes + the
+// entry's actual fromLat/fromLng/toLat/toLng) using the same world boundary
+// data js/navigation-map.js uses for the live map's green country highlight
+// -- see buildPassageMapSvg. It falls back to a plain abstract curve if the
+// entry has no coordinates or the boundary data can't be loaded, so sharing
+// never breaks.
+//
+// Profile sharing (shareProfile, below) deliberately does NOT go through
+// this card pipeline — it shares a plain link instead. See the comment on
+// shareProfile for why.
 (function () {
   "use strict";
 
@@ -39,10 +43,12 @@
   }
 
   // showLink lets a card opt out of printing the raw sea-v.com/u/<username>
-  // text on the image itself (see buildProfileCardHtml) — used when a pill
-  // already inside the card serves as the visible call-to-action and the
-  // real URL should only travel via the share caption / clipboard-copy
-  // fallback (see copyLinkFallback), not as text baked into the picture.
+  // text on the image itself — used when a pill already inside the card
+  // serves as the visible call-to-action and the real URL should only
+  // travel via the share caption / clipboard-copy fallback (see
+  // copyLinkFallback), not as text baked into the picture. Every current
+  // caller (badge/passage cards) uses the default (true); kept as an option
+  // since a future card type may want the same opt-out.
   function cardShell(innerHtml, { showLink = true } = {}) {
     return `
       <div style="
@@ -86,36 +92,6 @@
         }
       </div>
     `);
-  }
-
-  function buildProfileCardHtml(data) {
-    // showLink: false — the statLabel pill below ("View my SEA-V career
-    // profile") is the only call-to-action printed on this card; the actual
-    // sea-v.com/u/<username> URL is deliberately left off the image and only
-    // travels via the share caption / clipboard-copy fallback in generate().
-    return cardShell(
-      `
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center;">
-        <div style="width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.08);border:3px solid var(--logo-sky,#72e4ff);display:flex;align-items:center;justify-content:center;overflow:hidden;">
-          ${
-            data.imageSrc
-              ? `<img src="${escapeHtml(data.imageSrc)}" alt="" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover;" />`
-              : `<span style="font-size:64px;font-weight:800;color:var(--logo-sky,#72e4ff);">${escapeHtml(data.initial)}</span>`
-          }
-        </div>
-        <div>
-          <p style="font-size:40px;font-weight:800;margin:0 0 10px;">${escapeHtml(data.title)}</p>
-          <p style="font-size:24px;color:rgba(255,255,255,0.68);margin:0;">${escapeHtml(data.subtitle)}</p>
-        </div>
-        ${
-          data.statLabel
-            ? `<div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:26px;padding:12px 26px;font-size:22px;font-weight:600;line-height:1;display:flex;align-items:center;justify-content:center;">${escapeHtml(data.statLabel)}</div>`
-            : ""
-        }
-      </div>
-    `,
-      { showLink: false }
-    );
   }
 
   // Real-coordinate mini map ------------------------------------------------
@@ -649,53 +625,86 @@
     );
   }
 
+  // Profile sharing used to generate a styled photo card (see git history
+  // for buildProfileCardHtml, removed 2026-08-04) and hand it to
+  // navigator.share as a file. That broke down in exactly the case it was
+  // meant to serve: AirDrop (and several other share targets) transfer only
+  // the raw image file with no accompanying text, so the actual profile URL
+  // — baked nowhere into the picture on purpose, see the old showLink:false
+  // comment — never reached the recipient at all, just an unlabelled photo.
+  // Sharing a plain {title, text, url} instead has no such gap: url is
+  // first-class data to the Web Share API, not something riding along
+  // inside/behind an image, so it survives every share target that supports
+  // navigator.share at all (that's also why the QR code, see
+  // shareCanvasImage below, exists as the fallback way to hand someone a
+  // link in person/AirDrop without relying on caption passthrough).
   async function shareProfile() {
-    let profile = window.SeavState?.profile || {};
-    const bucket = window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos";
+    const profile = window.SeavState?.profile || {};
+    const name = profile.name || "Seafarer";
+    const profileUrl = `https://${profileShareLine()}`;
+    const shareText = `Check out my SEA-V career profile: ${name}`;
 
-    // js/state.js hydrates profile.photo's signed URL in the background
-    // after the dashboard loads (hydrateStoredFilesInBackground) — if Share
-    // is clicked before that finishes, or a previously-signed URL has since
-    // expired, profile.photo has no usable url yet and the card silently
-    // fell back to the initials avatar instead of the real photo. Hydrate
-    // it here, synchronously with the click, so the share card is never
-    // missing the photo. Fetched into a local copy, not written back to
-    // SeavState, to keep this a read-only side effect of sharing.
-    if (
-      window.SeavApiCore?.storedFileNeedsHydration?.(profile.photo, bucket) &&
-      window.SeavApiCore?.hydrateProfilePhoto
-    ) {
-      profile = await window.SeavApiCore.hydrateProfilePhoto(profile);
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "SEA-V", text: shareText, url: profileUrl });
+        return "shared";
+      } catch (err) {
+        if (err?.name === "AbortError") return "cancelled";
+        // Any other share failure: fall through to a clipboard copy instead.
+      }
     }
 
-    const name = profile.name || "Seafarer";
-    const subtitleParts = [profile.rank, profile.qualification].filter(Boolean);
-    const imageSrc = window.Seav?.getFileDisplayUrl
-      ? window.Seav.getFileDisplayUrl(profile.photo, bucket)
-      : "";
-    const initial = String(name).trim().charAt(0).toUpperCase() || "S";
-
-    // The card image prints this same URL on its face (see profileShareLine
-    // in cardShell), but that's just a picture of text — not a real,
-    // clickable/copyable link. The actual URL needs to travel in the share
-    // text (and get copied as a fallback) or recipients only ever get a
-    // picture with no way to reach the profile.
-    const profileUrl = `https://${profileShareLine()}`;
-
-    return generate(
-      buildProfileCardHtml,
-      {
-        title: name,
-        subtitle: subtitleParts.join(" · ") || "Maritime crew",
-        statLabel: "View my SEA-V career profile",
-        imageSrc,
-        initial
-      },
-      `seav-profile-${(profile.username || "career").toLowerCase()}`,
-      `Check out my SEA-V career profile: ${profileUrl}`,
-      profileUrl
+    const copied = await copyLinkFallback(profileUrl);
+    window.Seav.notify?.(
+      copied ? "success" : "error",
+      copied ? "Link copied" : "Couldn't copy link",
+      copied
+        ? "Your SEA-V profile link is on your clipboard — paste it anywhere."
+        : `Copy this link manually: ${profileUrl}`
     );
+    return copied ? "copied" : "error";
   }
 
-  window.SeavShare = { shareBadge, sharePassage, shareProfile };
+  // Shares (or downloads, as a fallback) an already-rendered canvas as a PNG
+  // — used for the dashboard's QR code, which is a real canvas already, not
+  // HTML that needs the generate() pipeline's off-screen-render/html2canvas
+  // rasterization step. Mirrors generate()'s share/download/copy-link
+  // notify behavior so the QR share and the badge/passage shares feel like
+  // the same feature.
+  async function shareCanvasImage(canvas, { filenameBase, shareText, linkUrl } = {}) {
+    if (!canvas) return "error";
+    try {
+      const blob = await canvasToBlob(canvas);
+      const result = await shareOrDownload(blob, {
+        filename: `${filenameBase || "seav-qr"}.png`,
+        title: "SEA-V",
+        text: shareText || ""
+      });
+
+      const linkCopied = await copyLinkFallback(linkUrl);
+
+      if (result === "downloaded") {
+        window.Seav.notify?.(
+          "success",
+          "QR code saved",
+          linkCopied
+            ? "Your profile link was also copied — paste it alongside the image."
+            : "Saved to your downloads or photo library."
+        );
+      } else if (result === "shared" && linkCopied) {
+        window.Seav.notify?.(
+          "success",
+          "Link copied too",
+          "Some apps drop the caption when you share an image — your profile link was copied, paste it in if it's missing."
+        );
+      }
+      return result;
+    } catch (err) {
+      console.error("[SEA-V] QR code share failed:", err);
+      window.Seav.notify?.("error", "Couldn't share QR code", "Please try again.");
+      return "error";
+    }
+  }
+
+  window.SeavShare = { shareBadge, sharePassage, shareProfile, shareCanvasImage };
 })();

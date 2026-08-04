@@ -191,22 +191,15 @@
       openEl.href = url;
     }
 
-    // If the QR panel is already open, keep it open across unrelated
-    // dashboard refreshes (renderDashboardProfile can re-run from any
-    // seav:data-updated event, not just a public-link change) — someone may
-    // be mid-scan of it on another device. Just quietly regenerate against
-    // the current url so a slug change doesn't leave a stale code showing.
-    // Only force it closed if the profile just went private, since the
-    // link it points at no longer resolves.
-    const qrToggle = document.getElementById("dashPublicQrToggle");
-    const qrWrap = document.getElementById("dashPublicQrWrap");
-    if (qrWrap && !qrWrap.hidden) {
-      if (!enabled) {
-        qrWrap.hidden = true;
-        qrToggle?.setAttribute("aria-expanded", "false");
-      } else {
-        renderDashboardPublicQr(url);
-      }
+    // QR is grouped with the link row and always visible while the panel is
+    // live (no separate toggle/expand step) — just keep it regenerated
+    // against the current url on every sync (renderDashboardProfile can
+    // re-run from any seav:data-updated event, not just a public-link
+    // change), so a slug change never leaves a stale code showing. No need
+    // to explicitly blank it when going private: linkWrap.hidden above
+    // already hides the whole group, QR included.
+    if (enabled) {
+      renderDashboardPublicQr(url);
     }
 
     // Don't clobber the field mid-edit — only sync it in from the saved
@@ -282,8 +275,6 @@
   // third-party "QR image API" is called, so the profile URL is never sent
   // anywhere just to render the code. Regenerated on every open (not
   // cached) so it always reflects the current username/slug.
-  let dashPublicQrInstance = null;
-
   function renderDashboardPublicQr(url) {
     const canvasHost = document.getElementById("dashPublicQrCanvas");
     if (!canvasHost || !url) return;
@@ -295,8 +286,12 @@
       return;
     }
 
+    // Generated at a higher pixel size than it's displayed (see
+    // .dashboard-public-share-qr-canvas in css/pages/dashboard.css, which
+    // renders it at ~76px) so a shared/saved copy still scans and prints
+    // cleanly, not just a small on-screen preview.
     canvasHost.innerHTML = "";
-    dashPublicQrInstance = new window.QRCode(canvasHost, {
+    new window.QRCode(canvasHost, {
       text: url,
       width: 168,
       height: 168,
@@ -306,37 +301,36 @@
     });
   }
 
+  // The QR is small and always visible now (grouped with the link row —
+  // see dashboard.html), so there's no toggle/expand step left to wire.
+  // Tapping the code itself shares (or downloads, as a fallback) the QR
+  // image via js/seav-share.js's shareCanvasImage — the QR is already a
+  // canvas, so this skips seav-share's off-screen-render/html2canvas
+  // pipeline entirely and just shares the canvas that's already on screen.
   function initDashboardPublicQr() {
-    const toggleBtn = document.getElementById("dashPublicQrToggle");
-    const wrap = document.getElementById("dashPublicQrWrap");
-    const downloadBtn = document.getElementById("dashPublicQrDownload");
-    if (!toggleBtn || !wrap) return;
+    const shareBtn = document.getElementById("dashPublicQrShare");
+    if (!shareBtn) return;
 
-    toggleBtn.addEventListener("click", () => {
-      const expanded = toggleBtn.getAttribute("aria-expanded") === "true";
-      const next = !expanded;
-      toggleBtn.setAttribute("aria-expanded", String(next));
-      wrap.hidden = !next;
-
-      if (next) {
-        renderDashboardPublicQr(resolveDashboardPublicProfileUrl());
-      }
-    });
-
-    downloadBtn?.addEventListener("click", () => {
+    shareBtn.addEventListener("click", async () => {
+      if (shareBtn.disabled) return;
       const canvas = document.querySelector("#dashPublicQrCanvas canvas");
       if (!canvas) {
-        Seav.notify("error", "QR code not ready", "Open the QR code first, then try downloading.");
+        Seav.notify("error", "QR code not ready", "Give it a second and try again.");
         return;
       }
-      const profile = loadProfile();
-      const filename = `seav-profile-qr-${(profile.username || "career").toLowerCase()}.png`;
-      const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png");
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+
+      shareBtn.disabled = true;
+      try {
+        const profile = loadProfile();
+        const url = resolveDashboardPublicProfileUrl();
+        await window.SeavShare?.shareCanvasImage?.(canvas, {
+          filenameBase: `seav-profile-qr-${(profile.username || "career").toLowerCase()}`,
+          shareText: `Scan to view my SEA-V career profile: ${url}`,
+          linkUrl: url
+        });
+      } finally {
+        shareBtn.disabled = false;
+      }
     });
   }
 
