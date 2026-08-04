@@ -578,8 +578,17 @@ function resolveSidebarBadgeImage(item) {
 function groupSidebarAchievements(records) {
   const groups = new Map();
 
+  // Cross-check against the live badge catalog, same as the private
+  // Milestones page (js/achievements.js groupEarnedByCode) and the public
+  // profile (js/public-profile-sections.js renderAchievements) — a crew
+  // member's older records can still reference a badge code that was later
+  // pruned from js/seav-badges.js (see
+  // project_seav_badges_pruned_to_real_milestones). Without this check
+  // those pruned badges rendered here as a generic "SEA-V / CREW BADGE"
+  // placeholder instead of disappearing like they do everywhere else.
   records.forEach((item) => {
     if (!item || item.status === "Declined") return;
+    if (item.code && window.SeavBadges?.getAchievement && !window.SeavBadges.getAchievement(item.code)) return;
     const key = item.code || item.id;
     if (!key) return;
     if (!groups.has(key)) groups.set(key, []);
