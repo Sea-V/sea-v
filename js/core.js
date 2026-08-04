@@ -561,20 +561,6 @@ function renderAppSidebar() {
   `;
 }
 
-function resolveSidebarBadgeImage(item) {
-  if (window.SeavBadges?.resolveItemBadgeImage) {
-    return window.SeavBadges.resolveItemBadgeImage(item);
-  }
-
-  if (!item?.badgeKey && (!item?.badgeImage || item.status === "Declined")) return "";
-  if (item?.badgeKey && window.SeavBadges?.resolveBadgeImage) {
-    return window.SeavBadges.resolveBadgeImage(item.badgeKey, item.status !== "Declined");
-  }
-  if (!item?.badgeImage || item.status === "Declined") return "";
-  const bust = window.SeavBadges?.withBadgeCacheBust?.(item.badgeImage);
-  return bust || String(item.badgeImage).replace(/\.png(\?.*)?$/i, ".svg$1");
-}
-
 function groupSidebarAchievements(records) {
   const groups = new Map();
 
@@ -605,49 +591,109 @@ function groupSidebarAchievements(records) {
   });
 }
 
+// Bigger "progress row" cards — same component the private Milestones page
+// uses for Deck Progression (css/pages/achievements.css .ach-progress-row,
+// already loaded globally via styles.css's @import) — instead of the old
+// small hex-icon grid that only showed a title on hover (useless on mobile,
+// no hover). Jack asked (2026-08-05) for badges "big enough to make a
+// statement" that also show the progress bar, so this always renders a bar:
+// 100% + an unlock summary for earned milestones, or the real in-progress
+// percent (via achievements-engine.js) for anything not yet earned.
+function buildDashboardMilestoneRow(instances) {
+  const code = instances[0]?.code;
+  const full = code && window.SeavBadges?.getAchievementWithBadge?.(code);
+  if (!full) return "";
+
+  const tier = full.badge?.tier || "default";
+  const imagePath = window.SeavBadges.resolveBadgeImage(full.badgeKey, true);
+  const title = full.title || "Milestone";
+  const primary = instances[0];
+
+  let label;
+  if (instances.length > 1) {
+    const vessels = instances.map((entry) => entry.vessel).filter(Boolean);
+    label = vessels.length
+      ? `${instances.length} times — ${vessels.slice(0, 2).join(", ")}${vessels.length > 2 ? "…" : ""}`
+      : `${instances.length} times logged`;
+  } else if (primary?.vessel) {
+    label = `Unlocked on ${primary.vessel}`;
+  } else {
+    label = primary?.autoAwarded ? "Career-wide milestone" : "Logged milestone";
+  }
+
+  return `
+    <article class="ach-progress-row is-unlocked" data-tier="${window.Seav.escapeHtml(tier)}">
+      <div class="ach-progress-row-badge">
+        <img src="${window.Seav.escapeHtml(imagePath)}" alt="${window.Seav.escapeHtml(title)}" />
+      </div>
+      <div class="ach-progress-row-body">
+        <div class="ach-progress-row-title-wrap">
+          <span class="ach-progress-row-title">${window.Seav.escapeHtml(title)}</span>
+        </div>
+        ${full.description ? `<p class="ach-progress-row-desc">${window.Seav.escapeHtml(full.description)}</p>` : ""}
+        <p class="ach-progress-row-label">${window.Seav.escapeHtml(label)}</p>
+        <div class="ach-progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+          <span style="width: 100%"></span>
+        </div>
+      </div>
+      <div class="ach-progress-row-check" title="Unlocked" aria-label="Unlocked">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </article>
+  `;
+}
+
+// Same "Next up" callout as achievements.html's #achNextMilestone — surfaces
+// whichever not-yet-earned milestone is closest to complete, with its real
+// progress bar, so the widget shows where a crew member is headed next, not
+// just a list of what they've already done.
+function renderDashboardNextMilestone() {
+  const mount = document.getElementById("dashNextMilestone");
+  if (!mount) return;
+
+  const next = window.SeavAchievementEngine?.getNextMilestone?.();
+  if (!next) {
+    mount.hidden = true;
+    mount.innerHTML = "";
+    return;
+  }
+
+  const full = window.SeavBadges?.getAchievementWithBadge?.(next.definition.code);
+  const imagePath = window.SeavBadges.resolveBadgeImage(next.definition.badgeKey, false);
+  const percent = next.progress?.percent || 0;
+
+  mount.hidden = false;
+  mount.innerHTML = `
+    <div class="ach-next-badge">
+      <img src="${window.Seav.escapeHtml(imagePath)}" alt="" />
+    </div>
+    <div class="ach-next-copy">
+      <span class="ach-next-label">Next up</span>
+      <strong>${window.Seav.escapeHtml(full?.title || next.definition.title || "Milestone")}</strong>
+      <span class="ach-next-progress-label">${window.Seav.escapeHtml(next.progress?.label || "")}</span>
+      <div class="ach-progress-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
+        <span style="width: ${percent}%"></span>
+      </div>
+    </div>
+  `;
+}
+
 function renderSidebarAchievements() {
   const container = document.getElementById("sidebarAchievements");
   if (!container) return;
 
-  const grouped = groupSidebarAchievements(window.SeavState?.achievements || [])
-    .map((instances) => {
-      const item = instances[0];
-      const image = resolveSidebarBadgeImage({ ...item, status: "Verified" });
-      return { instances, item, image };
-    })
-    .filter(({ image }) => !!image);
+  renderDashboardNextMilestone();
+
+  const grouped = groupSidebarAchievements(window.SeavState?.achievements || []);
 
   if (!grouped.length) {
     container.innerHTML = `<div class="sidebar-badge-empty">No badges yet</div>`;
     return;
   }
 
-  container.innerHTML = grouped
-    .map(({ instances, item, image }) => {
-      const tier = item.badgeTier || "default";
-      const label = item.badgeLabel || item.title || "Milestone";
-      const vessels = instances.map((entry) => entry.vessel).filter(Boolean);
-      const meta =
-        vessels.length > 1
-          ? `${vessels.length} vessels: ${vessels.slice(0, 3).join(", ")}${vessels.length > 3 ? "…" : ""}`
-          : vessels[0] || item.category || "Milestone";
-
-      return `
-    <div class="sidebar-badge-item seav-badge-wrap tooltip-above" data-tier="${window.Seav.escapeHtml(tier)}">
-      <img
-        class="seav-badge"
-        src="${window.Seav.escapeHtml(image)}"
-        alt="${window.Seav.escapeHtml(label)}"
-      />
-      ${instances.length > 1 ? `<span class="sidebar-badge-count">${instances.length}</span>` : ""}
-      <span class="seav-badge-tooltip">
-        <strong>${window.Seav.escapeHtml(item.title || label)}</strong>
-        <span>${window.Seav.escapeHtml(meta)}</span>
-      </span>
-    </div>
-  `;
-    })
-    .join("");
+  container.innerHTML = grouped.map(buildDashboardMilestoneRow).filter(Boolean).join("");
 }
 
   function renderSharedModals() {
