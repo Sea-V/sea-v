@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 373;
+const ASSET_VERSION = 374;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
@@ -196,8 +196,28 @@ function patchAppPage(html) {
   return next;
 }
 
+// Vercel Speed Insights -- this is a static site (no Next.js/React/bundler,
+// see package.json), so the framework-specific <SpeedInsights /> component
+// doesn't apply here. This is Vercel's own "plain HTML" integration: a
+// script tag placed right before </body> on every page. It only reports
+// data once Speed Insights is turned on for the project in the Vercel
+// dashboard (Speed Insights -> Enable) -- that toggle is a one-time manual
+// step, this script tag is the code-side half of the setup. Idempotent
+// (checked via the script src) so reruns of this script don't duplicate it.
+const SPEED_INSIGHTS_SNIPPET =
+  '  <script>\n' +
+  '    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };\n' +
+  '  </script>\n' +
+  '  <script defer src="/_vercel/speed-insights/script.js"></script>\n';
+
+function addSpeedInsights(html) {
+  if (html.includes("/_vercel/speed-insights/script.js")) return html;
+  if (!html.includes("</body>")) return html;
+  return html.replace("</body>", `${SPEED_INSIGHTS_SNIPPET}</body>`);
+}
+
 function finalizeAppPage(html) {
-  return bumpAssetVersions(patchAppPage(html));
+  return addSpeedInsights(bumpAssetVersions(patchAppPage(html)));
 }
 
 function patchPublicProfile(html) {
@@ -228,7 +248,7 @@ function patchPublicProfile(html) {
     );
   }
 
-  return bumpAssetVersions(next);
+  return addSpeedInsights(bumpAssetVersions(next));
 }
 
 const PUBLIC_PAGES = [
@@ -278,7 +298,7 @@ for (const file of PUBLIC_PAGES) {
   const filePath = path.join(root, file);
   if (!fs.existsSync(filePath)) continue;
   const original = fs.readFileSync(filePath, "utf8");
-  const patched = bumpAssetVersions(original);
+  const patched = addSpeedInsights(bumpAssetVersions(original));
   if (patched !== original) {
     fs.writeFileSync(filePath, patched);
     changed += 1;
