@@ -1590,6 +1590,43 @@ function getSortedVesselOptions(vessels = []) {
     return pathLengthNm([[fromLat, fromLng], ...waypoints, [toLat, toLng]]);
   }
 
+  // RYA Yachtmaster Offshore exam prerequisite (rya.org.uk): 2,500 qualifying
+  // miles, at least half of it (1,250 miles) in tidal waters. Tidal/non-tidal
+  // is the per-passage navIsTidal self-declared flag (js/navigation-helpers.js
+  // normalizeNavEntry). Same 2500/1250 figures as the Navigation page's stat
+  // box (js/navigation-map.js buildNavigationStats), but summed here with the
+  // cheap getPassageDistanceNm() straight-line distance instead of the
+  // routed sea-lane distance the map uses — so this total can read slightly
+  // lower than the Navigation page's mile counter for the same passages.
+  // That's the same deliberate "never over-award" tradeoff getPassageDistanceNm
+  // itself documents; it's an underestimate, not a bug.
+  const YACHTMASTER_OFFSHORE_TARGET_NM = 2500;
+  const YACHTMASTER_OFFSHORE_TIDAL_TARGET_NM = 1250;
+
+  function computeYachtmasterOffshoreMiles(navigationEntries) {
+    let totalNm = 0;
+    let tidalNm = 0;
+
+    (navigationEntries || []).forEach((entry) => {
+      const nm = getPassageDistanceNm(entry);
+      totalNm += nm;
+      if (entry?.isTidal) tidalNm += nm;
+    });
+
+    const totalMet = totalNm >= YACHTMASTER_OFFSHORE_TARGET_NM;
+    const tidalMet = tidalNm >= YACHTMASTER_OFFSHORE_TIDAL_TARGET_NM;
+
+    return {
+      totalNm,
+      tidalNm,
+      totalMet,
+      tidalMet,
+      allMet: totalMet && tidalMet,
+      TARGET_NM: YACHTMASTER_OFFSHORE_TARGET_NM,
+      TIDAL_TARGET_NM: YACHTMASTER_OFFSHORE_TIDAL_TARGET_NM
+    };
+  }
+
   /* =========================================================
      VESSEL FIELD ACCESSORS
      Vessel records are saved with prefixed field names (vessel_type,
@@ -1725,6 +1762,7 @@ window.SeavData = {
   computeOow36MonthsOnboard,
   isOowSeaTimeComplete,
   computeMasterSeaService,
+  computeYachtmasterOffshoreMiles,
   getSeatimeVerificationDisplay,
   getCertExpiryInfo,
   isCertNoExpiry,

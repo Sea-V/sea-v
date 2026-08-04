@@ -12,7 +12,8 @@
     createId,
     totalQualifyingDays,
     computeOowSeaService,
-    isOowSeaTimeComplete: sharedIsOowSeaTimeComplete
+    isOowSeaTimeComplete: sharedIsOowSeaTimeComplete,
+    computeYachtmasterOffshoreMiles
   } = window.SeavData;
   const { listAchievements, getAchievementWithBadge } = window.SeavBadges;
 
@@ -22,6 +23,13 @@
 
   function getVessels() {
     return window.SeavState?.vessels || [];
+  }
+
+  // Only loaded on pages listed in js/state.js's PAGE_LOAD_KEYS (dashboard,
+  // cv-generator, navigation, and achievements itself) — same lazy-load
+  // caveat as vessels, see PERMANENT_ONCE_EARNED_TRIGGERS below.
+  function getNavigationEntries() {
+    return window.SeavState?.navigationAreas || [];
   }
 
   function getAchievements() {
@@ -192,6 +200,19 @@
         const entries = seatimesWithSeaDays();
         return vesselContextFromSeatimeEntry(entries[entries.length - 1] || null);
       }
+      case "yachtmaster_offshore_miles": {
+        // Cosmetic attribution only (like oow_eligible above) — the pass/fail
+        // is a career-wide mileage total, not tied to one passage, so this
+        // just picks the most recent logged passage's vessel to show.
+        const entries = [...getNavigationEntries()].sort((a, b) =>
+          String(a.departureDate || a.visitedDate || "").localeCompare(
+            String(b.departureDate || b.visitedDate || "")
+          )
+        );
+        const last = entries[entries.length - 1] || null;
+        if (!last?.vesselId) return { vesselId: "", vessel: "" };
+        return vesselContextFromRecord(getVesselById(last.vesselId));
+      }
       default:
         return { vesselId: "", vessel: "" };
     }
@@ -212,6 +233,9 @@
 
       case "oow_eligible":
         return isOowSeaTimeComplete();
+
+      case "yachtmaster_offshore_miles":
+        return computeYachtmasterOffshoreMiles(getNavigationEntries()).allMet;
 
       case "manual":
       default:
@@ -271,7 +295,8 @@
   const PERMANENT_ONCE_EARNED_TRIGGERS = new Set([
     "oow_actual_sea_days",
     "oow_qualifying_days",
-    "oow_eligible"
+    "oow_eligible",
+    "yachtmaster_offshore_miles"
   ]);
 
   async function evaluateAutomaticAchievements() {
@@ -414,6 +439,25 @@
           target: 1,
           percent: met ? 100 : 0,
           label: met ? "OOW <3000GT sea-time requirements met" : "Complete the OOW sea-time milestones above"
+        };
+      }
+      case "yachtmaster_offshore_miles": {
+        // Two independent thresholds (total nm AND tidal nm) — the bar
+        // reflects whichever one is further behind, same "weakest link"
+        // approach as computeMasterSeaService's 12mo/6mo special path, so
+        // the bar never shows 100% until both are actually met.
+        const result = computeYachtmasterOffshoreMiles(getNavigationEntries());
+        const totalPct = result.TARGET_NM
+          ? Math.min(100, Math.round((result.totalNm / result.TARGET_NM) * 100))
+          : 0;
+        const tidalPct = result.TIDAL_TARGET_NM
+          ? Math.min(100, Math.round((result.tidalNm / result.TIDAL_TARGET_NM) * 100))
+          : 0;
+        return {
+          current: Math.round(result.totalNm),
+          target: result.TARGET_NM,
+          percent: Math.min(totalPct, tidalPct),
+          label: `${Math.round(result.totalNm)} / ${result.TARGET_NM} NM (${Math.round(result.tidalNm)} / ${result.TIDAL_TARGET_NM} NM tidal)`
         };
       }
       case "manual":

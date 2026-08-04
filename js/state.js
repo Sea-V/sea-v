@@ -84,7 +84,10 @@
     "seatime.html": ["seatimes", "vessels"],
     "certificates.html": ["certs"],
     "references.html": ["refs"],
-    "achievements.html": ["seatimes", "vessels", "tenders"],
+    // navigationAreas added for the Yachtmaster Offshore mileage milestone
+    // (computeYachtmasterOffshoreMiles in seav-data.js) — without it this
+    // page can't see passage distances to evaluate that badge itself.
+    "achievements.html": ["seatimes", "vessels", "tenders", "navigationAreas"],
     "tenders.html": ["tenders", "vessels"],
     "navigation.html": ["navigationAreas", "vessels", "seatimes"],
     "onboard-experience.html": ["onboardExperiences", "onboardSkills", "vessels"],

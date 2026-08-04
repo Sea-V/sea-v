@@ -3,6 +3,7 @@
   { "file": "oow-365-qualifying-days", "tier": "silver", "hero": "365", "sub": "QUALIFYING DAYS", "page": "seatime" },
   { "file": "oow-36-months-onboard", "tier": "gold", "hero": "36", "sub": "MONTHS ONBOARD", "page": "seatime" },
   { "file": "oow-3000gt-sea-time", "tier": "platinum", "hero": "OOW", "sub": "SEA TIME MET", "page": "seatime" },
+  { "file": "yachtmaster-offshore", "tier": "gold", "hero": "OFFSHORE", "sub": "MILES COMPLETE", "page": "navigation" },
   { "file": "atlantic-crossing", "tier": "gold", "hero": "ATLANTIC", "sub": "CROSSING", "page": "navigation" },
   { "file": "pacific-crossing", "tier": "platinum", "hero": "PACIFIC", "sub": "CROSSING", "page": "navigation" }
 ]

@@ -43,6 +43,15 @@ oow_3000gt_sea_time: {
   tier: "platinum"
 },
 
+yachtmaster_offshore: {
+  key: "yachtmaster_offshore",
+  label: "RYA Yachtmaster Offshore — Miles Complete",
+  fileName: "yachtmaster-offshore.svg",
+  image: "/img/badges/yachtmaster-offshore.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "gold"
+},
+
 atlantic_crossing: {
   key: "atlantic_crossing",
   label: "Atlantic Crossing",
@@ -109,6 +118,18 @@ pacific_crossing: {
       description: "Met every sea-time requirement for OOW Yachts <3000GT: 250 actual sea days, 365 qualifying days on vessels 15m or over, and 36 months' total onboard yacht service (MSN 1858).",
       approvalRequired: false,
       trigger: { type: "oow_eligible" }
+    },
+
+    yachtmaster_offshore: {
+      code: "yachtmaster_offshore",
+      title: "RYA Yachtmaster Offshore — Miles Complete",
+      category: "Deck Progression",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "yachtmaster_offshore",
+      description: "Logged 2,500 qualifying miles, at least 1,250 of them in tidal waters — the sea-mile prerequisite for the RYA Yachtmaster Offshore exam, separate from any MCA Certificate of Competency.",
+      approvalRequired: false,
+      trigger: { type: "yachtmaster_offshore_miles" }
     },
 
     atlantic_crossing: {
