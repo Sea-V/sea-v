@@ -175,10 +175,26 @@
     }
   ];
 
-  /* Yacht certificate catalog — grouped for dropdown; also drives RECOMMENDED_CERTS */
+  /* Yacht certificate catalog — grouped for dropdown; also drives RECOMMENDED_CERTS.
+   * Reorganized 2026-08-04 into an 18-category taxonomy mirroring real
+   * STCW/MLC/ISPS/MCA structure (per Jack's review), replacing the old
+   * flatter 11-group layout. "Minimum mandatory (yacht crew)" (see
+   * MANDATORY_CERTS above) is untouched — it drives real is_mandatory
+   * behavior, not just a display label. Kept in sync with the live
+   * Supabase certificate_catalog table (migration
+   * reorganize_certificate_catalog_18_categories) — see
+   * docs/certificate-catalog.sql for the DB-side seed/reference copy. */
   const CERT_CATALOG_GROUPS = [
     {
-      label: "Identity & seafarer records",
+      // ENG1 itself is mandatory (see MANDATORY_CERTS) — this is only the
+      // less common equivalent-medical route.
+      label: "Medical certification (additional)",
+      certs: [
+        { code: "STCW ML5", name: "ML5 / ENG1 Equivalent Medical" }
+      ]
+    },
+    {
+      label: "Identity & seafarer documents",
       certs: [
         { code: "PASSPORT", name: "Passport / Seafarer Identity Document" },
         { code: "DISCHARGE_BOOK", name: "Seaman's Discharge Book" },
@@ -187,19 +203,26 @@
       ]
     },
     {
-      label: "STCW basic & combined training",
+      label: "Mandatory Basic Safety (STCW) — combined certificate",
       certs: [
-        { code: "STCW BST", name: "STCW Basic Safety Training (Full BST)" },
+        { code: "STCW BST", name: "STCW Basic Safety Training (Full BST)" }
+      ]
+    },
+    {
+      // PSA (Security Awareness) is already mandatory — see MANDATORY_CERTS
+      // above. These two are role/vessel-conditional (ISPS Code vessel
+      // and/or assigned security duties — MSN 1858 footnote 6), not
+      // universally mandatory, so they stay in the optional catalog.
+      label: "Security (STCW)",
+      certs: [
         { code: "STCW A-VI/6-2", name: "Proficiency in Designated Security Duties (PDSD)" },
         { code: "STCW A-VI/5", name: "Ship Security Officer (SSO)" }
       ]
     },
     {
-      label: "CoC, rank & MCA yacht qualifications",
+      label: "Certificates of Competency — Deck",
       certs: [
         { code: "STCW A-II/1", name: "Certificate of Competency (Deck CoC)" },
-        { code: "STCW A-III/1", name: "Certificate of Competency (Engineering CoC)" },
-        { code: "STCW A-III/6", name: "Electro-Technical Officer CoC" },
         { code: "MASTER Y200", name: "Master (Code Vessel) <200GT (MCA)" },
         { code: "OOW YACHT", name: "Officer of the Watch (Yacht) <3000GT (MCA)" },
         { code: "CHIEF MATE Y", name: "Chief Mate (Yacht) <3000GT (MCA)" },
@@ -210,6 +233,17 @@
         // without needing cargo-ship sea time first.
         { code: "CHIEF MATE Y UNLTD", name: "Chief Mate Unlimited (Yacht) (MCA)" },
         { code: "MASTER Y UNLTD", name: "Master Unlimited (Yacht) (MCA)" },
+        // Required for officers without a UK CoC serving on UK/Red-Ensign
+        // flagged yachts (REG Code / MCA MSN 1867) — distinct from holding
+        // a national CoC, which they keep and carry alongside this.
+        { code: "UK CEC", name: "UK Certificate of Equivalent Competency (CEC)" }
+      ]
+    },
+    {
+      label: "Certificates of Competency — Engineering",
+      certs: [
+        { code: "STCW A-III/1", name: "Certificate of Competency (Engineering CoC)" },
+        { code: "STCW A-III/6", name: "Electro-Technical Officer CoC" },
         // Current MCA "Small Vessel" engineer officer structure (MIN 524,
         // 2021) — replaced the old Y1-4 ticket system below as the route to
         // a new CoC, though many working engineers still hold a legacy
@@ -217,34 +251,41 @@
         { code: "EOOW SV", name: "Engineer Officer of the Watch — Small Vessel <3000GT (MCA)" },
         { code: "CE SV500", name: "Chief Engineer (Small Vessel) <500GT (MCA)" },
         { code: "CE SV3000", name: "Chief Engineer (Small Vessel) <3000GT (MCA)" },
-        { code: "EDH", name: "Efficient Deck Hand (EDH)" },
-        { code: "RFPNW", name: "Rating Forming Part of a Navigational Watch" },
-        { code: "RFPEW", name: "Rating Forming Part of an Engineering Watch" },
-        { code: "AEC", name: "Approved Engine Course (AEC)" },
-        { code: "MEOL", name: "Marine Engine Operators License (MEOL)" },
         { code: "Y1", name: "Yacht Engineer Y1 (MCA, legacy)" },
         { code: "Y2", name: "Yacht Engineer Y2 (MCA, legacy)" },
         { code: "Y3", name: "Yacht Engineer Y3 (MCA, legacy)" },
-        { code: "Y4", name: "Yacht Engineer Y4 (MCA, legacy)" },
-        // Required for officers without a UK CoC serving on UK/Red-Ensign
-        // flagged yachts (REG Code / MCA MSN 1867) — distinct from holding
-        // a national CoC, which they keep and carry alongside this.
-        { code: "UK CEC", name: "UK Certificate of Equivalent Competency (CEC)" },
-        // Distinct from the generic RFPNW/RFPEW watch-rating certs above —
+        { code: "Y4", name: "Yacht Engineer Y4 (MCA, legacy)" }
+      ]
+    },
+    {
+      label: "Ratings",
+      certs: [
+        // Distinct from the generic RFPNW/RFPEW watch-rating certs below —
         // the REG Code specifically calls out a Yacht Rating Certificate
         // (STCW II/4) as the yacht-specific version some employers require.
-        { code: "YACHT RATING", name: "Yacht Rating Certificate", stcwRef: "STCW II/4" }
+        { code: "YACHT RATING", name: "Yacht Rating Certificate", stcwRef: "STCW II/4" },
+        { code: "EDH", name: "Efficient Deck Hand (EDH)" },
+        { code: "RFPNW", name: "Rating Forming Part of a Navigational Watch" },
+        { code: "RFPEW", name: "Rating Forming Part of an Engineering Watch" }
+      ]
+    },
+    {
+      label: "Engineering qualifications",
+      certs: [
+        { code: "AEC", name: "Approved Engine Course (AEC)" },
+        { code: "MEOL", name: "Marine Engine Operators License (MEOL)" }
       ]
     },
     {
       // MCA/IAMI written-exam and academic modules that feed into the deck
       // CoCs above — distinct from the CoC itself (you sit these BEFORE
-      // being issued the Certificate of Competency). Previously untracked
+      // being issued the Certificate of Competency), and distinct from a
+      // certificate someone can actually use onboard. Previously untracked
       // in SEA-V entirely; sourced from MSN 1858 (M+F) Amendment 2 sections
       // 3.3–3.6 (OOW/Chief Mate/Master <3000GT) and 4.3 (Chief Mate Yachts
       // Unlimited) — see the "SEA-V Deck Certificate Module Requirements"
       // research spreadsheet for full sourcing detail per module.
-      label: "Academic & professional exam modules (MCA yacht)",
+      label: "Professional examination modules (MCA yacht)",
       certs: [
         { code: "NAV RADAR OOW", name: "Navigation and Radar (OOW Yachts)" },
         { code: "GEN SHIP KNOW", name: "General Ship Knowledge (OOW Yachts)" },
@@ -269,7 +310,7 @@
       ]
     },
     {
-      label: "Navigation, bridge & GMDSS",
+      label: "Navigation & communications",
       certs: [
         { code: "GMDSS GOC", name: "GMDSS General Operator's Certificate (GOC)", stcwRef: "STCW A-IV/2" },
         { code: "GMDSS ROC", name: "GMDSS Restricted Operator's Certificate (ROC)", stcwRef: "STCW A-IV/2" },
@@ -280,11 +321,12 @@
         { code: "NAEST-O", name: "NAEST Operational" },
         { code: "NAEST-M", name: "NAEST Management" },
         { code: "BTM", name: "Bridge Team Management" },
-        { code: "BRM", name: "Bridge Resource Management" }
+        { code: "BRM", name: "Bridge Resource Management" },
+        { code: "GMDSS", name: "GMDSS (legacy code — use GOC/ROC if possible)" }
       ]
     },
     {
-      label: "Advanced STCW (safety & medical)",
+      label: "Advanced STCW",
       certs: [
         { code: "STCW A-VI/4-1", name: "Medical First Aid (STCW A-VI/4-1)" },
         { code: "STCW A-VI/4-2", name: "Medical Care (STCW A-VI/4-2)" },
@@ -295,7 +337,7 @@
       ]
     },
     {
-      label: "Passenger / large-yacht STCW",
+      label: "Passenger operations",
       certs: [
         { code: "STCW CROWD", name: "Crowd Management Training" },
         { code: "STCW CRISIS", name: "Crisis Management & Human Behaviour" },
@@ -303,7 +345,7 @@
       ]
     },
     {
-      label: "STCW refresher / update courses",
+      label: "Refresher training",
       certs: [
         { code: "PST UPDATE", name: "Personal Survival Techniques — Update" },
         { code: "FPFF UPDATE", name: "Fire Prevention & Fire Fighting — Update" },
@@ -313,18 +355,7 @@
       ]
     },
     {
-      label: "Interior, galley & hospitality",
-      certs: [
-        { code: "SHIPS COOK", name: "Ship's Cook Certificate (MCA)" },
-        { code: "FOOD HYGIENE", name: "Food Hygiene Level 2 / 3" },
-        { code: "HACCP", name: "HACCP / Food Safety Management" },
-        { code: "WSET", name: "WSET Wine & Spirits Education" },
-        { code: "BARISTA", name: "Barista / Coffee Service Certificate" },
-        { code: "SILVER SVC", name: "Silver Service / Butler Training" }
-      ]
-    },
-    {
-      label: "RYA, watersports & diving",
+      label: "RYA & recreational qualifications",
       certs: [
         { code: "RYA PB2", name: "RYA Powerboat Level 2" },
         { code: "RYA SRC", name: "RYA Short Range Certificate (VHF)" },
@@ -335,36 +366,61 @@
         { code: "RYA YMOCEAN", name: "RYA Yachtmaster Ocean" },
         { code: "RYA PWC", name: "RYA Personal Watercraft Proficiency (Jet Ski)" },
         { code: "RYA WC", name: "RYA Windsurfing / Watercraft Instructor" },
-        { code: "PADI OW", name: "PADI Open Water Diver" },
-        { code: "PADI AOW", name: "PADI Advanced Open Water" },
-        { code: "PADI RESCUE", name: "PADI Rescue Diver" },
-        { code: "PADI DM", name: "PADI Divemaster" },
-        { code: "PADI INSTR", name: "PADI Dive Instructor" },
         { code: "WAKE INSTR", name: "Wakeboard / Tow Sports Instructor" },
         { code: "KITE L1", name: "Kitesurfing / Wing Instructor Level 1" }
       ]
     },
     {
-      label: "Other common yacht documents",
+      label: "Diving qualifications",
+      certs: [
+        { code: "PADI OW", name: "PADI Open Water Diver" },
+        { code: "PADI AOW", name: "PADI Advanced Open Water" },
+        { code: "PADI RESCUE", name: "PADI Rescue Diver" },
+        { code: "PADI DM", name: "PADI Divemaster" },
+        { code: "PADI INSTR", name: "PADI Dive Instructor" }
+      ]
+    },
+    {
+      label: "Hospitality qualifications",
+      certs: [
+        { code: "SHIPS COOK", name: "Ship's Cook Certificate (MCA)" },
+        { code: "FOOD HYGIENE", name: "Food Hygiene Level 2 / 3" },
+        { code: "HACCP", name: "HACCP / Food Safety Management" },
+        { code: "WSET", name: "WSET Wine & Spirits Education" },
+        { code: "BARISTA", name: "Barista / Coffee Service Certificate" },
+        { code: "SILVER SVC", name: "Silver Service / Butler Training" }
+      ]
+    },
+    {
+      label: "Health & compliance",
       certs: [
         { code: "YELLOW FEVER", name: "Yellow Fever Vaccination Certificate" },
-        { code: "DRUG TEST", name: "Drug & Alcohol Test Certificate" },
-        { code: "STCW ML5", name: "ML5 / ENG1 Equivalent Medical" },
-        { code: "GMDSS", name: "GMDSS (legacy code — use GOC/ROC if possible)" }
+        { code: "DRUG TEST", name: "Drug & Alcohol Test Certificate" }
       ]
     }
   ];
 
   const RECOMMENDED_CERTS = CERT_CATALOG_GROUPS.flatMap((group) => group.certs || []);
 
-  /* Public profile “Rank & role” — catalog groups only (not full dropdown catalog) */
+  /* Public profile “Rank & role” — catalog groups only (not full dropdown
+   * catalog). Updated 2026-08-04 for the 18-category reorg — this is the
+   * same set of certs as before (Identity, STCW basic/combined training,
+   * CoC/rank/MCA, Navigation/bridge/GMDSS, Advanced STCW, Passenger STCW),
+   * just split across more, more specific group labels now. Deliberately
+   * excludes "Professional examination modules" (exam passes, not
+   * something someone "holds" as a rank credential) and "Medical
+   * certification (additional)" (wasn't in the original set either). */
   const RANK_ROLE_GROUP_LABELS = new Set([
-    "Identity & seafarer records",
-    "STCW basic & combined training",
-    "CoC, rank & MCA yacht qualifications",
-    "Navigation, bridge & GMDSS",
-    "Advanced STCW (safety & medical)",
-    "Passenger / large-yacht STCW"
+    "Identity & seafarer documents",
+    "Mandatory Basic Safety (STCW) — combined certificate",
+    "Security (STCW)",
+    "Certificates of Competency — Deck",
+    "Certificates of Competency — Engineering",
+    "Ratings",
+    "Engineering qualifications",
+    "Navigation & communications",
+    "Advanced STCW",
+    "Passenger operations"
   ]);
 
   const RANK_ROLE_LEGACY_CODES = new Set(["GMDSS"]);
@@ -400,10 +456,16 @@
       const label =
         String(row.category || "Other certificates").trim() || "Other certificates";
       if (!groups.has(label)) {
-        groups.set(label, { label, isMandatory: false, certs: [] });
+        // minSortOrder tracks the lowest sort_order seen for this group,
+        // used below to order GROUPS the same intentional way sort_order
+        // orders certs within a group (was previously alphabetical by
+        // label, which scrambled the deliberate STCW/MLC/ISPS/MCA-mirroring
+        // category order from the 2026-08-04 catalog reorg).
+        groups.set(label, { label, isMandatory: false, certs: [], minSortOrder: Number(row.sort_order || 0) });
       }
       const group = groups.get(label);
       if (row.is_mandatory) group.isMandatory = true;
+      group.minSortOrder = Math.min(group.minSortOrder, Number(row.sort_order || 0));
       group.certs.push({ code: row.code, name: row.name, stcwRef: row.stcw_ref || "" });
     }
 
@@ -411,8 +473,9 @@
     result.sort((a, b) => {
       if (a.isMandatory && !b.isMandatory) return -1;
       if (!a.isMandatory && b.isMandatory) return 1;
-      return String(a.label).localeCompare(String(b.label));
+      return a.minSortOrder - b.minSortOrder;
     });
+    result.forEach((group) => delete group.minSortOrder);
     return result;
   }
 
