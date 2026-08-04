@@ -1132,6 +1132,19 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   font-weight: 700;
 }
 
+/* The toggle bar has 3 children (label, count, chevron) — with only
+   justify-content: space-between on the parent, 3 children get spaced
+   evenly across the row, which lands the count dead in the middle
+   instead of beside the chevron on the right. The sibling vessel-entry
+   bars just above (.public-onboard-vessel-count) avoid this with an
+   explicit margin-left: auto that eats all the free space before it,
+   clustering count + chevron together on the right — matched here so
+   the skills toggle reads the same way (Jack, 2026-08-04). */
+.public-onboard-skills-toggle .public-profile-section-count {
+  margin-left: auto;
+  margin-right: 6px;
+}
+
 .public-onboard-skills-wrap.is-expanded .public-onboard-vessel-chevron {
   transform: rotate(180deg);
 }
