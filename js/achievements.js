@@ -41,7 +41,9 @@
     "Master <200GT",
     "OOW Yachts <3000GT",
     "Master <500GT",
-    "Master <3000GT"
+    "Master <3000GT",
+    "Chief Mate Yachts Unlimited",
+    "Master Yachts Unlimited"
   ];
 
   function certGroupRank(name) {

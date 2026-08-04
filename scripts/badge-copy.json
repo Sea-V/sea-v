@@ -7,6 +7,8 @@
   { "file": "master-200gt-sea-service", "tier": "gold", "hero": "MASTER 200", "sub": "SEA SERVICE MET", "page": "seatime" },
   { "file": "master-500gt-sea-service", "tier": "platinum", "hero": "MASTER 500", "sub": "SEA SERVICE MET", "page": "seatime" },
   { "file": "master-3000gt-sea-service", "tier": "platinum", "hero": "MASTER 3000", "sub": "SEA SERVICE MET", "page": "seatime" },
+  { "file": "chief-mate-yachts-unlimited", "tier": "platinum", "hero": "CHIEF MATE", "sub": "UNLIMITED", "page": "certificates" },
+  { "file": "master-yachts-unlimited", "tier": "platinum", "hero": "MASTER", "sub": "UNLIMITED", "page": "seatime" },
   { "file": "atlantic-crossing", "tier": "gold", "hero": "ATLANTIC", "sub": "CROSSING", "page": "navigation" },
   { "file": "pacific-crossing", "tier": "platinum", "hero": "PACIFIC", "sub": "CROSSING", "page": "navigation" }
 ]

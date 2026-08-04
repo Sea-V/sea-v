@@ -1494,6 +1494,100 @@ function getEmptyTenderEntry() {
     };
   }
 
+  // MSN 1858 Amendment 2 (2026) — the new "Yacht Unlimited" pathway lets
+  // yacht deck officers progress beyond 3000GT on yacht sea time alone.
+  // Each rung has two routes: one via a Merchant Navy (non-yacht) ticket
+  // SEA-V doesn't catalog or track at all (OOW Unlimited / Chief Mate
+  // Unlimited / SMEOL), and a "direct" yacht-only route. Only the direct
+  // routes are trackable here — the Merchant Navy routes are simply
+  // unreachable in SEA-V until Merchant Navy ticket tracking is added.
+
+  // Chief Mate Yachts Unlimited, direct route: genuinely HOLDING the
+  // Master Yachts <3000GT Certificate of Competency qualifies on its own —
+  // no extra sea time beyond what's already logged for Master <3000GT
+  // itself. Deliberately checks the saved CERTIFICATE (the exam/oral has
+  // actually happened), not just the Master <3000GT sea-time milestone
+  // above being met — those are two different things.
+  const CHIEF_MATE_UNLIMITED_GATING_CERT_CODE = "MASTER Y3000";
+
+  function computeChiefMateUnlimitedEligibility(certs) {
+    const cert = findSavedCertByCode(certs, CHIEF_MATE_UNLIMITED_GATING_CERT_CODE);
+    return {
+      held: !!cert,
+      issuedDate: cert?.issued || null,
+      met: !!cert,
+      GATING_CERT_CODE: CHIEF_MATE_UNLIMITED_GATING_CERT_CODE
+    };
+  }
+
+  // Master Yachts Unlimited, via-Master-<3000GT route: while holding Master
+  // Yachts <3000GT, 6 months served in the MASTER capacity (incl. 3 months
+  // actual sea) on vessels 500GT or over. "Served in the Master capacity"
+  // is read from each Sea Time entry's free-text `capacityServed` field
+  // (case-insensitive whole-word match on "master") — Sea Time has no
+  // structured rank field, so this is best-effort text matching against
+  // whatever the crew member typed, not a guaranteed-accurate rank record.
+  // Two other Master Yachts Unlimited routes exist (via Chief Mate Yachts
+  // Unlimited or OOW Unlimited) but both need a Merchant Navy ticket SEA-V
+  // doesn't track — not represented here.
+  const MASTER_UNLIMITED_GATING_CERT_CODE = "MASTER Y3000";
+  const MASTER_UNLIMITED_ONBOARD_TARGET_MONTHS = 6;
+  const MASTER_UNLIMITED_ACTUAL_SEA_TARGET_MONTHS = 3;
+  const MASTER_UNLIMITED_MIN_GT = 500;
+  const MASTER_CAPACITY_MATCH = /\bmaster\b/i;
+
+  function computeMasterUnlimitedSeaService(seatimes, certs, vessels) {
+    const gated = seatimesGatedByCertIssueDate(seatimes, certs, MASTER_UNLIMITED_GATING_CERT_CODE);
+
+    if (!gated.held) {
+      return {
+        held: false,
+        issuedDate: null,
+        onboardDays: 0,
+        onboardMonths: 0,
+        actualSeaDays: 0,
+        actualSeaMonths: 0,
+        onboardMet: false,
+        actualSeaMet: false,
+        met: false,
+        ONBOARD_TARGET_MONTHS: MASTER_UNLIMITED_ONBOARD_TARGET_MONTHS,
+        ACTUAL_SEA_TARGET_MONTHS: MASTER_UNLIMITED_ACTUAL_SEA_TARGET_MONTHS,
+        GATING_CERT_CODE: MASTER_UNLIMITED_GATING_CERT_CODE
+      };
+    }
+
+    let onboardDays = 0;
+    let actualSeaDays = 0;
+    gated.gatedEntries.forEach((entry) => {
+      const gt = getEntryVesselGt(entry, vessels);
+      const servedAsMaster = MASTER_CAPACITY_MATCH.test(entry.capacityServed || "");
+      if (gt >= MASTER_UNLIMITED_MIN_GT && servedAsMaster) {
+        onboardDays += daysBetweenDates(entry.dateJoined, entry.dateLeft);
+        actualSeaDays += toNumber(entry.actualSeaServiceDays);
+      }
+    });
+
+    const onboardMonths = onboardDays / DAYS_PER_MONTH;
+    const actualSeaMonths = actualSeaDays / DAYS_PER_MONTH;
+    const onboardMet = onboardMonths >= MASTER_UNLIMITED_ONBOARD_TARGET_MONTHS;
+    const actualSeaMet = actualSeaMonths >= MASTER_UNLIMITED_ACTUAL_SEA_TARGET_MONTHS;
+
+    return {
+      held: true,
+      issuedDate: gated.issuedDate,
+      onboardDays,
+      onboardMonths,
+      actualSeaDays,
+      actualSeaMonths,
+      onboardMet,
+      actualSeaMet,
+      met: onboardMet && actualSeaMet,
+      ONBOARD_TARGET_MONTHS: MASTER_UNLIMITED_ONBOARD_TARGET_MONTHS,
+      ACTUAL_SEA_TARGET_MONTHS: MASTER_UNLIMITED_ACTUAL_SEA_TARGET_MONTHS,
+      GATING_CERT_CODE: MASTER_UNLIMITED_GATING_CERT_CODE
+    };
+  }
+
   function getSeatimeTotals(entries) {
     const totals = {
       sea: 0,
@@ -1983,6 +2077,8 @@ window.SeavData = {
   computeMaster200SeaService,
   computeMaster500SeaService,
   computeMaster3000SeaService,
+  computeChiefMateUnlimitedEligibility,
+  computeMasterUnlimitedSeaService,
   computeYachtmasterOffshoreMiles,
   getSeatimeVerificationDisplay,
   getCertExpiryInfo,

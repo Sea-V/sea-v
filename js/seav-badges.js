@@ -75,6 +75,22 @@ master_3000gt_sea_service: {
   lockedImage: LOCKED_IMAGE,
   tier: "platinum"
 },
+chief_mate_yachts_unlimited: {
+  key: "chief_mate_yachts_unlimited",
+  label: "Chief Mate Yachts Unlimited — Eligible",
+  fileName: "chief-mate-yachts-unlimited.svg",
+  image: "/img/badges/chief-mate-yachts-unlimited.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "platinum"
+},
+master_yachts_unlimited: {
+  key: "master_yachts_unlimited",
+  label: "Master Yachts Unlimited — Sea Service Complete",
+  fileName: "master-yachts-unlimited.svg",
+  image: "/img/badges/master-yachts-unlimited.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "platinum"
+},
 
 atlantic_crossing: {
   key: "atlantic_crossing",
@@ -198,6 +214,31 @@ pacific_crossing: {
       description: "Logged 240 watchkeeping days on vessels 15m or over, plus 12 months on 500GT+ vessels or 24 months on 24m+ vessels, while holding OOW Yachts <3000GT — the sea-service requirement for Master (Yacht) <3000GT (MSN 1858 §3.6(a)). Only sea time logged after your OOW <3000GT issue date counts.",
       approvalRequired: false,
       trigger: { type: "master_3000gt_gated_sea_service", gatingCertCode: "OOW YACHT" }
+    },
+
+    chief_mate_yachts_unlimited: {
+      code: "chief_mate_yachts_unlimited",
+      title: "Chief Mate Yachts Unlimited — Eligible",
+      category: "Deck Progression",
+      certGroup: "Chief Mate Yachts Unlimited",
+      dashboardSection: "certificates",
+      sourcePage: "certificates",
+      badgeKey: "chief_mate_yachts_unlimited",
+      description: "Holding the Master Yachts <3000GT Certificate of Competency directly qualifies you for Chief Mate Yachts Unlimited (MSN 1858 Amendment 2, 2026) — the new pathway letting yacht deck officers progress beyond 3000GT on yacht sea time alone, no Merchant Navy tickets required.",
+      approvalRequired: false,
+      trigger: { type: "chief_mate_unlimited_direct" }
+    },
+    master_yachts_unlimited: {
+      code: "master_yachts_unlimited",
+      title: "Master Yachts Unlimited — Sea Service Complete",
+      category: "Deck Progression",
+      certGroup: "Master Yachts Unlimited",
+      dashboardSection: "seatime",
+      sourcePage: "seatime",
+      badgeKey: "master_yachts_unlimited",
+      description: "Logged 6 months served in the Master capacity, including 3 months actual sea service, on vessels 500GT or over, while holding Master Yachts <3000GT — one of three routes to Master Yachts Unlimited (MSN 1858 Amendment 2, 2026); the other two need a Merchant Navy ticket not tracked here. Counted from your Sea Time entries' capacity-served field, so keep that accurate for entries where you served as Master.",
+      approvalRequired: false,
+      trigger: { type: "master_unlimited_master3000_route", gatingCertCode: "MASTER Y3000" }
     },
 
     atlantic_crossing: {

@@ -17,6 +17,8 @@
     computeMaster200SeaService,
     computeMaster500SeaService,
     computeMaster3000SeaService,
+    computeChiefMateUnlimitedEligibility,
+    computeMasterUnlimitedSeaService,
     seatimesGatedByCertIssueDate
   } = window.SeavData;
   const { listAchievements, getAchievementWithBadge } = window.SeavBadges;
@@ -226,10 +228,17 @@
       }
       case "master_200gt_gated_sea_service":
       case "master_500gt_gated_sea_service":
-      case "master_3000gt_gated_sea_service": {
+      case "master_3000gt_gated_sea_service":
+      case "master_unlimited_master3000_route": {
         const gated = seatimesGatedByCertIssueDate(getSeatimes(), getCerts(), trigger.gatingCertCode);
         if (!gated.held) return { vesselId: "", vessel: "" };
         const entries = sortSeatimesChronologically(gated.gatedEntries);
+        return vesselContextFromSeatimeEntry(entries[entries.length - 1] || null);
+      }
+      case "chief_mate_unlimited_direct": {
+        // Cosmetic attribution only (like oow_eligible above) — eligibility
+        // is "do you hold the cert," not tied to any one Sea Time entry.
+        const entries = seatimesWithSeaDays();
         return vesselContextFromSeatimeEntry(entries[entries.length - 1] || null);
       }
       default:
@@ -264,6 +273,12 @@
 
       case "master_3000gt_gated_sea_service":
         return computeMaster3000SeaService(getSeatimes(), getCerts(), getVessels()).allMasterMet;
+
+      case "chief_mate_unlimited_direct":
+        return computeChiefMateUnlimitedEligibility(getCerts()).met;
+
+      case "master_unlimited_master3000_route":
+        return computeMasterUnlimitedSeaService(getSeatimes(), getCerts(), getVessels()).met;
 
       case "manual":
       default:
@@ -327,7 +342,9 @@
     "yachtmaster_offshore_miles",
     "master_200gt_gated_sea_service",
     "master_500gt_gated_sea_service",
-    "master_3000gt_gated_sea_service"
+    "master_3000gt_gated_sea_service",
+    "chief_mate_unlimited_direct",
+    "master_unlimited_master3000_route"
   ]);
 
   async function evaluateAutomaticAchievements() {
@@ -564,6 +581,44 @@
           target: result.WATCHKEEPING_TARGET,
           percent: Math.min(watchPct, specialPct),
           label: `${result.totalWatchkeeping15m} / ${result.WATCHKEEPING_TARGET} watchkeeping days (${result.specialValue.toFixed(1)} / ${result.specialTarget} ${specialLabel}) — since holding OOW <3000GT`
+        };
+      }
+      case "chief_mate_unlimited_direct": {
+        const result = computeChiefMateUnlimitedEligibility(getCerts());
+        return {
+          current: result.met ? 1 : 0,
+          target: 1,
+          percent: result.met ? 100 : 0,
+          label: result.met
+            ? "Master Yachts <3000GT held — Chief Mate Yachts Unlimited eligibility met"
+            : "Hold the Master Yachts <3000GT Certificate of Competency to qualify directly"
+        };
+      }
+      case "master_unlimited_master3000_route": {
+        // Same weakest-link approach as the other gated Master milestones —
+        // months-as-Master AND actual-sea-months both have to clear.
+        const result = computeMasterUnlimitedSeaService(getSeatimes(), getCerts(), getVessels());
+        if (!result.held) {
+          return {
+            current: 0,
+            target: result.ONBOARD_TARGET_MONTHS,
+            percent: 0,
+            label: "Hold Master Yachts <3000GT first"
+          };
+        }
+        const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
+        const actualSeaMonthsRounded = Math.round(result.actualSeaMonths * 10) / 10;
+        const onboardPct = result.ONBOARD_TARGET_MONTHS
+          ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+          : 0;
+        const actualSeaPct = result.ACTUAL_SEA_TARGET_MONTHS
+          ? Math.min(100, Math.round((result.actualSeaMonths / result.ACTUAL_SEA_TARGET_MONTHS) * 100))
+          : 0;
+        return {
+          current: onboardMonthsRounded,
+          target: result.ONBOARD_TARGET_MONTHS,
+          percent: Math.min(onboardPct, actualSeaPct),
+          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months as Master on 500GT+ vessels (${actualSeaMonthsRounded} / ${result.ACTUAL_SEA_TARGET_MONTHS} months actual sea) — since holding Master <3000GT`
         };
       }
       case "manual":
