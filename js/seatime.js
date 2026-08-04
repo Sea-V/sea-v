@@ -31,7 +31,9 @@
     getSeatimeVerificationDisplay,
     getSortedVesselOptions,
     getVesselColor,
-    formatDatePretty
+    formatDatePretty,
+    computeOowSeaService,
+    computeMasterSeaService
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.SEATIMES;
@@ -132,19 +134,6 @@
     if (kpiTotalDays) kpiTotalDays.textContent = String(totals.total);
   }
 
-  function parseVesselLengthMeters(raw) {
-    const match = String(raw || "").match(/(\d+(\.\d+)?)/);
-    return match ? Number(match[1]) : 0;
-  }
-
-  function daysBetween(startIso, endIso) {
-    const start = startIso ? new Date(startIso) : null;
-    const end = endIso ? new Date(endIso) : new Date();
-    if (!start || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0;
-    const ms = end - start;
-    return ms > 0 ? Math.round(ms / 86400000) : 0;
-  }
-
   // Per-user "I hold the OOW cert and want to see Master progress" tick box —
   // a local preference, not official data, so it lives in localStorage rather
   // than Supabase (mirrors js/badge-unlock.js's per-user storageKey pattern).
@@ -222,38 +211,24 @@
 
     if (!qualDaysEl && !actualEl) return;
 
-    const QUALIFYING_TARGET = 365;
-    const ACTUAL_MIN = 250;
-    const YARD_CAP = 90;
+    // Shared with js/achievements-engine.js via js/seav-data.js so the
+    // OOW badge triggers and this tracker can never disagree. Standby is
+    // capped by BOTH "14 consecutive days at one time" AND "never exceeds
+    // that voyage's own actual sea days" per MSN 1858 SS4.2.
+    const {
+      totalActual15m,
+      totalStandby15mCounted,
+      totalYard15mRaw,
+      totalYard15mCounted,
+      totalQualifying15m,
+      qualifyingMet,
+      actualMet,
+      allMet,
+      ACTUAL_MIN,
+      QUALIFYING_TARGET,
+      YARD_CAP
+    } = computeOowSeaService(seatimes, getVessels());
 
-    let totalActual15m = 0;
-    let totalStandby15mCounted = 0;
-    let totalYard15mRaw = 0;
-
-    seatimes.forEach((entry) => {
-      const vessel = getVesselById(entry.vesselId);
-      const lengthM = parseVesselLengthMeters(
-        vessel?.vessel_length || vessel?.length || entry.vesselLength
-      );
-
-      const actual = toNumber(entry.actualSeaServiceDays);
-      const standby = toNumber(entry.standbyServiceDays);
-      const yard = toNumber(entry.yardServiceDays);
-
-      if (lengthM >= 15) {
-        totalActual15m += actual;
-        // Standby can never exceed that voyage's own actual sea days.
-        totalStandby15mCounted += Math.min(standby, actual);
-        totalYard15mRaw += yard;
-      }
-    });
-
-    const totalYard15mCounted = Math.min(totalYard15mRaw, YARD_CAP);
-    const totalQualifying15m = totalActual15m + totalStandby15mCounted + totalYard15mCounted;
-
-    const qualifyingMet = totalQualifying15m >= QUALIFYING_TARGET;
-    const actualMet = totalActual15m >= ACTUAL_MIN;
-    const allMet = qualifyingMet && actualMet;
     latestOowAllMet = allMet;
 
     if (qualDaysEl) qualDaysEl.textContent = `${totalQualifying15m} / ${QUALIFYING_TARGET}`;
@@ -309,39 +284,19 @@
     if (!watchEl && !specialEl) return;
 
     const WATCHKEEPING_TARGET = 240;
-    const SPECIAL_24M_TARGET = 12;
-    const SPECIAL_500GT_TARGET = 6;
 
-    let totalWatchkeeping15m = 0;
-    let totalOnboard24mDays = 0;
-    let totalOnboard500gtDays = 0;
-
-    seatimes.forEach((entry) => {
-      const vessel = getVesselById(entry.vesselId);
-      const lengthM = parseVesselLengthMeters(
-        vessel?.vessel_length || vessel?.length || entry.vesselLength
-      );
-      const gt = parseVesselLengthMeters(vessel?.gt);
-      const days = daysBetween(entry.dateJoined, entry.dateLeft);
-
-      if (lengthM >= 15) {
-        totalWatchkeeping15m += toNumber(entry.watchkeepingDays);
-      }
-      if (lengthM >= 24) totalOnboard24mDays += days;
-      if (gt >= 500) totalOnboard500gtDays += days;
-    });
-
-    const months24m = totalOnboard24mDays / 30.44;
-    const months500gt = totalOnboard500gtDays / 30.44;
-
-    const watchMet = totalWatchkeeping15m >= WATCHKEEPING_TARGET;
-
-    // Show whichever specialised-experience path is further along.
-    const use500gtPath = months500gt / SPECIAL_500GT_TARGET > months24m / SPECIAL_24M_TARGET;
-    const specialValue = use500gtPath ? months500gt : months24m;
-    const specialTarget = use500gtPath ? SPECIAL_500GT_TARGET : SPECIAL_24M_TARGET;
-    const specialMet = months24m >= SPECIAL_24M_TARGET || months500gt >= SPECIAL_500GT_TARGET;
-    const allMasterMet = watchMet && specialMet;
+    // Shared with js/achievements-engine.js via js/seav-data.js.
+    const {
+      totalWatchkeeping15m,
+      months24m,
+      months500gt,
+      watchMet,
+      use500gtPath,
+      specialValue,
+      specialTarget,
+      specialMet,
+      allMasterMet
+    } = computeMasterSeaService(seatimes, getVessels());
 
     if (watchEl) watchEl.textContent = `${totalWatchkeeping15m} / ${WATCHKEEPING_TARGET}`;
     if (watchBar) {

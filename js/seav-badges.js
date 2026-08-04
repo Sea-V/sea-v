@@ -6,7 +6,7 @@
   const DEFAULT_IMAGE = "/img/badges/default.svg";
 
   const BADGES = {
-// Deck Career Progression — sourced from MSN 1858's real OOW Yachts <3000GT
+// Deck Progression (Career Path Milestones) — sourced from MSN 1858's real OOW Yachts <3000GT
 // sea-time sub-requirements (replaces the old arbitrary 30/100/250/500-day,
 // 1/3-year round-number badges — see js/achievements-engine.js for the
 // trigger math behind each one).
@@ -242,14 +242,14 @@ helicopter_ops: {
 };
 
   const ACHIEVEMENTS = {
-    // Deck Career Progression — each of these maps to a real MSN 1858 sea-time
+    // Deck Progression (Career Path Milestones) — each of these maps to a real MSN 1858 sea-time
     // sub-requirement for the OOW Yachts <3000GT Certificate of Competency
     // (see docs research: MSN 1858 SS3.3 & SS4.2), instead of an arbitrary
     // round number. See js/achievements-engine.js for the trigger math.
     oow_250_actual_days: {
       code: "oow_250_actual_days",
       title: "250 Actual Sea Days",
-      category: "Deck Career Progression",
+      category: "Deck Progression",
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_250_actual_days",
@@ -260,7 +260,7 @@ helicopter_ops: {
     oow_365_qualifying_days: {
       code: "oow_365_qualifying_days",
       title: "365 Qualifying Days Onboard (≥15m)",
-      category: "Deck Career Progression",
+      category: "Deck Progression",
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_365_qualifying_days",
@@ -271,7 +271,7 @@ helicopter_ops: {
     oow_36_months_onboard: {
       code: "oow_36_months_onboard",
       title: "36 Months Onboard Yacht Service",
-      category: "Deck Career Progression",
+      category: "Deck Progression",
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_36_months_onboard",
@@ -282,7 +282,7 @@ helicopter_ops: {
     oow_3000gt_sea_time: {
       code: "oow_3000gt_sea_time",
       title: "OOW Yachts <3000GT — Sea Time Complete",
-      category: "Deck Career Progression",
+      category: "Deck Progression",
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_3000gt_sea_time",
@@ -479,7 +479,7 @@ helicopter_ops: {
     first_promotion: {
       code: "first_promotion",
       title: "First Promotion",
-      category: "Career Progression",
+      category: "Rank & Leadership",
       dashboardSection: "profile",
       sourcePage: "profile",
       badgeKey: "first_promotion",
@@ -490,7 +490,7 @@ helicopter_ops: {
     senior_crew: {
       code: "senior_crew",
       title: "Senior Crew",
-      category: "Career Progression",
+      category: "Rank & Leadership",
       dashboardSection: "profile",
       sourcePage: "profile",
       badgeKey: "senior_crew",
@@ -504,7 +504,7 @@ helicopter_ops: {
     officer_rank: {
       code: "officer_rank",
       title: "Officer Rank Achieved",
-      category: "Career Progression",
+      category: "Rank & Leadership",
       dashboardSection: "profile",
       sourcePage: "profile",
       badgeKey: "officer_rank",
@@ -518,7 +518,7 @@ helicopter_ops: {
     command_experience: {
       code: "command_experience",
       title: "Command Experience",
-      category: "Career Progression",
+      category: "Rank & Leadership",
       dashboardSection: "profile",
       sourcePage: "profile",
       badgeKey: "command_experience",

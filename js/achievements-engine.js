@@ -7,7 +7,14 @@
     return;
   }
 
-  const { KEYS, createId, totalQualifyingDays, getPassageDistanceNm } = window.SeavData;
+  const {
+    KEYS,
+    createId,
+    totalQualifyingDays,
+    getPassageDistanceNm,
+    computeOowSeaService,
+    isOowSeaTimeComplete: sharedIsOowSeaTimeComplete
+  } = window.SeavData;
   const { listAchievements, getAchievementWithBadge } = window.SeavBadges;
 
   function getProfile() {
@@ -107,21 +114,18 @@
     }) || null;
   }
 
-  // --- Deck Career Progression (MSN 1858 OOW Yachts <3000GT) helpers ---
+  // --- Deck Progression / Career Path Milestones (MSN 1858 OOW Yachts <3000GT) helpers ---
   //
-  // These mirror the real sea-service sub-requirements in MSN 1858 SS3.3 &
-  // SS4.2, using the same actualSeaServiceDays/standbyServiceDays/
-  // yardServiceDays/watchkeepingDays fields the Sea Time form already
-  // collects. Two simplifications vs the full regulation: standby is capped
-  // at 14 days per logged entry (the regulation's "at one time" phrasing) but
-  // yard service is capped at 90 days as a running TOTAL across every
-  // qualifying entry, not per entry — otherwise yard time split across
-  // several logged voyages could each stay under 90 individually and still
-  // add up to far more than the regulation allows in total. The remaining
-  // nuance — standby on any voyage can never exceed that same voyage's
-  // actual sea days — isn't modelled, since that needs sequencing entries by
-  // voyage, which the data model doesn't support yet. Verified against
-  // sample data before shipping (see commit notes).
+  // The actual pass/fail math now lives in js/seav-data.js's
+  // computeOowSeaService()/isOowSeaTimeComplete() — shared with the Sea Time
+  // page tracker (js/seatime.js) so the two surfaces can never disagree.
+  // Standby is capped by BOTH "14 consecutive days at one time" AND "never
+  // exceeds that voyage's own actual sea days" (MSN 1858 SS4.2); yard is
+  // capped at 90 days as a running total across every qualifying entry, not
+  // per entry. MSN 1858's 15m vessel-length threshold is fixed inside the
+  // shared function (the regulation's own threshold, not a tunable), so the
+  // minVesselMeters trigger param below is accepted for API compatibility
+  // but not separately re-applied here.
   function getSeatimeVesselLengthMeters(entry) {
     const vessel = getVesselById(entry?.vesselId);
     return parseMeters(vessel?.vessel_length || vessel?.length || entry?.vesselLength);
@@ -131,45 +135,28 @@
     return getSeatimes().filter((entry) => getSeatimeVesselLengthMeters(entry) >= minMeters);
   }
 
-  function getActualSeaDaysOnVessels(minMeters) {
-    return seatimesOnVesselsAtLeast(minMeters).reduce(
-      (sum, entry) => sum + Number(entry.actualSeaServiceDays || 0),
-      0
-    );
+  function getActualSeaDaysOnVessels() {
+    return computeOowSeaService(getSeatimes(), getVessels()).totalActual15m;
   }
 
   // Per-entry estimate used only to pick a representative vessel/date for
   // display (resolveVesselContext) — the true pass/fail number comes from
   // getOowQualifyingDaysOnVessels() below, which applies the yard cap
-  // globally rather than per entry.
+  // globally rather than per entry. Mirrors the shared function's per-entry
+  // standby cap (min of actual days, 14, and the logged standby value).
   function oowQualifyingDaysForEntry(entry) {
     const actual = Number(entry.actualSeaServiceDays || 0);
-    const standbyCapped = Math.min(Number(entry.standbyServiceDays || 0), 14);
+    const standbyCapped = Math.min(Number(entry.standbyServiceDays || 0), actual, 14);
     const yardCapped = Math.min(Number(entry.yardServiceDays || 0), 90);
     return { actual, other: Math.min(standbyCapped + yardCapped, 115) };
   }
 
-  function getOowQualifyingDaysOnVessels(minMeters) {
-    const entries = seatimesOnVesselsAtLeast(minMeters);
-    let actual = 0;
-    let standbySum = 0;
-    let yardSum = 0;
-    entries.forEach((entry) => {
-      actual += Number(entry.actualSeaServiceDays || 0);
-      standbySum += Math.min(Number(entry.standbyServiceDays || 0), 14);
-      yardSum += Number(entry.yardServiceDays || 0);
-    });
-    const yardCapped = Math.min(yardSum, 90);
-    const otherCapped = Math.min(standbySum + yardCapped, 115);
-    return actual + otherCapped;
+  function getOowQualifyingDaysOnVessels() {
+    return computeOowSeaService(getSeatimes(), getVessels()).totalQualifying15m;
   }
 
   function isOowSeaTimeComplete() {
-    return (
-      getActualSeaDaysOnVessels(15) >= 250 &&
-      getOowQualifyingDaysOnVessels(15) >= 365 &&
-      getTotalSeaDays() >= 1095
-    );
+    return sharedIsOowSeaTimeComplete(getSeatimes(), getVessels());
   }
 
   function seatimeEntryForFilteredThreshold(entries, targetDays, valueFn) {
@@ -389,12 +376,10 @@
         return normalize(getProfile()[trigger.field]).includes(normalize(trigger.contains));
 
       case "oow_actual_sea_days":
-        return getActualSeaDaysOnVessels(Number(trigger.minVesselMeters || 0)) >=
-          Number(trigger.minDays || 0);
+        return getActualSeaDaysOnVessels() >= Number(trigger.minDays || 0);
 
       case "oow_qualifying_days":
-        return getOowQualifyingDaysOnVessels(Number(trigger.minVesselMeters || 0)) >=
-          Number(trigger.minDays || 0);
+        return getOowQualifyingDaysOnVessels() >= Number(trigger.minDays || 0);
 
       case "oow_eligible":
         return isOowSeaTimeComplete();
@@ -652,7 +637,7 @@
       }
       case "oow_actual_sea_days": {
         const target = Number(trigger.minDays || 0);
-        const current = getActualSeaDaysOnVessels(Number(trigger.minVesselMeters || 0));
+        const current = getActualSeaDaysOnVessels();
         return {
           current,
           target,
@@ -662,7 +647,7 @@
       }
       case "oow_qualifying_days": {
         const target = Number(trigger.minDays || 0);
-        const current = getOowQualifyingDaysOnVessels(Number(trigger.minVesselMeters || 0));
+        const current = getOowQualifyingDaysOnVessels();
         return {
           current,
           target,

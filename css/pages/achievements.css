@@ -228,6 +228,31 @@
 .ach-category-tabs {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.ach-tab--all {
+  margin-top: 22px;
+}
+
+.ach-tab-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ach-tab-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.ach-tab-group-row {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 

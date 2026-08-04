@@ -14,6 +14,15 @@
   const TIER_RANK = { default: 0, bronze: 1, silver: 2, gold: 3, platinum: 4 };
   let activeCategory = "all";
 
+  // Two-tier badge taxonomy: "Career Path Milestones" are objectively
+  // calculated against a real CoC sea-service threshold (MSN 1858 etc.) —
+  // "Seafarer Awards" cover everything else (vessel/passage/ops experience,
+  // rank self-reporting). Categories stay fully dynamic (see
+  // getUniqueCategories) — this list only decides which banner a known
+  // category sits under; anything not listed here falls back to Seafarer
+  // Awards so a future category never goes missing from the page.
+  const CAREER_PATH_CATEGORIES = ["Deck Progression", "Engineering Progression"];
+
   function achievementActionAttrs(id) {
     const safeId = Seav.escapeHtml(id || "");
     return {
@@ -232,20 +241,32 @@
     `;
   }
 
+  function renderTabButton(category) {
+    return `<button type="button" class="ach-tab ${activeCategory === category ? "is-active" : ""}" data-ach-category="${Seav.escapeHtml(category)}">${Seav.escapeHtml(category)}</button>`;
+  }
+
+  function renderTabGroup(label, categories) {
+    if (!categories.length) return "";
+    return `
+      <div class="ach-tab-group">
+        <span class="ach-tab-group-label">${Seav.escapeHtml(label)}</span>
+        <div class="ach-tab-group-row">${categories.map(renderTabButton).join("")}</div>
+      </div>
+    `;
+  }
+
   function renderCategoryTabs() {
     const mount = document.getElementById("achCategoryTabs");
     if (!mount) return;
 
     const categories = getUniqueCategories();
+    const careerPath = categories.filter((cat) => CAREER_PATH_CATEGORIES.includes(cat));
+    const seafarerAwards = categories.filter((cat) => !CAREER_PATH_CATEGORIES.includes(cat));
 
     mount.innerHTML = `
-      <button type="button" class="ach-tab ${activeCategory === "all" ? "is-active" : ""}" data-ach-category="all">All</button>
-      ${categories
-        .map(
-          (category) =>
-            `<button type="button" class="ach-tab ${activeCategory === category ? "is-active" : ""}" data-ach-category="${Seav.escapeHtml(category)}">${Seav.escapeHtml(category)}</button>`
-        )
-        .join("")}
+      <button type="button" class="ach-tab ach-tab--all ${activeCategory === "all" ? "is-active" : ""}" data-ach-category="all">All</button>
+      ${renderTabGroup("Career Path Milestones", careerPath)}
+      ${renderTabGroup("Seafarer Awards", seafarerAwards)}
     `;
   }
 

@@ -1108,6 +1108,175 @@ function getEmptyTenderEntry() {
     );
   }
 
+  /* =========================================================
+     DECK CAREER PROGRESSION — shared MSN 1858 sea-service math
+     Single source of truth used by BOTH the Sea Time page tracker
+     (js/seatime.js) and the OOW/Master achievement badges
+     (js/achievements-engine.js), so the two surfaces can never disagree.
+     Previously each file computed this independently and had drifted:
+     seatime.js capped standby only by "that voyage's own actual sea days";
+     achievements-engine.js capped standby only at a flat 14 days. MSN 1858
+     SS4.2 actually requires BOTH caps at once ("a maximum of 14 consecutive
+     days may be counted at one time, but on no occasion may a period of
+     standby service exceed that of the previous voyage") — this version
+     applies both.
+  ========================================================= */
+
+  function parseLengthMeters(raw) {
+    const match = String(raw || "").match(/(\d+(\.\d+)?)/);
+    return match ? Number(match[1]) : 0;
+  }
+
+  function findVesselById(vessels, vesselId) {
+    if (!vesselId) return null;
+    return (vessels || []).find((v) => v.id === vesselId) || null;
+  }
+
+  function getEntryVesselLengthMeters(entry, vessels) {
+    const vessel = findVesselById(vessels, entry?.vesselId);
+    return parseLengthMeters(vessel?.vessel_length || vessel?.length || entry?.vesselLength);
+  }
+
+  function getEntryVesselGt(entry, vessels) {
+    const vessel = findVesselById(vessels, entry?.vesselId);
+    return parseLengthMeters(vessel?.gt);
+  }
+
+  function daysBetweenDates(startIso, endIso) {
+    const start = startIso ? new Date(startIso) : null;
+    const end = endIso ? new Date(endIso) : new Date();
+    if (!start || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0;
+    const ms = end - start;
+    return ms > 0 ? Math.round(ms / 86400000) : 0;
+  }
+
+  const OOW_QUALIFYING_TARGET = 365;
+  const OOW_ACTUAL_MIN = 250;
+  const OOW_STANDBY_PER_ENTRY_CAP = 14;
+  const OOW_YARD_TOTAL_CAP = 90;
+  const OOW_36_MONTHS_TARGET_DAYS = 1095;
+  const MASTER_WATCHKEEPING_TARGET = 240;
+  const MASTER_SPECIAL_24M_TARGET_MONTHS = 12;
+  const MASTER_SPECIAL_500GT_TARGET_MONTHS = 6;
+  const DAYS_PER_MONTH = 30.44;
+
+  /**
+   * OOW Yachts <3000GT sea-service progress — MSN 1858 (M+F) Amendment 2,
+   * section 3.3: 365 days seagoing service on vessels 15m+ load line length,
+   * made up of a minimum of 250 days actual sea service plus any combination
+   * of actual/standby/yard for the rest, where standby is capped at 14
+   * consecutive days AND can never exceed that voyage's own actual sea days,
+   * and yard service counts up to a maximum of 90 days total (as a running
+   * total across every logged entry, not per entry).
+   */
+  function computeOowSeaService(seatimes, vessels) {
+    let totalActual15m = 0;
+    let totalStandby15mCounted = 0;
+    let totalYard15mRaw = 0;
+
+    (seatimes || []).forEach((entry) => {
+      if (getEntryVesselLengthMeters(entry, vessels) < 15) return;
+
+      const actual = toNumber(entry.actualSeaServiceDays);
+      const standby = toNumber(entry.standbyServiceDays);
+      const yard = toNumber(entry.yardServiceDays);
+
+      totalActual15m += actual;
+      totalStandby15mCounted += Math.min(standby, actual, OOW_STANDBY_PER_ENTRY_CAP);
+      totalYard15mRaw += yard;
+    });
+
+    const totalYard15mCounted = Math.min(totalYard15mRaw, OOW_YARD_TOTAL_CAP);
+    const totalQualifying15m = totalActual15m + totalStandby15mCounted + totalYard15mCounted;
+    const actualMet = totalActual15m >= OOW_ACTUAL_MIN;
+    const qualifyingMet = totalQualifying15m >= OOW_QUALIFYING_TARGET;
+
+    return {
+      totalActual15m,
+      totalStandby15mCounted,
+      totalYard15mRaw,
+      totalYard15mCounted,
+      totalQualifying15m,
+      actualMet,
+      qualifyingMet,
+      allMet: actualMet && qualifyingMet,
+      ACTUAL_MIN: OOW_ACTUAL_MIN,
+      QUALIFYING_TARGET: OOW_QUALIFYING_TARGET,
+      YARD_CAP: OOW_YARD_TOTAL_CAP
+    };
+  }
+
+  /** MSN 1858 SS3.3's 36-month total onboard yacht service (any vessel size, since age 16). */
+  function computeOow36MonthsOnboard(seatimes) {
+    const totalDays = (seatimes || []).reduce(
+      (sum, entry) => sum + totalQualifyingDays(entry),
+      0
+    );
+    return {
+      totalDays,
+      target: OOW_36_MONTHS_TARGET_DAYS,
+      met: totalDays >= OOW_36_MONTHS_TARGET_DAYS
+    };
+  }
+
+  function isOowSeaTimeComplete(seatimes, vessels) {
+    return (
+      computeOowSeaService(seatimes, vessels).allMet &&
+      computeOow36MonthsOnboard(seatimes).met
+    );
+  }
+
+  /**
+   * Master Yachts <3000GT sea-service progress — MSN 1858 (M+F) Amendment 2,
+   * section 3.6(a): while holding OOW <3000GT, 240 days watchkeeping service
+   * on vessels 15m+, including either 12 months on vessels 24m+ or 6 months
+   * on vessels 500GT+.
+   */
+  function computeMasterSeaService(seatimes, vessels) {
+    let totalWatchkeeping15m = 0;
+    let totalOnboard24mDays = 0;
+    let totalOnboard500gtDays = 0;
+
+    (seatimes || []).forEach((entry) => {
+      const lengthM = getEntryVesselLengthMeters(entry, vessels);
+      const gt = getEntryVesselGt(entry, vessels);
+      const days = daysBetweenDates(entry.dateJoined, entry.dateLeft);
+
+      if (lengthM >= 15) totalWatchkeeping15m += toNumber(entry.watchkeepingDays);
+      if (lengthM >= 24) totalOnboard24mDays += days;
+      if (gt >= 500) totalOnboard500gtDays += days;
+    });
+
+    const months24m = totalOnboard24mDays / DAYS_PER_MONTH;
+    const months500gt = totalOnboard500gtDays / DAYS_PER_MONTH;
+    const watchMet = totalWatchkeeping15m >= MASTER_WATCHKEEPING_TARGET;
+    const use500gtPath =
+      months500gt / MASTER_SPECIAL_500GT_TARGET_MONTHS >
+      months24m / MASTER_SPECIAL_24M_TARGET_MONTHS;
+    const specialValue = use500gtPath ? months500gt : months24m;
+    const specialTarget = use500gtPath
+      ? MASTER_SPECIAL_500GT_TARGET_MONTHS
+      : MASTER_SPECIAL_24M_TARGET_MONTHS;
+    const specialMet =
+      months24m >= MASTER_SPECIAL_24M_TARGET_MONTHS ||
+      months500gt >= MASTER_SPECIAL_500GT_TARGET_MONTHS;
+
+    return {
+      totalWatchkeeping15m,
+      totalOnboard24mDays,
+      totalOnboard500gtDays,
+      months24m,
+      months500gt,
+      watchMet,
+      use500gtPath,
+      specialValue,
+      specialTarget,
+      specialMet,
+      allMasterMet: watchMet && specialMet,
+      WATCHKEEPING_TARGET: MASTER_WATCHKEEPING_TARGET
+    };
+  }
+
   function getSeatimeTotals(entries) {
     const totals = {
       sea: 0,
@@ -1550,6 +1719,12 @@ window.SeavData = {
   toNumber,
   totalQualifyingDays,
   getSeatimeTotals,
+  parseLengthMeters,
+  daysBetweenDates,
+  computeOowSeaService,
+  computeOow36MonthsOnboard,
+  isOowSeaTimeComplete,
+  computeMasterSeaService,
   getSeatimeVerificationDisplay,
   getCertExpiryInfo,
   isCertNoExpiry,
