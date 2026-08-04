@@ -237,6 +237,38 @@
       ]
     },
     {
+      // MCA/IAMI written-exam and academic modules that feed into the deck
+      // CoCs above — distinct from the CoC itself (you sit these BEFORE
+      // being issued the Certificate of Competency). Previously untracked
+      // in SEA-V entirely; sourced from MSN 1858 (M+F) Amendment 2 sections
+      // 3.3–3.6 (OOW/Chief Mate/Master <3000GT) and 4.3 (Chief Mate Yachts
+      // Unlimited) — see the "SEA-V Deck Certificate Module Requirements"
+      // research spreadsheet for full sourcing detail per module.
+      label: "Academic & professional exam modules (MCA yacht)",
+      certs: [
+        { code: "NAV RADAR OOW", name: "Navigation and Radar (OOW Yachts)" },
+        { code: "GEN SHIP KNOW", name: "General Ship Knowledge (OOW Yachts)" },
+        { code: "SEAMANSHIP MET MY", name: "Seamanship and Meteorology (Master Yachts)" },
+        { code: "STABILITY MY", name: "Stability (Master Yachts)" },
+        { code: "BUSINESS LAW MY", name: "Business and Law (Master Yachts)" },
+        { code: "NAV RADAR ARPA MY", name: "Navigation, Radar and ARPA Simulator (Master Yachts)" },
+        { code: "CELESTIAL NAV", name: "Celestial Navigation (MCA professional exam)" },
+        // Chief Mate Yachts Unlimited's 9 MCA-approved nautical college
+        // academic modules (MSN 1858 §4.3), plus its separate practical
+        // assessment — none of these existed in the catalog before.
+        { code: "APPLIED MET", name: "Applied Marine Meteorology" },
+        { code: "MGT PASSAGE PLAN", name: "Management Level Passage Planning" },
+        { code: "MGT BRIDGE OPS", name: "Management of Bridge Operations" },
+        { code: "MGT YACHT OPS", name: "Management of Yacht Operations" },
+        { code: "MARINE ENG SYS", name: "Marine Engineering Systems" },
+        { code: "MARINE VESSELS SM", name: "Marine Vessels — Structures and Maintenance" },
+        { code: "SHIP STABILITY TPA", name: "Ship Stability: Theory and Practical Application" },
+        { code: "SHIPBOARD MGT", name: "Shipboard Management" },
+        { code: "SHIPMASTERS LAW", name: "Shipmaster's Law and Business" },
+        { code: "CM NAV STAB ASSESS", name: "MCA Assessment: Chief Mate Navigation and Stability (Yacht Unlimited)" }
+      ]
+    },
+    {
       label: "Navigation, bridge & GMDSS",
       certs: [
         { code: "GMDSS GOC", name: "GMDSS General Operator's Certificate (GOC)", stcwRef: "STCW A-IV/2" },
