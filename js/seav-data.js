@@ -1277,6 +1277,84 @@ function getEmptyTenderEntry() {
     };
   }
 
+  /**
+   * Cert-date gating — several upper-tier deck CoCs (Master <200GT, Master
+   * <500GT) require sea time earned WHILE ALREADY HOLDING a specific
+   * prerequisite certificate (e.g. RYA Yachtmaster Offshore for Master
+   * <200GT per MSN 1858 3.1(b); OOW <3000GT for Master <500GT per 3.5(b)) —
+   * not just sea time logged at any point in a crew member's career.
+   * Certificates already store an `issued` date (js/certificates.js), so
+   * this filters Sea Time entries to only those starting on/after it.
+   *
+   * `held: false` (issued date missing or unparsable) means the gate can't
+   * open at all yet — there's no "while holding X" if X isn't held — and
+   * callers should treat that as 0% progress, not "0 qualifying days so
+   * far out of however many logged."
+   */
+  function seatimesGatedByCertIssueDate(seatimes, certs, certCode) {
+    const cert = findSavedCertByCode(certs, certCode);
+    const issuedDate = cert?.issued ? new Date(cert.issued) : null;
+
+    if (!issuedDate || Number.isNaN(issuedDate.getTime())) {
+      return { held: false, issuedDate: null, gatedEntries: [] };
+    }
+
+    const gatedEntries = (seatimes || []).filter((entry) => {
+      const joined = entry.dateJoined ? new Date(entry.dateJoined) : null;
+      return joined && !Number.isNaN(joined.getTime()) && joined >= issuedDate;
+    });
+
+    return { held: true, issuedDate: cert.issued, gatedEntries };
+  }
+
+  // MSN 1858 3.1(b): Master (Code Vessel) <200GT / OOW Yachts <500GT
+  // (150nm-from-safe-haven variant) requires 6 months' SEAGOING service
+  // while holding RYA Yachtmaster Offshore. "Seagoing service" (3.1's own
+  // term, defined generally in 4.2) is actual + stand-by + yard service —
+  // deliberately NOT the same figure as "onboard yacht service" (which also
+  // counts watchkeeping/other time) used elsewhere in this file. Standby
+  // still gets the universal 4.2 per-entry cap; yard has no cap here (the
+  // 90-day yard cap is specific to OOW <3000GT's own 115-day sub-clause,
+  // not a general rule).
+  const MASTER_200GT_TARGET_MONTHS = 6;
+  const MASTER_200GT_GATING_CERT_CODE = "RYA YMO";
+
+  function computeMaster200SeaService(seatimes, certs) {
+    const gated = seatimesGatedByCertIssueDate(seatimes, certs, MASTER_200GT_GATING_CERT_CODE);
+
+    if (!gated.held) {
+      return {
+        held: false,
+        issuedDate: null,
+        totalDays: 0,
+        months: 0,
+        met: false,
+        TARGET_MONTHS: MASTER_200GT_TARGET_MONTHS,
+        GATING_CERT_CODE: MASTER_200GT_GATING_CERT_CODE
+      };
+    }
+
+    let totalDays = 0;
+    gated.gatedEntries.forEach((entry) => {
+      const actual = toNumber(entry.actualSeaServiceDays);
+      const standby = Math.min(toNumber(entry.standbyServiceDays), actual, OOW_STANDBY_PER_ENTRY_CAP);
+      const yard = toNumber(entry.yardServiceDays);
+      totalDays += actual + standby + yard;
+    });
+
+    const months = totalDays / DAYS_PER_MONTH;
+
+    return {
+      held: true,
+      issuedDate: gated.issuedDate,
+      totalDays,
+      months,
+      met: months >= MASTER_200GT_TARGET_MONTHS,
+      TARGET_MONTHS: MASTER_200GT_TARGET_MONTHS,
+      GATING_CERT_CODE: MASTER_200GT_GATING_CERT_CODE
+    };
+  }
+
   function getSeatimeTotals(entries) {
     const totals = {
       sea: 0,
@@ -1762,6 +1840,8 @@ window.SeavData = {
   computeOow36MonthsOnboard,
   isOowSeaTimeComplete,
   computeMasterSeaService,
+  seatimesGatedByCertIssueDate,
+  computeMaster200SeaService,
   computeYachtmasterOffshoreMiles,
   getSeatimeVerificationDisplay,
   getCertExpiryInfo,

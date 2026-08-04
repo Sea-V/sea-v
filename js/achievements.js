@@ -24,6 +24,27 @@
   // Awards so a future category never goes missing from the page.
   const CAREER_PATH_CATEGORIES = ["Deck Progression", "Engineering Progression"];
 
+  // Deck Progression is grouped by certificate (not one flat list) — each
+  // achievement's certGroup (js/seav-badges.js) says which cert it feeds
+  // into, and this says what order those certs are actually earned in.
+  // RYA Yachtmaster Offshore sits first because it's a prerequisite cert
+  // for OOW <3000GT itself (MSN 1858 3.3(b)), not something earned after —
+  // Jack confirmed this ordering 2026-08-04. Any definition whose certGroup
+  // isn't listed here sorts to the end rather than disappearing, so a future
+  // cert group never silently vanishes off the page.
+  const DECK_CERT_GROUP_ORDER = [
+    "RYA Yachtmaster Offshore",
+    "OOW Yachts <3000GT",
+    "Master <200GT",
+    "Master <500GT",
+    "Master <3000GT"
+  ];
+
+  function certGroupRank(name) {
+    const idx = DECK_CERT_GROUP_ORDER.indexOf(name);
+    return idx === -1 ? DECK_CERT_GROUP_ORDER.length : idx;
+  }
+
   function achievementActionAttrs(id) {
     const safeId = Seav.escapeHtml(id || "");
     return {
@@ -435,8 +456,34 @@
       return;
     }
 
-    mount.innerHTML = definitions
-      .map((definition) => buildProgressRow(definition, earnedGroups.get(definition.code) || []))
+    // Group by certGroup (falls back to category for any definition that
+    // doesn't set one yet), then order the groups by DECK_CERT_GROUP_ORDER —
+    // catalog order within each group is preserved (that's already the
+    // "earn these in order" sequence set in js/seav-badges.js).
+    const groups = new Map();
+    definitions.forEach((definition) => {
+      const key = definition.certGroup || definition.category;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(definition);
+    });
+
+    const orderedKeys = [...groups.keys()].sort(
+      (a, b) => certGroupRank(a) - certGroupRank(b)
+    );
+
+    mount.innerHTML = orderedKeys
+      .map((key) => {
+        const rows = groups
+          .get(key)
+          .map((definition) => buildProgressRow(definition, earnedGroups.get(definition.code) || []))
+          .join("");
+        return `
+          <div class="ach-progress-cert-group">
+            <h4 class="ach-progress-cert-title">${Seav.escapeHtml(key)}</h4>
+            <div class="ach-progress-list">${rows}</div>
+          </div>
+        `;
+      })
       .join("");
   }
 

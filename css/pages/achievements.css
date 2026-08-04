@@ -228,6 +228,30 @@
   margin-bottom: 28px;
 }
 
+/* Deck Progression is grouped by certificate (Yachtmaster Offshore, OOW
+   <3000GT, Master <200/500/3000GT, in earn-order) instead of one flat list —
+   each group gets its own small heading, then the same stacked-row list. */
+.ach-progress-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.ach-progress-cert-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ach-progress-cert-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--seav-field-label-color, #5bbcff);
+}
+
 .ach-progress-list {
   display: flex;
   flex-direction: column;

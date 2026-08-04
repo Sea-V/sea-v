@@ -13,7 +13,9 @@
     totalQualifyingDays,
     computeOowSeaService,
     isOowSeaTimeComplete: sharedIsOowSeaTimeComplete,
-    computeYachtmasterOffshoreMiles
+    computeYachtmasterOffshoreMiles,
+    computeMaster200SeaService,
+    seatimesGatedByCertIssueDate
   } = window.SeavData;
   const { listAchievements, getAchievementWithBadge } = window.SeavBadges;
 
@@ -23,6 +25,13 @@
 
   function getVessels() {
     return window.SeavState?.vessels || [];
+  }
+
+  // Only loaded on pages listed in js/state.js's PAGE_LOAD_KEYS (dashboard,
+  // cv-generator, and achievements itself) — used for cert-date-gated
+  // triggers (Master <200GT/<500GT), same lazy-load caveat as vessels.
+  function getCerts() {
+    return window.SeavState?.certs || [];
   }
 
   // Only loaded on pages listed in js/state.js's PAGE_LOAD_KEYS (dashboard,
@@ -213,6 +222,12 @@
         if (!last?.vesselId) return { vesselId: "", vessel: "" };
         return vesselContextFromRecord(getVesselById(last.vesselId));
       }
+      case "master_200gt_gated_sea_service": {
+        const gated = seatimesGatedByCertIssueDate(getSeatimes(), getCerts(), trigger.gatingCertCode);
+        if (!gated.held) return { vesselId: "", vessel: "" };
+        const entries = sortSeatimesChronologically(gated.gatedEntries);
+        return vesselContextFromSeatimeEntry(entries[entries.length - 1] || null);
+      }
       default:
         return { vesselId: "", vessel: "" };
     }
@@ -236,6 +251,9 @@
 
       case "yachtmaster_offshore_miles":
         return computeYachtmasterOffshoreMiles(getNavigationEntries()).allMet;
+
+      case "master_200gt_gated_sea_service":
+        return computeMaster200SeaService(getSeatimes(), getCerts()).met;
 
       case "manual":
       default:
@@ -296,7 +314,8 @@
     "oow_actual_sea_days",
     "oow_qualifying_days",
     "oow_eligible",
-    "yachtmaster_offshore_miles"
+    "yachtmaster_offshore_miles",
+    "master_200gt_gated_sea_service"
   ]);
 
   async function evaluateAutomaticAchievements() {
@@ -458,6 +477,26 @@
           target: result.TARGET_NM,
           percent: Math.min(totalPct, tidalPct),
           label: `${Math.round(result.totalNm)} / ${result.TARGET_NM} NM (${Math.round(result.tidalNm)} / ${result.TIDAL_TARGET_NM} NM tidal)`
+        };
+      }
+      case "master_200gt_gated_sea_service": {
+        const result = computeMaster200SeaService(getSeatimes(), getCerts());
+        if (!result.held) {
+          return {
+            current: 0,
+            target: result.TARGET_MONTHS,
+            percent: 0,
+            label: "Hold RYA Yachtmaster Offshore first"
+          };
+        }
+        const monthsRounded = Math.round(result.months * 10) / 10;
+        return {
+          current: monthsRounded,
+          target: result.TARGET_MONTHS,
+          percent: result.TARGET_MONTHS
+            ? Math.min(100, Math.round((result.months / result.TARGET_MONTHS) * 100))
+            : 0,
+          label: `${monthsRounded} / ${result.TARGET_MONTHS} months' seagoing service (since holding Yachtmaster Offshore)`
         };
       }
       case "manual":

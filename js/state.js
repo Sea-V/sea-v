@@ -84,10 +84,12 @@
     "seatime.html": ["seatimes", "vessels"],
     "certificates.html": ["certs"],
     "references.html": ["refs"],
-    // navigationAreas added for the Yachtmaster Offshore mileage milestone
-    // (computeYachtmasterOffshoreMiles in seav-data.js) — without it this
-    // page can't see passage distances to evaluate that badge itself.
-    "achievements.html": ["seatimes", "vessels", "tenders", "navigationAreas"],
+    // navigationAreas: Yachtmaster Offshore mileage milestone (computeYacht
+    // masterOffshoreMiles). certs: cert-date-gated milestones (Master
+    // <200GT/<500GT — seatimesGatedByCertIssueDate needs each cert's issued
+    // date). Without these this page can't see the data it needs to
+    // evaluate its own badges.
+    "achievements.html": ["seatimes", "vessels", "tenders", "navigationAreas", "certs"],
     "tenders.html": ["tenders", "vessels"],
     "navigation.html": ["navigationAreas", "vessels", "seatimes"],
     "onboard-experience.html": ["onboardExperiences", "onboardSkills", "vessels"],

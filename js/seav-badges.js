@@ -51,6 +51,14 @@ yachtmaster_offshore: {
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
+master_200gt_sea_service: {
+  key: "master_200gt_sea_service",
+  label: "Master <200GT — Sea Service Complete",
+  fileName: "master-200gt-sea-service.svg",
+  image: "/img/badges/master-200gt-sea-service.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "gold"
+},
 
 atlantic_crossing: {
   key: "atlantic_crossing",
@@ -75,10 +83,24 @@ pacific_crossing: {
     // sub-requirement for the OOW Yachts <3000GT Certificate of Competency
     // (see docs research: MSN 1858 SS3.3 & SS4.2), instead of an arbitrary
     // round number. See js/achievements-engine.js for the trigger math.
+    yachtmaster_offshore: {
+      code: "yachtmaster_offshore",
+      title: "RYA Yachtmaster Offshore — Miles Complete",
+      category: "Deck Progression",
+      certGroup: "RYA Yachtmaster Offshore",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "yachtmaster_offshore",
+      description: "Logged 2,500 qualifying miles, at least 1,250 of them in tidal waters — the sea-mile prerequisite for the RYA Yachtmaster Offshore exam, separate from any MCA Certificate of Competency.",
+      approvalRequired: false,
+      trigger: { type: "yachtmaster_offshore_miles" }
+    },
+
     oow_250_actual_days: {
       code: "oow_250_actual_days",
       title: "250 Actual Sea Days",
       category: "Deck Progression",
+      certGroup: "OOW Yachts <3000GT",
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_250_actual_days",
@@ -90,6 +112,7 @@ pacific_crossing: {
       code: "oow_365_qualifying_days",
       title: "365 Qualifying Days Onboard (≥15m)",
       category: "Deck Progression",
+      certGroup: "OOW Yachts <3000GT",
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_365_qualifying_days",
@@ -101,6 +124,7 @@ pacific_crossing: {
       code: "oow_36_months_onboard",
       title: "36 Months Onboard Yacht Service",
       category: "Deck Progression",
+      certGroup: "OOW Yachts <3000GT",
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_36_months_onboard",
@@ -112,6 +136,7 @@ pacific_crossing: {
       code: "oow_3000gt_sea_time",
       title: "OOW Yachts <3000GT — Sea Time Complete",
       category: "Deck Progression",
+      certGroup: "OOW Yachts <3000GT",
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_3000gt_sea_time",
@@ -120,16 +145,17 @@ pacific_crossing: {
       trigger: { type: "oow_eligible" }
     },
 
-    yachtmaster_offshore: {
-      code: "yachtmaster_offshore",
-      title: "RYA Yachtmaster Offshore — Miles Complete",
+    master_200gt_sea_service: {
+      code: "master_200gt_sea_service",
+      title: "Master <200GT — Sea Service Complete",
       category: "Deck Progression",
-      dashboardSection: "navigation",
-      sourcePage: "navigation",
-      badgeKey: "yachtmaster_offshore",
-      description: "Logged 2,500 qualifying miles, at least 1,250 of them in tidal waters — the sea-mile prerequisite for the RYA Yachtmaster Offshore exam, separate from any MCA Certificate of Competency.",
+      certGroup: "Master <200GT",
+      dashboardSection: "seatime",
+      sourcePage: "seatime",
+      badgeKey: "master_200gt_sea_service",
+      description: "Logged 6 months' seagoing service while holding RYA Yachtmaster Offshore — the sea-service requirement for Master (Code Vessel) <200GT (MSN 1858 §3.1). Only sea time logged after your Yachtmaster Offshore issue date counts.",
       approvalRequired: false,
-      trigger: { type: "yachtmaster_offshore_miles" }
+      trigger: { type: "master_200gt_gated_sea_service", gatingCertCode: "RYA YMO" }
     },
 
     atlantic_crossing: {
