@@ -60,6 +60,40 @@
       : "Add profile and career data in SEA-V, then polish your CV here.";
   }
 
+  // Mirrors js/dashboard.js's renderDashboardPublicQr -- qrcodejs needs a
+  // live DOM node to mount into, so the QR canvas can't be part of the
+  // plain HTML string renderCvHtml() returns. Retries briefly if the
+  // (deferred) library hasn't finished loading yet rather than leaving the
+  // footer's mount div silently blank.
+  function renderCvQrCode(url) {
+    const host = document.getElementById("cvQrCode");
+    if (!host || !url) return;
+
+    if (typeof window.QRCode !== "function") {
+      window.setTimeout(() => renderCvQrCode(url), 200);
+      return;
+    }
+
+    host.innerHTML = "";
+    new window.QRCode(host, {
+      text: url,
+      width: 132,
+      height: 132,
+      colorDark: "#0b1c2e",
+      colorLight: "#ffffff",
+      correctLevel: window.QRCode.CorrectLevel.M
+    });
+  }
+
+  function updateQrHint(source) {
+    const hint = document.getElementById("cvQrHint");
+    if (!hint) return;
+    const eligible = !!(source.profile?.username && source.profile?.publicEnabled);
+    hint.textContent = eligible
+      ? ""
+      : "Needs your public profile enabled with a username (Dashboard → Public profile) to appear.";
+  }
+
   function renderPreview() {
     const preview = document.getElementById("cvPreview");
     if (!preview || !draft) return;
@@ -70,6 +104,8 @@
     // .cv-seav wrapper (added by renderSeav itself), not this outer one.
     preview.className = "cv-document cv-document--seav";
     preview.innerHTML = window.SeavCvEngine.renderCvHtml(documentModel);
+    renderCvQrCode(documentModel.qrUrl);
+    updateQrHint(source);
   }
 
   function renderVesselEditor(source) {

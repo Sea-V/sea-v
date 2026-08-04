@@ -33,6 +33,7 @@
   const SIDEBAR_WIDTH_DXA = 3060;
   const MAIN_WIDTH_DXA = 6578;
   const PHOTO_DISPLAY_WIDTH_PX = 132;
+  const QR_DISPLAY_WIDTH_PX = 90;
   const EMU_PER_PX = 9525;
 
   const RELS_XML =
@@ -41,20 +42,38 @@
     '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
     "</Relationships>";
 
-  const DOCUMENT_RELS_XML =
-    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
-    '<Relationship Id="rIdPhoto" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/photo.png"/>' +
-    "</Relationships>";
+  // Built dynamically (not a fixed constant) now that there are two possible
+  // embedded images (profile photo, QR code) instead of always exactly one --
+  // either, both, or neither may be present depending on what the crew
+  // member has uploaded and which "Include on CV" toggles are on.
+  function documentRelsXml(photoAsset, qrAsset) {
+    const rels = [];
+    if (photoAsset) {
+      rels.push(
+        '<Relationship Id="rIdPhoto" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/photo.png"/>'
+      );
+    }
+    if (qrAsset) {
+      rels.push(
+        '<Relationship Id="rIdQr" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/qr.png"/>'
+      );
+    }
+    return (
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      rels.join("") +
+      "</Relationships>"
+    );
+  }
 
-  function contentTypesXml(includePhoto) {
-    const photoOverride = includePhoto ? '<Default Extension="png" ContentType="image/png"/>' : "";
+  function contentTypesXml(includeImages) {
+    const imageOverride = includeImages ? '<Default Extension="png" ContentType="image/png"/>' : "";
     return (
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
       '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
       '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
       '<Default Extension="xml" ContentType="application/xml"/>' +
-      photoOverride +
+      imageOverride +
       '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
       "</Types>"
     );
@@ -120,23 +139,44 @@
     return paragraph(text, { bold: true, size: 19, color }, { spacingBefore: 160, spacingAfter: 50 });
   }
 
-  function photoParagraph(photoAsset) {
-    if (!photoAsset) return "";
+  // Generic embedded-image paragraph, parameterized by which relationship
+  // id / media filename it points at -- shared by the profile photo and
+  // the QR code paragraph below rather than duplicating this OOXML block.
+  function imageParagraph(asset, { relId, fileName, docPrId, docPrName }) {
+    if (!asset) return "";
     return (
       `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="160"/></w:pPr><w:r><w:drawing>` +
       `<wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">` +
-      `<wp:extent cx="${photoAsset.emuWidth}" cy="${photoAsset.emuHeight}"/>` +
+      `<wp:extent cx="${asset.emuWidth}" cy="${asset.emuHeight}"/>` +
       `<wp:effectExtent l="0" t="0" r="0" b="0"/>` +
-      `<wp:docPr id="1" name="Profile Photo"/>` +
+      `<wp:docPr id="${docPrId}" name="${xmlEscape(docPrName)}"/>` +
       `<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
       `<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">` +
       `<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
       `<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
-      `<pic:nvPicPr><pic:cNvPr id="0" name="photo.png"/><pic:cNvPicPr/></pic:nvPicPr>` +
-      `<pic:blipFill><a:blip r:embed="rIdPhoto" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
-      `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${photoAsset.emuWidth}" cy="${photoAsset.emuHeight}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>` +
+      `<pic:nvPicPr><pic:cNvPr id="0" name="${xmlEscape(fileName)}"/><pic:cNvPicPr/></pic:nvPicPr>` +
+      `<pic:blipFill><a:blip r:embed="${relId}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
+      `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${asset.emuWidth}" cy="${asset.emuHeight}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>` +
       `</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`
     );
+  }
+
+  function photoParagraph(photoAsset) {
+    return imageParagraph(photoAsset, {
+      relId: "rIdPhoto",
+      fileName: "photo.png",
+      docPrId: 1,
+      docPrName: "Profile Photo"
+    });
+  }
+
+  function qrParagraph(qrAsset) {
+    return imageParagraph(qrAsset, {
+      relId: "rIdQr",
+      fileName: "qr.png",
+      docPrId: 2,
+      docPrName: "SEA-V Profile QR Code"
+    });
   }
 
   function buildSidebarCell(doc, photoAsset) {
@@ -263,7 +303,7 @@
     return parts.join("");
   }
 
-  function buildDocumentXml(doc, photoAsset) {
+  function buildDocumentXml(doc, photoAsset, qrAsset) {
     const sections = doc.sections || {};
     const scheme = getSidebarScheme(doc.template);
     const body = [];
@@ -301,6 +341,25 @@
       "</w:tbl>";
 
     body.push(tableXml);
+
+    // QR code -- centered, full page width, below the two-column table.
+    // Mirrors the on-screen preview's cv-seav-qr-footer (js/cv-engine-render.js).
+    // Gated on doc.qrUrl (already reflects the "Include on CV" toggle and
+    // whether the profile is actually public with a username, see
+    // js/cv-engine-model.js getCvProfileQrUrl) as well as qrAsset having
+    // actually built successfully -- if QR generation failed for any
+    // reason, fail soft and just omit it rather than block the export.
+    if (doc.qrUrl && qrAsset) {
+      body.push(qrParagraph(qrAsset));
+      body.push(
+        paragraph(
+          "Scan to see my SEA-V profile",
+          { size: 16, color: MUTED },
+          { align: "center", spacingAfter: 100 }
+        )
+      );
+    }
+
     body.push(emptyParagraph());
 
     const sectPr =
@@ -400,23 +459,88 @@
     }
   }
 
+  // qrcodejs renders synchronously (no load event to await, unlike an
+  // <img src="...">) into a <canvas> it creates inside the host element.
+  // Rendered off-screen purely to get at that canvas -- detaching the host
+  // afterwards doesn't clear the canvas's already-drawn pixel buffer, so
+  // it's safe to read from (toBlob) after removal.
+  function buildQrCanvas(url, size) {
+    return new Promise((resolve) => {
+      if (typeof window.QRCode !== "function") {
+        resolve(null);
+        return;
+      }
+      const host = document.createElement("div");
+      host.style.position = "fixed";
+      host.style.left = "-99999px";
+      host.style.top = "0";
+      document.body.appendChild(host);
+      try {
+        new window.QRCode(host, {
+          text: url,
+          width: size,
+          height: size,
+          colorDark: "#0b1c2e",
+          colorLight: "#ffffff",
+          correctLevel: window.QRCode.CorrectLevel.M
+        });
+      } catch (err) {
+        console.warn("[SEA-V] CV Word export: QR generation failed", err);
+        host.remove();
+        resolve(null);
+        return;
+      }
+      window.requestAnimationFrame(() => {
+        const canvas = host.querySelector("canvas");
+        host.remove();
+        resolve(canvas || null);
+      });
+    });
+  }
+
+  // Renders the QR at a higher pixel size than its display width (see
+  // QR_DISPLAY_WIDTH_PX) so it stays crisp/scannable in the exported
+  // document, same reasoning as the dashboard's share-panel QR. Fails soft
+  // (returns null) — same contract as tryLoadPhotoAsset, a QR that can't be
+  // built should never block the rest of the export.
+  async function tryBuildQrAsset(url) {
+    if (!url) return null;
+    try {
+      const canvas = await buildQrCanvas(url, 240);
+      if (!canvas) return null;
+      const pngBlob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+      if (!pngBlob) return null;
+      const arrayBuffer = await pngBlob.arrayBuffer();
+      return {
+        arrayBuffer,
+        emuWidth: QR_DISPLAY_WIDTH_PX * EMU_PER_PX,
+        emuHeight: QR_DISPLAY_WIDTH_PX * EMU_PER_PX
+      };
+    } catch (err) {
+      console.warn("[SEA-V] CV Word export: QR code could not be embedded", err);
+      return null;
+    }
+  }
+
   async function buildCvDocxBlob(documentModel) {
     if (typeof JSZip === "undefined") {
       throw new Error("Export library not loaded. Refresh the page and try again.");
     }
 
     const photoAsset = await tryLoadPhotoAsset(documentModel?.photoUrl);
+    const qrAsset = await tryBuildQrAsset(documentModel?.qrUrl);
 
     const zip = new JSZip();
-    zip.file("[Content_Types].xml", contentTypesXml(!!photoAsset));
+    zip.file("[Content_Types].xml", contentTypesXml(!!(photoAsset || qrAsset)));
     zip.folder("_rels").file(".rels", RELS_XML);
 
     const wordFolder = zip.folder("word");
-    wordFolder.file("document.xml", buildDocumentXml(documentModel, photoAsset));
-    if (photoAsset) {
-      wordFolder.folder("_rels").file("document.xml.rels", DOCUMENT_RELS_XML);
-      wordFolder.folder("media").file("photo.png", photoAsset.arrayBuffer);
+    wordFolder.file("document.xml", buildDocumentXml(documentModel, photoAsset, qrAsset));
+    if (photoAsset || qrAsset) {
+      wordFolder.folder("_rels").file("document.xml.rels", documentRelsXml(photoAsset, qrAsset));
     }
+    if (photoAsset) wordFolder.folder("media").file("photo.png", photoAsset.arrayBuffer);
+    if (qrAsset) wordFolder.folder("media").file("qr.png", qrAsset.arrayBuffer);
 
     return zip.generateAsync({
       type: "blob",

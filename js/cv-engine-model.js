@@ -391,8 +391,25 @@
       showHighlights: true,
       showContact: true,
       showReferences: true,
-      showSeavBranding: true
+      showSeavBranding: true,
+      showQrCode: true
     };
+  }
+
+  // Hardcoded to the real production domain rather than window.location —
+  // same reasoning as js/seav-share.js's profileShareLine: a CV is exported
+  // as a file and opened/scanned somewhere else entirely (printed, emailed,
+  // read months later), so it needs a real absolute URL regardless of
+  // whether it happened to be generated from localhost during testing.
+  // Returns "" (no QR) when the profile isn't actually reachable at that
+  // URL yet -- no username, or the public profile toggle is off -- so the
+  // CV never ships a QR code that leads nowhere.
+  const CV_QR_DOMAIN = "sea-v.com";
+
+  function getCvProfileQrUrl(profile) {
+    const username = String(profile?.username || "").trim();
+    if (!username || !profile?.publicEnabled) return "";
+    return `https://${CV_QR_DOMAIN}/u/${encodeURIComponent(username)}`;
   }
 
   const CV_TEMPLATE = "seav";
@@ -665,6 +682,7 @@
       highlights: sections.showHighlights ? getHighlightLines(source) : [],
       references: sections.showReferences ? getReferenceItems(source) : [],
       vessels,
+      qrUrl: sections.showQrCode ? getCvProfileQrUrl(profile) : "",
       sections
     };
   }
@@ -677,7 +695,7 @@
     formatProfileDob, getReferenceItems, splitProfileLines, splitProfileList, certPriority, getCertDisplayName,
     getPhotoUrl, buildCvSource, getVesselExperience, buildAutoBullets, buildAutoExperienceText,
     getProfileCareerOverview, buildFallbackSummary, buildAutoSummary, normalizeOverviewText,
-    shouldUseProfileCareerOverview, buildAutoHeadline, getDefaultSections,
+    shouldUseProfileCareerOverview, buildAutoHeadline, getDefaultSections, getCvProfileQrUrl,
     createDefaultDraft, syncDraftWithSource, loadDraft, saveDraft, resetDraftFromSource,
     getOrderedVessels, getCertStrip, getSpecialistQualificationItems, getHighlightLines,
     buildCvDocument, CV_TEMPLATE, CV_TEMPLATES, isValidTemplate, LOGO_SRC

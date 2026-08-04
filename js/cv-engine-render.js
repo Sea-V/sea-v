@@ -113,6 +113,21 @@
     `;
   }
 
+  // Empty mount div only -- the actual QR canvas is drawn into it by
+  // js/cv-generator.js's renderCvQrCode() right after this HTML string is
+  // set as innerHTML (qrcodejs needs a live DOM node to mount into, it
+  // can't be rendered as part of a plain HTML string like everything
+  // else here). Same two-step pattern the dashboard's share panel uses.
+  function renderSeavQrFooter(doc) {
+    if (!doc.qrUrl) return "";
+    return `
+      <footer class="cv-seav-qr-footer">
+        <div class="cv-seav-qr-code" id="cvQrCode" role="img" aria-label="QR code linking to my SEA-V profile"></div>
+        <p class="cv-seav-qr-caption">Scan to see my SEA-V profile</p>
+      </footer>
+    `;
+  }
+
   function renderSeav(doc) {
     const { profile, sections } = doc;
 
@@ -183,6 +198,8 @@
             ${sections.showReferences ? renderSeavReferences(doc.references) : ""}
           </div>
         </div>
+
+        ${renderSeavQrFooter(doc)}
       </div>
     `;
   }
