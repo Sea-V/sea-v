@@ -225,21 +225,28 @@
   margin-bottom: 18px;
 }
 
+/* Stacked vertically (not side-by-side columns) so each group's label sits
+   directly above its own full-width row of pills with clear air between
+   groups — a row-of-columns layout looked like one continuous tab row with
+   two stray labels floating above it, since nothing visually separated
+   adjacent groups' pill rows from each other. */
 .ach-category-tabs {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.ach-tab--all {
-  margin-top: 22px;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .ach-tab-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ach-tab-group:first-of-type {
+  padding-top: 0;
+  border-top: none;
 }
 
 .ach-tab-group-label {

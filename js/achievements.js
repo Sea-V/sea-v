@@ -264,7 +264,9 @@
     const seafarerAwards = categories.filter((cat) => !CAREER_PATH_CATEGORIES.includes(cat));
 
     mount.innerHTML = `
-      <button type="button" class="ach-tab ach-tab--all ${activeCategory === "all" ? "is-active" : ""}" data-ach-category="all">All</button>
+      <div class="ach-tab-group-row">
+        <button type="button" class="ach-tab ${activeCategory === "all" ? "is-active" : ""}" data-ach-category="all">All</button>
+      </div>
       ${renderTabGroup("Career Path Milestones", careerPath)}
       ${renderTabGroup("Seafarer Awards", seafarerAwards)}
     `;
