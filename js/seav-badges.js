@@ -6,54 +6,39 @@
   const DEFAULT_IMAGE = "/img/badges/default.svg";
 
   const BADGES = {
-sea_30_days: {
-  key: "sea_30_days",
-  label: "30 Days at Sea",
-  fileName: "sea-30-days.svg",
-  image: "/img/badges/sea-30-days.svg",
-  lockedImage: "/img/badges/locked.svg",
-  tier: "default"
+// Deck Career Progression — sourced from MSN 1858's real OOW Yachts <3000GT
+// sea-time sub-requirements (replaces the old arbitrary 30/100/250/500-day,
+// 1/3-year round-number badges — see js/achievements-engine.js for the
+// trigger math behind each one).
+oow_250_actual_days: {
+  key: "oow_250_actual_days",
+  label: "250 Actual Sea Days",
+  fileName: "oow-250-actual-days.svg",
+  image: "/img/badges/oow-250-actual-days.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "bronze"
 },
-
-sea_100_days: {
-  key: "sea_100_days",
-  label: "100 Days at Sea",
-  fileName: "sea-100-days.svg",
-  image: "/img/badges/sea-100-days.svg",
-  lockedImage: "/img/badges/locked.svg",
-  tier: "default"
-},
-
-sea_250_days: {
-  key: "sea_250_days",
-  label: "250 Days at Sea",
-  fileName: "sea-250-days.svg",
-  image: "/img/badges/sea-250-days.svg",
-  lockedImage: "/img/badges/locked.svg",
+oow_365_qualifying_days: {
+  key: "oow_365_qualifying_days",
+  label: "365 Qualifying Days Onboard",
+  fileName: "oow-365-qualifying-days.svg",
+  image: "/img/badges/oow-365-qualifying-days.svg",
+  lockedImage: LOCKED_IMAGE,
   tier: "silver"
 },
-
-sea_500_days: {
-  key: "sea_500_days",
-  label: "500 Days at Sea",
-  fileName: "sea-500-days.svg",
-  image: "/img/badges/sea-500-days.svg",
-  lockedImage: "/img/badges/locked.svg",
-  tier: "gold"
-},
-sea_1_year: {
-  key: "sea_1_year",
-  label: "1 Year at Sea",
-  fileName: "sea-1-year.svg",
-  image: "/img/badges/sea-1-year.svg",
+oow_36_months_onboard: {
+  key: "oow_36_months_onboard",
+  label: "36 Months Onboard Yacht Service",
+  fileName: "oow-36-months-onboard.svg",
+  image: "/img/badges/oow-36-months-onboard.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
-sea_3_years: {
-  key: "sea_3_years",
-  label: "3 Years at Sea",
-  fileName: "sea-3-years.svg",
-  image: "/img/badges/sea-3-years.svg",
+oow_3000gt_sea_time: {
+  key: "oow_3000gt_sea_time",
+  label: "OOW Yachts <3000GT — Sea Time Complete",
+  fileName: "oow-3000gt-sea-time.svg",
+  image: "/img/badges/oow-3000gt-sea-time.svg",
   lockedImage: LOCKED_IMAGE,
   tier: "platinum"
 },
@@ -257,71 +242,53 @@ helicopter_ops: {
 };
 
   const ACHIEVEMENTS = {
-    sea_30_days: {
-      code: "sea_30_days",
-      title: "First 30 Days at Sea",
-      category: "Sea Time",
+    // Deck Career Progression — each of these maps to a real MSN 1858 sea-time
+    // sub-requirement for the OOW Yachts <3000GT Certificate of Competency
+    // (see docs research: MSN 1858 SS3.3 & SS4.2), instead of an arbitrary
+    // round number. See js/achievements-engine.js for the trigger math.
+    oow_250_actual_days: {
+      code: "oow_250_actual_days",
+      title: "250 Actual Sea Days",
+      category: "Deck Career Progression",
       dashboardSection: "seatime",
       sourcePage: "seatime",
-      badgeKey: "sea_30_days",
-      description: "Logged your first 30 qualifying days at sea.",
+      badgeKey: "oow_250_actual_days",
+      description: "Logged 250 days of actual sea service on vessels 15m or over — one of the two sea-time components of the OOW Yachts <3000GT sea-service requirement (MSN 1858).",
       approvalRequired: false,
-      trigger: { type: "sea_days", minDays: 30 }
+      trigger: { type: "oow_actual_sea_days", minDays: 250, minVesselMeters: 15 }
     },
-    sea_100_days: {
-      code: "sea_100_days",
-      title: "100 Days at Sea",
-      category: "Sea Time",
+    oow_365_qualifying_days: {
+      code: "oow_365_qualifying_days",
+      title: "365 Qualifying Days Onboard (≥15m)",
+      category: "Deck Career Progression",
       dashboardSection: "seatime",
       sourcePage: "seatime",
-      badgeKey: "sea_100_days",
-      description: "Logged 100 qualifying days at sea.",
+      badgeKey: "oow_365_qualifying_days",
+      description: "Logged 365 qualifying days onboard vessels 15m or over — actual sea service plus standby/yard time — the vessel-size sea-time requirement for OOW Yachts <3000GT (MSN 1858).",
       approvalRequired: false,
-      trigger: { type: "sea_days", minDays: 100 }
+      trigger: { type: "oow_qualifying_days", minDays: 365, minVesselMeters: 15 }
     },
-    sea_250_days: {
-      code: "sea_250_days",
-      title: "250 Days at Sea",
-      category: "Sea Time",
+    oow_36_months_onboard: {
+      code: "oow_36_months_onboard",
+      title: "36 Months Onboard Yacht Service",
+      category: "Deck Career Progression",
       dashboardSection: "seatime",
       sourcePage: "seatime",
-      badgeKey: "sea_250_days",
-      description: "Logged 250 qualifying days at sea.",
-      approvalRequired: false,
-      trigger: { type: "sea_days", minDays: 250 }
-    },
-    sea_500_days: {
-      code: "sea_500_days",
-      title: "500 Days at Sea",
-      category: "Sea Time",
-      dashboardSection: "seatime",
-      sourcePage: "seatime",
-      badgeKey: "sea_500_days",
-      description: "Logged 500 qualifying days at sea.",
-      approvalRequired: false,
-      trigger: { type: "sea_days", minDays: 500 }
-    },
-    sea_1_year: {
-      code: "sea_1_year",
-      title: "1 Year at Sea",
-      category: "Sea Time",
-      dashboardSection: "seatime",
-      sourcePage: "seatime",
-      badgeKey: "sea_1_year",
-      description: "Logged 365 qualifying days at sea.",
-      approvalRequired: false,
-      trigger: { type: "sea_days", minDays: 365 }
-    },
-    sea_3_years: {
-      code: "sea_3_years",
-      title: "3 Years at Sea",
-      category: "Sea Time",
-      dashboardSection: "seatime",
-      sourcePage: "seatime",
-      badgeKey: "sea_3_years",
-      description: "Logged 1095 qualifying days at sea.",
+      badgeKey: "oow_36_months_onboard",
+      description: "Logged 36 months' total onboard yacht service since starting your sea career — the overall time requirement for OOW Yachts <3000GT (MSN 1858).",
       approvalRequired: false,
       trigger: { type: "sea_days", minDays: 1095 }
+    },
+    oow_3000gt_sea_time: {
+      code: "oow_3000gt_sea_time",
+      title: "OOW Yachts <3000GT — Sea Time Complete",
+      category: "Deck Career Progression",
+      dashboardSection: "seatime",
+      sourcePage: "seatime",
+      badgeKey: "oow_3000gt_sea_time",
+      description: "Met every sea-time requirement for OOW Yachts <3000GT: 250 actual sea days, 365 qualifying days on vessels 15m or over, and 36 months' total onboard yacht service (MSN 1858).",
+      approvalRequired: false,
+      trigger: { type: "oow_eligible" }
     },
 
     first_vessel_logged: {

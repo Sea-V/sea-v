@@ -107,6 +107,84 @@
     }) || null;
   }
 
+  // --- Deck Career Progression (MSN 1858 OOW Yachts <3000GT) helpers ---
+  //
+  // These mirror the real sea-service sub-requirements in MSN 1858 SS3.3 &
+  // SS4.2, using the same actualSeaServiceDays/standbyServiceDays/
+  // yardServiceDays/watchkeepingDays fields the Sea Time form already
+  // collects. Two simplifications vs the full regulation: standby is capped
+  // at 14 days per logged entry (the regulation's "at one time" phrasing) but
+  // yard service is capped at 90 days as a running TOTAL across every
+  // qualifying entry, not per entry — otherwise yard time split across
+  // several logged voyages could each stay under 90 individually and still
+  // add up to far more than the regulation allows in total. The remaining
+  // nuance — standby on any voyage can never exceed that same voyage's
+  // actual sea days — isn't modelled, since that needs sequencing entries by
+  // voyage, which the data model doesn't support yet. Verified against
+  // sample data before shipping (see commit notes).
+  function getSeatimeVesselLengthMeters(entry) {
+    const vessel = getVesselById(entry?.vesselId);
+    return parseMeters(vessel?.vessel_length || vessel?.length || entry?.vesselLength);
+  }
+
+  function seatimesOnVesselsAtLeast(minMeters) {
+    return getSeatimes().filter((entry) => getSeatimeVesselLengthMeters(entry) >= minMeters);
+  }
+
+  function getActualSeaDaysOnVessels(minMeters) {
+    return seatimesOnVesselsAtLeast(minMeters).reduce(
+      (sum, entry) => sum + Number(entry.actualSeaServiceDays || 0),
+      0
+    );
+  }
+
+  // Per-entry estimate used only to pick a representative vessel/date for
+  // display (resolveVesselContext) — the true pass/fail number comes from
+  // getOowQualifyingDaysOnVessels() below, which applies the yard cap
+  // globally rather than per entry.
+  function oowQualifyingDaysForEntry(entry) {
+    const actual = Number(entry.actualSeaServiceDays || 0);
+    const standbyCapped = Math.min(Number(entry.standbyServiceDays || 0), 14);
+    const yardCapped = Math.min(Number(entry.yardServiceDays || 0), 90);
+    return { actual, other: Math.min(standbyCapped + yardCapped, 115) };
+  }
+
+  function getOowQualifyingDaysOnVessels(minMeters) {
+    const entries = seatimesOnVesselsAtLeast(minMeters);
+    let actual = 0;
+    let standbySum = 0;
+    let yardSum = 0;
+    entries.forEach((entry) => {
+      actual += Number(entry.actualSeaServiceDays || 0);
+      standbySum += Math.min(Number(entry.standbyServiceDays || 0), 14);
+      yardSum += Number(entry.yardServiceDays || 0);
+    });
+    const yardCapped = Math.min(yardSum, 90);
+    const otherCapped = Math.min(standbySum + yardCapped, 115);
+    return actual + otherCapped;
+  }
+
+  function isOowSeaTimeComplete() {
+    return (
+      getActualSeaDaysOnVessels(15) >= 250 &&
+      getOowQualifyingDaysOnVessels(15) >= 365 &&
+      getTotalSeaDays() >= 1095
+    );
+  }
+
+  function seatimeEntryForFilteredThreshold(entries, targetDays, valueFn) {
+    if (!entries.length) return null;
+    let cumulative = 0;
+    for (const entry of entries) {
+      cumulative += valueFn(entry);
+      if (cumulative >= targetDays) return entry;
+    }
+    return entries.reduce(
+      (best, entry) => (valueFn(entry) > valueFn(best) ? entry : best),
+      entries[0]
+    );
+  }
+
   function hasVesselType(value) {
     return getVessels().find((v) => {
       return normalize(v.vessel_type || v.type).includes(normalize(value)) ||
@@ -240,6 +318,37 @@
         return vesselContextFromNavEntry(
           firstQualifyingPassageEntry(Number(trigger.minNm || 0))
         );
+      case "oow_actual_sea_days": {
+        const entries = sortSeatimesChronologically(
+          seatimesOnVesselsAtLeast(Number(trigger.minVesselMeters || 0))
+        );
+        return vesselContextFromSeatimeEntry(
+          seatimeEntryForFilteredThreshold(
+            entries,
+            Number(trigger.minDays || 0),
+            (entry) => Number(entry.actualSeaServiceDays || 0)
+          )
+        );
+      }
+      case "oow_qualifying_days": {
+        const entries = sortSeatimesChronologically(
+          seatimesOnVesselsAtLeast(Number(trigger.minVesselMeters || 0))
+        );
+        return vesselContextFromSeatimeEntry(
+          seatimeEntryForFilteredThreshold(
+            entries,
+            Number(trigger.minDays || 0),
+            (entry) => {
+              const parts = oowQualifyingDaysForEntry(entry);
+              return parts.actual + parts.other;
+            }
+          )
+        );
+      }
+      case "oow_eligible": {
+        const entries = seatimesWithSeaDays();
+        return vesselContextFromSeatimeEntry(entries[entries.length - 1] || null);
+      }
       default:
         return { vesselId: "", vessel: "" };
     }
@@ -278,6 +387,17 @@
 
       case "profile_or_manual":
         return normalize(getProfile()[trigger.field]).includes(normalize(trigger.contains));
+
+      case "oow_actual_sea_days":
+        return getActualSeaDaysOnVessels(Number(trigger.minVesselMeters || 0)) >=
+          Number(trigger.minDays || 0);
+
+      case "oow_qualifying_days":
+        return getOowQualifyingDaysOnVessels(Number(trigger.minVesselMeters || 0)) >=
+          Number(trigger.minDays || 0);
+
+      case "oow_eligible":
+        return isOowSeaTimeComplete();
 
       case "manual":
       default:
@@ -528,6 +648,35 @@
           target: 1,
           percent: met ? 100 : 0,
           label: met ? "Requirement met" : "Update profile or log manually"
+        };
+      }
+      case "oow_actual_sea_days": {
+        const target = Number(trigger.minDays || 0);
+        const current = getActualSeaDaysOnVessels(Number(trigger.minVesselMeters || 0));
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} actual sea days (${trigger.minVesselMeters}m+)`
+        };
+      }
+      case "oow_qualifying_days": {
+        const target = Number(trigger.minDays || 0);
+        const current = getOowQualifyingDaysOnVessels(Number(trigger.minVesselMeters || 0));
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} qualifying days (${trigger.minVesselMeters}m+)`
+        };
+      }
+      case "oow_eligible": {
+        const met = isOowSeaTimeComplete();
+        return {
+          current: met ? 1 : 0,
+          target: 1,
+          percent: met ? 100 : 0,
+          label: met ? "OOW <3000GT sea-time requirements met" : "Complete the OOW sea-time milestones above"
         };
       }
       case "manual":

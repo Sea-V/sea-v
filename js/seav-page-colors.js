@@ -195,6 +195,22 @@ window.SeavPageColors = {
         "#f5b0ff"
       ],
       "pill": "#e879f9"
+    },
+    "land-experience": {
+      "label": "Land-Based Experience",
+      "href": "land-experience.html",
+      "sidebar": "#ff7a5c",
+      "fill": [
+        "#8c2d19",
+        "#b8422d"
+      ],
+      "ring": [
+        "#e05e3f",
+        "#ff7a5c",
+        "#ffab94"
+      ],
+      "pill": "#ff7a5c",
+      "note": "Not built yet — sidebar entry is disabled/Coming Soon. Color confirmed 2026-08-02."
     }
   }
 };
