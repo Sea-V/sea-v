@@ -1198,8 +1198,17 @@
     const section = document.getElementById("ppAchievementSection");
     if (!box || !section) return;
 
+    // Cross-check against the live badge catalog, same as the private
+    // Milestones page (js/achievements.js groupEarnedByCode) — a crew
+    // member's older records can still reference a badge code that was
+    // later pruned from js/seav-badges.js (see
+    // project_seav_badges_pruned_to_real_milestones). Without this check
+    // those pruned badges would keep showing here even though they no
+    // longer appear anywhere on the private dashboard.
     const approved = achievements.filter(
-      (item) => item.status === "Verified" || (item.status !== "Declined" && item.autoAwarded)
+      (item) =>
+        (item.status === "Verified" || (item.status !== "Declined" && item.autoAwarded)) &&
+        (!item.code || !window.SeavBadges?.getAchievement || !!window.SeavBadges.getAchievement(item.code))
     );
     if (!approved.length) {
       // This section has no static <h3> in the HTML (unlike the others) —

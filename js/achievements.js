@@ -56,10 +56,18 @@
   function groupEarnedByCode() {
     const groups = new Map();
 
+    // Only count codes that still exist in the current badge catalog.
+    // Crew who earned one of the 22 badges pruned in v380 still have those
+    // achievement rows sitting in Supabase — without this filter they'd
+    // keep inflating "Badges unlocked" / "Total moments" / "Top tier
+    // earned" forever, even though the badge itself no longer renders
+    // anywhere on the page. See project_seav_badges_pruned_to_real_milestones.
+    const validCodes = new Set(listAchievements().map((definition) => definition.code));
+
     getAchievements()
       .filter(isEarnedRecord)
       .forEach((item) => {
-        if (!item.code) return;
+        if (!item.code || !validCodes.has(item.code)) return;
         if (!groups.has(item.code)) groups.set(item.code, []);
         groups.get(item.code).push(item);
       });
