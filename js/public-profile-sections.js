@@ -1257,7 +1257,7 @@
         <h3><span class="public-profile-section-icon" data-pp-icon="achievements" aria-hidden="true"></span>Milestones</h3>
         <span class="public-profile-section-count" id="ppAchievementCount" hidden></span>
       </div>
-      <p class="public-profile-section-note">Career highlights logged in SEA-V.</p>
+      <p class="public-profile-section-note">Career highlights and progress toward each Certificate of Competency — a badge shows progress made, not that the qualification is held.</p>
 
       ${
         groups.length
@@ -1286,7 +1286,7 @@
           <summary class="achievement-vessel-group-summary">
             <span class="achievement-vessel-group-title">
               <strong>Automatically tracked</strong>
-              <small>System-detected career milestones</small>
+              <small>Sea-time and certificate-prerequisite progress</small>
             </span>
             <span class="achievement-vessel-group-count">${auto.length}</span>
           </summary>

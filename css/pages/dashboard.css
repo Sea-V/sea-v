@@ -715,6 +715,14 @@
   margin-bottom: 10px;
 }
 
+.dashboard-card-note {
+  margin: -6px 0 10px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 550;
+}
+
 .dashboard-card-headline a,
 .dashboard-navigation-foot a {
   color: #5bbcff;
