@@ -379,7 +379,7 @@
     };
 
     const primary = instances[0];
-    const unlockedLabel = unlocked
+    const unlockedTitle = unlocked
       ? `Unlocked${primary?.date ? ` · ${formatAchievementDate(primary.date)}` : ""}`
       : "";
 
@@ -391,13 +391,24 @@
         <div class="ach-progress-row-body">
           <div class="ach-progress-row-title-wrap">
             <span class="ach-progress-row-title">${Seav.escapeHtml(full.title || "")}</span>
-            ${unlocked ? `<span class="ach-progress-row-pill">${Seav.escapeHtml(unlockedLabel)}</span>` : ""}
           </div>
-          <p class="ach-progress-row-label">${Seav.escapeHtml(progress.label || full.description || "")}</p>
+          ${full.description ? `<p class="ach-progress-row-desc">${Seav.escapeHtml(full.description)}</p>` : ""}
+          <p class="ach-progress-row-label">${Seav.escapeHtml(progress.label || "")}</p>
           <div class="ach-progress-bar" role="progressbar" aria-valuenow="${progress.percent}" aria-valuemin="0" aria-valuemax="100">
             <span style="width: ${progress.percent}%"></span>
           </div>
         </div>
+        ${
+          unlocked
+            ? `
+              <div class="ach-progress-row-check" title="${Seav.escapeHtml(unlockedTitle)}" aria-label="${Seav.escapeHtml(unlockedTitle)}">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            `
+            : ""
+        }
       </article>
     `;
   }

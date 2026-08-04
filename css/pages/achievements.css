@@ -285,23 +285,39 @@
   font-weight: 800;
 }
 
-.ach-progress-row-pill {
-  flex: 0 0 auto;
-  padding: 2px 9px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #ffb347;
-  border: 1px solid rgba(255, 179, 71, 0.35);
-  background: rgba(255, 179, 71, 0.12);
+.ach-progress-row-desc {
+  margin: 0 0 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.68);
 }
 
 .ach-progress-row-label {
   margin: 0 0 6px;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.6);
+}
+
+/* Unlocked indicator — same green-tick treatment as the dashboard's
+   profile-complete-badge (solid fill, no glow, per Jack's site-wide rule),
+   sat at the right edge of the row instead of a text pill. */
+.ach-progress-row-check {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(94, 230, 168, 0.32);
+  background: rgba(18, 42, 34, 0.72);
+  color: #72e4b8;
+}
+
+.ach-progress-row-check svg {
+  width: 14px;
+  height: 14px;
+  display: block;
 }
 
 /* Trophy grid */
