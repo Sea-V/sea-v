@@ -1494,6 +1494,35 @@ function getEmptyTenderEntry() {
     };
   }
 
+  // MSN 1858 3.4: Chief Mate Yachts <3000GT needs NO extra sea time beyond
+  // OOW <3000GT's own requirement — it "can be applied for at the same time
+  // as OOW", per the regulation's own wording. Requirements are: (a) hold
+  // an OOW <3000GT CoC OR have met all of OOW's own 3.3 requirements, (b)
+  // hold RYA Yachtmaster Ocean (or IYT Master of Yachts Unlimited), plus
+  // ancillary courses and ENG1 (not tracked here — see the cert-module
+  // research spreadsheet). Checks the OOW condition two ways since SEA-V
+  // doesn't track OOW's academic modules yet: either the saved OOW YACHT
+  // certificate is held, or the OOW sea-time milestone itself is met.
+  const CHIEF_MATE_3000_YACHTMASTER_OCEAN_CODE = "RYA YMOCEAN";
+  const CHIEF_MATE_3000_OOW_CERT_CODE = "OOW YACHT";
+
+  function computeChiefMate3000Eligibility(seatimes, vessels, certs) {
+    const oowSeaTimeMet = isOowSeaTimeComplete(seatimes, vessels);
+    const oowCertHeld = !!findSavedCertByCode(certs, CHIEF_MATE_3000_OOW_CERT_CODE);
+    const yachtmasterOceanCert = findSavedCertByCode(certs, CHIEF_MATE_3000_YACHTMASTER_OCEAN_CODE);
+    const yachtmasterOceanHeld = !!yachtmasterOceanCert;
+    const oowMet = oowSeaTimeMet || oowCertHeld;
+
+    return {
+      oowMet,
+      oowSeaTimeMet,
+      oowCertHeld,
+      yachtmasterOceanHeld,
+      yachtmasterOceanIssuedDate: yachtmasterOceanCert?.issued || null,
+      met: oowMet && yachtmasterOceanHeld
+    };
+  }
+
   // MSN 1858 Amendment 2 (2026) — the new "Yacht Unlimited" pathway lets
   // yacht deck officers progress beyond 3000GT on yacht sea time alone.
   // Each rung has two routes: one via a Merchant Navy (non-yacht) ticket
@@ -2077,6 +2106,7 @@ window.SeavData = {
   computeMaster200SeaService,
   computeMaster500SeaService,
   computeMaster3000SeaService,
+  computeChiefMate3000Eligibility,
   computeChiefMateUnlimitedEligibility,
   computeMasterUnlimitedSeaService,
   computeYachtmasterOffshoreMiles,

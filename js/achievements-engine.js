@@ -17,6 +17,7 @@
     computeMaster200SeaService,
     computeMaster500SeaService,
     computeMaster3000SeaService,
+    computeChiefMate3000Eligibility,
     computeChiefMateUnlimitedEligibility,
     computeMasterUnlimitedSeaService,
     seatimesGatedByCertIssueDate
@@ -235,7 +236,8 @@
         const entries = sortSeatimesChronologically(gated.gatedEntries);
         return vesselContextFromSeatimeEntry(entries[entries.length - 1] || null);
       }
-      case "chief_mate_unlimited_direct": {
+      case "chief_mate_unlimited_direct":
+      case "chief_mate_3000_eligible": {
         // Cosmetic attribution only (like oow_eligible above) — eligibility
         // is "do you hold the cert," not tied to any one Sea Time entry.
         const entries = seatimesWithSeaDays();
@@ -276,6 +278,9 @@
 
       case "chief_mate_unlimited_direct":
         return computeChiefMateUnlimitedEligibility(getCerts()).met;
+
+      case "chief_mate_3000_eligible":
+        return computeChiefMate3000Eligibility(getSeatimes(), getVessels(), getCerts()).met;
 
       case "master_unlimited_master3000_route":
         return computeMasterUnlimitedSeaService(getSeatimes(), getCerts(), getVessels()).met;
@@ -344,6 +349,7 @@
     "master_500gt_gated_sea_service",
     "master_3000gt_gated_sea_service",
     "chief_mate_unlimited_direct",
+    "chief_mate_3000_eligible",
     "master_unlimited_master3000_route"
   ]);
 
@@ -592,6 +598,20 @@
           label: result.met
             ? "Master Yachts <3000GT held — Chief Mate Yachts Unlimited eligibility met"
             : "Hold the Master Yachts <3000GT Certificate of Competency to qualify directly"
+        };
+      }
+      case "chief_mate_3000_eligible": {
+        const result = computeChiefMate3000Eligibility(getSeatimes(), getVessels(), getCerts());
+        const missing = [];
+        if (!result.oowMet) missing.push("OOW <3000GT eligibility");
+        if (!result.yachtmasterOceanHeld) missing.push("RYA Yachtmaster Ocean");
+        return {
+          current: result.met ? 1 : 0,
+          target: 1,
+          percent: result.met ? 100 : 0,
+          label: result.met
+            ? "OOW <3000GT eligible and RYA Yachtmaster Ocean held"
+            : `Still need: ${missing.join(" and ")}`
         };
       }
       case "master_unlimited_master3000_route": {

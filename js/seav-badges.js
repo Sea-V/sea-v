@@ -75,9 +75,17 @@ master_3000gt_sea_service: {
   lockedImage: LOCKED_IMAGE,
   tier: "platinum"
 },
+chief_mate_3000gt_eligible: {
+  key: "chief_mate_3000gt_eligible",
+  label: "Chief Mate Yachts <3000GT — Eligible",
+  fileName: "chief-mate-3000gt-eligible.svg",
+  image: "/img/badges/chief-mate-3000gt-eligible.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "gold"
+},
 chief_mate_yachts_unlimited: {
   key: "chief_mate_yachts_unlimited",
-  label: "Chief Mate Yachts Unlimited — Eligible",
+  label: "Chief Mate Yachts Unlimited — CoC Prerequisite Met",
   fileName: "chief-mate-yachts-unlimited.svg",
   image: "/img/badges/chief-mate-yachts-unlimited.svg",
   lockedImage: LOCKED_IMAGE,
@@ -216,15 +224,28 @@ pacific_crossing: {
       trigger: { type: "master_3000gt_gated_sea_service", gatingCertCode: "OOW YACHT" }
     },
 
+    chief_mate_3000gt_eligible: {
+      code: "chief_mate_3000gt_eligible",
+      title: "Chief Mate Yachts <3000GT — Eligible",
+      category: "Deck Progression",
+      certGroup: "Chief Mate Yachts <3000GT",
+      dashboardSection: "certificates",
+      sourcePage: "certificates",
+      badgeKey: "chief_mate_3000gt_eligible",
+      description: "Holding your OOW Yachts <3000GT eligibility (sea time met or the certificate held) plus RYA Yachtmaster Ocean qualifies you for Chief Mate Yachts <3000GT (MSN 1858 §3.4) — no extra sea time is needed beyond OOW's own requirement, and it can be applied for alongside OOW itself. Ancillary safety courses and ENG1 are still required for the actual Certificate of Competency.",
+      approvalRequired: false,
+      trigger: { type: "chief_mate_3000_eligible" }
+    },
+
     chief_mate_yachts_unlimited: {
       code: "chief_mate_yachts_unlimited",
-      title: "Chief Mate Yachts Unlimited — Eligible",
+      title: "Chief Mate Yachts Unlimited — CoC Prerequisite Met",
       category: "Deck Progression",
       certGroup: "Chief Mate Yachts Unlimited",
       dashboardSection: "certificates",
       sourcePage: "certificates",
       badgeKey: "chief_mate_yachts_unlimited",
-      description: "Holding the Master Yachts <3000GT Certificate of Competency directly qualifies you for Chief Mate Yachts Unlimited (MSN 1858 Amendment 2, 2026) — the new pathway letting yacht deck officers progress beyond 3000GT on yacht sea time alone, no Merchant Navy tickets required.",
+      description: "Holding Master Yachts <3000GT meets the Certificate of Competency prerequisite for Chief Mate Yachts Unlimited (MSN 1858 §4.3(a)) — the new pathway letting yacht deck officers progress beyond 3000GT on yacht sea time alone, no Merchant Navy tickets required. Ancillary courses, 9 academic modules at an MCA-approved college, an MCA practical assessment, ENG1 and the oral exam are still required for the actual CoC.",
       approvalRequired: false,
       trigger: { type: "chief_mate_unlimited_direct" }
     },

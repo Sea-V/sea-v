@@ -40,6 +40,7 @@
     "RYA Yachtmaster Offshore",
     "Master <200GT",
     "OOW Yachts <3000GT",
+    "Chief Mate Yachts <3000GT",
     "Master <500GT",
     "Master <3000GT",
     "Chief Mate Yachts Unlimited",
