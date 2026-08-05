@@ -736,45 +736,41 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   margin-top: 14px;
 }
 
-/* 2026-08-05, same-day correction per Jack: the 5 vessel-linked collapsibles
-   above were briefly bordered in the VESSEL's own color (getPublicVesselColor)
-   — wrong. Each collapsible must use the fixed site-wide accent that record
-   TYPE already uses everywhere else (sidebar nav, dashboard card borders,
-   achievement trophy borders, and — most importantly — every border/divider/
-   background on that record's own private page): Sea Time #829eff,
-   Tenders #4cffb8, Onboard Experience #ff8fab, References #d16bff,
-   Awards/Achievements #ffb347 (see --page-* in css/core/variables.css).
-   js/public-profile-sections.js's buildVesselSectionGroup() adds one of these
-   modifier classes (sectionType param) to the outer .tender-vessel-group
-   <details>; everything below cascades the same accent onto the shell,
-   the count badge, the chevron, and — per Jack, "the borders inside have the
-   color also... should look like how it looks in the private area" — the
-   inner row/card elements each section actually renders, matching the depth
-   of accent-tinting seatime.css / tenders.css / onboard-experience.css /
-   references.css / achievements.css already apply on their own pages. Row
-   classes here (.public-cv-seatime-row, .dash-mini-card, .list-row,
-   .public-cv-ref-block, .public-cv-highlight-card) are shared with other
-   pages/snippets, so every rule is scoped under its own modifier class —
-   never applied unscoped. */
+/* 2026-08-05, second same-day correction per Jack: the first pass at this
+   block (v412) used invented opacities (0.30-0.32 shell, 0.18-0.24 inner)
+   and accent-tinted backgrounds everywhere. Wrong on three counts, per
+   Jack: (1) pill/count-badge text must stay white, never accent-colored —
+   see .pill-valid etc in css/components/pills.css, which always pairs a
+   low-alpha accent BACKGROUND with white text, never accent text; (2) no
+   background shading anywhere in this block, borders only; (3) every
+   opacity below is copied from the real value already used on that
+   record's own private page, not invented — see file:line refs per rule.
+   Sea Time #829eff, Tenders #4cffb8, Onboard Experience #ff8fab,
+   References #d16bff, Awards/Achievements #ffb347 (--page-* in
+   css/core/variables.css). One exception: seatime.css deliberately keeps
+   its accent scoped to shell/divider/icon only and never tints its own
+   row-level components (no precedent to copy) — .public-cv-seatime-row
+   below uses 0.22 to stay visually consistent with the other 4 sections;
+   flagged to Jack as a judgment call, not a sourced value like the rest. */
 .vessel-linked-section-group--seatime {
-  border-color: rgba(130, 158, 255, 0.32);
-  background: rgba(130, 158, 255, 0.035);
+  /* matches .seatime-shell-card border, seatime.css:10/24 */
+  border-color: rgba(130, 158, 255, 0.28);
 }
 .vessel-linked-section-group--tenders {
-  border-color: rgba(76, 255, 184, 0.3);
-  background: rgba(76, 255, 184, 0.03);
+  /* matches .tender-shell-card border, tenders.css:13 */
+  border-color: rgba(76, 255, 184, 0.26);
 }
 .vessel-linked-section-group--onboard {
-  border-color: rgba(255, 143, 171, 0.32);
-  background: rgba(255, 143, 171, 0.035);
+  /* matches .onboard-shell-card border, onboard-experience.css:10 */
+  border-color: rgba(255, 143, 171, 0.24);
 }
 .vessel-linked-section-group--references {
-  border-color: rgba(209, 107, 255, 0.32);
-  background: rgba(209, 107, 255, 0.035);
+  /* matches .reference-shell-card border, references.css:13 */
+  border-color: rgba(209, 107, 255, 0.24);
 }
 .vessel-linked-section-group--awards {
-  border-color: rgba(255, 179, 71, 0.32);
-  background: rgba(255, 179, 71, 0.035);
+  /* matches .ach-shell-card border, achievements.css:8 */
+  border-color: rgba(255, 179, 71, 0.28);
 }
 
 .vessel-linked-section-group--seatime .tender-vessel-group-summary::before {
@@ -784,64 +780,76 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   color: rgba(76, 255, 184, 0.85);
 }
 .vessel-linked-section-group--onboard .tender-vessel-group-summary::before {
+  /* matches .onboard-chevron expanded color, onboard-experience.css:193 */
   color: rgba(255, 143, 171, 0.85);
 }
 .vessel-linked-section-group--references .tender-vessel-group-summary::before {
-  color: rgba(209, 107, 255, 0.85);
+  /* matches .cert-chevron expanded color, references.css:233 */
+  color: rgba(209, 107, 255, 0.9);
 }
 .vessel-linked-section-group--awards .tender-vessel-group-summary::before {
-  color: rgba(255, 179, 71, 0.85);
+  color: rgba(255, 179, 71, 0.9);
 }
 
+/* Count badges: background carries the accent (matches .pill-valid's
+   0.16 alpha, css/components/pills.css:175, and Tenders' own existing
+   .tender-vessel-group-count default of rgba(76,255,184,0.16)) — text
+   stays WHITE always, per the site-wide colored-pill rule. Never accent-
+   colored text on a colored background. */
 .vessel-linked-section-group--seatime .tender-vessel-group-count {
-  background: rgba(130, 158, 255, 0.18);
-  color: #829eff;
+  background: rgba(130, 158, 255, 0.16);
+  color: #ffffff;
 }
 .vessel-linked-section-group--tenders .tender-vessel-group-count {
-  background: rgba(76, 255, 184, 0.18);
-  color: #4cffb8;
+  background: rgba(76, 255, 184, 0.16);
+  color: #ffffff;
 }
 .vessel-linked-section-group--onboard .tender-vessel-group-count {
-  background: rgba(255, 143, 171, 0.18);
-  color: #ff8fab;
+  background: rgba(255, 143, 171, 0.16);
+  color: #ffffff;
 }
 .vessel-linked-section-group--references .tender-vessel-group-count {
-  background: rgba(209, 107, 255, 0.18);
-  color: #d16bff;
+  background: rgba(209, 107, 255, 0.16);
+  color: #ffffff;
 }
 .vessel-linked-section-group--awards .tender-vessel-group-count {
-  background: rgba(255, 179, 71, 0.18);
-  color: #ffb347;
+  background: rgba(255, 179, 71, 0.16);
+  color: #ffffff;
 }
 
-/* Inner row/card borders — "the borders inside have the color also". */
+/* Inner row/card borders — "the borders inside have the color also" —
+   border only, no background tint anywhere in this block per Jack.
+   Each value is copied from that record type's own private-page
+   row/card component (see comments), not invented. */
 .vessel-linked-section-group--seatime .public-cv-seatime-row,
 .vessel-linked-section-group--seatime .public-cv-port-row {
+  /* No private-page precedent (seatime.css keeps accent off its own
+     row-level components by design) — 0.22 chosen to match the other
+     4 sections' family of values; confirm with Jack if this should
+     instead stay unaccented. */
   border-color: rgba(130, 158, 255, 0.22);
-  background: rgba(130, 158, 255, 0.05);
-}
-.vessel-linked-section-group--seatime .public-cv-seatime-days {
-  color: #829eff;
 }
 
 .vessel-linked-section-group--tenders .dash-mini-card {
+  /* matches dashboard.css's own .dash-card-accent-tenders .dash-mini-card
+     border override exactly, dashboard.css:1642-1644 */
   border-color: rgba(76, 255, 184, 0.22);
-  background: rgba(76, 255, 184, 0.05);
 }
 
 .vessel-linked-section-group--onboard .list-row {
-  border-color: rgba(255, 143, 171, 0.22);
-  background: rgba(255, 143, 171, 0.05);
+  /* matches .onboard-modern-card border, onboard-experience.css:205 */
+  border-color: rgba(255, 143, 171, 0.2);
 }
 
 .vessel-linked-section-group--references .public-cv-ref-block {
+  /* matches #refsList .ref-page-card border, css/components/meta-grid-cards.css */
   border-color: rgba(209, 107, 255, 0.24);
-  background: rgba(209, 107, 255, 0.05);
 }
 
 .vessel-linked-section-group--awards .public-cv-highlight-card {
-  border-color: rgba(255, 179, 71, 0.24);
-  background: rgba(255, 179, 71, 0.05);
+  /* matches .ach-trophy/.ach-progress-row/.ach-milestone-row unlocked-state
+     border, achievements.css:282/371/534 */
+  border-color: rgba(255, 179, 71, 0.28);
 }
 
 /* =========================================================
