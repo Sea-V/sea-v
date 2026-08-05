@@ -206,7 +206,7 @@ pacific_crossing: {
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "master_500gt_sea_service",
-      description: "Logged 12 months onboard as deck officer, including 120 days' watchkeeping service on vessels 15m or over, while holding OOW Yachts <3000GT — the sea-service requirement for Master (Yacht) <500GT (MSN 1858 §3.5). Only sea time logged after your OOW <3000GT issue date counts.",
+      description: "Logged 12 months onboard as deck officer while holding OOW Yachts <3000GT, including 120 days' watchkeeping service on vessels 15m or over — the sea-service requirement for Master (Yacht) <500GT (MSN 1858 §3.5). Onboard months count only after your OOW <3000GT issue date; watchkeeping days count across your full sea time record.",
       approvalRequired: false,
       trigger: { type: "master_500gt_gated_sea_service", gatingCertCode: "OOW YACHT" }
     },
@@ -219,7 +219,7 @@ pacific_crossing: {
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "master_3000gt_sea_service",
-      description: "Logged 240 watchkeeping days on vessels 15m or over, plus 12 months on 500GT+ vessels or 24 months on 24m+ vessels, while holding OOW Yachts <3000GT — the sea-service requirement for Master (Yacht) <3000GT (MSN 1858 §3.6(a)). Only sea time logged after your OOW <3000GT issue date counts.",
+      description: "Logged 240 watchkeeping days on vessels 15m or over, plus 12 months on 500GT+ vessels or 24 months on 24m+ vessels while holding OOW Yachts <3000GT — the sea-service requirement for Master (Yacht) <3000GT (MSN 1858 §3.6(a)). The 500GT+/24m+ months count only after your OOW <3000GT issue date; watchkeeping days count across your full sea time record.",
       approvalRequired: false,
       trigger: { type: "master_3000gt_gated_sea_service", gatingCertCode: "OOW YACHT" }
     },
