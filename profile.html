@@ -25,38 +25,38 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=422" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=422" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=422" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=422" />
+  <link rel="icon" href="/favicon.ico?v=423" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=423" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=423" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=423" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Profile</title>
 
-  <link rel="stylesheet" href="styles.css?v=422" />
+  <link rel="stylesheet" href="styles.css?v=423" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=422"></script>
-  <script src="js/supabase.js?v=422"></script>
-  <script src="js/auth.js?v=422"></script>
-  <script src="js/feedback.js?v=422" defer></script>
-  <script src="js/core.js?v=422" defer></script>
+  <script src="js/seav-config.js?v=423"></script>
+  <script src="js/supabase.js?v=423"></script>
+  <script src="js/auth.js?v=423"></script>
+  <script src="js/feedback.js?v=423" defer></script>
+  <script src="js/core.js?v=423" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=422" defer></script>
-  <script src="js/seav-countries.js?v=422" defer></script>
-  <script src="js/seav-visas.js?v=422" defer></script>
-  <script src="js/seav-data.js?v=422" defer></script>
-  <script src="js/seav-badges.js?v=422" defer></script>
-  <script src="js/api-core.js?v=422" defer></script>
-  <script src="js/api-mappers.js?v=422" defer></script>
-  <script src="js/api.js?v=422" defer></script>
-  <script src="js/state.js?v=422" defer></script>
-  <script src="js/seav-notifications.js?v=422" defer></script>
-  <script src="js/achievements-engine.js?v=422" defer></script>
-  <script src="js/badge-unlock.js?v=422" defer></script>
+  <script src="js/seav-upload.js?v=423" defer></script>
+  <script src="js/seav-countries.js?v=423" defer></script>
+  <script src="js/seav-visas.js?v=423" defer></script>
+  <script src="js/seav-data.js?v=423" defer></script>
+  <script src="js/seav-badges.js?v=423" defer></script>
+  <script src="js/api-core.js?v=423" defer></script>
+  <script src="js/api-mappers.js?v=423" defer></script>
+  <script src="js/api.js?v=423" defer></script>
+  <script src="js/state.js?v=423" defer></script>
+  <script src="js/seav-notifications.js?v=423" defer></script>
+  <script src="js/achievements-engine.js?v=423" defer></script>
+  <script src="js/badge-unlock.js?v=423" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=422" defer></script>
-  <script src="js/profile.js?v=422" defer></script>
+  <script src="js/seav-share.js?v=423" defer></script>
+  <script src="js/profile.js?v=423" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -138,116 +138,30 @@
            card — the fields underneath are the actual saved data, just
            visually and functionally locked (form.inert) until Edit
            profile is clicked.
+
+           2026-08-05 (v423): laid out CV-style — a photo+name banner up
+           top, then the rest of the fields split into "chapter" cards
+           (Personal details / Contact / Passports & visas) across a
+           3-column grid, with Availability + Career overview as a
+           full-width strip underneath. Uses the full width of
+           .profile-shell-card instead of the old 680px single column.
+           All field IDs are unchanged from the single-column version —
+           js/profile.js reads/writes by getElementById only, so none of
+           its logic needed to change for this reshuffle.
         ========================================================= -->
 
         <article class="dash-card profile-form-card" id="profileEditView">
-          <h3>Personal Information</h3>
 
-          <form id="profileForm" class="modal-form">
+          <form id="profileForm" class="modal-form profile-form">
 
-            <label>
-              Full Name
-              <input id="pf_name" required placeholder="Your full legal name" />
-            </label>
-
-            <label>
-              Rank
-              <input id="pf_rank" placeholder="Your current or sought rank" />
-            </label>
-
-            <label>
-              Current Qualification
-              <select id="pf_qualification">
-                <option value="">Select a certificate you hold</option>
-              </select>
-            </label>
-
-            <label>
-              Nationality
-              <select id="pf_nationality">
-                <option value="">Select your nationality</option>
-              </select>
-            </label>
-
-            <!-- DOB — same shared day/month/year triplet as every other
-                 date field on the site (js/core.js mountDateFields), not a
-                 bespoke day/month <select> + free-text year <input>
-                 anymore, so it behaves identically (2026-08-03). -->
-            <div data-date-field="pf_dob" data-date-label="Date of Birth"></div>
-
-            <label>
-              Current Location
-              <input id="pf_location" placeholder="Where you are based or available from" />
-            </label>
-
-            <label>
-              Email
-              <input type="email" id="pf_email" placeholder="Contact email for employers" />
-            </label>
-
-            <div>
-              <label>Phone</label>
-
-              <div class="profile-phone-field">
-                <select id="pf_phone_country" class="profile-phone-country" aria-label="Phone country code">
-                  <option value="">Code</option>
-                </select>
-                <input id="pf_phone_number" class="profile-phone-number" placeholder="Phone number" inputmode="tel" />
-              </div>
-            </div>
-
-            <div>
-              <label>Passports Held</label>
-
-              <div class="profile-chip-field">
-                <div class="profile-chip-picker">
-                  <select id="pf_passport_country" aria-label="Add a passport country">
-                    <option value="">Select a country to add</option>
-                  </select>
-                  <button type="button" class="btn-ghost2" id="pf_passport_add">Add</button>
-                </div>
-                <div class="profile-chip-list" id="pf_passport_chips">
-                  <span class="profile-chip-empty muted">No passports added yet</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label>Visas Held</label>
-
-              <div class="profile-chip-field">
-                <div class="profile-chip-picker">
-                  <select id="pf_visa_type" aria-label="Add a visa">
-                    <option value="">Select a visa to add</option>
-                  </select>
-                  <button type="button" class="btn-ghost2" id="pf_visa_add">Add</button>
-                </div>
-                <div class="profile-chip-list" id="pf_visa_chips">
-                  <span class="profile-chip-empty muted">No visas added yet</span>
-                </div>
-              </div>
-            </div>
-
-            <label>
-              Availability
-              <select id="pf_availability">
-                <option value="Employed">Employed</option>
-                <option value="Available Immediately">Available Immediately</option>
-                <option value="1 Week">1 Week</option>
-                <option value="2 Weeks">2 Weeks</option>
-                <option value="4 Weeks +">4 Weeks +</option>
-              </select>
-            </label>
-
-            <label>
-              Career overview
-              <textarea id="pf_bio" rows="4" placeholder="Describe your career path, growth, and goals at sea"></textarea>
-            </label>
-
-            <div>
-              <label>Profile Photo</label>
-
-              <div class="profile-photo-field">
+            <!-- =====================================================
+               BANNER — photo pinned top-left, name + rank beside it.
+               Still inside the form (and still uses the shared
+               .profile-photo-field markup/IDs) so form.inert continues
+               to lock the photo control along with every other field.
+            ===================================================== -->
+            <div class="profile-banner">
+              <div class="profile-photo-field profile-banner-photo">
                 <div class="profile-photo-thumb" id="pfPhotoThumb" aria-label="Current profile photo"></div>
                 <div class="profile-photo-actions">
                   <button type="button" class="btn-ghost2" id="pfPhotoBtn">Choose photo</button>
@@ -256,7 +170,134 @@
                   <p class="profile-photo-format-note muted">JPEG or PNG, up to 5MB. HEIC photos (iPhone default) are converted automatically.</p>
                 </div>
               </div>
+
+              <div class="profile-banner-identity">
+                <label class="profile-banner-name">
+                  Full Name
+                  <input id="pf_name" required placeholder="Your full legal name" />
+                </label>
+
+                <label class="profile-banner-rank">
+                  Rank
+                  <input id="pf_rank" placeholder="Your current or sought rank" />
+                </label>
+              </div>
             </div>
+
+            <!-- =====================================================
+               CHAPTERS — CV-style sectioned grid.
+            ===================================================== -->
+            <div class="profile-chapters-grid">
+
+              <fieldset class="profile-chapter">
+                <legend>Personal details</legend>
+
+                <label>
+                  Current Qualification
+                  <select id="pf_qualification">
+                    <option value="">Select a certificate you hold</option>
+                  </select>
+                </label>
+
+                <label>
+                  Nationality
+                  <select id="pf_nationality">
+                    <option value="">Select your nationality</option>
+                  </select>
+                </label>
+
+                <!-- DOB — same shared day/month/year triplet as every other
+                     date field on the site (js/core.js mountDateFields), not
+                     a bespoke day/month <select> + free-text year <input>
+                     anymore, so it behaves identically (2026-08-03). -->
+                <div data-date-field="pf_dob" data-date-label="Date of Birth"></div>
+              </fieldset>
+
+              <fieldset class="profile-chapter">
+                <legend>Contact</legend>
+
+                <label>
+                  Current Location
+                  <input id="pf_location" placeholder="Where you are based or available from" />
+                </label>
+
+                <label>
+                  Email
+                  <input type="email" id="pf_email" placeholder="Contact email for employers" />
+                </label>
+
+                <div>
+                  <label>Phone</label>
+
+                  <div class="profile-phone-field">
+                    <select id="pf_phone_country" class="profile-phone-country" aria-label="Phone country code">
+                      <option value="">Code</option>
+                    </select>
+                    <input id="pf_phone_number" class="profile-phone-number" placeholder="Phone number" inputmode="tel" />
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="profile-chapter">
+                <legend>Passports &amp; visas</legend>
+
+                <div>
+                  <label>Passports Held</label>
+
+                  <div class="profile-chip-field">
+                    <div class="profile-chip-picker">
+                      <select id="pf_passport_country" aria-label="Add a passport country">
+                        <option value="">Select a country to add</option>
+                      </select>
+                      <button type="button" class="btn-ghost2" id="pf_passport_add">Add</button>
+                    </div>
+                    <div class="profile-chip-list" id="pf_passport_chips">
+                      <span class="profile-chip-empty muted">No passports added yet</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label>Visas Held</label>
+
+                  <div class="profile-chip-field">
+                    <div class="profile-chip-picker">
+                      <select id="pf_visa_type" aria-label="Add a visa">
+                        <option value="">Select a visa to add</option>
+                      </select>
+                      <button type="button" class="btn-ghost2" id="pf_visa_add">Add</button>
+                    </div>
+                    <div class="profile-chip-list" id="pf_visa_chips">
+                      <span class="profile-chip-empty muted">No visas added yet</span>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+            </div>
+
+            <!-- =====================================================
+               FULL-WIDTH STRIP — availability + career overview.
+            ===================================================== -->
+            <fieldset class="profile-chapter profile-chapter-wide">
+              <legend>Availability &amp; career overview</legend>
+
+              <label>
+                Availability
+                <select id="pf_availability">
+                  <option value="Employed">Employed</option>
+                  <option value="Available Immediately">Available Immediately</option>
+                  <option value="1 Week">1 Week</option>
+                  <option value="2 Weeks">2 Weeks</option>
+                  <option value="4 Weeks +">4 Weeks +</option>
+                </select>
+              </label>
+
+              <label>
+                Career overview
+                <textarea id="pf_bio" rows="4" placeholder="Describe your career path, growth, and goals at sea"></textarea>
+              </label>
+            </fieldset>
 
             <button class="btn-blue" type="submit">Save Profile</button>
 

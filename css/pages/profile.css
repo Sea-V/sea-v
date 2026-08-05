@@ -86,13 +86,13 @@
 }
 
 /* 2026-08-05: was a 2-col grid holding the form + a live side-by-side
-   preview. The preview is gone entirely — this is now a single centered
-   column holding just the form card. Class name kept to avoid touching
-   the HTML wrapper unnecessarily. */
+   preview. The preview is gone entirely, and as of v423 the leftover
+   680px single-column cap is gone too — Jack wanted the full width of
+   .profile-shell-card used (CV-style chapter grid, see below) instead of
+   half the page sitting empty. Class name kept to avoid touching the
+   HTML wrapper unnecessarily. */
 .profile-page-grid {
   display: block;
-  max-width: 680px;
-  margin: 0 auto;
 }
 
 /* =========================================================
@@ -118,6 +118,93 @@
     0 20px 48px rgba(0,0,0,0.22);
 
   padding: 22px;
+}
+
+/* =========================================================
+   CV-STYLE LAYOUT (v423) — banner + chapter grid, in place of the old
+   single-column field stack. All field IDs are unchanged, so this is a
+   pure layout/CSS reshuffle — see profile.html for the matching markup.
+========================================================= */
+
+.profile-form {
+  /* Wider gap than the plain .modal-form default (14px) between the
+     banner / chapter grid / wide strip / save button / danger zone —
+     each of those reads as its own "chapter", so they need more air
+     between them than fields inside one chapter do. */
+  gap: 24px;
+}
+
+.profile-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 20px;
+
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid rgba(66, 214, 181, 0.14);
+}
+
+.profile-photo-field.profile-banner-photo {
+  margin-top: 0;
+  flex: none;
+}
+
+.profile-banner-photo .profile-photo-thumb {
+  width: 96px;
+  height: 96px;
+  border-radius: 22px;
+}
+
+.profile-banner-identity {
+  flex: 1 1 260px;
+  min-width: 0;
+
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.profile-chapters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.profile-chapter {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  margin: 0;
+  padding: 18px;
+
+  border-radius: 18px;
+  border: 1px solid rgba(66, 214, 181, 0.18);
+
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* display:block on legend drops the native fieldset/legend behavior
+   where the legend interrupts the top border — reads as a plain
+   section heading instead of native browser chrome, same intent as
+   css/components/modals.css's .modal-fieldset legend. */
+.profile-chapter legend {
+  display: block;
+  width: 100%;
+
+  padding: 0;
+  margin: 0;
+
+  color: #9fe1cb;
+
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
 }
 
 /* =========================================================
@@ -413,6 +500,10 @@
   .profile-shell-head {
     grid-template-columns: 1fr;
   }
+
+  .profile-chapters-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
@@ -426,5 +517,19 @@
 
   .profile-photo-field {
     align-items: flex-start;
+  }
+
+  .profile-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-banner-identity {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .profile-chapters-grid {
+    grid-template-columns: 1fr;
   }
 }
