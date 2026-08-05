@@ -375,6 +375,7 @@ function buildVesselCard(v, options = {}) {
           <strong>${vesselName}</strong>
           <small>${dateLine}</small>
         </span>
+        <span class="vessel-current-badge vessel-history-summary-badge">${isCurrent ? "Current" : "Previous"}</span>
       </summary>
       <div class="vessel-history-collapsible-body" data-rendered="${isOpen ? "1" : "0"}">
         ${isOpen ? buildVesselCardBody(v, { isCurrent }) : ""}
