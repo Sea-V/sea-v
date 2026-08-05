@@ -36,8 +36,10 @@
     const el = (id) => document.getElementById(id);
 
     const fields = {
-      name: el("pf_name"),
+      firstName: el("pf_first_name"),
+      lastName: el("pf_last_name"),
       rank: el("pf_rank"),
+      dischargeBookNumber: el("pf_discharge_book_number"),
       qualification: el("pf_qualification"),
       nationality: el("pf_nationality"),
       location: el("pf_location"),
@@ -415,8 +417,10 @@
 
     function readProfileForm() {
       return {
-        name: fields.name?.value.trim() || "",
+        firstName: fields.firstName?.value.trim() || "",
+        lastName: fields.lastName?.value.trim() || "",
         rank: fields.rank?.value.trim() || "",
+        dischargeBookNumber: fields.dischargeBookNumber?.value.trim() || "",
         qualification: fields.qualification?.value.trim() || "",
         nationality: fields.nationality?.value.trim() || "",
         dob: Seav.readDateTriplet("pf_dob"),
@@ -444,8 +448,10 @@
     }
 
     function fillForm(profile) {
-      if (fields.name) fields.name.value = profile.name || "";
+      if (fields.firstName) fields.firstName.value = profile.firstName || "";
+      if (fields.lastName) fields.lastName.value = profile.lastName || "";
       if (fields.rank) fields.rank.value = profile.rank || "";
+      if (fields.dischargeBookNumber) fields.dischargeBookNumber.value = profile.dischargeBookNumber || "";
       if (fields.qualification) {
         ensureSelectHasValue(fields.qualification, profile.qualification);
         fields.qualification.value = profile.qualification || "";
@@ -576,8 +582,10 @@
       const profile = {
         ...existingProfile,
         id: profileId,
-        name: formData.name,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         rank: formData.rank,
+        dischargeBookNumber: formData.dischargeBookNumber,
         qualification: formData.qualification,
         nationality: formData.nationality,
         dob: formData.dob,

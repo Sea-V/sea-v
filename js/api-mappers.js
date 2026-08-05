@@ -20,11 +20,21 @@ function readPublicEnabledFromRow(p) {
 }
 
 function mapProfileFromSupabase(p) {
+  const firstName = p.first_name || "";
+  const lastName = p.last_name || "";
   return {
     id: p.id,
     userId: p.user_id || p.userId || null,
     username: p.username || "",
-    name: p.name || "",
+    firstName,
+    lastName,
+    // Derived, not a separate saved value — kept for every existing reader
+    // of profile.name (get_public_profile RPC, dashboard, CV generator,
+    // public profile, share cards, etc.) so none of them needed to change
+    // when the Profile form split into First/Last Name (2026-08-05). Falls
+    // back to the raw name column for any row a pre-migration client wrote
+    // without first_name/last_name populated.
+    name: [firstName, lastName].filter(Boolean).join(" ") || p.name || "",
     rank: p.rank || "",
     qualification: p.qualification || "",
     nationality: p.nationality || "",
@@ -39,6 +49,7 @@ function mapProfileFromSupabase(p) {
     phone: p.phone || "",
     passportsHeld: p.passports_held || "",
     visasHeld: p.visas_held || "",
+    dischargeBookNumber: p.discharge_book_number || "",
     availability: p.availability || "",
     bio: p.bio || "",
     photo: p.photo || null,
@@ -60,7 +71,11 @@ function mapProfileToSupabase(item) {
     // excludes NULL rows, so an empty string would collide across every
     // profile that hasn't set one yet.
     username: item.username ? item.username.toLowerCase() : null,
-    name: item.name || "",
+    first_name: item.firstName || "",
+    last_name: item.lastName || "",
+    // Kept in sync so existing readers of the name column (see the comment
+    // in mapProfileFromSupabase) keep working unchanged.
+    name: [item.firstName, item.lastName].filter(Boolean).join(" ") || item.name || "",
     rank: item.rank || "",
     qualification: item.qualification || "",
     nationality: item.nationality || "",
@@ -70,6 +85,7 @@ function mapProfileToSupabase(item) {
     phone: item.phone || "",
     passports_held: item.passportsHeld || "",
     visas_held: item.visasHeld || "",
+    discharge_book_number: item.dischargeBookNumber || "",
     availability: item.availability || "",
     bio: item.bio || "",
     photo: sanitizePhotoForStorage(item.photo),

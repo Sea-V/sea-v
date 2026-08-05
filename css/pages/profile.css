@@ -134,10 +134,19 @@
   gap: 24px;
 }
 
+/* 50/50 split (2026-08-05, per Jack): the photo block was flex:none, so
+   its natural width — driven by the format-note sentence below, which had
+   no max-width and could stretch as wide as it liked — was claiming most
+   of the row and squeezing Full Name/Rank into a narrow strip on the
+   right. A real two-column grid with a hard 1fr/1fr split fixes that:
+   neither side can grow past its half regardless of how much text the
+   hint line wants to wrap onto. align-items:start (not center) because
+   the identity column now holds three stacked fields and shouldn't be
+   vertically centered against the photo. */
 .profile-banner {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
 
   gap: 20px;
 
@@ -148,7 +157,16 @@
 
 .profile-photo-field.profile-banner-photo {
   margin-top: 0;
-  flex: none;
+  min-width: 0;
+}
+
+/* Actions column (button + hint lines) is the flex sibling of the photo
+   thumb inside .profile-photo-field (base rule, shared with Vessels/
+   Tenders) — min-width:0 lets its text actually wrap to the grid
+   column's width instead of forcing the row wider. */
+.profile-banner-photo .profile-photo-actions {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .profile-banner-photo .profile-photo-thumb {
@@ -169,11 +187,10 @@
 }
 
 .profile-banner-identity {
-  flex: 1 1 260px;
   min-width: 0;
 
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.3fr);
   gap: 14px;
 }
 
@@ -540,6 +557,22 @@
   .profile-chapters-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  /* The 50/50 split earns its keep on a wide desktop banner, but at
+     tablet width two half-columns leaves too little room for the photo
+     block's button+hint text and three identity fields alike — stack
+     photo above identity instead, each at full width. */
+  .profile-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-banner-identity {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+
+  .profile-banner-discharge {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 640px) {
@@ -552,11 +585,6 @@
   }
 
   .profile-photo-field {
-    align-items: flex-start;
-  }
-
-  .profile-banner {
-    flex-direction: column;
     align-items: flex-start;
   }
 
