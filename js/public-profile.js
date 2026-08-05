@@ -324,15 +324,17 @@
 
         renderHeaderProfile(profile, vessels, metrics);
         sections.renderSeatime(seatimes, vessels, isOwner);
-        sections.renderVessels(vessels, seatimes, tenders, refs, isOwner);
-        sections.renderTenders(tenders, vessels, isOwner);
+        // Vessels is now the vessel-first spine — Tenders, Onboard
+        // Experience, and References no longer render as their own
+        // sections; that content lives inside each vessel's own card (see
+        // js/seav-cards.js buildVesselCardFull), so renderVessels needs the
+        // raw onboardEntries/achievements arrays too.
+        sections.renderVessels(vessels, seatimes, tenders, refs, isOwner, onboardEntries, achievements);
         await sections.renderNavigation(navigationAreas, vessels, navigationDistanceMap, isOwner);
-        sections.renderOnboardExperience(onboardEntries, vessels, isOwner);
         sections.renderOnboardSkills(onboardSkills, isOwner);
         sections.renderHobbiesInterests(hobbyEntries, isOwner);
         sections.renderSpecialistQualifications(specialistEntries, isOwner);
         sections.renderCertificates(certs, isOwner);
-        sections.renderReferences(refs, vessels, isOwner);
         sections.renderAchievements(achievements, vessels, isOwner, { seatimes, certs, navigationAreas });
 
         bindExpandToggles(document.getElementById("ppContent"));

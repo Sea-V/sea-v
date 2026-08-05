@@ -33,14 +33,10 @@
   const SECTION_NAV = [
     { id: "pp-section-overview", label: "Overview" },
     { id: "ppVesselSection", label: "Vessels" },
-    { id: "ppTenderSection", label: "Tenders" },
-    { id: "ppSeatimeSection", label: "Sea Time" },
     { id: "ppNavigationSection", label: "Navigation" },
-    { id: "ppOperationsSection", label: "Onboard Experience" },
+    { id: "ppAchievementSection", label: "Milestones" },
     { id: "ppSpecialistSection", label: "Specialist Qualifications" },
     { id: "ppCertSection", label: "Certificates" },
-    { id: "ppRefSection", label: "References" },
-    { id: "ppAchievementSection", label: "Milestones" },
     { id: "ppHobbiesSection", label: "Hobbies & Interests" }
   ];
 

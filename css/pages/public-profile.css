@@ -687,109 +687,74 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 /* =========================================================
-   MILESTONES — grouped by vessel (manual entries) + a separate
-   flat list for auto-awarded/career-wide badges. Group shell reuses the
-   same look as .tender-vessel-group (css/pages/tenders.css) so it's
-   visually consistent with the other collapsible groupings on this page.
+   VESSEL-FIRST LAYOUT (2026-08-05)
+   Each vessel card now carries 5 linked-record sections instead of 3
+   (Sea Time, Tenders, References, + new Onboard Experience, Awards) — see
+   js/seav-cards.js buildVesselCardFull. This modifier widens the shared
+   .vessel-linked-clean-grid (css/pages/vessels.css) column count WITHOUT
+   touching that base rule, since the private Vessels page's own card
+   (js/vessels.js) uses the same base class for its 3-section grid and must
+   not be affected. Two classes on the selector beats the single-class base
+   rule regardless of stylesheet load order.
 ========================================================= */
 
-.achievement-vessel-group-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.vessel-linked-clean-grid.public-cv-vessel-links-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
-.achievement-vessel-group-list.public-cv-more-block:not([hidden]) {
+@media (max-width: 1400px) {
+  .vessel-linked-clean-grid.public-cv-vessel-links-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1200px) {
+  .vessel-linked-clean-grid.public-cv-vessel-links-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .vessel-linked-clean-grid.public-cv-vessel-links-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.onboard-card {
+  border-color: rgba(255, 190, 110, 0.62);
+}
+
+.award-card {
+  border-color: rgba(255, 214, 92, 0.62);
+}
+
+/* Reference rows inside a vessel card get a short quote under the
+   name/title line — the standalone References section (which used to carry
+   the full quote) no longer exists, so this is where that trust signal
+   lives now. */
+.vessel-linked-row--stacked {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.vessel-linked-quote {
+  margin: 4px 0 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+  line-height: 1.4;
+  font-style: italic;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* "Other" catch-all card (js/public-profile-sections.js buildUnattachedCard)
+   for records with no vesselId — sits after the real vessel list, so it
+   needs its own top margin rather than inheriting .pp-vessel-full-list's
+   inter-card gap. */
+.pp-vessel-unattached {
   margin-top: 14px;
-}
-
-.achievement-vessel-group {
-  border-radius: 14px;
-  border: 1px solid var(--surface-border);
-  background: rgba(255, 255, 255, 0.03);
-  overflow: hidden;
-}
-
-.achievement-vessel-group-summary {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
-  padding: 14px 16px;
-}
-
-.achievement-vessel-group-summary::-webkit-details-marker {
-  display: none;
-}
-
-.achievement-vessel-group-summary::before {
-  content: "›";
-  display: inline-block;
-  font-size: 16px;
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.6);
-  transition: transform 0.15s ease;
-}
-
-.achievement-vessel-group[open] .achievement-vessel-group-summary::before {
-  transform: rotate(90deg);
-}
-
-.achievement-vessel-group-title {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.achievement-vessel-group-title strong {
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 800;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.achievement-vessel-group-title small {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.achievement-vessel-group-count {
-  margin-left: auto;
-  min-width: 22px;
-  padding: 1px 8px;
-  border-radius: 999px;
-  background: rgba(76, 255, 184, 0.16);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 800;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.achievement-vessel-group-body {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 0 14px 14px;
-}
-
-.achievement-auto-block {
-  margin-top: 16px;
-}
-
-.achievement-auto-heading {
-  margin: 0 0 8px;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
 }
 
 /* =========================================================

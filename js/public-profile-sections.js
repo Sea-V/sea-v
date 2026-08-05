@@ -11,7 +11,6 @@
     getOnboardCategoryLabel,
     getHobbyInterestCategoryLabel,
     getSpecialistCategoryLabel,
-    getReferenceStatus,
     getCertExpiryInfo,
     isSuppressedAdditionalCert,
     isSavedCert,
@@ -24,11 +23,11 @@
   const U = window.SeavPublicProfileUtils || {};
   const {
     LIMITS,
-    truncate, setSectionCount, buildShowMoreButton,
-    groupSeatimeByVessel, groupTendersByVessel, groupAchievementsByVessel, formatNm, getPublicVesselColor, buildPublicNavigationStats,
+    setSectionCount, buildShowMoreButton,
+    formatNm, getPublicVesselColor, buildPublicNavigationStats,
     getNavigationEndpointMarkers, hasPlottableNavigationData,
     formatExpiryShort,
-    renderVerificationBadge, isReferenceVerified
+    isReferenceVerified
   } = U;
 
   const Seav = window.Seav;
@@ -55,15 +54,7 @@
   let ppCountryHighlightLayer = null;
 
   // Whether the "Skills self-assessment" collapsible sub-block is open.
-  // Just one boolean (not a per-category Set like the onboard-experience
-  // vessel groups) since there's a single toggle for the whole sub-section.
   let ppOnboardSkillsExpanded = false;
-
-  // Tracks which vessel groups are open in the onboard experience section
-  // (keyed by vesselId, "" for "no vessel linked"). Kept in a Set rather
-  // than read back from the DOM so expand state survives a full section
-  // re-render — see the click handler and renderOnboardExperience below.
-  const expandedOnboardVesselIds = new Set();
 
   function destroyPublicNavigationChart() {
     if (!ppNavigationChart) return;
@@ -321,12 +312,24 @@
   // References are filtered to verified-only here (buildVesselCardFull has
   // no concept of verification status) so the same privacy rule applied to
   // the References section itself also applies inside vessel cards.
-  function buildVesselCard(v, seatimes, tenders, refs) {
+  //
+  // 2026-08-05, per Jack: the card now also carries Onboard Experience and
+  // Seafarer Awards (manual achievements) — the vessel card is the single
+  // place all vessel-attached records live, rather than five separate
+  // sections each re-grouping the same data by vessel. `onboardEntries` is
+  // filtered to Signed Off only (the public page's existing bar for "real"
+  // onboard experience, see buildVesselHighlights above) and `achievements`
+  // to approved manual (non-auto-awarded) records — both filters applied
+  // once by the caller (renderVessels) rather than per-card.
+  function buildVesselCard(v, seatimes, tenders, refs, onboardEntries, achievements, vessels) {
     return window.SeavCards.buildVesselCardFull(v, {
       photoBucket: window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos",
       seatimes: seatimes || [],
       tenders: tenders || [],
-      refs: (refs || []).filter(isReferenceVerified)
+      refs: (refs || []).filter(isReferenceVerified),
+      onboardEntries: onboardEntries || [],
+      achievements: achievements || [],
+      vesselColor: getPublicVesselColor(v.id, vessels || [])
     });
   }
 
@@ -348,37 +351,11 @@
       return;
     }
 
+    // 2026-08-05, per Jack: per-vessel sea time detail now lives inside
+    // each vessel's own card (see js/seav-cards.js buildVesselCardFull) —
+    // this strip is just the career-wide rollup, so it's the one thing here
+    // that genuinely isn't vessel-specific and leads into the vessel list.
     const totals = getSeatimeTotals(seatimes);
-    const groups = groupSeatimeByVessel(seatimes, vessels);
-    const visibleGroups = groups.slice(0, LIMITS.seatimes);
-    const hiddenGroups = groups.slice(LIMITS.seatimes);
-    const moreId = "ppSeatimeMore";
-
-    const buildGroupRow = (group) => {
-      const vesselName = group.vessel?.name || "Vessel record";
-      const topStatus = group.entries.find((entry) => entry.verificationStatus)?.verificationStatus;
-      const capacity = group.entries.find((entry) => entry.capacityServed)?.capacityServed;
-
-      return `
-        <div class="public-cv-seatime-row" data-pp-more-item>
-          <div class="public-cv-seatime-main">
-            <span class="public-cv-seatime-vessel">${Seav.escapeHtml(vesselName)}</span>
-            <span class="public-cv-seatime-meta">${Seav.escapeHtml(
-              [
-                capacity ? `Capacity: ${capacity}` : "",
-                group.totals.watchkeeping ? `${group.totals.watchkeeping} watchkeeping days` : ""
-              ]
-                .filter(Boolean)
-                .join(" • ")
-            )}</span>
-          </div>
-          <div class="public-cv-seatime-stats">
-            <span class="public-cv-seatime-days">${Seav.escapeHtml(String(group.totals.total))} days</span>
-            ${renderVerificationBadge(topStatus)}
-          </div>
-        </div>
-      `;
-    };
 
     box.innerHTML = `
       <div class="kpi-row-grid kpi-row-grid-5 public-profile-seatime-kpis">
@@ -388,26 +365,118 @@
         <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.watchkeeping))}</div><div class="kpi-label">Watchkeeping</div></div>
         <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.total))}</div><div class="kpi-label">Total qualifying service</div></div>
       </div>
-      <div class="public-cv-mini-list">
-        ${visibleGroups.map((group) => buildGroupRow(group).replace(" data-pp-more-item", "")).join("")}
-        ${
-          hiddenGroups.length
-            ? `<div class="public-cv-more-block" id="${moreId}" hidden>
-                ${hiddenGroups.map(buildGroupRow).join("")}
-              </div>`
-            : ""
-        }
-      </div>
-      ${hiddenGroups.length ? buildShowMoreButton(moreId, hiddenGroups.length, "records") : ""}
     `;
 
     section.hidden = false;
   }
 
-  function renderVessels(vessels, seatimes, tenders, refs, isOwner) {
+  // Catch-all card for records that carry no vesselId at all (a standalone
+  // chase tender, an unlinked onboard entry, a career-wide manual award, or
+  // a reference logged without a vessel) — these have nowhere to live once
+  // Tenders/Onboard Experience/Awards/References stop being their own
+  // top-level sections. Reuses the exact same "vessel-linked-clean" row
+  // markup as a real vessel card so it reads as one more entry in the list,
+  // just without a photo/stats block. Omitted entirely when there's nothing
+  // unattached to show — this is a supplementary catch-all, not a primary
+  // section, so an empty one for every viewer (owner included) is just
+  // noise.
+  function buildUnattachedCard(orphanTenders, orphanOnboard, orphanAchievements, orphanRefs) {
+    const hasAny =
+      orphanTenders.length || orphanOnboard.length || orphanAchievements.length || orphanRefs.length;
+    if (!hasAny) return "";
+
+    const getOnboardLabel = window.SeavData?.getOnboardCategoryLabel || ((v) => v || "—");
+
+    const buildRow = (strong, span) => `
+      <div class="vessel-linked-row">
+        <div>
+          <strong>${Seav.escapeHtml(strong)}</strong>
+          <span>${Seav.escapeHtml(span)}</span>
+        </div>
+      </div>
+    `;
+
+    return `
+      <details class="vessel-history-collapsible">
+        <summary class="vessel-history-summary">
+          <span class="vessel-history-summary-title">
+            <strong>Other</strong>
+            <small>Not linked to a specific vessel</small>
+          </span>
+        </summary>
+        <div class="vessel-history-collapsible-body">
+          <article class="vessel-profile-card">
+            <div class="vessel-linked-clean-grid public-cv-vessel-links-grid">
+              <section class="vessel-linked-clean-card tender-card">
+                <h3>Tenders</h3>
+                ${
+                  orphanTenders.length
+                    ? orphanTenders
+                        .slice(0, 3)
+                        .map((item) => buildRow(item.name || "Unnamed Tender", item.type || item.model || "Tender"))
+                        .join("")
+                    : `<p>No unlinked tenders.</p>`
+                }
+              </section>
+              <section class="vessel-linked-clean-card reference-card">
+                <h3>References</h3>
+                ${
+                  orphanRefs.length
+                    ? orphanRefs
+                        .slice(0, 3)
+                        .map((item) => buildRow(item.name || "—", item.title || "—"))
+                        .join("")
+                    : `<p>No unlinked references.</p>`
+                }
+              </section>
+              <section class="vessel-linked-clean-card onboard-card">
+                <h3>Onboard Experience</h3>
+                ${
+                  orphanOnboard.length
+                    ? orphanOnboard
+                        .slice(0, 3)
+                        .map((item) =>
+                          buildRow(
+                            item.title || getOnboardLabel(item.category),
+                            item.positionHeld || getOnboardLabel(item.category)
+                          )
+                        )
+                        .join("")
+                    : `<p>No unlinked onboard experience.</p>`
+                }
+              </section>
+              <section class="vessel-linked-clean-card award-card">
+                <h3>Awards</h3>
+                ${
+                  orphanAchievements.length
+                    ? orphanAchievements
+                        .slice(0, 3)
+                        .map((item) => buildRow(item.title || "Award", item.description || "Seafarer Award"))
+                        .join("")
+                    : `<p>No unlinked awards.</p>`
+                }
+              </section>
+            </div>
+          </article>
+        </div>
+      </details>
+    `;
+  }
+
+  function renderVessels(vessels, seatimes, tenders, refs, isOwner, onboardEntries, achievements) {
     const vesselBox = document.getElementById("ppVesselSnippet");
     const section = document.getElementById("ppVesselSection");
     if (!vesselBox) return;
+
+    const vesselIds = new Set((vessels || []).map((v) => v.id));
+    const signedOnboard = (onboardEntries || []).filter((e) => e.status === "Signed Off");
+    const manualAchievements = (achievements || []).filter(
+      (item) =>
+        !item.autoAwarded &&
+        (item.status === "Verified" || item.status !== "Declined") &&
+        (!item.code || !window.SeavBadges?.getAchievement || !!window.SeavBadges.getAchievement(item.code))
+    );
+    const verifiedRefs = (refs || []).filter(isReferenceVerified);
 
     if (!vessels.length) {
       vesselBox.innerHTML = buildEmptyState({
@@ -433,106 +502,37 @@
     const hidden = sorted.slice(LIMITS.vessels);
     const moreId = "ppVesselMore";
 
+    const buildCard = (v) => buildVesselCard(v, seatimes, tenders, verifiedRefs, signedOnboard, manualAchievements, vessels);
+
+    const unattachedHtml = buildUnattachedCard(
+      (tenders || []).filter((t) => !t.vesselId || !vesselIds.has(t.vesselId)),
+      signedOnboard.filter((e) => !e.vesselId || !vesselIds.has(e.vesselId)),
+      manualAchievements.filter((a) => !a.vesselId || !vesselIds.has(a.vesselId)),
+      verifiedRefs.filter((r) => !r.vesselId || !vesselIds.has(r.vesselId))
+    );
+
     // Full-width stack, not the small dash-mini-card-grid — every vessel now
     // gets the same wide "overview" card the dashboard reserves for just the
-    // current vessel, so a 3-across grid would cramp it badly.
+    // current vessel, so a 3-across grid would cramp it badly. The "Other"
+    // catch-all always renders after the visible list, never gated behind
+    // "Show more vessels" — it isn't part of the vessel pagination unit.
     vesselBox.innerHTML = `
       <div class="pp-vessel-full-list">
-        ${visible
-          .map((v) => buildVesselCard(v, seatimes, tenders, refs).replace(" data-pp-more-item", ""))
-          .join("")}
+        ${visible.map((v) => buildCard(v).replace(" data-pp-more-item", "")).join("")}
       </div>
       ${
         hidden.length
           ? `<div class="public-cv-more-block pp-vessel-full-list" id="${moreId}" hidden>
-              ${hidden.map((v) => buildVesselCard(v, seatimes, tenders, refs)).join("")}
+              ${hidden.map((v) => buildCard(v)).join("")}
             </div>`
           : ""
       }
       ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "vessels") : ""}
+      ${unattachedHtml ? `<div class="pp-vessel-full-list pp-vessel-unattached">${unattachedHtml}</div>` : ""}
     `;
 
     setSectionCount("ppVesselCount", sorted.length);
     if (section) section.hidden = false;
-  }
-
-  // Tender card markup lives in js/seav-cards.js (shared with the dashboard
-  // snippet) — this wrapper just keeps the existing call signature used below.
-  function buildTenderCard(tender, vessels) {
-    return window.SeavCards.buildTenderCard(tender, vessels, {
-      photoBucket: window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos"
-    });
-  }
-
-  // Same collapsible per-vessel grouping as the Tenders page itself
-  // (js/tenders.js buildTenderVesselGroups + .tender-vessel-group markup) —
-  // reuses those exact CSS classes so it looks identical, just built from
-  // groupTendersByVessel (js/public-profile-utils.js) since this page has no
-  // getVessels()/getTenders() of its own to call the Tenders page's version.
-  function buildTenderVesselGroupHtml(group, vessels, { open = false } = {}) {
-    return `
-      <details class="tender-vessel-group" data-pp-more-item${open ? " open" : ""}>
-        <summary class="tender-vessel-group-summary">
-          ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
-          <span class="tender-vessel-group-title">
-            <strong>${Seav.escapeHtml(group.vesselName)}</strong>
-          </span>
-          <span class="tender-vessel-group-count">${group.tenders.length}</span>
-        </summary>
-        <div class="tender-vessel-group-body">
-          ${group.tenders.map((t) => buildTenderCard(t, vessels).replace(" data-pp-more-item", "")).join("")}
-        </div>
-      </details>
-    `;
-  }
-
-  function renderTenders(tenders, vessels, isOwner) {
-    const tenderBox = document.getElementById("ppTenderSnippet");
-    const section = document.getElementById("ppTenderSection");
-    if (!tenderBox || !section) return;
-
-    if (!tenders.length) {
-      tenderBox.innerHTML = buildEmptyState({
-        heading: "No tenders logged yet",
-        body:
-          "Add tenders under a vessel to show your small-craft handling — a real differentiator for deck and interior crew.",
-        ctaLabel: "Log a tender",
-        ctaHref: "/tenders.html",
-        isOwner
-      });
-      setSectionCount("ppTenderCount", 0);
-      section.hidden = false;
-      return;
-    }
-
-    const groups = groupTendersByVessel(tenders, vessels);
-
-    // Paginate by vessel group (same unit as the Sea Time section's own
-    // groupSeatimeByVessel-based show-more just above), not by raw tender —
-    // splitting a single vessel's tenders across "visible" and "hidden"
-    // would be a confusing show-more experience.
-    const visible = groups.slice(0, LIMITS.tenders);
-    const hidden = groups.slice(LIMITS.tenders);
-    const moreId = "ppTenderMore";
-
-    tenderBox.innerHTML = `
-      <div class="tender-vessel-group-list">
-        ${visible
-          .map((g) => buildTenderVesselGroupHtml(g, vessels).replace(" data-pp-more-item", ""))
-          .join("")}
-      </div>
-      ${
-        hidden.length
-          ? `<div class="public-cv-more-block tender-vessel-group-list" id="${moreId}" hidden>
-              ${hidden.map((g) => buildTenderVesselGroupHtml(g, vessels)).join("")}
-            </div>`
-          : ""
-      }
-      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "vessels") : ""}
-    `;
-
-    setSectionCount("ppTenderCount", tenders.length);
-    section.hidden = false;
   }
 
   async function renderNavigation(navigationAreas, vessels, distanceMap, isOwner) {
@@ -622,131 +622,6 @@
     }
 
     schedulePublicNavigationChartPaint(container, stats, vessels, navigationAreas);
-  }
-
-  // Same grouping shape as the edit page's js/onboard-experience.js — one
-  // collapsible row per vessel, most-recently-dated vessel first, entries
-  // within a group sorted most-recent-first. A flat list of every entry got
-  // hard to scan once there were several vessels' worth logged, same
-  // complaint that drove the edit page's grouping.
-  function groupOnboardEntriesByVessel(entries, vessels) {
-    const groups = new Map();
-
-    entries.forEach((entry) => {
-      const vesselId = entry.vesselId || "";
-      if (!groups.has(vesselId)) groups.set(vesselId, []);
-      groups.get(vesselId).push(entry);
-    });
-
-    return [...groups.entries()]
-      .map(([vesselId, groupEntries]) => {
-        const vessel = (vessels || []).find((v) => v.id === vesselId);
-        const sorted = [...groupEntries].sort((a, b) => {
-          const da = a.dateFrom ? new Date(a.dateFrom) : new Date(0);
-          const db = b.dateFrom ? new Date(b.dateFrom) : new Date(0);
-          return db - da;
-        });
-        const latestTime = sorted[0]?.dateFrom ? new Date(sorted[0].dateFrom).getTime() : 0;
-
-        return {
-          vesselId,
-          vesselName: vessel?.name || (vesselId ? "Unknown vessel" : "No vessel linked"),
-          vesselColor: vesselId ? getPublicVesselColor(vesselId, vessels) : "",
-          entries: sorted,
-          latestTime
-        };
-      })
-      .sort((a, b) => b.latestTime - a.latestTime);
-  }
-
-  // Note on toggle wiring: this does NOT use the page's generic
-  // data-pp-expand / bindExpandToggles convention. That handler
-  // unconditionally overwrites btn.textContent on every click (fine for
-  // plain-text "Show more" buttons), which would destroy this button's two
-  // child <span>s (vessel name + entry count) after the very first click.
-  // Instead this uses a dedicated classList/aria-expanded/hidden toggle —
-  // the same non-destructive pattern the edit page's onboard-experience.js
-  // uses for its own vessel groups — wired up below via a delegated click
-  // handler bound once when this script loads.
-  function buildOnboardVesselGroup(group, vessels) {
-    const groupKey = group.vesselId || "none";
-    const groupId = `ppOnboardVessel-${Seav.escapeHtml(groupKey)}`;
-    const isExpanded = expandedOnboardVesselIds.has(group.vesselId);
-    const entryLabel = group.entries.length === 1 ? "entry" : "entries";
-
-    // Row markup lives in js/seav-cards.js (shared with the dashboard
-    // snippet). expandable: true adds a per-row "Details" toggle
-    // (description, dates, hours, location onboard, attachment).
-    // hideVesselName: true because the vessel is now the group heading —
-    // repeating it on every row inside was redundant.
-    const rows = group.entries
-      .map((entry) =>
-        window.SeavCards.buildOnboardRow(entry, vessels, {
-          statusFallback: "—",
-          expandable: true,
-          hideVesselName: true
-        })
-      )
-      .join("");
-
-    return `
-      <div class="public-onboard-vessel-group${isExpanded ? " is-expanded" : ""}">
-        <button
-          type="button"
-          class="public-onboard-vessel-summary"
-          data-toggle-onboard-vessel="${Seav.escapeHtml(group.vesselId)}"
-          aria-expanded="${isExpanded ? "true" : "false"}"
-          aria-controls="${groupId}"
-        >
-          <span class="public-onboard-vessel-name">
-            ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
-            ${Seav.escapeHtml(group.vesselName)}
-          </span>
-          <span class="public-onboard-vessel-count">${group.entries.length} ${entryLabel}</span>
-          <span class="public-onboard-vessel-chevron" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </button>
-        <div class="list public-onboard-vessel-body" id="${groupId}"${isExpanded ? "" : " hidden"}>
-          ${rows}
-        </div>
-      </div>
-    `;
-  }
-
-  function renderOnboardExperience(onboardEntries, vessels, isOwner) {
-    const box = document.getElementById("ppOperationsSnippet");
-    const section = document.getElementById("ppOperationsSection");
-    if (!box || !section) return;
-
-    const entries = onboardEntries || [];
-
-    if (!entries.length) {
-      box.innerHTML = buildEmptyState({
-        heading: "No onboard experience logged yet",
-        body:
-          "Add operations and familiarisations to show hands-on competence beyond your CoC.",
-        ctaLabel: "Add onboard experience",
-        ctaHref: "/onboard-experience.html",
-        isOwner
-      });
-      setSectionCount("ppOnboardCount", 0);
-      section.hidden = false;
-      return;
-    }
-
-    const groups = groupOnboardEntriesByVessel(entries, vessels);
-
-    box.innerHTML = `
-      <div class="public-onboard-vessel-list">
-        ${groups.map((group) => buildOnboardVesselGroup(group, vessels)).join("")}
-      </div>
-    `;
-
-    setSectionCount("ppOnboardCount", entries.length);
-    section.hidden = false;
   }
 
   function buildReadOnlyStars(rating) {
@@ -846,34 +721,6 @@
     toggleBtn.setAttribute("aria-expanded", ppOnboardSkillsExpanded ? "true" : "false");
     wrap.classList.toggle("is-expanded", ppOnboardSkillsExpanded);
     body.hidden = !ppOnboardSkillsExpanded;
-  });
-
-  // Delegated, bound once at script load — mirrors the edit page's own
-  // [data-toggle-vessel-id] handler in js/onboard-experience.js. Reading
-  // expand state back out of expandedOnboardVesselIds (rather than the DOM)
-  // in buildOnboardVesselGroup means this survives the full-section
-  // re-render that happens on every "seav:data-updated" event.
-  document.addEventListener("click", (e) => {
-    const toggleBtn = e.target.closest("[data-toggle-onboard-vessel]");
-    if (!toggleBtn) return;
-    e.preventDefault();
-
-    const vesselKey = toggleBtn.getAttribute("data-toggle-onboard-vessel") || "";
-    const group = toggleBtn.closest(".public-onboard-vessel-group");
-    const body = group?.querySelector(".public-onboard-vessel-body");
-    if (!group || !body) return;
-
-    if (expandedOnboardVesselIds.has(vesselKey)) {
-      expandedOnboardVesselIds.delete(vesselKey);
-      group.classList.remove("is-expanded");
-      toggleBtn.setAttribute("aria-expanded", "false");
-      body.setAttribute("hidden", "");
-    } else {
-      expandedOnboardVesselIds.add(vesselKey);
-      group.classList.add("is-expanded");
-      toggleBtn.setAttribute("aria-expanded", "true");
-      body.removeAttribute("hidden");
-    }
   });
 
   function renderHobbiesInterests(entries, isOwner) {
@@ -1043,160 +890,9 @@
     section.hidden = false;
   }
 
-  function renderReferences(refs, vessels = [], isOwner) {
-    const box = document.getElementById("ppRefSnippet");
-    const section = document.getElementById("ppRefSection");
-    if (!box || !section) return;
-
-    const vesselMap = new Map((vessels || []).map((v) => [v.id, v.name || ""]));
-    const verifiedRefs = refs.filter(isReferenceVerified);
-
-    if (!verifiedRefs.length) {
-      // "Pending" copy only ever runs for the owner's own preview — refs
-      // includes unverified rows for everyone (see js/api.js's
-      // PUBLIC_ARRAY_COLUMNS.sea_references, which doesn't filter by status),
-      // so surfacing a pending count to a stranger would leak whether an
-      // unconfirmed reference exists. Gating this on isOwner keeps that
-      // detail visible only to the person it belongs to.
-      const pendingCount = isOwner ? refs.length : 0;
-      box.innerHTML = buildEmptyState({
-        heading: pendingCount > 0 ? "References awaiting verification" : "No verified references yet",
-        body:
-          pendingCount > 0
-            ? `${pendingCount} reference${pendingCount === 1 ? "" : "s"} awaiting verification — ${
-                pendingCount === 1 ? "it'll" : "they'll"
-              } appear here once confirmed.`
-            : "Request a verification link from a previous captain or HOD — a verified reference is the strongest trust signal on your profile.",
-        ctaLabel: "Manage references",
-        ctaHref: "/references.html",
-        isOwner
-      });
-      section.hidden = false;
-      return;
-    }
-
-    const sorted = [...verifiedRefs].sort((a, b) => {
-      const da = a.date ? new Date(a.date) : new Date(0);
-      const db = b.date ? new Date(b.date) : new Date(0);
-      return db - da;
-    });
-
-    const visible = sorted.slice(0, LIMITS.references);
-    const hidden = sorted.slice(LIMITS.references);
-    const moreId = "ppRefMore";
-
-    const buildRef = (ref) => {
-      const status = getReferenceStatus(ref);
-      const verification = ref.verification || {};
-      const vesselName = ref.vessel || vesselMap.get(ref.vesselId) || "";
-      // verification.cocNumber arrives here as boolean `true` (never the
-      // real number — the DB's verification_public generated column already
-      // stripped it before this ever reached the client, see
-      // docs/schema-public-profile-age-and-coc-redaction.sql). No partial
-      // reveal: just note that a CoC was entered and is hidden.
-      const cocNote = verification.cocNumber === true ? "★ CoC on file — hidden for privacy" : "";
-      const verifierMeta = [
-        verification.rank,
-        cocNote,
-        verification.signedAt ? formatExpiryShort(verification.signedAt) : ""
-      ]
-        .filter(Boolean)
-        .join(" • ");
-
-      return `
-        <div class="public-cv-ref-block" data-pp-more-item>
-          <div class="public-cv-ref-top">
-            <div>
-              <p class="public-cv-ref-name">${Seav.escapeHtml(ref.name || "Referee")}</p>
-              <span class="public-cv-verify-badge is-trusted">Verified reference</span>
-            </div>
-            <span class="public-cv-status-dot is-valid" title="${Seav.escapeHtml(status)}" aria-label="${Seav.escapeHtml(status)}"></span>
-          </div>
-          <div class="public-cv-ref-meta">
-            ${Seav.escapeHtml(ref.title || "—")}
-            ${
-              vesselName || ref.role || ref.period
-                ? ` • ${Seav.escapeHtml([vesselName, ref.role, ref.period].filter(Boolean).join(" • "))}`
-                : ""
-            }
-          </div>
-          <div class="public-cv-ref-quote">“${Seav.escapeHtml(truncate(ref.text, 220))}”</div>
-          ${
-            verification.signatureName || verifierMeta
-              ? `<p class="public-cv-signoff-line">Confirmed by ${Seav.escapeHtml(
-                  [verification.signatureName, verifierMeta].filter(Boolean).join(" • ")
-                )}</p>`
-              : ""
-          }
-        </div>
-      `;
-    };
-
-    box.innerHTML = `
-      ${visible.map((ref) => buildRef(ref).replace(" data-pp-more-item", "")).join("")}
-      ${
-        hidden.length
-          ? `<div class="public-cv-more-block" id="${moreId}" hidden>
-              ${hidden.map(buildRef).join("")}
-            </div>
-            ${buildShowMoreButton(moreId, hidden.length, "references")}`
-          : ""
-      }
-    `;
-
-    section.hidden = false;
-  }
-
-  // Shared badge/title card markup for a single milestone. `hideVesselMeta`
-  // is used inside a per-vessel group (see buildAchievementVesselGroupHtml)
-  // where repeating the vessel name on every card would just restate the
-  // group heading — description (or a generic fallback) is shown instead.
-  function buildAchievementHighlightCard(item, isMoreItem = false, hideVesselMeta = false) {
-    const vessel = !hideVesselMeta && item.vessel ? item.vessel : "";
-    const title = item.title || "Milestone";
-    const meta =
-      vessel ||
-      (item.description ? truncate(item.description, 70) : hideVesselMeta ? "Logged milestone" : "Career-wide milestone");
-    const imagePath = window.SeavBadges?.resolveItemBadgeImage?.(item) || "";
-    const initial = Seav.escapeHtml((title || "M").trim().charAt(0).toUpperCase() || "M");
-    const badgeInner = imagePath
-      ? `<img src="${Seav.escapeHtml(imagePath)}" alt="" loading="lazy" />`
-      : `<span class="public-cv-highlight-badge-fallback">${initial}</span>`;
-
-    return `
-      <article class="public-cv-highlight-card"${isMoreItem ? " data-pp-more-item" : ""}>
-        <span class="public-cv-highlight-badge">${badgeInner}</span>
-        <div class="public-cv-highlight-body">
-          <p class="public-cv-highlight-title">${Seav.escapeHtml(title)}</p>
-          <p class="public-cv-highlight-desc">${Seav.escapeHtml(meta)}</p>
-        </div>
-      </article>
-    `;
-  }
-
-  // Same collapsible per-vessel grouping as Tenders/Sea Time — only used for
-  // manually-logged milestones, which always carry a vessel.
-  function buildAchievementVesselGroupHtml(group, { open = false } = {}) {
-    return `
-      <details class="achievement-vessel-group" data-pp-more-item${open ? " open" : ""}>
-        <summary class="achievement-vessel-group-summary">
-          ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
-          <span class="achievement-vessel-group-title">
-            <strong>${Seav.escapeHtml(group.vesselName)}</strong>
-          </span>
-          <span class="achievement-vessel-group-count">${group.items.length}</span>
-        </summary>
-        <div class="achievement-vessel-group-body">
-          ${group.items.map((item) => buildAchievementHighlightCard(item, false, true)).join("")}
-        </div>
-      </details>
-    `;
-  }
-
-  // Compact in-progress card for the public profile — same visual language
-  // as buildAchievementHighlightCard (badge + title + short line) but with
-  // a real progress bar underneath, since "how far along" is the whole
-  // point of this list. certGroupKey is used as the title (not the raw
+  // Compact in-progress card for the public profile — badge + title + short
+  // line, plus a real progress bar underneath, since "how far along" is the
+  // whole point of this list. certGroupKey is used as the title (not the raw
   // achievement title) so a cert split across multiple catalog definitions
   // — currently only OOW Yachts <3000GT — reads as one certificate, not
   // its internal sub-badge name.
@@ -1270,7 +966,13 @@
       .map((entry) => ({ ...entry, full: window.SeavBadges?.getAchievementWithBadge?.(entry.primaryCode) }))
       .filter((entry) => entry.full);
 
-    if (!approved.length && !inProgress.length) {
+    // 2026-08-05, per Jack: Seafarer Awards (manual, always vessel-linked
+    // achievements — crossings etc.) now live inside each vessel's own card
+    // (see js/seav-cards.js buildVesselCardFull) instead of grouped here a
+    // second time. This section is just the career-wide "what's currently
+    // being worked toward" list — nothing here is tied to one vessel, so it
+    // stays in the Credentials zone rather than moving into a vessel card.
+    if (!inProgress.length) {
       // This section has no static <h3> in the HTML (unlike the others) —
       // the header is normally built inline below along with the content, so
       // the empty state has to include it too rather than relying on markup
@@ -1280,9 +982,9 @@
           <h3><span class="public-profile-section-icon" data-pp-icon="achievements" aria-hidden="true"></span>Milestones</h3>
         </div>
         ${buildEmptyState({
-          heading: "No milestones yet",
+          heading: "No milestones in progress",
           body:
-            "Log career highlights, or keep using SEA-V — some milestones are awarded automatically as you build your record.",
+            "Career-wide certificate progress will show up here once there's sea time or navigation logged toward it.",
           ctaLabel: "View milestones",
           ctaHref: "/achievements.html",
           isOwner
@@ -1295,18 +997,6 @@
       return;
     }
 
-    // Manually-logged milestones always carry a vessel (achievements.js
-    // requires one on every manual entry, even "career-wide" ones), so they
-    // group naturally by vessel like Tenders/Sea Time — these are the
-    // Seafarer Awards (crossings etc). Earned Deck Progression badges no
-    // longer render here at all — inProgress (built above) replaces them.
-    const manual = approved.filter((item) => !item.autoAwarded);
-
-    const groups = groupAchievementsByVessel(manual, vessels);
-    const visibleGroups = groups.slice(0, LIMITS.achievementVesselGroups);
-    const hiddenGroups = groups.slice(LIMITS.achievementVesselGroups);
-    const groupMoreId = "ppAchievementGroupMore";
-
     const visibleInProgress = inProgress.slice(0, LIMITS.achievements);
     const hiddenInProgress = inProgress.slice(LIMITS.achievements);
     const inProgressMoreId = "ppAchievementInProgressMore";
@@ -1316,48 +1006,22 @@
         <h3><span class="public-profile-section-icon" data-pp-icon="achievements" aria-hidden="true"></span>Milestones</h3>
         <span class="public-profile-section-count" id="ppAchievementCount" hidden></span>
       </div>
-      <p class="public-profile-section-note">What this crew member is currently working toward — a badge shows progress made, not that the qualification is held.</p>
+      <p class="public-profile-section-note">What this crew member is currently working toward — a badge shows progress made, not that the qualification is held. Seafarer Awards (crossings, etc.) are shown under the vessel they were earned on.</p>
 
+      <div class="public-cv-highlight-list">
+        ${visibleInProgress.map((entry) => buildInProgressHighlightCard(entry)).join("")}
+      </div>
       ${
-        inProgress.length
-          ? `
-        <div class="public-cv-highlight-list">
-          ${visibleInProgress.map((entry) => buildInProgressHighlightCard(entry)).join("")}
-        </div>
-        ${
-          hiddenInProgress.length
-            ? `<div class="public-cv-more-block public-cv-highlight-list" id="${inProgressMoreId}" hidden>
-                ${hiddenInProgress.map((entry) => buildInProgressHighlightCard(entry)).join("")}
-              </div>
-              ${buildShowMoreButton(inProgressMoreId, hiddenInProgress.length, "highlights")}`
-            : ""
-        }
-      `
-          : ""
-      }
-
-      ${
-        groups.length
-          ? `
-        <div class="achievement-vessel-group-list">
-          ${visibleGroups
-            .map((g) => buildAchievementVesselGroupHtml(g).replace(" data-pp-more-item", ""))
-            .join("")}
-        </div>
-        ${
-          hiddenGroups.length
-            ? `<div class="public-cv-more-block achievement-vessel-group-list" id="${groupMoreId}" hidden>
-                ${hiddenGroups.map((g) => buildAchievementVesselGroupHtml(g)).join("")}
-              </div>
-              ${buildShowMoreButton(groupMoreId, hiddenGroups.length, "vessels")}`
-            : ""
-        }
-      `
+        hiddenInProgress.length
+          ? `<div class="public-cv-more-block public-cv-highlight-list" id="${inProgressMoreId}" hidden>
+              ${hiddenInProgress.map((entry) => buildInProgressHighlightCard(entry)).join("")}
+            </div>
+            ${buildShowMoreButton(inProgressMoreId, hiddenInProgress.length, "highlights")}`
           : ""
       }
     `;
 
-    setSectionCount("ppAchievementCount", approved.length + inProgress.length);
+    setSectionCount("ppAchievementCount", inProgress.length);
     section.hidden = false;
   }
 
@@ -1367,14 +1031,11 @@
     buildVesselCard,
     renderSeatime,
     renderVessels,
-    renderTenders,
     renderNavigation,
-    renderOnboardExperience,
     renderOnboardSkills,
     renderHobbiesInterests,
     renderCertificates,
     renderSpecialistQualifications,
-    renderReferences,
     renderAchievements
   };
 })();
