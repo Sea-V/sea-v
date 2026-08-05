@@ -236,11 +236,24 @@
             <div class="vessel-stats-grid">
               <div><span>GT</span><strong>${gt}</strong></div>
               <div><span>Length</span><strong>${length}</strong></div>
-              <div><span>Build</span><strong>${builder}</strong></div>
-              ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
-              ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
-              ${additionalDuties ? `<div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>` : ""}
             </div>
+
+            <!-- 2026-08-05, Jack: "vessel specs do not exist in the public
+                 profile" — the data was rendering, just flattened into the
+                 GT/Length stats grid above instead of behind the same
+                 "Vessel specs" collapsible the private Vessels page uses
+                 (js/vessels.js buildVesselCardBody, .vessel-specs-toggle).
+                 Reusing that exact component/class names here for parity —
+                 no new CSS needed, vessels.css is loaded globally. -->
+            <details class="vessel-specs-toggle">
+              <summary class="vessel-specs-toggle-summary">Vessel specs</summary>
+              <div class="vessel-specs-grid">
+                <div><span>Build</span><strong>${builder}</strong></div>
+                ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
+                ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
+                ${additionalDuties ? `<div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>` : ""}
+              </div>
+            </details>
           </div>
         </div>
 
