@@ -1379,12 +1379,25 @@ function getEmptyTenderEntry() {
    * <200GT per MSN 1858 3.1(b); OOW <3000GT for Master <500GT per 3.5(b)) —
    * not just sea time logged at any point in a crew member's career.
    * Certificates already store an `issued` date (js/certificates.js), so
-   * this filters Sea Time entries to only those starting on/after it.
+   * this filters Sea Time entries down to the portion served on/after it.
    *
    * `held: false` (issued date missing or unparsable) means the gate can't
    * open at all yet — there's no "while holding X" if X isn't held — and
    * callers should treat that as 0% progress, not "0 qualifying days so
    * far out of however many logged."
+   *
+   * 2026-08-05, per Jack: an entry is now CLIPPED, not excluded outright,
+   * when it started before the issue date but ran past it — e.g. a
+   * 6.5-month contract that began 9 days before the cert arrived used to
+   * lose the entire 6.5 months, not just the 9 days that genuinely
+   * shouldn't count. Every entry returned in `gatedEntries` whose original
+   * `dateJoined` predates the issue date gets its `dateJoined` overwritten
+   * with the cert's issue date (a shallow copy — the original seatime
+   * record is untouched), so every existing caller's
+   * `daysBetweenDates(entry.dateJoined, entry.dateLeft)` math already
+   * produces the correctly-clipped day count with no per-caller changes.
+   * Entries that ended entirely before the issue date are still excluded —
+   * none of that time was served while holding the cert.
    */
   function seatimesGatedByCertIssueDate(seatimes, certs, certCode) {
     const cert = findSavedCertByCode(certs, certCode);
@@ -1394,10 +1407,17 @@ function getEmptyTenderEntry() {
       return { held: false, issuedDate: null, gatedEntries: [] };
     }
 
-    const gatedEntries = (seatimes || []).filter((entry) => {
-      const joined = entry.dateJoined ? new Date(entry.dateJoined) : null;
-      return joined && !Number.isNaN(joined.getTime()) && joined >= issuedDate;
-    });
+    const gatedEntries = (seatimes || [])
+      .filter((entry) => {
+        const joined = entry.dateJoined ? new Date(entry.dateJoined) : null;
+        if (!joined || Number.isNaN(joined.getTime())) return false;
+        const left = entry.dateLeft ? new Date(entry.dateLeft) : new Date();
+        return !Number.isNaN(left.getTime()) && left >= issuedDate;
+      })
+      .map((entry) => {
+        const joined = new Date(entry.dateJoined);
+        return joined < issuedDate ? { ...entry, dateJoined: cert.issued } : entry;
+      });
 
     return { held: true, issuedDate: cert.issued, gatedEntries };
   }
