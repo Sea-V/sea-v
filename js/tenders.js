@@ -407,6 +407,13 @@ function readTenderForm() {
     if (tdPhotoBtn && tdPhotoInput) {
       tdPhotoBtn.addEventListener("click", () => tdPhotoInput.click());
     }
+    // Drag-and-drop, alongside the Choose photo button — same
+    // SeavUpload.wireDragDrop() helper as profile.html/vessels.js
+    // (2026-08-05 rollout, item #3 from the photo/file upload audit).
+    const tdPhotoThumbEl = document.getElementById("tdPhotoThumb");
+    if (tdPhotoThumbEl && tdPhotoInput) {
+      window.SeavUpload?.wireDragDrop?.(tdPhotoThumbEl, tdPhotoInput, { accept: "image/*" });
+    }
     if (tdPhotoInput) {
       // Same HEIC guard as Profile/Vessels: a raw createObjectURL() on a
       // HEIC file can't be decoded by Chrome/Firefox/Edge, so route through

@@ -789,6 +789,13 @@ async function saveVesselData(vesselData) {
     if (vsPhotoBtn && vsPhotoInput) {
       vsPhotoBtn.addEventListener("click", () => vsPhotoInput.click());
     }
+    // Drag-and-drop, alongside the Choose photo button — same
+    // SeavUpload.wireDragDrop() helper as profile.html (2026-08-05
+    // rollout, item #2 from the photo/file upload audit spreadsheet).
+    const vsPhotoThumbEl = document.getElementById("vsPhotoThumb");
+    if (vsPhotoThumbEl && vsPhotoInput) {
+      window.SeavUpload?.wireDragDrop?.(vsPhotoThumbEl, vsPhotoInput, { accept: "image/*" });
+    }
     if (vsPhotoInput) {
       // A raw createObjectURL() on a HEIC file can't be decoded by Chrome/
       // Firefox/Edge, so the thumbnail would go blank/broken the instant a
