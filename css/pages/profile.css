@@ -188,23 +188,32 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
-/* display:block on legend drops the native fieldset/legend behavior
-   where the legend interrupts the top border — reads as a plain
-   section heading instead of native browser chrome, same intent as
-   css/components/modals.css's .modal-fieldset legend. */
-.profile-chapter legend {
-  display: block;
-  width: 100%;
+/* A plain heading, not a <legend> — a fieldset's rendered legend
+   straddles the border-block-start by browser design (and hides it
+   entirely once the legend is set to width:100%), which is exactly the
+   "no top border" / "title sitting on the border" look Jack flagged.
+   A div + h4 has no such special layout, so the border renders
+   normally all the way round.
 
-  padding: 0;
+   Font-size/weight are intentionally NOT set here — css/core/
+   typography.css already forces every h3-h6 in body.app-page to the
+   site's one card/section-heading size (14px / 700, see its "Section /
+   card headings" rule), same mechanism .dash-card h3 relies on
+   elsewhere. Setting a bespoke size here would just be overridden by
+   that !important layer (and was the reason the previous <legend>
+   version silently ignored its own 12px/uppercase rule — that same
+   typography.css layer force text-transform: none !important on
+   everything in body.app-page, per Jack's "remove CSS-driven ALL CAPS"
+   rule, so uppercase was never actually available to reach for here). */
+.profile-chapter-title {
   margin: 0;
 
-  color: #9fe1cb;
-
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.55px;
+  /* --page-profile is Profile's real, canonical page-identity color
+     (css/core/variables.css, mirrored in scripts/page-colors.json) —
+     same value already used by .profile-shell-icon / .profile-lock-icon
+     on this page. The old value here (#9fe1cb) was carried over from a
+     mockup preview and didn't match the page's assigned color. */
+  color: var(--page-profile, #42d6b5);
 }
 
 /* =========================================================
