@@ -45,6 +45,8 @@ export default [
         requestAnimationFrame: "readonly",
         cancelAnimationFrame: "readonly",
         createImageBitmap: "readonly",
+        DataTransfer: "readonly",
+        Event: "readonly",
         // App globals assigned by earlier script tags (browser only).
         Seav: "readonly",
         SeavAPI: "readonly",

@@ -253,11 +253,80 @@
     }
   }
 
+  // =========================================================
+  // DRAG-AND-DROP WIRING
+  // Generic helper so an existing <input type="file"> can also accept a
+  // dropped file, without duplicating each page's own change-handler
+  // logic. Drops onto dropZoneEl are assigned to fileInputEl.files via
+  // the DataTransfer API, then a real "change" event is dispatched on
+  // fileInputEl — so whatever that page already does on selection (HEIC
+  // conversion, thumbnail preview, validation, Save wiring) runs exactly
+  // once, completely unchanged. The button/click-to-pick path is left
+  // alone; this only adds a second way to hand the input a file.
+  //
+  // 2026-08-05, first wired on profile.html's photo upload — built here
+  // (not inline in profile.js) so the same call wires drag-and-drop on
+  // any other single-file upload field site-wide without re-deriving
+  // this logic per page.
+  // =========================================================
+  function wireDragDrop(dropZoneEl, fileInputEl, { activeClass = "is-drag-over", accept } = {}) {
+    if (!dropZoneEl || !fileInputEl) return;
+
+    // dragenter/dragleave fire once per element a drag passes over,
+    // including children of dropZoneEl — a naive add-on-enter/
+    // remove-on-leave pair flickers the highlight off while still
+    // hovering a child. Counting enter/leave pairs keeps the highlight
+    // on until the drag has actually left every nested element.
+    let dragDepth = 0;
+
+    function fileMatchesAccept(file) {
+      if (!accept) return true;
+      return accept.split(",").some((rawPattern) => {
+        const pattern = rawPattern.trim();
+        if (!pattern) return true;
+        if (pattern.endsWith("/*")) return file.type.startsWith(pattern.slice(0, -1));
+        return file.type === pattern;
+      });
+    }
+
+    dropZoneEl.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      dragDepth += 1;
+      dropZoneEl.classList.add(activeClass);
+    });
+
+    // Required for "drop" to fire at all — browsers reject drops
+    // everywhere by default unless dragover is prevented.
+    dropZoneEl.addEventListener("dragover", (e) => {
+      e.preventDefault();
+    });
+
+    dropZoneEl.addEventListener("dragleave", () => {
+      dragDepth = Math.max(0, dragDepth - 1);
+      if (dragDepth === 0) dropZoneEl.classList.remove(activeClass);
+    });
+
+    dropZoneEl.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dragDepth = 0;
+      dropZoneEl.classList.remove(activeClass);
+
+      const file = e.dataTransfer?.files?.[0];
+      if (!file || !fileMatchesAccept(file)) return;
+
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      fileInputEl.files = dt.files;
+      fileInputEl.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  }
+
   window.SeavUpload = {
     uploadToStorage,
     isHeicFile,
     buildPreviewUrl,
     PHOTO_MAX_BYTES,
-    resizePhotoIfNeeded
+    resizePhotoIfNeeded,
+    wireDragDrop
   };
 })();

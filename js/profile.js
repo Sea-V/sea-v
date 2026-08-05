@@ -370,6 +370,15 @@
       photoBtn.addEventListener("click", () => fields.photo.click());
     }
 
+    // Drag-and-drop, alongside (not instead of) the Change photo button —
+    // dropping onto the thumbnail assigns the file to the same #pf_photo
+    // input and fires its normal "change" event, so HEIC conversion,
+    // the live thumbnail preview, and Save all work exactly as they do
+    // for a button-picked file. 2026-08-05, per Jack.
+    if (photoThumb && fields.photo) {
+      window.SeavUpload?.wireDragDrop?.(photoThumb, fields.photo, { accept: "image/*" });
+    }
+
     // Renders the form's own photo thumbnail as a background-image —
     // previously the form only had a bare <input type=file> with no
     // indication a photo already existed, which read as "nothing
