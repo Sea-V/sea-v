@@ -2147,6 +2147,264 @@ function getSortedVesselOptions(vessels = []) {
   }
 
   /* =========================================================
+     MILESTONE PROGRESS (pure, context-parameterized)
+     2026-08-05, per Jack: the Dashboard widget and Public Profile page both
+     need to show real progress-toward-a-certificate numbers, but neither
+     page loads window.SeavState (that's the private app's state store —
+     public-profile.html deliberately never loads js/state.js or
+     js/achievements-engine.js, it fetches its own local seatimes/vessels/
+     certs/navigationAreas arrays instead, see js/public-profile.js). Rather
+     than hand-duplicate achievements-engine.js's getProgressForDefinition
+     switch statement a second time in js/public-profile-sections.js — which
+     is exactly the "two calculations for the same thing" pattern that
+     caused the watchkeeping-days confusion Jack hit earlier this session
+     (see project_seav_milestone_badge_clarity_fix.md v396/v397) — the
+     switch lives here ONCE, as a pure function over explicit args, and
+     achievements-engine.js's getProgressForDefinition() is now a thin
+     wrapper around it (passing window.SeavState-derived context). Any
+     future change to a milestone's target/label belongs here, not in
+     achievements-engine.js.
+  ========================================================= */
+
+  function computeMilestoneProgress(definition, context) {
+    if (!definition) {
+      return { current: 0, target: 1, percent: 0, label: "" };
+    }
+
+    const seatimes = context?.seatimes || [];
+    const vessels = context?.vessels || [];
+    const certs = context?.certs || [];
+    const navigationEntries = context?.navigationAreas || [];
+    const trigger = definition.trigger || { type: "manual" };
+
+    switch (trigger.type) {
+      case "sea_days": {
+        const current = (seatimes || []).reduce((sum, entry) => sum + totalQualifyingDays(entry), 0);
+        const target = Number(trigger.minDays || 0);
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} qualifying days`
+        };
+      }
+      case "oow_actual_sea_days": {
+        const target = Number(trigger.minDays || 0);
+        const current = computeOowSeaService(seatimes, vessels).totalActual15m;
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} actual sea days (${trigger.minVesselMeters}m+)`
+        };
+      }
+      case "oow_qualifying_days": {
+        const target = Number(trigger.minDays || 0);
+        const current = computeOowSeaService(seatimes, vessels).totalQualifying15m;
+        return {
+          current,
+          target,
+          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          label: `${current} / ${target} qualifying days (${trigger.minVesselMeters}m+)`
+        };
+      }
+      case "oow_eligible": {
+        const met = isOowSeaTimeComplete(seatimes, vessels);
+        return {
+          current: met ? 1 : 0,
+          target: 1,
+          percent: met ? 100 : 0,
+          label: met ? "OOW <3000GT sea-time requirements met" : "Complete the OOW sea-time milestones above"
+        };
+      }
+      case "yachtmaster_offshore_miles": {
+        const result = computeYachtmasterOffshoreMiles(navigationEntries);
+        const totalPct = result.TARGET_NM
+          ? Math.min(100, Math.round((result.totalNm / result.TARGET_NM) * 100))
+          : 0;
+        const tidalPct = result.TIDAL_TARGET_NM
+          ? Math.min(100, Math.round((result.tidalNm / result.TIDAL_TARGET_NM) * 100))
+          : 0;
+        return {
+          current: Math.round(result.totalNm),
+          target: result.TARGET_NM,
+          percent: Math.min(totalPct, tidalPct),
+          label: `${Math.round(result.totalNm)} / ${result.TARGET_NM} NM (${Math.round(result.tidalNm)} / ${result.TIDAL_TARGET_NM} NM tidal)`
+        };
+      }
+      case "master_200gt_gated_sea_service": {
+        const result = computeMaster200SeaService(seatimes, certs);
+        if (!result.held) {
+          return {
+            current: 0,
+            target: result.TARGET_MONTHS,
+            percent: 0,
+            label: "Hold RYA Yachtmaster Offshore first"
+          };
+        }
+        const monthsRounded = Math.round(result.months * 10) / 10;
+        return {
+          current: monthsRounded,
+          target: result.TARGET_MONTHS,
+          percent: result.TARGET_MONTHS
+            ? Math.min(100, Math.round((result.months / result.TARGET_MONTHS) * 100))
+            : 0,
+          label: `${monthsRounded} / ${result.TARGET_MONTHS} months' seagoing service (since holding Yachtmaster Offshore)`
+        };
+      }
+      case "master_500gt_gated_sea_service": {
+        const result = computeMaster500SeaService(seatimes, certs, vessels);
+        if (!result.held) {
+          return {
+            current: 0,
+            target: result.ONBOARD_TARGET_MONTHS,
+            percent: 0,
+            label: "Hold OOW Yachts <3000GT first"
+          };
+        }
+        const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
+        const onboardPct = result.ONBOARD_TARGET_MONTHS
+          ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+          : 0;
+        const watchPct = result.WATCHKEEPING_TARGET
+          ? Math.min(100, Math.round((result.watchkeepingDays / result.WATCHKEEPING_TARGET) * 100))
+          : 0;
+        return {
+          current: onboardMonthsRounded,
+          target: result.ONBOARD_TARGET_MONTHS,
+          percent: Math.min(onboardPct, watchPct),
+          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months onboard (${result.watchkeepingDays} / ${result.WATCHKEEPING_TARGET} watchkeeping days) — since holding OOW <3000GT`
+        };
+      }
+      case "master_3000gt_gated_sea_service": {
+        const result = computeMaster3000SeaService(seatimes, certs, vessels);
+        if (!result.held) {
+          return {
+            current: 0,
+            target: result.WATCHKEEPING_TARGET,
+            percent: 0,
+            label: "Hold OOW Yachts <3000GT first"
+          };
+        }
+        const watchPct = result.WATCHKEEPING_TARGET
+          ? Math.min(100, Math.round((result.totalWatchkeeping15m / result.WATCHKEEPING_TARGET) * 100))
+          : 0;
+        const specialPct = result.specialTarget
+          ? Math.min(100, Math.round((result.specialValue / result.specialTarget) * 100))
+          : 0;
+        const specialLabel = result.use500gtPath ? "months on 500GT+ vessels" : "months on 24m+ vessels";
+        return {
+          current: result.totalWatchkeeping15m,
+          target: result.WATCHKEEPING_TARGET,
+          percent: Math.min(watchPct, specialPct),
+          label: `${result.totalWatchkeeping15m} / ${result.WATCHKEEPING_TARGET} watchkeeping days (${result.specialValue.toFixed(1)} / ${result.specialTarget} ${specialLabel}) — since holding OOW <3000GT`
+        };
+      }
+      case "chief_mate_unlimited_direct": {
+        const result = computeChiefMateUnlimitedEligibility(certs);
+        return {
+          current: result.met ? 1 : 0,
+          target: 1,
+          percent: result.met ? 100 : 0,
+          label: result.met
+            ? "Master Yachts <3000GT held — Chief Mate Yachts Unlimited eligibility met"
+            : "Hold the Master Yachts <3000GT Certificate of Competency to qualify directly"
+        };
+      }
+      case "chief_mate_3000_eligible": {
+        const result = computeChiefMate3000Eligibility(seatimes, vessels, certs);
+        const missing = [];
+        if (!result.oowMet) missing.push("OOW <3000GT eligibility");
+        if (!result.yachtmasterOceanHeld) missing.push("RYA Yachtmaster Ocean");
+        return {
+          current: result.met ? 1 : 0,
+          target: 1,
+          percent: result.met ? 100 : 0,
+          label: result.met
+            ? "OOW <3000GT eligible and RYA Yachtmaster Ocean held"
+            : `Still need: ${missing.join(" and ")}`
+        };
+      }
+      case "master_unlimited_master3000_route": {
+        const result = computeMasterUnlimitedSeaService(seatimes, certs, vessels);
+        if (!result.held) {
+          return {
+            current: 0,
+            target: result.ONBOARD_TARGET_MONTHS,
+            percent: 0,
+            label: "Hold Master Yachts <3000GT first"
+          };
+        }
+        const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
+        const actualSeaMonthsRounded = Math.round(result.actualSeaMonths * 10) / 10;
+        const onboardPct = result.ONBOARD_TARGET_MONTHS
+          ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+          : 0;
+        const actualSeaPct = result.ACTUAL_SEA_TARGET_MONTHS
+          ? Math.min(100, Math.round((result.actualSeaMonths / result.ACTUAL_SEA_TARGET_MONTHS) * 100))
+          : 0;
+        return {
+          current: onboardMonthsRounded,
+          target: result.ONBOARD_TARGET_MONTHS,
+          percent: Math.min(onboardPct, actualSeaPct),
+          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months as Master on 500GT+ vessels (${actualSeaMonthsRounded} / ${result.ACTUAL_SEA_TARGET_MONTHS} months actual sea) — since holding Master <3000GT`
+        };
+      }
+      case "manual":
+      default:
+        return {
+          current: 0,
+          target: 1,
+          percent: 0,
+          label: "Log this milestone on a vessel"
+        };
+    }
+  }
+
+  // Groups Deck Progression catalog definitions by certGroup (a cert split
+  // across multiple catalog definitions — currently only OOW Yachts
+  // <3000GT's 4 — collapses to ONE entry, same "last definition = complete
+  // summary, others = breakdown, weakest-link percent" convention as
+  // js/achievements.js's buildCertRow), then returns only the groups that
+  // are NOT yet earned and have real progress (percent > 0), sorted
+  // closest-to-complete first. Used by the Dashboard widget and Public
+  // Profile's simplified "what am I currently working toward" list — the
+  // private Milestones page keeps its own full earned+locked+in-progress
+  // list untouched (js/achievements.js, not this function).
+  function getInProgressCertGroups({ definitions, earnedCodes, context } = {}) {
+    const defs = definitions || [];
+    const earned = earnedCodes instanceof Set ? earnedCodes : new Set(earnedCodes || []);
+
+    const groups = new Map();
+    defs.forEach((definition) => {
+      const key = definition.certGroup || definition.category;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(definition);
+    });
+
+    const results = [];
+    groups.forEach((groupDefs, key) => {
+      const primary = groupDefs[groupDefs.length - 1];
+      if (earned.has(primary.code)) return;
+
+      const progresses = groupDefs.map((d) => computeMilestoneProgress(d, context));
+      const percent = progresses.length ? Math.min(...progresses.map((p) => p.percent)) : 0;
+      if (percent <= 0) return;
+
+      const weakest = progresses.reduce((worst, p) => (p.percent < worst.percent ? p : worst), progresses[0]);
+
+      results.push({
+        certGroupKey: key,
+        primaryCode: primary.code,
+        percent,
+        label: weakest.label
+      });
+    });
+
+    return results.sort((a, b) => b.percent - a.percent);
+  }
+
+  /* =========================================================
      VESSEL FIELD ACCESSORS
      Vessel records are saved with prefixed field names (vessel_type,
      vessel_length, vessel_role, experience_onboard — see js/vessels.js's
@@ -2289,6 +2547,8 @@ window.SeavData = {
   computeChiefMateUnlimitedEligibility,
   computeMasterUnlimitedSeaService,
   computeYachtmasterOffshoreMiles,
+  computeMilestoneProgress,
+  getInProgressCertGroups,
   getSeatimeVerificationDisplay,
   getCertExpiryInfo,
   isCertNoExpiry,

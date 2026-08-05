@@ -1193,7 +1193,47 @@
     `;
   }
 
-  function renderAchievements(achievements, vessels, isOwner) {
+  // Compact in-progress card for the public profile — same visual language
+  // as buildAchievementHighlightCard (badge + title + short line) but with
+  // a real progress bar underneath, since "how far along" is the whole
+  // point of this list. certGroupKey is used as the title (not the raw
+  // achievement title) so a cert split across multiple catalog definitions
+  // — currently only OOW Yachts <3000GT — reads as one certificate, not
+  // its internal sub-badge name.
+  function buildInProgressHighlightCard(entry) {
+    const title = entry.certGroupKey;
+    const imagePath = window.SeavBadges?.resolveBadgeImage?.(entry.full.badgeKey, false) || "";
+    const initial = Seav.escapeHtml((title || "M").trim().charAt(0).toUpperCase() || "M");
+    const badgeInner = imagePath
+      ? `<img src="${Seav.escapeHtml(imagePath)}" alt="" loading="lazy" />`
+      : `<span class="public-cv-highlight-badge-fallback">${initial}</span>`;
+
+    return `
+      <article class="public-cv-highlight-card public-cv-inprogress-card">
+        <span class="public-cv-highlight-badge">${badgeInner}</span>
+        <div class="public-cv-highlight-body">
+          <p class="public-cv-highlight-title">${Seav.escapeHtml(title)}</p>
+          <p class="public-cv-highlight-desc">${Seav.escapeHtml(entry.label || "")}</p>
+          <div class="ach-progress-bar" role="progressbar" aria-valuenow="${entry.percent}" aria-valuemin="0" aria-valuemax="100">
+            <span style="width: ${entry.percent}%"></span>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  // 2026-08-05, per Jack: the public profile's Milestones section no longer
+  // shows every earned Deck Progression badge — just what's currently being
+  // worked toward (window.SeavData.getInProgressCertGroups(), the same pure
+  // function the Dashboard widget uses via achievements-engine.js — see
+  // js/seav-data.js) plus Seafarer Awards. public-profile.html never loads
+  // achievements-engine.js or window.SeavState (it fetches its own local
+  // seatimes/vessels/certs/navigationAreas, see js/public-profile.js), so
+  // this calls the shared seav-data.js function directly with that locally-
+  // fetched data — same source of truth, no duplicated calculation logic.
+  // `context` = { seatimes, certs, navigationAreas } (vessels is already a
+  // separate param every other section here takes).
+  function renderAchievements(achievements, vessels, isOwner, context) {
     const box = document.getElementById("ppAchievementSnippet");
     const section = document.getElementById("ppAchievementSection");
     if (!box || !section) return;
@@ -1210,7 +1250,27 @@
         (item.status === "Verified" || (item.status !== "Declined" && item.autoAwarded)) &&
         (!item.code || !window.SeavBadges?.getAchievement || !!window.SeavBadges.getAchievement(item.code))
     );
-    if (!approved.length) {
+
+    const earnedCodes = new Set(approved.map((item) => item.code).filter(Boolean));
+    const deckDefinitions = (window.SeavBadges?.listAchievements?.() || []).filter(
+      (definition) => definition.approvalRequired === false
+    );
+    const inProgress = (
+      window.SeavData?.getInProgressCertGroups?.({
+        definitions: deckDefinitions,
+        earnedCodes,
+        context: {
+          seatimes: context?.seatimes || [],
+          vessels: vessels || [],
+          certs: context?.certs || [],
+          navigationAreas: context?.navigationAreas || []
+        }
+      }) || []
+    )
+      .map((entry) => ({ ...entry, full: window.SeavBadges?.getAchievementWithBadge?.(entry.primaryCode) }))
+      .filter((entry) => entry.full);
+
+    if (!approved.length && !inProgress.length) {
       // This section has no static <h3> in the HTML (unlike the others) —
       // the header is normally built inline below along with the content, so
       // the empty state has to include it too rather than relying on markup
@@ -1237,27 +1297,44 @@
 
     // Manually-logged milestones always carry a vessel (achievements.js
     // requires one on every manual entry, even "career-wide" ones), so they
-    // group naturally by vessel like Tenders/Sea Time. Auto-awarded
-    // milestones are system-detected career totals/badges and read better
-    // as their own flat list, not folded into a specific vessel's group.
+    // group naturally by vessel like Tenders/Sea Time — these are the
+    // Seafarer Awards (crossings etc). Earned Deck Progression badges no
+    // longer render here at all — inProgress (built above) replaces them.
     const manual = approved.filter((item) => !item.autoAwarded);
-    const auto = approved.filter((item) => item.autoAwarded);
 
     const groups = groupAchievementsByVessel(manual, vessels);
     const visibleGroups = groups.slice(0, LIMITS.achievementVesselGroups);
     const hiddenGroups = groups.slice(LIMITS.achievementVesselGroups);
     const groupMoreId = "ppAchievementGroupMore";
 
-    const visibleAuto = auto.slice(0, LIMITS.achievements);
-    const hiddenAuto = auto.slice(LIMITS.achievements);
-    const autoMoreId = "ppAchievementAutoMore";
+    const visibleInProgress = inProgress.slice(0, LIMITS.achievements);
+    const hiddenInProgress = inProgress.slice(LIMITS.achievements);
+    const inProgressMoreId = "ppAchievementInProgressMore";
 
     box.innerHTML = `
       <div class="dashboard-card-headline">
         <h3><span class="public-profile-section-icon" data-pp-icon="achievements" aria-hidden="true"></span>Milestones</h3>
         <span class="public-profile-section-count" id="ppAchievementCount" hidden></span>
       </div>
-      <p class="public-profile-section-note">Career highlights and progress toward each Certificate of Competency — a badge shows progress made, not that the qualification is held.</p>
+      <p class="public-profile-section-note">What this crew member is currently working toward — a badge shows progress made, not that the qualification is held.</p>
+
+      ${
+        inProgress.length
+          ? `
+        <div class="public-cv-highlight-list">
+          ${visibleInProgress.map((entry) => buildInProgressHighlightCard(entry)).join("")}
+        </div>
+        ${
+          hiddenInProgress.length
+            ? `<div class="public-cv-more-block public-cv-highlight-list" id="${inProgressMoreId}" hidden>
+                ${hiddenInProgress.map((entry) => buildInProgressHighlightCard(entry)).join("")}
+              </div>
+              ${buildShowMoreButton(inProgressMoreId, hiddenInProgress.length, "highlights")}`
+            : ""
+        }
+      `
+          : ""
+      }
 
       ${
         groups.length
@@ -1278,38 +1355,9 @@
       `
           : ""
       }
-
-      ${
-        auto.length
-          ? `
-        <details class="achievement-vessel-group achievement-auto-block">
-          <summary class="achievement-vessel-group-summary">
-            <span class="achievement-vessel-group-title">
-              <strong>Automatically tracked</strong>
-              <small>Sea-time and certificate-prerequisite progress</small>
-            </span>
-            <span class="achievement-vessel-group-count">${auto.length}</span>
-          </summary>
-          <div class="achievement-vessel-group-body">
-            <div class="public-cv-highlight-list">
-              ${visibleAuto.map((item) => buildAchievementHighlightCard(item)).join("")}
-            </div>
-            ${
-              hiddenAuto.length
-                ? `<div class="public-cv-more-block public-cv-highlight-list" id="${autoMoreId}" hidden>
-                    ${hiddenAuto.map((item) => buildAchievementHighlightCard(item, true)).join("")}
-                  </div>
-                  ${buildShowMoreButton(autoMoreId, hiddenAuto.length, "highlights")}`
-                : ""
-            }
-          </div>
-        </details>
-      `
-          : ""
-      }
     `;
 
-    setSectionCount("ppAchievementCount", approved.length);
+    setSectionCount("ppAchievementCount", approved.length + inProgress.length);
     section.hidden = false;
   }
 

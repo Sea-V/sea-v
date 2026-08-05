@@ -333,7 +333,7 @@
         sections.renderSpecialistQualifications(specialistEntries, isOwner);
         sections.renderCertificates(certs, isOwner);
         sections.renderReferences(refs, vessels, isOwner);
-        sections.renderAchievements(achievements, vessels, isOwner);
+        sections.renderAchievements(achievements, vessels, isOwner, { seatimes, certs, navigationAreas });
 
         bindExpandToggles(document.getElementById("ppContent"));
         renderSectionNav();

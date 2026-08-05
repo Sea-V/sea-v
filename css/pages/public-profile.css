@@ -677,6 +677,15 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   font-weight: 750;
 }
 
+/* 2026-08-05, per Jack: in-progress Deck Progression cards on the public
+   profile (replaces the old "already earned" auto-badge block) — same
+   .public-cv-highlight-card shell, just with a real progress bar under the
+   label instead of nothing. .ach-progress-bar is achievements.css's shared
+   bar, loaded globally via styles.css's @import. */
+.public-cv-inprogress-card .ach-progress-bar {
+  margin-top: 2px;
+}
+
 /* =========================================================
    MILESTONES — grouped by vessel (manual entries) + a separate
    flat list for auto-awarded/career-wide badges. Group shell reuses the

@@ -3,15 +3,13 @@
   "use strict";
 
   const STORAGE_KEY = "seav_celebrated_badge_codes";
-  const INTRO_DELAY_MS = 1800;
   const OPEN_DELAY_MS = 550;
-  const CLOSE_ANIM_MS = 750;
+  const CLOSE_ANIM_MS = 550;
 
   const queue = [];
   const shownThisSession = new Set();
   let showing = false;
   let overlayEl = null;
-  let introTimer = null;
   let openTimer = null;
   let currentItem = null;
 
@@ -71,6 +69,12 @@
     };
   }
 
+  // 2026-08-05, per Jack: reworked to match the site's new minimal
+  // approach — everything (badge, title, tier, description) shows at once
+  // on open, no artificial "wait, then click to reveal why you earned
+  // this, then wait again for a Continue button" staging. One entrance
+  // animation, one close, done. Also dropped the pulsing glow ring/blob —
+  // Jack's site-wide no-glow rule.
   function ensureOverlay() {
     if (overlayEl) return overlayEl;
 
@@ -78,7 +82,7 @@
     overlayEl.className = "badge-unlock-overlay";
     overlayEl.setAttribute("aria-hidden", "true");
     overlayEl.innerHTML = `
-      <div class="badge-unlock-backdrop" aria-hidden="true"></div>
+      <div class="badge-unlock-backdrop" data-badge-unlock-action="dismiss" aria-hidden="true"></div>
       <div
         class="badge-unlock-card"
         role="dialog"
@@ -86,56 +90,41 @@
         aria-labelledby="badgeUnlockTitle"
         tabindex="-1"
       >
-        <div class="badge-unlock-glow" aria-hidden="true"></div>
+        <button type="button" class="modal-x badge-unlock-close" data-badge-unlock-action="dismiss" aria-label="Close">&times;</button>
 
         <p class="badge-unlock-kicker">Milestone unlocked</p>
-        <h2 class="badge-unlock-heading" id="badgeUnlockTitle">Congratulations</h2>
-        <p class="badge-unlock-subheading">You earned a new career badge</p>
 
         <div class="badge-unlock-badge-stage">
           <div class="badge-unlock-badge-ring" aria-hidden="true"></div>
           <img
             class="badge-unlock-badge-image"
             alt=""
-            width="72"
-            height="72"
+            width="80"
+            height="80"
             decoding="async"
           />
         </div>
 
-        <p class="badge-unlock-badge-name"></p>
+        <h2 class="badge-unlock-heading" id="badgeUnlockTitle"></h2>
         <span class="badge-unlock-tier-pill"></span>
+        <p class="badge-unlock-desc"></p>
 
-        <button
-          type="button"
-          class="badge-unlock-share-btn"
-          data-badge-unlock-action="share"
-        >
-          Share this badge
-        </button>
-
-        <div class="badge-unlock-reason" hidden>
-          <p class="badge-unlock-reason-label">Why you earned this</p>
-          <p class="badge-unlock-reason-text"></p>
-          <p class="badge-unlock-reason-meta"></p>
+        <div class="badge-unlock-actions">
+          <button
+            type="button"
+            class="badge-unlock-share-btn"
+            data-badge-unlock-action="share"
+          >
+            Share this badge
+          </button>
+          <button
+            type="button"
+            class="badge-unlock-cta badge-unlock-cta--primary"
+            data-badge-unlock-action="dismiss"
+          >
+            Continue
+          </button>
         </div>
-
-        <button
-          type="button"
-          class="badge-unlock-cta"
-          data-badge-unlock-action="reveal"
-          disabled
-        >
-          Preparing your milestone…
-        </button>
-        <button
-          type="button"
-          class="badge-unlock-cta badge-unlock-cta--primary"
-          data-badge-unlock-action="dismiss"
-          hidden
-        >
-          Continue
-        </button>
       </div>
     `;
 
@@ -143,15 +132,9 @@
 
     overlayEl.addEventListener("click", (event) => {
       const actionBtn = event.target.closest("[data-badge-unlock-action]");
-      if (!actionBtn || actionBtn.disabled) return;
+      if (!actionBtn) return;
 
-      const card = overlayEl.querySelector(".badge-unlock-card");
       const action = actionBtn.getAttribute("data-badge-unlock-action");
-
-      if (action === "reveal") {
-        revealReason(card);
-        return;
-      }
 
       if (action === "share") {
         shareCurrent(actionBtn);
@@ -164,37 +147,6 @@
     });
 
     return overlayEl;
-  }
-
-  function clearTimers() {
-    if (introTimer) {
-      window.clearTimeout(introTimer);
-      introTimer = null;
-    }
-    if (openTimer) {
-      window.clearTimeout(openTimer);
-      openTimer = null;
-    }
-  }
-
-  function revealReason(card) {
-    if (!card || card.classList.contains("is-revealed")) return;
-
-    card.classList.add("is-revealed");
-
-    const reason = card.querySelector(".badge-unlock-reason");
-    const revealBtn = card.querySelector('[data-badge-unlock-action="reveal"]');
-    const dismissBtn = card.querySelector('[data-badge-unlock-action="dismiss"]');
-
-    if (reason) reason.hidden = false;
-    if (revealBtn) revealBtn.hidden = true;
-
-    window.setTimeout(() => {
-      if (dismissBtn) {
-        dismissBtn.hidden = false;
-        dismissBtn.focus();
-      }
-    }, 650);
   }
 
   async function shareCurrent(button) {
@@ -213,7 +165,6 @@
   }
 
   function renderModal(item) {
-    clearTimers();
     currentItem = item;
 
     const overlay = ensureOverlay();
@@ -229,32 +180,17 @@
     card.dataset.unlockCode = item.code;
 
     const imageEl = card.querySelector(".badge-unlock-badge-image");
-    const nameEl = card.querySelector(".badge-unlock-badge-name");
+    const headingEl = card.querySelector(".badge-unlock-heading");
     const tierEl = card.querySelector(".badge-unlock-tier-pill");
-    const reasonEl = card.querySelector(".badge-unlock-reason");
-    const reasonTextEl = card.querySelector(".badge-unlock-reason-text");
-    const reasonMetaEl = card.querySelector(".badge-unlock-reason-meta");
-    const revealBtn = card.querySelector('[data-badge-unlock-action="reveal"]');
-    const dismissBtn = card.querySelector('[data-badge-unlock-action="dismiss"]');
+    const descEl = card.querySelector(".badge-unlock-desc");
 
     if (imageEl) {
       imageEl.src = item.image;
       imageEl.alt = item.title;
     }
-    if (nameEl) nameEl.textContent = item.title;
+    if (headingEl) headingEl.textContent = item.title;
     if (tierEl) tierEl.textContent = formatTier(item.tier);
-    if (reasonTextEl) reasonTextEl.textContent = item.description;
-    if (reasonMetaEl) reasonMetaEl.textContent = item.category || "Career milestone";
-
-    if (reasonEl) reasonEl.hidden = true;
-    if (dismissBtn) dismissBtn.hidden = true;
-
-    if (revealBtn) {
-      revealBtn.hidden = false;
-      revealBtn.disabled = true;
-      revealBtn.textContent = "Preparing your achievement…";
-      revealBtn.classList.remove("is-ready");
-    }
+    if (descEl) descEl.textContent = item.description;
 
     overlay.classList.add("is-open");
     overlay.setAttribute("aria-hidden", "false");
@@ -266,24 +202,17 @@
       });
     });
 
-    introTimer = window.setTimeout(() => {
-      if (!revealBtn) return;
-      revealBtn.disabled = false;
-      revealBtn.textContent = "See why you earned this";
-      revealBtn.classList.add("is-ready");
-      revealBtn.focus();
-    }, INTRO_DELAY_MS);
+    const dismissBtn = card.querySelector('[data-badge-unlock-action="dismiss"]:not(.badge-unlock-close)');
+    window.setTimeout(() => dismissBtn?.focus(), 700);
   }
 
   function closeCurrent() {
-    clearTimers();
-
     const overlay = ensureOverlay();
     const card = overlay.querySelector(".badge-unlock-card");
     const code = card?.dataset.unlockCode || "";
 
     card?.classList.add("is-closing");
-    card?.classList.remove("is-visible", "is-revealed");
+    card?.classList.remove("is-visible");
 
     window.setTimeout(() => {
       markCelebrated(code);

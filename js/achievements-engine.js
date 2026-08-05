@@ -448,220 +448,27 @@
     return result;
   }
 
+  // 2026-08-05: this switch statement used to live here directly. It's now
+  // a thin wrapper around window.SeavData.computeMilestoneProgress() — the
+  // same pure, context-parameterized logic (verbatim, verified via node
+  // harness to produce byte-identical output before this refactor shipped)
+  // that js/public-profile-sections.js also calls directly, since
+  // public-profile.html never loads this file or window.SeavState (it
+  // fetches its own local seatimes/vessels/certs/navigationAreas — see
+  // js/public-profile.js). Single source of truth avoids a repeat of the
+  // watchkeeping-days dashboard-vs-page drift bug from earlier this session
+  // (project_seav_milestone_badge_clarity_fix.md v396/v397).
+  function currentMilestoneContext() {
+    return {
+      seatimes: getSeatimes(),
+      vessels: getVessels(),
+      certs: getCerts(),
+      navigationAreas: getNavigationEntries()
+    };
+  }
+
   function getProgressForDefinition(definition) {
-    if (!definition) {
-      return { current: 0, target: 1, percent: 0, label: "" };
-    }
-
-    const trigger = definition.trigger || { type: "manual" };
-
-    switch (trigger.type) {
-      case "sea_days": {
-        const current = getTotalSeaDays();
-        const target = Number(trigger.minDays || 0);
-        return {
-          current,
-          target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
-          label: `${current} / ${target} qualifying days`
-        };
-      }
-      case "oow_actual_sea_days": {
-        const target = Number(trigger.minDays || 0);
-        const current = getActualSeaDaysOnVessels();
-        return {
-          current,
-          target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
-          label: `${current} / ${target} actual sea days (${trigger.minVesselMeters}m+)`
-        };
-      }
-      case "oow_qualifying_days": {
-        const target = Number(trigger.minDays || 0);
-        const current = getOowQualifyingDaysOnVessels();
-        return {
-          current,
-          target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
-          label: `${current} / ${target} qualifying days (${trigger.minVesselMeters}m+)`
-        };
-      }
-      case "oow_eligible": {
-        const met = isOowSeaTimeComplete();
-        return {
-          current: met ? 1 : 0,
-          target: 1,
-          percent: met ? 100 : 0,
-          label: met ? "OOW <3000GT sea-time requirements met" : "Complete the OOW sea-time milestones above"
-        };
-      }
-      case "yachtmaster_offshore_miles": {
-        // Two independent thresholds (total nm AND tidal nm) — the bar
-        // reflects whichever one is further behind, same "weakest link"
-        // approach as computeMasterSeaService's 12mo/6mo special path, so
-        // the bar never shows 100% until both are actually met.
-        const result = computeYachtmasterOffshoreMiles(getNavigationEntries());
-        const totalPct = result.TARGET_NM
-          ? Math.min(100, Math.round((result.totalNm / result.TARGET_NM) * 100))
-          : 0;
-        const tidalPct = result.TIDAL_TARGET_NM
-          ? Math.min(100, Math.round((result.tidalNm / result.TIDAL_TARGET_NM) * 100))
-          : 0;
-        return {
-          current: Math.round(result.totalNm),
-          target: result.TARGET_NM,
-          percent: Math.min(totalPct, tidalPct),
-          label: `${Math.round(result.totalNm)} / ${result.TARGET_NM} NM (${Math.round(result.tidalNm)} / ${result.TIDAL_TARGET_NM} NM tidal)`
-        };
-      }
-      case "master_200gt_gated_sea_service": {
-        const result = computeMaster200SeaService(getSeatimes(), getCerts());
-        if (!result.held) {
-          return {
-            current: 0,
-            target: result.TARGET_MONTHS,
-            percent: 0,
-            label: "Hold RYA Yachtmaster Offshore first"
-          };
-        }
-        const monthsRounded = Math.round(result.months * 10) / 10;
-        return {
-          current: monthsRounded,
-          target: result.TARGET_MONTHS,
-          percent: result.TARGET_MONTHS
-            ? Math.min(100, Math.round((result.months / result.TARGET_MONTHS) * 100))
-            : 0,
-          label: `${monthsRounded} / ${result.TARGET_MONTHS} months' seagoing service (since holding Yachtmaster Offshore)`
-        };
-      }
-      case "master_500gt_gated_sea_service": {
-        // Two-threshold "weakest link" bar (onboard months AND watchkeeping
-        // days) — same approach as yachtmaster_offshore_miles, so the bar
-        // never shows 100% until both are actually met. Watchkeeping days
-        // are deliberately NOT date-gated (2026-08-05, per Jack — see
-        // computeMaster500SeaService in seav-data.js): they're computed the
-        // same all-career way as the Sea Time page's own Master <3000GT
-        // tracker, so this number always matches what's shown there. Only
-        // the onboard-months figure stays gated to sea time logged after
-        // the OOW <3000GT issue date.
-        const result = computeMaster500SeaService(getSeatimes(), getCerts(), getVessels());
-        if (!result.held) {
-          return {
-            current: 0,
-            target: result.ONBOARD_TARGET_MONTHS,
-            percent: 0,
-            label: "Hold OOW Yachts <3000GT first"
-          };
-        }
-        const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
-        const onboardPct = result.ONBOARD_TARGET_MONTHS
-          ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
-          : 0;
-        const watchPct = result.WATCHKEEPING_TARGET
-          ? Math.min(100, Math.round((result.watchkeepingDays / result.WATCHKEEPING_TARGET) * 100))
-          : 0;
-        return {
-          current: onboardMonthsRounded,
-          target: result.ONBOARD_TARGET_MONTHS,
-          percent: Math.min(onboardPct, watchPct),
-          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months onboard (${result.watchkeepingDays} / ${result.WATCHKEEPING_TARGET} watchkeeping days) — since holding OOW <3000GT`
-        };
-      }
-      case "master_3000gt_gated_sea_service": {
-        // Same weakest-link approach as the Sea Time page's own Master
-        // <3000GT tracker: watchkeeping days AND the faster of the two
-        // special-experience paths (24m+ or 500GT+ vessels) both have to
-        // clear before the bar reads 100%. Watchkeeping days are
-        // deliberately NOT date-gated (2026-08-05, per Jack — see
-        // computeMaster3000SeaService in seav-data.js): they're computed
-        // the exact same way as that Sea Time page tracker, so this number
-        // always matches what's shown there. Only the special-experience
-        // figures stay gated to sea time logged after the OOW <3000GT
-        // issue date.
-        const result = computeMaster3000SeaService(getSeatimes(), getCerts(), getVessels());
-        if (!result.held) {
-          return {
-            current: 0,
-            target: result.WATCHKEEPING_TARGET,
-            percent: 0,
-            label: "Hold OOW Yachts <3000GT first"
-          };
-        }
-        const watchPct = result.WATCHKEEPING_TARGET
-          ? Math.min(100, Math.round((result.totalWatchkeeping15m / result.WATCHKEEPING_TARGET) * 100))
-          : 0;
-        const specialPct = result.specialTarget
-          ? Math.min(100, Math.round((result.specialValue / result.specialTarget) * 100))
-          : 0;
-        const specialLabel = result.use500gtPath ? "months on 500GT+ vessels" : "months on 24m+ vessels";
-        return {
-          current: result.totalWatchkeeping15m,
-          target: result.WATCHKEEPING_TARGET,
-          percent: Math.min(watchPct, specialPct),
-          label: `${result.totalWatchkeeping15m} / ${result.WATCHKEEPING_TARGET} watchkeeping days (${result.specialValue.toFixed(1)} / ${result.specialTarget} ${specialLabel}) — since holding OOW <3000GT`
-        };
-      }
-      case "chief_mate_unlimited_direct": {
-        const result = computeChiefMateUnlimitedEligibility(getCerts());
-        return {
-          current: result.met ? 1 : 0,
-          target: 1,
-          percent: result.met ? 100 : 0,
-          label: result.met
-            ? "Master Yachts <3000GT held — Chief Mate Yachts Unlimited eligibility met"
-            : "Hold the Master Yachts <3000GT Certificate of Competency to qualify directly"
-        };
-      }
-      case "chief_mate_3000_eligible": {
-        const result = computeChiefMate3000Eligibility(getSeatimes(), getVessels(), getCerts());
-        const missing = [];
-        if (!result.oowMet) missing.push("OOW <3000GT eligibility");
-        if (!result.yachtmasterOceanHeld) missing.push("RYA Yachtmaster Ocean");
-        return {
-          current: result.met ? 1 : 0,
-          target: 1,
-          percent: result.met ? 100 : 0,
-          label: result.met
-            ? "OOW <3000GT eligible and RYA Yachtmaster Ocean held"
-            : `Still need: ${missing.join(" and ")}`
-        };
-      }
-      case "master_unlimited_master3000_route": {
-        // Same weakest-link approach as the other gated Master milestones —
-        // months-as-Master AND actual-sea-months both have to clear.
-        const result = computeMasterUnlimitedSeaService(getSeatimes(), getCerts(), getVessels());
-        if (!result.held) {
-          return {
-            current: 0,
-            target: result.ONBOARD_TARGET_MONTHS,
-            percent: 0,
-            label: "Hold Master Yachts <3000GT first"
-          };
-        }
-        const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
-        const actualSeaMonthsRounded = Math.round(result.actualSeaMonths * 10) / 10;
-        const onboardPct = result.ONBOARD_TARGET_MONTHS
-          ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
-          : 0;
-        const actualSeaPct = result.ACTUAL_SEA_TARGET_MONTHS
-          ? Math.min(100, Math.round((result.actualSeaMonths / result.ACTUAL_SEA_TARGET_MONTHS) * 100))
-          : 0;
-        return {
-          current: onboardMonthsRounded,
-          target: result.ONBOARD_TARGET_MONTHS,
-          percent: Math.min(onboardPct, actualSeaPct),
-          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months as Master on 500GT+ vessels (${actualSeaMonthsRounded} / ${result.ACTUAL_SEA_TARGET_MONTHS} months actual sea) — since holding Master <3000GT`
-        };
-      }
-      case "manual":
-      default:
-        return {
-          current: 0,
-          target: 1,
-          percent: 0,
-          label: "Log this milestone on a vessel"
-        };
-    }
+    return window.SeavData.computeMilestoneProgress(definition, currentMilestoneContext());
   }
 
   // 2026-08-05: Jack asked for the Milestones page (private page only — NOT
@@ -957,6 +764,26 @@
     }
   }
 
+  // A code only counts as "earned" if it hasn't been declined — e.g. a
+  // false-positive auto-award later corrected to status "Declined" (see
+  // project_seav_milestone_badge_clarity_fix.md v398: master_3000gt_sea_service
+  // was auto-awarded during a brief broken-logic window, then set to
+  // Declined rather than hard-deleted, so it stays in the audit trail but
+  // must NOT count as held anywhere). Found this while verifying
+  // getInProgressMilestones() below against Jack's real Supabase data —
+  // Master <3000GT wasn't showing as in-progress despite him being 37%
+  // through it, because the un-filtered version of this set (used here and
+  // in getInProgressMilestones before this fix) wrongly treated his
+  // Declined record as "earned."
+  function getEarnedAchievementCodes() {
+    return new Set(
+      getAchievements()
+        .filter((item) => item?.status !== "Declined")
+        .map((item) => item.code)
+        .filter(Boolean)
+    );
+  }
+
   // 2026-08-05, per Jack: brand-new crew members with zero logged sea time
   // used to see no "Next up" card at all (every milestone sits at 0%, and
   // this used to require percent > 0 to qualify) — right when a nudge
@@ -968,7 +795,7 @@
   // blocked on a certificate they don't hold yet (those still separately
   // read 0% but sort later in the catalog, same as before).
   function getNextMilestone() {
-    const earnedCodes = new Set(getAchievements().map((item) => item.code).filter(Boolean));
+    const earnedCodes = getEarnedAchievementCodes();
     const candidates = listAchievements()
       .filter((definition) => definition.approvalRequired === false && !earnedCodes.has(definition.code))
       .map((definition) => ({
@@ -981,12 +808,42 @@
     return candidates[0] || null;
   }
 
+  // 2026-08-05, per Jack: the Dashboard widget's Milestones card no longer
+  // shows every earned Deck Progression badge — just what's currently being
+  // worked toward (e.g. Master <500GT and Master <3000GT at once, both
+  // gated on the same held OOW <3000GT cert), plus Seafarer Awards
+  // separately. Unlike getNextMilestone() above (single closest-to-complete
+  // pick, with a 0%-progress fallback for brand-new users), this returns
+  // EVERY not-yet-earned cert group with real progress (percent > 0), most
+  // complete first — no fallback, since this is a declutter of an
+  // already-active career, not an onboarding nudge. Cert groups split
+  // across multiple catalog definitions (only OOW Yachts <3000GT today) are
+  // merged into one entry via window.SeavData.getInProgressCertGroups(),
+  // same convention as js/achievements.js's buildCertRow. The public
+  // profile page calls window.SeavData.getInProgressCertGroups() directly
+  // with its own locally-fetched context (see js/public-profile-sections.js)
+  // rather than through this function, since public-profile.html never
+  // loads this file.
+  function getInProgressMilestones() {
+    const earnedCodes = getEarnedAchievementCodes();
+    const definitions = listAchievements().filter((definition) => definition.approvalRequired === false);
+
+    return window.SeavData.getInProgressCertGroups({
+      definitions,
+      earnedCodes,
+      context: currentMilestoneContext()
+    })
+      .map((entry) => ({ ...entry, full: getAchievementWithBadge(entry.primaryCode) }))
+      .filter((entry) => entry.full);
+  }
+
   window.SeavAchievementEngine = {
     evaluateAutomaticAchievements,
     runAchievementEvaluation,
     getProgressForDefinition,
     getSubRequirements,
-    getNextMilestone
+    getNextMilestone,
+    getInProgressMilestones
   };
 
   const ACHIEVEMENT_EVAL_PAGES = new Set([

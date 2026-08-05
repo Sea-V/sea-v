@@ -44,21 +44,19 @@ body.badge-unlock-open {
   width: min(100%, 280px);
   max-height: min(92vh, 520px);
   overflow: auto;
-  padding: 18px 16px 14px;
+  padding: 20px 18px 18px;
   border-radius: 18px;
-  border: 1px solid rgba(91, 188, 255, 0.22);
+  border: 1px solid rgba(255, 179, 71, 0.28);
   /* Solid fill, not a gradient — Jack wants solid colors site-wide
      2026-08-03. Value is the midpoint of the old gradient, no corner glow. */
   background: rgba(12, 24, 40, 0.98);
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.38),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
   text-align: center;
-  transform: translateY(20px) scale(0.94);
+  transform: translateY(16px) scale(0.96);
   opacity: 0;
   transition:
-    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.9s ease;
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease;
 }
 
 .badge-unlock-card.is-visible {
@@ -67,32 +65,30 @@ body.badge-unlock-open {
 }
 
 .badge-unlock-card.is-closing {
-  transform: translateY(14px) scale(0.96);
+  transform: translateY(10px) scale(0.97);
   opacity: 0;
   transition:
-    transform 0.75s ease,
-    opacity 0.65s ease;
+    transform 0.3s ease,
+    opacity 0.25s ease;
 }
 
+/* 2026-08-05, per Jack: minimal + exciting — one snappy pop-in on the
+   badge itself is the celebration moment, everything else (title, tier,
+   description) appears immediately alongside it, no staged reveal and no
+   pulsing glow (site-wide no-glow rule). */
 .badge-unlock-card.is-entering .badge-unlock-badge-stage {
-  animation: badgeUnlockPop 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+  animation: badgeUnlockPop 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 
-.badge-unlock-glow {
+.badge-unlock-close {
   position: absolute;
-  inset: 20% 12% auto;
-  height: 88px;
-  border-radius: 999px;
-  /* Solid fill, not a radial-gradient glow — Jack wants solid colors
-     site-wide 2026-08-03, no glow/halo effects. */
-  background: rgba(91, 188, 255, 0.18);
-  pointer-events: none;
-  animation: badgeUnlockGlow 3.2s ease-in-out infinite;
+  top: 10px;
+  right: 10px;
 }
 
 .badge-unlock-kicker {
-  margin: 0 0 4px;
-  color: #5bbcff;
+  margin: 4px 0 14px;
+  color: #ffb347;
   font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.8px;
@@ -100,56 +96,37 @@ body.badge-unlock-open {
 }
 
 .badge-unlock-heading {
-  margin: 0;
+  margin: 0 0 4px;
   color: #ffffff;
-  font-size: 20px;
-  line-height: 1.1;
+  font-size: 17px;
+  line-height: 1.25;
   font-weight: 900;
-}
-
-.badge-unlock-subheading {
-  margin: 6px 0 14px;
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 12px;
-  line-height: 1.4;
-  font-weight: 600;
 }
 
 .badge-unlock-badge-stage {
   position: relative;
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 10px;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 14px;
   flex-shrink: 0;
 }
 
 .badge-unlock-badge-ring {
   position: absolute;
-  inset: -5px;
+  inset: -6px;
   border-radius: 999px;
-  border: 1px solid rgba(91, 188, 255, 0.22);
-  box-shadow: 0 0 16px rgba(91, 188, 255, 0.14);
-  animation: badgeUnlockPulse 3.2s ease-in-out infinite;
+  border: 1.5px solid rgba(255, 179, 71, 0.3);
 }
 
 .badge-unlock-badge-image {
   position: relative;
   z-index: 1;
   display: block;
-  width: 72px;
-  height: 72px;
-  max-width: 72px;
-  max-height: 72px;
+  width: 84px;
+  height: 84px;
+  max-width: 84px;
+  max-height: 84px;
   object-fit: contain;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.38));
-}
-
-.badge-unlock-badge-name {
-  margin: 0 0 6px;
-  color: rgba(255, 255, 255, 0.94);
-  font-size: 14px;
-  line-height: 1.3;
-  font-weight: 850;
 }
 
 .badge-unlock-tier-pill {
@@ -192,17 +169,31 @@ body.badge-unlock-open {
   color: #9aeaff;
 }
 
+.badge-unlock-desc {
+  margin: 0 0 18px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12.5px;
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+.badge-unlock-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .badge-unlock-share-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin: 0 0 14px;
-  padding: 7px 16px;
-  border-radius: 999px;
+  width: 100%;
+  padding: 9px 16px;
+  border-radius: 12px;
   border: 1px solid rgba(114, 228, 255, 0.28);
   background: rgba(114, 228, 255, 0.08);
   color: #9adfff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.3px;
   cursor: pointer;
@@ -221,43 +212,8 @@ body.badge-unlock-open {
   cursor: not-allowed;
 }
 
-.badge-unlock-reason {
-  margin: 0 0 12px;
-  padding: 11px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
-  text-align: left;
-  animation: badgeUnlockReasonIn 0.9s ease;
-}
-
-.badge-unlock-reason-label {
-  margin: 0 0 5px;
-  color: #5bbcff;
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.badge-unlock-reason-text {
-  margin: 0 0 5px;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 12px;
-  line-height: 1.55;
-  font-weight: 600;
-}
-
-.badge-unlock-reason-meta {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.46);
-  font-size: 10px;
-  font-weight: 700;
-}
-
 .badge-unlock-cta {
   width: 100%;
-  margin-top: 2px;
   padding: 10px 14px;
   border-radius: 12px;
   border: 1px solid rgba(91, 188, 255, 0.2);
@@ -265,39 +221,23 @@ body.badge-unlock-open {
   color: rgba(159, 214, 255, 0.72);
   font-size: 12px;
   font-weight: 800;
-  cursor: not-allowed;
-  transition:
-    background 0.25s ease,
-    color 0.25s ease,
-    transform 0.25s ease,
-    border-color 0.25s ease;
-}
-
-.badge-unlock-cta.is-ready:not(:disabled) {
   cursor: pointer;
-  color: #b8e4ff;
-  border-color: rgba(91, 188, 255, 0.32);
-  animation: badgeUnlockCtaPulse 2.4s ease-in-out infinite;
-}
-
-.badge-unlock-cta.is-ready:not(:disabled):hover {
-  background: rgba(91, 188, 255, 0.14);
-  transform: translateY(-1px);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .badge-unlock-cta--primary {
-  border-color: rgba(91, 188, 255, 0.3);
+  border-color: rgba(255, 179, 71, 0.32);
   /* Solid fill, not a gradient — Jack wants solid colors site-wide
      2026-08-03. Value is the midpoint of the old gradient. */
-  background: rgba(91, 188, 255, 0.18);
+  background: rgba(255, 179, 71, 0.16);
   color: #ffffff;
-  cursor: pointer;
-  animation: none;
 }
 
-.badge-unlock-card.is-revealed .badge-unlock-badge-stage {
-  transform: scale(0.94);
-  transition: transform 0.75s ease;
+.badge-unlock-cta--primary:hover {
+  background: rgba(255, 179, 71, 0.24);
+  transform: translateY(-1px);
 }
 
 @keyframes badgeUnlockPop {
@@ -315,56 +255,13 @@ body.badge-unlock-open {
   }
 }
 
-@keyframes badgeUnlockPulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.7;
-  }
-  50% {
-    transform: scale(1.04);
-    opacity: 1;
-  }
-}
-
-@keyframes badgeUnlockGlow {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes badgeUnlockReasonIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes badgeUnlockCtaPulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(91, 188, 255, 0);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(91, 188, 255, 0.12);
-  }
-}
-
 @media (max-width: 480px) {
   .badge-unlock-card {
     width: min(100%, 260px);
-    padding: 16px 14px 12px;
+    padding: 18px 14px 14px;
   }
 
   .badge-unlock-heading {
-    font-size: 19px;
+    font-size: 16px;
   }
 }

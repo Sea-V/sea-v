@@ -572,13 +572,19 @@ function groupSidebarAchievements(records) {
   // project_seav_badges_pruned_to_real_milestones). Without this check
   // those pruned badges rendered here as a generic "SEA-V / CREW BADGE"
   // placeholder instead of disappearing like they do everywhere else.
+  //
+  // 2026-08-05, per Jack: this list is now Seafarer Awards ONLY (manually
+  // logged career moments — crossings etc). Earned Deck Progression badges
+  // used to show here too, but Jack wants the Milestones widget to show
+  // only what's currently in progress (see renderDashboardInProgress below)
+  // plus these — showing an already-earned Deck Progression badge here as
+  // well would just repeat what the in-progress list already summarized.
   records.forEach((item) => {
-    if (!item || item.status === "Declined") return;
-    if (item.code && window.SeavBadges?.getAchievement && !window.SeavBadges.getAchievement(item.code)) return;
-    const key = item.code || item.id;
-    if (!key) return;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(item);
+    if (!item || item.status === "Declined" || !item.code) return;
+    const definition = window.SeavBadges?.getAchievement?.(item.code);
+    if (!definition || definition.approvalRequired !== true) return;
+    const key = item.code;
+    groups.set(key, [...(groups.get(key) || []), item]);
   });
 
   return [...groups.values()].map((instances) => {
@@ -645,51 +651,59 @@ function buildDashboardMilestoneRow(instances) {
   `;
 }
 
-// Same "Next up" callout as achievements.html's #achNextMilestone — surfaces
-// whichever not-yet-earned milestone is closest to complete, with its real
-// progress bar, so the widget shows where a crew member is headed next, not
-// just a list of what they've already done.
-function renderDashboardNextMilestone() {
+// 2026-08-05, per Jack: the Milestones widget no longer shows every earned
+// Deck Progression badge — just what's currently in progress. Renders ALL
+// not-yet-earned cert groups with real progress (window.SeavAchievementEngine
+// .getInProgressMilestones(), which merges OOW's split catalog definitions
+// into one card, same as the private Milestones page), not just the single
+// closest one — e.g. Master <500GT AND Master <3000GT both show if he's
+// working on both at once. Each card reuses the same .ach-next-milestone
+// markup/CSS the old single "Next up" callout used; #dashNextMilestone
+// itself is now a list wrapper (dashboard.html), not a card.
+function renderDashboardInProgress() {
   const mount = document.getElementById("dashNextMilestone");
   if (!mount) return;
 
-  const next = window.SeavAchievementEngine?.getNextMilestone?.();
-  if (!next) {
+  const inProgress = window.SeavAchievementEngine?.getInProgressMilestones?.() || [];
+  if (!inProgress.length) {
     mount.hidden = true;
     mount.innerHTML = "";
     return;
   }
 
-  const full = window.SeavBadges?.getAchievementWithBadge?.(next.definition.code);
-  const imagePath = window.SeavBadges.resolveBadgeImage(next.definition.badgeKey, false);
-  const percent = next.progress?.percent || 0;
-
   mount.hidden = false;
-  mount.innerHTML = `
-    <div class="ach-next-badge">
-      <img src="${window.Seav.escapeHtml(imagePath)}" alt="" />
-    </div>
-    <div class="ach-next-copy">
-      <span class="ach-next-label">Next up</span>
-      <strong>${window.Seav.escapeHtml(full?.title || next.definition.title || "Milestone")}</strong>
-      <span class="ach-next-progress-label">${window.Seav.escapeHtml(next.progress?.label || "")}</span>
-      <div class="ach-progress-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
-        <span style="width: ${percent}%"></span>
-      </div>
-    </div>
-  `;
+  mount.innerHTML = inProgress
+    .map((entry) => {
+      const imagePath = window.SeavBadges.resolveBadgeImage(entry.full.badgeKey, false);
+      return `
+        <div class="ach-next-milestone">
+          <div class="ach-next-badge">
+            <img src="${window.Seav.escapeHtml(imagePath)}" alt="" />
+          </div>
+          <div class="ach-next-copy">
+            <span class="ach-next-label">In progress</span>
+            <strong>${window.Seav.escapeHtml(entry.certGroupKey)}</strong>
+            <span class="ach-next-progress-label">${window.Seav.escapeHtml(entry.label || "")}</span>
+            <div class="ach-progress-bar" role="progressbar" aria-valuenow="${entry.percent}" aria-valuemin="0" aria-valuemax="100">
+              <span style="width: ${entry.percent}%"></span>
+            </div>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
 }
 
 function renderSidebarAchievements() {
   const container = document.getElementById("sidebarAchievements");
   if (!container) return;
 
-  renderDashboardNextMilestone();
+  renderDashboardInProgress();
 
   const grouped = groupSidebarAchievements(window.SeavState?.achievements || []);
 
   if (!grouped.length) {
-    container.innerHTML = `<div class="sidebar-badge-empty">No badges yet</div>`;
+    container.innerHTML = `<div class="sidebar-badge-empty">No Seafarer Awards logged yet</div>`;
     return;
   }
 
