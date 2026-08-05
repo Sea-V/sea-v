@@ -76,21 +76,27 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
+/* Solid fill + white text, per Jack — matches .btn-blue's solid-pill
+   convention (border, weight, hover lift+shadow) instead of the old
+   ghost/outline treatment. #dc2626 is this button's own existing danger
+   red (previously the border/text color), just promoted to a fill. */
 .btn-danger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 10px 16px;
   border-radius: 30px;
-  border: 1px solid rgba(220, 38, 38, 0.35);
-  background: transparent;
-  color: #dc2626;
-  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #dc2626;
+  color: #ffffff;
+  font-weight: 800;
   cursor: pointer;
 }
 
 .btn-danger:hover {
-  background: rgba(220, 38, 38, 0.08);
+  background: #b91c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
 .profile-danger-zone {
