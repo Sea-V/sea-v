@@ -1,0 +1,49 @@
+/* =========================================================
+   PAGE QUOTE FOOTER — a short, on-brand line under the main
+   content of every logged-in app page (Dashboard, Profile,
+   Vessels, etc.), sourced from the SEA-V Instagram story-script
+   cards. 2026-08-05, per Jack.
+
+   Solid colors only, no glow/gradient — same sitewide convention
+   as css/components/badge-unlock.css and others (2026-08-03).
+========================================================= */
+
+.page-quote-footer {
+  max-width: 620px;
+  margin: 40px auto 4px;
+  padding: 28px 20px 0;
+
+  text-align: center;
+}
+
+.page-quote-footer::before {
+  content: "";
+  display: block;
+
+  width: 48px;
+  height: 2px;
+  margin: 0 auto 20px;
+
+  background: rgba(66, 214, 181, 0.4);
+  border-radius: 999px;
+}
+
+.page-quote-footer-text {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.68);
+
+  font-size: var(--font-body);
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.6;
+
+  letter-spacing: 0.1px;
+}
+
+@media (max-width: 640px) {
+  .page-quote-footer {
+    margin-top: 28px;
+    padding-top: 22px;
+  }
+}
