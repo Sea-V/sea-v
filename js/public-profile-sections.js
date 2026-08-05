@@ -16,6 +16,7 @@
     isSuppressedAdditionalCert,
     isSavedCert,
     getSeatimeTotals,
+    computeOowSeaService,
     ONBOARD_SKILL_CATEGORIES,
     getOnboardSkillCategoryLabel,
     getOnboardSkillRatingLabel
@@ -589,14 +590,23 @@
     // that genuinely isn't vessel-specific and leads into the vessel list.
     const totals = getSeatimeTotals(seatimes);
 
+    // 2026-08-05, Jack: the raw total (no caps) was labelled "Total
+    // qualifying service" but isn't actually qualifying under any MCA
+    // route — relabelled honestly, and a real capped figure (reusing the
+    // already-verified OOW <3000GT calculator: 90-day yard cap, standby
+    // capped per entry, vessels <15m excluded) sits alongside it.
+    const oow = computeOowSeaService(seatimes, vessels || []);
+
     box.innerHTML = `
-      <div class="kpi-row-grid kpi-row-grid-5 public-profile-seatime-kpis">
+      <div class="kpi-row-grid kpi-row-grid-6 public-profile-seatime-kpis">
         <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.sea))}</div><div class="kpi-label">Actual sea service</div></div>
         <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.yard))}</div><div class="kpi-label">Yard service</div></div>
         <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.standby))}</div><div class="kpi-label">Standby service</div></div>
         <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.watchkeeping))}</div><div class="kpi-label">Watchkeeping</div></div>
-        <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.total))}</div><div class="kpi-label">Total qualifying service</div></div>
+        <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(totals.total))}</div><div class="kpi-label">Total logged days</div></div>
+        <div class="kpi-box"><div class="kpi-num">${Seav.escapeHtml(String(oow.totalQualifying15m))}</div><div class="kpi-label">OOW-qualifying (capped)</div></div>
       </div>
+      <p class="public-profile-section-note public-profile-kpi-caveat">Capped figure applies MCA OOW &lt;3000GT rules (90-day yard cap, vessels 15m+ only) — other certificate routes may differ.</p>
     `;
 
     section.hidden = false;

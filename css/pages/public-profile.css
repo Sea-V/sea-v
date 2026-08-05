@@ -218,6 +218,14 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   margin-bottom: 10px;
 }
 
+/* 2026-08-05: caveat line under the seatime KPI strip, clarifying the
+   capped OOW-qualifying box is route-specific — sits right after the
+   grid rather than under a heading, so it needs its own (positive)
+   top margin instead of .public-profile-section-note's default -2px. */
+.public-profile-kpi-caveat {
+  margin: 0 0 4px;
+}
+
 /* Leaflet map inside public profile cards */
 .public-profile-page .dashboard-navigation-chart-shell {
   position: relative;
@@ -1364,7 +1372,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
     padding: 0 16px 12px;
   }
 
-  .public-profile-seatime-kpis.kpi-row-grid-5 {
+  .public-profile-seatime-kpis.kpi-row-grid-6 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

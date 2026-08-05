@@ -22,7 +22,14 @@
     return;
   }
 
-  const { DEFAULT_PROFILE, getSeatimeTotals, KEYS, slugifyUsername, isValidUsername } = window.SeavData;
+  const {
+    DEFAULT_PROFILE,
+    getSeatimeTotals,
+    computeOowSeaService,
+    KEYS,
+    slugifyUsername,
+    isValidUsername
+  } = window.SeavData;
 
   function loadProfile() {
     return {
@@ -48,10 +55,12 @@
     const kpiStandby = document.getElementById("kpiStandby");
     const kpiWatchkeeping = document.getElementById("kpiWatchkeeping");
     const kpiTotalDays = document.getElementById("kpiTotalDays");
+    const kpiOowCapped = document.getElementById("kpiOowCapped");
 
-    if (!kpiSea && !kpiPort && !kpiStandby && !kpiWatchkeeping && !kpiTotalDays) return;
+    if (!kpiSea && !kpiPort && !kpiStandby && !kpiWatchkeeping && !kpiTotalDays && !kpiOowCapped) return;
 
     const seatimes = window.SeavState?.seatimes || [];
+    const vessels = window.SeavState?.vessels || [];
     const totals = getSeatimeTotals(seatimes);
 
     if (kpiSea) kpiSea.textContent = String(totals.sea);
@@ -59,6 +68,18 @@
     if (kpiStandby) kpiStandby.textContent = String(totals.standby);
     if (kpiWatchkeeping) kpiWatchkeeping.textContent = String(totals.watchkeeping);
     if (kpiTotalDays) kpiTotalDays.textContent = String(totals.total);
+
+    // 2026-08-05, Jack: the raw total above (sea+standby+yard+watchkeeping,
+    // no caps) was labelled "Total Qualifying Service" but isn't actually
+    // qualifying service under any MCA route — it was flagged as misleading.
+    // This box adds the ALREADY-EXISTING, already-verified capped OOW
+    // <3000GT figure (90-day yard cap, standby capped per entry, vessels
+    // <15m excluded) alongside it rather than replacing the raw total,
+    // since the raw total is still useful as "everything logged."
+    if (kpiOowCapped) {
+      const oow = computeOowSeaService(seatimes, vessels);
+      kpiOowCapped.textContent = String(oow.totalQualifying15m);
+    }
   }
 
   function renderDashboardProfile() {

@@ -122,8 +122,9 @@
     const kpiYard = document.getElementById("kpiYard");
     const kpiWatchkeeping = document.getElementById("kpiWatchkeeping");
     const kpiTotalDays = document.getElementById("kpiTotalDays");
+    const kpiOowCapped = document.getElementById("kpiOowCapped");
 
-    if (!kpiSea && !kpiStandby && !kpiYard && !kpiWatchkeeping && !kpiTotalDays) return;
+    if (!kpiSea && !kpiStandby && !kpiYard && !kpiWatchkeeping && !kpiTotalDays && !kpiOowCapped) return;
 
     const totals = getSeatimeTotals(seatimes);
 
@@ -132,6 +133,16 @@
     if (kpiYard) kpiYard.textContent = String(totals.yard);
     if (kpiWatchkeeping) kpiWatchkeeping.textContent = String(totals.watchkeeping);
     if (kpiTotalDays) kpiTotalDays.textContent = String(totals.total);
+
+    // 2026-08-05, Jack: raw total above isn't capped to any MCA route, so it
+    // was reading as "qualifying" when it isn't. This box reuses the
+    // already-verified capped OOW <3000GT calculator (same one the tracker
+    // below already uses) so a real, standards-based figure sits next to
+    // the raw one instead of replacing it.
+    if (kpiOowCapped) {
+      const oow = computeOowSeaService(seatimes, getVessels());
+      kpiOowCapped.textContent = String(oow.totalQualifying15m);
+    }
   }
 
   // Per-user "I hold the OOW cert and want to see Master progress" tick box —
