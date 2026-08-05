@@ -1259,7 +1259,6 @@ function getEmptyTenderEntry() {
 
   const OOW_QUALIFYING_TARGET = 365;
   const OOW_ACTUAL_MIN = 250;
-  const OOW_STANDBY_PER_ENTRY_CAP = 14;
   const OOW_YARD_TOTAL_CAP = 90;
   const OOW_36_MONTHS_TARGET_DAYS = 1095;
   const MASTER_WATCHKEEPING_TARGET = 240;
@@ -1271,10 +1270,23 @@ function getEmptyTenderEntry() {
    * OOW Yachts <3000GT sea-service progress — MSN 1858 (M+F) Amendment 2,
    * section 3.3: 365 days seagoing service on vessels 15m+ load line length,
    * made up of a minimum of 250 days actual sea service plus any combination
-   * of actual/standby/yard for the rest, where standby is capped at 14
-   * consecutive days AND can never exceed that voyage's own actual sea days,
-   * and yard service counts up to a maximum of 90 days total (as a running
-   * total across every logged entry, not per entry).
+   * of actual/standby/yard for the rest. Standby can never exceed that
+   * entry's own actual sea days (MSN 1858 5.2: "under no circumstances can
+   * your total standby service exceed your actual seagoing service") — that
+   * part is still enforced below. Yard service counts up to a maximum of 90
+   * days total (a running total across every logged entry, not per entry).
+   *
+   * 2026-08-05, per Jack: the MCA's separate "14 consecutive days at one
+   * time" standby sub-cap is deliberately NOT applied here. That wording
+   * caps each stand-down period following a single voyage, but a SEA-V Sea
+   * Time entry is one row per whole signed-on/signed-off contract (which
+   * may bundle several distinct voyages and their own separate stand-down
+   * periods) — SEA-V has no per-voyage breakdown to apply a per-voyage cap
+   * against. Jack's call: treat the entry's submitted standby total the
+   * same way a PYA/Nautilus portal or a training/navigation booklet does —
+   * trust what the crew member enters for that already-signed-off
+   * testimonial period, on the assumption it reflects a testimonial the
+   * MCA has (or would) accept as submitted.
    */
   function computeOowSeaService(seatimes, vessels) {
     let totalActual15m = 0;
@@ -1289,7 +1301,7 @@ function getEmptyTenderEntry() {
       const yard = toNumber(entry.yardServiceDays);
 
       totalActual15m += actual;
-      totalStandby15mCounted += Math.min(standby, actual, OOW_STANDBY_PER_ENTRY_CAP);
+      totalStandby15mCounted += Math.min(standby, actual);
       totalYard15mRaw += yard;
     });
 
@@ -1440,9 +1452,11 @@ function getEmptyTenderEntry() {
   // term, defined generally in 4.2) is actual + stand-by + yard service —
   // deliberately NOT the same figure as "onboard yacht service" (which also
   // counts watchkeeping/other time) used elsewhere in this file. Standby
-  // still gets the universal 4.2 per-entry cap; yard has no cap here (the
-  // 90-day yard cap is specific to OOW <3000GT's own 115-day sub-clause,
-  // not a general rule).
+  // is still capped at that entry's own actual sea days (MSN 1858 5.2) but,
+  // same as computeOowSeaService above, NOT at 14 days per entry (2026-08-05,
+  // per Jack — see that function's comment for the full reasoning). Yard has
+  // no cap here (the 90-day yard cap is specific to OOW <3000GT's own
+  // 115-day sub-clause, not a general rule).
   const MASTER_200GT_TARGET_MONTHS = 6;
   const MASTER_200GT_GATING_CERT_CODE = "RYA YMO";
 
@@ -1464,7 +1478,7 @@ function getEmptyTenderEntry() {
     let totalDays = 0;
     gated.gatedEntries.forEach((entry) => {
       const actual = toNumber(entry.actualSeaServiceDays);
-      const standby = Math.min(toNumber(entry.standbyServiceDays), actual, OOW_STANDBY_PER_ENTRY_CAP);
+      const standby = Math.min(toNumber(entry.standbyServiceDays), actual);
       const yard = toNumber(entry.yardServiceDays);
       totalDays += actual + standby + yard;
     });
