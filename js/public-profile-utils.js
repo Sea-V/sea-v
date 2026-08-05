@@ -33,6 +33,7 @@
   const SECTION_NAV = [
     { id: "pp-section-overview", label: "Overview" },
     { id: "ppVesselSection", label: "Vessels" },
+    { id: "ppOnboardSkillsSection", label: "Onboard Experience Expanded" },
     { id: "ppNavigationSection", label: "Navigation" },
     { id: "ppAchievementSection", label: "Milestones" },
     { id: "ppSpecialistSection", label: "Specialist Qualifications" },

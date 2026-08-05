@@ -129,16 +129,16 @@
    * them in (this function doesn't know about verification status).
    */
   // 2026-08-05, per Jack: the public profile reads vessel-first — each
-  // vessel's own card is wrapped in <details>/<summary>, reusing
-  // vessel-history-collapsible/-summary from vessels.css (the private
-  // Vessels page's own collapsible-card pattern) so the two pages look and
-  // behave identically — same "current vessel open, history closed by
-  // default" rule js/vessels.js already established, not a new invented
-  // behavior.
+  // vessel's own card renders in full, always visible (no collapse/expand —
+  // an earlier <details>/<summary> wrapper was tried and removed same day:
+  // "i dont want the vessel itself as dropdown, i want it showing at all
+  // times"). The vessel-color dot that used to sit in that collapsible's
+  // summary now sits next to the vessel name in the overview head instead,
+  // so the color identity carries over without the collapse behavior.
   //
   // The vessel's linked records (sea time, tenders, references, onboard
   // experience, Seafarer Awards) do NOT live inside this card's grid — per
-  // Jack's correction the same day, that compact merged-grid version was
+  // Jack's same-day correction, that compact merged-grid version was
   // reverted. Each linked record type now renders as its own collapsible
   // directly below this card instead — see buildVesselLinkedSections() in
   // public-profile-sections.js, which is what actually reuses
@@ -177,10 +177,6 @@
       : `<div class="vessel-photo-fallback">No Photo</div>`;
 
     const vesselColor = options.vesselColor || "";
-    // Same rule js/vessels.js already uses for the private Vessels page's
-    // own collapsible history cards: the current vessel opens by default,
-    // every past vessel starts closed.
-    const isOpen = isCurrent;
 
     // Public profile has no SEA document column (unlike the Vessels page
     // version of this row), so the shared 1fr/210px grid from vessels.css
@@ -198,7 +194,7 @@
       : "";
 
     const bodyHtml = `
-      <article class="vessel-profile-card">
+      <article class="vessel-profile-card" data-vessel-id="${Seav.escapeHtml(vessel.id || "")}">
 
         <div class="vessel-profile-top">
 
@@ -210,7 +206,10 @@
             <div class="vessel-overview-head">
               <div>
                 <div class="vessel-section-label">ⓘ Vessel Overview</div>
-                <h2>${name}</h2>
+                <h2>
+                  ${vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(vesselColor)}"></span>` : ""}
+                  ${name}
+                </h2>
                 <p>${type} • ${flag}</p>
               </div>
 
@@ -249,21 +248,7 @@
       </article>
     `;
 
-    return `
-      <details class="vessel-history-collapsible" data-pp-more-item data-vessel-id="${Seav.escapeHtml(vessel.id || "")}"${isOpen ? " open" : ""}>
-        <summary class="vessel-history-summary">
-          ${vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(vesselColor)}"></span>` : ""}
-          <span class="vessel-history-summary-title">
-            <strong>${name}</strong>
-            <small>${role} • ${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}</small>
-          </span>
-          ${isCurrent ? `<span class="vessel-current-badge">Current</span>` : ``}
-        </summary>
-        <div class="vessel-history-collapsible-body">
-          ${bodyHtml}
-        </div>
-      </details>
-    `;
+    return bodyHtml;
   }
 
   /**

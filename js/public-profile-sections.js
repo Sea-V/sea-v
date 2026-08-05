@@ -331,11 +331,13 @@
   // Time / Tenders / Onboard Experience / References / Awards). Reuses the
   // exact same tender-vessel-group CSS the Tenders page's own per-vessel
   // grouping already established (css/pages/tenders.css) rather than
-  // inventing a new component — the visual "row" Jack asked to keep is this
-  // one: a colored-dot-free summary line (dot already shown once, on the
-  // vessel card above) with a title + count, expanding to the section's own
-  // row/card list. Hidden entirely (returns "") when this vessel has none of
-  // that record type — no empty "Sea Time (0)" clutter under every vessel.
+  // inventing a new component. Border is tinted with the vessel's own color
+  // (same palette as the vessel-color-dot on the card above and the
+  // Navigation map's per-vessel route colors) so a career with several
+  // vessels stays visually scannable — per Jack: "i want the respectives
+  // colors that border all the sections below the vessel". Hidden entirely
+  // (returns "") when this vessel has none of that record type — no empty
+  // "Sea Time (0)" clutter under every vessel.
   // `stackedBody` disables the base .tender-vessel-group-body's 3-column
   // grid (built for the Tenders page's own mini-cards) — Sea Time rows,
   // onboard rows, reference quote blocks, and award cards are already
@@ -343,10 +345,19 @@
   // those single wrapper elements inside a 3-col grid would just squeeze
   // it into the first column at a third of the width. Tenders keeps the
   // grid (its cards were designed for exactly that 3-across layout).
-  function buildVesselSectionGroup(label, bodyHtml, count, stackedBody = false) {
+  //
+  // No data-pp-more-item here — that attribute drives the vessel-list
+  // "Show N more vessels" pagination count (bindExpandToggles in
+  // public-profile-utils.js recounts every [data-pp-more-item] descendant
+  // inside the hidden block), and it's only meant to mark one element per
+  // vessel (the .pp-vessel-block wrapper in renderVessels). Marking every
+  // nested collapsible too would inflate that count 6x.
+  function buildVesselSectionGroup(label, bodyHtml, count, stackedBody = false, vesselColor = "") {
     if (!count) return "";
     return `
-      <details class="tender-vessel-group vessel-linked-section-group" data-pp-more-item>
+      <details class="tender-vessel-group vessel-linked-section-group"${
+        vesselColor ? ` style="border-color:${Seav.escapeHtml(vesselColor)}"` : ""
+      }>
         <summary class="tender-vessel-group-summary">
           <span class="tender-vessel-group-title">
             <strong>${Seav.escapeHtml(label)}</strong>
@@ -360,7 +371,7 @@
     `;
   }
 
-  function buildVesselSeatimeSection(vesselSeatimes) {
+  function buildVesselSeatimeSection(vesselSeatimes, vesselColor = "") {
     if (!vesselSeatimes.length) return "";
     const totalDays = window.SeavData?.totalQualifyingDays || (() => 0);
     const formatDate = window.SeavData.formatDatePretty;
@@ -384,18 +395,24 @@
       )
       .join("");
 
-    return buildVesselSectionGroup("Sea Time", `<div class="public-cv-mini-list">${rows}</div>`, vesselSeatimes.length, true);
+    return buildVesselSectionGroup(
+      "Sea Time",
+      `<div class="public-cv-mini-list">${rows}</div>`,
+      vesselSeatimes.length,
+      true,
+      vesselColor
+    );
   }
 
-  function buildVesselTenderSection(vesselTenders, vessels) {
+  function buildVesselTenderSection(vesselTenders, vessels, vesselColor = "") {
     if (!vesselTenders.length) return "";
     const rows = vesselTenders
       .map((t) => window.SeavCards.buildTenderCard(t, vessels).replace(" data-pp-more-item", ""))
       .join("");
-    return buildVesselSectionGroup("Tenders", rows, vesselTenders.length);
+    return buildVesselSectionGroup("Tenders", rows, vesselTenders.length, false, vesselColor);
   }
 
-  function buildVesselOnboardSection(vesselOnboard, vessels) {
+  function buildVesselOnboardSection(vesselOnboard, vessels, vesselColor = "") {
     if (!vesselOnboard.length) return "";
     const rows = vesselOnboard
       .map((entry) =>
@@ -406,7 +423,13 @@
         })
       )
       .join("");
-    return buildVesselSectionGroup("Onboard Experience", `<div class="list">${rows}</div>`, vesselOnboard.length, true);
+    return buildVesselSectionGroup(
+      "Onboard Experience",
+      `<div class="list">${rows}</div>`,
+      vesselOnboard.length,
+      true,
+      vesselColor
+    );
   }
 
   // Read-only reference "quote card" — same visual language the old
@@ -453,10 +476,10 @@
     `;
   }
 
-  function buildVesselReferenceSection(vesselRefs) {
+  function buildVesselReferenceSection(vesselRefs, vesselColor = "") {
     if (!vesselRefs.length) return "";
     const rows = vesselRefs.map(buildReferenceQuoteBlock).join("");
-    return buildVesselSectionGroup("References", rows, vesselRefs.length, true);
+    return buildVesselSectionGroup("References", rows, vesselRefs.length, true, vesselColor);
   }
 
   // Shared badge/title card markup for a single Seafarer Award. hideVesselMeta
@@ -486,30 +509,40 @@
     `;
   }
 
-  function buildVesselAwardsSection(vesselAwards) {
+  function buildVesselAwardsSection(vesselAwards, vesselColor = "") {
     if (!vesselAwards.length) return "";
     const rows = vesselAwards.map((item) => buildAchievementHighlightCard(item, true)).join("");
-    return buildVesselSectionGroup("Awards", `<div class="public-cv-highlight-list">${rows}</div>`, vesselAwards.length, true);
+    return buildVesselSectionGroup(
+      "Awards",
+      `<div class="public-cv-highlight-list">${rows}</div>`,
+      vesselAwards.length,
+      true,
+      vesselColor
+    );
   }
 
   // Composes the five per-vessel collapsibles that render below a vessel's
   // own card — see the doc comment on buildVesselCard above for why these
   // moved out of the card's own grid. Order matches Jack's own listed order:
   // sea time, onboard experience, references, awards (tenders slotted in
-  // alongside sea time as the other "logbook" record type).
+  // alongside sea time as the other "logbook" record type). Each collapsible
+  // is bordered in the vessel's own color (getPublicVesselColor — same
+  // palette used for the vessel-color-dot and Navigation map routes) so a
+  // career with several vessels stays visually scannable.
   function buildVesselLinkedSections(vessel, seatimes, tenders, refs, onboardEntries, achievements, vessels) {
     const vesselSeatimes = (seatimes || []).filter((s) => s.vesselId === vessel.id);
     const vesselTenders = (tenders || []).filter((t) => t.vesselId === vessel.id);
     const vesselRefs = (refs || []).filter((r) => r.vesselId === vessel.id);
     const vesselOnboard = (onboardEntries || []).filter((e) => e.vesselId === vessel.id);
     const vesselAwards = (achievements || []).filter((a) => a.vesselId === vessel.id);
+    const vesselColor = getPublicVesselColor(vessel.id, vessels || []);
 
     const sectionsHtml = [
-      buildVesselSeatimeSection(vesselSeatimes),
-      buildVesselTenderSection(vesselTenders, vessels),
-      buildVesselOnboardSection(vesselOnboard, vessels),
-      buildVesselReferenceSection(vesselRefs),
-      buildVesselAwardsSection(vesselAwards)
+      buildVesselSeatimeSection(vesselSeatimes, vesselColor),
+      buildVesselTenderSection(vesselTenders, vessels, vesselColor),
+      buildVesselOnboardSection(vesselOnboard, vessels, vesselColor),
+      buildVesselReferenceSection(vesselRefs, vesselColor),
+      buildVesselAwardsSection(vesselAwards, vesselColor)
     ]
       .filter(Boolean)
       .join("");
@@ -817,11 +850,19 @@
     `;
   }
 
-  // Collapsible "Skills self-assessment" sub-section nested inside the
-  // Onboard experience card — see #ppOnboardSkillsWrap in public-profile.html.
-  // Hidden entirely (not an empty-state CTA) when the profile owner hasn't
-  // rated any skills, since this is a bonus add-on to the main logbook above.
+  // 2026-08-05, per Jack: skills self-assessment now gets its own top-level
+  // "Onboard Experience Expanded" card (#ppOnboardSkillsSection in
+  // public-profile.html) instead of living tucked inside Specialist
+  // Qualifications — onboard experience itself moved into each vessel's own
+  // card this same session, but skills self-assessment isn't tied to any one
+  // vessel, so it stays career-wide with its own heading rather than being
+  // duplicated across every vessel. The inner Skills self-assessment toggle
+  // (#ppOnboardSkillsWrap) is unchanged — still its own collapsible list
+  // inside that card. Still hidden entirely (not an empty-state CTA) when
+  // the profile owner hasn't rated any skills, since this remains a bonus
+  // add-on rather than a primary logbook.
   function renderOnboardSkills(skillEntries) {
+    const section = document.getElementById("ppOnboardSkillsSection");
     const wrap = document.getElementById("ppOnboardSkillsWrap");
     const body = document.getElementById("ppOnboardSkillsBody");
     const toggle = document.getElementById("ppOnboardSkillsToggle");
@@ -830,7 +871,7 @@
     const entries = skillEntries || [];
 
     if (!entries.length) {
-      wrap.hidden = true;
+      if (section) section.hidden = true;
       body.innerHTML = "";
       return;
     }
@@ -849,7 +890,7 @@
     toggle.setAttribute("aria-expanded", ppOnboardSkillsExpanded ? "true" : "false");
     wrap.classList.toggle("is-expanded", ppOnboardSkillsExpanded);
     body.hidden = !ppOnboardSkillsExpanded;
-    wrap.hidden = false;
+    if (section) section.hidden = false;
   }
 
   // Single delegated toggle for the whole Skills sub-block (simpler than the

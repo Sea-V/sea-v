@@ -24,10 +24,10 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=410" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=410" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=410" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=410" />
+  <link rel="icon" href="/favicon.ico?v=411" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=411" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=411" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=411" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Public Profile</title>
@@ -68,7 +68,7 @@
     knows to keep the leading slash on this file — don't "simplify" these
     back to relative.
   -->
-  <link rel="stylesheet" href="/styles.css?v=410" />
+  <link rel="stylesheet" href="/styles.css?v=411" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -80,26 +80,26 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
-  <script src="/js/feedback.js?v=410" defer></script>
-  <script src="/js/core.js?v=410" defer></script>
-  <script src="/js/seav-data.js?v=410" defer></script>
-  <script src="/js/seav-badges.js?v=410" defer></script>
+  <script src="/js/feedback.js?v=411" defer></script>
+  <script src="/js/core.js?v=411" defer></script>
+  <script src="/js/seav-data.js?v=411" defer></script>
+  <script src="/js/seav-badges.js?v=411" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/seav-config.js?v=410"></script>
-  <script src="/js/supabase.js?v=410" defer></script>
-  <script src="/js/auth.js?v=410"></script>
-  <script src="/js/api-core.js?v=410" defer></script>
-  <script src="/js/api-mappers.js?v=410" defer></script>
-  <script src="/js/api.js?v=410" defer></script>
+  <script src="/js/seav-config.js?v=411"></script>
+  <script src="/js/supabase.js?v=411" defer></script>
+  <script src="/js/auth.js?v=411"></script>
+  <script src="/js/api-core.js?v=411" defer></script>
+  <script src="/js/api-mappers.js?v=411" defer></script>
+  <script src="/js/api.js?v=411" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="/js/navigation-ports.js?v=410" defer></script>
-  <script src="/js/navigation-helpers.js?v=410" defer></script>
-  <script src="/js/navigation-passage.js?v=410" defer></script>
-  <script src="/js/navigation-routing.js?v=410" defer></script>
-  <script src="/js/public-profile-utils.js?v=410" defer></script>
-  <script src="/js/seav-cards.js?v=410" defer></script>
-  <script src="/js/public-profile-sections.js?v=410" defer></script>
-  <script src="/js/public-profile.js?v=410" defer></script>
+  <script src="/js/navigation-ports.js?v=411" defer></script>
+  <script src="/js/navigation-helpers.js?v=411" defer></script>
+  <script src="/js/navigation-passage.js?v=411" defer></script>
+  <script src="/js/navigation-routing.js?v=411" defer></script>
+  <script src="/js/public-profile-utils.js?v=411" defer></script>
+  <script src="/js/seav-cards.js?v=411" defer></script>
+  <script src="/js/public-profile-sections.js?v=411" defer></script>
+  <script src="/js/public-profile.js?v=411" defer></script>
 </head>
 
 <body class="public-page public-profile-page">
@@ -261,6 +261,36 @@
                 <div id="ppVesselSnippet"></div>
               </article>
 
+              <!-- Skills self-assessment isn't tied to any one vessel (unlike
+                   the per-vessel Onboard Experience logbook now living inside
+                   each vessel card above), so it gets its own card here
+                   rather than squeezing into a vessel card or staying under
+                   Specialist Qualifications, where it didn't really belong. -->
+              <article class="dash-card dash-card-accent-onboard" id="ppOnboardSkillsSection" hidden>
+                <div class="dashboard-card-headline">
+                  <h3><span class="public-profile-section-icon" data-pp-icon="onboard" aria-hidden="true"></span>Onboard Experience Expanded</h3>
+                </div>
+                <p class="public-profile-section-note">Self-assessed skills and competencies, rated by this crew member.</p>
+                <div class="public-onboard-skills-wrap" id="ppOnboardSkillsWrap">
+                  <button
+                    type="button"
+                    class="public-onboard-skills-toggle"
+                    id="ppOnboardSkillsToggle"
+                    aria-expanded="false"
+                    aria-controls="ppOnboardSkillsBody"
+                  >
+                    <span class="public-onboard-skills-toggle-label">Skills self-assessment</span>
+                    <span class="public-profile-section-count" id="ppOnboardSkillsCount" hidden></span>
+                    <span class="public-onboard-vessel-chevron" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </button>
+                  <div class="public-onboard-skills-body" id="ppOnboardSkillsBody" hidden></div>
+                </div>
+              </article>
+
               <article class="dash-card dash-card-accent-navigation dashboard-navigation-card" id="ppNavigationSection" hidden>
                 <div class="dashboard-card-headline">
                   <h3><span class="public-profile-section-icon" data-pp-icon="navigation" aria-hidden="true"></span>Navigation</h3>
@@ -279,24 +309,6 @@
                   <h3><span class="public-profile-section-icon" data-pp-icon="specialist" aria-hidden="true"></span>Specialist Qualifications</h3>
                 </div>
                 <div id="ppSpecialistSnippet"></div>
-                <div class="public-onboard-skills-wrap" id="ppOnboardSkillsWrap" hidden>
-                  <button
-                    type="button"
-                    class="public-onboard-skills-toggle"
-                    id="ppOnboardSkillsToggle"
-                    aria-expanded="false"
-                    aria-controls="ppOnboardSkillsBody"
-                  >
-                    <span class="public-onboard-skills-toggle-label">Skills self-assessment</span>
-                    <span class="public-profile-section-count" id="ppOnboardSkillsCount" hidden></span>
-                    <span class="public-onboard-vessel-chevron" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </span>
-                  </button>
-                  <div class="public-onboard-skills-body" id="ppOnboardSkillsBody" hidden></div>
-                </div>
               </article>
 
               <article class="dash-card dash-card-accent-certificates" id="ppCertSection" hidden>
