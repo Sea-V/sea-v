@@ -383,23 +383,24 @@
   }
 
   // Deck Progression is a checklist toward a real cert, not a collectible
-  // showcase — so it's rendered as a stacked list (one row per milestone,
-  // in catalog/ladder order) and the progress bar stays visible even once
-  // a row is unlocked, instead of switching to the trophy tile's "unlocked"
-  // summary view.
-  // 2026-08-05: Jack asked (private Milestones page only — dashboard widget
-  // and public profile are unchanged) for each milestone's requirements to
-  // be broken out into their own separate progress bars instead of one
-  // blended "weakest link" bar, wrapped in a dropdown so the page stays
-  // scannable. Deliberately does NOT reuse the .ach-progress-row class for
-  // the outer wrapper — that class (and its flex/padding layout) is also
-  // used as-is by the Dashboard widget's plain <article> markup in
+  // showcase — so it's rendered as a stacked list of collapsible rows, one
+  // per certificate, in catalog/ladder order.
+  // 2026-08-05, per Jack (3rd pass on this section — see
+  // [[project_seav_milestone_badge_clarity_fix]] for the full history):
+  // the collapsed row must be as minimal as the Vessels page's own
+  // collapsible history cards (js/vessels.js buildVesselCard /
+  // .vessel-history-summary) — just a status dot, the cert title, and a
+  // one-line status, nothing else. The badge image, description, and the
+  // full requirement-by-requirement progress breakdown only appear once
+  // the row is opened. Deliberately does NOT reuse the .ach-progress-row
+  // class for the outer wrapper — that class (and its flex/padding layout)
+  // is also used as-is by the Dashboard widget's plain <article> markup in
   // core.js's buildDashboardMilestoneRow, so changing its layout here would
-  // have broken that unrelated surface. Instead this uses new
-  // .ach-milestone-row/-summary/-detail classes for the <details>/<summary>
-  // shell, while reusing the existing .ach-progress-row-badge/-body/-title/
-  // -desc/-label/-check classes for the inner content (those were already
-  // plain, non-flex-container class selectors, safe to share).
+  // have broken that unrelated surface. New .ach-milestone-row/-summary/
+  // -dot/-summary-title/-detail classes handle the minimal shell; the
+  // existing .ach-progress-row-badge/-desc/-check classes are reused
+  // inside the opened detail panel only (those were already plain,
+  // non-flex-container class selectors, safe to share).
   function formatReqNumber(value) {
     const num = Number(value) || 0;
     return Number.isInteger(num) ? String(num) : num.toFixed(1);
@@ -428,6 +429,62 @@
     `;
   }
 
+  // Shared minimal <details>/<summary> shell for every cert row — collapsed
+  // state is just a status dot + title + one short status line (matching
+  // js/vessels.js's buildVesselCard/.vessel-history-summary pattern
+  // exactly, per Jack). Everything else — badge art, description, the
+  // per-requirement progress breakdown — lives in the detail panel and
+  // only renders once opened.
+  function buildMinimalCertDropdown({
+    tier,
+    unlocked,
+    unlockedTitle,
+    title,
+    subtitle,
+    imagePath,
+    description,
+    subRequirements
+  }) {
+    return `
+      <details class="ach-milestone-row ${unlocked ? "is-unlocked" : "is-locked"}" data-tier="${Seav.escapeHtml(tier)}">
+        <summary class="ach-milestone-summary">
+          <span class="ach-milestone-dot" aria-hidden="true"></span>
+          <span class="ach-milestone-summary-title">
+            <strong>${Seav.escapeHtml(title)}</strong>
+            <small>${Seav.escapeHtml(subtitle)}</small>
+          </span>
+          ${
+            unlocked
+              ? `
+                <div class="ach-progress-row-check" title="${Seav.escapeHtml(unlockedTitle)}" aria-label="${Seav.escapeHtml(unlockedTitle)}">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              `
+              : ""
+          }
+        </summary>
+        <div class="ach-milestone-detail">
+          <div class="ach-milestone-detail-head">
+            <div class="ach-progress-row-badge">
+              <img src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(title)}" />
+            </div>
+            ${description ? `<p class="ach-progress-row-desc">${Seav.escapeHtml(description)}</p>` : ""}
+          </div>
+          <ul class="ach-req-list">
+            ${subRequirements.map(buildRequirementRow).join("")}
+          </ul>
+        </div>
+      </details>
+    `;
+  }
+
+  function certRowSubtitle(unlocked, unlockDate, percent) {
+    if (unlocked) return `Unlocked${unlockDate ? ` · ${formatAchievementDate(unlockDate)}` : ""}`;
+    return percent > 0 ? `${percent}% complete` : "Not started";
+  }
+
   function buildProgressRow(definition, instances) {
     const full = getAchievementWithBadge(definition.code);
     if (!full) return "";
@@ -446,41 +503,16 @@
       ? `Unlocked${primary?.date ? ` · ${formatAchievementDate(primary.date)}` : ""}`
       : "";
 
-    return `
-      <details class="ach-milestone-row ${unlocked ? "is-unlocked" : "is-locked"}" data-tier="${Seav.escapeHtml(tier)}">
-        <summary class="ach-milestone-summary">
-          <div class="ach-progress-row-badge">
-            <img src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(full.title || "")}" />
-          </div>
-          <div class="ach-progress-row-body">
-            <div class="ach-progress-row-title-wrap">
-              <span class="ach-progress-row-title">${Seav.escapeHtml(full.title || "")}</span>
-            </div>
-            ${full.description ? `<p class="ach-progress-row-desc">${Seav.escapeHtml(full.description)}</p>` : ""}
-            <p class="ach-progress-row-label">${Seav.escapeHtml(progress.label || "")}</p>
-            <div class="ach-progress-bar" role="progressbar" aria-valuenow="${progress.percent}" aria-valuemin="0" aria-valuemax="100">
-              <span style="width: ${progress.percent}%"></span>
-            </div>
-          </div>
-          ${
-            unlocked
-              ? `
-                <div class="ach-progress-row-check" title="${Seav.escapeHtml(unlockedTitle)}" aria-label="${Seav.escapeHtml(unlockedTitle)}">
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-              `
-              : ""
-          }
-        </summary>
-        <div class="ach-milestone-detail">
-          <ul class="ach-req-list">
-            ${subRequirements.map(buildRequirementRow).join("")}
-          </ul>
-        </div>
-      </details>
-    `;
+    return buildMinimalCertDropdown({
+      tier,
+      unlocked,
+      unlockedTitle,
+      title: full.title || "",
+      subtitle: certRowSubtitle(unlocked, primary?.date, progress.percent),
+      imagePath,
+      description: full.description || "",
+      subRequirements
+    });
   }
 
   // 2026-08-05, per Jack — corrects the 2026-08-05 dropdown build above:
@@ -527,8 +559,6 @@
       : unlocked
         ? 100
         : 0;
-    const metCount = subProgresses.filter((p) => p.percent >= 100).length;
-    const summaryLabel = `${metCount} of ${breakdownDefinitions.length} requirements met`;
 
     const subRequirements = breakdownDefinitions.flatMap(
       (definition) => window.SeavAchievementEngine?.getSubRequirements?.(definition) || []
@@ -539,41 +569,16 @@
       ? `Unlocked${primaryRecord?.date ? ` · ${formatAchievementDate(primaryRecord.date)}` : ""}`
       : "";
 
-    return `
-      <details class="ach-milestone-row ${unlocked ? "is-unlocked" : "is-locked"}" data-tier="${Seav.escapeHtml(tier)}">
-        <summary class="ach-milestone-summary">
-          <div class="ach-progress-row-badge">
-            <img src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(certGroupKey)}" />
-          </div>
-          <div class="ach-progress-row-body">
-            <div class="ach-progress-row-title-wrap">
-              <span class="ach-progress-row-title">${Seav.escapeHtml(certGroupKey)}</span>
-            </div>
-            ${full.description ? `<p class="ach-progress-row-desc">${Seav.escapeHtml(full.description)}</p>` : ""}
-            <p class="ach-progress-row-label">${Seav.escapeHtml(summaryLabel)}</p>
-            <div class="ach-progress-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
-              <span style="width: ${percent}%"></span>
-            </div>
-          </div>
-          ${
-            unlocked
-              ? `
-                <div class="ach-progress-row-check" title="${Seav.escapeHtml(unlockedTitle)}" aria-label="${Seav.escapeHtml(unlockedTitle)}">
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-              `
-              : ""
-          }
-        </summary>
-        <div class="ach-milestone-detail">
-          <ul class="ach-req-list">
-            ${subRequirements.map(buildRequirementRow).join("")}
-          </ul>
-        </div>
-      </details>
-    `;
+    return buildMinimalCertDropdown({
+      tier,
+      unlocked,
+      unlockedTitle,
+      title: certGroupKey,
+      subtitle: certRowSubtitle(unlocked, primaryRecord?.date, percent),
+      imagePath,
+      description: full.description || "",
+      subRequirements
+    });
   }
 
   function renderDeckProgression() {

@@ -364,10 +364,15 @@
   opacity: 0.72;
 }
 
+/* 2026-08-05, per Jack: collapsed row must be as minimal as the Vessels
+   page's own collapsible history cards (.vessel-history-summary in
+   vessels.css) — a status dot, the cert title, and a one-line status.
+   Badge art, description, and the requirement breakdown only appear once
+   opened (see .ach-milestone-detail-head / .ach-req-list below). */
 .ach-milestone-summary {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   padding: 14px 16px;
   cursor: pointer;
   list-style: none;
@@ -390,10 +395,58 @@
   transform: rotate(90deg);
 }
 
+.ach-milestone-dot {
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.ach-milestone-row.is-unlocked .ach-milestone-dot {
+  background: #ffb347;
+}
+
+.ach-milestone-summary-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ach-milestone-summary-title strong {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ach-milestone-summary-title small {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .ach-milestone-detail {
   padding: 4px 16px 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   margin: 0 16px;
+}
+
+/* Badge art + description — revealed only inside the opened panel, not in
+   the collapsed summary. */
+.ach-milestone-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0 10px;
+}
+
+.ach-milestone-detail-head .ach-progress-row-desc {
+  margin: 0;
 }
 
 .ach-req-list {
@@ -773,11 +826,13 @@
     align-items: flex-start;
   }
 
-  /* 2026-08-05 audit fix: the dropdown row (.ach-milestone-summary) never
-     got the same flex-start treatment as .ach-progress-row above — on a
-     narrow screen, a milestone with a 2-line description showed its badge
-     and chevron centered against the whole block instead of top-aligned. */
+  /* 2026-08-05: on a narrow screen a long cert title should wrap rather
+     than truncate, and top-align against the dot/chevron once it does. */
   .ach-milestone-summary {
     align-items: flex-start;
+  }
+
+  .ach-milestone-summary-title strong {
+    white-space: normal;
   }
 }
