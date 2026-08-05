@@ -535,9 +535,10 @@
         };
       }
       case "master_500gt_gated_sea_service": {
-        // Two independent thresholds (onboard months AND watchkeeping days)
-        // — same "weakest link" bar approach as yachtmaster_offshore_miles,
-        // so the bar never shows 100% until both are actually met.
+        // Was a two-threshold "weakest link" bar (onboard months AND
+        // watchkeeping days). The watchkeeping sub-requirement was removed
+        // 2026-08-05 per Jack — see the comment on computeMaster500SeaService
+        // in seav-data.js for why. Onboard months is now the sole gate.
         const result = computeMaster500SeaService(getSeatimes(), getCerts(), getVessels());
         if (!result.held) {
           return {
@@ -551,42 +552,38 @@
         const onboardPct = result.ONBOARD_TARGET_MONTHS
           ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
           : 0;
-        const watchPct = result.WATCHKEEPING_TARGET
-          ? Math.min(100, Math.round((result.watchkeepingDays / result.WATCHKEEPING_TARGET) * 100))
-          : 0;
         return {
           current: onboardMonthsRounded,
           target: result.ONBOARD_TARGET_MONTHS,
-          percent: Math.min(onboardPct, watchPct),
-          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months onboard (${result.watchkeepingDays} / ${result.WATCHKEEPING_TARGET} watchkeeping days) — since holding OOW <3000GT`
+          percent: onboardPct,
+          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months onboard — since holding OOW <3000GT`
         };
       }
       case "master_3000gt_gated_sea_service": {
-        // Same weakest-link approach as the Sea Time page's own Master
-        // <3000GT tracker: watchkeeping days AND the faster of the two
-        // special-experience paths (24m+ vessels or 500GT+ vessels) both
-        // have to clear before the bar reads 100%.
+        // Was a two-threshold "weakest link" bar (watchkeeping days AND the
+        // faster of the two special-experience paths). The watchkeeping
+        // sub-requirement was removed 2026-08-05 per Jack — see the comment
+        // on computeMaster3000SeaService in seav-data.js for why. The
+        // special-experience path (24m+ or 500GT+ vessels) is now the sole
+        // gate.
         const result = computeMaster3000SeaService(getSeatimes(), getCerts(), getVessels());
         if (!result.held) {
           return {
             current: 0,
-            target: result.WATCHKEEPING_TARGET,
+            target: result.specialTarget,
             percent: 0,
             label: "Hold OOW Yachts <3000GT first"
           };
         }
-        const watchPct = result.WATCHKEEPING_TARGET
-          ? Math.min(100, Math.round((result.totalWatchkeeping15m / result.WATCHKEEPING_TARGET) * 100))
-          : 0;
         const specialPct = result.specialTarget
           ? Math.min(100, Math.round((result.specialValue / result.specialTarget) * 100))
           : 0;
         const specialLabel = result.use500gtPath ? "months on 500GT+ vessels" : "months on 24m+ vessels";
         return {
-          current: result.totalWatchkeeping15m,
-          target: result.WATCHKEEPING_TARGET,
-          percent: Math.min(watchPct, specialPct),
-          label: `${result.totalWatchkeeping15m} / ${result.WATCHKEEPING_TARGET} watchkeeping days (${result.specialValue.toFixed(1)} / ${result.specialTarget} ${specialLabel}) — since holding OOW <3000GT`
+          current: result.specialValue,
+          target: result.specialTarget,
+          percent: specialPct,
+          label: `${result.specialValue.toFixed(1)} / ${result.specialTarget} ${specialLabel} — since holding OOW <3000GT`
         };
       }
       case "chief_mate_unlimited_direct": {

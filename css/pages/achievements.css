@@ -61,10 +61,13 @@
 
 /* KPI row */
 
+/* 2026-08-05: Jack cut "Total moments" + "Categories" down to the 2 boxes
+   below and asked for those 2 to be bigger — grid is now a fixed 2-up
+   layout (was repeat(4,...)) with larger padding/type throughout. */
 .ach-kpi-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
   margin-bottom: 20px;
 }
 
@@ -73,7 +76,7 @@
    barely-there translucent tile. Not a glow: box-shadow here is a plain
    elevation shadow, same family as every other dash-card on the site. */
 .ach-kpi-box {
-  padding: 14px 16px;
+  padding: 20px 18px;
   border-radius: 18px;
   border: 1.5px solid rgba(130, 158, 255, 0.34);
   background: var(--page-shell-panel);
@@ -88,14 +91,14 @@
 }
 
 .ach-kpi-box .kpi-num {
-  font-size: 22px;
+  font-size: 30px;
   font-weight: 800;
   color: var(--seav-field-value-color, #fff);
 }
 
 .ach-kpi-box .kpi-label {
-  margin-top: 4px;
-  font-size: 11px;
+  margin-top: 6px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -108,17 +111,17 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 16px 12px;
+  padding: 24px 16px;
 }
 
 .ach-kpi-ring {
   --ach-progress: 0%;
-  width: 72px;
-  height: 72px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   background:
     radial-gradient(circle closest-side, rgba(12, 28, 48, 0.95) 78%, transparent 80%),
     conic-gradient(#ffb347 var(--ach-progress), rgba(255, 255, 255, 0.08) 0);
@@ -126,14 +129,14 @@
 }
 
 .ach-kpi-ring-value {
-  font-size: 18px;
+  font-size: 26px;
   font-weight: 900;
   color: #fff;
   line-height: 1;
 }
 
 .ach-kpi-ring-value small {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.55);
 }
@@ -659,9 +662,8 @@
     grid-template-columns: 1fr;
   }
 
-  .ach-kpi-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  /* .ach-kpi-row is already a 2-up grid at base width since the 2026-08-05
+     KPI simplification, so no override needed here. */
 }
 
 @media (max-width: 520px) {

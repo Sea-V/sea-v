@@ -1451,13 +1451,23 @@ function getEmptyTenderEntry() {
   }
 
   // MSN 1858 3.5(b): Master (Yacht) <500GT requires 12 months' onboard
-  // service as a deck officer, including 120 days' watchkeeping service, on
-  // vessels 15m or over, while holding OOW Yachts <3000GT. "Onboard service"
-  // here means calendar days aboard (dateJoined→dateLeft), not the
-  // actual+standby+yard "seagoing service" figure used for Master <200GT —
-  // same distinction MSN 1858 draws between 3.1's and 3.5/3.6's requirements.
+  // service as a deck officer on vessels 15m or over, while holding OOW
+  // Yachts <3000GT. "Onboard service" here means calendar days aboard
+  // (dateJoined→dateLeft), not the actual+standby+yard "seagoing service"
+  // figure used for Master <200GT — same distinction MSN 1858 draws between
+  // 3.1's and 3.5/3.6's requirements.
+  //
+  // The regulation's 120-day watchkeeping sub-requirement was tracked here
+  // too until 2026-08-05, when Jack asked for it to be removed: the gated
+  // total (only sea time logged after the OOW <3000GT cert's issue date)
+  // read much lower than the ungated watchkeeping total shown elsewhere on
+  // the Sea Time page, which was confusing rather than wrong — both figures
+  // were independently correct for what they measured, but showing two
+  // different "watchkeeping days" numbers for the same person eroded trust
+  // in the milestone. Removed rather than reconciled/labelled, per Jack's
+  // explicit instruction. The onboard-months requirement (not a
+  // watchkeeping-specific figure) stays.
   const MASTER_500GT_ONBOARD_TARGET_MONTHS = 12;
-  const MASTER_500GT_WATCHKEEPING_TARGET = 120;
   const MASTER_500GT_GATING_CERT_CODE = "OOW YACHT";
 
   function computeMaster500SeaService(seatimes, certs, vessels) {
@@ -1469,54 +1479,57 @@ function getEmptyTenderEntry() {
         issuedDate: null,
         onboardDays: 0,
         onboardMonths: 0,
-        watchkeepingDays: 0,
         onboardMet: false,
-        watchkeepingMet: false,
         met: false,
         ONBOARD_TARGET_MONTHS: MASTER_500GT_ONBOARD_TARGET_MONTHS,
-        WATCHKEEPING_TARGET: MASTER_500GT_WATCHKEEPING_TARGET,
         GATING_CERT_CODE: MASTER_500GT_GATING_CERT_CODE
       };
     }
 
     let onboardDays = 0;
-    let watchkeepingDays = 0;
     gated.gatedEntries.forEach((entry) => {
       const lengthM = getEntryVesselLengthMeters(entry, vessels);
       if (lengthM >= 15) {
         onboardDays += daysBetweenDates(entry.dateJoined, entry.dateLeft);
-        watchkeepingDays += toNumber(entry.watchkeepingDays);
       }
     });
 
     const onboardMonths = onboardDays / DAYS_PER_MONTH;
     const onboardMet = onboardMonths >= MASTER_500GT_ONBOARD_TARGET_MONTHS;
-    const watchkeepingMet = watchkeepingDays >= MASTER_500GT_WATCHKEEPING_TARGET;
 
     return {
       held: true,
       issuedDate: gated.issuedDate,
       onboardDays,
       onboardMonths,
-      watchkeepingDays,
       onboardMet,
-      watchkeepingMet,
-      met: onboardMet && watchkeepingMet,
+      met: onboardMet,
       ONBOARD_TARGET_MONTHS: MASTER_500GT_ONBOARD_TARGET_MONTHS,
-      WATCHKEEPING_TARGET: MASTER_500GT_WATCHKEEPING_TARGET,
       GATING_CERT_CODE: MASTER_500GT_GATING_CERT_CODE
     };
   }
 
-  // MSN 1858 3.6(a): Master (Yacht) <3000GT requires the same 240
-  // watchkeeping-days / 24m-or-500GT special-experience math as the
-  // ungated `computeMasterSeaService` above (that function backs the Sea
-  // Time page's own tracker), but §3.6(a)'s "while holding OOW <3000GT"
-  // language means only sea time logged after the OOW <3000GT issue date
-  // should count. This is a separate function (not a change to
+  // MSN 1858 3.6(a): Master (Yacht) <3000GT requires the same
+  // 24m-or-500GT special-experience math as the ungated
+  // `computeMasterSeaService` above (that function backs the Sea Time
+  // page's own tracker), but §3.6(a)'s "while holding OOW <3000GT" language
+  // means only sea time logged after the OOW <3000GT issue date should
+  // count. This is a separate function (not a change to
   // computeMasterSeaService's signature/behaviour) so the already-shipped
   // Sea Time page tracker is untouched — this one backs the Milestones
-  // achievement only. Same regulation, same math, correctly gated.
+  // achievement only.
+  //
+  // The regulation's 240-day watchkeeping sub-requirement was tracked here
+  // too until 2026-08-05, when Jack asked for it to be removed: the gated
+  // total (only sea time logged after the OOW <3000GT cert's issue date)
+  // read much lower than the ungated watchkeeping total shown on the Sea
+  // Time page's own Master tracker, which was confusing rather than wrong —
+  // both figures were independently correct for what they measured, but
+  // showing two different "watchkeeping days" numbers for the same person
+  // eroded trust in the milestone. Removed rather than reconciled/labelled,
+  // per Jack's explicit instruction. The 24m/500GT special-experience path
+  // (time served in a more senior capacity on larger vessels) is not a
+  // watchkeeping figure and stays as the sole requirement.
   const MASTER_3000GT_GATING_CERT_CODE = "OOW YACHT";
 
   function computeMaster3000SeaService(seatimes, certs, vessels) {
@@ -1526,23 +1539,19 @@ function getEmptyTenderEntry() {
       return {
         held: false,
         issuedDate: null,
-        totalWatchkeeping15m: 0,
         totalOnboard24mDays: 0,
         totalOnboard500gtDays: 0,
         months24m: 0,
         months500gt: 0,
-        watchMet: false,
         use500gtPath: false,
         specialValue: 0,
         specialTarget: MASTER_SPECIAL_24M_TARGET_MONTHS,
         specialMet: false,
         allMasterMet: false,
-        WATCHKEEPING_TARGET: MASTER_WATCHKEEPING_TARGET,
         GATING_CERT_CODE: MASTER_3000GT_GATING_CERT_CODE
       };
     }
 
-    let totalWatchkeeping15m = 0;
     let totalOnboard24mDays = 0;
     let totalOnboard500gtDays = 0;
 
@@ -1551,14 +1560,12 @@ function getEmptyTenderEntry() {
       const gt = getEntryVesselGt(entry, vessels);
       const days = daysBetweenDates(entry.dateJoined, entry.dateLeft);
 
-      if (lengthM >= 15) totalWatchkeeping15m += toNumber(entry.watchkeepingDays);
       if (lengthM >= 24) totalOnboard24mDays += days;
       if (gt >= 500) totalOnboard500gtDays += days;
     });
 
     const months24m = totalOnboard24mDays / DAYS_PER_MONTH;
     const months500gt = totalOnboard500gtDays / DAYS_PER_MONTH;
-    const watchMet = totalWatchkeeping15m >= MASTER_WATCHKEEPING_TARGET;
     const use500gtPath =
       months500gt / MASTER_SPECIAL_500GT_TARGET_MONTHS >
       months24m / MASTER_SPECIAL_24M_TARGET_MONTHS;
@@ -1573,18 +1580,15 @@ function getEmptyTenderEntry() {
     return {
       held: true,
       issuedDate: gated.issuedDate,
-      totalWatchkeeping15m,
       totalOnboard24mDays,
       totalOnboard500gtDays,
       months24m,
       months500gt,
-      watchMet,
       use500gtPath,
       specialValue,
       specialTarget,
       specialMet,
-      allMasterMet: watchMet && specialMet,
-      WATCHKEEPING_TARGET: MASTER_WATCHKEEPING_TARGET,
+      allMasterMet: specialMet,
       GATING_CERT_CODE: MASTER_3000GT_GATING_CERT_CODE
     };
   }

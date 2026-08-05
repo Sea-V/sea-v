@@ -112,15 +112,6 @@
     return groups;
   }
 
-  function getUniqueCategories() {
-    const order = [];
-    listAchievements().forEach((definition) => {
-      const cat = definition.category || "Other";
-      if (!order.includes(cat)) order.push(cat);
-    });
-    return order;
-  }
-
   function formatAchievementDate(date) {
     if (!date) return "—";
     return formatDatePretty(date) || date;
@@ -222,11 +213,13 @@
     const definitions = listAchievements();
     const unlockedCodes = earnedGroups.size;
     const totalCodes = definitions.length;
-    const totalMoments = [...earnedGroups.values()].reduce((sum, items) => sum + items.length, 0);
     const highestTier = getHighestTier(earnedGroups);
     const tierLabel =
       highestTier === "default" ? "—" : highestTier.charAt(0).toUpperCase() + highestTier.slice(1);
 
+    // 2026-08-05: Jack asked to drop "Total moments" and "Categories" (low
+    // signal, cluttered the row) and make the remaining two boxes bigger —
+    // see .ach-kpi-row / .ach-kpi-box in achievements.css (now 2-box layout).
     row.innerHTML = `
       <div class="ach-kpi-box ach-kpi-box--hero">
         <div class="ach-kpi-ring" style="--ach-progress: ${totalCodes ? Math.round((unlockedCodes / totalCodes) * 100) : 0}%">
@@ -234,17 +227,9 @@
         </div>
         <div class="ach-kpi-label">Badges unlocked</div>
       </div>
-      <div class="ach-kpi-box">
-        <div class="kpi-num">${totalMoments}</div>
-        <div class="kpi-label">Total moments</div>
-      </div>
-      <div class="ach-kpi-box">
+      <div class="ach-kpi-box ach-kpi-box--hero">
         <div class="kpi-num ach-kpi-tier" data-tier="${Seav.escapeHtml(highestTier)}">${Seav.escapeHtml(tierLabel)}</div>
         <div class="kpi-label">Top tier earned</div>
-      </div>
-      <div class="ach-kpi-box">
-        <div class="kpi-num">${getUniqueCategories().length}</div>
-        <div class="kpi-label">Categories</div>
       </div>
     `;
   }
