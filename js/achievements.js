@@ -387,6 +387,47 @@
   // in catalog/ladder order) and the progress bar stays visible even once
   // a row is unlocked, instead of switching to the trophy tile's "unlocked"
   // summary view.
+  // 2026-08-05: Jack asked (private Milestones page only — dashboard widget
+  // and public profile are unchanged) for each milestone's requirements to
+  // be broken out into their own separate progress bars instead of one
+  // blended "weakest link" bar, wrapped in a dropdown so the page stays
+  // scannable. Deliberately does NOT reuse the .ach-progress-row class for
+  // the outer wrapper — that class (and its flex/padding layout) is also
+  // used as-is by the Dashboard widget's plain <article> markup in
+  // core.js's buildDashboardMilestoneRow, so changing its layout here would
+  // have broken that unrelated surface. Instead this uses new
+  // .ach-milestone-row/-summary/-detail classes for the <details>/<summary>
+  // shell, while reusing the existing .ach-progress-row-badge/-body/-title/
+  // -desc/-label/-check classes for the inner content (those were already
+  // plain, non-flex-container class selectors, safe to share).
+  function formatReqNumber(value) {
+    const num = Number(value) || 0;
+    return Number.isInteger(num) ? String(num) : num.toFixed(1);
+  }
+
+  function formatReqValue(req) {
+    if (req.target === 1) {
+      return req.percent >= 100 ? "Met" : "Not yet";
+    }
+    const unit = req.unit ? ` ${req.unit}` : "";
+    return `${formatReqNumber(req.current)} / ${formatReqNumber(req.target)}${unit}`;
+  }
+
+  function buildRequirementRow(req) {
+    return `
+      <li class="ach-req-row">
+        <div class="ach-req-row-top">
+          <span class="ach-req-label">${Seav.escapeHtml(req.label || "")}</span>
+          <span class="ach-req-value">${Seav.escapeHtml(formatReqValue(req))}</span>
+        </div>
+        <div class="ach-progress-bar ach-progress-bar--compact" role="progressbar" aria-valuenow="${req.percent}" aria-valuemin="0" aria-valuemax="100">
+          <span style="width: ${req.percent}%"></span>
+        </div>
+        ${req.note ? `<p class="ach-req-note">${Seav.escapeHtml(req.note)}</p>` : ""}
+      </li>
+    `;
+  }
+
   function buildProgressRow(definition, instances) {
     const full = getAchievementWithBadge(definition.code);
     if (!full) return "";
@@ -398,6 +439,7 @@
       percent: unlocked ? 100 : 0,
       label: ""
     };
+    const subRequirements = window.SeavAchievementEngine?.getSubRequirements?.(definition) || [];
 
     const primary = instances[0];
     const unlockedTitle = unlocked
@@ -405,32 +447,39 @@
       : "";
 
     return `
-      <article class="ach-progress-row ${unlocked ? "is-unlocked" : "is-locked"}" data-tier="${Seav.escapeHtml(tier)}">
-        <div class="ach-progress-row-badge">
-          <img src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(full.title || "")}" />
-        </div>
-        <div class="ach-progress-row-body">
-          <div class="ach-progress-row-title-wrap">
-            <span class="ach-progress-row-title">${Seav.escapeHtml(full.title || "")}</span>
+      <details class="ach-milestone-row ${unlocked ? "is-unlocked" : "is-locked"}" data-tier="${Seav.escapeHtml(tier)}">
+        <summary class="ach-milestone-summary">
+          <div class="ach-progress-row-badge">
+            <img src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(full.title || "")}" />
           </div>
-          ${full.description ? `<p class="ach-progress-row-desc">${Seav.escapeHtml(full.description)}</p>` : ""}
-          <p class="ach-progress-row-label">${Seav.escapeHtml(progress.label || "")}</p>
-          <div class="ach-progress-bar" role="progressbar" aria-valuenow="${progress.percent}" aria-valuemin="0" aria-valuemax="100">
-            <span style="width: ${progress.percent}%"></span>
+          <div class="ach-progress-row-body">
+            <div class="ach-progress-row-title-wrap">
+              <span class="ach-progress-row-title">${Seav.escapeHtml(full.title || "")}</span>
+            </div>
+            ${full.description ? `<p class="ach-progress-row-desc">${Seav.escapeHtml(full.description)}</p>` : ""}
+            <p class="ach-progress-row-label">${Seav.escapeHtml(progress.label || "")}</p>
+            <div class="ach-progress-bar" role="progressbar" aria-valuenow="${progress.percent}" aria-valuemin="0" aria-valuemax="100">
+              <span style="width: ${progress.percent}%"></span>
+            </div>
           </div>
+          ${
+            unlocked
+              ? `
+                <div class="ach-progress-row-check" title="${Seav.escapeHtml(unlockedTitle)}" aria-label="${Seav.escapeHtml(unlockedTitle)}">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              `
+              : ""
+          }
+        </summary>
+        <div class="ach-milestone-detail">
+          <ul class="ach-req-list">
+            ${subRequirements.map(buildRequirementRow).join("")}
+          </ul>
         </div>
-        ${
-          unlocked
-            ? `
-              <div class="ach-progress-row-check" title="${Seav.escapeHtml(unlockedTitle)}" aria-label="${Seav.escapeHtml(unlockedTitle)}">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-            `
-            : ""
-        }
-      </article>
+      </details>
     `;
   }
 

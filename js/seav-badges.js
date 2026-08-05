@@ -45,7 +45,7 @@ oow_3000gt_sea_time: {
 
 yachtmaster_offshore: {
   key: "yachtmaster_offshore",
-  label: "RYA Yachtmaster Offshore — Miles Complete",
+  label: "RYA Yachtmaster Offshore — Sea Miles",
   fileName: "yachtmaster-offshore.svg",
   image: "/img/badges/yachtmaster-offshore.svg",
   lockedImage: LOCKED_IMAGE,
@@ -53,7 +53,7 @@ yachtmaster_offshore: {
 },
 master_200gt_sea_service: {
   key: "master_200gt_sea_service",
-  label: "Master <200GT — Sea Service Complete",
+  label: "Master <200GT — Sea Service",
   fileName: "master-200gt-sea-service.svg",
   image: "/img/badges/master-200gt-sea-service.svg",
   lockedImage: LOCKED_IMAGE,
@@ -61,7 +61,7 @@ master_200gt_sea_service: {
 },
 master_500gt_sea_service: {
   key: "master_500gt_sea_service",
-  label: "Master <500GT — Sea Service Complete",
+  label: "Master <500GT — Sea Service",
   fileName: "master-500gt-sea-service.svg",
   image: "/img/badges/master-500gt-sea-service.svg",
   lockedImage: LOCKED_IMAGE,
@@ -69,7 +69,7 @@ master_500gt_sea_service: {
 },
 master_3000gt_sea_service: {
   key: "master_3000gt_sea_service",
-  label: "Master <3000GT — Sea Service Complete",
+  label: "Master <3000GT — Sea Service",
   fileName: "master-3000gt-sea-service.svg",
   image: "/img/badges/master-3000gt-sea-service.svg",
   lockedImage: LOCKED_IMAGE,
@@ -93,7 +93,7 @@ chief_mate_yachts_unlimited: {
 },
 master_yachts_unlimited: {
   key: "master_yachts_unlimited",
-  label: "Master Yachts Unlimited — Sea Service Complete",
+  label: "Master Yachts Unlimited — Sea Service",
   fileName: "master-yachts-unlimited.svg",
   image: "/img/badges/master-yachts-unlimited.svg",
   lockedImage: LOCKED_IMAGE,
@@ -125,7 +125,7 @@ pacific_crossing: {
     // round number. See js/achievements-engine.js for the trigger math.
     yachtmaster_offshore: {
       code: "yachtmaster_offshore",
-      title: "RYA Yachtmaster Offshore — Miles Complete",
+      title: "RYA Yachtmaster Offshore — Sea Miles",
       category: "Deck Progression",
       certGroup: "RYA Yachtmaster Offshore",
       dashboardSection: "navigation",
@@ -185,9 +185,22 @@ pacific_crossing: {
       trigger: { type: "oow_eligible" }
     },
 
+    // 2026-08-05: these 5 titles (Master <200/500/3000GT, Master Yachts
+    // Unlimited, RYA Yachtmaster Offshore) used to end in "— Sea Service
+    // Complete" / "— Miles Complete". Jack reported the Master <500GT
+    // milestone read as "Sea Service Complete" while it was only ~70%
+    // done — because this exact title string is what's rendered as the
+    // headline on the "Next up" in-progress card (achievements.js
+    // renderNextMilestone / core.js renderDashboardNextMilestone) and on
+    // not-yet-unlocked Deck Progression rows (buildProgressRow), with no
+    // distinction from the truly-unlocked state other than a small
+    // checkmark. Dropped "Complete"/"Miles Complete" from the title so it
+    // no longer asserts completion while in progress — the checkmark +
+    // "Unlocked" tooltip + earned-section placement already convey
+    // completion once actually earned, so no information is lost.
     master_200gt_sea_service: {
       code: "master_200gt_sea_service",
-      title: "Master <200GT — Sea Service Complete",
+      title: "Master <200GT — Sea Service",
       category: "Deck Progression",
       certGroup: "Master <200GT",
       dashboardSection: "seatime",
@@ -200,7 +213,7 @@ pacific_crossing: {
 
     master_500gt_sea_service: {
       code: "master_500gt_sea_service",
-      title: "Master <500GT — Sea Service Complete",
+      title: "Master <500GT — Sea Service",
       category: "Deck Progression",
       certGroup: "Master <500GT",
       dashboardSection: "seatime",
@@ -213,7 +226,7 @@ pacific_crossing: {
 
     master_3000gt_sea_service: {
       code: "master_3000gt_sea_service",
-      title: "Master <3000GT — Sea Service Complete",
+      title: "Master <3000GT — Sea Service",
       category: "Deck Progression",
       certGroup: "Master <3000GT",
       dashboardSection: "seatime",
@@ -251,7 +264,7 @@ pacific_crossing: {
     },
     master_yachts_unlimited: {
       code: "master_yachts_unlimited",
-      title: "Master Yachts Unlimited — Sea Service Complete",
+      title: "Master Yachts Unlimited — Sea Service",
       category: "Deck Progression",
       certGroup: "Master Yachts Unlimited",
       dashboardSection: "seatime",

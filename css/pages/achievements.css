@@ -347,6 +347,101 @@
   display: block;
 }
 
+/* Milestone requirement dropdown (private Milestones page only, 2026-08-05
+   per Jack) — <details>/<summary> shell around the same badge/body/check
+   content used above, so a milestone can expand to show each requirement
+   as its own bar. Deliberately separate classes from .ach-progress-row
+   (see comment in achievements.js buildProgressRow) so the Dashboard
+   widget's plain-<article> version of this row is untouched. Chevron
+   pattern matches .seatime-vessel-group-summary in seatime.css. */
+.ach-milestone-row {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.ach-milestone-row.is-unlocked {
+  border-color: rgba(255, 179, 71, 0.28);
+  background: rgba(255, 179, 71, 0.06);
+}
+
+.ach-milestone-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.ach-milestone-summary::-webkit-details-marker {
+  display: none;
+}
+
+.ach-milestone-summary::before {
+  content: "›";
+  display: inline-block;
+  font-size: 18px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.45);
+  transition: transform 0.15s ease;
+}
+
+.ach-milestone-row[open] .ach-milestone-summary::before {
+  transform: rotate(90deg);
+}
+
+.ach-milestone-detail {
+  padding: 4px 16px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 0 16px;
+}
+
+.ach-req-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ach-req-row {
+  padding-top: 12px;
+}
+
+.ach-req-row:first-child {
+  padding-top: 14px;
+}
+
+.ach-req-row-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.ach-req-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.ach-req-value {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--seav-field-value-color, #fff);
+  white-space: nowrap;
+}
+
+.ach-req-note {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
 /* Trophy grid */
 
 .ach-trophy-grid {

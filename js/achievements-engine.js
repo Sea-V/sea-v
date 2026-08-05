@@ -664,6 +664,299 @@
     }
   }
 
+  // 2026-08-05: Jack asked for the Milestones page (private page only — NOT
+  // the dashboard widget or public profile) to show each milestone's
+  // individual requirements as their own separate progress bars inside a
+  // dropdown, instead of one blended "weakest link" bar. This mirrors
+  // getProgressForDefinition's switch above requirement-by-requirement
+  // (same underlying compute*() calls, called a second time — cheap pure
+  // functions over already-loaded state, not worth sharing/caching) but
+  // returns an array of { label, current, target, percent, unit, note }
+  // instead of one combined object. Every case returns at least one entry,
+  // even single-requirement milestones, so achievements.js can render every
+  // milestone the same dropdown way.
+  function getSubRequirements(definition) {
+    if (!definition) return [];
+
+    const trigger = definition.trigger || { type: "manual" };
+
+    switch (trigger.type) {
+      case "sea_days": {
+        const current = getTotalSeaDays();
+        const target = Number(trigger.minDays || 0);
+        return [
+          {
+            label: "Qualifying sea days",
+            current,
+            target,
+            unit: "days",
+            percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0
+          }
+        ];
+      }
+      case "oow_actual_sea_days": {
+        const target = Number(trigger.minDays || 0);
+        const current = getActualSeaDaysOnVessels();
+        return [
+          {
+            label: `Actual sea days (${trigger.minVesselMeters}m+ vessels)`,
+            current,
+            target,
+            unit: "days",
+            percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0
+          }
+        ];
+      }
+      case "oow_qualifying_days": {
+        const target = Number(trigger.minDays || 0);
+        const current = getOowQualifyingDaysOnVessels();
+        return [
+          {
+            label: `Qualifying days (${trigger.minVesselMeters}m+ vessels)`,
+            current,
+            target,
+            unit: "days",
+            percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0
+          }
+        ];
+      }
+      case "oow_eligible": {
+        const met = isOowSeaTimeComplete();
+        return [
+          {
+            label: "OOW <3000GT sea-time requirements",
+            current: met ? 1 : 0,
+            target: 1,
+            percent: met ? 100 : 0
+          }
+        ];
+      }
+      case "yachtmaster_offshore_miles": {
+        const result = computeYachtmasterOffshoreMiles(getNavigationEntries());
+        const totalPct = result.TARGET_NM
+          ? Math.min(100, Math.round((result.totalNm / result.TARGET_NM) * 100))
+          : 0;
+        const tidalPct = result.TIDAL_TARGET_NM
+          ? Math.min(100, Math.round((result.tidalNm / result.TIDAL_TARGET_NM) * 100))
+          : 0;
+        return [
+          {
+            label: "Total qualifying miles",
+            current: Math.round(result.totalNm),
+            target: result.TARGET_NM,
+            unit: "NM",
+            percent: totalPct
+          },
+          {
+            label: "Tidal-water miles",
+            current: Math.round(result.tidalNm),
+            target: result.TIDAL_TARGET_NM,
+            unit: "NM",
+            percent: tidalPct
+          }
+        ];
+      }
+      case "master_200gt_gated_sea_service": {
+        const result = computeMaster200SeaService(getSeatimes(), getCerts());
+        if (!result.held) {
+          return [
+            {
+              label: "Months' seagoing service (since holding Yachtmaster Offshore)",
+              current: 0,
+              target: result.TARGET_MONTHS,
+              unit: "months",
+              percent: 0,
+              note: "Hold RYA Yachtmaster Offshore first"
+            }
+          ];
+        }
+        const monthsRounded = Math.round(result.months * 10) / 10;
+        return [
+          {
+            label: "Months' seagoing service (since holding Yachtmaster Offshore)",
+            current: monthsRounded,
+            target: result.TARGET_MONTHS,
+            unit: "months",
+            percent: result.TARGET_MONTHS
+              ? Math.min(100, Math.round((result.months / result.TARGET_MONTHS) * 100))
+              : 0
+          }
+        ];
+      }
+      case "master_500gt_gated_sea_service": {
+        const result = computeMaster500SeaService(getSeatimes(), getCerts(), getVessels());
+        if (!result.held) {
+          return [
+            {
+              label: "Months onboard as deck officer (since holding OOW <3000GT)",
+              current: 0,
+              target: result.ONBOARD_TARGET_MONTHS,
+              unit: "months",
+              percent: 0,
+              note: "Hold OOW Yachts <3000GT first"
+            },
+            {
+              label: "Watchkeeping days on vessels 15m+",
+              current: 0,
+              target: result.WATCHKEEPING_TARGET,
+              unit: "days",
+              percent: 0,
+              note: "Hold OOW Yachts <3000GT first"
+            }
+          ];
+        }
+        const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
+        return [
+          {
+            label: "Months onboard as deck officer (since holding OOW <3000GT)",
+            current: onboardMonthsRounded,
+            target: result.ONBOARD_TARGET_MONTHS,
+            unit: "months",
+            percent: result.ONBOARD_TARGET_MONTHS
+              ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+              : 0
+          },
+          {
+            label: "Watchkeeping days on vessels 15m+",
+            current: result.watchkeepingDays,
+            target: result.WATCHKEEPING_TARGET,
+            unit: "days",
+            percent: result.WATCHKEEPING_TARGET
+              ? Math.min(100, Math.round((result.watchkeepingDays / result.WATCHKEEPING_TARGET) * 100))
+              : 0
+          }
+        ];
+      }
+      case "master_3000gt_gated_sea_service": {
+        const result = computeMaster3000SeaService(getSeatimes(), getCerts(), getVessels());
+        if (!result.held) {
+          return [
+            {
+              label: "Watchkeeping days on vessels 15m+",
+              current: 0,
+              target: result.WATCHKEEPING_TARGET,
+              unit: "days",
+              percent: 0,
+              note: "Hold OOW Yachts <3000GT first"
+            },
+            {
+              label: "Special experience (since holding OOW <3000GT)",
+              current: 0,
+              target: result.specialTarget,
+              unit: "months",
+              percent: 0,
+              note: "Hold OOW Yachts <3000GT first"
+            }
+          ];
+        }
+        const specialLabel = result.use500gtPath ? "Months on 500GT+ vessels" : "Months on 24m+ vessels";
+        return [
+          {
+            label: "Watchkeeping days on vessels 15m+",
+            current: result.totalWatchkeeping15m,
+            target: result.WATCHKEEPING_TARGET,
+            unit: "days",
+            percent: result.WATCHKEEPING_TARGET
+              ? Math.min(100, Math.round((result.totalWatchkeeping15m / result.WATCHKEEPING_TARGET) * 100))
+              : 0
+          },
+          {
+            label: `${specialLabel} (since holding OOW <3000GT)`,
+            current: Math.round(result.specialValue * 10) / 10,
+            target: result.specialTarget,
+            unit: "months",
+            percent: result.specialTarget
+              ? Math.min(100, Math.round((result.specialValue / result.specialTarget) * 100))
+              : 0
+          }
+        ];
+      }
+      case "chief_mate_unlimited_direct": {
+        const result = computeChiefMateUnlimitedEligibility(getCerts());
+        return [
+          {
+            label: "Master Yachts <3000GT certificate held",
+            current: result.met ? 1 : 0,
+            target: 1,
+            percent: result.met ? 100 : 0
+          }
+        ];
+      }
+      case "chief_mate_3000_eligible": {
+        const result = computeChiefMate3000Eligibility(getSeatimes(), getVessels(), getCerts());
+        return [
+          {
+            label: "OOW <3000GT eligibility (sea time met or cert held)",
+            current: result.oowMet ? 1 : 0,
+            target: 1,
+            percent: result.oowMet ? 100 : 0
+          },
+          {
+            label: "RYA Yachtmaster Ocean held",
+            current: result.yachtmasterOceanHeld ? 1 : 0,
+            target: 1,
+            percent: result.yachtmasterOceanHeld ? 100 : 0
+          }
+        ];
+      }
+      case "master_unlimited_master3000_route": {
+        const result = computeMasterUnlimitedSeaService(getSeatimes(), getCerts(), getVessels());
+        if (!result.held) {
+          return [
+            {
+              label: "Months as Master on 500GT+ vessels (since holding Master <3000GT)",
+              current: 0,
+              target: result.ONBOARD_TARGET_MONTHS,
+              unit: "months",
+              percent: 0,
+              note: "Hold Master Yachts <3000GT first"
+            },
+            {
+              label: "Actual sea months",
+              current: 0,
+              target: result.ACTUAL_SEA_TARGET_MONTHS,
+              unit: "months",
+              percent: 0,
+              note: "Hold Master Yachts <3000GT first"
+            }
+          ];
+        }
+        const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
+        const actualSeaMonthsRounded = Math.round(result.actualSeaMonths * 10) / 10;
+        return [
+          {
+            label: "Months as Master on 500GT+ vessels (since holding Master <3000GT)",
+            current: onboardMonthsRounded,
+            target: result.ONBOARD_TARGET_MONTHS,
+            unit: "months",
+            percent: result.ONBOARD_TARGET_MONTHS
+              ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+              : 0
+          },
+          {
+            label: "Actual sea months",
+            current: actualSeaMonthsRounded,
+            target: result.ACTUAL_SEA_TARGET_MONTHS,
+            unit: "months",
+            percent: result.ACTUAL_SEA_TARGET_MONTHS
+              ? Math.min(100, Math.round((result.actualSeaMonths / result.ACTUAL_SEA_TARGET_MONTHS) * 100))
+              : 0
+          }
+        ];
+      }
+      case "manual":
+      default:
+        return [
+          {
+            label: definition.description || "Manually logged milestone",
+            current: 0,
+            target: 1,
+            percent: 0
+          }
+        ];
+    }
+  }
+
   function getNextMilestone() {
     const earnedCodes = new Set(getAchievements().map((item) => item.code).filter(Boolean));
     const candidates = listAchievements()
@@ -682,6 +975,7 @@
     evaluateAutomaticAchievements,
     runAchievementEvaluation,
     getProgressForDefinition,
+    getSubRequirements,
     getNextMilestone
   };
 
