@@ -1956,20 +1956,17 @@ function getEmptyTenderEntry() {
      VESSEL HELPERS
   ========================================================= */
 
+  // 2026-08-05 fix, Jack: this used to fall back to "most recent by `to`
+  // date" whenever no vessel was open-ended (e.g. a single vessel that
+  // already has a leave date set), which wrongly treated a departed vessel
+  // as current. Returns -1 — genuinely "no current vessel" — instead of
+  // guessing. Same root cause as the js/vessels.js renderVessels() fix;
+  // this pair (getCurrentVesselIndex/getVesselHistory) has no live callers
+  // today but is part of the exported public API, so it's fixed too rather
+  // than left as a landmine for whoever reaches for it next.
   function getCurrentVesselIndex(vessels) {
     if (!Array.isArray(vessels) || !vessels.length) return -1;
-
-    let currentIndex = vessels.findIndex((v) => !v.to || !String(v.to).trim());
-
-    if (currentIndex !== -1) return currentIndex;
-
-    currentIndex = vessels.reduce((latestIdx, vessel, idx, arr) => {
-      const currentDate = vessel.to ? new Date(vessel.to) : new Date(0);
-      const latestDate = arr[latestIdx].to ? new Date(arr[latestIdx].to) : new Date(0);
-      return currentDate > latestDate ? idx : latestIdx;
-    }, 0);
-
-    return currentIndex;
+    return vessels.findIndex((v) => !v.to || !String(v.to).trim());
   }
 
   function getVesselHistory(vessels) {

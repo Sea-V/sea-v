@@ -9,7 +9,7 @@
 
   window.SeavConfig = {
     /** Bump when deploying JS/CSS changes — keep HTML ?v= in sync (see scripts/patch-html-scripts.mjs). */
-    ASSET_VERSION: 413,
+    ASSET_VERSION: 414,
 
     /** Bump when regenerating img/badges/*.svg (cache-bust on badge image URLs). */
     BADGE_ASSET_VERSION: 28,

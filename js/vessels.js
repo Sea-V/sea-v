@@ -511,9 +511,14 @@ async function renderVessels(options = {}) {
     return db - da;
   });
 
-  const current =
-    sortedVessels.find((v) => !v.to) ||
-    sortedVessels[0];
+  // 2026-08-05 fix, Jack: a vessel with a leave date already set was still
+  // being badged "Current" and auto-opened whenever it was the ONLY vessel
+  // on file (or when every saved vessel already had a leave date) — the old
+  // `|| sortedVessels[0]` fallback below picked the most-recent-by-`from`
+  // vessel unconditionally, ignoring whether it actually had a `to` date.
+  // `current` must now be null (not a fallback guess) when nobody is
+  // genuinely open-ended.
+  const current = sortedVessels.find((v) => !v.to) || null;
 
   if (!vesselsGrid) return;
 
@@ -524,10 +529,14 @@ async function renderVessels(options = {}) {
   // with two different templates; consolidating removes that duplicate
   // code path and the visual inconsistency between them.
   vesselsGrid.innerHTML = sortedVessels
-    .map((v) =>
+    .map((v, i) =>
       buildVesselCard(v, {
-        isCurrent: v.id === current.id,
-        forceOpen: !!keepOpenId && v.id === keepOpenId
+        isCurrent: !!current && v.id === current.id,
+        // Keep the "something is open on load" UX even when no vessel is
+        // genuinely current — open the most-recent-by-start-date vessel
+        // (sortedVessels[0]) instead, just correctly badged "Previous"
+        // rather than "Current".
+        forceOpen: (!!keepOpenId && v.id === keepOpenId) || (!current && i === 0)
       })
     )
     .join("");
