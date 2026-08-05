@@ -85,12 +85,16 @@
   padding: 28px;
 }
 
+/* 2026-08-05: was a 2-col grid holding the form + a live side-by-side
+   preview. The preview is gone and the form/locked-view cards are now
+   mutually exclusive (only one visible at a time — see profileEditView /
+   profileLockedView in profile.html), so this is a single centered
+   column rather than a grid. Class name kept to avoid touching the HTML
+   wrapper unnecessarily. */
 .profile-page-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 18px;
-  align-items: start;
+  display: block;
+  max-width: 680px;
+  margin: 0 auto;
 }
 
 /* =========================================================
@@ -114,6 +118,20 @@
 
 .profile-form-card {
   padding: 22px;
+}
+
+.profile-view-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 12px;
+}
+
+.profile-view-head h3 {
+  margin: 0;
 }
 
 .profile-preview-stack {
@@ -438,10 +456,6 @@
 
 @media (max-width: 900px) {
   .profile-shell-head {
-    grid-template-columns: 1fr;
-  }
-
-  .profile-page-grid {
     grid-template-columns: 1fr;
   }
 }

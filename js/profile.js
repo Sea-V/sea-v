@@ -61,6 +61,25 @@
     const Countries = window.SeavCountries;
     const Visas = window.SeavVisas;
 
+    // 2026-08-05, per Jack: the page should lock after Save (read-only
+    // view) and only reopen for editing via this button — the old
+    // side-by-side live preview is gone, so editView/lockedView are now
+    // mutually exclusive rather than both always visible.
+    const editView = el("profileEditView");
+    const lockedView = el("profileLockedView");
+    const editBtn = el("btnEditProfile");
+    let initialModeSet = false;
+
+    function setMode(next) {
+      if (editView) editView.hidden = next !== "edit";
+      if (lockedView) lockedView.hidden = next !== "view";
+      if (next === "edit") fillForm(loadProfile());
+    }
+
+    if (editBtn) {
+      editBtn.addEventListener("click", () => setMode("edit"));
+    }
+
     function flag(iso2) {
       return Countries?.flagEmoji ? Countries.flagEmoji(iso2) : "";
     }
@@ -279,13 +298,13 @@
       if (exists) return;
       passportChips = [...passportChips, trimmed];
       renderPassportChips();
-      previewFromForm();
+      updatePhotoThumbFromForm();
     }
 
     function removePassportChip(name) {
       passportChips = passportChips.filter((chip) => chip !== name);
       renderPassportChips();
-      previewFromForm();
+      updatePhotoThumbFromForm();
     }
 
     if (fields.passportAdd) {
@@ -346,13 +365,13 @@
       if (exists) return;
       visaChips = [...visaChips, trimmed];
       renderVisaChips();
-      previewFromForm();
+      updatePhotoThumbFromForm();
     }
 
     function removeVisaChip(name) {
       visaChips = visaChips.filter((chip) => chip !== name);
       renderVisaChips();
-      previewFromForm();
+      updatePhotoThumbFromForm();
     }
 
     if (fields.visaAdd) {
@@ -504,16 +523,36 @@
     function refreshProfileView() {
       const profile = loadProfile();
       populateQualificationOptions();
-      fillForm(profile);
       renderPreview(profile);
+
+      if (!initialModeSet) {
+        // Only decide edit-vs-locked once, on first load — a background
+        // state refresh (e.g. after a save elsewhere, or a realtime sync)
+        // must never yank someone out of the form mid-edit. A profile
+        // with no name yet is treated as brand new, so first-time users
+        // land straight in the form instead of an empty locked view.
+        initialModeSet = true;
+        fillForm(profile);
+        setMode(profile.name ? "view" : "edit");
+      } else if (editView && !editView.hidden) {
+        // Currently editing — keep the form's own state (don't clobber
+        // in-progress edits), but the locked view underneath should
+        // still reflect the latest saved data whenever it's next shown.
+      } else {
+        fillForm(profile);
+      }
     }
 
-    // previewFromForm runs on every keystroke in the form (see the "input"
-    // listener below), so it must never touch the photo thumbnail for a HEIC
-    // file — that's handled once, asynchronously, by handlePhotoFileChange.
-    // Re-deriving a raw createObjectURL() from a HEIC file on every keystroke
-    // would both be wasteful and re-introduce the broken-preview bug.
-    function previewFromForm() {
+    // Runs on every keystroke in the form (see the "input" listener below)
+    // to keep the form's own photo thumbnail in sync with whatever file is
+    // currently selected. Used to also live-update a separate preview card
+    // on every keystroke — that card is gone (2026-08-05, per Jack: the
+    // page locks after Save instead), so this now only handles the thumb.
+    // Must never touch the thumbnail for a HEIC file — that's handled
+    // once, asynchronously, by handlePhotoFileChange. Re-deriving a raw
+    // createObjectURL() from a HEIC file on every keystroke would both be
+    // wasteful and re-introduce the broken-preview bug.
+    function updatePhotoThumbFromForm() {
       const current = loadProfile();
       const formData = readProfileForm();
       const file = formData.file;
@@ -532,27 +571,10 @@
       }
       // else: file is HEIC — leave whatever handlePhotoFileChange already
       // rendered (converted preview, or the "preview unavailable" hint) alone.
-
-      renderPreview({
-        ...current,
-        name: formData.name,
-        rank: formData.rank,
-        qualification: formData.qualification,
-        nationality: formData.nationality,
-        dob: formData.dob,
-        location: formData.location,
-        email: formData.email,
-        phone: formData.phone,
-        passportsHeld: formData.passportsHeld,
-        visasHeld: formData.visasHeld,
-        availability: formData.availability,
-        bio: formData.bio,
-        photo: previewObjectUrl ? { dataUrl: previewObjectUrl } : current.photo
-      });
     }
 
     // Runs once per file selection (not on every keystroke, unlike
-    // previewFromForm above). For a HEIC photo this awaits the same
+    // updatePhotoThumbFromForm above). For a HEIC photo this awaits the same
     // HEIC->JPEG conversion Save will use, so the preview shown here always
     // matches what actually gets saved — instead of the old behavior of
     // handing a raw HEIC blob URL to an <img>/background-image, which Chrome,
@@ -560,7 +582,7 @@
     async function handlePhotoFileChange() {
       const file = fields.photo?.files?.[0] || null;
       if (!file || !window.SeavUpload?.isHeicFile?.(file)) {
-        previewFromForm();
+        updatePhotoThumbFromForm();
         return;
       }
 
@@ -578,7 +600,7 @@
       }
     }
 
-    form.addEventListener("input", previewFromForm);
+    form.addEventListener("input", updatePhotoThumbFromForm);
     if (fields.photo) {
       fields.photo.addEventListener("change", handlePhotoFileChange);
     }
@@ -677,6 +699,9 @@
           "Profile anchored",
           "Your SEA-V profile is saved and shipshape."
         );
+        // 2026-08-05, per Jack: lock back to the read-only view on a
+        // successful save — Edit is the only way back into the form.
+        setMode("view");
       } catch (err) {
         console.error("[SEA-V] Profile save failed:", err);
         Seav.notify(
