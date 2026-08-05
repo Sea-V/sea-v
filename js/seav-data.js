@@ -1237,9 +1237,21 @@ function getEmptyTenderEntry() {
     return parseLengthMeters(vessel?.gt);
   }
 
+  // 2026-08-05, per Jack: a future-dated Sea Time entry (a contract logged
+  // ahead of time, e.g. joining next month) used to count its FULL length
+  // toward onboard-days progress the moment it was saved, even though none
+  // of that time had actually been served yet. `end` is now capped at
+  // today whenever the entry's own end date (or the "still onboard"
+  // default) falls in the future, so only days already elapsed count —
+  // a not-yet-started entry contributes 0, then accrues day by day as it's
+  // actually lived through. Every caller (computeMasterSeaService,
+  // computeMaster500/3000SeaService, computeMasterUnlimitedSeaService)
+  // gets this for free with no per-caller change.
   function daysBetweenDates(startIso, endIso) {
     const start = startIso ? new Date(startIso) : null;
-    const end = endIso ? new Date(endIso) : new Date();
+    const rawEnd = endIso ? new Date(endIso) : new Date();
+    const today = new Date();
+    const end = rawEnd > today ? today : rawEnd;
     if (!start || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0;
     const ms = end - start;
     return ms > 0 ? Math.round(ms / 86400000) : 0;

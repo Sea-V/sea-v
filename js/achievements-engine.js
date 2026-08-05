@@ -957,6 +957,16 @@
     }
   }
 
+  // 2026-08-05, per Jack: brand-new crew members with zero logged sea time
+  // used to see no "Next up" card at all (every milestone sits at 0%, and
+  // this used to require percent > 0 to qualify) — right when a nudge
+  // would help most. Now includes 0%-progress candidates too. Ties at 0%
+  // resolve via the stable sort keeping js/seav-badges.js's catalog order,
+  // which already lists the ungated RYA Yachtmaster Offshore milestone
+  // before every cert-gated Master/Chief Mate one — so a total newcomer
+  // gets a real, immediately-workable "next" step, not a milestone that's
+  // blocked on a certificate they don't hold yet (those still separately
+  // read 0% but sort later in the catalog, same as before).
   function getNextMilestone() {
     const earnedCodes = new Set(getAchievements().map((item) => item.code).filter(Boolean));
     const candidates = listAchievements()
@@ -965,7 +975,7 @@
         definition,
         progress: getProgressForDefinition(definition)
       }))
-      .filter((entry) => entry.progress.percent > 0 && entry.progress.percent < 100)
+      .filter((entry) => entry.progress.percent < 100)
       .sort((a, b) => b.progress.percent - a.progress.percent);
 
     return candidates[0] || null;

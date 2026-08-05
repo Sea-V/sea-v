@@ -1,0 +1,191 @@
+<svg viewBox="0 0 1440 1660" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>SEA-V Milestones System — page-colored, orthogonal connectors</title>
+<desc>Architecture diagram: data sources, shared calculation engine, achievement engine, render surfaces, and the certificate ladder, colored to match each SEA-V page's brand color, connected zone-to-zone with straight orthogonal lines. Confirmed correct 2026-08-05: Chief Mate &lt;3000GT does not gate Master &lt;3000GT (MSN 1858 Am.2) — both are independent routes off OOW Yachts &lt;3000GT.</desc>
+<defs>
+  <marker id="arrowFlow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#5b87b0"/>
+  </marker>
+  <marker id="arrowGate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#ffb347"/>
+  </marker>
+</defs>
+<style>
+  text { font-family: -apple-system, system-ui, "Segoe UI", sans-serif; fill: #eaf2fb; }
+  .title { font-size: 22px; font-weight: 700; }
+  .subtitle { font-size: 13px; fill: rgba(234,242,251,0.55); }
+  .h2 { font-size: 18px; font-weight: 700; fill: #eaf2fb; }
+  .zoneSub { font-size: 12.5px; fill: rgba(234,242,251,0.55); }
+  .zone { fill: rgba(255,255,255,0.03); stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+  .boxTitle { font-size: 14px; font-weight: 700; }
+  .boxSub { font-size: 11.5px; fill: rgba(234,242,251,0.62); }
+  .ladderText { font-size: 14px; font-weight: 700; text-anchor: middle; }
+  .ladderSub { font-size: 11px; fill: rgba(234,242,251,0.62); text-anchor: middle; }
+  .tiny { font-size: 11.5px; fill: rgba(234,242,251,0.45); }
+  .legendLabel { font-size: 11px; fill: rgba(234,242,251,0.75); }
+  .flowLine { stroke: #5b87b0; stroke-width: 2; fill: none; marker-end: url(#arrowFlow); }
+  .gateLine { stroke: #ffb347; stroke-width: 1.75; fill: none; marker-end: url(#arrowGate); }
+  .gateLineHub { stroke: #ffb347; stroke-width: 2.25; fill: none; marker-end: url(#arrowGate); }
+</style>
+
+<rect x="0" y="0" width="1440" height="1660" fill="#0e1c2e"/>
+
+<text class="title" x="40" y="36">SEA-V Milestones System — how it all connects</text>
+<text class="subtitle" x="40" y="58">Data → shared calculation engine → achievement engine → where it's shown → the certificate ladder</text>
+
+<!-- Legend: box color = the SEA-V page/table it belongs to -->
+<circle cx="46" cy="76" r="5" fill="#829eff"/><text class="legendLabel" x="58" y="80">Sea Time</text>
+<circle cx="150" cy="76" r="5" fill="#ffd25a"/><text class="legendLabel" x="162" y="80">Certificates</text>
+<circle cx="270" cy="76" r="5" fill="#d6e2ee"/><text class="legendLabel" x="282" y="80">Vessels</text>
+<circle cx="368" cy="76" r="5" fill="#ffb347"/><text class="legendLabel" x="380" y="80">Achievements / Milestones</text>
+<circle cx="560" cy="76" r="5" fill="#5bbcff"/><text class="legendLabel" x="572" y="80">Dashboard</text>
+<circle cx="668" cy="76" r="5" fill="#d7f4ff"/><text class="legendLabel" x="680" y="80">Public profile</text>
+<circle cx="790" cy="76" r="5" fill="#4a9fd4"/><text class="legendLabel" x="802" y="80">Shared engine (no single page)</text>
+<text class="legendLabel" x="1080" y="80" fill="rgba(234,242,251,0.4)">thicker border = key branching node</text>
+
+<!-- ZONE 1: Data sources -->
+<text class="h2" x="64" y="104">1. Data sources — Supabase tables</text>
+<text class="zoneSub" x="64" y="124">Raw records crew members enter or upload.</text>
+<rect class="zone" x="40" y="140" width="1360" height="84" rx="16"/>
+<rect x="70" y="160" width="300" height="46" rx="10" fill="rgba(130,158,255,0.12)" stroke="#829eff" stroke-width="1.5"/>
+<text class="boxTitle" x="90" y="180">seatimes table</text>
+<text class="boxSub" x="90" y="196">join/leave dates, vessel, role</text>
+<rect x="390" y="160" width="300" height="46" rx="10" fill="rgba(255,210,90,0.12)" stroke="#ffd25a" stroke-width="1.5"/>
+<text class="boxTitle" x="410" y="180">certificates table</text>
+<text class="boxSub" x="410" y="196">code, issue_date, status</text>
+<rect x="710" y="160" width="300" height="46" rx="10" fill="rgba(214,226,238,0.10)" stroke="#d6e2ee" stroke-width="1.5"/>
+<text class="boxTitle" x="730" y="180">vessels table</text>
+<text class="boxSub" x="730" y="196">GT, length, type</text>
+<rect x="1030" y="160" width="300" height="46" rx="10" fill="rgba(255,179,71,0.12)" stroke="#ffb347" stroke-width="1.5"/>
+<text class="boxTitle" x="1050" y="180">achievements table</text>
+<text class="boxSub" x="1050" y="196">persisted awards, status</text>
+
+<path class="flowLine" d="M720,224 L720,260"/>
+
+<!-- ZONE 2: Shared calculation engine -->
+<text class="h2" x="64" y="284">2. Shared calculation engine — js/seav-data.js</text>
+<text class="zoneSub" x="64" y="304">One set of functions every surface calls — fix once, fixes everywhere.</text>
+<rect class="zone" x="40" y="320" width="1360" height="180" rx="16"/>
+<rect x="80" y="340" width="400" height="56" rx="10" fill="rgba(74,159,212,0.12)" stroke="#4a9fd4" stroke-width="1.5"/>
+<text class="boxTitle" x="100" y="362">isOowSeaTimeComplete()</text>
+<text class="boxSub" x="100" y="380">OOW &lt;3000GT sea-day totals</text>
+<rect x="520" y="340" width="400" height="56" rx="10" fill="rgba(74,159,212,0.16)" stroke="#4a9fd4" stroke-width="2.25"/>
+<text class="boxTitle" x="540" y="362">seatimesGatedByCertIssueDate()</text>
+<text class="boxSub" x="540" y="380">clips entries at issue date</text>
+<rect x="960" y="340" width="400" height="56" rx="10" fill="rgba(74,159,212,0.12)" stroke="#4a9fd4" stroke-width="1.5"/>
+<text class="boxTitle" x="980" y="362">computeMasterSeaService()</text>
+<text class="boxSub" x="980" y="380">ungated watchkeeping totals</text>
+<rect x="80" y="420" width="400" height="56" rx="10" fill="rgba(74,159,212,0.12)" stroke="#4a9fd4" stroke-width="1.5"/>
+<text class="boxTitle" x="100" y="442">computeMaster500 / 3000 SeaService()</text>
+<text class="boxSub" x="100" y="460">gated on OOW cert date</text>
+<rect x="520" y="420" width="400" height="56" rx="10" fill="rgba(74,159,212,0.12)" stroke="#4a9fd4" stroke-width="1.5"/>
+<text class="boxTitle" x="540" y="442">computeChiefMate3000Eligibility()</text>
+<text class="boxSub" x="540" y="460">OOW eligible + Yachtmaster Ocean</text>
+<rect x="960" y="420" width="400" height="56" rx="10" fill="rgba(74,159,212,0.12)" stroke="#4a9fd4" stroke-width="1.5"/>
+<text class="boxTitle" x="980" y="442">computeChiefMateUnlimited / MasterUnlimited()</text>
+<text class="boxSub" x="980" y="460">gated on holding Master cert</text>
+
+<path class="flowLine" d="M720,500 L720,536"/>
+
+<!-- ZONE 3: Achievement engine -->
+<text class="h2" x="64" y="560">3. Achievement engine — js/achievements-engine.js</text>
+<text class="zoneSub" x="64" y="580">Turns raw calculation numbers into per-milestone progress.</text>
+<rect class="zone" x="40" y="596" width="1360" height="84" rx="16"/>
+<rect x="70" y="616" width="300" height="46" rx="10" fill="rgba(255,179,71,0.10)" stroke="#ffb347" stroke-width="1.5"/>
+<text class="boxTitle" x="90" y="636">isTriggerMet()</text>
+<text class="boxSub" x="90" y="652">true/false gate check</text>
+<rect x="390" y="616" width="300" height="46" rx="10" fill="rgba(255,179,71,0.10)" stroke="#ffb347" stroke-width="1.5"/>
+<text class="boxTitle" x="410" y="636">getProgressForDefinition()</text>
+<text class="boxSub" x="410" y="652">blended % for one bar</text>
+<rect x="710" y="616" width="300" height="46" rx="10" fill="rgba(255,179,71,0.16)" stroke="#ffb347" stroke-width="2.25"/>
+<text class="boxTitle" x="730" y="636">getSubRequirements()</text>
+<text class="boxSub" x="730" y="652">per-requirement dropdown rows</text>
+<rect x="1030" y="616" width="300" height="46" rx="10" fill="rgba(255,179,71,0.10)" stroke="#ffb347" stroke-width="1.5"/>
+<text class="boxTitle" x="1050" y="636">getNextMilestone()</text>
+<text class="boxSub" x="1050" y="652">picks the Up Next card</text>
+
+<path class="flowLine" d="M720,680 L720,716"/>
+
+<!-- ZONE 4: Render surfaces -->
+<text class="h2" x="64" y="740">4. Where it's shown</text>
+<text class="zoneSub" x="64" y="760">Same engine, three different views of the same numbers.</text>
+<rect class="zone" x="40" y="776" width="1360" height="84" rx="16"/>
+<rect x="80" y="796" width="400" height="46" rx="10" fill="rgba(91,188,255,0.12)" stroke="#5bbcff" stroke-width="1.5"/>
+<text class="boxTitle" x="100" y="816">Dashboard widget (core.js)</text>
+<text class="boxSub" x="100" y="832">Up Next card only</text>
+<rect x="520" y="796" width="400" height="46" rx="10" fill="rgba(255,179,71,0.16)" stroke="#ffb347" stroke-width="2.25"/>
+<text class="boxTitle" x="540" y="816">Milestones page (achievements.js)</text>
+<text class="boxSub" x="540" y="832">full list, dropdowns, private page</text>
+<rect x="960" y="796" width="400" height="46" rx="10" fill="rgba(215,244,255,0.10)" stroke="#d7f4ff" stroke-width="1.5"/>
+<text class="boxTitle" x="980" y="816">Public profile</text>
+<text class="boxSub" x="980" y="832">read-only badges, no dropdowns</text>
+
+<path class="flowLine" d="M720,860 L720,896"/>
+
+<!-- ZONE 5: Certificate ladder -->
+<text class="h2" x="64" y="920">5. The certificate ladder — which gate unlocks which milestone</text>
+<text class="zoneSub" x="64" y="940">An arrow means "must hold / qualify for this before the next one's progress counts." Not a strict chain —</text>
+<text class="zoneSub" x="64" y="956">Master &lt;500GT, Master &lt;3000GT and Chief Mate &lt;3000GT are three independent routes off OOW, not sequential steps.</text>
+<rect class="zone" x="40" y="972" width="1360" height="622" rx="16"/>
+
+<!-- Tier 1 -->
+<rect x="80" y="1012" width="260" height="64" rx="10" fill="rgba(255,210,90,0.12)" stroke="#ffd25a" stroke-width="1.5"/>
+<text class="ladderText" x="210" y="1038">RYA Yachtmaster Offshore</text>
+<text class="ladderSub" x="210" y="1056">mileage-based, own milestone</text>
+
+<rect x="560" y="1012" width="300" height="64" rx="10" fill="rgba(255,179,71,0.16)" stroke="#ffb347" stroke-width="2.25"/>
+<text class="ladderText" x="710" y="1038">OOW Yachts &lt;3000GT</text>
+<text class="ladderSub" x="710" y="1056">sea-day eligibility — the hub</text>
+
+<rect x="1060" y="1012" width="260" height="64" rx="10" fill="rgba(255,210,90,0.12)" stroke="#ffd25a" stroke-width="1.5"/>
+<text class="ladderText" x="1190" y="1038">RYA Yachtmaster Ocean</text>
+<text class="ladderSub" x="1190" y="1056">held cert only, not computed</text>
+
+<!-- Arrows tier1 -> tier2 (orthogonal) -->
+<path class="gateLine" d="M210,1076 L210,1146"/>
+<path class="gateLineHub" d="M710,1076 L710,1111 L505,1111 L505,1146"/>
+<path class="gateLineHub" d="M710,1076 L710,1111 L765,1111 L765,1146"/>
+<path class="gateLineHub" d="M710,1076 L710,1111 L1060,1111 L1060,1146"/>
+<path class="gateLine" d="M1190,1076 L1190,1111 L1060,1111 L1060,1146"/>
+
+<!-- Tier 2 -->
+<rect x="80" y="1146" width="260" height="64" rx="10" fill="rgba(255,179,71,0.10)" stroke="#ffb347" stroke-width="1.5"/>
+<text class="ladderText" x="210" y="1172">Master &lt;200GT</text>
+<text class="ladderSub" x="210" y="1190">seagoing-service route</text>
+
+<rect x="390" y="1146" width="230" height="64" rx="10" fill="rgba(255,179,71,0.10)" stroke="#ffb347" stroke-width="1.5"/>
+<text class="ladderText" x="505" y="1172">Master &lt;500GT</text>
+<text class="ladderSub" x="505" y="1190">onboard + watchkeeping</text>
+
+<rect x="650" y="1146" width="230" height="64" rx="10" fill="rgba(255,179,71,0.16)" stroke="#ffb347" stroke-width="2.25"/>
+<text class="ladderText" x="765" y="1172">Master &lt;3000GT</text>
+<text class="ladderSub" x="765" y="1190">watchkeeping + experience</text>
+
+<rect x="920" y="1146" width="280" height="64" rx="10" fill="rgba(255,179,71,0.10)" stroke="#ffb347" stroke-width="1.5"/>
+<text class="ladderText" x="1060" y="1172">Chief Mate &lt;3000GT</text>
+<text class="ladderSub" x="1060" y="1190">direct route — no Master cert</text>
+
+<!-- Arrows tier2 -> tier3, only from Master <3000GT -->
+<path class="gateLineHub" d="M765,1210 L765,1245 L660,1245 L660,1280"/>
+<path class="gateLineHub" d="M765,1210 L765,1245 L950,1245 L950,1280"/>
+
+<!-- Tier 3 -->
+<rect x="530" y="1280" width="260" height="64" rx="10" fill="rgba(255,179,71,0.10)" stroke="#ffb347" stroke-width="1.5"/>
+<text class="ladderText" x="660" y="1306">Chief Mate Unlimited</text>
+<text class="ladderSub" x="660" y="1324">requires holding Master &lt;3000GT</text>
+
+<rect x="820" y="1280" width="260" height="64" rx="10" fill="rgba(255,179,71,0.10)" stroke="#ffb347" stroke-width="1.5"/>
+<text class="ladderText" x="950" y="1306">Master Yachts Unlimited</text>
+<text class="ladderSub" x="950" y="1324">6mo as Master, 500GT+ vessels</text>
+
+<text class="tiny" x="80" y="1384">Chief Mate &lt;3000GT is its own box, gated directly on OOW &lt;3000GT + RYA Yachtmaster Ocean — confirmed in</text>
+<text class="tiny" x="80" y="1402">computeChiefMate3000Eligibility(). It never required holding Master &lt;3000GT. Master &lt;500GT and Master &lt;3000GT are also</text>
+<text class="tiny" x="80" y="1420">independent siblings off OOW (both gated on the "OOW YACHT" cert code) — not a 500-then-3000 chain.</text>
+
+<rect x="80" y="1454" width="1240" height="130" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+<text class="boxTitle" x="104" y="1480">Only Master &lt;3000GT branches further</text>
+<text class="boxSub" x="104" y="1500">Once the Master &lt;3000GT certificate is actually held (not just sea-service complete), two more routes open:</text>
+<text class="boxSub" x="104" y="1520">→ Chief Mate Unlimited (cert-held check) and → Master Yachts Unlimited (6 more months as Master on 500GT+ vessels).</text>
+<text class="boxSub" x="104" y="1540">Master &lt;200GT, Master &lt;500GT and Chief Mate &lt;3000GT are terminal in the current catalog — nothing gates on holding them.</text>
+<text class="boxSub" x="104" y="1560">Master &lt;3000GT is the only cert-held gate in this whole ladder (via "MASTER Y3000"); everything else gates on sea-time eligibility.</text>
+
+</svg>

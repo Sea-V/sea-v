@@ -483,6 +483,99 @@
     `;
   }
 
+  // 2026-08-05, per Jack — corrects the 2026-08-05 dropdown build above:
+  // he asked for ONE dropdown PER CERTIFICATE, not one dropdown per
+  // underlying catalog badge. A cert with a single catalog definition
+  // already behaves this way via buildProgressRow (its own
+  // getSubRequirements already returns every sub-part as its own row inside
+  // one dropdown — e.g. RYA Yachtmaster Offshore opens to "Total qualifying
+  // miles" + "Tidal-water miles"). The one cert that's actually split across
+  // MULTIPLE catalog definitions is OOW Yachts <3000GT (250 actual days /
+  // 365 qualifying days / 36 months onboard / a 4th "Sea Time Complete"
+  // summary badge that's just the AND of the other three) — that one showed
+  // as 4 separate single-row dropdown boxes instead of 1 dropdown with a
+  // 3-row breakdown. Convention: the LAST definition in a multi-definition
+  // group is treated as the "complete" summary badge (its own
+  // getSubRequirements row would just re-derive "are the others all met",
+  // so it's dropped) — its badge/title/earned-date represent the whole
+  // cert row, and every OTHER definition in the group supplies this row's
+  // requirement breakdown. This only changes how the Deck Progression list
+  // on THIS page displays them — all underlying achievement records still
+  // get earned/awarded individually exactly as before (badge-unlock
+  // celebration, dashboard trophy case, etc. are untouched).
+  function buildCertRow(certGroupKey, definitions, earnedGroups) {
+    if (definitions.length === 1) {
+      return buildProgressRow(definitions[0], earnedGroups.get(definitions[0].code) || []);
+    }
+
+    const primary = definitions[definitions.length - 1];
+    const breakdownDefinitions = definitions.slice(0, -1);
+
+    const full = getAchievementWithBadge(primary.code);
+    if (!full) return "";
+
+    const primaryInstances = earnedGroups.get(primary.code) || [];
+    const unlocked = primaryInstances.length > 0;
+    const tier = full.badge?.tier || "default";
+    const imagePath = window.SeavBadges.resolveBadgeImage(primary.badgeKey, unlocked);
+
+    const subProgresses = breakdownDefinitions.map(
+      (definition) => window.SeavAchievementEngine?.getProgressForDefinition?.(definition) || { percent: 0 }
+    );
+    const percent = subProgresses.length
+      ? Math.min(...subProgresses.map((p) => p.percent))
+      : unlocked
+        ? 100
+        : 0;
+    const metCount = subProgresses.filter((p) => p.percent >= 100).length;
+    const summaryLabel = `${metCount} of ${breakdownDefinitions.length} requirements met`;
+
+    const subRequirements = breakdownDefinitions.flatMap(
+      (definition) => window.SeavAchievementEngine?.getSubRequirements?.(definition) || []
+    );
+
+    const primaryRecord = primaryInstances[0];
+    const unlockedTitle = unlocked
+      ? `Unlocked${primaryRecord?.date ? ` · ${formatAchievementDate(primaryRecord.date)}` : ""}`
+      : "";
+
+    return `
+      <details class="ach-milestone-row ${unlocked ? "is-unlocked" : "is-locked"}" data-tier="${Seav.escapeHtml(tier)}">
+        <summary class="ach-milestone-summary">
+          <div class="ach-progress-row-badge">
+            <img src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(certGroupKey)}" />
+          </div>
+          <div class="ach-progress-row-body">
+            <div class="ach-progress-row-title-wrap">
+              <span class="ach-progress-row-title">${Seav.escapeHtml(certGroupKey)}</span>
+            </div>
+            ${full.description ? `<p class="ach-progress-row-desc">${Seav.escapeHtml(full.description)}</p>` : ""}
+            <p class="ach-progress-row-label">${Seav.escapeHtml(summaryLabel)}</p>
+            <div class="ach-progress-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
+              <span style="width: ${percent}%"></span>
+            </div>
+          </div>
+          ${
+            unlocked
+              ? `
+                <div class="ach-progress-row-check" title="${Seav.escapeHtml(unlockedTitle)}" aria-label="${Seav.escapeHtml(unlockedTitle)}">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              `
+              : ""
+          }
+        </summary>
+        <div class="ach-milestone-detail">
+          <ul class="ach-req-list">
+            ${subRequirements.map(buildRequirementRow).join("")}
+          </ul>
+        </div>
+      </details>
+    `;
+  }
+
   function renderDeckProgression() {
     const mount = document.getElementById("achDeckProgressionList");
     if (!mount) return;
@@ -512,20 +605,12 @@
       (a, b) => certGroupRank(a) - certGroupRank(b)
     );
 
-    mount.innerHTML = orderedKeys
-      .map((key) => {
-        const rows = groups
-          .get(key)
-          .map((definition) => buildProgressRow(definition, earnedGroups.get(definition.code) || []))
-          .join("");
-        return `
-          <div class="ach-progress-cert-group">
-            <h4 class="ach-progress-cert-title">${Seav.escapeHtml(key)}</h4>
-            <div class="ach-progress-list">${rows}</div>
-          </div>
-        `;
-      })
-      .join("");
+    // 2026-08-05, per Jack: flat list now, one dropdown per certificate —
+    // no group-header wrapper, since the cert name IS the dropdown title
+    // (see buildCertRow above).
+    const rows = orderedKeys.map((key) => buildCertRow(key, groups.get(key), earnedGroups)).join("");
+
+    mount.innerHTML = `<div class="ach-progress-list">${rows}</div>`;
   }
 
   function renderSeafarerAwards() {

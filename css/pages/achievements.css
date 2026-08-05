@@ -125,7 +125,8 @@
   background:
     radial-gradient(circle closest-side, rgba(12, 28, 48, 0.95) 78%, transparent 80%),
     conic-gradient(#ffb347 var(--ach-progress), rgba(255, 255, 255, 0.08) 0);
-  box-shadow: 0 0 24px rgba(255, 179, 71, 0.18);
+  /* 2026-08-05 audit fix: dropped the soft box-shadow blur around this ring
+     — it read as a mild glow/halo, which Jack asked to avoid site-wide. */
 }
 
 .ach-kpi-ring-value {
@@ -231,28 +232,15 @@
   margin-bottom: 28px;
 }
 
-/* Deck Progression is grouped by certificate (Yachtmaster Offshore, OOW
-   <3000GT, Master <200/500/3000GT, in earn-order) instead of one flat list —
-   each group gets its own small heading, then the same stacked-row list. */
+/* 2026-08-05, per Jack: one dropdown per real-world certificate (Yachtmaster
+   Offshore, OOW <3000GT, Master <200/500/3000GT, ...), in earn-order — see
+   js/achievements.js buildCertRow. Was briefly one visual "group" (small
+   heading + N sub-rows) per cert; that's gone now, this just holds the flat
+   list of cert dropdowns. */
 .ach-progress-groups {
   display: flex;
   flex-direction: column;
   gap: 22px;
-}
-
-.ach-progress-cert-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.ach-progress-cert-title {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--seav-field-label-color, #5bbcff);
 }
 
 .ach-progress-list {
@@ -363,6 +351,17 @@
 .ach-milestone-row.is-unlocked {
   border-color: rgba(255, 179, 71, 0.28);
   background: rgba(255, 179, 71, 0.06);
+}
+
+/* 2026-08-05 audit fix: this dropdown wrapper (.ach-milestone-row) reuses
+   .ach-progress-row-badge for its badge image, but the existing
+   grayscale-when-locked rule below only fires under a .ach-progress-row
+   ancestor — the dashboard widget's plain <article>, not this <details>
+   shell. Without this, locked badges on the private Milestones page showed
+   in full color, same as unlocked ones. */
+.ach-milestone-row.is-locked .ach-progress-row-badge img {
+  filter: grayscale(0.65) brightness(0.88);
+  opacity: 0.72;
 }
 
 .ach-milestone-summary {
@@ -771,6 +770,14 @@
   }
 
   .ach-progress-row {
+    align-items: flex-start;
+  }
+
+  /* 2026-08-05 audit fix: the dropdown row (.ach-milestone-summary) never
+     got the same flex-start treatment as .ach-progress-row above — on a
+     narrow screen, a milestone with a 2-line description showed its badge
+     and chevron centered against the whole block instead of top-aligned. */
+  .ach-milestone-summary {
     align-items: flex-start;
   }
 }
