@@ -155,7 +155,7 @@
     );
   }
 
-  function clearDateTriplet(prefix) {
+  function clearDateTriplet(prefix, { anchorYear = true } = {}) {
     setDateTriplet(prefix, "");
 
     // Anchor the year select on the current year instead of leaving it
@@ -166,6 +166,17 @@
     // just the year means it opens already sitting on "now", with past
     // years above and future years below, and day/month stay blank so
     // the field still isn't a complete date until those are chosen too.
+    //
+    // 2026-08-05, per Jack: skip this anchor when { anchorYear: false } is
+    // passed — a genuinely-optional field like a certificate's expiry date
+    // (many certs have none) shouldn't show a year pre-selected, since it
+    // makes the field look partially filled in and risks a crew member
+    // accidentally creating an expiry date just by picking day+month
+    // without noticing the year was already set. Defaults to true so every
+    // other date field on the site (issue dates, sea time dates, etc. —
+    // where "now" is a genuinely useful starting point) is unaffected.
+    if (!anchorYear) return;
+
     const yearEl = document.getElementById(`${prefix}_year`);
     if (yearEl) yearEl.value = String(getCurrentYear());
   }
@@ -836,7 +847,17 @@ function renderSidebarAchievements() {
     const badge = document.createElement("div");
     badge.id = "seavVersionBadge";
     badge.className = "seav-version-badge";
-    badge.textContent = `v${version}`;
+
+    const versionLine = document.createElement("span");
+    versionLine.className = "seav-version-badge-num";
+    versionLine.textContent = `v${version}`;
+
+    const copyrightLine = document.createElement("span");
+    copyrightLine.className = "seav-version-badge-copyright";
+    copyrightLine.textContent = `© ${new Date().getFullYear()} SEA-V`;
+
+    badge.appendChild(versionLine);
+    badge.appendChild(copyrightLine);
     document.body.appendChild(badge);
   }
 

@@ -613,7 +613,11 @@
     if (nameEl) nameEl.disabled = false;
 
     Seav.clearDateTriplet("ct_issued");
-    Seav.clearDateTriplet("ct_expiry");
+    // Expiry is genuinely optional (plenty of certs never expire) — don't
+    // pre-fill the year like every other date field does, so the field
+    // starts fully blank and a crew member can't accidentally create an
+    // expiry date just by picking day+month.
+    Seav.clearDateTriplet("ct_expiry", { anchorYear: false });
     fillTypeSelect("");
     onTypeChange();
     fillIssuerSelects("", "");
