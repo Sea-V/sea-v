@@ -231,7 +231,6 @@ body.app-page :where(
   [class$="-modern-card"],
   .achievement-card,
   #tendersGrid .vessel-card,
-  .profile-preview-card,
   .profile-form-card,
   .vessel-profile-card,
   .vessel-overview-card,

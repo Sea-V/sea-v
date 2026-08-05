@@ -61,18 +61,23 @@
     const Countries = window.SeavCountries;
     const Visas = window.SeavVisas;
 
-    // 2026-08-05, per Jack: the page should lock after Save (read-only
-    // view) and only reopen for editing via this button — the old
-    // side-by-side live preview is gone, so editView/lockedView are now
-    // mutually exclusive rather than both always visible.
-    const editView = el("profileEditView");
-    const lockedView = el("profileLockedView");
+    // 2026-08-05, per Jack: no separate read-only summary card anymore —
+    // the form itself is the only surface, always filled with the real
+    // saved values. When locked, a glassy overlay (#profileLockOverlay)
+    // visually covers the form; form.inert blocks keyboard/focus access
+    // to the fields underneath as a second line of defense alongside the
+    // overlay's own visual + click coverage. "mode" is tracked explicitly
+    // here (rather than inferred from a hidden check) since the form
+    // element itself is never hidden anymore.
+    const overlay = el("profileLockOverlay");
     const editBtn = el("btnEditProfile");
+    let mode = "edit";
     let initialModeSet = false;
 
     function setMode(next) {
-      if (editView) editView.hidden = next !== "edit";
-      if (lockedView) lockedView.hidden = next !== "view";
+      mode = next;
+      if (overlay) overlay.hidden = next !== "view";
+      form.inert = next === "view";
       if (next === "edit") fillForm(loadProfile());
     }
 
@@ -194,42 +199,12 @@
       select.insertBefore(opt, select.options[1] || null);
     }
 
-    const preview = {
-      name: el("previewName"),
-      rank: el("previewRank"),
-      qualification: el("previewQualification"),
-      nationality: el("previewNationality"),
-      dob: el("previewDob"),
-      location: el("previewLocation"),
-      email: el("previewEmail"),
-      phone: el("previewPhone"),
-      passportsHeld: el("previewPassportsHeld"),
-      visasHeld: el("previewVisasHeld"),
-      availability: el("previewAvailability"),
-      bio: el("previewBio"),
-      photo: el("profilePreviewPhoto")
-    };
-
     function loadProfile() {
       return {
         ...DEFAULT_PROFILE,
         ...(window.SeavState?.profile || {}),
         id: window.SeavState?.profile?.id || DEFAULT_PROFILE.id
       };
-    }
-
-    // DOB used to be a hand-rolled day/month <select> + free-text year
-    // <input>, with its own split/build ISO helpers duplicating
-    // Seav.splitIsoDate/buildIsoDate. Converted (2026-08-03) to the same
-    // data-date-field triplet every other date on the site uses (see
-    // profile.html "pf_dob" and Seav.readDateTriplet/setDateTriplet below)
-    // so it behaves identically — same year range/order, same "sits on
-    // current year" default. formatDobForPreview() just needs the split,
-    // which the shared Seav.splitIsoDate now provides.
-    function formatDobForPreview(value) {
-      const parts = Seav.splitIsoDate(value);
-      if (!parts.year || !parts.month || !parts.day) return "—";
-      return `${parts.day}/${parts.month}/${parts.year}`;
     }
 
     // profile.phone stays a single plain string in storage (same column,
@@ -395,9 +370,9 @@
       photoBtn.addEventListener("click", () => fields.photo.click());
     }
 
-    // Mirrors the same background-image treatment the Preview card's avatar
-    // already used — previously the form only had a bare <input type=file>
-    // with no indication a photo already existed, which read as "nothing
+    // Renders the form's own photo thumbnail as a background-image —
+    // previously the form only had a bare <input type=file> with no
+    // indication a photo already existed, which read as "nothing
     // uploaded" (a blank/empty control) even when one was.
     function renderPhotoThumb(photoMeta, { isNewSelection = false } = {}) {
       if (!photoThumb) return;
@@ -426,38 +401,6 @@
 
       if (photoBtn) {
         photoBtn.textContent = photoUrl ? "Change photo" : "Choose photo";
-      }
-    }
-
-    function renderPreview(profile) {
-      if (preview.name) preview.name.textContent = profile.name || "Your Name";
-      if (preview.rank) preview.rank.textContent = profile.rank || "—";
-      if (preview.qualification) preview.qualification.textContent = profile.qualification || "—";
-      if (preview.nationality) preview.nationality.textContent = profile.nationality || "—";
-      if (preview.dob) preview.dob.textContent = formatDobForPreview(profile.dob);
-      if (preview.location) preview.location.textContent = profile.location || "—";
-      if (preview.email) preview.email.textContent = profile.email || "—";
-      if (preview.phone) preview.phone.textContent = profile.phone || "—";
-      if (preview.passportsHeld) preview.passportsHeld.textContent = profile.passportsHeld || "—";
-      if (preview.visasHeld) preview.visasHeld.textContent = profile.visasHeld || "—";
-      if (preview.availability) preview.availability.textContent = profile.availability || "—";
-      if (preview.bio) preview.bio.textContent = profile.bio || "—";
-
-      if (preview.photo) {
-        const photoUrl = Seav.getFileDisplayUrl(
-          profile.photo,
-          window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
-        );
-
-      if (photoUrl) {
-          const safeUrl = String(photoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-          preview.photo.style.backgroundImage = `url("${safeUrl}")`;
-          preview.photo.style.backgroundSize = "cover";
-          preview.photo.style.backgroundPosition = "center";
-          preview.photo.style.backgroundRepeat = "no-repeat";
-        } else {
-          preview.photo.style.backgroundImage = "";
-        }
       }
     }
 
@@ -523,7 +466,6 @@
     function refreshProfileView() {
       const profile = loadProfile();
       populateQualificationOptions();
-      renderPreview(profile);
 
       if (!initialModeSet) {
         // Only decide edit-vs-locked once, on first load — a background
@@ -534,10 +476,11 @@
         initialModeSet = true;
         fillForm(profile);
         setMode(profile.name ? "view" : "edit");
-      } else if (editView && !editView.hidden) {
+      } else if (mode === "edit") {
         // Currently editing — keep the form's own state (don't clobber
-        // in-progress edits), but the locked view underneath should
-        // still reflect the latest saved data whenever it's next shown.
+        // in-progress edits). The fields will pick up the latest saved
+        // data next time setMode("edit") runs (Edit button, or after a
+        // successful save re-locks and Edit is clicked again).
       } else {
         fillForm(profile);
       }

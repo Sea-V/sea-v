@@ -25,38 +25,38 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=420" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=420" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=420" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=420" />
+  <link rel="icon" href="/favicon.ico?v=421" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=421" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=421" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=421" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Profile</title>
 
-  <link rel="stylesheet" href="styles.css?v=420" />
+  <link rel="stylesheet" href="styles.css?v=421" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=420"></script>
-  <script src="js/supabase.js?v=420"></script>
-  <script src="js/auth.js?v=420"></script>
-  <script src="js/feedback.js?v=420" defer></script>
-  <script src="js/core.js?v=420" defer></script>
+  <script src="js/seav-config.js?v=421"></script>
+  <script src="js/supabase.js?v=421"></script>
+  <script src="js/auth.js?v=421"></script>
+  <script src="js/feedback.js?v=421" defer></script>
+  <script src="js/core.js?v=421" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=420" defer></script>
-  <script src="js/seav-countries.js?v=420" defer></script>
-  <script src="js/seav-visas.js?v=420" defer></script>
-  <script src="js/seav-data.js?v=420" defer></script>
-  <script src="js/seav-badges.js?v=420" defer></script>
-  <script src="js/api-core.js?v=420" defer></script>
-  <script src="js/api-mappers.js?v=420" defer></script>
-  <script src="js/api.js?v=420" defer></script>
-  <script src="js/state.js?v=420" defer></script>
-  <script src="js/seav-notifications.js?v=420" defer></script>
-  <script src="js/achievements-engine.js?v=420" defer></script>
-  <script src="js/badge-unlock.js?v=420" defer></script>
+  <script src="js/seav-upload.js?v=421" defer></script>
+  <script src="js/seav-countries.js?v=421" defer></script>
+  <script src="js/seav-visas.js?v=421" defer></script>
+  <script src="js/seav-data.js?v=421" defer></script>
+  <script src="js/seav-badges.js?v=421" defer></script>
+  <script src="js/api-core.js?v=421" defer></script>
+  <script src="js/api-mappers.js?v=421" defer></script>
+  <script src="js/api.js?v=421" defer></script>
+  <script src="js/state.js?v=421" defer></script>
+  <script src="js/seav-notifications.js?v=421" defer></script>
+  <script src="js/achievements-engine.js?v=421" defer></script>
+  <script src="js/badge-unlock.js?v=421" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=420" defer></script>
-  <script src="js/profile.js?v=420" defer></script>
+  <script src="js/seav-share.js?v=421" defer></script>
+  <script src="js/profile.js?v=421" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -130,11 +130,14 @@
 
     <div class="profile-page-grid">
         <!-- =========================================================
-           PROFILE FORM (edit mode) — hidden once a saved profile exists
-           and the locked view below is showing instead. 2026-08-05, per
-           Jack: the page should lock after Save and only reopen via the
-           Edit button, and the old side-by-side live preview is gone —
-           only one of these two cards is ever visible at a time now.
+           PROFILE FORM — the only card on this page now. 2026-08-05,
+           per Jack: no separate read-only preview/summary card anymore,
+           just the real editable fields, always populated with the
+           saved values. When locked (after Save, or on load for anyone
+           with an existing profile) a glassy overlay covers the whole
+           card — the fields underneath are the actual saved data, just
+           visually and functionally locked (form.inert) until Edit
+           profile is clicked.
         ========================================================= -->
 
         <article class="dash-card profile-form-card" id="profileEditView">
@@ -267,89 +270,31 @@
             </div>
 
           </form>
-        </article>
 
-        <!-- =========================================================
-           PROFILE — LOCKED VIEW. Shown after Save, or on load for anyone
-           who already has a saved profile. "Edit profile" is the only
-           way back into the form — this is not a live preview anymore.
-        ========================================================= -->
-
-        <article class="dash-card profile-preview-card" id="profileLockedView" hidden>
-          <div class="profile-view-head">
-            <h3>Your Profile</h3>
-            <button type="button" class="btn-ghost2" id="btnEditProfile">Edit profile</button>
-          </div>
-
-          <div class="profile-preview-stack">
-
-            <div class="avatar avatar-xl" id="profilePreviewPhoto" aria-label="Profile photo"></div>
-
-            <h3 class="profile-name profile-preview-name" id="previewName">
-              Your Name
-            </h3>
-
-            <div class="profile-preview-fields">
-
-              <div class="profile-info-box">
-                <span class="profile-info-label">Rank</span>
-                <span class="profile-info-value" id="previewRank">—</span>
+          <!-- =========================================================
+             LOCK OVERLAY — glassy cover shown after Save, or on load for
+             anyone with an existing profile. Sits on top of the real form
+             above (not a separate summary render). form.inert (set in
+             js/profile.js) blocks keyboard/focus access to the fields
+             underneath as a second line of defense alongside this
+             overlay's own visual + click coverage. "Edit profile" is the
+             only way back into edit mode.
+          ========================================================= -->
+          <div class="profile-lock-overlay" id="profileLockOverlay" hidden>
+            <div class="profile-lock-card">
+              <div class="profile-lock-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
               </div>
-
-              <div class="profile-info-box">
-                <span class="profile-info-label">Current Qualification</span>
-                <span class="profile-info-value" id="previewQualification">—</span>
-              </div>
-
-              <div class="profile-info-box">
-                <span class="profile-info-label">Nationality</span>
-                <span class="profile-info-value" id="previewNationality">—</span>
-              </div>
-
-              <div class="profile-info-box">
-                <span class="profile-info-label">Date of Birth</span>
-                <span class="profile-info-value" id="previewDob">—</span>
-              </div>
-
-              <div class="profile-info-box">
-                <span class="profile-info-label">Current Location</span>
-                <span class="profile-info-value" id="previewLocation">—</span>
-              </div>
-
-              <div class="profile-info-box">
-                <span class="profile-info-label">Email</span>
-                <span class="profile-info-value" id="previewEmail">—</span>
-              </div>
-
-              <div class="profile-info-box">
-                <span class="profile-info-label">Phone</span>
-                <span class="profile-info-value" id="previewPhone">—</span>
-              </div>
-
-              <div class="profile-info-box">
-                <span class="profile-info-label">Passports Held</span>
-                <span class="profile-info-value" id="previewPassportsHeld">—</span>
-              </div>
-
-              <div class="profile-info-box">
-                <span class="profile-info-label">Visas Held</span>
-                <span class="profile-info-value" id="previewVisasHeld">—</span>
-              </div>
-
-              <div class="profile-info-box profile-info-box-full">
-                <span class="profile-info-label">Availability</span>
-                <span class="profile-info-value" id="previewAvailability">—</span>
-              </div>
-
+              <h3 class="profile-lock-heading">Profile anchored</h3>
+              <p class="profile-lock-message">
+                Your SEA-V profile is saved and shipshape. It's locked to keep
+                things steady — click Edit profile to make changes.
+              </p>
+              <button type="button" class="btn-blue" id="btnEditProfile">Edit profile</button>
             </div>
-
-            <hr class="preview-divider">
-
-            <div class="profile-info-box profile-info-box-full">
-              <span class="profile-info-label">Career overview</span>
-              <p id="previewBio" class="preview-bio muted">—</p>
-            </div>
-
           </div>
         </article>
 

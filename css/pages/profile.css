@@ -86,11 +86,9 @@
 }
 
 /* 2026-08-05: was a 2-col grid holding the form + a live side-by-side
-   preview. The preview is gone and the form/locked-view cards are now
-   mutually exclusive (only one visible at a time — see profileEditView /
-   profileLockedView in profile.html), so this is a single centered
-   column rather than a grid. Class name kept to avoid touching the HTML
-   wrapper unnecessarily. */
+   preview. The preview is gone entirely — this is now a single centered
+   column holding just the form card. Class name kept to avoid touching
+   the HTML wrapper unnecessarily. */
 .profile-page-grid {
   display: block;
   max-width: 680px;
@@ -98,12 +96,16 @@
 }
 
 /* =========================================================
-   MAIN CARDS
+   MAIN CARD
 ========================================================= */
 
-.profile-preview-card,
 .profile-form-card {
   min-height: 100%;
+
+  position: relative;
+  /* Clips the lock overlay below to the card's own rounded corners
+     instead of it covering a square area over a round card. */
+  overflow: hidden;
 
   border-radius: 30px;
   border: 1.5px solid rgba(66,214,181,0.22);
@@ -114,159 +116,112 @@
 
   box-shadow:
     0 20px 48px rgba(0,0,0,0.22);
-}
 
-.profile-form-card {
   padding: 22px;
 }
 
-.profile-view-head {
+/* =========================================================
+   LOCK OVERLAY — glassy cover shown over the (still-real, still
+   filled-in) form fields once the profile is locked. Same solid-fill +
+   blur convention as css/components/badge-unlock.css (2026-08-03 no-glow
+   rule: solid rgba fill, not a gradient/glow).
+========================================================= */
+
+.profile-lock-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+
   display: flex;
   align-items: center;
-  justify-content: space-between;
-
-  gap: 12px;
-
-  margin-bottom: 12px;
-}
-
-.profile-view-head h3 {
-  margin: 0;
-}
-
-.profile-preview-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-
-  gap: 14px;
-
-  width: 100%;
-}
-
-/* =========================================================
-   AVATAR
-========================================================= */
-
-.avatar-xl {
-  width: 96px;
-  height: 96px;
-
-  border-radius: 20px;
-  overflow: hidden;
-
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(66,214,181,0.22);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.04),
-    0 10px 24px rgba(0,0,0,0.18);
-}
-
-/* =========================================================
-   TEXT
-========================================================= */
-
-.profile-preview-name {
-  margin: 4px 0 0;
-
-  color: #ffffff;
-
-  font-size: var(--font-page-title);
-  line-height: 1.15;
-  font-weight: 900;
-}
-
-.preview-bio {
-  width: 100%;
-  margin: 0;
-
-  color: rgba(255,255,255,0.78);
-
-  font-size: var(--font-body);
-  line-height: 1.6;
-  font-weight: 500;
-
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-/* =========================================================
-   INFO GRID
-========================================================= */
-
-.profile-preview-fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 12px;
-
-  width: 100%;
-}
-
-.profile-info-box {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
 
-  gap: 6px;
+  padding: 24px;
 
-  width: 100%;
-  min-width: 0;
-  min-height: 78px;
+  background: rgba(4, 10, 18, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
 
-  padding: 16px 18px;
+.profile-lock-overlay[hidden] {
+  display: none;
+}
 
-  border-radius: 18px;
-  border: 1px solid rgba(66,214,181,0.18);
+.profile-lock-card {
+  width: min(100%, 340px);
 
-  background: rgba(255,255,255,0.035);
+  padding: 28px 24px;
 
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.04);
+  border-radius: 22px;
+  border: 1px solid rgba(66, 214, 181, 0.28);
+
+  background: rgba(12, 24, 40, 0.92);
+
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
 
   text-align: center;
 }
 
-.profile-info-box-full {
-  grid-column: 1 / -1;
+.profile-lock-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 1.5px solid rgba(66, 214, 181, 0.32);
+
+  background: rgba(255, 255, 255, 0.035);
+
+  color: #42d6b5;
 }
 
-.profile-info-label {
-  color: #5bbcff;
-
-  font-size: var(--font-label);
-  line-height: 1.1;
-  font-weight: 850;
-
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+.profile-lock-icon svg {
+  width: 26px;
+  height: 26px;
+  display: block;
 }
 
-.profile-info-value {
-  color: rgba(255,255,255,0.94);
+.profile-lock-heading {
+  margin: 0 0 8px;
 
-  font-size: var(--font-value);
-  line-height: 1.4;
-  font-weight: 700;
+  color: #ffffff;
 
-  letter-spacing: 0;
-  text-transform: none;
-
-  word-break: break-word;
+  font-size: var(--font-page-title);
+  line-height: 1.2;
+  font-weight: 900;
 }
 
-/* =========================================================
-   DIVIDER
-========================================================= */
+.profile-lock-message {
+  margin: 0 0 20px;
 
-.preview-divider {
+  color: rgba(255, 255, 255, 0.72);
+
+  font-size: var(--font-body);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.profile-lock-card .btn-blue {
   width: 100%;
+  min-height: 46px;
 
-  margin: 4px 0 0;
+  padding: 12px 18px;
 
-  border: 0;
-  border-top: 1px solid rgba(66,214,181,0.14);
+  border-radius: 30px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: var(--font-body);
+  line-height: 1;
+  font-weight: 900;
+
+  text-align: center;
 }
 
 /* =========================================================
@@ -463,14 +418,6 @@
 @media (max-width: 640px) {
   .profile-section {
     padding: 20px;
-  }
-
-  .profile-preview-fields {
-    grid-template-columns: 1fr;
-  }
-
-  .profile-info-box-full {
-    grid-column: auto;
   }
 
   .profile-phone-field {
