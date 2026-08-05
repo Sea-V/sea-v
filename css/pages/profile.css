@@ -152,9 +152,20 @@
 }
 
 .profile-banner-photo .profile-photo-thumb {
-  width: 96px;
-  height: 96px;
-  border-radius: 22px;
+  width: 192px;
+  height: 192px;
+  border-radius: 44px;
+}
+
+/* Smaller "Change photo" control to sit under the now much bigger photo
+   above — only in the banner, doesn't touch the shared .btn-ghost2 used
+   elsewhere (Vessels, Tenders, the modal file pickers, etc.). Font-size
+   is left alone: css/core/typography.css already forces .btn-ghost2 to
+   var(--pill-font-size) (12px) with !important, so only height/padding
+   are worth overriding here. */
+.profile-banner-photo .btn-ghost2 {
+  min-height: 26px;
+  padding: 0 10px;
 }
 
 .profile-banner-identity {
