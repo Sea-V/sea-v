@@ -208,12 +208,16 @@
 .profile-chapter-title {
   margin: 0;
 
-  /* --page-profile is Profile's real, canonical page-identity color
-     (css/core/variables.css, mirrored in scripts/page-colors.json) —
-     same value already used by .profile-shell-icon / .profile-lock-icon
-     on this page. The old value here (#9fe1cb) was carried over from a
-     mockup preview and didn't match the page's assigned color. */
-  color: var(--page-profile, #42d6b5);
+  /* v425, per Jack: match the blue every other page uses for its card/
+     detail sub-headings — .sq-detail-label, .cert-compact-detail-label,
+     .ps-detail-label, .ui-label, meta-grid cards' --seav-meta-label-color
+     (css/components/meta-grid-cards.css) all use this same #5bbcff /
+     var(--accent-blue). It's also already the color of this page's own
+     .profile-chip borders/background, so it's not a new color to the
+     page, just newly used for a heading here. (v424 had this on
+     var(--page-profile) / #42d6b5 instead — Profile's own teal identity
+     color — which read as a mismatch against the rest of the app.) */
+  color: var(--accent-blue);
 }
 
 /* =========================================================
