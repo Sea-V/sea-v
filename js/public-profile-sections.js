@@ -352,12 +352,23 @@
   // inside the hidden block), and it's only meant to mark one element per
   // vessel (the .pp-vessel-block wrapper in renderVessels). Marking every
   // nested collapsible too would inflate that count 6x.
-  function buildVesselSectionGroup(label, bodyHtml, count, stackedBody = false, vesselColor = "") {
+  // sectionType keys a fixed CSS accent class (vessel-linked-section-group--X)
+  // to each collapsible — NOT the vessel's own color. Per Jack: these must
+  // match the same accent each record type already uses everywhere else on
+  // the site (sidebar nav, dashboard card borders, achievement trophy
+  // borders) — see .vessel-linked-section-group--* in public-profile.css,
+  // which maps each type to its --page-* custom property from
+  // css/core/variables.css. An earlier version bordered these in the
+  // vessel's own color (getPublicVesselColor) — Jack flagged that as wrong
+  // same-day: "the need to match the colors from the page". The vessel's own
+  // color is still used elsewhere (the color-dot next to the vessel name,
+  // Navigation map routes) — just not here.
+  function buildVesselSectionGroup(label, bodyHtml, count, stackedBody = false, sectionType = "") {
     if (!count) return "";
     return `
-      <details class="tender-vessel-group vessel-linked-section-group"${
-        vesselColor ? ` style="border-color:${Seav.escapeHtml(vesselColor)}"` : ""
-      }>
+      <details class="tender-vessel-group vessel-linked-section-group${
+        sectionType ? ` vessel-linked-section-group--${sectionType}` : ""
+      }">
         <summary class="tender-vessel-group-summary">
           <span class="tender-vessel-group-title">
             <strong>${Seav.escapeHtml(label)}</strong>
@@ -371,7 +382,7 @@
     `;
   }
 
-  function buildVesselSeatimeSection(vesselSeatimes, vesselColor = "") {
+  function buildVesselSeatimeSection(vesselSeatimes) {
     if (!vesselSeatimes.length) return "";
     const totalDays = window.SeavData?.totalQualifyingDays || (() => 0);
     const formatDate = window.SeavData.formatDatePretty;
@@ -400,19 +411,19 @@
       `<div class="public-cv-mini-list">${rows}</div>`,
       vesselSeatimes.length,
       true,
-      vesselColor
+      "seatime"
     );
   }
 
-  function buildVesselTenderSection(vesselTenders, vessels, vesselColor = "") {
+  function buildVesselTenderSection(vesselTenders, vessels) {
     if (!vesselTenders.length) return "";
     const rows = vesselTenders
       .map((t) => window.SeavCards.buildTenderCard(t, vessels).replace(" data-pp-more-item", ""))
       .join("");
-    return buildVesselSectionGroup("Tenders", rows, vesselTenders.length, false, vesselColor);
+    return buildVesselSectionGroup("Tenders", rows, vesselTenders.length, false, "tenders");
   }
 
-  function buildVesselOnboardSection(vesselOnboard, vessels, vesselColor = "") {
+  function buildVesselOnboardSection(vesselOnboard, vessels) {
     if (!vesselOnboard.length) return "";
     const rows = vesselOnboard
       .map((entry) =>
@@ -428,7 +439,7 @@
       `<div class="list">${rows}</div>`,
       vesselOnboard.length,
       true,
-      vesselColor
+      "onboard"
     );
   }
 
@@ -476,10 +487,10 @@
     `;
   }
 
-  function buildVesselReferenceSection(vesselRefs, vesselColor = "") {
+  function buildVesselReferenceSection(vesselRefs) {
     if (!vesselRefs.length) return "";
     const rows = vesselRefs.map(buildReferenceQuoteBlock).join("");
-    return buildVesselSectionGroup("References", rows, vesselRefs.length, true, vesselColor);
+    return buildVesselSectionGroup("References", rows, vesselRefs.length, true, "references");
   }
 
   // Shared badge/title card markup for a single Seafarer Award. hideVesselMeta
@@ -509,7 +520,7 @@
     `;
   }
 
-  function buildVesselAwardsSection(vesselAwards, vesselColor = "") {
+  function buildVesselAwardsSection(vesselAwards) {
     if (!vesselAwards.length) return "";
     const rows = vesselAwards.map((item) => buildAchievementHighlightCard(item, true)).join("");
     return buildVesselSectionGroup(
@@ -517,7 +528,7 @@
       `<div class="public-cv-highlight-list">${rows}</div>`,
       vesselAwards.length,
       true,
-      vesselColor
+      "awards"
     );
   }
 
@@ -526,23 +537,27 @@
   // moved out of the card's own grid. Order matches Jack's own listed order:
   // sea time, onboard experience, references, awards (tenders slotted in
   // alongside sea time as the other "logbook" record type). Each collapsible
-  // is bordered in the vessel's own color (getPublicVesselColor — same
-  // palette used for the vessel-color-dot and Navigation map routes) so a
-  // career with several vessels stays visually scannable.
+  // is bordered in that record TYPE's own fixed site accent (the same color
+  // that type already uses everywhere else — sidebar nav, dashboard card
+  // borders, achievement trophy borders — via the vessel-linked-section-group--*
+  // classes in public-profile.css), not the vessel's own color. Jack flagged
+  // an earlier version that used getPublicVesselColor here as wrong, same day:
+  // "the need to match the colors from the page". The vessel's own color is
+  // still used elsewhere (the color-dot next to the vessel name in
+  // buildVesselCard, Navigation map routes) — just not for these borders.
   function buildVesselLinkedSections(vessel, seatimes, tenders, refs, onboardEntries, achievements, vessels) {
     const vesselSeatimes = (seatimes || []).filter((s) => s.vesselId === vessel.id);
     const vesselTenders = (tenders || []).filter((t) => t.vesselId === vessel.id);
     const vesselRefs = (refs || []).filter((r) => r.vesselId === vessel.id);
     const vesselOnboard = (onboardEntries || []).filter((e) => e.vesselId === vessel.id);
     const vesselAwards = (achievements || []).filter((a) => a.vesselId === vessel.id);
-    const vesselColor = getPublicVesselColor(vessel.id, vessels || []);
 
     const sectionsHtml = [
-      buildVesselSeatimeSection(vesselSeatimes, vesselColor),
-      buildVesselTenderSection(vesselTenders, vessels, vesselColor),
-      buildVesselOnboardSection(vesselOnboard, vessels, vesselColor),
-      buildVesselReferenceSection(vesselRefs, vesselColor),
-      buildVesselAwardsSection(vesselAwards, vesselColor)
+      buildVesselSeatimeSection(vesselSeatimes),
+      buildVesselTenderSection(vesselTenders, vessels),
+      buildVesselOnboardSection(vesselOnboard, vessels),
+      buildVesselReferenceSection(vesselRefs),
+      buildVesselAwardsSection(vesselAwards)
     ]
       .filter(Boolean)
       .join("");
