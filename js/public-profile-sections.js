@@ -11,6 +11,7 @@
     getOnboardCategoryLabel,
     getHobbyInterestCategoryLabel,
     getSpecialistCategoryLabel,
+    getReferenceStatus,
     getCertExpiryInfo,
     isSuppressedAdditionalCert,
     isSavedCert,
@@ -23,10 +24,10 @@
   const U = window.SeavPublicProfileUtils || {};
   const {
     LIMITS,
-    setSectionCount, buildShowMoreButton,
+    truncate, setSectionCount, buildShowMoreButton,
     formatNm, getPublicVesselColor, buildPublicNavigationStats,
     getNavigationEndpointMarkers, hasPlottableNavigationData,
-    formatExpiryShort,
+    formatExpiryShort, renderVerificationBadge,
     isReferenceVerified
   } = U;
 
@@ -309,28 +310,211 @@
   // for just the current vessel (buildVesselCardFull) rather than the
   // smaller dash-mini-card — vessel history is one of the more attractive
   // parts of a public profile, so it shouldn't look thinner for past boats.
-  // References are filtered to verified-only here (buildVesselCardFull has
-  // no concept of verification status) so the same privacy rule applied to
-  // the References section itself also applies inside vessel cards.
   //
-  // 2026-08-05, per Jack: the card now also carries Onboard Experience and
-  // Seafarer Awards (manual achievements) — the vessel card is the single
-  // place all vessel-attached records live, rather than five separate
-  // sections each re-grouping the same data by vessel. `onboardEntries` is
-  // filtered to Signed Off only (the public page's existing bar for "real"
-  // onboard experience, see buildVesselHighlights above) and `achievements`
-  // to approved manual (non-auto-awarded) records — both filters applied
-  // once by the caller (renderVessels) rather than per-card.
-  function buildVesselCard(v, seatimes, tenders, refs, onboardEntries, achievements, vessels) {
+  // 2026-08-05, per Jack: this card only ever renders the vessel's own
+  // overview now (photo/stats/experience) — its linked records (sea time,
+  // tenders, references, onboard experience, Seafarer Awards) render as
+  // separate collapsibles directly below it instead, see
+  // buildVesselLinkedSections() below. Jack's own words: "the single [sea
+  // time] collapsable, onboard experience below the vessel, reference
+  // collapsable section below the vessel, the awards collapsable below the
+  // vessel, in the rows that they were in before" — a same-day correction to
+  // the compact merged-grid version this function used to build.
+  function buildVesselCard(v, vessels) {
     return window.SeavCards.buildVesselCardFull(v, {
       photoBucket: window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos",
-      seatimes: seatimes || [],
-      tenders: tenders || [],
-      refs: (refs || []).filter(isReferenceVerified),
-      onboardEntries: onboardEntries || [],
-      achievements: achievements || [],
       vesselColor: getPublicVesselColor(v.id, vessels || [])
     });
+  }
+
+  // Generic collapsible shell for one vessel's linked-record section (Sea
+  // Time / Tenders / Onboard Experience / References / Awards). Reuses the
+  // exact same tender-vessel-group CSS the Tenders page's own per-vessel
+  // grouping already established (css/pages/tenders.css) rather than
+  // inventing a new component — the visual "row" Jack asked to keep is this
+  // one: a colored-dot-free summary line (dot already shown once, on the
+  // vessel card above) with a title + count, expanding to the section's own
+  // row/card list. Hidden entirely (returns "") when this vessel has none of
+  // that record type — no empty "Sea Time (0)" clutter under every vessel.
+  // `stackedBody` disables the base .tender-vessel-group-body's 3-column
+  // grid (built for the Tenders page's own mini-cards) — Sea Time rows,
+  // onboard rows, reference quote blocks, and award cards are already
+  // full-width flex-column lists in their own right, so nesting one of
+  // those single wrapper elements inside a 3-col grid would just squeeze
+  // it into the first column at a third of the width. Tenders keeps the
+  // grid (its cards were designed for exactly that 3-across layout).
+  function buildVesselSectionGroup(label, bodyHtml, count, stackedBody = false) {
+    if (!count) return "";
+    return `
+      <details class="tender-vessel-group vessel-linked-section-group" data-pp-more-item>
+        <summary class="tender-vessel-group-summary">
+          <span class="tender-vessel-group-title">
+            <strong>${Seav.escapeHtml(label)}</strong>
+          </span>
+          <span class="tender-vessel-group-count">${count}</span>
+        </summary>
+        <div class="tender-vessel-group-body${stackedBody ? " vessel-linked-section-body--stack" : ""}">
+          ${bodyHtml}
+        </div>
+      </details>
+    `;
+  }
+
+  function buildVesselSeatimeSection(vesselSeatimes) {
+    if (!vesselSeatimes.length) return "";
+    const totalDays = window.SeavData?.totalQualifyingDays || (() => 0);
+    const formatDate = window.SeavData.formatDatePretty;
+
+    const rows = vesselSeatimes
+      .map(
+        (entry) => `
+          <div class="public-cv-seatime-row">
+            <div class="public-cv-seatime-main">
+              <span class="public-cv-seatime-vessel">${Seav.escapeHtml(entry.capacityServed || "Sea time entry")}</span>
+              <span class="public-cv-seatime-meta">${Seav.escapeHtml(
+                `${entry.dateJoined ? formatDate(entry.dateJoined) : "—"} → ${entry.dateLeft ? formatDate(entry.dateLeft) : "Present"}`
+              )}</span>
+            </div>
+            <div class="public-cv-seatime-stats">
+              <span class="public-cv-seatime-days">${Seav.escapeHtml(String(totalDays(entry)))} days</span>
+              ${renderVerificationBadge(entry.verificationStatus)}
+            </div>
+          </div>
+        `
+      )
+      .join("");
+
+    return buildVesselSectionGroup("Sea Time", `<div class="public-cv-mini-list">${rows}</div>`, vesselSeatimes.length, true);
+  }
+
+  function buildVesselTenderSection(vesselTenders, vessels) {
+    if (!vesselTenders.length) return "";
+    const rows = vesselTenders
+      .map((t) => window.SeavCards.buildTenderCard(t, vessels).replace(" data-pp-more-item", ""))
+      .join("");
+    return buildVesselSectionGroup("Tenders", rows, vesselTenders.length);
+  }
+
+  function buildVesselOnboardSection(vesselOnboard, vessels) {
+    if (!vesselOnboard.length) return "";
+    const rows = vesselOnboard
+      .map((entry) =>
+        window.SeavCards.buildOnboardRow(entry, vessels, {
+          statusFallback: "—",
+          expandable: true,
+          hideVesselName: true
+        })
+      )
+      .join("");
+    return buildVesselSectionGroup("Onboard Experience", `<div class="list">${rows}</div>`, vesselOnboard.length, true);
+  }
+
+  // Read-only reference "quote card" — same visual language the old
+  // top-level References section used (public-cv-ref-block), just without
+  // repeating the vessel name in the meta line since it's already the
+  // heading one level up now. CoC numbers stay redacted (verification.cocNumber
+  // arrives as boolean `true`, never the real number — stripped server-side
+  // by the verification_public generated column) per the reinstated privacy
+  // rule (see project_seav_public_profile_pii_reversal memory).
+  function buildReferenceQuoteBlock(ref) {
+    const status = getReferenceStatus(ref);
+    const verification = ref.verification || {};
+    const cocNote = verification.cocNumber === true ? "★ CoC on file — hidden for privacy" : "";
+    const verifierMeta = [
+      verification.rank,
+      cocNote,
+      verification.signedAt ? formatExpiryShort(verification.signedAt) : ""
+    ]
+      .filter(Boolean)
+      .join(" • ");
+
+    return `
+      <div class="public-cv-ref-block">
+        <div class="public-cv-ref-top">
+          <div>
+            <p class="public-cv-ref-name">${Seav.escapeHtml(ref.name || "Referee")}</p>
+            <span class="public-cv-verify-badge is-trusted">Verified reference</span>
+          </div>
+          <span class="public-cv-status-dot is-valid" title="${Seav.escapeHtml(status)}" aria-label="${Seav.escapeHtml(status)}"></span>
+        </div>
+        <div class="public-cv-ref-meta">
+          ${Seav.escapeHtml(ref.title || "—")}
+          ${ref.role || ref.period ? ` • ${Seav.escapeHtml([ref.role, ref.period].filter(Boolean).join(" • "))}` : ""}
+        </div>
+        <div class="public-cv-ref-quote">“${Seav.escapeHtml(truncate(ref.text, 220))}”</div>
+        ${
+          verification.signatureName || verifierMeta
+            ? `<p class="public-cv-signoff-line">Confirmed by ${Seav.escapeHtml(
+                [verification.signatureName, verifierMeta].filter(Boolean).join(" • ")
+              )}</p>`
+            : ""
+        }
+      </div>
+    `;
+  }
+
+  function buildVesselReferenceSection(vesselRefs) {
+    if (!vesselRefs.length) return "";
+    const rows = vesselRefs.map(buildReferenceQuoteBlock).join("");
+    return buildVesselSectionGroup("References", rows, vesselRefs.length, true);
+  }
+
+  // Shared badge/title card markup for a single Seafarer Award. hideVesselMeta
+  // is always true here — nested one level under the vessel already, so
+  // repeating the vessel name on every card would just restate the group
+  // heading above it; description (or a generic fallback) is shown instead.
+  function buildAchievementHighlightCard(item, hideVesselMeta = true) {
+    const vessel = !hideVesselMeta && item.vessel ? item.vessel : "";
+    const title = item.title || "Milestone";
+    const meta =
+      vessel ||
+      (item.description ? truncate(item.description, 70) : hideVesselMeta ? "Logged milestone" : "Career-wide milestone");
+    const imagePath = window.SeavBadges?.resolveItemBadgeImage?.(item) || "";
+    const initial = Seav.escapeHtml((title || "M").trim().charAt(0).toUpperCase() || "M");
+    const badgeInner = imagePath
+      ? `<img src="${Seav.escapeHtml(imagePath)}" alt="" loading="lazy" />`
+      : `<span class="public-cv-highlight-badge-fallback">${initial}</span>`;
+
+    return `
+      <article class="public-cv-highlight-card">
+        <span class="public-cv-highlight-badge">${badgeInner}</span>
+        <div class="public-cv-highlight-body">
+          <p class="public-cv-highlight-title">${Seav.escapeHtml(title)}</p>
+          <p class="public-cv-highlight-desc">${Seav.escapeHtml(meta)}</p>
+        </div>
+      </article>
+    `;
+  }
+
+  function buildVesselAwardsSection(vesselAwards) {
+    if (!vesselAwards.length) return "";
+    const rows = vesselAwards.map((item) => buildAchievementHighlightCard(item, true)).join("");
+    return buildVesselSectionGroup("Awards", `<div class="public-cv-highlight-list">${rows}</div>`, vesselAwards.length, true);
+  }
+
+  // Composes the five per-vessel collapsibles that render below a vessel's
+  // own card — see the doc comment on buildVesselCard above for why these
+  // moved out of the card's own grid. Order matches Jack's own listed order:
+  // sea time, onboard experience, references, awards (tenders slotted in
+  // alongside sea time as the other "logbook" record type).
+  function buildVesselLinkedSections(vessel, seatimes, tenders, refs, onboardEntries, achievements, vessels) {
+    const vesselSeatimes = (seatimes || []).filter((s) => s.vesselId === vessel.id);
+    const vesselTenders = (tenders || []).filter((t) => t.vesselId === vessel.id);
+    const vesselRefs = (refs || []).filter((r) => r.vesselId === vessel.id);
+    const vesselOnboard = (onboardEntries || []).filter((e) => e.vesselId === vessel.id);
+    const vesselAwards = (achievements || []).filter((a) => a.vesselId === vessel.id);
+
+    const sectionsHtml = [
+      buildVesselSeatimeSection(vesselSeatimes),
+      buildVesselTenderSection(vesselTenders, vessels),
+      buildVesselOnboardSection(vesselOnboard, vessels),
+      buildVesselReferenceSection(vesselRefs),
+      buildVesselAwardsSection(vesselAwards)
+    ]
+      .filter(Boolean)
+      .join("");
+
+    return sectionsHtml ? `<div class="pp-vessel-linked-sections">${sectionsHtml}</div>` : "";
   }
 
   function renderSeatime(seatimes, vessels, isOwner) {
@@ -371,30 +555,31 @@
   }
 
   // Catch-all card for records that carry no vesselId at all (a standalone
-  // chase tender, an unlinked onboard entry, a career-wide manual award, or
-  // a reference logged without a vessel) — these have nowhere to live once
-  // Tenders/Onboard Experience/Awards/References stop being their own
-  // top-level sections. Reuses the exact same "vessel-linked-clean" row
-  // markup as a real vessel card so it reads as one more entry in the list,
-  // just without a photo/stats block. Omitted entirely when there's nothing
-  // unattached to show — this is a supplementary catch-all, not a primary
-  // section, so an empty one for every viewer (owner included) is just
-  // noise.
-  function buildUnattachedCard(orphanTenders, orphanOnboard, orphanAchievements, orphanRefs) {
+  // chase tender, an unlinked onboard entry, a career-wide manual award, a
+  // reference logged without a vessel, or a stray sea time record) — these
+  // have nowhere to live once every linked-record type moves under its
+  // vessel. Reuses the exact same five per-vessel collapsibles a real
+  // vessel gets (buildVesselSeatimeSection etc.) so it reads as one more
+  // entry in the list, just without a photo/stats header. Omitted entirely
+  // when there's nothing unattached to show.
+  function buildUnattachedCard(orphanSeatimes, orphanTenders, orphanOnboard, orphanAchievements, orphanRefs, vessels) {
     const hasAny =
-      orphanTenders.length || orphanOnboard.length || orphanAchievements.length || orphanRefs.length;
+      orphanSeatimes.length ||
+      orphanTenders.length ||
+      orphanOnboard.length ||
+      orphanAchievements.length ||
+      orphanRefs.length;
     if (!hasAny) return "";
 
-    const getOnboardLabel = window.SeavData?.getOnboardCategoryLabel || ((v) => v || "—");
-
-    const buildRow = (strong, span) => `
-      <div class="vessel-linked-row">
-        <div>
-          <strong>${Seav.escapeHtml(strong)}</strong>
-          <span>${Seav.escapeHtml(span)}</span>
-        </div>
-      </div>
-    `;
+    const sectionsHtml = [
+      buildVesselSeatimeSection(orphanSeatimes),
+      buildVesselTenderSection(orphanTenders, vessels),
+      buildVesselOnboardSection(orphanOnboard, vessels),
+      buildVesselReferenceSection(orphanRefs),
+      buildVesselAwardsSection(orphanAchievements)
+    ]
+      .filter(Boolean)
+      .join("");
 
     return `
       <details class="vessel-history-collapsible">
@@ -405,59 +590,9 @@
           </span>
         </summary>
         <div class="vessel-history-collapsible-body">
-          <article class="vessel-profile-card">
-            <div class="vessel-linked-clean-grid public-cv-vessel-links-grid">
-              <section class="vessel-linked-clean-card tender-card">
-                <h3>Tenders</h3>
-                ${
-                  orphanTenders.length
-                    ? orphanTenders
-                        .slice(0, 3)
-                        .map((item) => buildRow(item.name || "Unnamed Tender", item.type || item.model || "Tender"))
-                        .join("")
-                    : `<p>No unlinked tenders.</p>`
-                }
-              </section>
-              <section class="vessel-linked-clean-card reference-card">
-                <h3>References</h3>
-                ${
-                  orphanRefs.length
-                    ? orphanRefs
-                        .slice(0, 3)
-                        .map((item) => buildRow(item.name || "—", item.title || "—"))
-                        .join("")
-                    : `<p>No unlinked references.</p>`
-                }
-              </section>
-              <section class="vessel-linked-clean-card onboard-card">
-                <h3>Onboard Experience</h3>
-                ${
-                  orphanOnboard.length
-                    ? orphanOnboard
-                        .slice(0, 3)
-                        .map((item) =>
-                          buildRow(
-                            item.title || getOnboardLabel(item.category),
-                            item.positionHeld || getOnboardLabel(item.category)
-                          )
-                        )
-                        .join("")
-                    : `<p>No unlinked onboard experience.</p>`
-                }
-              </section>
-              <section class="vessel-linked-clean-card award-card">
-                <h3>Awards</h3>
-                ${
-                  orphanAchievements.length
-                    ? orphanAchievements
-                        .slice(0, 3)
-                        .map((item) => buildRow(item.title || "Award", item.description || "Seafarer Award"))
-                        .join("")
-                    : `<p>No unlinked awards.</p>`
-                }
-              </section>
-            </div>
-          </article>
+          <div class="pp-vessel-linked-sections">
+            ${sectionsHtml}
+          </div>
         </div>
       </details>
     `;
@@ -502,13 +637,25 @@
     const hidden = sorted.slice(LIMITS.vessels);
     const moreId = "ppVesselMore";
 
-    const buildCard = (v) => buildVesselCard(v, seatimes, tenders, verifiedRefs, signedOnboard, manualAchievements, vessels);
+    // Per Jack's 2026-08-05 correction: each vessel's card is followed
+    // immediately by its own Sea Time / Tenders / Onboard Experience /
+    // References / Awards collapsibles — not merged into the card's own
+    // grid. Wrapping both in one block keeps them together as a single
+    // pagination + "show more" unit.
+    const buildBlock = (v) => `
+      <div class="pp-vessel-block" data-pp-more-item>
+        ${buildVesselCard(v, vessels)}
+        ${buildVesselLinkedSections(v, seatimes, tenders, verifiedRefs, signedOnboard, manualAchievements, vessels)}
+      </div>
+    `;
 
     const unattachedHtml = buildUnattachedCard(
+      (seatimes || []).filter((s) => !s.vesselId || !vesselIds.has(s.vesselId)),
       (tenders || []).filter((t) => !t.vesselId || !vesselIds.has(t.vesselId)),
       signedOnboard.filter((e) => !e.vesselId || !vesselIds.has(e.vesselId)),
       manualAchievements.filter((a) => !a.vesselId || !vesselIds.has(a.vesselId)),
-      verifiedRefs.filter((r) => !r.vesselId || !vesselIds.has(r.vesselId))
+      verifiedRefs.filter((r) => !r.vesselId || !vesselIds.has(r.vesselId)),
+      vessels
     );
 
     // Full-width stack, not the small dash-mini-card-grid — every vessel now
@@ -518,12 +665,12 @@
     // "Show more vessels" — it isn't part of the vessel pagination unit.
     vesselBox.innerHTML = `
       <div class="pp-vessel-full-list">
-        ${visible.map((v) => buildCard(v).replace(" data-pp-more-item", "")).join("")}
+        ${visible.map((v) => buildBlock(v).replace(" data-pp-more-item", "")).join("")}
       </div>
       ${
         hidden.length
           ? `<div class="public-cv-more-block pp-vessel-full-list" id="${moreId}" hidden>
-              ${hidden.map((v) => buildCard(v)).join("")}
+              ${hidden.map((v) => buildBlock(v)).join("")}
             </div>`
           : ""
       }

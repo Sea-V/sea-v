@@ -21,15 +21,6 @@
     return window.SeavData?.formatDatePretty ? window.SeavData.formatDatePretty(value) : value || "—";
   }
 
-  // Small local helper (not shared with public-profile-utils.js's own
-  // truncate() — this file is also loaded on dashboard.html, which doesn't
-  // load that utils file, so this stays dependency-free).
-  function truncateText(text, max = 110) {
-    const value = String(text || "").trim();
-    if (value.length <= max) return value;
-    return `${value.slice(0, max - 1).trimEnd()}…`;
-  }
-
   function buildCardPhotoHtml(fileValue, bucket, altText) {
     const photoUrl =
       Seav.getFileDisplayUrl(fileValue, bucket) ||
@@ -137,18 +128,24 @@
    * here. Callers should pre-filter refs to verified-only before passing
    * them in (this function doesn't know about verification status).
    */
-  // 2026-08-05, per Jack: the public profile should read vessel-first — each
-  // vessel card showcases everything attached to it (sea time, tenders,
-  // references, onboard experience, Seafarer Awards) instead of those living
-  // in five separate scattered sections. Wrapped in <details>/<summary>
-  // reusing vessel-history-collapsible/-summary from vessels.css (the private
+  // 2026-08-05, per Jack: the public profile reads vessel-first — each
+  // vessel's own card is wrapped in <details>/<summary>, reusing
+  // vessel-history-collapsible/-summary from vessels.css (the private
   // Vessels page's own collapsible-card pattern) so the two pages look and
   // behave identically — same "current vessel open, history closed by
   // default" rule js/vessels.js already established, not a new invented
-  // behavior. Only the vesselId order this card is built in changes; nothing
-  // in the underlying vessel-linked-clean-grid CSS (shared with vessels.html)
-  // is touched here — column-count changes live in a public-profile-only
-  // modifier class instead (see public-profile.css).
+  // behavior.
+  //
+  // The vessel's linked records (sea time, tenders, references, onboard
+  // experience, Seafarer Awards) do NOT live inside this card's grid — per
+  // Jack's correction the same day, that compact merged-grid version was
+  // reverted. Each linked record type now renders as its own collapsible
+  // directly below this card instead — see buildVesselLinkedSections() in
+  // public-profile-sections.js, which is what actually reuses
+  // js/public-profile-utils.js's groupTendersByVessel/groupAchievementsByVessel/
+  // groupSeatimeByVessel plumbing filtered down to a single vessel. This
+  // function only ever renders the vessel's own overview (photo/stats/
+  // experience) — nothing here needs to know about those other record types.
   function buildVesselCardFull(vessel, options = {}) {
     const photoBucket =
       options.photoBucket ||
@@ -179,26 +176,10 @@
          <div class="vessel-photo-fallback" style="display:none;">Photo unavailable</div>`
       : `<div class="vessel-photo-fallback">No Photo</div>`;
 
-    const totalDays = window.SeavData?.totalQualifyingDays || (() => 0);
-    const getOnboardLabel = window.SeavData?.getOnboardCategoryLabel || ((value) => value || "—");
-    const seatimes = (options.seatimes || []).filter((s) => s.vesselId === vessel.id);
-    const tenders = (options.tenders || []).filter((t) => t.vesselId === vessel.id);
-    const refs = (options.refs || []).filter((r) => r.vesselId === vessel.id);
-    const onboardEntries = (options.onboardEntries || []).filter((e) => e.vesselId === vessel.id);
-    const achievements = (options.achievements || []).filter((a) => a.vesselId === vessel.id);
-
-    const totalSeaDays = seatimes.reduce((sum, item) => sum + totalDays(item), 0);
-    const latestSeatimes = seatimes.slice(0, 3);
-    const latestTenders = tenders.slice(0, 3);
-    const latestRefs = refs.slice(0, 3);
-    const latestOnboard = onboardEntries.slice(0, 3);
-    const latestAwards = achievements.slice(0, 3);
-
     const vesselColor = options.vesselColor || "";
     // Same rule js/vessels.js already uses for the private Vessels page's
     // own collapsible history cards: the current vessel opens by default,
-    // every past vessel starts closed. Keeps a long career history scannable
-    // once each card carries 5 linked sections instead of 3.
+    // every past vessel starts closed.
     const isOpen = isCurrent;
 
     // Public profile has no SEA document column (unlike the Vessels page
@@ -265,106 +246,6 @@
         </div>
 
         ${experienceHtml}
-
-        <div class="vessel-linked-clean-grid public-cv-vessel-links-grid">
-
-          <section class="vessel-linked-clean-card sea-card">
-            <h3>Sea Time</h3>
-
-            ${
-              latestSeatimes.length
-                ? latestSeatimes.map((item) => `
-                  <div class="vessel-linked-row">
-                    <div>
-                      <strong>${Seav.escapeHtml(item.capacityServed || "—")}</strong>
-                      <span>${item.dateJoined ? formatCardDate(item.dateJoined) : "—"} → ${item.dateLeft ? formatCardDate(item.dateLeft) : "Present"}</span>
-                    </div>
-                    <b>${totalDays(item)} days</b>
-                  </div>
-                `).join("")
-                : `<p>No linked sea time entries.</p>`
-            }
-
-            <div class="vessel-total-row">
-              <span>Total Sea Time</span>
-              <strong>${totalSeaDays} days</strong>
-            </div>
-          </section>
-
-          <section class="vessel-linked-clean-card tender-card">
-            <h3>Tenders</h3>
-
-            ${
-              latestTenders.length
-                ? latestTenders.map((item) => `
-                  <div class="vessel-linked-row">
-                    <div>
-                      <strong>${Seav.escapeHtml(item.name || "Unnamed Tender")}</strong>
-                      <span>${Seav.escapeHtml(item.type || item.model || "Tender")}</span>
-                    </div>
-                  </div>
-                `).join("")
-                : `<p>No linked tenders.</p>`
-            }
-          </section>
-
-          <section class="vessel-linked-clean-card reference-card">
-            <h3>References</h3>
-
-            ${
-              latestRefs.length
-                ? latestRefs.map((item) => `
-                  <div class="vessel-linked-row vessel-linked-row--stacked">
-                    <div>
-                      <strong>${Seav.escapeHtml(item.name || "—")}</strong>
-                      <span>${Seav.escapeHtml(item.title || "—")}</span>
-                    </div>
-                    ${
-                      item.text
-                        ? `<p class="vessel-linked-quote">“${Seav.escapeHtml(truncateText(item.text, 110))}”</p>`
-                        : ""
-                    }
-                  </div>
-                `).join("")
-                : `<p>No linked references.</p>`
-            }
-          </section>
-
-          <section class="vessel-linked-clean-card onboard-card">
-            <h3>Onboard Experience</h3>
-
-            ${
-              latestOnboard.length
-                ? latestOnboard.map((item) => `
-                  <div class="vessel-linked-row">
-                    <div>
-                      <strong>${Seav.escapeHtml(item.title || getOnboardLabel(item.category))}</strong>
-                      <span>${Seav.escapeHtml(item.positionHeld || getOnboardLabel(item.category))}</span>
-                    </div>
-                  </div>
-                `).join("")
-                : `<p>No linked onboard experience.</p>`
-            }
-          </section>
-
-          <section class="vessel-linked-clean-card award-card">
-            <h3>Awards</h3>
-
-            ${
-              latestAwards.length
-                ? latestAwards.map((item) => `
-                  <div class="vessel-linked-row">
-                    <div>
-                      <strong>${Seav.escapeHtml(item.title || "Award")}</strong>
-                      <span>${Seav.escapeHtml(item.description || "Seafarer Award")}</span>
-                    </div>
-                  </div>
-                `).join("")
-                : `<p>No linked awards.</p>`
-            }
-          </section>
-
-        </div>
       </article>
     `;
 

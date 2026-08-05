@@ -687,66 +687,45 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 /* =========================================================
-   VESSEL-FIRST LAYOUT (2026-08-05)
-   Each vessel card now carries 5 linked-record sections instead of 3
-   (Sea Time, Tenders, References, + new Onboard Experience, Awards) — see
-   js/seav-cards.js buildVesselCardFull. This modifier widens the shared
-   .vessel-linked-clean-grid (css/pages/vessels.css) column count WITHOUT
-   touching that base rule, since the private Vessels page's own card
-   (js/vessels.js) uses the same base class for its 3-section grid and must
-   not be affected. Two classes on the selector beats the single-class base
-   rule regardless of stylesheet load order.
+   VESSEL-FIRST LAYOUT (2026-08-05, reworked same day per Jack)
+   Each vessel's own card (js/seav-cards.js buildVesselCardFull) only ever
+   shows its overview (photo/stats/experience) now — a same-day correction
+   reverted the compact 5-column merged-grid version this section used to
+   style. Sea Time / Tenders / Onboard Experience / References / Awards
+   render as separate collapsibles directly below the card instead (see
+   buildVesselLinkedSections() in js/public-profile-sections.js), reusing
+   .tender-vessel-group (css/pages/tenders.css) as their shell rather than
+   inventing a new component — Jack's own words: "as it was already built
+   and just needed moving".
 ========================================================= */
 
-.vessel-linked-clean-grid.public-cv-vessel-links-grid {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
-@media (max-width: 1400px) {
-  .vessel-linked-clean-grid.public-cv-vessel-links-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 1200px) {
-  .vessel-linked-clean-grid.public-cv-vessel-links-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 760px) {
-  .vessel-linked-clean-grid.public-cv-vessel-links-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.onboard-card {
-  border-color: rgba(255, 190, 110, 0.62);
-}
-
-.award-card {
-  border-color: rgba(255, 214, 92, 0.62);
-}
-
-/* Reference rows inside a vessel card get a short quote under the
-   name/title line — the standalone References section (which used to carry
-   the full quote) no longer exists, so this is where that trust signal
-   lives now. */
-.vessel-linked-row--stacked {
+/* Wraps a vessel's own card + its linked-section collapsibles as one unit
+   inside .pp-vessel-full-list (that flex column already provides the
+   16px gap between vessels; this is just the grouping wrapper). */
+.pp-vessel-block {
+  display: flex;
   flex-direction: column;
-  align-items: stretch;
 }
 
-.vessel-linked-quote {
-  margin: 4px 0 0;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 11px;
-  line-height: 1.4;
-  font-style: italic;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+/* Sits between a vessel's own card and its first linked-section
+   collapsible, and between each collapsible after that. */
+.pp-vessel-linked-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* .tender-vessel-group-body's base rule (css/pages/tenders.css) is a
+   3-column grid built for that page's own tender mini-cards. Sea Time rows,
+   onboard rows, reference quote blocks, and award cards are each already a
+   full-width flex-column list in their own right — nesting one of those as
+   a single grid item would just squeeze it into the first column at a
+   third of the width, so this modifier (added by every linked section
+   except Tenders, which keeps the 3-col grid its cards were built for)
+   turns the grid off. */
+.tender-vessel-group-body.vessel-linked-section-body--stack {
+  display: block;
 }
 
 /* "Other" catch-all card (js/public-profile-sections.js buildUnattachedCard)
