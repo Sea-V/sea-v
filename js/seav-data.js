@@ -205,7 +205,7 @@
     {
       label: "Mandatory Basic Safety (STCW) — combined certificate",
       certs: [
-        { code: "STCW BST", name: "STCW Basic Safety Training (Full BST)" }
+        { code: "STCW BST", name: "STCW Basic Safety Training (Full BST)", stcwRef: "STCW A-VI/1" }
       ]
     },
     {
@@ -262,8 +262,8 @@
       certs: [
         // Distinct from the generic RFPNW/RFPEW watch-rating certs below —
         // the REG Code specifically calls out a Yacht Rating Certificate
-        // (STCW II/4) as the yacht-specific version some employers require.
-        { code: "YACHT RATING", name: "Yacht Rating Certificate", stcwRef: "STCW II/4" },
+        // (STCW A-II/4) as the yacht-specific version some employers require.
+        { code: "YACHT RATING", name: "Yacht Rating Certificate", stcwRef: "STCW A-II/4" },
         { code: "EDH", name: "Efficient Deck Hand (EDH)" },
         { code: "RFPNW", name: "Rating Forming Part of a Navigational Watch" },
         { code: "RFPEW", name: "Rating Forming Part of an Engineering Watch" }

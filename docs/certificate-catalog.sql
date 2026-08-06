@@ -52,7 +52,7 @@ insert into public.certificate_catalog (code, name, category, is_mandatory, sort
   ('SEAMAN_BOOK', 'Seaman''s Book / CDC', 'Identity & seafarer documents', false, 12, ''),
   ('VISA_B1B2', 'US B1/B2 Visa (crew)', 'Identity & seafarer documents', false, 13, ''),
   -- Mandatory Basic Safety (STCW) — combined certificate
-  ('STCW BST', 'STCW Basic Safety Training (Full BST)', 'Mandatory Basic Safety (STCW) — combined certificate', false, 20, ''),
+  ('STCW BST', 'STCW Basic Safety Training (Full BST)', 'Mandatory Basic Safety (STCW) — combined certificate', false, 20, 'STCW A-VI/1'),
   -- Security (STCW)
   ('STCW A-VI/6-2', 'Proficiency in Designated Security Duties (PDSD)', 'Security (STCW)', false, 21, 'STCW A-VI/6-2'),
   ('STCW A-VI/5', 'Ship Security Officer (SSO)', 'Security (STCW)', false, 22, 'STCW A-VI/5'),
@@ -77,7 +77,7 @@ insert into public.certificate_catalog (code, name, category, is_mandatory, sort
   ('Y3', 'Yacht Engineer Y3 (MCA, legacy)', 'Certificates of Competency — Engineering', false, 47, ''),
   ('Y4', 'Yacht Engineer Y4 (MCA, legacy)', 'Certificates of Competency — Engineering', false, 48, ''),
   -- Ratings
-  ('YACHT RATING', 'Yacht Rating Certificate', 'Ratings', false, 50, 'STCW II/4'),
+  ('YACHT RATING', 'Yacht Rating Certificate', 'Ratings', false, 50, 'STCW A-II/4'),
   ('EDH', 'Efficient Deck Hand (EDH)', 'Ratings', false, 51, ''),
   ('RFPNW', 'Rating Forming Part of a Navigational Watch', 'Ratings', false, 52, 'STCW A-II/4'),
   ('RFPEW', 'Rating Forming Part of an Engineering Watch', 'Ratings', false, 53, 'STCW A-III/4'),
