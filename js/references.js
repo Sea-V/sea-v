@@ -31,6 +31,15 @@
     getReferenceStatusDisplay
   } = window.SeavData;
   const STORAGE_KEY = KEYS.REFS;
+  // Mirrors the <select id="rf_doc_type"> options in references.html.
+  // "reference" is the default/majority case, so it's the only one with no
+  // label chip on the card (see isSpecialDocType below) -- Probation Review
+  // and Annual Appraisal are the exception cases worth flagging at a glance.
+  const REFERENCE_DOC_TYPE_LABELS = {
+    reference: "Reference",
+    probation_review: "Probation Review",
+    annual_appraisal: "Annual Appraisal"
+  };
   const VERIFY_LINK_KEY_PREFIX = "seav_ref_verify_url_";
   const REF_FILES_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.REFERENCE_FILES || "reference-files";
@@ -248,8 +257,8 @@
     const verification = r.verification || {};
     const status = getReferenceStatus(r);
     const excerpt = getReferenceExcerpt(r);
-    const isTestimonial = r.docType === "sea_service_testimonial";
-    const excerptLabel = isTestimonial ? "Sea Service Testimonial" : "Reference";
+    const excerptLabel = REFERENCE_DOC_TYPE_LABELS[r.docType] || "Reference";
+    const isSpecialDocType = !!r.docType && r.docType !== "reference";
 
     const canSend =
       !!r.email &&
@@ -377,10 +386,11 @@
           <div class="ref-compact-summary-right">
             ${
               // Mirrors js/certificates.js's cert-cv-flag pattern -- only
-              // flag the exception case (testimonial); "Reference" is the
-              // default for every entry so labelling it every time would
-              // just clutter the row for no informational gain.
-              isTestimonial ? `<span class="cert-cv-flag">Testimonial</span>` : ""
+              // flag the exception cases (Probation Review / Annual
+              // Appraisal); "Reference" is the default for every entry so
+              // labelling it every time would just clutter the row for no
+              // informational gain.
+              isSpecialDocType ? `<span class="cert-cv-flag">${Seav.escapeHtml(excerptLabel)}</span>` : ""
             }
             ${statusValue}
             <span class="cert-chevron" aria-hidden="true">
