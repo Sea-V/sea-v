@@ -74,3 +74,20 @@
 
   box-shadow: 0 10px 24px rgba(0,0,0,0.28);
 }
+
+/* =========================================================
+   SOURCE / REFERENCE NOTE
+   Small trust note shown next to any field or value whose content is drawn
+   directly from a maritime code or MCA notice (STCW reference, MSN section,
+   REG Code clause, etc.), so crew — and anyone evaluating the site — can see
+   the categorisation isn't arbitrary. Shared across pages via styles.css.
+   Added 2026-08-06.
+========================================================= */
+.source-ref-note {
+  display: block;
+  margin-top: 4px;
+  color: var(--field-hint-color, rgba(148, 163, 184, 0.55));
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+}

@@ -265,6 +265,9 @@
     const typeLabel = certTypeLabel(cert);
     const categoryLabel = certCategoryLabel(cert);
     const expiry = expiryLabel(cert);
+    // Trust note (Jack, 2026-08-06): surface the real STCW reference behind
+    // a saved certificate, not just while picking it from the dropdown.
+    const stcwRef = findCatalog(cert?.code)?.stcwRef || "";
 
     return `
       <article class="cert-compact-card ui-card ui-card-hover ui-accent-gold${
@@ -328,6 +331,7 @@
             <div class="cert-compact-detail-panel">
               <div class="cert-compact-detail-label">Type</div>
               <div class="cert-compact-detail-value">${Seav.escapeHtml(categoryLabel)}</div>
+              ${stcwRef ? `<div class="source-ref-note">Reference: ${Seav.escapeHtml(stcwRef)}</div>` : ""}
             </div>
             ${
               cert.issuingAuthority || cert.trainingProvider
@@ -594,6 +598,25 @@
       nameEl.value = "";
       toggleShowOnCvVisibility(false);
     }
+    updateSourceNote(code);
+  }
+
+  // Shows the STCW reference behind the crew member's chosen certificate
+  // type, sourced from the catalog (see js/seav-data.js) — a small trust
+  // signal so the categorisation reads as backed by the actual Code, not
+  // arbitrary (Jack, 2026-08-06). Hidden for custom/"Other" certs and any
+  // catalog entry that doesn't carry a reference.
+  function updateSourceNote(code) {
+    const noteEl = document.getElementById("ct_source_note");
+    if (!noteEl) return;
+    const item = findCatalog(code);
+    if (item && item.stcwRef) {
+      noteEl.textContent = `Reference: ${item.stcwRef}`;
+      noteEl.hidden = false;
+    } else {
+      noteEl.hidden = true;
+      noteEl.textContent = "";
+    }
   }
 
   function openAddModal() {
@@ -650,6 +673,7 @@
       nameEl.disabled = true;
       nameEl.required = true;
     }
+    updateSourceNote(cert.code || "");
 
     Seav.setDateTriplet("ct_issued", cert.issued || "");
     Seav.setDateTriplet("ct_expiry", cert.expiry || "");
