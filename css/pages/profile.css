@@ -302,25 +302,21 @@
 }
 
 .profile-lock-icon {
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 14px;
+  width: auto;
+  margin: 0 auto 16px;
 
   display: flex;
   align-items: center;
   justify-content: center;
-
-  border-radius: 50%;
-  border: 1.5px solid rgba(66, 214, 181, 0.32);
-
-  background: rgba(255, 255, 255, 0.035);
-
-  color: #42d6b5;
 }
 
-.profile-lock-icon svg {
-  width: 26px;
-  height: 26px;
+/* 2026-08-06, per Jack: swap the padlock icon for the SEA-V wordmark —
+   img/logo.png is a wide brand mark, not a square icon, so the circular
+   badge/border the padlock used is dropped in favour of just the logo
+   sitting on the glassy card. */
+.profile-lock-logo {
+  width: 120px;
+  height: auto;
   display: block;
 }
 
