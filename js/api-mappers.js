@@ -110,6 +110,12 @@ function mapProfileToSupabase(item) {
     imo: v.imo || "",
     mmsi: v.mmsi || "",
 
+    official_number: v.official_number || "",
+    call_sign: v.call_sign || "",
+    year_built: v.year_built || "",
+    net_tonnage: v.net_tonnage || "",
+    engine_kw: v.engine_kw || "",
+
     vessel_role: v.vessel_role || "",
     vessel_type: v.vessel_type || "",
 
@@ -142,6 +148,11 @@ function mapVesselToSupabase(item) {
     builder: item.builder || "",
     imo: item.imo || "",
     mmsi: item.mmsi || "",
+    official_number: item.official_number || "",
+    call_sign: item.call_sign || "",
+    year_built: item.year_built || "",
+    net_tonnage: item.net_tonnage || "",
+    engine_kw: item.engine_kw || "",
     vessel_role: item.vessel_role || item.role || "",
     vessel_type: item.vessel_type || item.type || "",
     program: item.program || "",

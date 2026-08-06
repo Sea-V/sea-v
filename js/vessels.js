@@ -185,6 +185,11 @@ function buildVesselCardBody(v, options = {}) {
   const builder = v.builder ? Seav.escapeHtml(v.builder) : "—";
   const imo = v.imo ? Seav.escapeHtml(v.imo) : "—";
   const mmsi = v.mmsi ? Seav.escapeHtml(v.mmsi) : "—";
+  const officialNumber = v.official_number ? Seav.escapeHtml(v.official_number) : "";
+  const callSign = v.call_sign ? Seav.escapeHtml(v.call_sign) : "";
+  const yearBuilt = v.year_built ? Seav.escapeHtml(v.year_built) : "";
+  const netTonnage = v.net_tonnage ? Seav.escapeHtml(v.net_tonnage) : "";
+  const engineKw = v.engine_kw ? Seav.escapeHtml(v.engine_kw) : "";
   const role = v.vessel_role || v.role ? Seav.escapeHtml(v.vessel_role || v.role) : "—";
   const type = v.vessel_type || v.type ? Seav.escapeHtml(v.vessel_type || v.type) : "—";
   const program = v.program ? Seav.escapeHtml(v.program) : "—";
@@ -278,6 +283,11 @@ function buildVesselCardBody(v, options = {}) {
               <div><span>Build</span><strong>${builder}</strong></div>
               <div><span>IMO</span><strong>${imo}</strong></div>
               <div><span>MMSI</span><strong>${mmsi}</strong></div>
+              ${officialNumber ? `<div><span>Official number</span><strong>${officialNumber}</strong></div>` : ""}
+              ${callSign ? `<div><span>Call sign</span><strong>${callSign}</strong></div>` : ""}
+              ${yearBuilt ? `<div><span>Year built</span><strong>${yearBuilt}</strong></div>` : ""}
+              ${netTonnage ? `<div><span>Net tonnage</span><strong>${netTonnage}</strong></div>` : ""}
+              ${engineKw ? `<div><span>Engine power</span><strong>${engineKw} kW</strong></div>` : ""}
               <div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>
             </div>
           </details>
@@ -558,6 +568,17 @@ function fillVesselForm(vessel) {
   if (imoEl) imoEl.value = vessel.imo || "";
   if (mmsiEl) mmsiEl.value = vessel.mmsi || "";
 
+  const officialNumberEl = document.getElementById("vs_official_number");
+  const callSignEl = document.getElementById("vs_call_sign");
+  const yearBuiltEl = document.getElementById("vs_year_built");
+  const netTonnageEl = document.getElementById("vs_net_tonnage");
+  const engineKwEl = document.getElementById("vs_engine_kw");
+  if (officialNumberEl) officialNumberEl.value = vessel.official_number || "";
+  if (callSignEl) callSignEl.value = vessel.call_sign || "";
+  if (yearBuiltEl) yearBuiltEl.value = vessel.year_built || "";
+  if (netTonnageEl) netTonnageEl.value = vessel.net_tonnage || "";
+  if (engineKwEl) engineKwEl.value = vessel.engine_kw || "";
+
   document.getElementById("vs_desc").value =
     vessel.experience_onboard || vessel.desc || "";
 
@@ -659,6 +680,11 @@ function readVesselForm() {
     builder: document.getElementById("vs_builder")?.value.trim() || "",
     imo: document.getElementById("vs_imo")?.value.trim() || "",
     mmsi: document.getElementById("vs_mmsi")?.value.trim() || "",
+    officialNumber: document.getElementById("vs_official_number")?.value.trim() || "",
+    callSign: document.getElementById("vs_call_sign")?.value.trim() || "",
+    yearBuilt: document.getElementById("vs_year_built")?.value.trim() || "",
+    netTonnage: document.getElementById("vs_net_tonnage")?.value.trim() || "",
+    engineKw: document.getElementById("vs_engine_kw")?.value.trim() || "",
     desc: document.getElementById("vs_desc")?.value.trim() || "",
     from,
     to,
@@ -883,6 +909,11 @@ async function saveVesselData(vesselData) {
   builder: formData.builder,
   imo: formData.imo,
   mmsi: formData.mmsi,
+  official_number: formData.officialNumber,
+  call_sign: formData.callSign,
+  year_built: formData.yearBuilt,
+  net_tonnage: formData.netTonnage,
+  engine_kw: formData.engineKw,
   vessel_role: formData.role,
   vessel_type: formData.type,
   program: formData.program,

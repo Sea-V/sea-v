@@ -24,35 +24,35 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=436" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=436" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=436" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=436" />
+  <link rel="icon" href="/favicon.ico?v=437" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=437" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=437" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=437" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Vessels</title>
 
-<link rel="stylesheet" href="styles.css?v=436" />
+<link rel="stylesheet" href="styles.css?v=437" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=436"></script>
-  <script src="js/supabase.js?v=436"></script>
-  <script src="js/auth.js?v=436"></script>
-  <script src="js/feedback.js?v=436" defer></script>
-  <script src="js/core.js?v=436" defer></script>
+  <script src="js/seav-config.js?v=437"></script>
+  <script src="js/supabase.js?v=437"></script>
+  <script src="js/auth.js?v=437"></script>
+  <script src="js/feedback.js?v=437" defer></script>
+  <script src="js/core.js?v=437" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=436" defer></script>
-<script src="js/seav-data.js?v=436" defer></script>
-<script src="js/seav-badges.js?v=436" defer></script>
-<script src="js/api-core.js?v=436" defer></script>
-  <script src="js/api-mappers.js?v=436" defer></script>
-  <script src="js/api.js?v=436" defer></script>
-<script src="js/state.js?v=436" defer></script>
-  <script src="js/seav-notifications.js?v=436" defer></script>
-<script src="js/achievements-engine.js?v=436" defer></script>
-  <script src="js/badge-unlock.js?v=436" defer></script>
+  <script src="js/seav-upload.js?v=437" defer></script>
+<script src="js/seav-data.js?v=437" defer></script>
+<script src="js/seav-badges.js?v=437" defer></script>
+<script src="js/api-core.js?v=437" defer></script>
+  <script src="js/api-mappers.js?v=437" defer></script>
+  <script src="js/api.js?v=437" defer></script>
+<script src="js/state.js?v=437" defer></script>
+  <script src="js/seav-notifications.js?v=437" defer></script>
+<script src="js/achievements-engine.js?v=437" defer></script>
+  <script src="js/badge-unlock.js?v=437" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=436" defer></script>
-<script src="js/vessels.js?v=436" defer></script>
+  <script src="js/seav-share.js?v=437" defer></script>
+<script src="js/vessels.js?v=437" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -144,7 +144,7 @@
 
         <p class="modal-intro">
           Name, role, and dates get you saved — add specs, salary, and documents
-          any time from "Add more details" below.
+          any time from "Additional Vessel Particulars" below.
         </p>
 
         <label>Vessel name
@@ -170,7 +170,7 @@
 
         <details class="modal-more-details" id="vs_more_details">
           <summary class="modal-more-details-summary">
-            Add more details
+            Additional Vessel Particulars
             <span class="modal-more-details-hint">(specs, salary, experience, documents)</span>
           </summary>
 
@@ -204,6 +204,30 @@
                 <input id="vs_mmsi" placeholder="9-digit MMSI number, if known" />
               </label>
             </div>
+
+            <div class="modal-grid2">
+              <label>Official number (optional)
+                <input id="vs_official_number" placeholder="Flag state / national official number" />
+              </label>
+
+              <label>Call sign (optional)
+                <input id="vs_call_sign" placeholder="Radio call sign" />
+              </label>
+            </div>
+
+            <div class="modal-grid2">
+              <label>Year built (optional)
+                <input type="number" id="vs_year_built" step="1" min="1900" max="2100" placeholder="Year the vessel was built" />
+              </label>
+
+              <label>Net tonnage (optional)
+                <input type="number" id="vs_net_tonnage" step="any" min="0" placeholder="Net tonnage (NT), if known" />
+              </label>
+            </div>
+
+            <label>Engine power (optional)
+              <input type="number" id="vs_engine_kw" step="any" min="0" placeholder="Total main engine power in kW, if known" />
+            </label>
 
             <div class="modal-grid2">
               <label>Vessel type

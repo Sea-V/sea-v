@@ -160,6 +160,11 @@
     const builder = Seav.escapeHtml(vessel.builder || "—");
     const imo = vessel.imo ? Seav.escapeHtml(vessel.imo) : "";
     const mmsi = vessel.mmsi ? Seav.escapeHtml(vessel.mmsi) : "";
+    const officialNumber = vessel.official_number ? Seav.escapeHtml(vessel.official_number) : "";
+    const callSign = vessel.call_sign ? Seav.escapeHtml(vessel.call_sign) : "";
+    const yearBuilt = vessel.year_built ? Seav.escapeHtml(vessel.year_built) : "";
+    const netTonnage = vessel.net_tonnage ? Seav.escapeHtml(vessel.net_tonnage) : "";
+    const engineKw = vessel.engine_kw ? Seav.escapeHtml(vessel.engine_kw) : "";
     const additionalDuties = vessel.additional_duties ? Seav.escapeHtml(vessel.additional_duties) : "";
     const role = Seav.escapeHtml(vessel.vessel_role || vessel.role || "—");
     const type = Seav.escapeHtml(vessel.vessel_type || vessel.type || "—");
@@ -251,6 +256,11 @@
                 <div><span>Build</span><strong>${builder}</strong></div>
                 ${imo ? `<div><span>IMO</span><strong>${imo}</strong></div>` : ""}
                 ${mmsi ? `<div><span>MMSI</span><strong>${mmsi}</strong></div>` : ""}
+                ${officialNumber ? `<div><span>Official number</span><strong>${officialNumber}</strong></div>` : ""}
+                ${callSign ? `<div><span>Call sign</span><strong>${callSign}</strong></div>` : ""}
+                ${yearBuilt ? `<div><span>Year built</span><strong>${yearBuilt}</strong></div>` : ""}
+                ${netTonnage ? `<div><span>Net tonnage</span><strong>${netTonnage}</strong></div>` : ""}
+                ${engineKw ? `<div><span>Engine power</span><strong>${engineKw} kW</strong></div>` : ""}
                 ${additionalDuties ? `<div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>` : ""}
               </div>
             </details>
