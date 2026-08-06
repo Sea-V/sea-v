@@ -28,7 +28,7 @@
     truncate, setSectionCount, buildShowMoreButton,
     formatNm, getPublicVesselColor, buildPublicNavigationStats,
     getNavigationEndpointMarkers, hasPlottableNavigationData,
-    formatExpiryShort, renderVerificationBadge,
+    formatExpiryShort, formatDates, renderVerificationBadge,
     isReferenceVerified
   } = U;
 
@@ -453,6 +453,15 @@
   // rule (see project_seav_public_profile_pii_reversal memory).
   function buildReferenceQuoteBlock(ref) {
     const status = getReferenceStatus(ref);
+    // Prefer the periodFrom/periodTo date-range picker (references.js), same
+    // as the private References page — the legacy free-text `period` string
+    // is only populated for entries saved before that picker existed (or the
+    // public column list never carried period_from/period_to at all until
+    // 2026-08-06, so every date-range-picker reference silently lost its
+    // service period on the public profile even though it was fine on the
+    // private page).
+    const periodText =
+      ref.periodFrom || ref.periodTo ? formatDates(ref.periodFrom, ref.periodTo) : ref.period || "";
     const verification = ref.verification || {};
     const cocNote = verification.cocNumber === true ? "★ CoC on file — hidden for privacy" : "";
     const verifierMeta = [
@@ -474,7 +483,7 @@
         </div>
         <div class="public-cv-ref-meta">
           ${Seav.escapeHtml(ref.title || "—")}
-          ${ref.role || ref.period ? ` • ${Seav.escapeHtml([ref.role, ref.period].filter(Boolean).join(" • "))}` : ""}
+          ${ref.role || periodText ? ` • ${Seav.escapeHtml([ref.role, periodText].filter(Boolean).join(" • "))}` : ""}
         </div>
         <div class="public-cv-ref-quote">“${Seav.escapeHtml(truncate(ref.text, 220))}”</div>
         ${

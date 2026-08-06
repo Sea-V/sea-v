@@ -112,9 +112,9 @@
     // `true` (entered but hidden) instead of the real value. See
     // docs/schema-public-profile-age-and-coc-redaction.sql.
     sea_references: [
-      "id", "user_id", "name", "title", "vessel_id", "role", "period", "reference_text",
-      "reference_date", "status", "attachment", "verification_public", "doc_type",
-      "created_at", "updated_at"
+      "id", "user_id", "name", "title", "vessel_id", "role", "period", "period_from",
+      "period_to", "reference_text", "reference_date", "status", "attachment",
+      "verification_public", "doc_type", "created_at", "updated_at"
     ].join(","),
     achievements: [
       "id", "user_id", "code", "title", "category", "dashboard_section", "badge_key",
