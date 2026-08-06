@@ -507,6 +507,15 @@ const OWNER_PROFILE_COLUMNS = [
   "user_id",
   "username",
   "name",
+  // first_name/last_name (2026-08-05 split) and discharge_book_number
+  // (2026-08-05 banner restructure) were added to the table but never added
+  // here — every post-save reload silently dropped them from the form even
+  // though the DB row was fine. Fixed 2026-08-06, Jack: "every time I edit
+  // the profile page the name, last name and discharge book number
+  // disappear."
+  "first_name",
+  "last_name",
+  "discharge_book_number",
   "rank",
   "qualification",
   "nationality",
