@@ -146,7 +146,9 @@
 }
 
 .cert-category-group-title strong {
-  color: #ffd25a;
+  /* Site-wide blue, matching profile chapter titles etc. — was gold,
+     changed per Jack 2026-08-06 (var(--accent-blue), css/core/variables.css). */
+  color: var(--accent-blue);
 
   font-size: 15px;
   font-weight: 800;
