@@ -24,16 +24,16 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=449" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=449" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=449" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=449" />
+  <link rel="icon" href="/favicon.ico?v=450" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=450" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=450" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=450" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V Dashboard</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=449" />
+  <link rel="stylesheet" href="styles.css?v=450" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -43,39 +43,39 @@
 
   <!-- Core Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=449"></script>
-  <script src="js/supabase.js?v=449"></script>
-  <script src="js/auth.js?v=449"></script>
-  <script src="js/feedback.js?v=449" defer></script>
-  <script src="js/core.js?v=449" defer></script>
+  <script src="js/seav-config.js?v=450"></script>
+  <script src="js/supabase.js?v=450"></script>
+  <script src="js/auth.js?v=450"></script>
+  <script src="js/feedback.js?v=450" defer></script>
+  <script src="js/core.js?v=450" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="js/seav-upload.js?v=449" defer></script>
-  <script src="js/seav-data.js?v=449" defer></script>
-  <script src="js/seav-badges.js?v=449" defer></script>
-  <script src="js/api-core.js?v=449" defer></script>
-  <script src="js/api-mappers.js?v=449" defer></script>
-  <script src="js/api.js?v=449" defer></script>
-  <script src="js/state.js?v=449" defer></script>
-  <script src="js/seav-notifications.js?v=449" defer></script>
-  <script src="js/achievements-engine.js?v=449" defer></script>
-  <script src="js/badge-unlock.js?v=449" defer></script>
+  <script src="js/seav-upload.js?v=450" defer></script>
+  <script src="js/seav-data.js?v=450" defer></script>
+  <script src="js/seav-badges.js?v=450" defer></script>
+  <script src="js/api-core.js?v=450" defer></script>
+  <script src="js/api-mappers.js?v=450" defer></script>
+  <script src="js/api.js?v=450" defer></script>
+  <script src="js/state.js?v=450" defer></script>
+  <script src="js/seav-notifications.js?v=450" defer></script>
+  <script src="js/achievements-engine.js?v=450" defer></script>
+  <script src="js/badge-unlock.js?v=450" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-  <script src="js/seav-share.js?v=449" defer></script>
+  <script src="js/seav-share.js?v=450" defer></script>
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
     defer
   ></script>
-  <script src="js/seav-cards.js?v=449" defer></script>
+  <script src="js/seav-cards.js?v=450" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="js/navigation-ports.js?v=449" defer></script>
-  <script src="js/navigation-helpers.js?v=449" defer></script>
-  <script src="js/navigation-passage.js?v=449" defer></script>
-  <script src="js/navigation-routing.js?v=449" defer></script>
-  <script src="js/dashboard-snippets.js?v=449" defer></script>
-  <script src="js/dashboard.js?v=449" defer></script>
+  <script src="js/navigation-ports.js?v=450" defer></script>
+  <script src="js/navigation-helpers.js?v=450" defer></script>
+  <script src="js/navigation-passage.js?v=450" defer></script>
+  <script src="js/navigation-routing.js?v=450" defer></script>
+  <script src="js/dashboard-snippets.js?v=450" defer></script>
+  <script src="js/dashboard.js?v=450" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -279,6 +279,56 @@
       </div>
     </section>
 
+  </div>
+
+  <!-- Quick actions — jump straight to the most common logging tasks
+       instead of hunting through the sidebar. Colored by the same
+       --page-* variables the sidebar itself uses (css/core/layout.css
+       .dash-link[href=...]), so no new colors were invented. Added
+       2026-08-07 per Jack; these are also the entry points a future
+       PWA install's home-screen shortcuts would point at (see
+       project_seav_pwa_ios_app_plan) — not required by that work,
+       just compatible with it. -->
+  <div class="dashboard-quick-actions" id="dashQuickActions" aria-label="Quick actions">
+    <a class="dashboard-quick-action" href="seatime.html">
+      <span class="dashboard-quick-action-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="11" r="4.5" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M12 11V8.8M12 11l2 1.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 18c1.3-1 2.7-1 4 0s2.7 1 4 0 2.7-1 4 0 2.7 1 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="dashboard-quick-action-label">Log sea time</span>
+    </a>
+
+    <a class="dashboard-quick-action" href="certificates.html">
+      <span class="dashboard-quick-action-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="6.5" y="4.5" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M9 8h6M9 11h6M10 18.5l2-1.2 2 1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="dashboard-quick-action-label">Upload certificate</span>
+    </a>
+
+    <a class="dashboard-quick-action" href="vessels.html">
+      <span class="dashboard-quick-action-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M6 14.5h12l-1.8-4.5H9.5L6 14.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M4 18c1.3-1 2.7-1 4 0s2.7 1 4 0 2.7-1 4 0 2.7 1 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="dashboard-quick-action-label">Add vessel</span>
+    </a>
+
+    <a class="dashboard-quick-action" href="achievements.html">
+      <span class="dashboard-quick-action-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 4.8l1.9 3.8 4.2.6-3 3 .7 4.2L12 14.8 8.2 16.4l.7-4.2-3-3 4.2-.6L12 4.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="dashboard-quick-action-label">Log milestone</span>
+    </a>
   </div>
 
   <section class="dashboard-shell-section">
