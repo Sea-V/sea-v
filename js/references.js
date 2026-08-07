@@ -354,40 +354,6 @@
     const verificationSent =
       status === "Sent for Verification" || status === "Verified" || status === "Declined";
 
-    const verificationDetail =
-      status === "Verified"
-        ? referenceStatusPill(status) || `<span class="ref-meta-muted">Verified</span>`
-        : status === "Sent for Verification"
-          ? "Awaiting referee"
-          : status === "Declined"
-            ? Seav.escapeHtml(verification.signatureName || r.name || "Declined")
-            : "Not sent";
-
-    const signatureValue = (() => {
-      if (status !== "Verified") {
-        return status === "Sent for Verification"
-          ? `<span class="ref-meta-muted">Pending</span>`
-          : `<span class="ref-meta-muted">—</span>`;
-      }
-
-      const sig = verification.signatureImage;
-      const sigUrl = sig ? Seav.getFileDisplayUrl(sig, REF_FILES_BUCKET) : "";
-      const name = Seav.escapeHtml(verification.signatureName || r.name || "—");
-
-      if (sigUrl) {
-        // A signed URL that has since expired shows the browser's native
-        // broken-image icon with no useful information (reported as a
-        // "question mark in a blue square") — same class of issue already
-        // guarded against for photos in seav-cards.js. Fall back to the
-        // signer's typed name instead of leaving that icon on screen.
-        return `<div class="ref-signature-wrap ref-signature-wrap--meta"><div class="ref-signature-frame"><img class="seav-signature-display" src="${Seav.escapeHtml(sigUrl)}" alt="Referee signature" loading="lazy"
-          onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" /><span class="ref-signature-fallback muted" style="display:none;">${name}</span></div><span class="ref-signature-name">${name}</span></div>`;
-      }
-
-      if (verification.signatureName) return name;
-      return `<span class="ref-meta-muted">—</span>`;
-    })();
-
     const attachmentSectionHtml = hasFile
       ? renderReferenceAttachmentSection(r.attachment, refFileUrl)
       : "";
@@ -421,37 +387,71 @@
 
     const isExpanded = expandedRefIds.has(refId);
 
-    // Collapses the whole Verification section down to one CTA line until a
-    // reference is actually sent — the individual Rank/CoC/Signed/Signature
-    // fields are all "—"/"Pending" placeholders until then, which was most
-    // of the clutter in the old flat grid.
-    const verificationSectionHtml = verificationSent
-      ? `
-        <div class="vessel-meta-grid">
-          ${referenceMetaItem("Verification", verificationDetail)}
-          ${referenceMetaItem("Rank", rankValue)}
-          ${referenceMetaItem("CoC", cocValue)}
-          ${referenceMetaItem("Signed", signedValue)}
-          ${referenceMetaItem("Signature", signatureValue)}
-          ${
-            verification.note
-              ? referenceMetaItem(status === "Declined" ? "Reason given" : "Note", Seav.escapeHtml(verification.note))
-              : ""
-          }
-        </div>
-        ${
-          status === "Declined"
-            ? `<p class="ref-verify-cta ref-decline-guidance">${
-                verification.note
-                  ? "Your referee declined and left a reason above."
-                  : "Your referee declined without leaving a reason."
-              } You can reach out to them directly to understand why, edit this reference and send it again, or add a reference from someone else instead.</p>`
-            : ""
-        }
-      `
-      : `<p class="ref-verify-cta">Not yet sent for verification${
+    // Testimonial-style signature footer — replaces the old flat Rank/CoC/
+    // Signed/Signature meta-grid rows with something that reads as an
+    // actual signed-off testimonial (avatar/signature + name + rank +
+    // date), the way review platforms like Trustpilot separate "who said
+    // this and when" from the review body itself. Jack asked for the card
+    // to look more modern/legit (2026-08-07); the referee's identity and
+    // sign-off date are the actual trust signal, so they get their own
+    // visual block instead of being buried in a generic label/value grid.
+    // Rank/CoC/reason move into the shared "Details" grid further down —
+    // nothing shown before is dropped, just regrouped by importance.
+    const signatureFooterHtml = (() => {
+      if (!verificationSent) {
+        return `<p class="ref-verify-cta">Not yet sent for verification${
           canSend ? " — use <strong>Share link</strong> below to request it from your referee." : "."
         }</p>`;
+      }
+
+      if (status === "Sent for Verification") {
+        return `
+          <div class="ref-signoff ref-signoff--pending">
+            <div class="ref-card-avatar" aria-hidden="true">${initials}</div>
+            <div class="ref-signoff-body">
+              <div class="ref-signoff-name">${Seav.escapeHtml(r.name || "Your referee")}</div>
+              <div class="ref-signoff-meta">Awaiting their response</div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (status === "Declined") {
+        return `
+          <div class="ref-signoff ref-signoff--declined">
+            <div class="ref-card-avatar" aria-hidden="true">${initials}</div>
+            <div class="ref-signoff-body">
+              <div class="ref-signoff-name">${Seav.escapeHtml(verification.signatureName || r.name || "Declined")}</div>
+              <div class="ref-signoff-meta">Declined${signedValue !== "—" ? ` · ${signedValue}` : ""}</div>
+            </div>
+          </div>
+          <p class="ref-verify-cta ref-decline-guidance">${
+            verification.note
+              ? "Your referee declined and left a reason below."
+              : "Your referee declined without leaving a reason."
+          } You can reach out to them directly to understand why, edit this reference and send it again, or add a reference from someone else instead.</p>
+        `;
+      }
+
+      // Verified — the actual trust footer: signature (drawn image, or
+      // typed name as fallback), rank, and the date it was signed.
+      const sig = verification.signatureImage;
+      const sigUrl = sig ? Seav.getFileDisplayUrl(sig, REF_FILES_BUCKET) : "";
+      const avatarHtml = sigUrl
+        ? `<div class="ref-card-avatar ref-signoff-avatar--signature"><img class="seav-signature-display" src="${Seav.escapeHtml(sigUrl)}" alt="Referee signature" loading="lazy"
+            onerror="this.parentElement.outerHTML='<div class=&quot;ref-card-avatar&quot; aria-hidden=&quot;true&quot;>${initials}</div>';" /></div>`
+        : `<div class="ref-card-avatar" aria-hidden="true">${initials}</div>`;
+
+      return `
+        <div class="ref-signoff ref-signoff--verified">
+          ${avatarHtml}
+          <div class="ref-signoff-body">
+            <div class="ref-signoff-name">${Seav.escapeHtml(verification.signatureName || r.name || "—")}</div>
+            <div class="ref-signoff-meta">${rankValue !== "—" ? `${rankValue} · ` : ""}Signed ${signedValue}</div>
+          </div>
+        </div>
+      `;
+    })();
 
     return `
     <article class="vessel-card ref-page-card ref-compact-card${isExpanded ? " is-expanded" : ""}" data-ref-id="${Seav.escapeHtml(refId)}">
@@ -492,30 +492,33 @@
 
           ${titleLine ? `<p class="ref-compact-position">${titleLine}</p>` : ""}
 
-          <blockquote class="ref-quote">
+          <blockquote class="ref-quote ref-quote--hero">
             <span class="ref-section-label">${Seav.escapeHtml(excerptLabel)}</span>
+            <span class="ref-quote-mark" aria-hidden="true">&ldquo;</span>
             <span class="ref-quote-text">${excerptHtml}</span>
           </blockquote>
 
+          ${signatureFooterHtml}
+
           <div class="ref-detail-section">
-            <div class="ref-section-label">Service details</div>
+            <div class="ref-section-label">Details</div>
             <div class="vessel-meta-grid">
               ${referenceMetaItem("Vessel", Seav.escapeHtml(vesselLabel || "—"))}
               ${referenceMetaItem("Your role", Seav.escapeHtml(r.role || "—"))}
               ${referenceMetaItem("Period", Seav.escapeHtml(periodText))}
-              ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
               ${referenceMetaItem("Referee email", Seav.escapeHtml(r.email || "—"))}
+              ${verificationSent ? referenceMetaItem("CoC", cocValue) : ""}
               ${
                 r.messageToReferee
                   ? referenceMetaItem("Your message to referee", Seav.escapeHtml(r.messageToReferee))
                   : ""
               }
+              ${
+                verification.note
+                  ? referenceMetaItem(status === "Declined" ? "Reason given" : "Note", Seav.escapeHtml(verification.note))
+                  : ""
+              }
             </div>
-          </div>
-
-          <div class="ref-detail-section">
-            <div class="ref-section-label">Verification</div>
-            ${verificationSectionHtml}
           </div>
 
           ${attachmentSectionHtml}

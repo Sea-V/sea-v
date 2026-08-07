@@ -39,20 +39,6 @@
   pointer-events: auto;
 }
 
-.ref-signature-frame {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 56px;
-  padding: 6px 8px;
-
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: #ffffff;
-}
-
 .seav-signature-display {
   display: block;
   max-width: 100%;
@@ -60,37 +46,4 @@
   width: auto;
   height: auto;
   object-fit: contain;
-}
-
-.ref-signature-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.ref-signature-name {
-  color: rgba(255, 255, 255, 0.84);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-#refsList .ref-page-card .ref-signature-wrap--meta {
-  gap: 6px;
-  width: 100%;
-  min-width: 0;
-}
-
-#refsList .ref-page-card .ref-signature-wrap--meta .ref-signature-frame {
-  min-height: 52px;
-  padding: 5px 6px;
-}
-
-#refsList .ref-page-card .ref-signature-wrap--meta .seav-signature-display {
-  max-height: 44px;
-}
-
-#refsList .ref-page-card .ref-signature-wrap--meta .ref-signature-name {
-  font-size: 12px;
-  line-height: 1.35;
 }

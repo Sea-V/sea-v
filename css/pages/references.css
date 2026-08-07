@@ -333,12 +333,33 @@
 }
 
 .ref-quote {
+  position: relative;
+
   margin: 0 0 16px;
-  padding: 10px 14px;
+  padding: 12px 16px 12px 20px;
 
   border-left: 2px solid rgba(209, 107, 255, 0.45);
 
   background: rgba(255, 255, 255, 0.03);
+}
+
+/* Bigger, editorial-style testimonial quote — the referee's own words are
+   the actual trust signal on this card, so it gets more visual weight than
+   a generic form field (Jack, 2026-08-07: "make it look more legit"). */
+.ref-quote--hero {
+  padding-left: 26px;
+}
+
+.ref-quote-mark {
+  position: absolute;
+  top: 6px;
+  left: 4px;
+
+  color: rgba(209, 107, 255, 0.4);
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 26px;
+  line-height: 1;
 }
 
 .ref-quote-text {
@@ -350,6 +371,74 @@
   font-size: 14px;
   line-height: 1.6;
   font-style: italic;
+}
+
+.ref-quote--hero .ref-quote-text {
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* Signature footer — the referee's name/signature, rank, and sign-off
+   date shown as one visual block instead of buried label/value rows in
+   the meta grid. Mirrors how review platforms (Trustpilot, G2) separate
+   "who said this and when" from the review body. */
+.ref-signoff {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin: 0 0 16px;
+  padding: 10px 14px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(209, 107, 255, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ref-signoff--declined {
+  border-color: rgba(248, 113, 113, 0.28);
+}
+
+.ref-signoff .ref-card-avatar {
+  width: 34px;
+  height: 34px;
+
+  font-size: 12px;
+}
+
+.ref-signoff .ref-card-avatar.ref-signoff-avatar--signature {
+  padding: 4px;
+
+  background: #ffffff;
+}
+
+.ref-signoff .ref-card-avatar.ref-signoff-avatar--signature .seav-signature-display {
+  max-height: 26px;
+}
+
+.ref-signoff-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.ref-signoff-name {
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ref-signoff-meta {
+  margin-top: 2px;
+
+  color: rgba(255, 255, 255, 0.55);
+
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .ref-detail-section {
