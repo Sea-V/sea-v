@@ -391,6 +391,13 @@
   color: #ffffff;
 }
 
+/* Next-step guidance shown under a Declined reference's Verification
+   section (js/references.js) — sits directly below the .vessel-meta-grid,
+   which .ref-verify-cta's margin:0 doesn't otherwise space itself from. */
+.ref-decline-guidance {
+  margin-top: 10px;
+}
+
 /* =========================================================
    STATUS PILLS
 ========================================================= */

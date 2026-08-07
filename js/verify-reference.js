@@ -503,9 +503,17 @@
     if (els.declineBtn) {
       els.declineBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        const ok = window.confirm(
-          "Decline this reference? The crew member will be notified on their profile."
-        );
+        // The Note field above is shared with the confirm path (and is
+        // sent through as-is either way — see submitVerification), so a
+        // referee who hasn't touched it gets a nudge to explain themselves
+        // before we let the decline go through with nothing recorded. This
+        // is a prompt, not a requirement: they can still say no and decline
+        // with an empty note.
+        const hasNote = !!els.note?.value?.trim();
+        const message = hasNote
+          ? "Decline this reference? The crew member will be notified on their profile, along with the note you've written above."
+          : "Decline this reference? Consider adding a brief reason in the Note field above first — it helps the crew member understand your decision. The crew member will be notified on their profile.";
+        const ok = window.confirm(message);
         if (ok) submitVerification(false);
       });
     }

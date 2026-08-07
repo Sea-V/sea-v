@@ -433,8 +433,21 @@
           ${referenceMetaItem("CoC", cocValue)}
           ${referenceMetaItem("Signed", signedValue)}
           ${referenceMetaItem("Signature", signatureValue)}
-          ${verification.note ? referenceMetaItem("Note", Seav.escapeHtml(verification.note)) : ""}
+          ${
+            verification.note
+              ? referenceMetaItem(status === "Declined" ? "Reason given" : "Note", Seav.escapeHtml(verification.note))
+              : ""
+          }
         </div>
+        ${
+          status === "Declined"
+            ? `<p class="ref-verify-cta ref-decline-guidance">${
+                verification.note
+                  ? "Your referee declined and left a reason above."
+                  : "Your referee declined without leaving a reason."
+              } You can reach out to them directly to understand why, edit this reference and send it again, or add a reference from someone else instead.</p>`
+            : ""
+        }
       `
       : `<p class="ref-verify-cta">Not yet sent for verification${
           canSend ? " — use <strong>Share link</strong> below to request it from your referee." : "."
