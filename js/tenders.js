@@ -318,10 +318,27 @@ function buildTenderVesselGroups(tenders) {
       .join("");
   }
 
+  // Preserves a legacy/free-text proficiency value (e.g. "Crew", entered
+  // before this became a fixed dropdown, or saved directly in Supabase) as
+  // a selectable option instead of silently rendering blank — which used to
+  // wipe the value entirely the next time the tender was saved through this
+  // form. Mirrors ensureSelectHasValue() in js/profile.js.
+  function ensureProficiencyOptionExists(select, value) {
+    if (!select || !value) return;
+    const exists = [...select.options].some((opt) => opt.value === value);
+    if (exists) return;
+    const opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = `${value} (previously entered)`;
+    select.insertBefore(opt, select.options[1] || null);
+  }
+
   function fillTenderForm(tender) {
     document.getElementById("td_name").value = tender.name || "";
     document.getElementById("td_vessel").value = tender.vesselId || "";
-    document.getElementById("td_proficiency").value = tender.proficiencyLevel || "";
+    const proficiencySelect = document.getElementById("td_proficiency");
+    ensureProficiencyOptionExists(proficiencySelect, tender.proficiencyLevel || "");
+    if (proficiencySelect) proficiencySelect.value = tender.proficiencyLevel || "";
     document.getElementById("td_type").value = tender.type || "";
     document.getElementById("td_model").value = tender.model || "";
     document.getElementById("td_length").value = tender.length || "";

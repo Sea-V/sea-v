@@ -419,7 +419,7 @@
               ${referenceMetaItem("Date", Seav.escapeHtml(formatDatePretty(r.date)))}
               ${referenceMetaItem("Referee email", Seav.escapeHtml(r.email || "—"))}
               ${
-                status === "Verified" && r.messageToReferee
+                r.messageToReferee
                   ? referenceMetaItem("Your message to referee", Seav.escapeHtml(r.messageToReferee))
                   : ""
               }
