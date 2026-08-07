@@ -427,26 +427,32 @@
     const client = window.SeavPublicSupabase || (await getClient());
     const request = { token, payload };
 
-    let { data, error } = await client.rpc("complete_reference_verification_v3", {
+    let { data, error } = await client.rpc("complete_reference_verification_v4", {
       p_request: request
     });
 
     if (error && /could not find the function|404|42883/i.test(String(error.message || ""))) {
-      if (payload?.signatureImage) {
-        throw new Error(
-          "Drawn signatures require the verification signature SQL migration. Run docs/schema-reference-verification-signature.sql in Supabase."
-        );
-      }
-
-      ({ data, error } = await client.rpc("complete_reference_verification_v2", {
+      ({ data, error } = await client.rpc("complete_reference_verification_v3", {
         p_request: request
       }));
 
       if (error && /could not find the function|404|42883/i.test(String(error.message || ""))) {
-        ({ data, error } = await client.rpc("complete_reference_verification", {
-          p_token: token,
-          p_payload: payload
+        if (payload?.signatureImage) {
+          throw new Error(
+            "Drawn signatures require the verification signature SQL migration. Run docs/schema-reference-verification-signature.sql in Supabase."
+          );
+        }
+
+        ({ data, error } = await client.rpc("complete_reference_verification_v2", {
+          p_request: request
         }));
+
+        if (error && /could not find the function|404|42883/i.test(String(error.message || ""))) {
+          ({ data, error } = await client.rpc("complete_reference_verification", {
+            p_token: token,
+            p_payload: payload
+          }));
+        }
       }
     }
 

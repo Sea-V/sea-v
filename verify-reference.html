@@ -25,25 +25,25 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=456" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=456" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=456" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=456" />
+  <link rel="icon" href="/favicon.ico?v=459" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=459" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=459" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=459" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Verify Reference</title>
 
-  <link rel="stylesheet" href="styles.css?v=456" />
+  <link rel="stylesheet" href="styles.css?v=459" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=456"></script>
-  <script src="js/supabase.js?v=456"></script>
-  <script src="js/feedback.js?v=456" defer></script>
-  <script src="js/core.js?v=456" defer></script>
-  <script src="js/api-core.js?v=456" defer></script>
-  <script src="js/seav-signature-pad.js?v=456" defer></script>
-  <script src="js/reference-verification.js?v=456" defer></script>
-  <script src="js/verify-reference.js?v=456" defer></script>
+  <script src="js/seav-config.js?v=459"></script>
+  <script src="js/supabase.js?v=459"></script>
+  <script src="js/feedback.js?v=459" defer></script>
+  <script src="js/core.js?v=459" defer></script>
+  <script src="js/api-core.js?v=459" defer></script>
+  <script src="js/seav-signature-pad.js?v=459" defer></script>
+  <script src="js/reference-verification.js?v=459" defer></script>
+  <script src="js/verify-reference.js?v=459" defer></script>
 </head>
 
 <body class="landing-page verify-reference-page">
@@ -114,6 +114,20 @@
                 <span id="vrReferenceTextLabel">Write the reference</span>
                 <textarea id="vrReferenceText" required rows="6" placeholder="Write your reference for this crew member — their role, the dates you knew them, and your assessment of their work."></textarea>
               </label>
+
+              <!-- Referee performance scorecard (#511) shelved 2026-08-07: a
+                   referee rating that the crew member themselves can see
+                   creates a conflict of interest — visible numeric scores
+                   push toward inflation or referees quietly declining to
+                   respond, which hurts the crew member more than helps.
+                   Fixing it properly means an employer/vessel account type
+                   that doesn't exist yet, plus a data-subject-access
+                   question worth real legal advice, neither of which fits
+                   the 3-week launch window. complete_reference_verification_v4
+                   (docs/schema-reference-verification-scorecard.sql) still
+                   exists in Supabase and accepts optional scorecard/
+                   wouldRehire fields, but nothing in the UI sends them —
+                   safe, inert groundwork for revisiting this post-launch. -->
 
               <label class="modal-check">
                 <input type="checkbox" id="vrConfirmed" required />

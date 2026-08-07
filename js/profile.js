@@ -75,12 +75,19 @@
     const editBtn = el("btnEditProfile");
     let mode = "edit";
     let initialModeSet = false;
+    // Tracks whether the person has actually typed/changed anything since
+    // the form was last filled — see refreshProfileView() below for why
+    // this exists (2026-08-07 Mia Bailey data-loss incident).
+    let formDirty = false;
 
     function setMode(next) {
       mode = next;
       if (overlay) overlay.hidden = next !== "view";
       form.inert = next === "view";
-      if (next === "edit") fillForm(loadProfile());
+      if (next === "edit") {
+        fillForm(loadProfile());
+        formDirty = false;
+      }
     }
 
     if (editBtn) {
@@ -492,10 +499,19 @@
         fillForm(profile);
         setMode(profile.name ? "view" : "edit");
       } else if (mode === "edit") {
-        // Currently editing — keep the form's own state (don't clobber
-        // in-progress edits). The fields will pick up the latest saved
-        // data next time setMode("edit") runs (Edit button, or after a
-        // successful save re-locks and Edit is clicked again).
+        // Currently editing — normally keep the form's own state so a
+        // background refresh never clobbers someone's in-progress typing.
+        // BUT: if this "edit" session was entered because the very first
+        // refreshProfileView() call above ran before SeavState actually
+        // had the real profile loaded (a load race), the form can be
+        // showing blanks that were never the user's choice — and if the
+        // user hasn't touched anything since, there's nothing to protect.
+        // Re-filling in that case lets the real data (which has since
+        // arrived) win instead of staying stuck blank until a Save wipes
+        // it for real. Confirmed root cause of the 2026-08-07 Mia Bailey
+        // incident — her form loaded blank, she never saw it recover, and
+        // saving over it erased her saved profile.
+        if (!formDirty) fillForm(profile);
       } else {
         fillForm(profile);
       }
@@ -558,6 +574,11 @@
       }
     }
 
+    // fillForm()/setDateTriplet() etc. set .value directly and never fire
+    // "input" events, so this only trips on genuine typing/selection —
+    // exactly what formDirty needs to distinguish real edits from a
+    // programmatic (re-)fill. See refreshProfileView() above.
+    form.addEventListener("input", () => { formDirty = true; });
     form.addEventListener("input", updatePhotoThumbFromForm);
     if (fields.photo) {
       fields.photo.addEventListener("change", handlePhotoFileChange);
@@ -579,23 +600,36 @@
         throw new Error("Profile photo upload failed.");
       }
 
+      // Safety net for the 2026-08-07 Mia Bailey data-loss incident: a
+      // blank field in the form must never be treated as "the user wants
+      // this cleared" — it falls back to whatever was already saved
+      // instead. This is deliberate even though it means there's currently
+      // no way to explicitly blank out one of these fields via this form;
+      // that's a far smaller cost than silently erasing real data because
+      // the form happened to render blank (load race, stuck edit session,
+      // anything). refreshProfileView()'s formDirty guard fixes the known
+      // root cause of the blank-form state; this is the backstop in case
+      // some other path ever gets the form into the same situation.
+      const keep = (formValue, existingValue) =>
+        (formValue === "" || formValue == null) && existingValue ? existingValue : formValue;
+
       const profile = {
         ...existingProfile,
         id: profileId,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        rank: formData.rank,
-        dischargeBookNumber: formData.dischargeBookNumber,
-        qualification: formData.qualification,
-        nationality: formData.nationality,
-        dob: formData.dob,
-        location: formData.location,
-        email: formData.email,
-        phone: formData.phone,
-        passportsHeld: formData.passportsHeld,
-        visasHeld: formData.visasHeld,
+        firstName: keep(formData.firstName, existingProfile.firstName),
+        lastName: keep(formData.lastName, existingProfile.lastName),
+        rank: keep(formData.rank, existingProfile.rank),
+        dischargeBookNumber: keep(formData.dischargeBookNumber, existingProfile.dischargeBookNumber),
+        qualification: keep(formData.qualification, existingProfile.qualification),
+        nationality: keep(formData.nationality, existingProfile.nationality),
+        dob: keep(formData.dob, existingProfile.dob),
+        location: keep(formData.location, existingProfile.location),
+        email: keep(formData.email, existingProfile.email),
+        phone: keep(formData.phone, existingProfile.phone),
+        passportsHeld: keep(formData.passportsHeld, existingProfile.passportsHeld),
+        visasHeld: keep(formData.visasHeld, existingProfile.visasHeld),
         availability: formData.availability,
-        bio: formData.bio,
+        bio: keep(formData.bio, existingProfile.bio),
         publicEnabled: !!existingProfile.publicEnabled,
         photo
       };
