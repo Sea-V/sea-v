@@ -120,6 +120,34 @@
   // snippet) so both surfaces show the same colors.
   const getStatusDisplay = getHobbyInterestStatusDisplay;
 
+  // Collapsed-row photo preview — up to 3 overlapping thumbnails plus a
+  // "+N" badge for the rest, so the showcase is visible while scrolling
+  // instead of only after expanding a card. Added 2026-08-07 per Jack:
+  // a page whose whole pitch is "look at what makes this person
+  // interesting" shouldn't hide every photo behind a click.
+  function buildSummaryThumbs(photos) {
+    const items = (photos || []).filter((photo) => getPhotoUrl(photo));
+    if (!items.length) return "";
+
+    const shown = items.slice(0, 3);
+    const extra = items.length - shown.length;
+
+    return `
+      <div class="hi-summary-thumbs" aria-hidden="true">
+        ${shown
+          .map(
+            (photo) => `
+              <span class="hi-summary-thumb">
+                <img src="${Seav.escapeHtml(getPhotoUrl(photo))}" alt="" loading="lazy" />
+              </span>
+            `
+          )
+          .join("")}
+        ${extra > 0 ? `<span class="hi-summary-thumb hi-summary-thumb--more">+${extra}</span>` : ""}
+      </div>
+    `;
+  }
+
   function renderShowcaseGrid(photos) {
     const items = (photos || []).filter((photo) => getPhotoUrl(photo));
     if (!items.length) return "";
@@ -190,8 +218,14 @@
               data-toggle-hi-id="${Seav.escapeHtml(entryId)}"
             >
               <div class="hi-modern-summary-left">
-                <h3 class="hi-modern-name">${Seav.escapeHtml(entry.title || "Untitled")}</h3>
-                ${photoPill}
+                ${buildSummaryThumbs(photos)}
+                <div class="hi-modern-summary-text">
+                  <h3 class="hi-modern-name">${Seav.escapeHtml(entry.title || "Untitled")}</h3>
+                  <div class="hi-modern-summary-tags">
+                    <span class="hi-category-chip pill-neutral">${Seav.escapeHtml(categoryLabel)}</span>
+                    ${photoPill}
+                  </div>
+                </div>
               </div>
               <div class="hi-modern-summary-right">
                 <span class="hi-status-pill ${statusInfo.className}">

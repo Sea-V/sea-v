@@ -166,6 +166,18 @@
   flex-shrink: 0;
 }
 
+/* 2026-08-07, per Jack: the collapsed row used to be title + a "N photos"
+   pill only — every showcase photo and the category were hidden behind a
+   click, which undercuts the whole point of a photo-led page. Thumbnails
+   + category chip now surface in the collapsed row itself. */
+.hi-modern-summary-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
 .hi-modern-name {
   margin: 0;
   font-size: 15px;
@@ -175,6 +187,55 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.hi-modern-summary-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hi-summary-thumbs {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.hi-summary-thumb {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1.5px solid rgba(14, 28, 46, 0.92);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+}
+
+.hi-summary-thumb + .hi-summary-thumb {
+  margin-left: -10px;
+}
+
+.hi-summary-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hi-summary-thumb--more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  background: rgba(232, 121, 249, 0.35);
+}
+
+.hi-category-chip.pill-neutral {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .hi-photo-count-pill {
@@ -393,5 +454,10 @@
   .hi-showcase-grid,
   .hi-modal-photo-grid {
     grid-template-columns: 1fr;
+  }
+
+  .hi-summary-thumb {
+    width: 24px;
+    height: 24px;
   }
 }
