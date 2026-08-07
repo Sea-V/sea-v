@@ -147,16 +147,15 @@
   gap: 12px;
 }
 
-/* 6 columns in one row left little room per box for a label like
-   "OOW-qualifying (capped)" — it was wrapping onto 2 lines while shorter
-   labels in the same row stayed on 1, stretching the whole row taller than
-   every other KPI row on the site (which all use 4 wider columns). 3x2
-   gives each box roughly the same width as the sitewide .sq-kpi-row
-   reference, so labels stop wrapping and the row height falls back in
-   line. Scoped to Seatime's own Service summary panel only — doesn't
-   touch the Dashboard's separate kpi-row-grid-6 usage. */
-.seatime-shell-card .seatime-kpi-panel .kpi-row-grid-6 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+/* Keep all 6 in one row (Jack confirmed 2026-08-07 they're small enough to
+   fit) — the label was the only thing at risk of wrapping onto 2 lines in
+   a narrower 1/6-width box (e.g. "OOW-qualifying (capped)"), which is what
+   stretched the row taller than the rest of the page. Same shrink already
+   used just below for the OOW/Master boxes in this same squeeze situation
+   (.seatime-oow-panel .kpi-label). */
+.seatime-shell-card .seatime-kpi-panel .kpi-label {
+  font-size: 10px;
+  letter-spacing: 0.4px;
 }
 
 @media (max-width: 560px) {
