@@ -735,6 +735,14 @@
     completed: { label: "Completed", pillClass: "pill-valid" }
   };
 
+  // Mirrors js/profile.js's formDirty guard (2026-08-07 Mia Bailey
+  // incident). renderTrbPanel() runs on EVERY seav:data-updated event
+  // app-wide -- saving an unrelated sea time entry, a certificate,
+  // anything -- not just TRB-specific changes, so without this it could
+  // silently overwrite in-progress TRB notes mid-keystroke. Only ever set
+  // true by a genuine "input" event, never by a programmatic fill.
+  let trbFormDirty = false;
+
   function renderTrbPanel() {
     const statusEl = document.getElementById("trb_status");
     const targetEl = document.getElementById("trb_target_qualification");
@@ -745,9 +753,14 @@
     const profile = window.SeavState?.profile || {};
     const status = profile.trbStatus || "not_started";
 
-    if (statusEl) statusEl.value = status;
-    if (targetEl) targetEl.value = profile.trbTargetQualification || "";
-    if (notesEl) notesEl.value = profile.trbNotes || "";
+    // Skip re-filling the editable fields while the user has unsaved
+    // changes in them -- the status badge below still always reflects
+    // whatever's actually saved, so it never goes stale either way.
+    if (!trbFormDirty) {
+      if (statusEl) statusEl.value = status;
+      if (targetEl) targetEl.value = profile.trbTargetQualification || "";
+      if (notesEl) notesEl.value = profile.trbNotes || "";
+    }
 
     if (badgeEl) {
       const info = TRB_STATUS_LABELS[status] || TRB_STATUS_LABELS.not_started;
@@ -762,11 +775,18 @@
     const notes = document.getElementById("trb_notes")?.value.trim() || "";
 
     const existingProfile = window.SeavState?.profile || {};
+
+    // Same blank-never-overwrites-real-data safety net as js/profile.js
+    // (2026-08-07 Mia Bailey incident) -- a blank field falls back to
+    // whatever was already saved instead of erasing it.
+    const keep = (formValue, existingValue) =>
+      (formValue === "" || formValue == null) && existingValue ? existingValue : formValue;
+
     const updatedProfile = {
       ...existingProfile,
       trbStatus: status,
-      trbTargetQualification: target,
-      trbNotes: notes
+      trbTargetQualification: keep(target, existingProfile.trbTargetQualification),
+      trbNotes: keep(notes, existingProfile.trbNotes)
     };
 
     await Seav.withSaving(async () => {
@@ -779,6 +799,7 @@
       // writes the cache itself (no separate syncCache() call needed).
       window.SeavState?.patchData?.({ profile: updatedProfile });
 
+      trbFormDirty = false;
       renderTrbPanel();
       Seav.notify("success", "TRB progress saved", "Your Training Record Book status is up to date.");
     }, { sub: "Saving TRB progress" });
@@ -806,6 +827,9 @@
 
     const trbForm = document.getElementById("seatimeTrbForm");
     if (trbForm) {
+      // .value = assignments in renderTrbPanel() never fire "input", so
+      // this only trips on genuine typing/selection -- see trbFormDirty.
+      trbForm.addEventListener("input", () => { trbFormDirty = true; });
       trbForm.addEventListener("submit", (e) => {
         e.preventDefault();
         saveTrbForm();

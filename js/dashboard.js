@@ -39,6 +39,19 @@
     };
   }
 
+  // Safety net for the 2026-08-07 Mia Bailey data-loss incident (root
+  // cause and full fix in js/profile.js). The username-save button and
+  // public-profile toggle below both save the ENTIRE profile row (spread
+  // loadProfile() + override one field) -- if SeavState hasn't actually
+  // finished loading the real profile yet, loadProfile() silently returns
+  // DEFAULT_PROFILE, and saving would wipe every other field back to
+  // blank. Both controls are wired up before bindStateRefresh runs, so
+  // this can be clicked in that window on a slow connection. Block the
+  // save rather than risk it.
+  function isProfileReadyToSave() {
+    return !!(window.SeavState?.ready && window.SeavState?.profile?.id);
+  }
+
   async function ensureDashboardPhotosHydrated() {
     if (window.SeavState?.hydrateStoredFiles) {
       try {
@@ -243,6 +256,11 @@
     if (!input || !saveBtn) return;
 
     saveBtn.addEventListener("click", async () => {
+      if (!isProfileReadyToSave()) {
+        setUsernameHint("Still loading your profile — try again in a moment.", true);
+        return;
+      }
+
       const cleaned = slugifyUsername ? slugifyUsername(input.value) : input.value.trim().toLowerCase();
       input.value = cleaned;
 
@@ -408,6 +426,16 @@
     });
 
     checkbox.addEventListener("change", async () => {
+      if (!isProfileReadyToSave()) {
+        checkbox.checked = !checkbox.checked;
+        Seav.notify(
+          "error",
+          "Still loading",
+          "Your profile hasn't finished loading yet — try again in a moment."
+        );
+        return;
+      }
+
       const previous = !checkbox.checked;
       const profile = loadProfile();
       const updated = { ...profile, publicEnabled: checkbox.checked };
