@@ -710,7 +710,7 @@
 .dashboard-quick-actions a[href="seatime.html"] { --qa-accent: var(--page-seatime); }
 .dashboard-quick-actions a[href="certificates.html"] { --qa-accent: var(--page-certificates); }
 .dashboard-quick-actions a[href="vessels.html"] { --qa-accent: var(--page-vessels); }
-.dashboard-quick-actions a[href="achievements.html"] { --qa-accent: var(--page-achievements); }
+.dashboard-quick-actions a[href="onboard-experience.html"] { --qa-accent: var(--page-onboard-experience); }
 
 .dashboard-quick-action {
   display: flex;
