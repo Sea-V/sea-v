@@ -533,12 +533,48 @@
   `;
   }
 
+  // Mirrors js/certificates.js's renderKpis() — same .sq-kpi-row/.sq-kpi-box
+  // markup and #___KpiRow mount pattern, so References picks up the shared
+  // .kpi-num/.kpi-label styling (css/pages/dashboard.css) and the bordered
+  // .sq-kpi-box treatment (css/pages/specialist-qualifications.css) for
+  // free. References was the one major list page still using a plain text
+  // summary line instead of real KPI boxes.
+  function renderReferenceKpis(refs) {
+    const row = document.getElementById("refsKpiRow");
+    if (!row) return;
+
+    const verified = refs.filter((r) => getReferenceStatus(r) === "Verified").length;
+    const pending = refs.filter((r) => getReferenceStatus(r) === "Sent for Verification").length;
+    const declined = refs.filter((r) => getReferenceStatus(r) === "Declined").length;
+    const vesselsCovered = new Set(refs.filter((r) => r.vesselId).map((r) => r.vesselId)).size;
+
+    row.innerHTML = `
+      <div class="sq-kpi-box">
+        <div class="kpi-num">${verified}</div>
+        <div class="kpi-label">Verified</div>
+      </div>
+      <div class="sq-kpi-box">
+        <div class="kpi-num">${pending}</div>
+        <div class="kpi-label">Pending</div>
+      </div>
+      <div class="sq-kpi-box">
+        <div class="kpi-num">${declined}</div>
+        <div class="kpi-label">Declined</div>
+      </div>
+      <div class="sq-kpi-box">
+        <div class="kpi-num">${vesselsCovered}</div>
+        <div class="kpi-label">Vessels covered</div>
+      </div>
+    `;
+  }
+
   async function renderRefs() {
     const refsList = document.getElementById("refsList");
     if (!refsList && !document.getElementById("refForm")) return;
     if (!refsList) return;
 
     const refs = getRefs();
+    renderReferenceKpis(refs);
 
     if (refs.length === 0) {
       refsList.innerHTML = `
