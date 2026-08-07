@@ -129,6 +129,92 @@
 /* Reference list cards — shell + meta grid: css/components/meta-grid-cards.css */
 
 /* =========================================================
+   DOCUMENT-TYPE GROUP
+   Collapsible wrapper grouping refsList by Reference / Probation
+   Review / Annual Appraisal — mirrors .tender-vessel-group in
+   css/pages/tenders.css and .seatime-vessel-group, recolored to this
+   page's purple accent. Only rendered when more than one doc type is
+   present (js/references.js renderGroupedReferenceCards) — with just
+   one type, refsList keeps its plain flat #refsList grid layout, so
+   -group-body reproduces that exact "display: grid; gap: 16px;" here
+   for the group's own children.
+========================================================= */
+
+.reference-doc-type-group {
+  border-radius: 14px;
+  border: 1px solid var(--seav-meta-card-border-purple, rgba(209, 107, 255, 0.24));
+
+  background: rgba(255, 255, 255, 0.03);
+
+  overflow: hidden;
+}
+
+.reference-doc-type-group-summary {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+
+  padding: 14px 16px;
+}
+
+.reference-doc-type-group-summary::-webkit-details-marker {
+  display: none;
+}
+
+.reference-doc-type-group-summary::before {
+  content: "›";
+  display: inline-block;
+
+  font-size: 16px;
+  line-height: 1;
+
+  color: rgba(255, 255, 255, 0.6);
+
+  transition: transform 0.15s ease;
+}
+
+.reference-doc-type-group[open] .reference-doc-type-group-summary::before {
+  transform: rotate(90deg);
+}
+
+.reference-doc-type-group-title strong {
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.reference-doc-type-group-count {
+  margin-left: auto;
+
+  min-width: 22px;
+  padding: 1px 8px;
+
+  border-radius: 999px;
+  background: rgba(209, 107, 255, 0.18);
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+
+  flex-shrink: 0;
+}
+
+.reference-doc-type-group-body {
+  display: grid;
+  gap: 16px;
+
+  padding: 0 14px 14px;
+}
+
+/* =========================================================
    COLLAPSIBLE CARD (mirrors Certificates' cert-compact-card —
    css/pages/certificates.css — collapsed summary row by default,
    expand for quote/sectioned details/attachment/actions)

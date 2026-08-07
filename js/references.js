@@ -48,6 +48,80 @@
   // sectioned details, attachment, and actions.
   const expandedRefIds = new Set();
 
+  // References are grouped into a collapsible section per document type
+  // (mirrors the <details class="tender-vessel-group"> pattern in
+  // js/tenders.js and the seatime-vessel-group pattern in js/seatime.js).
+  // All groups default open since this list used to be flat and ungrouped
+  // — nothing should visually disappear the first time this ships.
+  // Unlike those two pages, References also has a per-card expand/collapse
+  // toggle that rebuilds refsList.innerHTML directly (see the
+  // data-toggle-ref-id handler below) — without tracking which group the
+  // user had open/closed, that full rebuild would silently re-collapse any
+  // group the user had just opened. The "toggle" event on <details> doesn't
+  // bubble but IS reachable via a capture-phase listener, so we track state
+  // that way instead of threading it through every render call.
+  const expandedDocTypeGroups = new Set(Object.keys(REFERENCE_DOC_TYPE_LABELS));
+
+  const REFERENCE_DOC_TYPE_ORDER = Object.keys(REFERENCE_DOC_TYPE_LABELS);
+
+  function buildReferenceDocTypeGroups(sortedRefs) {
+    const groups = new Map();
+    sortedRefs.forEach((r) => {
+      const key = REFERENCE_DOC_TYPE_ORDER.includes(r.docType) ? r.docType : "reference";
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(r);
+    });
+
+    return REFERENCE_DOC_TYPE_ORDER
+      .map((key) => ({
+        key,
+        label: REFERENCE_DOC_TYPE_LABELS[key],
+        refs: groups.get(key) || []
+      }))
+      .filter((group) => group.refs.length > 0);
+  }
+
+  function renderGroupedReferenceCards(sortedRefs) {
+    const groups = buildReferenceDocTypeGroups(sortedRefs);
+    // Only one doc type present (the common case pre-launch) — grouping
+    // adds a collapsible wrapper with nothing to sort, so skip it and
+    // render the flat card list exactly as before.
+    if (groups.length <= 1) {
+      return sortedRefs.map((r) => buildReferenceCard(r)).join("");
+    }
+
+    return groups
+      .map((group) => {
+        const isOpen = expandedDocTypeGroups.has(group.key);
+        return `
+          <details class="reference-doc-type-group" data-doctype-group="${group.key}"${isOpen ? " open" : ""}>
+            <summary class="reference-doc-type-group-summary">
+              <span class="reference-doc-type-group-title">
+                <strong>${Seav.escapeHtml(group.label)}</strong>
+              </span>
+              <span class="reference-doc-type-group-count">${group.refs.length}</span>
+            </summary>
+            <div class="reference-doc-type-group-body">
+              ${group.refs.map((r) => buildReferenceCard(r)).join("")}
+            </div>
+          </details>
+        `;
+      })
+      .join("");
+  }
+
+  document.addEventListener(
+    "toggle",
+    (e) => {
+      const details = e.target?.closest?.("[data-doctype-group]");
+      if (!details) return;
+      const key = details.getAttribute("data-doctype-group");
+      if (details.open) expandedDocTypeGroups.add(key);
+      else expandedDocTypeGroups.delete(key);
+    },
+    true
+  );
+
   function rememberVerifyLink(refId, verifyUrl) {
     if (!refId || !verifyUrl) return;
     try {
@@ -486,7 +560,7 @@
       await hydrateReferenceAttachments(sorted);
       window.SeavState?.syncCache?.();
 
-      refsList.innerHTML = sorted.map((r) => buildReferenceCard(r)).join("");
+      refsList.innerHTML = renderGroupedReferenceCards(sorted);
       updateReferencesSummary(refs);
     } catch (err) {
       console.error("[SEA-V] References render failed:", err);
@@ -843,7 +917,7 @@ function readReferenceForm() {
         // re-sort/re-hydrate for a pure expand/collapse.
         const refsList = document.getElementById("refsList");
         if (refsList) {
-          refsList.innerHTML = getSortedRefs().map((r) => buildReferenceCard(r)).join("");
+          refsList.innerHTML = renderGroupedReferenceCards(getSortedRefs());
         }
         return;
       }
