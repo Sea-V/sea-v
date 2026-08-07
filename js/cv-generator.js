@@ -11,6 +11,20 @@
   let saveTimer = null;
   let controlsBound = false;
 
+  // Swatch colours for the visual template picker — one per CV_TEMPLATES id
+  // (js/cv-engine-model.js), matching each colour scheme's own accent-2
+  // value already defined in css/pages/cv-generator.css (.cv-color-*
+  // .cv-seav-sidebar --cv-sidebar-accent-2). Presentational lookup only —
+  // the actual template/colour-scheme logic lives entirely in the CV engine
+  // files and is untouched here.
+  const CV_TEMPLATE_SWATCHES = {
+    seav: "#5bbcff",
+    "ocean-blue": "#38b2ac",
+    "simple-green": "#5c8a4d",
+    "pearl-grey": "#3d4854",
+    "night-watch": "#6f93b8"
+  };
+
   function getSource() {
     return window.SeavCvEngine.buildCvSource(window.SeavState);
   }
@@ -170,6 +184,58 @@
       .join("");
   }
 
+  // Visual, colour-swatch proxy for the hidden native <select id="cvTemplateSelect">.
+  // Built once from window.SeavCvEngine.CV_TEMPLATES (never redefines the
+  // template list itself) and drives selection purely by setting the real
+  // select's value + dispatching "change" -- the existing change listener
+  // above (which owns draft.template, scheduleSave, renderPreview) is the
+  // only thing that ever reacts to a template switch.
+  function renderTemplatePicker() {
+    const picker = document.getElementById("cvTemplatePicker");
+    const templateSelect = document.getElementById("cvTemplateSelect");
+    if (!picker || !templateSelect) return;
+
+    picker.innerHTML = (window.SeavCvEngine.CV_TEMPLATES || [])
+      .map((t) => {
+        const swatch = CV_TEMPLATE_SWATCHES[t.id] || "#5bbcff";
+        return `
+          <button
+            type="button"
+            class="cvgen-template-option"
+            role="radio"
+            aria-checked="false"
+            data-template-id="${Seav.escapeHtml(t.id)}"
+            style="--tpl-color: ${swatch};"
+          >
+            <span class="cvgen-template-swatch" aria-hidden="true"></span>
+            <span class="cvgen-template-option-label">${Seav.escapeHtml(t.label)}</span>
+          </button>
+        `;
+      })
+      .join("");
+
+    picker.addEventListener("click", (event) => {
+      const btn = event.target.closest(".cvgen-template-option");
+      if (!btn || !picker.contains(btn)) return;
+      const id = btn.getAttribute("data-template-id");
+      if (!id || templateSelect.value === id) return;
+      templateSelect.value = id;
+      templateSelect.dispatchEvent(new Event("change"));
+    });
+  }
+
+  function syncTemplatePicker() {
+    const picker = document.getElementById("cvTemplatePicker");
+    const templateSelect = document.getElementById("cvTemplateSelect");
+    if (!picker || !templateSelect) return;
+    const current = templateSelect.value;
+    picker.querySelectorAll(".cvgen-template-option").forEach((btn) => {
+      const isSelected = btn.getAttribute("data-template-id") === current;
+      btn.classList.toggle("is-selected", isSelected);
+      btn.setAttribute("aria-checked", isSelected ? "true" : "false");
+    });
+  }
+
   function syncEditorFields() {
     const summaryInput = document.getElementById("cvSummaryInput");
     const headlineInput = document.getElementById("cvHeadlineInput");
@@ -178,6 +244,7 @@
     if (summaryInput) summaryInput.value = draft.summary || "";
     if (headlineInput) headlineInput.value = draft.headline || "";
     if (templateSelect) templateSelect.value = draft.template || window.SeavCvEngine.CV_TEMPLATE;
+    syncTemplatePicker();
 
     document.querySelectorAll("[data-cv-section]").forEach((input) => {
       const key = input.getAttribute("data-cv-section");
@@ -205,7 +272,9 @@
         draft.template = templateSelect.value;
         scheduleSave();
         renderPreview();
+        syncTemplatePicker();
       });
+      renderTemplatePicker();
     }
 
     if (summaryInput) {

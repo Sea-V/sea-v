@@ -201,6 +201,116 @@
   margin-top: 10px;
 }
 
+/* "Built from your SEA-V profile" intro block — sits above the template
+   picker/headline/summary fields, framing them as auto-filled rather than
+   a blank form to complete from scratch. */
+.cvgen-editor-block--intro .cvgen-block-heading {
+  margin-bottom: 12px;
+}
+
+.cvgen-block-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cvgen-block-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(91, 188, 255, 0.35);
+  background: rgba(91, 188, 255, 0.1);
+  color: #5bbcff;
+}
+
+.cvgen-block-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.cvgen-block-heading .cvgen-editor-title {
+  margin: 0;
+}
+
+.cvgen-block-note {
+  margin: 4px 0 0;
+}
+
+/* Visual, colour-swatch template picker — a presentational proxy in front
+   of the hidden native <select id="cvTemplateSelect">, which stays the
+   single source of truth for the selected template (see js/cv-generator.js
+   renderTemplatePicker/syncTemplatePicker). */
+.cvgen-template-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cvgen-template-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(124, 156, 184, 0.28);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.78);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.cvgen-template-option:hover {
+  border-color: rgba(124, 156, 184, 0.5);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.cvgen-template-option:focus-visible {
+  outline: none;
+  border-color: var(--tpl-color, #5bbcff);
+  box-shadow: 0 0 0 2px rgba(91, 188, 255, 0.25);
+}
+
+.cvgen-template-swatch {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--tpl-color, #5bbcff);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+}
+
+.cvgen-template-option-label {
+  min-width: 0;
+}
+
+/* Selected row — filled with its own template colour, matching the row
+   Jack asked for ("when you select simple green, that row becomes simple
+   green"). Text switches to a readable dark/light shade depending on
+   scheme via the same on-dark-vs-on-light split the CV sidebar schemes
+   themselves use — simplest reliable approach is a light text colour with
+   enough contrast on every one of the 5 fixed swatch colours, since all
+   are mid-to-dark except pearl grey/simple green's accent-2 (still dark
+   enough at these values for white text to pass). */
+.cvgen-template-option.is-selected {
+  border-color: var(--tpl-color, #5bbcff);
+  background: var(--tpl-color, #5bbcff);
+  color: #ffffff;
+}
+
+.cvgen-template-option.is-selected .cvgen-template-swatch {
+  border-color: rgba(255, 255, 255, 0.75);
+}
+
 .cvgen-toggle-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
