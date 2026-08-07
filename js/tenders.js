@@ -264,6 +264,45 @@ function buildTenderVesselGroups(tenders) {
   `;
 }
 
+  // Mirrors js/references.js's renderReferenceKpis() — same .sq-kpi-row/
+  // .sq-kpi-box markup and #___KpiRow mount pattern (originally defined in
+  // css/pages/specialist-qualifications.css but now a shared, sitewide KPI
+  // component), so Tenders picks up the same bordered-box treatment for
+  // free. "Proficient" = top medal level (Coxswain/"Proficient" in
+  // getTenderProficiencyDisplay); "Still training" covers any tender with a
+  // proficiency logged below that, giving a real breakdown rather than a
+  // single flat total.
+  function renderTenderKpis(tenders) {
+    const row = document.getElementById("tendersKpiRow");
+    if (!row) return;
+
+    const total = tenders.length;
+    const vesselsCovered = new Set(tenders.filter((t) => t.vesselId).map((t) => t.vesselId)).size;
+    const proficient = tenders.filter((t) => t.proficiencyLevel === "Coxswain").length;
+    const stillTraining = tenders.filter(
+      (t) => t.proficiencyLevel && t.proficiencyLevel !== "Coxswain"
+    ).length;
+
+    row.innerHTML = `
+      <div class="sq-kpi-box">
+        <div class="kpi-num">${total}</div>
+        <div class="kpi-label">Total tenders</div>
+      </div>
+      <div class="sq-kpi-box">
+        <div class="kpi-num">${vesselsCovered}</div>
+        <div class="kpi-label">Vessels covered</div>
+      </div>
+      <div class="sq-kpi-box">
+        <div class="kpi-num">${proficient}</div>
+        <div class="kpi-label">Proficient</div>
+      </div>
+      <div class="sq-kpi-box">
+        <div class="kpi-num">${stillTraining}</div>
+        <div class="kpi-label">Still training</div>
+      </div>
+    `;
+  }
+
   // js/core.js's bindStateRefresh reruns this page's refresh on EVERY
   // "seav:data-updated" event app-wide, and photo hydration itself dispatches
   // that event once signed URLs resolve — so without a guard, every refresh
@@ -282,6 +321,7 @@ function buildTenderVesselGroups(tenders) {
     if (!tendersGrid) return;
 
     const tenders = getTenders();
+    renderTenderKpis(tenders);
 
     if (!tenders.length) {
       tendersGrid.innerHTML = `<p class="muted">No tenders added yet.</p>`;
