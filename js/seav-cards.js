@@ -218,7 +218,7 @@
                 <p>${type} • ${flag}</p>
               </div>
 
-              ${isCurrent ? `<span class="vessel-current-badge">Current</span>` : ``}
+              ${window.SeavData.buildCurrentBadge(isCurrent, { includePrevious: false })}
             </div>
 
             <div class="vessel-main-grid">

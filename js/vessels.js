@@ -242,7 +242,7 @@ function buildVesselCardBody(v, options = {}) {
               <p>${type} • ${flag}</p>
             </div>
 
-            <span class="vessel-current-badge">${isCurrent ? "Current" : "Previous"}</span>
+            ${window.SeavData.buildCurrentBadge(isCurrent)}
           </div>
 
           <div class="vessel-main-grid">

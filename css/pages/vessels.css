@@ -1029,7 +1029,15 @@
    is visible either way. margin-left: auto pushes it to the far right of
    the flex row without affecting the chevron (see the ::before comment
    above — that one deliberately has no margin, this is a different,
-   later flex item). */
+   later flex item).
+
+   2026-08-07, Jack: opening a card showed this badge AND the body's own
+   .vessel-current-badge at once — same word, twice, in the same card.
+   Hiding this one only while [open] keeps the original 2026-08-05 fix
+   (closed cards still show status at a glance) while the body's badge
+   takes over the instant you expand — no JS change needed, and the
+   public-profile card (which has no collapsible wrapper to hide) is
+   untouched either way. */
 .vessel-history-summary-badge {
   margin-left: auto;
   flex-shrink: 0;
@@ -1038,6 +1046,10 @@
   padding: 0 10px;
 
   font-size: 10px;
+}
+
+.vessel-history-collapsible[open] .vessel-history-summary-badge {
+  display: none;
 }
 
 .vessel-history-collapsible-body {

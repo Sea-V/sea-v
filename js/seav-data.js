@@ -2442,6 +2442,20 @@ function getSortedVesselOptions(vessels = []) {
     return String(v?.experience_onboard || v?.desc || "").trim();
   }
 
+  // Single source of truth for the Current/Previous vessel pill — was
+  // previously two near-identical copies of this HTML string, one in
+  // js/vessels.js (private Vessels page card) and one in js/seav-cards.js
+  // (public profile / dashboard card). Both callers render the exact same
+  // markup for isCurrent, so this keeps them from silently drifting apart.
+  // Public profile has never shown a "Previous" pill (a non-current vessel
+  // there just gets no badge) — pass { includePrevious: false } to match
+  // that existing behavior instead of changing it.
+  function buildCurrentBadge(isCurrent, options = {}) {
+    const includePrevious = options.includePrevious !== false;
+    if (isCurrent) return `<span class="vessel-current-badge">Current</span>`;
+    return includePrevious ? `<span class="vessel-current-badge">Previous</span>` : "";
+  }
+
   /* =========================================================
      REFERENCE HELPERS
   ========================================================= */
@@ -2572,6 +2586,7 @@ window.SeavData = {
   getVesselType,
   getVesselLength,
   getVesselExperience,
+  buildCurrentBadge,
   haversineNm,
   formatNm,
   pathLengthNm,
