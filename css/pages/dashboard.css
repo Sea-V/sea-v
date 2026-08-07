@@ -111,9 +111,14 @@
   min-width: 0;
 }
 
+/* Matches every other page's -shell-icon (profile.css, references.css,
+   tenders.css, cv-generator.css, etc. — all 72px circle / 34px svg). This
+   one was left at an old smaller size (56px/28px) so the circle read as
+   noticeably smaller than every other page's header icon — Jack flagged
+   2026-08-07. */
 .dashboard-shell-icon {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
 
   display: flex;
   align-items: center;
@@ -128,8 +133,8 @@
 }
 
 .dashboard-shell-icon svg {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   display: block;
 }
 
@@ -680,10 +685,10 @@
     grid-template-columns: 1fr;
   }
 
-  .dashboard-shell-icon {
-    width: 52px;
-    height: 52px;
-  }
+  /* No mobile shrink here anymore, matching every other page's -shell-icon
+     (none of them scale down at this breakpoint either) — a mobile-only
+     override would just reintroduce the same "smaller on dashboard"
+     mismatch at small viewports. */
 }
 
 .dashboard-shell-section {

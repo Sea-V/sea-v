@@ -132,6 +132,37 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     0 10px 24px rgba(0, 0, 0, 0.16);
+
+  /* Padding tightened from the site's base .kpi-box (16px 18px, dashboard.css)
+     to match .sq-kpi-box (14px 16px) — the box style References/Certificates/
+     Payslips/Tenders were built to copy from Seatime. The extra vertical
+     padding plus the base .kpi-row-grid's 10px gap (vs .sq-kpi-row's 12px)
+     was making this "Service summary" row read as a taller, mismatched band
+     compared to every KPI row it was meant to be the reference for.
+     Jack flagged 2026-08-07. */
+  padding: 14px 16px;
+}
+
+.seatime-shell-card .seatime-kpi-panel .kpi-row-grid {
+  gap: 12px;
+}
+
+/* 6 columns in one row left little room per box for a label like
+   "OOW-qualifying (capped)" — it was wrapping onto 2 lines while shorter
+   labels in the same row stayed on 1, stretching the whole row taller than
+   every other KPI row on the site (which all use 4 wider columns). 3x2
+   gives each box roughly the same width as the sitewide .sq-kpi-row
+   reference, so labels stop wrapping and the row height falls back in
+   line. Scoped to Seatime's own Service summary panel only — doesn't
+   touch the Dashboard's separate kpi-row-grid-6 usage. */
+.seatime-shell-card .seatime-kpi-panel .kpi-row-grid-6 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 560px) {
+  .seatime-shell-card .seatime-kpi-panel .kpi-row-grid-6 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* =========================================================
