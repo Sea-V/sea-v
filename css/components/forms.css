@@ -91,3 +91,29 @@
   font-weight: 600;
   line-height: 1.35;
 }
+
+/* =========================================================
+   PAGE BOUNDARY NOTE
+   Short cross-link callout used where two pages overlap
+   conceptually (e.g. Certificates vs Specialist Qualifications)
+   so crew land on the right one instead of guessing. Shared
+   across pages via styles.css. Added 2026-08-07.
+========================================================= */
+.page-boundary-note {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+
+  background: rgba(91, 188, 255, 0.08);
+  border: 1px solid rgba(91, 188, 255, 0.22);
+  color: rgba(255, 255, 255, 0.68);
+
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.page-boundary-note a {
+  color: var(--accent-blue, #5bbcff);
+  font-weight: 700;
+}
