@@ -939,9 +939,10 @@ function renderSidebarAchievements() {
   }
 
   /**
-   * Shared by the sidebar link (here) and the dashboard "copy link" button
-   * (js/dashboard.js resolveDashboardPublicProfileUrl) so both always agree
-   * on the same URL shape. Prefers the clean /u/<username> path (see the
+   * Shared by the sidebar link (here) and the profile page's public-share
+   * panel (js/profile.js resolvePublicShareUrl, moved from dashboard.js
+   * 2026-08-08) so both always agree on the same URL shape. Prefers the
+   * clean /u/<username> path (see the
    * netlify.toml/vercel.json rewrite to public-profile.html?u=<username>)
    * once a crew member has a username; falls back to the original
    * ?p=<uuid> link for profiles that don't have one yet.

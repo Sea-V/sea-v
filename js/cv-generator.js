@@ -74,7 +74,7 @@
       : "Add profile and career data in SEA-V, then polish your CV here.";
   }
 
-  // Mirrors js/dashboard.js's renderDashboardPublicQr -- qrcodejs needs a
+  // Mirrors js/profile.js's renderProfilePublicQr -- qrcodejs needs a
   // live DOM node to mount into, so the QR canvas can't be part of the
   // plain HTML string renderCvHtml() returns. Retries briefly if the
   // (deferred) library hasn't finished loading yet rather than leaving the

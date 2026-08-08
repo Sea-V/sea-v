@@ -787,8 +787,8 @@
    might produce (canvas, its img long-press/save fallback, or the very
    old table fallback) is deliberate -- without it, whichever element
    isn't perfectly hidden paints at its native pixel size instead of being
-   cropped to this box. Same bug/fix as the dashboard's share-panel QR
-   (css/pages/dashboard.css .dashboard-public-share-qr-canvas). */
+   cropped to this box. Same bug/fix as the profile page's share-panel QR
+   (css/pages/profile.css .profile-public-share-qr-canvas). */
 .cv-seav-qr-code {
   display: inline-flex;
   align-items: center;
