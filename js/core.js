@@ -355,6 +355,7 @@ const app = {
           <nav class="nav-left" aria-label="Quick links">
             <a href="#" data-open="contactInfoModal">Contact</a>
             <a href="#" data-open="aboutInfoModal">About</a>
+            <a href="#" data-open="reportIssueModal">Report an issue</a>
           </nav>
 
           <a class="brand" href="dashboard.html">
@@ -777,6 +778,41 @@ function renderSidebarAchievements() {
               <a class="btn-ghost2" href="#" data-open="contactInfoModal">Get in touch</a>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div class="modal" id="reportIssueModal" hidden>
+        <div class="modal-card modal-card--blue">
+          <div class="modal-head">
+            <h3>Report an issue</h3>
+            <button type="button" class="modal-x" data-close aria-label="Close">&times;</button>
+          </div>
+
+          <form class="modal-form" id="reportIssueForm">
+            <p class="modal-intro">
+              Spotted a bug, missing a feature, or have an idea? This goes straight to the SEA-V team — no email needed.
+            </p>
+
+            <label>
+              What's this about?
+              <select id="ri_category" required>
+                <option value="bug">Something's broken</option>
+                <option value="missing">Something's missing</option>
+                <option value="suggestion">Suggestion / idea</option>
+              </select>
+            </label>
+
+            <label>
+              Tell us more
+              <textarea id="ri_message" rows="4" required placeholder="What happened, or what would you like to see?"></textarea>
+            </label>
+
+            <button class="btn-blue" type="submit">Send report</button>
+
+            <p class="modal-footnote">
+              We'll capture which page you're on automatically. This isn't a live chat — we won't reply here, but we do read every one.
+            </p>
+          </form>
         </div>
       </div>
     `;

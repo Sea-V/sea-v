@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Sentry error monitoring — loaded first so it can catch errors from anything below.
+       Same data-collection lockdown as every other app page: SEA-V's traffic
+       carries maritime crew PII, so Sentry never attaches reporter IP/user
+       info or request/response bodies to error events. -->
+  <script>
+    window.sentryOnLoad = function () {
+      Sentry.init({
+        dataCollection: {
+          userInfo: false,
+          httpBodies: []
+        }
+      });
+    };
+  </script>
+  <script
+    src="https://js-de.sentry-cdn.com/daebc8b90d74e12665f57000fe529d6a.min.js"
+    crossorigin="anonymous"
+  ></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.ico?v=467" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=467" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=467" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=467" />
+  <meta name="theme-color" content="#071019" />
+
+  <title>SEA-V • Admin</title>
+
+  <link rel="stylesheet" href="styles.css?v=467" />
+
+  <!-- Lean script set on purpose — this page is hidden/unlinked and admin-only,
+       so it skips every crew-data module (seav-data, api-*, state, achievements,
+       badges, share, html2canvas, jszip) that dashboard.html and friends load. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/seav-config.js?v=467"></script>
+  <script src="js/supabase.js?v=467"></script>
+  <script src="js/auth.js?v=467"></script>
+  <script src="js/feedback.js?v=467" defer></script>
+  <script src="js/core.js?v=467" defer></script>
+  <script src="js/admin.js?v=467" defer></script>
+</head>
+
+<body class="app-page admin-page" data-topbar="app" data-shared-modals="true">
+
+  <div id="topbarMount"></div>
+
+  <main class="admin-shell">
+
+    <article class="admin-card">
+
+      <div class="admin-card-head">
+
+        <div class="admin-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3.5c-2.6 0-4.5 2-4.5 4.6v2.4c0 .7-.25 1.4-.7 2l-1.1 1.4c-.5.6-.05 1.6.75 1.6h11c.8 0 1.25-1 .75-1.6l-1.1-1.4c-.45-.6-.7-1.3-.7-2V8.1c0-2.6-1.9-4.6-4.5-4.6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M10 18.5a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="admin-card-copy">
+          <h2>Bug reports</h2>
+          <p>
+            Everything crew send via "Report an issue" — bugs, missing features, and ideas.
+            One-way inbox: crew never see a reply here.
+          </p>
+        </div>
+
+        <div class="admin-card-actions">
+          <a class="btn-ghost2" href="dashboard.html">Back to app</a>
+          <button type="button" class="btn-ghost2" id="adminLogoutBtn">Log out</button>
+        </div>
+
+      </div>
+
+      <section class="admin-section" id="adminGate">
+        <p class="admin-loading">Checking admin access…</p>
+      </section>
+
+      <section class="admin-section" id="adminContent" hidden>
+
+        <div class="admin-kpi-row" id="adminKpiRow"></div>
+
+        <div class="admin-toolbar">
+          <label class="admin-filter-label">
+            Status
+            <select id="adminStatusFilter">
+              <option value="">All statuses</option>
+              <option value="new">New</option>
+              <option value="reviewing">Reviewing</option>
+              <option value="done">Done</option>
+            </select>
+          </label>
+
+          <label class="admin-filter-label">
+            Category
+            <select id="adminCategoryFilter">
+              <option value="">All categories</option>
+              <option value="bug">Something's broken</option>
+              <option value="missing">Something's missing</option>
+              <option value="suggestion">Suggestion / idea</option>
+            </select>
+          </label>
+
+          <button type="button" class="btn-ghost2" id="adminRefreshBtn">Refresh</button>
+        </div>
+
+        <div class="admin-report-list" id="adminReportList"></div>
+
+        <p class="admin-empty" id="adminEmptyMsg" hidden>No reports match this filter.</p>
+
+      </section>
+
+    </article>
+
+  </main>
+
+  <div id="sharedModalsMount"></div>
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

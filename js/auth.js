@@ -27,7 +27,8 @@
     "onboard-experience.html",
     "hobbies-interests.html",
     "specialist-qualifications.html",
-    "payslips.html"
+    "payslips.html",
+    "admin.html"
   ]);
 
   let currentUser = null;

@@ -1,0 +1,224 @@
+/* =========================================================
+   SEA-V • ADMIN (Bug Reports)
+   Accent: sitewide blue (#5bbcff) — icon & borders only.
+   Hidden/unlinked page, no sidebar — single centered column
+   instead of the .dash grid every crew page uses.
+========================================================= */
+
+.admin-shell {
+  position: relative;
+  z-index: 1;
+
+  width: min(920px, 94vw);
+  margin: 26px auto 40px;
+}
+
+.admin-card {
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid rgba(91, 188, 255, 0.24);
+  background: var(--page-shell-bg-translucent);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+}
+
+.admin-card-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 28px;
+  border-bottom: 1px solid rgba(91, 188, 255, 0.14);
+}
+
+.admin-card-icon {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid rgba(91, 188, 255, 0.35);
+  background: rgba(255, 255, 255, 0.035);
+  color: #5bbcff;
+}
+
+.admin-card-icon svg {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+.admin-card-copy h2 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: var(--font-page-title);
+  line-height: 1.25;
+  font-weight: var(--font-weight-title);
+}
+
+.admin-card-copy p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.65;
+  max-width: 640px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.admin-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.admin-section {
+  padding: 26px 28px 30px;
+}
+
+.admin-loading {
+  margin: 0;
+  padding: 20px 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  text-align: center;
+}
+
+.admin-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.admin-kpi-box {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(91, 188, 255, 0.34);
+  background: var(--page-shell-panel);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.admin-kpi-box .kpi-num {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.admin-kpi-box .kpi-label {
+  display: block;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.admin-filter-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.admin-report-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-report-row {
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(91, 188, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.admin-report-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.admin-report-reporter {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-report-date {
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-report-message {
+  margin: 0 0 10px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.admin-report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-report-meta code {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+}
+
+.admin-report-status-select {
+  margin-left: auto;
+}
+
+.admin-empty {
+  margin: 20px 0 0;
+  padding: 20px 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .admin-card-head {
+    grid-template-columns: auto 1fr;
+  }
+
+  .admin-card-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .admin-kpi-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
