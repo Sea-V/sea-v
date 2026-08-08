@@ -1727,13 +1727,21 @@ function getEmptyTenderEntry() {
   // research spreadsheet). Checks the OOW condition two ways since SEA-V
   // doesn't track OOW's academic modules yet: either the saved OOW YACHT
   // certificate is held, or the OOW sea-time milestone itself is met.
+  //
+  // 2026-08-08: the IYT equivalence this comment always claimed was never
+  // actually wired up — only RYA YMOCEAN was checked. Fixed after Jack
+  // confirmed to also accept IYT MOY UNLTD (IYT Master of Yachts Unlimited
+  // 200GT), now that IYT is in the certificate catalog.
   const CHIEF_MATE_3000_YACHTMASTER_OCEAN_CODE = "RYA YMOCEAN";
+  const CHIEF_MATE_3000_YACHTMASTER_OCEAN_ALT_CODE = "IYT MOY UNLTD";
   const CHIEF_MATE_3000_OOW_CERT_CODE = "OOW YACHT";
 
   function computeChiefMate3000Eligibility(seatimes, vessels, certs) {
     const oowSeaTimeMet = isOowSeaTimeComplete(seatimes, vessels);
     const oowCertHeld = !!findSavedCertByCode(certs, CHIEF_MATE_3000_OOW_CERT_CODE);
-    const yachtmasterOceanCert = findSavedCertByCode(certs, CHIEF_MATE_3000_YACHTMASTER_OCEAN_CODE);
+    const yachtmasterOceanCert =
+      findSavedCertByCode(certs, CHIEF_MATE_3000_YACHTMASTER_OCEAN_CODE) ||
+      findSavedCertByCode(certs, CHIEF_MATE_3000_YACHTMASTER_OCEAN_ALT_CODE);
     const yachtmasterOceanHeld = !!yachtmasterOceanCert;
     const oowMet = oowSeaTimeMet || oowCertHeld;
 
@@ -1742,6 +1750,7 @@ function getEmptyTenderEntry() {
       oowSeaTimeMet,
       oowCertHeld,
       yachtmasterOceanHeld,
+      yachtmasterOceanCertCode: yachtmasterOceanCert?.code || null,
       yachtmasterOceanIssuedDate: yachtmasterOceanCert?.issued || null,
       met: oowMet && yachtmasterOceanHeld
     };
@@ -2357,13 +2366,13 @@ function getSortedVesselOptions(vessels = []) {
         const result = computeChiefMate3000Eligibility(seatimes, vessels, certs);
         const missing = [];
         if (!result.oowMet) missing.push("OOW <3000GT eligibility");
-        if (!result.yachtmasterOceanHeld) missing.push("RYA Yachtmaster Ocean");
+        if (!result.yachtmasterOceanHeld) missing.push("RYA Yachtmaster Ocean (or IYT Master of Yachts Unlimited)");
         return {
           current: result.met ? 1 : 0,
           target: 1,
           percent: result.met ? 100 : 0,
           label: result.met
-            ? "OOW <3000GT eligible and RYA Yachtmaster Ocean held"
+            ? "OOW <3000GT eligible and Yachtmaster Ocean / Master of Yachts Unlimited held"
             : `Still need: ${missing.join(" and ")}`
         };
       }

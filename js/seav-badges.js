@@ -245,7 +245,7 @@ pacific_crossing: {
       dashboardSection: "certificates",
       sourcePage: "certificates",
       badgeKey: "chief_mate_3000gt_eligible",
-      description: "Holding your OOW Yachts <3000GT eligibility (sea time met or the certificate held) plus RYA Yachtmaster Ocean qualifies you for Chief Mate Yachts <3000GT (MSN 1858 §3.4) — no extra sea time is needed beyond OOW's own requirement, and it can be applied for alongside OOW itself. Ancillary safety courses and ENG1 are still required for the actual Certificate of Competency.",
+      description: "Holding your OOW Yachts <3000GT eligibility (sea time met or the certificate held) plus RYA Yachtmaster Ocean (or IYT Master of Yachts Unlimited) qualifies you for Chief Mate Yachts <3000GT (MSN 1858 §3.4) — no extra sea time is needed beyond OOW's own requirement, and it can be applied for alongside OOW itself. Ancillary safety courses and ENG1 are still required for the actual Certificate of Competency.",
       approvalRequired: false,
       trigger: { type: "chief_mate_3000_eligible" }
     },

@@ -699,7 +699,7 @@
             percent: result.oowMet ? 100 : 0
           },
           {
-            label: "RYA Yachtmaster Ocean held",
+            label: "RYA Yachtmaster Ocean (or IYT Master of Yachts Unlimited) held",
             current: result.yachtmasterOceanHeld ? 1 : 0,
             target: 1,
             percent: result.yachtmasterOceanHeld ? 100 : 0
