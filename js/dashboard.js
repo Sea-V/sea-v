@@ -607,6 +607,83 @@
     });
   }
 
+  // --- "Add vessel" quick action: opens the real Add Vessel modal in place
+  // instead of navigating to vessels.html (Jack, 2026-08-08 -- crew onboard
+  // mainly use the 4 quick actions; fewer full-page loads also suits a
+  // future PWA, see project_seav_pwa_ios_app_plan). Nothing about the modal
+  // or its save/validation/upload logic is duplicated here: this fetches
+  // vessels.html once, lifts its #vesselModal node into this page, and
+  // lazy-loads js/vessels.js to drive it -- same code, same page, just
+  // opened without a navigation. If any step fails, it falls back to a
+  // normal navigation to vessels.html rather than leaving the button dead.
+  let vesselModalLoadPromise = null;
+
+  function loadVesselModalOnDashboard() {
+    if (vesselModalLoadPromise) return vesselModalLoadPromise;
+
+    vesselModalLoadPromise = (async () => {
+      if (!document.getElementById("vesselModal")) {
+        const res = await fetch("vessels.html", { cache: "force-cache" });
+        if (!res.ok) throw new Error(`Failed to fetch vessels.html: ${res.status}`);
+        const html = await res.text();
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const modalEl = doc.getElementById("vesselModal");
+        if (!modalEl) throw new Error("vesselModal not found in vessels.html");
+        document.body.appendChild(modalEl);
+      }
+
+      if (!window.SeavVessels) {
+        const version = window.SeavConfig?.ASSET_VERSION || "";
+        await new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = `js/vessels.js?v=${version}`;
+          script.defer = true;
+          script.onload = resolve;
+          script.onerror = () => reject(new Error("Failed to load js/vessels.js"));
+          document.head.appendChild(script);
+        });
+      }
+
+      if (!window.SeavVessels?.initVessels || !window.SeavVessels?.openAddVesselModal) {
+        throw new Error("SeavVessels API unavailable after load");
+      }
+
+      window.SeavVessels.initVessels();
+    })().catch((err) => {
+      vesselModalLoadPromise = null; // allow retry on next click
+      throw err;
+    });
+
+    return vesselModalLoadPromise;
+  }
+
+  function initDashboardAddVesselQuickAction() {
+    const link = document.getElementById("dashAddVesselAction");
+    const label = document.getElementById("dashAddVesselActionLabel");
+    if (!link) return;
+
+    const originalLabel = label ? label.textContent : "";
+
+    link.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      if (label) label.textContent = "Loading…";
+      link.setAttribute("aria-busy", "true");
+
+      try {
+        await loadVesselModalOnDashboard();
+        window.SeavVessels.openAddVesselModal();
+      } catch (err) {
+        console.error("[SEA-V] Add vessel quick action failed, falling back to page navigation:", err);
+        window.location.href = "vessels.html";
+        return;
+      } finally {
+        if (label) label.textContent = originalLabel;
+        link.removeAttribute("aria-busy");
+      }
+    });
+  }
+
   function initDashboard() {
     const isDashboard =
       document.getElementById("dashSeatimeSnippet") ||
@@ -621,6 +698,7 @@
 
     populateDashboardCardIcons();
     initDashboardPublicToggle();
+    initDashboardAddVesselQuickAction();
     Seav.bindStateRefresh(runRefresh, { label: "Dashboard refresh" });
   }
 

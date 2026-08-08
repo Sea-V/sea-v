@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 460;
+const ASSET_VERSION = 462;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
@@ -132,19 +132,17 @@ function patchAppPage(html) {
     );
   }
 
-  // heic2any: client-side HEIC -> JPEG conversion so iPhone photos render in
-  // Chrome/Firefox/Edge (only Safari decodes HEIC natively). Loaded right
-  // before seav-upload.js, the single choke point every photo upload goes
-  // through. Separate idempotent check so it also backfills pages that
-  // already had seav-upload.js inserted by an earlier run of this script.
-  // Matches only the opening of the tag (not the full closing/version suffix)
-  // since re-runs see the tag with ?v=N already appended from bumpAssetVersions.
-  if (next.includes("js/seav-upload.js") && !next.includes("heic2any")) {
-    next = next.replace(
-      '<script src="js/seav-upload.js',
-      `<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>\n  <script src="js/seav-upload.js`
-    );
-  }
+  // heic2any (client-side HEIC -> JPEG conversion, only Safari decodes HEIC
+  // natively) used to be inserted here as a static <script> tag on every
+  // page that includes seav-upload.js -- i.e. every logged-in page,
+  // including ones with no photo upload at all (Dashboard, Achievements,
+  // Sea Time...). Measured at ~320KB compressed, paid on every visit
+  // regardless of use -- a real cost for crew on slow/metered connections
+  // (satellite, onboard wifi). As of 2026-08-08, js/seav-upload.js lazy-
+  // loads it itself (see ensureHeic2anyLoaded()) only when a HEIC file is
+  // actually being converted, so nothing needs inserting here anymore.
+  // Deliberately NOT auto-removing a stray tag if one somehow reappears --
+  // this block intentionally does nothing now.
 
   if (next.includes("js/certificates.js") && !next.includes("js/certificates-export.js")) {
     next = next.replace(

@@ -33,7 +33,43 @@
     return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
   }
 
+  const HEIC2ANY_SRC = "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js";
+  let heic2anyLoadPromise = null;
+
+  // heic2any (~320KB) used to load via a static <script> tag on every
+  // logged-in page -- paid on every single visit, including pages with no
+  // photo upload at all (Dashboard, Achievements, Sea Time...), even though
+  // most uploads are already JPEG/PNG and never touch this code path at
+  // all. Loading it here instead, on the first actual HEIC file, means it's
+  // only ever downloaded by someone actually uploading an iPhone HEIC photo
+  // -- real weight off every other page load, which matters most for crew
+  // on slow/metered connections (satellite, onboard wifi) (2026-08-08).
+  function ensureHeic2anyLoaded() {
+    if (typeof window.heic2any === "function") return Promise.resolve();
+    if (heic2anyLoadPromise) return heic2anyLoadPromise;
+
+    heic2anyLoadPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = HEIC2ANY_SRC;
+      script.onload = () => resolve();
+      script.onerror = () => {
+        heic2anyLoadPromise = null; // let the next HEIC file retry the load
+        reject(new Error("heic2any failed to load"));
+      };
+      document.head.appendChild(script);
+    });
+
+    return heic2anyLoadPromise;
+  }
+
   async function convertHeicToJpeg(file) {
+    try {
+      await withTimeout(ensureHeic2anyLoaded(), 15000, "heic2any script load");
+    } catch (error) {
+      console.warn("[SEA-V] heic2any failed to load — uploading original HEIC file:", error);
+      return file;
+    }
+
     if (typeof window.heic2any !== "function") {
       console.warn("[SEA-V] heic2any not loaded — uploading original HEIC file.");
       return file;

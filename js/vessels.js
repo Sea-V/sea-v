@@ -742,11 +742,32 @@ async function saveVesselData(vesselData) {
   document.dispatchEvent(new CustomEvent("seav:data-updated"));
 }
 
+  // Guards against double-initialization when this file is lazy-loaded onto
+  // a page other than vessels.html (see Dashboard's "Add vessel" quick
+  // action, js/dashboard.js) -- that flow may call initVessels() again after
+  // injecting the modal markup, once the fetch that supplies it resolves.
+  // Deliberately checked AFTER the DOM-readiness guard below, not before:
+  // if the modal markup isn't in the DOM yet, this call doesn't count as a
+  // real init and a later retry must still be allowed through.
+  let vesselsInited = false;
+
+  function openAddVesselModal() {
+    resetVesselFormState();
+    if (window.SeavModals?.openModal) {
+      window.SeavModals.openModal("vesselModal");
+    } else {
+      const modal = document.getElementById("vesselModal");
+      if (modal) modal.hidden = false;
+    }
+  }
+
   function initVessels() {
+    if (vesselsInited) return;
     if (
       !document.getElementById("vesselsGrid") &&
       !document.getElementById("vesselForm")
     ) return;
+    vesselsInited = true;
 
     const runRefresh = () => {
       renderVessels();
@@ -766,13 +787,7 @@ async function saveVesselData(vesselData) {
     document.querySelectorAll('[data-open="vesselModal"]').forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
-        resetVesselFormState();
-        if (window.SeavModals?.openModal) {
-          window.SeavModals.openModal("vesselModal");
-        } else {
-          const modal = document.getElementById("vesselModal");
-          if (modal) modal.hidden = false;
-        }
+        openAddVesselModal();
       });
     });
 
@@ -1005,5 +1020,19 @@ async function saveVesselData(vesselData) {
 
   }
 
-  document.addEventListener("DOMContentLoaded", initVessels);
+  // Public entry point for pages other than vessels.html that lazy-load this
+  // file on demand (Dashboard's "Add vessel" quick action) -- lets them
+  // (re)run init once the modal markup they fetched in is actually in the
+  // DOM, and open straight into the Add form without a synthetic click.
+  window.SeavVessels = { initVessels, openAddVesselModal };
+
+  // Runs immediately if the DOM is already ready by the time this script
+  // executes (true when lazy-loaded after page load, e.g. from Dashboard),
+  // otherwise waits for DOMContentLoaded as before (vessels.html itself,
+  // where this script loads before the page has finished parsing).
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initVessels);
+  } else {
+    initVessels();
+  }
 })();
