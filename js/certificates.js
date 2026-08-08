@@ -779,8 +779,22 @@
 
   window.SeavCertificatesRender = { renderCerts: refreshView };
 
+  // Guards against double-initialization when this file is lazy-loaded onto
+  // a page other than certificates.html (see Dashboard's "Upload
+  // certificate" quick action, js/dashboard.js) -- mirrors the same guard
+  // added to js/vessels.js for the equivalent Add Vessel flow. Checked
+  // AFTER the DOM-readiness guard below so an early call (before the modal
+  // markup has actually landed in the DOM) doesn't block a later, real
+  // init.
+  let certsInited = false;
+
   function init() {
-    if (!document.getElementById("certsList")) return;
+    if (certsInited) return;
+    // certsList lives on certificates.html itself; certModal is what
+    // Dashboard injects on demand and has no certsList nearby -- either one
+    // being present is enough to proceed.
+    if (!document.getElementById("certsList") && !document.getElementById("certModal")) return;
+    certsInited = true;
 
     Seav.bindStateRefresh(() => refreshView(), { label: "Certificates refresh" });
 
@@ -957,5 +971,11 @@
     });
   }
 
-  document.addEventListener("DOMContentLoaded", init);
+  window.SeavCertificates = { init, openAddModal };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })();

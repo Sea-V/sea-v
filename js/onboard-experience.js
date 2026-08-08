@@ -905,7 +905,17 @@
     }
   }
 
+  // Guards against double-initialization when this file is lazy-loaded onto
+  // a page other than onboard-experience.html (see Dashboard's "Log
+  // onboard experience" quick action, js/dashboard.js) -- mirrors the same
+  // guard added to js/vessels.js for the equivalent Add Vessel flow.
+  // Checked AFTER the DOM-readiness guard below so an early call (before
+  // the modal markup has actually landed in the DOM) doesn't block a
+  // later, real init.
+  let onboardExperienceInited = false;
+
   function initOnboardExperience() {
+    if (onboardExperienceInited) return;
     if (
       !document.getElementById("oeList") &&
       !document.getElementById("oeForm") &&
@@ -913,6 +923,7 @@
     ) {
       return;
     }
+    onboardExperienceInited = true;
 
     populateCategoryOptions();
     initSkillsSection();
@@ -1166,5 +1177,11 @@
     });
   }
 
-  document.addEventListener("DOMContentLoaded", initOnboardExperience);
+  window.SeavOnboardExperience = { initOnboardExperience, openAddModal };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initOnboardExperience);
+  } else {
+    initOnboardExperience();
+  }
 })();

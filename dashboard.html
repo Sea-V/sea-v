@@ -24,16 +24,16 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=463" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=463" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=463" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=463" />
+  <link rel="icon" href="/favicon.ico?v=464" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=464" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=464" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=464" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V Dashboard</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=463" />
+  <link rel="stylesheet" href="styles.css?v=464" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -43,38 +43,38 @@
 
   <!-- Core Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=463"></script>
-  <script src="js/supabase.js?v=463"></script>
-  <script src="js/auth.js?v=463"></script>
-  <script src="js/feedback.js?v=463" defer></script>
-  <script src="js/core.js?v=463" defer></script>
-  <script src="js/seav-upload.js?v=463" defer></script>
-  <script src="js/seav-data.js?v=463" defer></script>
-  <script src="js/seav-badges.js?v=463" defer></script>
-  <script src="js/api-core.js?v=463" defer></script>
-  <script src="js/api-mappers.js?v=463" defer></script>
-  <script src="js/api.js?v=463" defer></script>
-  <script src="js/state.js?v=463" defer></script>
-  <script src="js/seav-notifications.js?v=463" defer></script>
-  <script src="js/achievements-engine.js?v=463" defer></script>
-  <script src="js/badge-unlock.js?v=463" defer></script>
+  <script src="js/seav-config.js?v=464"></script>
+  <script src="js/supabase.js?v=464"></script>
+  <script src="js/auth.js?v=464"></script>
+  <script src="js/feedback.js?v=464" defer></script>
+  <script src="js/core.js?v=464" defer></script>
+  <script src="js/seav-upload.js?v=464" defer></script>
+  <script src="js/seav-data.js?v=464" defer></script>
+  <script src="js/seav-badges.js?v=464" defer></script>
+  <script src="js/api-core.js?v=464" defer></script>
+  <script src="js/api-mappers.js?v=464" defer></script>
+  <script src="js/api.js?v=464" defer></script>
+  <script src="js/state.js?v=464" defer></script>
+  <script src="js/seav-notifications.js?v=464" defer></script>
+  <script src="js/achievements-engine.js?v=464" defer></script>
+  <script src="js/badge-unlock.js?v=464" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-  <script src="js/seav-share.js?v=463" defer></script>
+  <script src="js/seav-share.js?v=464" defer></script>
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
     defer
   ></script>
-  <script src="js/seav-cards.js?v=463" defer></script>
+  <script src="js/seav-cards.js?v=464" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="js/navigation-ports.js?v=463" defer></script>
-  <script src="js/navigation-helpers.js?v=463" defer></script>
-  <script src="js/navigation-passage.js?v=463" defer></script>
-  <script src="js/navigation-routing.js?v=463" defer></script>
-  <script src="js/dashboard-snippets.js?v=463" defer></script>
-  <script src="js/dashboard.js?v=463" defer></script>
+  <script src="js/navigation-ports.js?v=464" defer></script>
+  <script src="js/navigation-helpers.js?v=464" defer></script>
+  <script src="js/navigation-passage.js?v=464" defer></script>
+  <script src="js/navigation-routing.js?v=464" defer></script>
+  <script src="js/dashboard-snippets.js?v=464" defer></script>
+  <script src="js/dashboard.js?v=464" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -299,7 +299,7 @@
       <span class="dashboard-quick-action-label" id="dashAddVesselActionLabel">Add vessel</span>
     </a>
 
-    <a class="dashboard-quick-action" href="seatime.html">
+    <a class="dashboard-quick-action" href="seatime.html" id="dashLogSeatimeAction">
       <span class="dashboard-quick-action-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="11" r="4.5" stroke="currentColor" stroke-width="1.8"/>
@@ -307,20 +307,20 @@
           <path d="M4 18c1.3-1 2.7-1 4 0s2.7 1 4 0 2.7-1 4 0 2.7 1 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </span>
-      <span class="dashboard-quick-action-label">Log sea time</span>
+      <span class="dashboard-quick-action-label" id="dashLogSeatimeActionLabel">Log sea time</span>
     </a>
 
-    <a class="dashboard-quick-action" href="certificates.html">
+    <a class="dashboard-quick-action" href="certificates.html" id="dashUploadCertAction">
       <span class="dashboard-quick-action-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none">
           <rect x="6.5" y="4.5" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
           <path d="M9 8h6M9 11h6M10 18.5l2-1.2 2 1.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
-      <span class="dashboard-quick-action-label">Upload certificate</span>
+      <span class="dashboard-quick-action-label" id="dashUploadCertActionLabel">Upload certificate</span>
     </a>
 
-    <a class="dashboard-quick-action" href="onboard-experience.html">
+    <a class="dashboard-quick-action" href="onboard-experience.html" id="dashLogOnboardAction">
       <span class="dashboard-quick-action-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M4 18c1.3-1 2.7-1 4 0s2.7 1 4 0 2.7-1 4 0 2.7 1 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -328,7 +328,7 @@
           <path d="M12 6v3M10 8h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </span>
-      <span class="dashboard-quick-action-label">Log onboard experience</span>
+      <span class="dashboard-quick-action-label" id="dashLogOnboardActionLabel">Log onboard experience</span>
     </a>
   </div>
 

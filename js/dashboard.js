@@ -607,35 +607,82 @@
     });
   }
 
-  // --- "Add vessel" quick action: opens the real Add Vessel modal in place
-  // instead of navigating to vessels.html (Jack, 2026-08-08 -- crew onboard
-  // mainly use the 4 quick actions; fewer full-page loads also suits a
-  // future PWA, see project_seav_pwa_ios_app_plan). Nothing about the modal
+  // --- Dashboard quick actions: open each domain's real Add modal in place
+  // instead of navigating to that page (Jack, 2026-08-08 -- crew onboard
+  // mainly use these 4 quick actions; fewer full-page loads also suits a
+  // future PWA, see project_seav_pwa_ios_app_plan). Nothing about any modal
   // or its save/validation/upload logic is duplicated here: this fetches
-  // vessels.html once, lifts its #vesselModal node into this page, and
-  // lazy-loads js/vessels.js to drive it -- same code, same page, just
+  // the owning page once, lifts its modal node into this page, and
+  // lazy-loads that page's own JS to drive it -- same code, same page, just
   // opened without a navigation. If any step fails, it falls back to a
-  // normal navigation to vessels.html rather than leaving the button dead.
-  let vesselModalLoadPromise = null;
+  // normal navigation to that page rather than leaving the button dead.
+  // Proven first on "Add vessel" (v462/v463), then rolled out to the other
+  // three quick actions once that pattern held up in real use.
+  const QUICK_ACTION_MODALS = {
+    vessel: {
+      linkId: "dashAddVesselAction",
+      labelId: "dashAddVesselActionLabel",
+      pageUrl: "vessels.html",
+      modalId: "vesselModal",
+      scriptSrc: "js/vessels.js",
+      globalName: "SeavVessels",
+      initFn: "initVessels",
+      openFn: "openAddVesselModal"
+    },
+    seatime: {
+      linkId: "dashLogSeatimeAction",
+      labelId: "dashLogSeatimeActionLabel",
+      pageUrl: "seatime.html",
+      modalId: "seatimeModal",
+      scriptSrc: "js/seatime.js",
+      globalName: "SeavSeatime",
+      initFn: "initSeatime",
+      openFn: "openAddSeatimeModal"
+    },
+    certificate: {
+      linkId: "dashUploadCertAction",
+      labelId: "dashUploadCertActionLabel",
+      pageUrl: "certificates.html",
+      modalId: "certModal",
+      scriptSrc: "js/certificates.js",
+      globalName: "SeavCertificates",
+      initFn: "init",
+      openFn: "openAddModal"
+    },
+    onboard: {
+      linkId: "dashLogOnboardAction",
+      labelId: "dashLogOnboardActionLabel",
+      pageUrl: "onboard-experience.html",
+      modalId: "oeModal",
+      scriptSrc: "js/onboard-experience.js",
+      globalName: "SeavOnboardExperience",
+      initFn: "initOnboardExperience",
+      openFn: "openAddModal"
+    }
+  };
 
-  function loadVesselModalOnDashboard() {
-    if (vesselModalLoadPromise) return vesselModalLoadPromise;
+  const quickActionLoadPromises = {};
 
-    vesselModalLoadPromise = (async () => {
-      if (!document.getElementById("vesselModal")) {
-        const res = await fetch("vessels.html", { cache: "force-cache" });
-        if (!res.ok) throw new Error(`Failed to fetch vessels.html: ${res.status}`);
+  function loadQuickActionModal(key) {
+    if (quickActionLoadPromises[key]) return quickActionLoadPromises[key];
+
+    const config = QUICK_ACTION_MODALS[key];
+
+    quickActionLoadPromises[key] = (async () => {
+      if (!document.getElementById(config.modalId)) {
+        const res = await fetch(config.pageUrl, { cache: "force-cache" });
+        if (!res.ok) throw new Error(`Failed to fetch ${config.pageUrl}: ${res.status}`);
         const html = await res.text();
         const doc = new DOMParser().parseFromString(html, "text/html");
-        const modalEl = doc.getElementById("vesselModal");
-        if (!modalEl) throw new Error("vesselModal not found in vessels.html");
+        const modalEl = doc.getElementById(config.modalId);
+        if (!modalEl) throw new Error(`${config.modalId} not found in ${config.pageUrl}`);
         document.body.appendChild(modalEl);
 
         // Two things core.js only ever wires ONCE, at this page's own
         // DOMContentLoaded, against the DOM as it existed then -- so a modal
         // injected afterwards misses both:
-        // 1. mountDateFields() expands [data-date-field] placeholders (the
-        //    Start/End date pickers) into real year/month/day <select>s
+        // 1. mountDateFields() expands [data-date-field] placeholders (any
+        //    date pickers in the form) into real year/month/day <select>s
         //    with options -- without this the date fields render but stay
         //    permanently empty.
         // 2. initModals()'s [data-close] scan wires the X button -- without
@@ -651,34 +698,36 @@
         });
       }
 
-      if (!window.SeavVessels) {
+      if (!window[config.globalName]) {
         const version = window.SeavConfig?.ASSET_VERSION || "";
         await new Promise((resolve, reject) => {
           const script = document.createElement("script");
-          script.src = `js/vessels.js?v=${version}`;
+          script.src = `${config.scriptSrc}?v=${version}`;
           script.defer = true;
           script.onload = resolve;
-          script.onerror = () => reject(new Error("Failed to load js/vessels.js"));
+          script.onerror = () => reject(new Error(`Failed to load ${config.scriptSrc}`));
           document.head.appendChild(script);
         });
       }
 
-      if (!window.SeavVessels?.initVessels || !window.SeavVessels?.openAddVesselModal) {
-        throw new Error("SeavVessels API unavailable after load");
+      const api = window[config.globalName];
+      if (!api?.[config.initFn] || !api?.[config.openFn]) {
+        throw new Error(`${config.globalName} API unavailable after load`);
       }
 
-      window.SeavVessels.initVessels();
+      api[config.initFn]();
     })().catch((err) => {
-      vesselModalLoadPromise = null; // allow retry on next click
+      quickActionLoadPromises[key] = null; // allow retry on next click
       throw err;
     });
 
-    return vesselModalLoadPromise;
+    return quickActionLoadPromises[key];
   }
 
-  function initDashboardAddVesselQuickAction() {
-    const link = document.getElementById("dashAddVesselAction");
-    const label = document.getElementById("dashAddVesselActionLabel");
+  function initDashboardQuickActionModal(key) {
+    const config = QUICK_ACTION_MODALS[key];
+    const link = document.getElementById(config.linkId);
+    const label = document.getElementById(config.labelId);
     if (!link) return;
 
     const originalLabel = label ? label.textContent : "";
@@ -690,17 +739,21 @@
       link.setAttribute("aria-busy", "true");
 
       try {
-        await loadVesselModalOnDashboard();
-        window.SeavVessels.openAddVesselModal();
+        await loadQuickActionModal(key);
+        window[config.globalName][config.openFn]();
       } catch (err) {
-        console.error("[SEA-V] Add vessel quick action failed, falling back to page navigation:", err);
-        window.location.href = "vessels.html";
+        console.error(`[SEA-V] ${key} quick action failed, falling back to page navigation:`, err);
+        window.location.href = config.pageUrl;
         return;
       } finally {
         if (label) label.textContent = originalLabel;
         link.removeAttribute("aria-busy");
       }
     });
+  }
+
+  function initDashboardQuickActionModals() {
+    Object.keys(QUICK_ACTION_MODALS).forEach(initDashboardQuickActionModal);
   }
 
   function initDashboard() {
@@ -717,7 +770,7 @@
 
     populateDashboardCardIcons();
     initDashboardPublicToggle();
-    initDashboardAddVesselQuickAction();
+    initDashboardQuickActionModals();
     Seav.bindStateRefresh(runRefresh, { label: "Dashboard refresh" });
   }
 

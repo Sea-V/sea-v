@@ -805,12 +805,36 @@
     }, { sub: "Saving TRB progress" });
   }
 
+  // Guards against double-initialization when this file is lazy-loaded onto
+  // a page other than seatime.html (see Dashboard's "Log sea time" quick
+  // action, js/dashboard.js) -- mirrors the same guard added to
+  // js/vessels.js for the equivalent Add Vessel flow. Checked AFTER the
+  // DOM-readiness guard below so an early call (before the modal markup has
+  // actually landed in the DOM) doesn't block a later, real init.
+  let seatimeInited = false;
+
+  // Mirrors js/vessels.js's openAddVesselModal() / js/certificates.js's
+  // openAddModal() -- public entry point Dashboard calls after lazy-loading
+  // this file and injecting #seatimeModal, so the form always starts clean.
+  function openAddSeatimeModal() {
+    const form = document.getElementById("seatimeForm");
+    if (form) resetSeatimeForm(form);
+    if (window.SeavModals?.openModal) {
+      window.SeavModals.openModal("seatimeModal");
+    } else {
+      const modal = document.getElementById("seatimeModal");
+      if (modal) modal.hidden = false;
+    }
+  }
+
   function initSeatime() {
+    if (seatimeInited) return;
     if (
       !document.getElementById("seatimeBody") &&
       !document.getElementById("seatimeForm") &&
       !document.getElementById("btnExportSeatimeCsv")
     ) return;
+    seatimeInited = true;
 
     const runRefresh = async () => {
       try {
@@ -995,5 +1019,11 @@
 
   }
 
-  document.addEventListener("DOMContentLoaded", initSeatime);
+  window.SeavSeatime = { initSeatime, openAddSeatimeModal };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSeatime);
+  } else {
+    initSeatime();
+  }
 })();
