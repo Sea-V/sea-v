@@ -11,6 +11,14 @@
 -- Passenger ops, Refresher, RYA & recreational, Diving, Hospitality, Health &
 -- compliance). Group DISPLAY ORDER is driven by sort_order, not alphabetical —
 -- see buildCatalogGroupsFromDb() in js/seav-data.js.
+--
+-- 2026-08-08: added a 19th group, "IYT & alternative professional
+-- qualifications" (International Yacht Training — a separate awarding body
+-- from RYA, sort_order 131-144) after a real gap report: a crew member's IYT
+-- Master of Yachts 200 and Small Powerboat & RIB Master had nowhere to save.
+-- Diving/Hospitality/Health & compliance sort_order shifted +15 to make room
+-- (150/160/170 instead of 135/145/155) — display order only, no other column
+-- depends on these values.
 create table if not exists public.certificate_catalog (
   code text primary key,
   name text not null,
@@ -143,21 +151,36 @@ insert into public.certificate_catalog (code, name, category, is_mandatory, sort
   ('RYA WC', 'RYA Windsurfing / Watercraft Instructor', 'RYA & recreational qualifications', false, 128, ''),
   ('WAKE INSTR', 'Wakeboard / Tow Sports Instructor', 'RYA & recreational qualifications', false, 129, ''),
   ('KITE L1', 'Kitesurfing / Wing Instructor Level 1', 'RYA & recreational qualifications', false, 130, ''),
+  -- IYT & alternative professional qualifications
+  ('IYT MOY COASTAL', 'IYT Master of Yachts Coastal / Mate 200 Tons', 'IYT & alternative professional qualifications', false, 131, ''),
+  ('IYT MOY LTD', 'IYT Master of Yachts Limited 200GT', 'IYT & alternative professional qualifications', false, 132, ''),
+  ('IYT MOY UNLTD', 'IYT Master of Yachts Unlimited 200GT', 'IYT & alternative professional qualifications', false, 133, ''),
+  ('IYT MOY INSHORE', 'IYT Master of Yachts Inshore <80GT', 'IYT & alternative professional qualifications', false, 134, ''),
+  ('IYT SY CREW', 'IYT Superyacht Crew', 'IYT & alternative professional qualifications', false, 135, ''),
+  ('IYT PB2', 'IYT Small Powerboat & RIB Master (MCA Recognised)', 'IYT & alternative professional qualifications', false, 136, ''),
+  ('IYT YMC', 'IYT Yachtmaster Coastal', 'IYT & alternative professional qualifications', false, 137, ''),
+  ('IYT YMO', 'IYT Yachtmaster Offshore', 'IYT & alternative professional qualifications', false, 138, ''),
+  ('IYT YMOCEAN', 'IYT Yachtmaster Ocean', 'IYT & alternative professional qualifications', false, 139, ''),
+  ('IYT BAREBOAT', 'IYT International Bareboat Skipper', 'IYT & alternative professional qualifications', false, 140, ''),
+  ('IYT FLOTILLA', 'IYT International Flotilla Skipper', 'IYT & alternative professional qualifications', false, 141, ''),
+  ('IYT SRC', 'IYT Marine Communications (VHF/SRC)', 'IYT & alternative professional qualifications', false, 142, ''),
+  ('IYT ENG GRADE1', 'IYT Boat Engineer Grade 1', 'IYT & alternative professional qualifications', false, 143, ''),
+  ('IYT ENG TRANSITION', 'IYT Transition to Yacht Marine Engineering', 'IYT & alternative professional qualifications', false, 144, ''),
   -- Diving qualifications
-  ('PADI OW', 'PADI Open Water Diver', 'Diving qualifications', false, 135, ''),
-  ('PADI AOW', 'PADI Advanced Open Water', 'Diving qualifications', false, 136, ''),
-  ('PADI RESCUE', 'PADI Rescue Diver', 'Diving qualifications', false, 137, ''),
-  ('PADI DM', 'PADI Divemaster', 'Diving qualifications', false, 138, ''),
-  ('PADI INSTR', 'PADI Dive Instructor', 'Diving qualifications', false, 139, ''),
+  ('PADI OW', 'PADI Open Water Diver', 'Diving qualifications', false, 150, ''),
+  ('PADI AOW', 'PADI Advanced Open Water', 'Diving qualifications', false, 151, ''),
+  ('PADI RESCUE', 'PADI Rescue Diver', 'Diving qualifications', false, 152, ''),
+  ('PADI DM', 'PADI Divemaster', 'Diving qualifications', false, 153, ''),
+  ('PADI INSTR', 'PADI Dive Instructor', 'Diving qualifications', false, 154, ''),
   -- Hospitality qualifications
-  ('SHIPS COOK', 'Ship''s Cook Certificate (MCA)', 'Hospitality qualifications', false, 145, ''),
-  ('FOOD HYGIENE', 'Food Hygiene Level 2 / 3', 'Hospitality qualifications', false, 146, ''),
-  ('HACCP', 'HACCP / Food Safety Management', 'Hospitality qualifications', false, 147, ''),
-  ('WSET', 'WSET Wine & Spirits Education', 'Hospitality qualifications', false, 148, ''),
-  ('BARISTA', 'Barista / Coffee Service Certificate', 'Hospitality qualifications', false, 149, ''),
-  ('SILVER SVC', 'Silver Service / Butler Training', 'Hospitality qualifications', false, 150, ''),
+  ('SHIPS COOK', 'Ship''s Cook Certificate (MCA)', 'Hospitality qualifications', false, 160, ''),
+  ('FOOD HYGIENE', 'Food Hygiene Level 2 / 3', 'Hospitality qualifications', false, 161, ''),
+  ('HACCP', 'HACCP / Food Safety Management', 'Hospitality qualifications', false, 162, ''),
+  ('WSET', 'WSET Wine & Spirits Education', 'Hospitality qualifications', false, 163, ''),
+  ('BARISTA', 'Barista / Coffee Service Certificate', 'Hospitality qualifications', false, 164, ''),
+  ('SILVER SVC', 'Silver Service / Butler Training', 'Hospitality qualifications', false, 165, ''),
   -- Health & compliance
-  ('YELLOW FEVER', 'Yellow Fever Vaccination Certificate', 'Health & compliance', false, 155, ''),
-  ('DRUG TEST', 'Drug & Alcohol Test Certificate', 'Health & compliance', false, 156, '');
+  ('YELLOW FEVER', 'Yellow Fever Vaccination Certificate', 'Health & compliance', false, 170, ''),
+  ('DRUG TEST', 'Drug & Alcohol Test Certificate', 'Health & compliance', false, 171, '');
 
 grant select on table public.certificate_catalog to authenticated;

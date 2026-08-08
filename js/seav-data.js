@@ -371,6 +371,37 @@
       ]
     },
     {
+      // International Yacht Training (IYT) — a separate awarding body from
+      // RYA covering much of the same deck ground (Yachtmaster tiers,
+      // powerboat, bareboat/flotilla skippering) plus its own professional
+      // "Master of Yachts" CoC-track certificates that RYA doesn't offer
+      // directly. Added 2026-08-08 after a real gap report: a crew member's
+      // IYT Master of Yachts 200 and Small Powerboat & RIB Master ("Power
+      // Level 2") had nowhere to go in the Certificates/Current Qualification
+      // dropdowns. Sourced from iytworld.com's official Recreational and
+      // Superyacht "Course Levels" pages; engineering-track entries are
+      // IYT's actual full engineering offering (it does not run a parallel
+      // Y4-Y1-style ladder the way MCA does — most working engineers still
+      // hold MCA/Merchant Navy tickets, IYT mainly covers the entry bridge).
+      label: "IYT & alternative professional qualifications",
+      certs: [
+        { code: "IYT MOY COASTAL", name: "IYT Master of Yachts Coastal / Mate 200 Tons" },
+        { code: "IYT MOY LTD", name: "IYT Master of Yachts Limited 200GT" },
+        { code: "IYT MOY UNLTD", name: "IYT Master of Yachts Unlimited 200GT" },
+        { code: "IYT MOY INSHORE", name: "IYT Master of Yachts Inshore <80GT" },
+        { code: "IYT SY CREW", name: "IYT Superyacht Crew" },
+        { code: "IYT PB2", name: "IYT Small Powerboat & RIB Master (MCA Recognised)" },
+        { code: "IYT YMC", name: "IYT Yachtmaster Coastal" },
+        { code: "IYT YMO", name: "IYT Yachtmaster Offshore" },
+        { code: "IYT YMOCEAN", name: "IYT Yachtmaster Ocean" },
+        { code: "IYT BAREBOAT", name: "IYT International Bareboat Skipper" },
+        { code: "IYT FLOTILLA", name: "IYT International Flotilla Skipper" },
+        { code: "IYT SRC", name: "IYT Marine Communications (VHF/SRC)" },
+        { code: "IYT ENG GRADE1", name: "IYT Boat Engineer Grade 1" },
+        { code: "IYT ENG TRANSITION", name: "IYT Transition to Yacht Marine Engineering" }
+      ]
+    },
+    {
       label: "Diving qualifications",
       certs: [
         { code: "PADI OW", name: "PADI Open Water Diver" },
