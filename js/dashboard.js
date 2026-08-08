@@ -630,6 +630,25 @@
         const modalEl = doc.getElementById("vesselModal");
         if (!modalEl) throw new Error("vesselModal not found in vessels.html");
         document.body.appendChild(modalEl);
+
+        // Two things core.js only ever wires ONCE, at this page's own
+        // DOMContentLoaded, against the DOM as it existed then -- so a modal
+        // injected afterwards misses both:
+        // 1. mountDateFields() expands [data-date-field] placeholders (the
+        //    Start/End date pickers) into real year/month/day <select>s
+        //    with options -- without this the date fields render but stay
+        //    permanently empty.
+        // 2. initModals()'s [data-close] scan wires the X button -- without
+        //    this the X does nothing (the shared overlay's click-outside-
+        //    to-close still works fine, since that listener isn't scoped to
+        //    a specific modal).
+        Seav.mountDateFields(modalEl);
+        modalEl.querySelectorAll("[data-close]").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.SeavModals?.closeAllModals?.();
+          });
+        });
       }
 
       if (!window.SeavVessels) {
