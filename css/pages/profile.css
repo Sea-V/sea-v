@@ -648,6 +648,15 @@
    wide screens; on narrow screens .profile-shell-head's own
    max-width:900px breakpoint collapses this back to a full-width
    stacked row below the title, same as it always has at that width.
+
+   2026-08-09 (later same day), per Jack: the first pass at 320px max
+   was too narrow — brand text (title+subtitle) got squeezed down to
+   a sliver and wrapped onto 4-5 lines while the status/toggle/chevron
+   controls crowded the rest, so it read as broken/overlapping rather
+   than two neat halves. Widened to 460px and the row below is now an
+   explicit 50/50 grid (brand | controls) instead of flex
+   space-between, so each side gets a fixed, predictable half of the
+   row no matter how long the copy or how many controls are showing.
 ========================================================= */
 
 .profile-public-share {
@@ -656,7 +665,7 @@
   gap: 10px;
 
   width: 100%;
-  max-width: 320px;
+  max-width: 460px;
   align-self: start;
 
   padding: 14px 16px;
@@ -676,12 +685,15 @@
   background: rgba(93, 209, 212, 0.06);
 }
 
+/* 50/50 split, per Jack — brand (icon+title+subtitle) and controls
+   (status pill/Visible toggle/expand chevron) each get an equal-width
+   column instead of brand shrinking to whatever space controls don't
+   claim. Controls right-align within their half via justify-self. */
 .profile-public-share-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  min-width: 0;
 }
 
 .profile-public-share-brand {
@@ -737,8 +749,10 @@
 .profile-public-share-controls {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  justify-self: end;
+  flex-wrap: nowrap;
   gap: 10px;
-  flex: 0 0 auto;
 }
 
 .profile-public-share-status {
