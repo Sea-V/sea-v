@@ -663,10 +663,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px 16px;
+  /* Must wrap (matches .public-onboard-skill-row-top in public-profile.css)
+     -- without this, a long skill name + the star/label/remove group are
+     forced onto one nowrap line. The name span's min-width:0 (see below)
+     then lets it shrink and wrap its own text internally instead of the
+     whole item wrapping to a new row, while align-items:center vertically
+     centers the star group in the middle of that now-multi-line name --
+     visually overlapping the two. Wrapping the row itself is the fix, not
+     just narrowing the name. 2026-08-09, Jack: reported on mobile. */
+  flex-wrap: wrap;
 }
 
 .onboard-skill-row-name {
-  min-width: 0;
   color: rgba(255, 255, 255, 0.88);
   font-size: 14px;
   font-weight: 600;
@@ -746,10 +754,6 @@
 @media (max-width: 640px) {
   .onboard-skill-add-row {
     grid-template-columns: 1fr;
-  }
-
-  .onboard-skill-row {
-    flex-wrap: wrap;
   }
 
   .onboard-skill-row-right {
