@@ -117,12 +117,12 @@
   return window.SeavState?.seatimes || [];
 }
 
-function getTenders() {
-  return window.SeavState?.tenders || [];
-}
-
 function getRefs() {
   return window.SeavState?.refs || [];
+}
+
+function getOnboardEntries() {
+  return window.SeavState?.onboardExperiences || [];
 }
 
 function buildExperienceSection(experience) {
@@ -207,7 +207,7 @@ function buildVesselCardBody(v, options = {}) {
     : `<div class="vessel-photo-fallback">No Photo</div>`;
 
   const linkedSeatimes = getSeatimes().filter((item) => item.vesselId === v.id);
-  const linkedTenders = getTenders().filter((item) => item.vesselId === v.id);
+  const linkedOnboard = getOnboardEntries().filter((item) => item.vesselId === v.id);
   const linkedRefs = getRefs().filter((item) => item.vesselId === v.id);
 
   const totalSeaDays = linkedSeatimes.reduce((sum, item) => {
@@ -319,13 +319,13 @@ function buildVesselCardBody(v, options = {}) {
           <a class="vessel-linked-link" href="seatime.html">View sea time →</a>
         </section>
 
-        <section class="vessel-linked-clean-card tender-card">
-          <h3>Tenders</h3>
+        <section class="vessel-linked-clean-card onboard-card">
+          <h3>Onboard Experience</h3>
           <div class="vessel-linked-summary">
-            <strong>${linkedTenders.length}</strong>
-            <span>${linkedTenders.length === 1 ? "tender" : "tenders"} logged</span>
+            <strong>${linkedOnboard.length}</strong>
+            <span>${linkedOnboard.length === 1 ? "entry" : "entries"} logged</span>
           </div>
-          <a class="vessel-linked-link" href="tenders.html">View tenders →</a>
+          <a class="vessel-linked-link" href="onboard-experience.html">View onboard experience →</a>
         </section>
 
         <section class="vessel-linked-clean-card reference-card">

@@ -758,8 +758,12 @@
   border-color: rgba(130, 158, 255, 0.62);
 }
 
-.tender-card {
-  border-color: rgba(94,230,168,0.62);
+/* 2026-08-10, per Jack: swapped this box from Tenders to Onboard
+   Experience — value matches the existing .ui-accent-coral utility
+   (css/components/cards.css), the same onboard-experience pink/coral
+   used everywhere else it's the accent color, not invented. */
+.onboard-card {
+  border-color: rgba(255,143,171,0.52);
 }
 
 .reference-card {
