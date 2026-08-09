@@ -214,18 +214,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   font-weight: 550;
 }
 
-.public-profile-seatime-kpis {
-  margin-bottom: 10px;
-}
-
-/* 2026-08-05: caveat line under the seatime KPI strip, clarifying the
-   capped OOW-qualifying box is route-specific — sits right after the
-   grid rather than under a heading, so it needs its own (positive)
-   top margin instead of .public-profile-section-note's default -2px. */
-.public-profile-kpi-caveat {
-  margin: 0 0 4px;
-}
-
 /* Leaflet map inside public profile cards */
 .public-profile-page .dashboard-navigation-chart-shell {
   position: relative;
@@ -482,88 +470,10 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 /* =========================================================
-   SEA SERVICE
+   MISC (reference sign-off line, generic mini-list/port rows)
+   — this used to also hold the Sea Service KPI/row styles, removed
+   2026-08-09 when sea time came off the public profile entirely.
 ========================================================= */
-
-.public-cv-seatime-totals {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.public-cv-seatime-total {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 6px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.035);
-  text-align: center;
-}
-
-.public-cv-seatime-total span {
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.public-cv-seatime-total small {
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 9px;
-  font-weight: 700;
-}
-
-.public-cv-seatime-total--accent {
-  border-color: rgba(91, 188, 255, 0.24);
-  background: rgba(91, 188, 255, 0.08);
-}
-
-.public-cv-seatime-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 8px 9px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.public-cv-seatime-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.public-cv-seatime-vessel {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 11px;
-  font-weight: 750;
-}
-
-.public-cv-seatime-meta {
-  color: rgba(255, 255, 255, 0.45);
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.public-cv-seatime-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.public-cv-seatime-days {
-  color: #5bbcff;
-  font-size: 11px;
-  font-weight: 800;
-}
 
 .public-cv-signoff-line {
   margin: 6px 0 0;
@@ -753,17 +663,10 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
    background shading anywhere in this block, borders only; (3) every
    opacity below is copied from the real value already used on that
    record's own private page, not invented — see file:line refs per rule.
-   Sea Time #829eff, Tenders #4cffb8, Onboard Experience #ff8fab,
-   References #d16bff, Awards/Achievements #ffb347 (--page-* in
-   css/core/variables.css). One exception: seatime.css deliberately keeps
-   its accent scoped to shell/divider/icon only and never tints its own
-   row-level components (no precedent to copy) — .public-cv-seatime-row
-   below uses 0.22 to stay visually consistent with the other 4 sections;
-   flagged to Jack as a judgment call, not a sourced value like the rest. */
-.vessel-linked-section-group--seatime {
-  /* matches .seatime-shell-card border, seatime.css:10/24 */
-  border-color: rgba(130, 158, 255, 0.28);
-}
+   Tenders #4cffb8, Onboard Experience #ff8fab, References #d16bff,
+   Awards/Achievements #ffb347 (--page-* in css/core/variables.css). Sea
+   Time #829eff was a fifth entry in this family — removed 2026-08-09 when
+   sea time came off the public profile entirely, per Jack. */
 .vessel-linked-section-group--tenders {
   /* matches .tender-shell-card border, tenders.css:13 */
   border-color: rgba(76, 255, 184, 0.26);
@@ -781,9 +684,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   border-color: rgba(255, 179, 71, 0.28);
 }
 
-.vessel-linked-section-group--seatime .tender-vessel-group-summary::before {
-  color: rgba(130, 158, 255, 0.85);
-}
 .vessel-linked-section-group--tenders .tender-vessel-group-summary::before {
   color: rgba(76, 255, 184, 0.85);
 }
@@ -804,10 +704,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
    .tender-vessel-group-count default of rgba(76,255,184,0.16)) — text
    stays WHITE always, per the site-wide colored-pill rule. Never accent-
    colored text on a colored background. */
-.vessel-linked-section-group--seatime .tender-vessel-group-count {
-  background: rgba(130, 158, 255, 0.16);
-  color: #ffffff;
-}
 .vessel-linked-section-group--tenders .tender-vessel-group-count {
   background: rgba(76, 255, 184, 0.16);
   color: #ffffff;
@@ -828,16 +724,9 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 /* Inner row/card borders — "the borders inside have the color also" —
    border only, no background tint anywhere in this block per Jack.
    Each value is copied from that record type's own private-page
-   row/card component (see comments), not invented. */
-.vessel-linked-section-group--seatime .public-cv-seatime-row,
-.vessel-linked-section-group--seatime .public-cv-port-row {
-  /* No private-page precedent (seatime.css keeps accent off its own
-     row-level components by design) — 0.22 chosen to match the other
-     4 sections' family of values; confirm with Jack if this should
-     instead stay unaccented. */
-  border-color: rgba(130, 158, 255, 0.22);
-}
-
+   row/card component (see comments), not invented. (Sea Time had an
+   entry here too — removed 2026-08-09 along with the rest of the
+   --seatime accent family, per Jack.) */
 .vessel-linked-section-group--tenders .dash-mini-card {
   /* matches dashboard.css's own .dash-card-accent-tenders .dash-mini-card
      border override exactly, dashboard.css:1642-1644 */
@@ -1370,10 +1259,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
   .public-profile-section-nav {
     padding: 0 16px 12px;
-  }
-
-  .public-profile-seatime-kpis.kpi-row-grid-6 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
 }

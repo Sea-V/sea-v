@@ -769,28 +769,18 @@
     setActiveSectionNavLink(visible[0].id);
   }
 
-  // Gated specifically on sea time (not "any metric present") per Jack:
-  // an empty strip with a couple of stray boxes (e.g. just "Vessels: 1")
-  // before any real sea time is logged looks sparse and unfinished, so the
-  // whole Career snapshot card stays hidden until there's an actual sea
-  // service record to build it from.
+  // 2026-08-09, per Jack: sea time is private-only now, so the "Sea days
+  // logged" stat that used to gate this whole card is gone too. Gating
+  // moved to the plain "is there anything at all to show" check at the end
+  // (previously that check existed too, but was unreachable — the seaDays
+  // gate above it always fired first for a crew member with no sea time).
   function renderTrustStrip(metrics) {
     const strip = document.getElementById("ppTrustStrip");
     const kpiCard = document.getElementById("ppKpiCard");
     if (!strip) return;
 
-    if (!(metrics.seaDays > 0)) {
-      strip.innerHTML = "";
-      strip.hidden = true;
-      if (kpiCard) kpiCard.hidden = true;
-      return;
-    }
-
     const items = [];
 
-    if (metrics.seaDays > 0) {
-      items.push({ value: String(metrics.seaDays), label: "Sea days logged" });
-    }
     if (metrics.navigationNm > 0) {
       items.push({ value: formatNm(metrics.navigationNm), label: "Miles navigated" });
     }

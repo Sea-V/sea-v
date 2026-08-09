@@ -76,8 +76,7 @@
     const {
       KEYS,
       DEFAULT_PROFILE,
-      isProfilePublic,
-      getSeatimeTotals
+      isProfilePublic
     } = SeavData;
 
     function getProfileOwnerUserId(profile) {
@@ -314,8 +313,13 @@
 
         const navigationDistanceMap = await buildPublicDistanceMap(navigationAreas);
 
+        // 2026-08-09, per Jack: sea time is now private-only — no longer
+        // surfaced on the public profile (standalone Sea Time Totals
+        // section, per-vessel Sea Time collapsible, or a "Sea days logged"
+        // header stat). `seatimes` is still fetched above because the
+        // Milestones section below derives certificate progress from it —
+        // that only shows a progress bar/percent, never raw sea time data.
         const metrics = {
-          seaDays: getSeatimeTotals(seatimes).sea,
           vessels: vessels.length,
           verifiedRefs: refs.filter(isReferenceVerified).length,
           onboardOps: onboardEntries.length,
@@ -323,13 +327,12 @@
         };
 
         renderHeaderProfile(profile, vessels, metrics);
-        sections.renderSeatime(seatimes, vessels, isOwner);
         // Vessels is now the vessel-first spine — Tenders, Onboard
         // Experience, and References no longer render as their own
         // sections; that content lives inside each vessel's own card (see
         // js/seav-cards.js buildVesselCardFull), so renderVessels needs the
         // raw onboardEntries/achievements arrays too.
-        sections.renderVessels(vessels, seatimes, tenders, refs, isOwner, onboardEntries, achievements);
+        sections.renderVessels(vessels, tenders, refs, isOwner, onboardEntries, achievements);
         await sections.renderNavigation(navigationAreas, vessels, navigationDistanceMap, isOwner);
         sections.renderOnboardSkills(onboardSkills, isOwner);
         sections.renderHobbiesInterests(hobbyEntries, isOwner);

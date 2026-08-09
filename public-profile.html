@@ -24,10 +24,10 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=471" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=471" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=471" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=471" />
+  <link rel="icon" href="/favicon.ico?v=472" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=472" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=472" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=472" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Public Profile</title>
@@ -68,7 +68,7 @@
     knows to keep the leading slash on this file — don't "simplify" these
     back to relative.
   -->
-  <link rel="stylesheet" href="/styles.css?v=471" />
+  <link rel="stylesheet" href="/styles.css?v=472" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -80,26 +80,26 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
-  <script src="/js/feedback.js?v=471" defer></script>
-  <script src="/js/core.js?v=471" defer></script>
-  <script src="/js/seav-data.js?v=471" defer></script>
-  <script src="/js/seav-badges.js?v=471" defer></script>
+  <script src="/js/feedback.js?v=472" defer></script>
+  <script src="/js/core.js?v=472" defer></script>
+  <script src="/js/seav-data.js?v=472" defer></script>
+  <script src="/js/seav-badges.js?v=472" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/seav-config.js?v=471"></script>
-  <script src="/js/supabase.js?v=471" defer></script>
-  <script src="/js/auth.js?v=471"></script>
-  <script src="/js/api-core.js?v=471" defer></script>
-  <script src="/js/api-mappers.js?v=471" defer></script>
-  <script src="/js/api.js?v=471" defer></script>
+  <script src="/js/seav-config.js?v=472"></script>
+  <script src="/js/supabase.js?v=472" defer></script>
+  <script src="/js/auth.js?v=472"></script>
+  <script src="/js/api-core.js?v=472" defer></script>
+  <script src="/js/api-mappers.js?v=472" defer></script>
+  <script src="/js/api.js?v=472" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="/js/navigation-ports.js?v=471" defer></script>
-  <script src="/js/navigation-helpers.js?v=471" defer></script>
-  <script src="/js/navigation-passage.js?v=471" defer></script>
-  <script src="/js/navigation-routing.js?v=471" defer></script>
-  <script src="/js/public-profile-utils.js?v=471" defer></script>
-  <script src="/js/seav-cards.js?v=471" defer></script>
-  <script src="/js/public-profile-sections.js?v=471" defer></script>
-  <script src="/js/public-profile.js?v=471" defer></script>
+  <script src="/js/navigation-ports.js?v=472" defer></script>
+  <script src="/js/navigation-helpers.js?v=472" defer></script>
+  <script src="/js/navigation-passage.js?v=472" defer></script>
+  <script src="/js/navigation-routing.js?v=472" defer></script>
+  <script src="/js/public-profile-utils.js?v=472" defer></script>
+  <script src="/js/seav-cards.js?v=472" defer></script>
+  <script src="/js/public-profile-sections.js?v=472" defer></script>
+  <script src="/js/public-profile.js?v=472" defer></script>
 </head>
 
 <body class="public-page public-profile-page">
@@ -239,25 +239,19 @@
 
             <div class="dashboard-stack public-profile-stack">
 
-              <!-- Sailing Experience — vessel-first spine. Sea Time carries
-                   only the career-wide totals strip now; every vessel's own
-                   sea time, tenders, references, onboard experience, and
-                   Seafarer Awards live inside that vessel's own card below
+              <!-- Sailing Experience — vessel-first spine. Sea time was
+                   removed from the public profile entirely 2026-08-09, per
+                   Jack ("this should be private") — no career-wide totals
+                   strip and no per-vessel sea time list. Every vessel's own
+                   tenders, references, onboard experience, and Seafarer
+                   Awards still live inside that vessel's own card below
                    (see js/seav-cards.js buildVesselCardFull). -->
-              <article class="dash-card dash-card-accent-seatime" id="ppSeatimeSection" hidden>
-                <div class="dashboard-card-headline">
-                  <h3><span class="public-profile-section-icon" data-pp-icon="seatime" aria-hidden="true"></span>Sea Time Totals</h3>
-                </div>
-                <p class="public-profile-section-note">Career totals across every vessel logged in SEA-V.</p>
-                <div id="ppSeatimeSnippet"></div>
-              </article>
-
               <article class="dash-card dash-card-accent-vessels" id="ppVesselSection">
                 <div class="dashboard-card-headline">
                   <h3><span class="public-profile-section-icon" data-pp-icon="vessels" aria-hidden="true"></span>Vessels</h3>
                   <span class="public-profile-section-count" id="ppVesselCount" hidden></span>
                 </div>
-                <p class="public-profile-section-note">Every vessel, with the sea time, tenders, references, onboard experience, and awards logged against it.</p>
+                <p class="public-profile-section-note">Every vessel, with the tenders, references, onboard experience, and awards logged against it.</p>
                 <div id="ppVesselSnippet"></div>
               </article>
 
