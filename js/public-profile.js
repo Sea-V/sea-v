@@ -214,21 +214,32 @@
       return false;
     }
 
-    // Only these three sections actually render a photo on the public
-    // profile (vessel/tender photo, hobby photo gallery). Certificates,
-    // references, onboard experience, specialist qualifications, payslips,
-    // and sea time all carry a file/attachment field too, but this page
-    // never displays it — no <img>, no download link, nothing. Before this
-    // fix, every single one of those attachments still got hydrated into a
+    // Only these sections actually render a photo/attachment on the public
+    // profile (vessel/tender photo, hobby photo gallery, and — per-vessel —
+    // the onboard-experience "Details" expander's photo/file). Certificates,
+    // references, specialist qualifications, payslips, and sea time all
+    // carry a file/attachment field too, but this page never displays them —
+    // no <img>, no download link, nothing. Before the original 2026-07 fix,
+    // every single one of those attachments still got hydrated into a
     // signed URL (one Supabase Storage API round-trip each) on every public
     // profile load, for no visible benefit — pure wasted latency that grows
     // with how much a crew member has logged. Skipping hydration for the
     // fields that are genuinely unused here was the main fix for "public
     // profile photos took ages to load."
+    //
+    // 2026-08-10, per Jack: onboard-experience photos weren't showing on the
+    // public profile at all. Root cause — KEYS.ONBOARD_EXPERIENCES was
+    // missing from this set, a leftover from before buildOnboardRow's
+    // per-vessel "Details" expander (which does render entry.attachment as
+    // an <img>/link, see js/seav-cards.js) existed. skipFiles:true meant
+    // every onboard entry's attachment stayed unsigned (path only, no
+    // .url), so the `if (attachmentUrl)` check in buildOnboardRow always
+    // failed silently. Added below to match what the UI actually renders.
     const PHOTO_RENDERING_KEYS = new Set([
       KEYS.VESSELS,
       KEYS.TENDERS,
-      KEYS.HOBBIES_INTERESTS
+      KEYS.HOBBIES_INTERESTS,
+      KEYS.ONBOARD_EXPERIENCES
     ]);
 
     async function loadPublicData(ownerUserId, key, profile) {

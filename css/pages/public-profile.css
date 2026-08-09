@@ -726,16 +726,42 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
    Each value is copied from that record type's own private-page
    row/card component (see comments), not invented. (Sea Time had an
    entry here too — removed 2026-08-09 along with the rest of the
-   --seatime accent family, per Jack.) */
+   --seatime accent family, per Jack.)
+
+   2026-08-10, per Jack: tenders and onboard entries weren't showing
+   these colors at all, unlike Awards/References. Two different real
+   bugs, both losing to these two rules on specificity/!important —
+   fixed with !important + comments below rather than chasing
+   specificity, since that's the existing site convention for "this
+   border color is final" (see the UNIFIED GLASS CARDS block in
+   css/components/pills.css, which already does the same for .list-row
+   generally). */
 .vessel-linked-section-group--tenders .dash-mini-card {
-  /* matches dashboard.css's own .dash-card-accent-tenders .dash-mini-card
-     border override exactly, dashboard.css:1642-1644 */
-  border-color: rgba(76, 255, 184, 0.22);
+  /* Bug: the public-profile vessel-first wrapper card reuses the
+     Dashboard's own .dash-card-accent-vessels class (for its
+     --section-accent custom property, unrelated to this), which
+     collided with dashboard.css:1207's
+     .dashboard-shell-card .dash-card-accent-vessels .dash-mini-card
+     rule (3 classes, vs this rule's 2) — that rule was written for
+     the Dashboard's own vessel snippet and had no idea a tender card
+     could ever end up nested inside a ".dash-card-accent-vessels"
+     ancestor on a completely different page. !important sidesteps the
+     specificity race entirely instead of playing whack-a-mole with it.
+     Color matches dashboard.css's own .dash-card-accent-tenders
+     .dash-mini-card border override, dashboard.css:1211-1213. */
+  border-color: rgba(76, 255, 184, 0.22) !important;
 }
 
 .vessel-linked-section-group--onboard .list-row {
-  /* matches .onboard-modern-card border, onboard-experience.css:205 */
-  border-color: rgba(255, 143, 171, 0.2);
+  /* Bug: css/components/pills.css's "UNIFIED GLASS CARDS" block
+     already sets a sitewide neutral border on every .list-row with
+     !important (by design — keeps 30-60+ stacked rows visually
+     consistent everywhere else on the site), which silently beat this
+     rule everywhere it's ever been written, including before today.
+     Matching !important here, with the higher-specificity 2-class
+     selector this rule already has, wins cleanly. Color matches
+     .onboard-modern-card border, onboard-experience.css:205. */
+  border-color: rgba(255, 143, 171, 0.2) !important;
 }
 
 .vessel-linked-section-group--references .public-cv-ref-block {
