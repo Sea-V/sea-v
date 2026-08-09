@@ -25,39 +25,39 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=472" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=472" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=472" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=472" />
+  <link rel="icon" href="/favicon.ico?v=473" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=473" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=473" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=473" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Profile</title>
 
-  <link rel="stylesheet" href="styles.css?v=472" />
+  <link rel="stylesheet" href="styles.css?v=473" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=472"></script>
-  <script src="js/supabase.js?v=472"></script>
-  <script src="js/auth.js?v=472"></script>
-  <script src="js/feedback.js?v=472" defer></script>
-  <script src="js/core.js?v=472" defer></script>
-  <script src="js/bug-reports.js?v=472" defer></script>
-  <script src="js/seav-upload.js?v=472" defer></script>
-  <script src="js/seav-countries.js?v=472" defer></script>
-  <script src="js/seav-visas.js?v=472" defer></script>
-  <script src="js/seav-data.js?v=472" defer></script>
-  <script src="js/seav-badges.js?v=472" defer></script>
-  <script src="js/api-core.js?v=472" defer></script>
-  <script src="js/api-mappers.js?v=472" defer></script>
-  <script src="js/api.js?v=472" defer></script>
-  <script src="js/state.js?v=472" defer></script>
-  <script src="js/seav-notifications.js?v=472" defer></script>
-  <script src="js/achievements-engine.js?v=472" defer></script>
-  <script src="js/badge-unlock.js?v=472" defer></script>
+  <script src="js/seav-config.js?v=473"></script>
+  <script src="js/supabase.js?v=473"></script>
+  <script src="js/auth.js?v=473"></script>
+  <script src="js/feedback.js?v=473" defer></script>
+  <script src="js/core.js?v=473" defer></script>
+  <script src="js/bug-reports.js?v=473" defer></script>
+  <script src="js/seav-upload.js?v=473" defer></script>
+  <script src="js/seav-countries.js?v=473" defer></script>
+  <script src="js/seav-visas.js?v=473" defer></script>
+  <script src="js/seav-data.js?v=473" defer></script>
+  <script src="js/seav-badges.js?v=473" defer></script>
+  <script src="js/api-core.js?v=473" defer></script>
+  <script src="js/api-mappers.js?v=473" defer></script>
+  <script src="js/api.js?v=473" defer></script>
+  <script src="js/state.js?v=473" defer></script>
+  <script src="js/seav-notifications.js?v=473" defer></script>
+  <script src="js/achievements-engine.js?v=473" defer></script>
+  <script src="js/badge-unlock.js?v=473" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-  <script src="js/seav-share.js?v=472" defer></script>
-  <script src="js/profile.js?v=472" defer></script>
+  <script src="js/seav-share.js?v=473" defer></script>
+  <script src="js/profile.js?v=473" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -124,6 +124,147 @@
         certification, and employment information.
       </p>
     </div>
+
+    <!-- =========================================================
+       PUBLIC PROFILE SHARE — moved into the page header 2026-08-09,
+       per Jack: sits on the same row as the icon/title now, right
+       side of the page, instead of as its own standalone card lower
+       down the page (that was the 2026-08-08 placement). Same
+       card/IDs/logic as before (see js/profile.js +
+       css/pages/profile.css) — only its position in the DOM and the
+       header's grid moved, nothing about how it works changed.
+       Deliberately still a sibling of #profileEditView/
+       profileLockOverlay (not inside them), so it stays interactive
+       even while the profile form itself is locked.
+    ========================================================= -->
+    <article class="profile-public-share" id="ppShare" aria-labelledby="ppShareTitle">
+      <div class="profile-public-share-row">
+        <div class="profile-public-share-brand">
+          <span class="profile-public-share-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M3 12h18M12 3c2.8 3.1 4.3 6.6 4.3 9s-1.5 5.9-4.3 9M12 3C9.2 6.1 7.7 9.6 7.7 12s1.5 5.9 4.3 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div>
+            <h3 id="ppShareTitle">Public profile</h3>
+            <p>Share a read-only career view with employers</p>
+          </div>
+        </div>
+
+        <div class="profile-public-share-controls">
+          <span class="profile-public-share-status is-private" id="ppStatus">Private</span>
+          <label class="profile-public-share-toggle" for="ppEnabled">
+            <span class="profile-public-share-toggle-label">Visible</span>
+            <input type="checkbox" id="ppEnabled" class="profile-public-share-switch" />
+          </label>
+          <button
+            type="button"
+            class="profile-public-share-expand"
+            id="ppShareToggle"
+            aria-expanded="false"
+            aria-controls="ppShareDetails"
+            aria-label="Show your public link"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsed by default so the panel is just the title/Live/
+           Visible row until you actually want the link. -->
+      <div class="profile-public-share-details" id="ppShareDetails" hidden>
+
+        <div class="profile-public-share-username">
+          <label for="ppSlug">Your link name</label>
+          <div class="profile-public-share-username-row">
+            <span class="profile-public-share-username-prefix">sea-v.com/u/</span>
+            <input
+              type="text"
+              id="ppSlug"
+              name="link-handle-slug"
+              class="profile-public-share-username-input"
+              placeholder="yourname"
+              maxlength="30"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-bwignore="true"
+              data-form-type="other"
+            />
+            <button type="button" class="btn-ghost2" id="ppSlugSave">Save</button>
+          </div>
+          <p class="profile-public-share-username-hint" id="ppSlugHint"></p>
+        </div>
+
+        <p class="profile-public-share-hint" id="ppLinkHint">
+          Enable visibility to activate your share link.
+        </p>
+
+        <!-- Link + QR grouped into one compact unit — the QR is small
+             and always visible while the panel is live (no separate
+             toggle) and doubles as its own share target: tapping it
+             shares or saves the QR image via js/seav-share.js's
+             shareCanvasImage, generated entirely client-side
+             (qrcodejs) so the profile URL never leaves the browser
+             just to render the code. -->
+        <div class="profile-public-share-link" id="ppLinkWrap" hidden>
+          <div class="profile-public-share-group">
+            <button
+              type="button"
+              class="profile-public-share-qr-btn"
+              id="ppQrShare"
+              aria-label="Share your QR code"
+              title="Tap to share or save your QR code"
+            >
+              <span class="profile-public-share-qr-canvas" id="ppQrCanvas" role="img" aria-label="QR code linking to your public profile"></span>
+            </button>
+
+            <div class="profile-public-share-main">
+              <input
+                type="text"
+                readonly
+                id="ppLinkUrl"
+                name="profile-share-url-display"
+                class="profile-public-share-url"
+                aria-label="Public profile share link"
+                autocomplete="off"
+                autocapitalize="off"
+                autocorrect="off"
+                spellcheck="false"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+              />
+              <div class="profile-public-share-actions">
+                <button type="button" class="profile-public-share-image" id="ppShareImage">
+                  Share
+                </button>
+                <button type="button" class="profile-public-share-copy btn-ghost2" id="ppLinkCopy">
+                  Copy
+                </button>
+                <a
+                  class="profile-public-share-open btn-ghost2"
+                  id="ppLinkOpen"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </article>
 
   </div>
 
@@ -350,153 +491,6 @@
               </p>
               <button type="button" class="btn-blue" id="btnEditProfile">Edit profile</button>
             </div>
-          </div>
-        </article>
-
-        <!-- =========================================================
-           PUBLIC PROFILE SHARE — moved here from dashboard.html
-           2026-08-08, per Jack: the visibility toggle/link/QR panel
-           used to sit at the top of the Dashboard, where it was the
-           first thing rendered on mobile (before the crew member's
-           own info) and didn't read as belonging with the rest of
-           that page's KPI/quick-action content. Public visibility is
-           a profile setting, so it lives here now — as its own card,
-           deliberately OUTSIDE #profileEditView/profileLockOverlay
-           above, so it stays interactive even while the profile form
-           itself is locked after Save (toggling visibility, copying
-           the link, etc. are not "editing your profile fields" in
-           the same sense the lock guards against).
-           IDs renamed dashPublic* -> pp* / classes
-           .dashboard-public-share* -> .profile-public-share* (see
-           js/profile.js + css/pages/profile.css); logic itself is
-           unchanged from the dashboard version.
-        ========================================================= -->
-        <article class="profile-public-share" id="ppShare" aria-labelledby="ppShareTitle">
-          <div class="profile-public-share-row">
-            <div class="profile-public-share-brand">
-              <span class="profile-public-share-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
-                  <path d="M3 12h18M12 3c2.8 3.1 4.3 6.6 4.3 9s-1.5 5.9-4.3 9M12 3C9.2 6.1 7.7 9.6 7.7 12s1.5 5.9 4.3 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                </svg>
-              </span>
-              <div>
-                <h3 id="ppShareTitle">Public profile</h3>
-                <p>Share a read-only career view with employers</p>
-              </div>
-            </div>
-
-            <div class="profile-public-share-controls">
-              <span class="profile-public-share-status is-private" id="ppStatus">Private</span>
-              <label class="profile-public-share-toggle" for="ppEnabled">
-                <span class="profile-public-share-toggle-label">Visible</span>
-                <input type="checkbox" id="ppEnabled" class="profile-public-share-switch" />
-              </label>
-              <button
-                type="button"
-                class="profile-public-share-expand"
-                id="ppShareToggle"
-                aria-expanded="false"
-                aria-controls="ppShareDetails"
-                aria-label="Show your public link"
-              >
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Collapsed by default so the panel is just the title/Live/
-               Visible row until you actually want the link. -->
-          <div class="profile-public-share-details" id="ppShareDetails" hidden>
-
-            <div class="profile-public-share-username">
-              <label for="ppSlug">Your link name</label>
-              <div class="profile-public-share-username-row">
-                <span class="profile-public-share-username-prefix">sea-v.com/u/</span>
-                <input
-                  type="text"
-                  id="ppSlug"
-                  name="link-handle-slug"
-                  class="profile-public-share-username-input"
-                  placeholder="yourname"
-                  maxlength="30"
-                  autocomplete="off"
-                  autocapitalize="off"
-                  autocorrect="off"
-                  spellcheck="false"
-                  data-lpignore="true"
-                  data-1p-ignore="true"
-                  data-bwignore="true"
-                  data-form-type="other"
-                />
-                <button type="button" class="btn-ghost2" id="ppSlugSave">Save</button>
-              </div>
-              <p class="profile-public-share-username-hint" id="ppSlugHint"></p>
-            </div>
-
-            <p class="profile-public-share-hint" id="ppLinkHint">
-              Enable visibility to activate your share link.
-            </p>
-
-            <!-- Link + QR grouped into one compact unit — the QR is small
-                 and always visible while the panel is live (no separate
-                 toggle) and doubles as its own share target: tapping it
-                 shares or saves the QR image via js/seav-share.js's
-                 shareCanvasImage, generated entirely client-side
-                 (qrcodejs) so the profile URL never leaves the browser
-                 just to render the code. -->
-            <div class="profile-public-share-link" id="ppLinkWrap" hidden>
-              <div class="profile-public-share-group">
-                <button
-                  type="button"
-                  class="profile-public-share-qr-btn"
-                  id="ppQrShare"
-                  aria-label="Share your QR code"
-                  title="Tap to share or save your QR code"
-                >
-                  <span class="profile-public-share-qr-canvas" id="ppQrCanvas" role="img" aria-label="QR code linking to your public profile"></span>
-                </button>
-
-                <div class="profile-public-share-main">
-                  <input
-                    type="text"
-                    readonly
-                    id="ppLinkUrl"
-                    name="profile-share-url-display"
-                    class="profile-public-share-url"
-                    aria-label="Public profile share link"
-                    autocomplete="off"
-                    autocapitalize="off"
-                    autocorrect="off"
-                    spellcheck="false"
-                    data-lpignore="true"
-                    data-1p-ignore="true"
-                    data-bwignore="true"
-                    data-form-type="other"
-                  />
-                  <div class="profile-public-share-actions">
-                    <button type="button" class="profile-public-share-image" id="ppShareImage">
-                      Share
-                    </button>
-                    <button type="button" class="profile-public-share-copy btn-ghost2" id="ppLinkCopy">
-                      Copy
-                    </button>
-                    <a
-                      class="profile-public-share-open btn-ghost2"
-                      id="ppLinkOpen"
-                      href="#"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Open
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
         </article>
 

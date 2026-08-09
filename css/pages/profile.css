@@ -23,16 +23,28 @@
    HEADER
 ========================================================= */
 
+/* 2026-08-09, per Jack: the Public profile share panel now sits on
+   this same row, right side of the page — third grid column, added
+   alongside the pre-existing icon/copy pair. align-items switched
+   from center to start so the icon+title don't reflow vertically
+   when the share panel's details expand and grow taller (that
+   column is pinned back to a vertical center via .profile-shell-icon
+   / .profile-shell-copy's own align-self below). */
 .profile-shell-head {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto;
 
   gap: 20px;
-  align-items: center;
+  align-items: start;
 
   padding: 28px;
 
   border-bottom: 1px solid rgba(66,214,181,0.14);
+}
+
+.profile-shell-icon,
+.profile-shell-copy {
+  align-self: center;
 }
 
 .profile-shell-icon {
@@ -260,10 +272,6 @@
   inset: 0;
   z-index: 5;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
   padding: 24px;
 
   /* 2026-08-06, per Jack: more transparent, glassy-sheen feel — the locked
@@ -281,7 +289,22 @@
   display: none;
 }
 
+/* 2026-08-09, per Jack: the glassy card used to sit dead-center
+   (flex align-items/justify-content: center, above) — now anchored
+   33% down from the top of the overlay instead. top/left percentages
+   on an absolutely-positioned element resolve against the
+   *containing block's* height/width (unlike margin/padding
+   percentages, which always resolve against width), so this is a
+   true "33% down the overlay's height", not an approximation.
+   translate(-50%, -50%) keeps the card centered on that point the
+   same way flex centering kept it centered on the 50% midpoint
+   before — only the anchor moved, not how the card sits around it. */
 .profile-lock-card {
+  position: absolute;
+  top: 33%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
   width: min(100%, 340px);
 
   padding: 28px 24px;
@@ -561,6 +584,14 @@
     grid-template-columns: 1fr;
   }
 
+  /* Header collapses to a single stacked column at this width, so the
+     share panel's 320px desktop cap (set above, for sitting neatly
+     beside the title on a wide row) would leave it stranded and
+     narrow — let it fill the stacked row like everything else here. */
+  .profile-public-share {
+    max-width: none;
+  }
+
   .profile-chapters-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -604,11 +635,19 @@
    PUBLIC PROFILE SHARE — moved here from dashboard.html
    2026-08-08, per Jack. Ported class-for-class from the old
    .dashboard-public-share* rules (css/pages/dashboard.css), renamed
-   .profile-public-share*, plus a top margin since it's now a standalone
-   sibling card under .profile-form-card instead of a compact panel
-   docked next to a page header. Deliberately outside .profile-form-card
+   .profile-public-share*. Deliberately outside .profile-form-card
    / #profileLockOverlay so it stays interactive even while the profile
    form itself is locked.
+
+   2026-08-09, per Jack: moved again, this time in the DOM — it's now
+   a third grid item inside .profile-shell-head (see HEADER section
+   above), right side of the page next to the icon/title, instead of
+   its own standalone card lower down the page. margin-top dropped
+   (that was for the standalone-card spacing, not needed as a header
+   item) and a max-width added so it doesn't crowd out the title on
+   wide screens; on narrow screens .profile-shell-head's own
+   max-width:900px breakpoint collapses this back to a full-width
+   stacked row below the title, same as it always has at that width.
 ========================================================= */
 
 .profile-public-share {
@@ -616,7 +655,10 @@
   flex-direction: column;
   gap: 10px;
 
-  margin-top: 20px;
+  width: 100%;
+  max-width: 320px;
+  align-self: start;
+
   padding: 14px 16px;
 
   border-radius: 18px;
