@@ -343,13 +343,10 @@
   /**
    * Build the shared read-only onboard-experience list row used on the
    * dashboard "Onboard experience" snippet and the public profile section.
-   * `options.statusFallback` preserves each page's own default label when
-   * an entry has no status set ("Draft" on the dashboard, "—" on public).
    */
   function buildOnboardRow(entry, vessels, options = {}) {
     const getLabel = window.SeavData?.getOnboardCategoryLabel || ((value) => value || "—");
     const vessel = (vessels || []).find((v) => v.id === entry.vesselId);
-    const statusFallback = options.statusFallback ?? "—";
     // Same green pill used on the onboard-experience edit page (js/onboard-experience.js)
     // — was plain unstyled text here before, which is why it didn't match.
     // Sits alongside the status pill in .onboard-row-actions, NOT inline
@@ -387,16 +384,14 @@
           </div>
           <div class="onboard-row-actions">
             ${familiarisationHtml}
-            <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
           </div>
         </div>
       `;
     }
 
     // Public-profile variant: adds a "Details" toggle revealing description,
-    // dates/hours/location, and the attachment (photo or file link) — this
-    // data was already fetched for public profiles (RLS/grants allow it for
-    // Signed Off entries), it just wasn't rendered anywhere yet.
+    // dates/hours/location, and the attachment (photo or file link) — RLS/
+    // grants already allow crew to expose this on their public profile.
     const detailId = `ppOnboardDetail-${Seav.escapeHtml(String(entry.id || Math.random().toString(36).slice(2)))}`;
 
     const metaBits = [];
@@ -438,7 +433,6 @@
         </div>
         <div class="onboard-row-actions">
           ${familiarisationHtml}
-          <span class="pill">${Seav.escapeHtml(entry.status || statusFallback)}</span>
           ${
             hasDetail
               ? `<button type="button" class="onboard-detail-toggle" data-pp-expand="${detailId}" aria-expanded="false" data-pp-collapsed-label="Details">Details</button>`

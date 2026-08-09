@@ -24,36 +24,36 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=469" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=469" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=469" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=469" />
+  <link rel="icon" href="/favicon.ico?v=470" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=470" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=470" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=470" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Onboard Experience</title>
 
-  <link rel="stylesheet" href="styles.css?v=469" />
+  <link rel="stylesheet" href="styles.css?v=470" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=469"></script>
-  <script src="js/supabase.js?v=469"></script>
-  <script src="js/auth.js?v=469"></script>
-  <script src="js/feedback.js?v=469" defer></script>
-  <script src="js/core.js?v=469" defer></script>
-  <script src="js/bug-reports.js?v=469" defer></script>
-  <script src="js/seav-upload.js?v=469" defer></script>
-  <script src="js/seav-data.js?v=469" defer></script>
-  <script src="js/seav-badges.js?v=469" defer></script>
-  <script src="js/api-core.js?v=469" defer></script>
-  <script src="js/api-mappers.js?v=469" defer></script>
-  <script src="js/api.js?v=469" defer></script>
-  <script src="js/state.js?v=469" defer></script>
-  <script src="js/seav-notifications.js?v=469" defer></script>
-  <script src="js/achievements-engine.js?v=469" defer></script>
-  <script src="js/badge-unlock.js?v=469" defer></script>
+  <script src="js/seav-config.js?v=470"></script>
+  <script src="js/supabase.js?v=470"></script>
+  <script src="js/auth.js?v=470"></script>
+  <script src="js/feedback.js?v=470" defer></script>
+  <script src="js/core.js?v=470" defer></script>
+  <script src="js/bug-reports.js?v=470" defer></script>
+  <script src="js/seav-upload.js?v=470" defer></script>
+  <script src="js/seav-data.js?v=470" defer></script>
+  <script src="js/seav-badges.js?v=470" defer></script>
+  <script src="js/api-core.js?v=470" defer></script>
+  <script src="js/api-mappers.js?v=470" defer></script>
+  <script src="js/api.js?v=470" defer></script>
+  <script src="js/state.js?v=470" defer></script>
+  <script src="js/seav-notifications.js?v=470" defer></script>
+  <script src="js/achievements-engine.js?v=470" defer></script>
+  <script src="js/badge-unlock.js?v=470" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=469" defer></script>
-  <script src="js/onboard-experience.js?v=469" defer></script>
+  <script src="js/seav-share.js?v=470" defer></script>
+  <script src="js/onboard-experience.js?v=470" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -109,8 +109,8 @@
             <h2>Onboard Experience</h2>
             <p>
               Log practical yacht skills, familiarisations, paint work, crane driving,
-              varnishing, and other duties — with senior crew sign-off so your
-              experience stays on record when you leave the vessel.
+              varnishing, and other duties — a self-reported record of what you've
+              actually done onboard, for your CV and profile.
             </p>
           </div>
 
@@ -128,8 +128,8 @@
             <div>
               <h3>Logged onboard work</h3>
               <p>
-                Link each entry to a vessel. Request sign-off from a senior officer
-                (Captain, Chief Officer, HOD) when the work is complete.
+                Link each entry to a vessel and describe what you did — in your own
+                words, like the rest of your CV.
               </p>
             </div>
           </div>
@@ -145,7 +145,8 @@
               <h3>Skills</h3>
               <p>
                 Rate yourself on deck, engineering, and bridge equipment skills — a quick
-                self-assessment, separate from the signed-off logbook above.
+                self-assessment, separate from the practical log above. Not on the list?
+                Add it yourself and explain how you know it.
               </p>
             </div>
           </div>
@@ -163,6 +164,17 @@
               <select id="skillNameSelect" disabled>
                 <option value="">Choose a category first</option>
               </select>
+            </label>
+
+            <label class="onboard-skill-custom-field" id="skillCustomField" hidden>
+              Skill / training name
+              <input
+                type="text"
+                id="skillCustomName"
+                placeholder="Type the skill or training, e.g. Tender engine servicing"
+                maxlength="80"
+                autocomplete="off"
+              />
             </label>
 
             <div class="onboard-skill-rating-field">
@@ -215,8 +227,8 @@
         <input type="hidden" id="oe_edit_id" value="" />
 
         <p class="modal-intro">
-          Log skills, familiarisations, and operational work onboard — linked to a vessel
-          and ready for senior crew sign-off.
+          Log skills, familiarisations, and operational work onboard — linked to a vessel,
+          in your own words.
         </p>
 
         <p class="modal-note modal-note--warning" id="oeNoVesselNotice" hidden>
@@ -289,77 +301,8 @@
         <button class="btn-blue" type="submit">Save entry</button>
 
         <p class="modal-footnote">
-          Saved to your SEA-V profile. Use “Senior sign-off” on the card when a HOD can confirm the work.
+          Saved to your SEA-V profile.
         </p>
-
-      </form>
-
-    </div>
-  </div>
-
-  <div class="modal" id="oeSignoffModal" hidden>
-    <div class="modal-card modal-card--coral">
-
-      <div class="modal-head">
-        <h3>Senior crew sign-off</h3>
-        <button type="button" class="modal-x" data-close>&times;</button>
-      </div>
-
-      <form class="modal-form" id="oeSignoffForm">
-
-        <input type="hidden" id="oe_signoff_id" value="" />
-
-        <p class="modal-intro">
-          A senior crew member (Captain, Chief Officer, or head of department) confirms
-          this onboard experience. In production this can link to email or QR verification.
-        </p>
-
-        <label class="modal-check">
-          <input type="checkbox" id="oe_so_confirmed" />
-          <span>I confirm this onboard experience is accurate and I authorise it.</span>
-        </label>
-
-        <div class="modal-grid2">
-          <label>
-            Signatory name
-            <input id="oe_so_name" placeholder="Full name of the signatory" />
-          </label>
-
-          <label>
-            Rank / position
-            <input id="oe_so_rank" placeholder="Their rank, e.g. Chief Officer or Captain" />
-          </label>
-        </div>
-
-        <div class="modal-grid2">
-          <label>
-            Signatory email (optional)
-            <input type="email" id="oe_so_email" placeholder="Their work email address" />
-          </label>
-
-          <label>
-            CoC / ticket no. (optional)
-            <input id="oe_so_coc" placeholder="Certificate of competency number" />
-          </label>
-        </div>
-
-        <div class="modal-grid2">
-          <label>
-            Signature (typed)
-            <input id="oe_so_signature" placeholder="Type full name to sign" />
-          </label>
-
-          <div data-date-field="oe_so_signed_at" data-date-label="Signed date"></div>
-        </div>
-
-        <label>
-          Sign-off note
-          <textarea id="oe_so_note" rows="3" placeholder="Brief confirmation that the work was completed"></textarea>
-        </label>
-
-        <button class="btn-blue" type="submit">Save sign-off</button>
-
-        <p class="modal-footnote">Sign-off is stored on the onboard experience record.</p>
 
       </form>
 

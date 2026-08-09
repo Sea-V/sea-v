@@ -852,17 +852,6 @@ function getEmptyOnboardExperienceEntry() {
     dateTo: "",
     hours: 0,
     isFamiliarisation: false,
-    status: "Draft",
-    signoff: {
-      confirmed: false,
-      note: "",
-      signatoryName: "",
-      signatoryRank: "",
-      signatoryEmail: "",
-      cocNumber: "",
-      signatureName: "",
-      signedAt: ""
-    },
     attachment: null,
     createdAt: "",
     updatedAt: ""

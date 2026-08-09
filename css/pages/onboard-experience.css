@@ -352,11 +352,6 @@
   background: rgba(94, 230, 168, 0.16);
 }
 
-.onboard-status-pill.pill-neutral {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.08);
-}
-
 .onboard-modern-meta {
   margin-top: 6px;
   color: rgba(255, 255, 255, 0.7);
@@ -378,45 +373,13 @@
   font-size: 14px;
 }
 
-.onboard-signoff-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.onboard-signoff-panel {
-  padding: 14px 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.onboard-signoff-panel-full {
-  grid-column: 1 / -1;
-}
-
-.onboard-signoff-label {
+.onboard-attachment-label {
   margin-bottom: 8px;
   color: #5bbcff;
   font-size: 11px;
   font-weight: 850;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-}
-
-.onboard-signoff-value {
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 13px;
-  line-height: 1.55;
-  font-weight: 600;
-}
-
-.onboard-signoff-quote {
-  font-style: italic;
-  color: rgba(255, 255, 255, 0.78);
 }
 
 .onboard-attachment-link {
@@ -519,6 +482,30 @@
 
 .onboard-skill-note-field {
   grid-column: 1 / -1;
+}
+
+.onboard-skill-custom-field {
+  grid-column: 1 / -1;
+}
+
+.onboard-skill-custom-field input {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--field-value-color);
+  caret-color: var(--field-value-color);
+  color-scheme: dark;
+  font: inherit;
+}
+
+.onboard-skill-custom-field input:focus {
+  outline: none;
+  border-color: rgba(255, 143, 171, 0.45);
+  box-shadow: 0 0 0 3px rgba(255, 143, 171, 0.12);
 }
 
 .onboard-skill-note-field textarea {
@@ -769,10 +756,6 @@
 
   .onboard-kpi-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .onboard-signoff-grid {
-    grid-template-columns: 1fr;
   }
 }
 

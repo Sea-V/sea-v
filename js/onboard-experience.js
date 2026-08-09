@@ -37,13 +37,6 @@
     return window.SeavState?.vessels || [];
   }
 
-  function maskCoc(coc) {
-    const raw = String(coc || "").trim();
-    if (!raw) return "—";
-    if (raw.length <= 4) return raw;
-    return `${"*".repeat(Math.max(0, raw.length - 4))}${raw.slice(-4)}`;
-  }
-
   function formatDateRange(from, to) {
     const start = from ? formatDatePretty(from) : "—";
     const end = to ? formatDatePretty(to) : "Ongoing";
@@ -90,14 +83,21 @@
     if (notice) notice.hidden = vessels.length > 0;
   }
 
+  // 2026-08-09, per Jack: dropped the sign-off feature entirely -- this is
+  // now a self-reported log (like the rest of a CV), not something needing
+  // a senior officer's confirmation. KPI row swapped from
+  // Total/Signed off/Not signed off/Familiarisations to a set that still
+  // means something without a status concept: Total logged, Vessels
+  // covered, Familiarisations, and Skills rated (pulls the Skills section's
+  // count in too, tying the two halves of this page together).
   function renderKpis() {
     const row = document.getElementById("oeKpiRow");
     if (!row) return;
 
     const entries = getEntries();
-    const signed = entries.filter((e) => e.status === "Signed Off").length;
-    const notSigned = entries.length - signed;
+    const vesselCount = new Set(entries.map((e) => e.vesselId).filter(Boolean)).size;
     const familiar = entries.filter((e) => e.isFamiliarisation).length;
+    const skillsRated = getSkillEntries().length;
 
     row.innerHTML = `
       <div class="onboard-kpi-box">
@@ -105,31 +105,18 @@
         <div class="kpi-label">Total logged</div>
       </div>
       <div class="onboard-kpi-box">
-        <div class="kpi-num">${signed}</div>
-        <div class="kpi-label">Signed off</div>
-      </div>
-      <div class="onboard-kpi-box">
-        <div class="kpi-num">${notSigned}</div>
-        <div class="kpi-label">Not signed off</div>
+        <div class="kpi-num">${vesselCount}</div>
+        <div class="kpi-label">Vessels</div>
       </div>
       <div class="onboard-kpi-box">
         <div class="kpi-num">${familiar}</div>
         <div class="kpi-label">Familiarisations</div>
       </div>
+      <div class="onboard-kpi-box">
+        <div class="kpi-num">${skillsRated}</div>
+        <div class="kpi-label">Skills rated</div>
+      </div>
     `;
-  }
-
-  // Status is binary — Signed Off or Not Signed Off — driven entirely by
-  // whether senior crew sign-off has actually occurred (see the
-  // "Senior crew sign-off" modal/flow below), not a manual free-choice
-  // dropdown. Legacy rows saved before this change may still carry old
-  // values (Draft / Pending Sign-off / Declined) — anything that isn't
-  // exactly "Signed Off" falls back to "Not signed off" here.
-  function getStatusDisplay(status) {
-    if (status === "Signed Off") {
-      return { label: "Signed off", className: "pill-valid" };
-    }
-    return { label: "Not signed off", className: "pill-neutral" };
   }
 
   function hasAttachment(attachment) {
@@ -209,7 +196,7 @@
     if (!fileUrl) {
       return `
         <div class="onboard-attachment-section">
-          <div class="onboard-signoff-label">Photo</div>
+          <div class="onboard-attachment-label">Photo</div>
           <div class="onboard-attachment-preview onboard-attachment-preview--loading muted">
             Loading photo…
           </div>
@@ -224,7 +211,7 @@
     if (isImageAttachment(attachment, fileUrl)) {
       return `
         <div class="onboard-attachment-section">
-          <div class="onboard-signoff-label">Photo</div>
+          <div class="onboard-attachment-label">Photo</div>
           <div class="onboard-attachment-preview">
             <img
               class="onboard-attachment-image"
@@ -242,7 +229,7 @@
 
     return `
       <div class="onboard-attachment-section onboard-attachment-section--file">
-        <div class="onboard-signoff-label">Attachment</div>
+        <div class="onboard-attachment-label">Attachment</div>
         <a class="onboard-attachment-link" href="${safeUrl}" target="_blank" rel="noopener">
           Download ${safeName}
         </a>
@@ -275,8 +262,6 @@
           return db - da;
         });
         const latestTime = sorted[0]?.dateFrom ? new Date(sorted[0].dateFrom).getTime() : 0;
-        const signedCount = sorted.filter((e) => e.status === "Signed Off").length;
-        const pendingCount = sorted.length - signedCount;
 
         return {
           vesselId,
@@ -285,9 +270,7 @@
           // getVesselColor), kept consistent everywhere vessels are grouped.
           vesselColor: vesselId ? getVesselColor(vesselId, vessels) : "",
           entries: sorted,
-          latestTime,
-          pendingCount,
-          signedCount
+          latestTime
         };
       })
       .sort((a, b) => b.latestTime - a.latestTime);
@@ -296,46 +279,7 @@
   function renderEntryCard(entry) {
     const entryId = entry.id || "";
     const categoryLabel = getOnboardCategoryLabel(entry.category);
-    const status = entry.status || "Draft";
-    const statusInfo = getStatusDisplay(status);
-    const signoff = entry.signoff || {};
     const attachmentHtml = renderAttachmentSection(entry.attachment);
-
-        const signoffHtml =
-          status === "Signed Off"
-            ? `
-          <div class="onboard-signoff-grid">
-            <div class="onboard-signoff-panel">
-              <div class="onboard-signoff-label">Signed off by</div>
-              <div class="onboard-signoff-value">
-                ${Seav.escapeHtml(signoff.signatoryName || signoff.signatureName || "—")}<br>
-                Rank: ${Seav.escapeHtml(signoff.signatoryRank || "—")}
-              </div>
-            </div>
-            <div class="onboard-signoff-panel">
-              <div class="onboard-signoff-label">Certification</div>
-              <div class="onboard-signoff-value">
-                CoC: ${Seav.escapeHtml(maskCoc(signoff.cocNumber))}<br>
-                Signed: ${Seav.escapeHtml(signoff.signedAt || "—")}
-              </div>
-            </div>
-            ${
-              signoff.note
-                ? `
-            <div class="onboard-signoff-panel onboard-signoff-panel-full">
-              <div class="onboard-signoff-label">Sign-off note</div>
-              <div class="onboard-signoff-value onboard-signoff-quote">
-                “${Seav.escapeHtml(signoff.note)}”
-              </div>
-            </div>
-            `
-                : ""
-            }
-          </div>
-        `
-            : "";
-
-        const canSignoff = status !== "Signed Off";
 
         const familiarisationHtml = entry.isFamiliarisation
           ? `<span class="onboard-familiarisation-pill onboard-familiarisation-pill-compact">Familiarisation</span>`
@@ -360,9 +304,6 @@
                 ${familiarisationHtml}
               </div>
               <div class="onboard-modern-summary-right">
-                <span class="onboard-status-pill ${statusInfo.className}">
-                  ${Seav.escapeHtml(statusInfo.label)}
-                </span>
                 <span class="onboard-chevron" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -386,18 +327,8 @@
 
               ${attachmentHtml}
 
-              ${signoffHtml}
-
               ${Seav.seavActions(
-                `${
-                  canSignoff
-                    ? Seav.seavAction(
-                        "secondary",
-                        "Senior sign-off",
-                        `data-signoff-oe-id="${Seav.escapeHtml(entryId)}"`
-                      )
-                    : ""
-                }${Seav.seavAction(
+                `${Seav.seavAction(
                   "edit",
                   "Edit",
                   `data-edit-oe-id="${Seav.escapeHtml(entryId)}"`
@@ -416,10 +347,7 @@
   function renderVesselGroup(group) {
     const isExpanded = expandedVesselIds.has(group.vesselId);
     const entryLabel = group.entries.length === 1 ? "entry" : "entries";
-
     const statusMetaParts = [`${group.entries.length} ${entryLabel}`];
-    if (group.pendingCount) statusMetaParts.push(`${group.pendingCount} not signed off`);
-    if (group.signedCount) statusMetaParts.push(`${group.signedCount} signed off`);
 
     return `
       <article class="onboard-vessel-group ui-card ui-accent-coral${isExpanded ? " is-expanded" : ""}" data-vessel-group-id="${Seav.escapeHtml(group.vesselId)}">
@@ -540,22 +468,6 @@
     if (window.SeavModals?.openModal) window.SeavModals.openModal("oeModal");
   }
 
-  function openSignoffModal(entry) {
-    const signoff = entry.signoff || {};
-
-    document.getElementById("oe_signoff_id").value = entry.id || "";
-    document.getElementById("oe_so_confirmed").checked = !!signoff.confirmed;
-    document.getElementById("oe_so_name").value = signoff.signatoryName || "";
-    document.getElementById("oe_so_rank").value = signoff.signatoryRank || "";
-    document.getElementById("oe_so_email").value = signoff.signatoryEmail || "";
-    document.getElementById("oe_so_coc").value = signoff.cocNumber || "";
-    document.getElementById("oe_so_signature").value = signoff.signatureName || "";
-    Seav.setDateTriplet("oe_so_signed_at", signoff.signedAt || "");
-    document.getElementById("oe_so_note").value = signoff.note || "";
-
-    if (window.SeavModals?.openModal) window.SeavModals.openModal("oeSignoffModal");
-  }
-
   function readEntryForm() {
     return {
       id: document.getElementById("oe_edit_id")?.value || "",
@@ -586,8 +498,11 @@
 
   /* =========================================================
      SKILLS — self-assessed skills profile (Deck/Officer + Engineering)
-     Separate from the logbook above: fast tap-to-rate, no vessel/dates/
-     sign-off. See docs/onboard-skills-table.sql.
+     Separate from the logbook above: fast tap-to-rate, no vessel/dates.
+     See docs/onboard-skills-table.sql. The skill picker also supports a
+     free-text "not listed" entry (2026-08-09, per Jack) -- the DB column
+     is already plain text with no catalog-only constraint, so this needed
+     no schema change, just a UI path to type a name instead of picking one.
   ========================================================= */
 
   const STAR_PATH =
@@ -630,6 +545,26 @@
     if (current) select.value = current;
   }
 
+  const CUSTOM_SKILL_VALUE = "__custom__";
+
+  // Shows/hides the free-text "skill not listed" input next to the
+  // dropdown. 2026-08-09, per Jack: crew should be able to log training or
+  // a skill that isn't in the preset catalog, not just pick from a fixed
+  // list -- see docs/onboard-skills-table.sql, the `skill` column is plain
+  // text with no catalog-only constraint, so this is UI-only.
+  function setSkillCustomFieldVisible(visible) {
+    const field = document.getElementById("skillCustomField");
+    const input = document.getElementById("skillCustomName");
+    if (!field) return;
+
+    field.hidden = !visible;
+    if (visible) {
+      input?.focus();
+    } else if (input) {
+      input.value = "";
+    }
+  }
+
   function populateSkillNameOptions(category) {
     const select = document.getElementById("skillNameSelect");
     if (!select) return;
@@ -637,33 +572,36 @@
     if (!category) {
       select.innerHTML = `<option value="">Choose a category first</option>`;
       select.disabled = true;
+      setSkillCustomFieldVisible(false);
       return;
     }
 
     const already = new Set(
       getSkillEntries()
         .filter((s) => s.category === category)
-        .map((s) => s.skill)
+        .map((s) => s.skill.toLowerCase())
     );
     const available = getOnboardSkillsForCategory(category).filter(
-      (skill) => !already.has(skill)
+      (skill) => !already.has(skill.toLowerCase())
     );
 
-    if (!available.length) {
-      select.innerHTML = `<option value="">All ${Seav.escapeHtml(
-        getOnboardSkillCategoryLabel(category)
-      )} skills added</option>`;
-      select.disabled = true;
-      return;
-    }
-
+    // The catalog list can run dry (every preset skill for this category
+    // already added), but the "not listed" option must always stay --
+    // that's the whole point of it, and it's how someone logs a second
+    // custom skill in the same category too.
     select.innerHTML = `
-      <option value="">Choose a skill</option>
+      <option value="">${
+        available.length
+          ? "Choose a skill"
+          : `All ${Seav.escapeHtml(getOnboardSkillCategoryLabel(category))} skills added`
+      }</option>
       ${available
         .map((skill) => `<option value="${Seav.escapeHtml(skill)}">${Seav.escapeHtml(skill)}</option>`)
         .join("")}
+      <option value="${CUSTOM_SKILL_VALUE}">+ Add a skill not listed…</option>
     `;
     select.disabled = false;
+    setSkillCustomFieldVisible(false);
   }
 
   function renderSkillRatingInput(rating) {
@@ -746,16 +684,26 @@
   async function addSkill() {
     const categorySelect = document.getElementById("skillCategorySelect");
     const skillSelect = document.getElementById("skillNameSelect");
+    const customInput = document.getElementById("skillCustomName");
     const ratingInput = document.getElementById("skillRatingInput");
     const noteInput = document.getElementById("skillNoteInput");
 
     const category = categorySelect?.value || "";
-    const skill = skillSelect?.value || "";
+    const isCustom = skillSelect?.value === CUSTOM_SKILL_VALUE;
+    const skill = (isCustom ? customInput?.value : skillSelect?.value)?.trim() || "";
     const rating = Number(ratingInput?.getAttribute("data-rating") || 0);
     const note = noteInput?.value.trim() || "";
 
-    if (!category || !skill) {
-      Seav.notify("error", "Missing details", "Choose a category and a skill first.");
+    if (!category) {
+      Seav.notify("error", "Missing details", "Choose a category first.");
+      return;
+    }
+    if (!skill) {
+      Seav.notify(
+        "error",
+        "Missing details",
+        isCustom ? "Type the name of the skill or training." : "Choose a skill first."
+      );
       return;
     }
     if (!rating) {
@@ -768,6 +716,18 @@
         "Missing explanation",
         "Briefly explain how you know this skill before adding it."
       );
+      return;
+    }
+
+    // Catalog picks can't collide (already filtered out of the dropdown by
+    // populateSkillNameOptions), but a typed custom name can -- check
+    // client-side for a friendly message instead of surfacing the DB's
+    // unique(user_id, category, skill) constraint error.
+    const alreadyAdded = getSkillEntries().some(
+      (item) => item.category === category && item.skill.toLowerCase() === skill.toLowerCase()
+    );
+    if (alreadyAdded) {
+      Seav.notify("error", "Already added", `${skill} is already on your skills profile.`);
       return;
     }
 
@@ -785,6 +745,8 @@
         });
 
         if (skillSelect) skillSelect.value = "";
+        if (customInput) customInput.value = "";
+        setSkillCustomFieldVisible(false);
         if (noteInput) noteInput.value = "";
         renderSkillRatingInput(0);
         populateSkillNameOptions(category);
@@ -853,6 +815,13 @@
       });
     }
 
+    const skillSelect = document.getElementById("skillNameSelect");
+    if (skillSelect) {
+      skillSelect.addEventListener("change", () => {
+        setSkillCustomFieldVisible(skillSelect.value === CUSTOM_SKILL_VALUE);
+      });
+    }
+
     const addBtn = document.getElementById("addSkillBtn");
     if (addBtn) {
       addBtn.addEventListener("click", (e) => {
@@ -916,11 +885,7 @@
 
   function initOnboardExperience() {
     if (onboardExperienceInited) return;
-    if (
-      !document.getElementById("oeList") &&
-      !document.getElementById("oeForm") &&
-      !document.getElementById("oeSignoffForm")
-    ) {
+    if (!document.getElementById("oeList") && !document.getElementById("oeForm")) {
       return;
     }
     onboardExperienceInited = true;
@@ -996,19 +961,6 @@
           dateTo: formData.dateTo,
           hours: formData.hours,
           isFamiliarisation: formData.isFamiliarisation,
-          // Status is binary and derived, never a manual form field — editing
-          // an entry's details must not disturb its actual sign-off state.
-          status: existing?.signoff?.confirmed ? "Signed Off" : "Not Signed Off",
-          signoff: existing?.signoff || {
-            confirmed: false,
-            note: "",
-            signatoryName: "",
-            signatoryRank: "",
-            signatoryEmail: "",
-            cocNumber: "",
-            signatureName: "",
-            signedAt: ""
-          },
           attachment,
           createdAt: existing?.createdAt || now,
           updatedAt: now
@@ -1032,55 +984,6 @@
           await refreshView();
         }
         }, { sub: "Saving onboard experience" });
-      });
-    }
-
-    const signoffForm = document.getElementById("oeSignoffForm");
-    if (signoffForm) {
-      signoffForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const entryId = document.getElementById("oe_signoff_id")?.value || "";
-        const entry = getEntries().find((item) => item.id === entryId);
-        if (!entry) return;
-
-        const confirmed = !!document.getElementById("oe_so_confirmed")?.checked;
-
-        await Seav.withSaving(async () => {
-        const updated = {
-          ...entry,
-          signoff: {
-            confirmed,
-            note: document.getElementById("oe_so_note")?.value.trim() || "",
-            signatoryName: document.getElementById("oe_so_name")?.value.trim() || "",
-            signatoryRank: document.getElementById("oe_so_rank")?.value.trim() || "",
-            signatoryEmail: document.getElementById("oe_so_email")?.value.trim() || "",
-            cocNumber: document.getElementById("oe_so_coc")?.value.trim() || "",
-            signatureName: document.getElementById("oe_so_signature")?.value.trim() || "",
-            signedAt: Seav.readDateTriplet("oe_so_signed_at")
-          },
-          status: confirmed ? "Signed Off" : "Not Signed Off"
-        };
-
-        await SeavAPI.updateItemById(STORAGE_KEY, entryId, updated);
-
-        signoffForm.reset();
-        if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
-
-        Seav.notify(
-          "success",
-          "Sign-off recorded",
-          confirmed
-            ? "Senior crew confirmation saved to this entry."
-            : "Sign-off status updated on this entry."
-        );
-
-        if (window.Seav.app?.refreshAll) {
-          await window.Seav.app.refreshAll();
-        } else {
-          await refreshView();
-        }
-        }, { sub: "Recording senior sign-off" });
       });
     }
 
@@ -1136,16 +1039,6 @@
           (item) => item.id === editBtn.getAttribute("data-edit-oe-id")
         );
         if (entry) openEntryModal(entry);
-        return;
-      }
-
-      const signoffBtn = e.target.closest("[data-signoff-oe-id]");
-      if (signoffBtn) {
-        e.preventDefault();
-        const entry = getEntries().find(
-          (item) => item.id === signoffBtn.getAttribute("data-signoff-oe-id")
-        );
-        if (entry) openSignoffModal(entry);
         return;
       }
 

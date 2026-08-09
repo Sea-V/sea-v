@@ -300,7 +300,7 @@
 
   function buildVesselHighlights(vessel, onboardEntries) {
     return onboardEntries
-      .filter((entry) => entry.vesselId === vessel.id && entry.status === "Signed Off")
+      .filter((entry) => entry.vesselId === vessel.id)
       .slice(0, 3)
       .map((entry) => entry.title || getOnboardCategoryLabel(entry.category))
       .filter(Boolean);
@@ -429,7 +429,6 @@
     const rows = vesselOnboard
       .map((entry) =>
         window.SeavCards.buildOnboardRow(entry, vessels, {
-          statusFallback: "—",
           expandable: true,
           hideVesselName: true
         })
@@ -671,7 +670,9 @@
     if (!vesselBox) return;
 
     const vesselIds = new Set((vessels || []).map((v) => v.id));
-    const signedOnboard = (onboardEntries || []).filter((e) => e.status === "Signed Off");
+    // Onboard experience is self-reported, CV-style — every logged entry is
+    // shown on the public profile (no sign-off gate, per Jack 2026-08-09).
+    const publicOnboard = (onboardEntries || []).filter(Boolean);
     const manualAchievements = (achievements || []).filter(
       (item) =>
         !item.autoAwarded &&
@@ -712,14 +713,14 @@
     const buildBlock = (v) => `
       <div class="pp-vessel-block" data-pp-more-item>
         ${buildVesselCard(v, vessels)}
-        ${buildVesselLinkedSections(v, seatimes, tenders, verifiedRefs, signedOnboard, manualAchievements, vessels)}
+        ${buildVesselLinkedSections(v, seatimes, tenders, verifiedRefs, publicOnboard, manualAchievements, vessels)}
       </div>
     `;
 
     const unattachedHtml = buildUnattachedCard(
       (seatimes || []).filter((s) => !s.vesselId || !vesselIds.has(s.vesselId)),
       (tenders || []).filter((t) => !t.vesselId || !vesselIds.has(t.vesselId)),
-      signedOnboard.filter((e) => !e.vesselId || !vesselIds.has(e.vesselId)),
+      publicOnboard.filter((e) => !e.vesselId || !vesselIds.has(e.vesselId)),
       manualAchievements.filter((a) => !a.vesselId || !vesselIds.has(a.vesselId)),
       verifiedRefs.filter((r) => !r.vesselId || !vesselIds.has(r.vesselId)),
       vessels

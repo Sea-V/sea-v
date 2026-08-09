@@ -318,7 +318,7 @@
           seaDays: getSeatimeTotals(seatimes).sea,
           vessels: vessels.length,
           verifiedRefs: refs.filter(isReferenceVerified).length,
-          signedOps: onboardEntries.filter((entry) => entry.status === "Signed Off").length,
+          onboardOps: onboardEntries.length,
           navigationNm: computeNavigationTotalNm(navigationAreas, navigationDistanceMap)
         };
 

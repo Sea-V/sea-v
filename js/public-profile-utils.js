@@ -800,8 +800,8 @@
     if (metrics.verifiedRefs > 0) {
       items.push({ value: String(metrics.verifiedRefs), label: "Verified refs" });
     }
-    if (metrics.signedOps > 0) {
-      items.push({ value: String(metrics.signedOps), label: "Signed ops" });
+    if (metrics.onboardOps > 0) {
+      items.push({ value: String(metrics.onboardOps), label: "Onboard tasks" });
     }
 
     if (!items.length) {

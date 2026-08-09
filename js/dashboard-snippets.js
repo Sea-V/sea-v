@@ -917,7 +917,7 @@ async function renderOnboardSnippet() {
   dashOnboardSnippet.innerHTML = `
     <div class="list">
       ${latest
-        .map((entry) => window.SeavCards.buildOnboardRow(entry, vessels, { statusFallback: "Draft" }))
+        .map((entry) => window.SeavCards.buildOnboardRow(entry, vessels))
         .join("")}
     </div>
   `;
