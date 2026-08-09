@@ -282,11 +282,44 @@
     return next;
   }
 
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  // Crew have reported the very first save of a session occasionally
+  // failing (a network hiccup, or the auth session still warming up right
+  // after login), then succeeding immediately on a manual retry (2026-08-09,
+  // Jack: "always fails first try, works on the second, every record").
+  // Every write this wraps is idempotent by id -- upsert/update/delete all
+  // target the same row -- so silently retrying once here is safe: it
+  // either recovers a transient blip automatically, or fails again with the
+  // same real error, just ~0.7s later. This does the manual "click Save
+  // again" for the user instead of making them do it by hand.
+  async function runSupabaseWithRetry(fn) {
+    async function attempt() {
+      const result = await fn();
+      if (result && typeof result === "object" && "error" in result && result.error) {
+        throw result.error;
+      }
+      return result;
+    }
+
+    try {
+      return await attempt();
+    } catch (err) {
+      console.warn("[SEA-V] Supabase call failed, retrying once:", err);
+      await sleep(700);
+      return await fn();
+    }
+  }
+
   async function saveNavigationAreaItem(mode, id, item) {
     const payload = withUserId(item);
 
     if (mode === "upsert") {
-      let { error } = await window.SeavSupabase.from("navigation_areas").upsert([payload]);
+      let { error } = await runSupabaseWithRetry(() =>
+        window.SeavSupabase.from("navigation_areas").upsert([payload])
+      );
       if (
         error &&
         isMissingSupabaseColumnError(error, "seatime_id") &&
@@ -315,7 +348,7 @@
     const userId = getAuthUserId();
     if (userId) query = query.eq("user_id", userId);
 
-    let { error } = await query;
+    let { error } = await runSupabaseWithRetry(() => query);
     if (
       error &&
       isMissingSupabaseColumnError(error, "seatime_id") &&
@@ -353,7 +386,9 @@
       return;
     }
 
-    const { error } = await window.SeavSupabase.from(table).upsert([withUserId(item)]);
+    const { error } = await runSupabaseWithRetry(() =>
+      window.SeavSupabase.from(table).upsert([withUserId(item)])
+    );
 
     if (error) {
       console.error(`[SEA-V] Supabase save failed for ${table}:`, error);
@@ -384,7 +419,7 @@
     const userId = getAuthUserId();
     if (userId) query = query.eq("user_id", userId);
 
-    const { error } = await query;
+    const { error } = await runSupabaseWithRetry(() => query);
 
     if (error) {
       console.error(`[SEA-V] Supabase update failed for ${table}:`, error);
@@ -477,7 +512,7 @@
     const userId = getAuthUserId();
     if (userId) query = query.eq("user_id", userId);
 
-    const { error } = await query;
+    const { error } = await runSupabaseWithRetry(() => query);
 
     if (error) {
       console.error(`[SEA-V] Supabase delete failed for ${table}:`, error);
