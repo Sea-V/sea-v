@@ -115,6 +115,7 @@ function mapProfileToSupabase(item) {
     year_built: v.year_built || "",
     net_tonnage: v.net_tonnage || "",
     engine_kw: v.engine_kw || "",
+    classification_society: v.classification_society || "",
 
     vessel_role: v.vessel_role || "",
     vessel_type: v.vessel_type || "",
@@ -153,6 +154,7 @@ function mapVesselToSupabase(item) {
     year_built: item.year_built || "",
     net_tonnage: item.net_tonnage || "",
     engine_kw: item.engine_kw || "",
+    classification_society: item.classification_society || "",
     vessel_role: item.vessel_role || item.role || "",
     vessel_type: item.vessel_type || item.type || "",
     program: item.program || "",

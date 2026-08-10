@@ -165,6 +165,7 @@
     const yearBuilt = vessel.year_built ? Seav.escapeHtml(vessel.year_built) : "";
     const netTonnage = vessel.net_tonnage ? Seav.escapeHtml(vessel.net_tonnage) : "";
     const engineKw = vessel.engine_kw ? Seav.escapeHtml(vessel.engine_kw) : "";
+    const classificationSociety = vessel.classification_society ? Seav.escapeHtml(vessel.classification_society) : "";
     const additionalDuties = vessel.additional_duties ? Seav.escapeHtml(vessel.additional_duties) : "";
     const role = Seav.escapeHtml(vessel.vessel_role || vessel.role || "—");
     const type = Seav.escapeHtml(vessel.vessel_type || vessel.type || "—");
@@ -261,6 +262,7 @@
                 ${yearBuilt ? `<div><span>Year built</span><strong>${yearBuilt}</strong></div>` : ""}
                 ${netTonnage ? `<div><span>Net tonnage</span><strong>${netTonnage}</strong></div>` : ""}
                 ${engineKw ? `<div><span>Engine power</span><strong>${engineKw} kW</strong></div>` : ""}
+                ${classificationSociety ? `<div><span>Classification society</span><strong>${classificationSociety}</strong></div>` : ""}
                 ${additionalDuties ? `<div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>` : ""}
               </div>
             </details>

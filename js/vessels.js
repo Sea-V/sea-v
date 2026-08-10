@@ -190,6 +190,7 @@ function buildVesselCardBody(v, options = {}) {
   const yearBuilt = v.year_built ? Seav.escapeHtml(v.year_built) : "";
   const netTonnage = v.net_tonnage ? Seav.escapeHtml(v.net_tonnage) : "";
   const engineKw = v.engine_kw ? Seav.escapeHtml(v.engine_kw) : "";
+  const classificationSociety = v.classification_society ? Seav.escapeHtml(v.classification_society) : "";
   const role = v.vessel_role || v.role ? Seav.escapeHtml(v.vessel_role || v.role) : "—";
   const type = v.vessel_type || v.type ? Seav.escapeHtml(v.vessel_type || v.type) : "—";
   const program = v.program ? Seav.escapeHtml(v.program) : "—";
@@ -288,6 +289,7 @@ function buildVesselCardBody(v, options = {}) {
               ${yearBuilt ? `<div><span>Year built</span><strong>${yearBuilt}</strong></div>` : ""}
               ${netTonnage ? `<div><span>Net tonnage</span><strong>${netTonnage}</strong></div>` : ""}
               ${engineKw ? `<div><span>Engine power</span><strong>${engineKw} kW</strong></div>` : ""}
+              ${classificationSociety ? `<div><span>Classification society</span><strong>${classificationSociety}</strong></div>` : ""}
               <div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>
             </div>
           </details>
@@ -573,11 +575,13 @@ function fillVesselForm(vessel) {
   const yearBuiltEl = document.getElementById("vs_year_built");
   const netTonnageEl = document.getElementById("vs_net_tonnage");
   const engineKwEl = document.getElementById("vs_engine_kw");
+  const classificationSocietyEl = document.getElementById("vs_classification_society");
   if (officialNumberEl) officialNumberEl.value = vessel.official_number || "";
   if (callSignEl) callSignEl.value = vessel.call_sign || "";
   if (yearBuiltEl) yearBuiltEl.value = vessel.year_built || "";
   if (netTonnageEl) netTonnageEl.value = vessel.net_tonnage || "";
   if (engineKwEl) engineKwEl.value = vessel.engine_kw || "";
+  if (classificationSocietyEl) classificationSocietyEl.value = vessel.classification_society || "";
 
   document.getElementById("vs_desc").value =
     vessel.experience_onboard || vessel.desc || "";
@@ -685,6 +689,7 @@ function readVesselForm() {
     yearBuilt: document.getElementById("vs_year_built")?.value.trim() || "",
     netTonnage: document.getElementById("vs_net_tonnage")?.value.trim() || "",
     engineKw: document.getElementById("vs_engine_kw")?.value.trim() || "",
+    classificationSociety: document.getElementById("vs_classification_society")?.value.trim() || "",
     desc: document.getElementById("vs_desc")?.value.trim() || "",
     from,
     to,
@@ -929,6 +934,7 @@ async function saveVesselData(vesselData) {
   year_built: formData.yearBuilt,
   net_tonnage: formData.netTonnage,
   engine_kw: formData.engineKw,
+  classification_society: formData.classificationSociety,
   vessel_role: formData.role,
   vessel_type: formData.type,
   program: formData.program,

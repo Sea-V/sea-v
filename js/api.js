@@ -91,7 +91,7 @@
       "id", "user_id", "name", "flag", "gt", "vessel_length", "builder", "vessel_role",
       "vessel_type", "program", "experience_onboard", "date_from", "date_to", "photo",
       "imo", "mmsi", "official_number", "call_sign", "year_built", "net_tonnage", "engine_kw",
-      "additional_duties", "created_at", "updated_at"
+      "classification_society", "additional_duties", "created_at", "updated_at"
     ].join(","),
     seatimes: [
       "id", "user_id", "vessel_id", "flag", "gt", "capacity_served", "date_joined",
