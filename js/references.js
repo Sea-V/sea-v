@@ -40,7 +40,6 @@
     probation_review: "Probation Review",
     annual_appraisal: "Annual Appraisal"
   };
-  const VERIFY_LINK_KEY_PREFIX = "seav_ref_verify_url_";
   const REF_FILES_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.REFERENCE_FILES || "reference-files";
   // Mirrors js/certificates.js's expandedCertIds — cards render collapsed
@@ -121,29 +120,6 @@
     },
     true
   );
-
-  function rememberVerifyLink(refId, verifyUrl) {
-    if (!refId || !verifyUrl) return;
-    try {
-      sessionStorage.setItem(verifyLinkStorageKey(refId), verifyUrl);
-    } catch (err) {
-      console.warn("[SEA-V] Could not store verification link:", err);
-    }
-  }
-
-  function readStoredVerifyLink(refId) {
-    if (!refId) return "";
-    try {
-      return sessionStorage.getItem(verifyLinkStorageKey(refId)) || "";
-    } catch {
-      return "";
-    }
-  }
-
-  function verifyLinkStorageKey(refId) {
-    const userId = window.SeavAuth?.getUserId?.();
-    return `${VERIFY_LINK_KEY_PREFIX}${userId ? `${userId}_` : ""}${refId}`;
-  }
 
   function getRefs() {
     return window.SeavState?.refs || [];
@@ -340,12 +316,7 @@
       status !== "Declined" &&
       (status === "Draft" || status === "Sent for Verification");
     const sendLabel =
-      status === "Sent for Verification" ? "New link" : "Share link";
-    const storedVerifyLink = readStoredVerifyLink(refId);
-    const showOpenLink =
-      window.SeavConfig?.SHOW_DEV_VERIFY_LINK &&
-      status === "Sent for Verification" &&
-      !!storedVerifyLink;
+      status === "Sent for Verification" ? "Resend email" : "Send verification email";
 
     const statusValue =
       referenceStatusPill(status) ||
@@ -400,7 +371,7 @@
     const signatureFooterHtml = (() => {
       if (!verificationSent) {
         return `<p class="ref-verify-cta">Not yet sent for verification${
-          canSend ? " — use <strong>Share link</strong> below to request it from your referee." : "."
+          canSend ? " — use <strong>Send verification email</strong> below to request it from your referee." : "."
         }</p>`;
       }
 
@@ -530,14 +501,6 @@
                     "secondary",
                     sendLabel,
                     `data-send-ref-id="${Seav.escapeHtml(refId)}"`
-                  )
-                : ""
-            }${
-              showOpenLink
-                ? Seav.seavAction(
-                    "secondary",
-                    "Copy link",
-                    `data-open-verify-link="${Seav.escapeHtml(refId)}"`
                   )
                 : ""
             }${Seav.seavAction("delete", "Delete", `data-del-ref-id="${Seav.escapeHtml(refId)}"`)}`,
@@ -992,7 +955,7 @@ function readReferenceForm() {
         if (!ref) return;
 
         if (!ref.email) {
-          Seav.notify("error", "Email required", "Add the referee email before sharing a link.");
+          Seav.notify("error", "Email required", "Add the referee email before sending a verification request.");
           return;
         }
 
@@ -1009,17 +972,17 @@ function readReferenceForm() {
         await Seav.withSaving(async () => {
           sendResult = await window.SeavReferenceVerification.sendRequest(refId);
         }, {
-          sub: "Preparing verification link",
-          errorTitle: "Verification failed"
+          sub: "Sending verification email",
+          errorTitle: "Verification email failed"
         });
 
         if (!sendResult) {
-          // A failure here (e.g. "Reference is already verified") usually
-          // means the card is showing an out-of-date status — the referee
-          // completed or declined it from their own device since this tab
-          // last loaded, which this tab has no way to know about until it
-          // asks again. Refresh so the card corrects itself instead of
-          // staying stuck on stale "Sent for Verification" state forever.
+          // A failure here means either the automated email genuinely
+          // couldn't be sent (withSaving already showed that error), or the
+          // card is showing an out-of-date status — the referee completed
+          // or declined it from their own device since this tab last
+          // loaded. Refresh so the card corrects itself either way instead
+          // of staying stuck on stale "Sent for Verification" state.
           try {
             if (window.Seav.app?.refreshAll) {
               await window.Seav.app.refreshAll();
@@ -1032,35 +995,10 @@ function readReferenceForm() {
           return;
         }
 
-        if (sendResult?.verifyUrl) {
-          rememberVerifyLink(refId, sendResult.verifyUrl);
-        }
-
-        const vessel = getVessels().find((item) => item.id === ref.vesselId);
-        const crewName = String(window.SeavState?.profile?.name || "").trim();
-        const attachmentUrl = Seav.getFileDisplayUrl(ref.attachment, REF_FILES_BUCKET);
-
-        if (sendResult?.verifyUrl) {
-          window.SeavReferenceVerification.showVerifyLinkDialog(sendResult.verifyUrl, {
-            refereeEmail: sendResult.refereeEmail || ref.email,
-            refereeName: ref.name,
-            refereeTitle: ref.title || "",
-            crewName: crewName || "A SEA-V member",
-            crewRole: ref.role || "",
-            vesselName: vessel?.name || "",
-            periodText: formatDateRange(ref.periodFrom, ref.periodTo, ref.period),
-            dateText: formatDatePretty(ref.date),
-            messageToReferee: ref.messageToReferee || "",
-            referenceText: ref.text || "",
-            attachmentUrl,
-            attachmentFilename: ref.attachment?.filename || ""
-          });
-        }
-
         Seav.notify(
           "success",
-          "Link ready",
-          sendResult.message || "Copy the suggested email and send it from your own account."
+          "Verification email sent",
+          sendResult.message || `Verification email sent to ${sendResult.refereeEmail || ref.email}.`
         );
 
         try {
@@ -1077,51 +1015,13 @@ function readReferenceForm() {
         return;
       }
 
-      const openLinkBtn = e.target.closest("[data-open-verify-link]");
-      if (openLinkBtn) {
-        e.preventDefault();
-        const refId = openLinkBtn.getAttribute("data-open-verify-link");
-        const verifyUrl = readStoredVerifyLink(refId);
-        if (!verifyUrl) {
-          Seav.notify(
-            "info",
-            "No saved link",
-            "Click New link to generate a fresh verification link."
-          );
-          return;
-        }
-        if (window.SeavReferenceVerification?.showVerifyLinkDialog) {
-          const ref = getRefs().find((item) => item.id === refId);
-          const vessel = getVessels().find((item) => item.id === ref?.vesselId);
-          const crewName = String(window.SeavState?.profile?.name || "").trim();
-          const attachmentUrl = ref ? Seav.getFileDisplayUrl(ref.attachment, REF_FILES_BUCKET) : "";
-          window.SeavReferenceVerification.showVerifyLinkDialog(verifyUrl, {
-            refereeEmail: ref?.email || "",
-            refereeName: ref?.name || "",
-            refereeTitle: ref?.title || "",
-            crewName: crewName || "A SEA-V member",
-            crewRole: ref?.role || "",
-            vesselName: vessel?.name || "",
-            periodText: ref ? formatDateRange(ref.periodFrom, ref.periodTo, ref.period) : "",
-            dateText: ref ? formatDatePretty(ref.date) : "",
-            messageToReferee: ref?.messageToReferee || "",
-            referenceText: ref?.text || "",
-            attachmentUrl,
-            attachmentFilename: ref?.attachment?.filename || ""
-          });
-        } else {
-          window.open(verifyUrl, "_blank", "noopener");
-        }
-        return;
-      }
-
       const legacyVerifyBtn = e.target.closest("[data-verify-ref-id]");
       if (legacyVerifyBtn) {
         e.preventDefault();
         Seav.notify(
           "info",
           "Page update required",
-          "Hard refresh this page (Cmd+Shift+R), then use Share link."
+          "Hard refresh this page (Cmd+Shift+R), then use Send verification email."
         );
         return;
       }

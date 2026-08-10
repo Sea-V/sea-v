@@ -9,7 +9,7 @@
 
   window.SeavConfig = {
     /** Bump when deploying JS/CSS changes — keep HTML ?v= in sync (see scripts/patch-html-scripts.mjs). */
-    ASSET_VERSION: 478,
+    ASSET_VERSION: 479,
 
     /** Bump when regenerating img/badges/*.svg (cache-bust on badge image URLs). */
     BADGE_ASSET_VERSION: 28,
@@ -32,14 +32,16 @@
     ]),
 
     /**
-     * Optional Supabase Edge Function for automated verification emails.
-     * Leave empty (default) — crew share the link from their own email instead.
+     * Supabase Edge Function that sends the automated referee verification
+     * email via Resend. This is the only send path — there is no manual
+     * copy-paste fallback (a self-forwarded link doesn't hold the same
+     * currency with a referee as a real email from SEA-V's own domain).
      */
     REFERENCE_VERIFICATION_FUNCTION_URL:
       "https://bnjtrwmwyulvmsautssd.supabase.co/functions/v1/reference-verification",
 
-    /** Set true only if you deploy the edge function and want SEA-V to email referees. */
-    REFERENCE_VERIFICATION_USE_EDGE_EMAIL: false,
+    /** Edge function is deployed and RESEND_API_KEY/REFERENCE_VERIFY_FROM_EMAIL secrets are set. */
+    REFERENCE_VERIFICATION_USE_EDGE_EMAIL: true,
 
     /** Rewrite production verify URLs to localhost when testing locally. */
     SHOW_DEV_VERIFY_LINK: isLocal

@@ -1,4 +1,4 @@
-// /js/reference-verification.js — reference verification (share link via personal email)
+// /js/reference-verification.js — reference verification (automated referee email only, no manual fallback)
 (function () {
   "use strict";
 
@@ -42,257 +42,17 @@
       message:
         body.message ||
         defaults.message ||
-        (emailSent
-          ? `Verification email sent to ${refereeEmail || "the referee"}.`
-          : "Copy the suggested email and send it from your own account."),
+        `Verification email sent to ${refereeEmail || "the referee"}.`,
       error: body.error || null
     };
   }
 
-  function buildVerificationEmailDraft(options = {}) {
-    const verifyUrl = String(options.verifyUrl || "").trim();
-    const refereeName = String(options.refereeName || "there").trim() || "there";
-    const refereeEmail = String(options.refereeEmail || "").trim();
-    const crewName = String(options.crewName || "A SEA-V member").trim() || "A SEA-V member";
-    const vesselName = String(options.vesselName || "").trim();
-
-    const subject = `Reference verification request — ${crewName}`;
-    const vesselLine = vesselName ? `\nVessel: ${vesselName}` : "";
-
-    const body = [
-      `Dear ${refereeName},`,
-      "",
-      `I am updating my professional profile on SEA-V and would be grateful if you could confirm the reference I have listed for you.${vesselLine}`,
-      "",
-      "Please open this secure one-time link to review the details and confirm or decline:",
-      verifyUrl,
-      "",
-      "The link expires in 14 days and does not require a SEA-V account.",
-      "",
-      "Thank you,",
-      crewName
-    ].join("\n");
-
-    const header = refereeEmail ? `To: ${refereeEmail}\nSubject: ${subject}\n\n` : `Subject: ${subject}\n\n`;
-
-    return {
-      subject,
-      body,
-      fullText: `${header}${body}`
-    };
-  }
-
-  // Read-only rendering of exactly what the referee will see — no form
-  // fields, no token, no submit path. This used to be a "Preview link"
-  // button that opened the live verify-reference.html page with the real
-  // token, which meant the crew member could just fill out the confirm
-  // form themselves and self-verify their own reference (that page has no
-  // separate view-only mode — see js/verify-reference.js). Building the
-  // preview from data already on the crew member's own dashboard avoids
-  // touching the live token/RPC entirely, so there's nothing here to submit.
-  function referencePreviewRowsHtml(options) {
-    const rows = [
-      ["Referee", options.refereeName],
-      ["Title / position", options.refereeTitle],
-      ["Vessel", options.vesselName],
-      ["Your role", options.crewRole],
-      ["Service period", options.periodText],
-      ["Reference date", options.dateText]
-    ].filter(([, value]) => !!String(value || "").trim());
-
-    return rows
-      .map(
-        ([label, value]) => `
-        <div class="seav-verify-preview-row">
-          <span class="seav-verify-preview-label">${escapeHtml(label)}</span>
-          <span class="seav-verify-preview-value">${escapeHtml(value)}</span>
-        </div>`
-      )
-      .join("");
-  }
-
-  function referencePreviewHtml(options) {
-    const rowsHtml = referencePreviewRowsHtml(options);
-
-    const messageHtml = String(options.messageToReferee || "").trim()
-      ? `
-        <div class="seav-verify-preview-message">
-          <span class="seav-verify-preview-label">Your message to the referee</span>
-          <p class="seav-verify-preview-message-text">${escapeHtml(options.messageToReferee)}</p>
-        </div>`
-      : "";
-
-    // The referee writes the actual reference text themselves on the verify
-    // page (js/verify-reference.js) — it genuinely doesn't exist yet at send
-    // time, so an empty quote here is the normal/expected state, not a gap.
-    const textHtml = String(options.referenceText || "").trim()
-      ? `<blockquote class="seav-verify-preview-quote">"${escapeHtml(options.referenceText)}"</blockquote>`
-      : `<p class="seav-verify-preview-empty">Your referee writes the actual reference themselves when they verify — nothing to show yet.</p>`;
-
-    const attachmentHtml = options.attachmentUrl
-      ? `<p class="seav-verify-preview-attachment">Attachment: <a href="${escapeHtml(options.attachmentUrl)}" target="_blank" rel="noopener">${escapeHtml(options.attachmentFilename || "View file")}</a></p>`
-      : "";
-
-    return `${rowsHtml}${messageHtml}${textHtml}${attachmentHtml}`;
-  }
-
-  function showVerifyLinkDialog(verifyUrl, options = {}) {
-    if (!verifyUrl) return;
-
-    const existing = document.getElementById("seavVerifyLinkDialog");
-    if (existing) existing.remove();
-
-    const refereeEmail = options.refereeEmail || "";
-    const draft = buildVerificationEmailDraft({
-      verifyUrl,
-      refereeEmail,
-      refereeName: options.refereeName,
-      crewName: options.crewName,
-      vesselName: options.vesselName
-    });
-
-    const overlay = document.createElement("div");
-    overlay.id = "seavVerifyLinkDialog";
-    overlay.className = "modal seav-verify-link-dialog";
-    overlay.style.zIndex = "13000";
-    overlay.innerHTML = `
-      <div class="modal-card modal-card--purple seav-verify-link-card">
-        <div class="modal-head">
-          <h3>Share with your referee</h3>
-          <button type="button" class="modal-x" data-close-verify-link aria-label="Close">&times;</button>
-        </div>
-        <div class="modal-form seav-verify-link-form">
-          <p class="modal-intro seav-verify-link-intro">
-            For a personal touch, email your referee from your own account. Copy the message below, paste it into your email client, and send it to
-            ${refereeEmail ? `<strong>${escapeHtml(refereeEmail)}</strong>` : "the referee"}.
-          </p>
-
-          <label class="seav-verify-link-field">
-            Suggested email
-            <textarea readonly id="seavVerifyEmailDraft" rows="12">${escapeHtml(draft.fullText)}</textarea>
-          </label>
-
-          <label class="seav-verify-link-field">
-            Verification link only
-            <input type="text" readonly id="seavVerifyLinkField" value="${escapeHtml(verifyUrl)}" />
-          </label>
-
-          <div class="seav-verify-link-actions">
-            <button type="button" class="btn-blue" id="seavVerifyEmailCopy">Copy email</button>
-            <button type="button" class="btn-ghost2" id="seavVerifyLinkShare">Share link</button>
-            <button type="button" class="btn-ghost2" id="seavVerifyPreviewToggle" aria-expanded="false">Preview reference</button>
-          </div>
-
-          <div class="seav-verify-preview-panel" id="seavVerifyPreviewPanel" hidden>
-            <p class="seav-verify-preview-note">
-              This is a locked, read-only preview of what your referee will see — it can't be
-              signed or submitted from here. Only your referee, using the link above, can
-              confirm or decline it.
-            </p>
-            ${referencePreviewHtml(options)}
-          </div>
-        </div>
-      </div>
-    `;
-
-    overlay.hidden = false;
-    document.body.appendChild(overlay);
-
-    const field = overlay.querySelector("#seavVerifyLinkField");
-    const draftField = overlay.querySelector("#seavVerifyEmailDraft");
-
-    overlay.querySelector("[data-close-verify-link]")?.addEventListener("click", () => {
-      overlay.remove();
-    });
-
-    overlay.querySelector("#seavVerifyEmailCopy")?.addEventListener("click", async () => {
-      await copyText(draft.fullText, draftField, "Email copied", "Select the email text and copy it.");
-    });
-
-    overlay.querySelector("#seavVerifyLinkShare")?.addEventListener("click", async () => {
-      await shareOrCopyLink(verifyUrl, field, options.refereeName);
-    });
-
-    const previewToggle = overlay.querySelector("#seavVerifyPreviewToggle");
-    const previewPanel = overlay.querySelector("#seavVerifyPreviewPanel");
-    previewToggle?.addEventListener("click", () => {
-      const willShow = previewPanel.hidden;
-      previewPanel.hidden = !willShow;
-      previewToggle.setAttribute("aria-expanded", willShow ? "true" : "false");
-      previewToggle.textContent = willShow ? "Hide preview" : "Preview reference";
-    });
-
-    console.info("[SEA-V] Reference verification link:", verifyUrl);
-  }
-
-  function escapeHtml(value) {
-    if (window.Seav?.escapeHtml) return window.Seav.escapeHtml(value);
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  async function copyText(text, fieldEl, successTitle, fallbackDetail) {
-    try {
-      await navigator.clipboard.writeText(text);
-      if (window.Seav?.notify) {
-        Seav.notify("success", successTitle, "Paste into your email app.");
-      }
-    } catch {
-      fieldEl?.focus?.();
-      fieldEl?.select?.();
-      if (window.Seav?.notify) {
-        Seav.notify("info", "Copy manually", fallbackDetail);
-      }
-    }
-  }
-
-  // Hands the link to the OS share sheet (AirDrop, WhatsApp, Messages, Notes,
-  // etc. on iOS/Android — same pattern as js/seav-share.js elsewhere on
-  // SEA-V) instead of only ever copying to the clipboard. Falls back to the
-  // old copy-to-clipboard behavior on desktop browsers or anywhere
-  // navigator.share isn't available, and on any share failure that isn't
-  // just the user cancelling the share sheet.
-  async function shareOrCopyLink(verifyUrl, fieldEl, refereeName) {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "SEA-V reference verification",
-          text: refereeName
-            ? `Hi ${refereeName}, could you confirm this reference for me on SEA-V?`
-            : "Could you confirm this reference for me on SEA-V?",
-          url: verifyUrl
-        });
-        return;
-      } catch (err) {
-        if (err?.name === "AbortError") return;
-        // Any other failure: fall through to the clipboard-copy fallback.
-      }
-    }
-
-    await copyText(verifyUrl, fieldEl, "Link copied", "Select the link and copy it.");
-  }
-
-  async function sendViaRpc(referenceId) {
-    const client = await getClient();
-    const { data, error } = await client.rpc("request_reference_verification", {
-      p_reference_id: referenceId
-    });
-
-    if (error) {
-      throw new Error(error.message || error.details || "Verification request failed");
-    }
-
-    return normalizeSendResult(data, {
-      verifyUrl: data?.verify_url,
-      refereeEmail: data?.referee_email,
-      message: "Send the suggested email from your own account."
-    });
-  }
-
+  // Automated email is the only supported path — a self-forwarded manual
+  // link doesn't hold the same currency with a referee as a real email
+  // arriving from SEA-V's own domain, so there is deliberately no
+  // copy-paste/share-link fallback here. Any failure (missing config,
+  // network error, Resend delivery failure, server not sending the email)
+  // surfaces as a thrown error for the caller to show as a hard failure.
   async function sendViaEdgeFunction(referenceId) {
     const client = await getClient();
     const session = (await client.auth.getSession())?.data?.session;
@@ -313,10 +73,11 @@
     const body = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      if (body.verifyUrl || body.verify_url) {
-        return normalizeSendResult(body, { emailFailed: true });
-      }
       throw new Error(body.error || body.message || "Failed to send verification email");
+    }
+
+    if (!body.emailSent) {
+      throw new Error(body.error || body.message || "Verification email could not be sent");
     }
 
     return normalizeSendResult(body);
@@ -324,18 +85,9 @@
 
   async function sendRequest(referenceId) {
     if (!useEdgeEmail()) {
-      return sendViaRpc(referenceId);
+      throw new Error("Automated verification email is not configured. Contact SEA-V support.");
     }
-
-    try {
-      return await sendViaEdgeFunction(referenceId);
-    } catch (err) {
-      console.warn("[SEA-V] Edge verification email failed, using share-link flow:", err);
-      const fallback = await sendViaRpc(referenceId);
-      fallback.message = "Send the suggested email from your own account.";
-      fallback.error = fallback.error || String(err?.message || "Automated email unavailable");
-      return fallback;
-    }
+    return sendViaEdgeFunction(referenceId);
   }
 
   async function preview(token) {
@@ -466,8 +218,6 @@
     sendRequest,
     preview,
     complete,
-    uploadSignatureImage,
-    showVerifyLinkDialog,
-    buildVerificationEmailDraft
+    uploadSignatureImage
   };
 })();
