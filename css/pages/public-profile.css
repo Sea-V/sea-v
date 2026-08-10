@@ -764,6 +764,25 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   border-color: rgba(255, 143, 171, 0.2) !important;
 }
 
+/* 2026-08-10, per Jack (screenshot report): on mobile, an onboard-experience
+   entry that has BOTH a Familiarisation pill and a Details toggle
+   (.onboard-row-actions with two children) has nowhere to go when its
+   title wraps to multiple lines — css/components/lists.css's .list-row
+   has no flex-wrap, and .onboard-row-actions is flex-shrink:0, so the two
+   pills got forced onto the same line as a squeezed, word-per-line title
+   and visually sat on top of it. flex-wrap is inherently responsive: rows
+   with a short one-line title and a single pill (confirmed already fine)
+   still lay out inline exactly as before, unchanged — this only kicks in
+   once there's genuinely not enough room, dropping the actions onto their
+   own line below the title instead of overlapping it. */
+.vessel-linked-section-group--onboard .list-row {
+  flex-wrap: wrap;
+}
+
+.vessel-linked-section-group--onboard .onboard-row-actions {
+  margin-left: auto;
+}
+
 .vessel-linked-section-group--references .public-cv-ref-block {
   /* matches #refsList .ref-page-card border, css/components/meta-grid-cards.css */
   border-color: rgba(209, 107, 255, 0.24);

@@ -1098,8 +1098,19 @@
   }
 
   .vessel-image-card {
+    /* 2026-08-10, per Jack: photos "dont fit well" on mobile (public
+       profile vessel-first card). Root cause: height:auto here left the
+       box with no definite height, but .vessel-image-card img (above)
+       is height:100% + object-fit:cover — a percentage height can't
+       resolve against an auto-height parent, so the crop silently broke
+       and each photo rendered at its own natural ratio instead, leaving
+       uneven gaps inside the rounded frame. aspect-ratio gives the box a
+       real, definite height (from its width) so the img's height:100%
+       resolves again and object-fit:cover crops consistently, same as
+       the fixed-height desktop rule above. min/max-height stay as caps. */
     width: 100%;
     height: auto;
+    aspect-ratio: 4 / 3;
     min-height: 220px;
     max-height: 280px;
   }
