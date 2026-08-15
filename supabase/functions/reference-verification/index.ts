@@ -195,7 +195,22 @@ Deno.serve(async (req) => {
       Deno.env.get("REFERENCE_VERIFY_FROM_EMAIL") ||
       "SEA-V <verify@sea-v.com>";
 
+    // TEMPORARY diagnostic logging (2026-08-10) — remove once the "email
+    // failed" report is root-caused. Only logs booleans/lengths/config, never
+    // the actual key value.
+    console.log(
+      "[ref-verify] resendKey present:",
+      !!resendKey,
+      "length:",
+      resendKey.length,
+      "fromEmail:",
+      fromEmail,
+      "refereeEmail:",
+      refereeEmail
+    );
+
     if (!resendKey) {
+      console.log("[ref-verify] No RESEND_API_KEY secret set — skipping send.");
       return jsonResponse({
         ...payloadBase,
         emailSent: false,
@@ -218,8 +233,11 @@ Deno.serve(async (req) => {
       })
     });
 
+    console.log("[ref-verify] Resend response status:", emailRes.status);
+
     if (!emailRes.ok) {
       const errText = await emailRes.text();
+      console.log("[ref-verify] Resend error body:", errText);
       return jsonResponse(
         {
           ...payloadBase,
