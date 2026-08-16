@@ -107,6 +107,15 @@
 .seatime-shell-card .dash-kpis-row {
   margin: 0;
 
+  /* The bare .dash-card default (18px, css/core/layout.css) was never
+     overridden here, so the Service summary band — and the TRB / OOW
+     panels, which share these classes — sat 10px left of .seatime-shell-head
+     and .seatime-section, both of which use a 28px side gutter. That put
+     three different left edges down one page. Side padding only; the 18px
+     vertical keeps the band compact, which is what the .kpi-box padding
+     note below was fixing. Jack flagged 2026-08-15. */
+  padding: 18px 28px;
+
   border: 0;
   border-radius: 0;
   border-bottom: 1px solid rgba(130, 158, 255, 0.10);
@@ -156,6 +165,21 @@
 .seatime-shell-card .seatime-kpi-panel .kpi-label {
   font-size: 10px;
   letter-spacing: 0.4px;
+}
+
+/* Was using .public-profile-section-note + .public-profile-kpi-caveat. The
+   first is a cross-page borrow from public-profile.css; the second has no
+   rule anywhere in css/ — it was doing nothing. Local rule instead, with a
+   normal top margin (the borrowed one used -2px, pulling it tight under
+   the grid). */
+.seatime-kpi-caveat {
+  margin: 12px 0 0;
+
+  color: rgba(255, 255, 255, 0.42);
+
+  font-size: 11px;
+  line-height: 1.45;
+  font-weight: 550;
 }
 
 @media (max-width: 560px) {
