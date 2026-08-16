@@ -136,6 +136,10 @@
 
   --seav-meta-muted-color: rgba(255, 255, 255, 0.45);
   --seav-meta-desc-color: rgba(255, 255, 255, 0.78);
+  /* Supporting note/footnote copy under a section or KPI band. Was hardcoded
+     as rgba(255,255,255,0.60) in .seatime-section-head p and copied by hand
+     into new rules; tokenised 2026-08-15 so it stops drifting. */
+  --seav-note-color: rgba(255, 255, 255, 0.60);
   --seav-meta-link-color: #9ddcff;
 
   /* =========================================================

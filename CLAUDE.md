@@ -34,18 +34,77 @@ profile; collect verified references from past employers.
   edit an old migration file.
 - Keep page modules thin; shared logic goes in `seav-*` or `api*`.
 
+## Design standards — READ BEFORE ANY CSS OR UI EDIT
+
+These are not suggestions. They predate this file by months and they are the
+thing most easily broken by an agent that starts editing without looking.
+
+**Source of truth, in order:**
+1. `.cursor/rules/field-label-typography.mdc` — marked `alwaysApply: true`.
+   Entity names white, field labels blue `#5bbcff`, values white. Accents
+   (silver/green/purple) belong on borders and icons, never on label text.
+2. `.cursor/rules/meta-grid-card-layout.mdc` — meta-grid card structure.
+3. `css/core/typography.css` — the scale. Stated philosophy: *system font,
+   normal case, one body size; page titles only larger.*
+4. `css/core/variables.css` — the tokens.
+
+**Tokens — use these, never a raw value:**
+
+| Token | Value | Use |
+|---|---|---|
+| `--font-body` | 14px | body copy |
+| `--font-page-title` | 18px | page title |
+| `--font-section-title` | 14px | section heading |
+| `--font-label` | 11px | field / footnote labels |
+| `--font-value` | 14px | field values |
+| `--font-kpi` | 22px | KPI numbers |
+| `--font-weight-body` / `--font-weight-title` | 600 / 800 | weights |
+| `--seav-entity-name-color` | #ffffff | vessel/tender/yacht names |
+| `--seav-field-label-color` | #5bbcff | field labels |
+| `--seav-field-value-color` | #ffffff | field values |
+| `--seav-meta-desc-color` | rgba(255,255,255,0.78) | descriptions |
+| `--seav-note-color` | rgba(255,255,255,0.60) | supporting notes / footnotes |
+| `--seav-meta-muted-color` | rgba(255,255,255,0.45) | muted meta |
+
+**Checklist before editing any stylesheet:**
+- Read the two `.cursor/rules/*.mdc` files first. Every time.
+- Reach for a token. If no token fits, add one to `variables.css` — do not
+  hardcode a new magic number.
+- Check specificity before writing a new rule. `css/core/layout.css` has
+  `.dash-card p`, `.dash-card h3` etc. at (0,1,1); a bare page class (0,1,0)
+  loses to them silently and the declarations just vanish.
+- Matching a neighbouring rule is NOT the same as following the standard.
+  Parts of the codebase predate the tokens (e.g. `.seatime-section-head p`
+  hardcodes 13px). Follow the standard, not the neighbour.
+- Existing CSS comments record *why* a value was chosen and often name the
+  date the user asked for it. Read them before overriding — they are the
+  history of decisions already litigated.
+
+**Layout gutters:** a page shell uses one side gutter throughout. Seatime is
+28px (`.seatime-shell-head`, `.seatime-section`, `.seatime-shell-card
+.dash-kpis-row`). `.dash-card` defaults to 18px from `layout.css`, so any
+`.dash-card` inside a page shell needs its padding overridden or it sits
+10px out of line.
+
 ## Current state (2026-08-15)
-- HEAD = v479 "Automated referee verification email".
-- **Uncommitted:** diagnostic `console.log`s in the edge function, added 2026-08-10
-  to chase an "email failed" report. **Never deployed** — live is version 5, which
-  has none of them. So the bug is still undiagnosed.
-- That diagnostic logs `refereeEmail` in plain text (crew PII). Strip it before
-  it stays in production logs.
+- HEAD = v480 "shorten CV template picker labels to colour names only".
+- The Resend diagnostic logging is now committed (1afa3c4) but **still not
+  deployed** — the live edge function is version 5 and has none of it, so the
+  "email failed" report remains undiagnosed. It logs `refereeEmail` in plain
+  text (crew PII); strip it once root-caused.
+- **Uncommitted:** seatime alignment/typography fixes (`css/pages/seatime.css`,
+  `css/core/variables.css`, `seatime.html`) — see thread 2 below.
 
 ## Open threads
 1. Referee email failing. Next step: deploy the diagnostic, send one test
    reference, read the function logs, then remove the logging.
-2. Nothing else in flight.
+2. Seatime page spacing/alignment pass. Done so far: single 28px gutter across
+   the KPI band (was 18px, so Service summary + TRB/OOW panels sat out of
+   line); the KPI caveat line moved off borrowed `public-profile` classes onto
+   `.seatime-shell-card .seatime-kpi-caveat` using `--font-label` and the new
+   `--seav-note-color`. Not yet committed, not yet checked in a browser beyond
+   the user's screenshots. Remaining: `seatime.css` still holds ~125 hardcoded
+   px values that predate the token scale.
 
 ## Working agreement — keep token cost down
 The previous chat cost a fortune. Cause: one enormous thread, plus browser

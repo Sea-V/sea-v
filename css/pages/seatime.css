@@ -183,9 +183,11 @@
      24px puts the two gaps in the same range. Jack flagged 2026-08-15. */
   margin: 24px 0 0;
 
-  color: rgba(255, 255, 255, 0.42);
+  /* 0.42 came from the borrowed public-profile note style and read darker
+     than every other supporting line on the page. */
+  color: var(--seav-note-color);
 
-  font-size: 11px;
+  font-size: var(--font-label);
   line-height: 1.45;
   font-weight: 550;
 }
