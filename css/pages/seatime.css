@@ -172,7 +172,11 @@
    rule anywhere in css/ — it was doing nothing. Local rule instead, with a
    normal top margin (the borrowed one used -2px, pulling it tight under
    the grid). */
-.seatime-kpi-caveat {
+/* Selector must out-specify `.dash-card p` (margin/font-size/colour,
+   css/core/layout.css) — the KPI band is a .dash-card, so a bare
+   .seatime-kpi-caveat class (0,1,0) lost to it (0,1,1) and every
+   declaration below was silently dropped. */
+.seatime-shell-card .seatime-kpi-caveat {
   /* 12px read as glued to the KPI grid: the ~18px of band padding below it
      left roughly three times more air under the line than above it, so it
      looked attached to the boxes rather than sitting as its own footnote.
