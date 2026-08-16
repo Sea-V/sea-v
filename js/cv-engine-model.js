@@ -418,11 +418,11 @@
   // the "cv-color-<id>" CSS classes and the docx colour lookup) while the
   // label shown in the picker carries the fun/on-brand name.
   const CV_TEMPLATES = [
-    { id: "seav", label: "Sea-V Original — navy sidebar, the signature look" },
-    { id: "ocean-blue", label: "Ocean Blue — deeper teal-blue sidebar" },
-    { id: "simple-green", label: "Simple Green — pastel sage sidebar, soft green accent" },
-    { id: "pearl-grey", label: "Pearl Grey — light grey sidebar, dark text" },
-    { id: "night-watch", label: "Night Watch — near-black sidebar, muted steel-blue accent" }
+    { id: "seav", label: "Sea-V Original" },
+    { id: "ocean-blue", label: "Ocean Blue" },
+    { id: "simple-green", label: "Simple Green" },
+    { id: "pearl-grey", label: "Pearl Grey" },
+    { id: "night-watch", label: "Night Watch" }
   ];
 
   function isValidTemplate(id) {
