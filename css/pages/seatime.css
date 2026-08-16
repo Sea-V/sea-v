@@ -173,7 +173,11 @@
    normal top margin (the borrowed one used -2px, pulling it tight under
    the grid). */
 .seatime-kpi-caveat {
-  margin: 12px 0 0;
+  /* 12px read as glued to the KPI grid: the ~18px of band padding below it
+     left roughly three times more air under the line than above it, so it
+     looked attached to the boxes rather than sitting as its own footnote.
+     24px puts the two gaps in the same range. Jack flagged 2026-08-15. */
+  margin: 24px 0 0;
 
   color: rgba(255, 255, 255, 0.42);
 
