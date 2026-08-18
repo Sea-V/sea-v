@@ -487,7 +487,12 @@
   // instead of one combined object. Every case returns at least one entry,
   // even single-requirement milestones, so achievements.js can render every
   // milestone the same dropdown way.
-  function getSubRequirements(definition) {
+  /**
+   * Sea-time / mileage rows only. Kept separate from getSubRequirements()
+   * below so the certificate-prerequisite rows added 2026-08-16 can be
+   * appended without touching any of this math.
+   */
+  function getSeaTimeSubRequirements(definition) {
     if (!definition) return [];
 
     const trigger = definition.trigger || { type: "manual" };
@@ -767,6 +772,22 @@
           }
         ];
     }
+  }
+
+  /**
+   * What achievements.html renders in a milestone's breakdown: the sea-time
+   * rows, then the certificate prerequisites (Phase 1, 2026-08-16).
+   *
+   * DISPLAY ONLY. isTriggerMet() does not consult prerequisites, so no badge
+   * locks or unlocks differently because of this — a milestone whose sea time
+   * is complete still unlocks with certificates outstanding, and the rows
+   * simply show what is still needed for the Certificate of Competency.
+   */
+  function getSubRequirements(definition) {
+    const seaTime = getSeaTimeSubRequirements(definition);
+    const prerequisites =
+      window.SeavData?.computeMilestonePrerequisites?.(definition?.code, getCerts()) || [];
+    return [...seaTime, ...prerequisites];
   }
 
   // A code only counts as "earned" if it hasn't been declined — e.g. a

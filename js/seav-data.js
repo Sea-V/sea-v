@@ -2416,6 +2416,292 @@ function getSortedVesselOptions(vessels = []) {
      achievements-engine.js.
   ========================================================= */
 
+  /* =========================================================
+     MILESTONE CERTIFICATE PREREQUISITES  (Phase 1 — display only)
+
+     Sea time is only half of what a Certificate of Competency needs. Every
+     tier also requires ancillary safety courses, academic/exam modules and
+     a prerequisite ticket, none of which SEA-V read anywhere before
+     2026-08-16.
+
+     PHASE 1 IS DELIBERATELY DISPLAY-ONLY. Nothing here feeds isTriggerMet()
+     — no badge locks or unlocks differently because of it. It only adds rows
+     to the requirement breakdown already rendered on achievements.html. That
+     way an error in this table shows a crew member a wrong checklist rather
+     than wrongly withholding a badge they have earned.
+
+     Source: 'SEA-V Deck Certificate Module Requirements.xlsx' (Ancillary
+     Courses Matrix + Academic Modules Matrix), cross-checked against MSN
+     1858 Am.2 and the gov.uk deck-officer guidance, 2026-08-16.
+
+     Entry shape:
+       code            single catalog code that satisfies it
+       anyOf           array — any ONE of these satisfies it (e.g. RYA or IYT)
+       label           crew-facing wording
+       heldForMonths   must have been ISSUED at least N months ago
+       optional        listed as 'Opt' in the matrix — shown, never counted
+       conditional     text; requirement depends on the vessel, not the tier
+     ========================================================= */
+
+  const STCW_BASIC_FOUR = [
+    { code: "PST", label: "Personal Survival Techniques (A-VI/1-1)" },
+    { code: "FPFF", label: "Fire Prevention & Fire Fighting (A-VI/1-2)" },
+    { code: "EFA", label: "Elementary First Aid (A-VI/1-3)" },
+    { code: "PSSR", label: "Personal Safety & Social Responsibility (A-VI/1-4)" }
+  ];
+
+  const PSCRB = { code: "STCW A-VI/2", label: "Survival Craft & Rescue Boats (A-VI/2)" };
+  const AFF = { code: "STCW A-VI/3", label: "Advanced Fire Fighting (A-VI/3)" };
+  const MED_FIRST_AID = { code: "STCW A-VI/4-1", label: "Medical First Aid (A-VI/4-1)" };
+  const MED_CARE = { code: "STCW A-VI/4-2", label: "Medical Care (A-VI/4-2)" };
+  const ECDIS_REQ = { code: "ECDIS", label: "ECDIS generic training" };
+  const GOC = { code: "GMDSS GOC", label: "GMDSS General Operator's Certificate" };
+  const ENG1_REQ = { code: "ENG1", label: "ENG1 medical fitness certificate" };
+  const SECURITY_COND = {
+    code: "STCW A-VI/6-2",
+    label: "Designated Security Duties",
+    conditional: "Required only on ISPS-registered vessels"
+  };
+
+  const MILESTONE_PREREQUISITES = {
+    // RYA ticket, not an MCA CoC — RYA's own exam prerequisites.
+    yachtmaster_offshore: [
+      {
+        anyOf: ["RYA SRC", "IYT SRC", "GMDSS ROC", "GMDSS GOC"],
+        label: "Marine radio operator's certificate (SRC or higher)"
+      },
+      { anyOf: ["EFA", "STCW A-VI/4-1"], label: "First aid certificate" }
+    ],
+
+    // MSN 1858 3.3. EDH's 18-month rule is the only relative-timing rule in
+    // the ladder; in force since 01/01/2017.
+    oow_3000gt_sea_time: [
+      { anyOf: ["RYA YMO", "IYT MOY LTD"], label: "Yachtmaster Offshore or IYT MoY Limited" },
+      { code: "EDH", label: "Efficient Deck Hand", heldForMonths: 18 },
+      ...STCW_BASIC_FOUR,
+      PSCRB,
+      ECDIS_REQ,
+      GOC,
+      { code: "HELM-O", label: "HELM (operational)" },
+      { code: "NAV RADAR OOW", label: "Navigation & Radar (OOW yachts) module" },
+      { code: "GEN SHIP KNOW", label: "General Ship Knowledge (OOW yachts) module" },
+      ENG1_REQ,
+      SECURITY_COND
+    ],
+
+    // MSN 1858 3.4 — no extra sea time, but AFF / Medical First Aid /
+    // HELM(M) all start at this tier. Medical Care does NOT.
+    chief_mate_3000gt_eligible: [
+      { code: "OOW YACHT", label: "OOW Yachts <3000GT" },
+      { anyOf: ["RYA YMOCEAN", "IYT MOY UNLTD"], label: "Yachtmaster Ocean or IYT MoY Unlimited" },
+      ...STCW_BASIC_FOUR,
+      PSCRB,
+      AFF,
+      MED_FIRST_AID,
+      ECDIS_REQ,
+      GOC,
+      { code: "HELM-M", label: "HELM (management)" },
+      ENG1_REQ,
+      SECURITY_COND
+    ],
+
+    // MSN 1858 3.1. EDH is explicitly NOT required at this tier and ECDIS is
+    // optional — both recorded so neither gets added later by analogy.
+    master_200gt_sea_service: [
+      { anyOf: ["RYA YMO", "IYT MOY LTD"], label: "Yachtmaster Offshore or IYT MoY Limited" },
+      ...STCW_BASIC_FOUR,
+      PSCRB,
+      { anyOf: ["GMDSS ROC", "GMDSS GOC"], label: "GMDSS operator's certificate (ROC or GOC)" },
+      { ...ECDIS_REQ, optional: true },
+      ENG1_REQ,
+      SECURITY_COND
+    ],
+
+    // MSN 1858 3.5 — Medical Care starts here. 5 academic modules.
+    master_500gt_sea_service: [
+      { code: "OOW YACHT", label: "OOW Yachts <3000GT" },
+      ...STCW_BASIC_FOUR,
+      PSCRB,
+      AFF,
+      MED_FIRST_AID,
+      MED_CARE,
+      ECDIS_REQ,
+      GOC,
+      { code: "HELM-M", label: "HELM (management)" },
+      { code: "SEAMANSHIP MET MY", label: "Seamanship & Meteorology module" },
+      { code: "STABILITY MY", label: "Stability module" },
+      { code: "BUSINESS LAW MY", label: "Business & Law module" },
+      { code: "NAV RADAR ARPA MY", label: "Navigation, Radar & ARPA Simulator module" },
+      { code: "CELESTIAL NAV", label: "Celestial Navigation exam" },
+      ENG1_REQ,
+      SECURITY_COND
+    ],
+
+    // MSN 1858 3.6 — same ancillaries and modules as <500GT. Holding
+    // MASTER Y500 satisfies the four Master-Yachts modules automatically
+    // (matrix 'Y*'), which is why they are listed via anyOf against it.
+    master_3000gt_sea_service: [
+      { code: "OOW YACHT", label: "OOW Yachts <3000GT" },
+      ...STCW_BASIC_FOUR,
+      PSCRB,
+      AFF,
+      MED_FIRST_AID,
+      MED_CARE,
+      ECDIS_REQ,
+      GOC,
+      { code: "HELM-M", label: "HELM (management)" },
+      { anyOf: ["MASTER Y500", "SEAMANSHIP MET MY"], label: "Seamanship & Meteorology module" },
+      { anyOf: ["MASTER Y500", "STABILITY MY"], label: "Stability module" },
+      { anyOf: ["MASTER Y500", "BUSINESS LAW MY"], label: "Business & Law module" },
+      { anyOf: ["MASTER Y500", "NAV RADAR ARPA MY"], label: "Navigation, Radar & ARPA Simulator module" },
+      { code: "CELESTIAL NAV", label: "Celestial Navigation exam" },
+      ENG1_REQ,
+      SECURITY_COND
+    ],
+
+    // MSN 1858 Am.2 4.3 — NAEST(M) and the 9 management modules start here.
+    chief_mate_yachts_unlimited: [
+      { code: "MASTER Y3000", label: "Master Yachts <3000GT" },
+      ...STCW_BASIC_FOUR,
+      PSCRB,
+      AFF,
+      MED_FIRST_AID,
+      MED_CARE,
+      ECDIS_REQ,
+      GOC,
+      { code: "HELM-M", label: "HELM (management)" },
+      { code: "NAEST-M", label: "NAEST (management)" },
+      { code: "APPLIED MET", label: "Applied Marine Meteorology" },
+      { code: "MGT PASSAGE PLAN", label: "Management Level Passage Planning" },
+      { code: "MGT BRIDGE OPS", label: "Management of Bridge Operations" },
+      { code: "MGT YACHT OPS", label: "Management of Yacht Operations" },
+      { code: "MARINE ENG SYS", label: "Marine Engineering Systems" },
+      { code: "MARINE VESSELS SM", label: "Marine Vessels & Ship Management" },
+      { code: "SHIP STABILITY TPA", label: "Ship Stability (TPA)" },
+      { code: "SHIPBOARD MGT", label: "Shipboard Management" },
+      { code: "SHIPMASTERS LAW", label: "Shipmaster's Law" },
+      { code: "CM NAV STAB ASSESS", label: "Chief Mate Navigation & Stability assessment" },
+      ENG1_REQ,
+      SECURITY_COND
+    ],
+
+    // MSN 1858 Am.2 4.4 — no separate academic modules; inherits Chief Mate
+    // Unlimited's, so holding that certificate covers them.
+    master_yachts_unlimited: [
+      { code: "MASTER Y3000", label: "Master Yachts <3000GT" },
+      ...STCW_BASIC_FOUR,
+      PSCRB,
+      AFF,
+      MED_FIRST_AID,
+      MED_CARE,
+      ECDIS_REQ,
+      GOC,
+      { code: "HELM-M", label: "HELM (management)" },
+      { code: "NAEST-M", label: "NAEST (management)" },
+      ENG1_REQ,
+      SECURITY_COND
+    ]
+  };
+
+  function prettyDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  }
+
+  function addMonths(iso, months) {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    d.setMonth(d.getMonth() + Number(months || 0));
+    return d;
+  }
+
+  /**
+   * Evaluates one milestone's certificate prerequisites into rows matching the
+   * shape js/achievements.js's buildRequirementRow() already renders
+   * ({label, current, target, percent, note}) — target 1 renders as
+   * "Met" / "Not yet", so no new UI is needed.
+   */
+  function computeMilestonePrerequisites(code, certs) {
+    const list = MILESTONE_PREREQUISITES[code] || [];
+    if (!list.length) return [];
+
+    const today = new Date();
+
+    const rows = list.map((req) => {
+      const codes = req.anyOf || [req.code];
+      const held = codes
+        .map((c) => findSavedCertByCode(certs, c))
+        .filter(Boolean)
+        .sort((a, b) => new Date(a.issued || 0) - new Date(b.issued || 0))[0] || null;
+
+      const row = { label: req.label, current: 0, target: 1, percent: 0, note: "" };
+
+      if (!held) {
+        row.note = req.optional
+          ? "Optional at this level — not required"
+          : req.conditional
+            ? `${req.conditional} — not on your Certificates page`
+            : "Not on your Certificates page yet";
+        if (req.optional) { row.current = 1; row.percent = 100; }
+        return row;
+      }
+
+      // Expired certificates do not satisfy a requirement.
+      const expired =
+        !held.noExpiry && held.expiry && new Date(held.expiry) < today;
+      if (expired) {
+        row.note = `Expired ${prettyDate(held.expiry)} — renew before applying`;
+        return row;
+      }
+
+      // MSN's only relative-timing rule (EDH, 18 months). Held, valid, but
+      // not yet held for long enough: report the date it starts to count.
+      if (req.heldForMonths && held.issued) {
+        const eligibleFrom = addMonths(held.issued, req.heldForMonths);
+        if (eligibleFrom && eligibleFrom > today) {
+          row.note =
+            `Held since ${prettyDate(held.issued)}. Must be held ${req.heldForMonths} months — counts from ${prettyDate(eligibleFrom.toISOString())}`;
+          return row;
+        }
+      }
+
+      row.current = 1;
+      row.percent = 100;
+      const expiringSoon =
+        !held.noExpiry && held.expiry &&
+        (new Date(held.expiry) - today) / 86400000 <= 90;
+      row.note = expiringSoon
+        ? `Expires ${prettyDate(held.expiry)} — renew before applying`
+        : held.issued
+          ? `Held · issued ${prettyDate(held.issued)}`
+          : "Held";
+      return row;
+    });
+
+    // Counted rows exclude conditional ones — they depend on the vessel, not
+    // the certificate tier, so they cannot fairly count against the crew
+    // member here.
+    const counted = rows.filter((_, i) => !list[i].conditional);
+    const met = counted.filter((r) => r.percent >= 100).length;
+
+    return [
+      {
+        label: "Certificates & courses held",
+        current: met,
+        target: counted.length,
+        unit: "",
+        percent: counted.length ? Math.round((met / counted.length) * 100) : 0,
+        note:
+          met === counted.length
+            ? "All prerequisites held"
+            : `${counted.length - met} still outstanding — listed below`
+      },
+      ...rows
+    ];
+  }
+
   function computeMilestoneProgress(definition, context) {
     if (!definition) {
       return { current: 0, target: 1, percent: 0, label: "" };
@@ -2813,6 +3099,8 @@ window.SeavData = {
   computeMasterUnlimitedSeaService,
   computeYachtmasterOffshoreMiles,
   computeMilestoneProgress,
+  computeMilestonePrerequisites,
+  MILESTONE_PREREQUISITES,
   getInProgressCertGroups,
   getSeatimeVerificationDisplay,
   getCertExpiryInfo,
