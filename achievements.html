@@ -24,37 +24,37 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=490" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=490" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=490" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=490" />
+  <link rel="icon" href="/favicon.ico?v=491" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=491" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=491" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=491" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Milestones</title>
 
-  <link rel="stylesheet" href="styles.css?v=490" />
+  <link rel="stylesheet" href="styles.css?v=491" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=490"></script>
-  <script src="js/supabase.js?v=490"></script>
-  <script src="js/auth.js?v=490"></script>
-  <script src="js/feedback.js?v=490" defer></script>
-  <script src="js/core.js?v=490" defer></script>
-  <script src="js/bug-reports.js?v=490" defer></script>
-  <script src="js/seav-upload.js?v=490" defer></script>
-  <script src="js/seav-data.js?v=490" defer></script>
-  <script src="js/seav-page-colors.js?v=490"></script>
-  <script src="js/seav-badges.js?v=490" defer></script>
-  <script src="js/api-core.js?v=490" defer></script>
-  <script src="js/api-mappers.js?v=490" defer></script>
-  <script src="js/api.js?v=490" defer></script>
-  <script src="js/state.js?v=490" defer></script>
-  <script src="js/seav-notifications.js?v=490" defer></script>
-  <script src="js/achievements-engine.js?v=490" defer></script>
-  <script src="js/badge-unlock.js?v=490" defer></script>
+  <script src="js/seav-config.js?v=491"></script>
+  <script src="js/supabase.js?v=491"></script>
+  <script src="js/auth.js?v=491"></script>
+  <script src="js/feedback.js?v=491" defer></script>
+  <script src="js/core.js?v=491" defer></script>
+  <script src="js/bug-reports.js?v=491" defer></script>
+  <script src="js/seav-upload.js?v=491" defer></script>
+  <script src="js/seav-data.js?v=491" defer></script>
+  <script src="js/seav-page-colors.js?v=491"></script>
+  <script src="js/seav-badges.js?v=491" defer></script>
+  <script src="js/api-core.js?v=491" defer></script>
+  <script src="js/api-mappers.js?v=491" defer></script>
+  <script src="js/api.js?v=491" defer></script>
+  <script src="js/state.js?v=491" defer></script>
+  <script src="js/seav-notifications.js?v=491" defer></script>
+  <script src="js/achievements-engine.js?v=491" defer></script>
+  <script src="js/badge-unlock.js?v=491" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=490" defer></script>
-  <script src="js/achievements.js?v=490" defer></script>
+  <script src="js/seav-share.js?v=491" defer></script>
+  <script src="js/achievements.js?v=491" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -130,13 +130,41 @@
 
           <div class="ach-next-milestone" id="achNextMilestone" hidden></div>
 
-          <div class="ach-progress-section">
-            <div class="ach-section-head">
+          <!--
+            Collapsible from 2026-08-16. One section on its own doesn't need a
+            disclosure control (same objection Jack raised to the certificate
+            category dropdowns on 2026-08-03) — it's here because Engineering
+            sits below it now and Galley/Interior may follow. Deck is open by
+            default; once a second department has real content the default can
+            become "open the one you're progressing in".
+          -->
+          <details class="ach-progress-section ach-department" id="achDeckProgression" open>
+            <summary class="ach-section-head ach-department-summary">
               <h3>Deck Progression</h3>
               <p>Grouped by certificate, in the order you'd actually earn them — real sea-time and mileage requirements, not round numbers. Progress stays visible even once a step is met.</p>
-            </div>
+            </summary>
             <div class="ach-progress-groups" id="achDeckProgressionList"></div>
-          </div>
+          </details>
+
+          <!--
+            Engineering is NOT a <details> on purpose — there is nothing to
+            open, and a disclosure control that reveals an empty panel is worse
+            than no control. Rendered as an inert head with the same
+            "(Coming Soon)" treatment the sidebar already uses for unbuilt
+            pages (.dash-link-soon, css/core/layout.css).
+
+            The category is already wired: CAREER_PATH_CATEGORIES in
+            js/achievements.js includes "Engineering Progression", so the day
+            definitions carry that category they render without further work.
+            Known blocker: the engineering ladder needs a vessel engine-power
+            (kW) field that doesn't exist yet — see the known-gaps tracker.
+          -->
+          <section class="ach-progress-section ach-department ach-department--soon" aria-disabled="true">
+            <div class="ach-section-head ach-department-summary">
+              <h3>Engineering Progression <span class="ach-department-soon">(Coming Soon)</span></h3>
+              <p>MSN 1859's engineer ladder — AEC, MEOL(Y), Y4 through Y1 — tracked the same way as the deck route.</p>
+            </div>
+          </section>
 
           <div class="ach-trophy-section">
             <div class="ach-section-head">

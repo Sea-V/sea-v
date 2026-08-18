@@ -756,6 +756,79 @@
   margin: 0 0 14px;
 }
 
+/* ---------------------------------------------------------------
+   Department sections (Deck, Engineering, ...) — 2026-08-16.
+   Disclosure styling copied from .seatime-oow-summary so the two
+   pages use one chevron convention rather than two.
+   --------------------------------------------------------------- */
+
+.ach-department-summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.ach-department-summary::-webkit-details-marker {
+  display: none;
+}
+
+.ach-department-summary h3::before {
+  content: "›";
+
+  display: inline-block;
+  margin-right: 8px;
+
+  color: var(--accent-blue);
+
+  font-size: 18px;
+  line-height: 1;
+
+  transition: transform 0.15s ease;
+}
+
+.ach-department[open] > .ach-department-summary h3::before {
+  transform: rotate(90deg);
+}
+
+.ach-department-summary:focus-visible {
+  outline: 2px solid rgba(91, 188, 255, 0.55);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* Unbuilt department — inert, no chevron, and dimmed to the same values
+   .dash-link--disabled / .dash-link-soon use in css/core/layout.css so the
+   "not yet" signal is one visual language across the site. */
+
+.ach-department--soon {
+  pointer-events: none;
+}
+
+.ach-department--soon .ach-department-summary {
+  cursor: default;
+}
+
+.ach-department--soon .ach-department-summary h3 {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.ach-department--soon .ach-department-summary h3::before {
+  content: none;
+}
+
+.ach-department--soon .ach-department-summary p {
+  color: rgba(255, 255, 255, 0.34);
+}
+
+.ach-department-soon {
+  margin-left: 6px;
+
+  color: rgba(255, 122, 92, 0.55);
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .ach-section-head h3 {
   margin: 0 0 4px;
   color: #fff;
