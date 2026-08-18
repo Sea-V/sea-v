@@ -96,41 +96,72 @@ thing most easily broken by an agent that starts editing without looking.
 `.dash-card` inside a page shell needs its padding overridden or it sits
 10px out of line.
 
-## Current state (2026-08-16)
-- HEAD = v484. Jack pushes every commit himself from Cursor — this sandbox
-  cannot push (403), and committing from it leaves stale `.git/*.lock` files
-  it has no permission to delete. **Write files here; commit in Cursor.**
-- Referee verification email is **live and working** (confirmed 2026-08-10,
-  test send to admin@sea-v.com). Sends via Resend from `verify@sea-v.com`.
-  The manual copy-paste share-link fallback was deliberately removed — the
-  automated email is the only send path and failures show a hard error.
-- Earlier "email failed" report is **root-caused and fixed**: the secrets had
-  been saved in Supabase **Vault** rather than **Edge Functions → Secrets**.
-  No code fix was needed. The diagnostic logging in commit `1afa3c4` was
-  therefore never required and is still undeployed (live function = v5).
+## Current state (end of 2026-08-16)
+- HEAD = **v494**, working tree clean. Jack pushes every commit himself from
+  Cursor — this sandbox cannot push (403), and committing from it leaves stale
+  `.git/*.lock` files it has no permission to delete. **Write files here;
+  commit in Cursor.**
+- Referee verification email is **live and working** (confirmed 2026-08-10).
+  Sends via Resend from `verify@sea-v.com`. The manual share-link fallback was
+  deliberately removed — the automated email is the only send path. The earlier
+  "email failed" report was root-caused to secrets saved in Supabase **Vault**
+  rather than **Edge Functions → Secrets**; no code fix was needed.
+
+### Shipped today (v481–v494)
+- **Sea-time maths corrected against MSN 1858.** The 36-month OOW figure was
+  double-counting watchkeeping and ignoring the 90-day yard cap — it unlocked
+  at 1269 days against a 1095 target when the true figure was 1063. Added the
+  §4.1 five-year recency rule. Cert-gated service is now pro-rated for
+  contracts straddling the certificate issue date, and Master watchkeeping is
+  gated to service performed while holding OOW (the Sea Time tracker was
+  changed to match, not the badge).
+- **Certificate prerequisites, Phase 1 (display only).** `MILESTONE_PREREQUISITES`
+  in `seav-data.js` covers all eight deck milestones. Rendered as a collapsed
+  block with a segmented meter, opening to a list grouped by state. **No badge
+  locks or unlocks because of it** — `isTriggerMet` never consults it.
+- **Geographic milestones.** Four derived from logged passages
+  (equator, date line, Arctic, Antarctic — trigger type `geo_crossing`),
+  eleven manual. Manual ones store as `status: "Self-declared"`.
+- Certificates page density pass; Milestones page unified on
+  `--page-achievements`; Deck Progression collapsible with an Engineering
+  "Coming Soon" section.
 
 ## Open threads
 1. **Rotate the Resend API key** ("SEA-V Supabase SMTP") — the full key was
-   visible in a chat screenshot. It is shared, so after regenerating update it
-   in BOTH places: Supabase Auth SMTP settings (signup/reset emails) AND
-   Edge Functions → Secrets → `RESEND_API_KEY`. Highest priority.
-2. Remove the obsolete diagnostic logging from
-   `supabase/functions/reference-verification/index.ts` (commit `1afa3c4`).
-   It logs `refereeEmail` in plain text (crew PII) and is no longer needed
-   now the cause is known. Never deployed, so this is a code tidy-up only.
-3. Seatime page spacing/alignment pass — shipped v481–v484. Remaining:
-   `seatime.css` still holds ~125 hardcoded px values predating the tokens.
-4. Review all docs in `Sea-V Structure/` and list outstanding items (asked
-   for, paused on usage limits). Start with `SEA-V-Known-Gaps-Tracker.md`,
-   the risk register, the 17-item codes site-tightening list, the MSN 1858
-   Am.2 audit flag. That folder is NOT in this repo — it must be connected
-   separately.
-5. Known security gaps still open: `certificates.attachment` exposed to anon
-   via a table-wide grant (fix: re-apply the column-scoped grant), and
-   `auth_leaked_password_protection` still toggled off in the dashboard.
+   visible in a chat screenshot. Shared: regenerate, then update in BOTH
+   Supabase Auth SMTP settings AND Edge Functions → Secrets. Highest priority.
+2. **`certificates.attachment` is readable by `anon`** — verified still live
+   2026-08-16. `docs/schema-certificates-issuer-provider.sql:22` issued a
+   blanket grant that undid the earlier column-scoped hardening. Oldest open
+   exposure; fix is one migration.
+3. Remove the obsolete diagnostic logging from
+   `supabase/functions/reference-verification/index.ts` (`1afa3c4`) — logs
+   `refereeEmail` in plain text. Never deployed; code tidy-up only.
+4. **`chief_mate_3000gt_eligible` is labelled "Eligible"** while its trigger
+   checks sea time only. Now visible on screen since the prerequisite rows
+   render beneath it. Either narrow the label or move to Phase 2.
+5. **Questions for the MCA, blocking further prerequisite work:** the EDH
+   18-month rule anchors to CoC issue per one source and the oral exam per
+   another; whether "while holding" runs from certificate issue or exam pass
+   date; whether the Master module pass certificates carry the OOW modules'
+   3-year validity.
+6. **Tier 2 geographic milestones need definitions before they can be derived.**
+   A spike over the 50 real passages proved proximity over-detects — five
+   passages sat in a box around the Panama Canal, only three transited it. A
+   both-ends test fixes canals; Cape Horn needs Jack's definition of
+   "rounding". Until then they stay manual.
+7. **Stale claims in `SEA-V-Known-Gaps-Tracker`** — it still records the
+   engineering ladder as blocked on a missing vessel engine-kW field. That
+   field exists (`vessels.engine_kw`, 5 rows populated, form + mapper + display
+   all built). The tracker has now been the source of two stale claims in one
+   day; it needs the same verification pass the outstanding list got.
+8. `auth_leaked_password_protection` no longer appears in the security
+   advisor — likely enabled, but confirm in the dashboard before ticking.
 
-See `CHAT-HANDOFF-2026-08-16.md` for the fuller backlog (delete-tests, #509,
-#528, #38/#39, #418, #439, ClickUp retries) — absorb and delete that file.
+Two reviewed documents live in `Sea-V Structure/02 Product Documentation/`:
+`SEA-V-OUTSTANDING-2026-08-16.md` (every item tagged done / stale / open /
+new / needs-you) and `SEA-V-Milestone-Prerequisites-Spec-2026-08-16.md`
+(per-tier prerequisites with source confidence markers).
 
 ## Working agreement — keep token cost down
 The previous chat cost a fortune. Cause: one enormous thread, plus browser

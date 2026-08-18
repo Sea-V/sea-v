@@ -538,10 +538,13 @@
     imagePath,
     description,
     subRequirements,
-    prerequisites
+    prerequisites,
+    readiness = "progress"
   }) {
     return `
-      <details class="ach-milestone-row ${unlocked ? "is-unlocked" : "is-locked"}" data-tier="${Seav.escapeHtml(tier)}">
+      <details class="ach-milestone-row is-${Seav.escapeHtml(readiness)} ${
+        unlocked ? "is-unlocked" : "is-locked"
+      }" data-tier="${Seav.escapeHtml(tier)}">
         <summary class="ach-milestone-summary">
           <span class="ach-milestone-dot" aria-hidden="true"></span>
           <span class="ach-milestone-summary-title">
@@ -549,7 +552,7 @@
             <small>${Seav.escapeHtml(subtitle)}</small>
           </span>
           ${
-            unlocked
+            readiness === "ready"
               ? `
                 <div class="ach-progress-row-check" title="${Seav.escapeHtml(unlockedTitle)}" aria-label="${Seav.escapeHtml(unlockedTitle)}">
                   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -557,7 +560,16 @@
                   </svg>
                 </div>
               `
-              : ""
+              : readiness === "sea-time"
+                ? `
+                <div class="ach-progress-row-part" title="Sea time met — certificates outstanding" aria-label="Sea time met, certificates outstanding">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 4a8 8 0 100 16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                    <path d="M12 4a8 8 0 010 16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="2 3" opacity="0.5"/>
+                  </svg>
+                </div>
+              `
+                : ""
           }
         </summary>
         <div class="ach-milestone-detail">
@@ -576,8 +588,45 @@
     `;
   }
 
-  function certRowSubtitle(unlocked, unlockDate, percent) {
-    if (unlocked) return `Unlocked${unlockDate ? ` · ${formatAchievementDate(unlockDate)}` : ""}`;
+  /* ---------------------------------------------------------------
+     Readiness — 2026-08-16.
+
+     The green tick used to mean "an achievement record exists", which in
+     practice meant "sea time met". That over-claimed: MSN 1858 sea time is
+     only half of a Certificate of Competency, and a crew member with 1007
+     qualifying days and no ENG1 is not ready to apply for anything.
+
+     The badge itself is NOT gated on certificates, deliberately. Sea time
+     met IS a real achievement and permanent-once-earned protects it (see
+     PERMANENT_ONCE_EARNED_TRIGGERS in js/achievements-engine.js) — taking a
+     badge away because a prerequisite table is wrong would be worse than the
+     problem being fixed, and that table was corrected three times on the day
+     it was written. So the RECORD still means "sea time met" and the TICK
+     now means "ready to apply", which are two different facts.
+
+       "ready"     sea time met AND every required certificate held
+       "sea-time"  sea time met, certificates outstanding
+       "progress"  sea time not yet met
+
+     Milestones with no prerequisites declared (geographic crossings, manual
+     awards) behave exactly as before: unlocked means ready.
+     --------------------------------------------------------------- */
+  function certRowReadiness(unlocked, prerequisites) {
+    if (!unlocked) return "progress";
+    if (!prerequisites || !prerequisites.total) return "ready";
+    return prerequisites.held >= prerequisites.total ? "ready" : "sea-time";
+  }
+
+  function certRowSubtitle(unlocked, unlockDate, percent, readiness, prerequisites) {
+    if (readiness === "sea-time") {
+      const outstanding = prerequisites.total - prerequisites.held;
+      return `Sea time met · ${outstanding} certificate${outstanding === 1 ? "" : "s"} outstanding`;
+    }
+    if (unlocked) {
+      return `${prerequisites && prerequisites.total ? "Ready to apply" : "Unlocked"}${
+        unlockDate ? ` · ${formatAchievementDate(unlockDate)}` : ""
+      }`;
+    }
     return percent > 0 ? `${percent}% complete` : "Not started";
   }
 
@@ -593,6 +642,8 @@
       label: ""
     };
     const subRequirements = window.SeavAchievementEngine?.getSubRequirements?.(definition) || [];
+    const prerequisites = window.SeavAchievementEngine?.getPrerequisites?.(definition) || null;
+    const readiness = certRowReadiness(unlocked, prerequisites);
 
     const primary = instances[0];
     const unlockedTitle = unlocked
@@ -604,11 +655,12 @@
       unlocked,
       unlockedTitle,
       title: full.title || "",
-      subtitle: certRowSubtitle(unlocked, primary?.date, progress.percent),
+      subtitle: certRowSubtitle(unlocked, primary?.date, progress.percent, readiness, prerequisites),
       imagePath,
       description: full.description || "",
       subRequirements,
-      prerequisites: window.SeavAchievementEngine?.getPrerequisites?.(definition) || null
+      prerequisites,
+      readiness
     });
   }
 
@@ -671,6 +723,12 @@
       )
     ];
 
+    // Prerequisites belong to the certificate as a whole, so they come from
+    // the summary definition — the one buildCertRow drops from the sea-time
+    // breakdown because its row would only re-derive "are the others met".
+    const prerequisites = window.SeavAchievementEngine?.getPrerequisites?.(primary) || null;
+    const readiness = certRowReadiness(unlocked, prerequisites);
+
     const primaryRecord = primaryInstances[0];
     const unlockedTitle = unlocked
       ? `Unlocked${primaryRecord?.date ? ` · ${formatAchievementDate(primaryRecord.date)}` : ""}`
@@ -681,14 +739,12 @@
       unlocked,
       unlockedTitle,
       title: certGroupKey,
-      subtitle: certRowSubtitle(unlocked, primaryRecord?.date, percent),
+      subtitle: certRowSubtitle(unlocked, primaryRecord?.date, percent, readiness, prerequisites),
       imagePath,
       description: full.description || "",
       subRequirements,
-      // Prerequisites belong to the certificate as a whole, so they come from
-      // the summary definition — the one buildCertRow drops from the sea-time
-      // breakdown because its row would only re-derive "are the others met".
-      prerequisites: window.SeavAchievementEngine?.getPrerequisites?.(primary) || null
+      prerequisites,
+      readiness
     });
   }
 
