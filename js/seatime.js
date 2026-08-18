@@ -102,6 +102,13 @@
     return window.SeavState?.vessels || [];
   }
 
+  // Needed so computeMasterSeaService can gate watchkeeping to service performed
+  // while holding OOW Yachts <3000GT (MSN 1858 SS3.6(a)) — added 2026-08-16
+  // alongside "certs" in this page's PAGE_LOAD_KEYS in js/state.js.
+  function getCerts() {
+    return window.SeavState?.certs || [];
+  }
+
   function getVesselById(vesselId) {
     if (!vesselId) return null;
     return getVessels().find((v) => v.id === vesselId) || null;
@@ -307,7 +314,7 @@
       specialTarget,
       specialMet,
       allMasterMet
-    } = computeMasterSeaService(seatimes, getVessels());
+    } = computeMasterSeaService(seatimes, getVessels(), getCerts());
 
     if (watchEl) watchEl.textContent = `${totalWatchkeeping15m} / ${WATCHKEEPING_TARGET}`;
     if (watchBar) {

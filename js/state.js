@@ -81,7 +81,10 @@
       "specialistQualifications"
     ],
     "vessels.html": ["vessels", "seatimes"],
-    "seatime.html": ["seatimes", "vessels"],
+    // certs: the Master <3000GT tracker gates watchkeeping days by the OOW
+    // Yachts <3000GT issue date (MSN 1858 SS3.6(a)) — without them the page
+    // cannot compute the gated figure. Added 2026-08-16.
+    "seatime.html": ["seatimes", "vessels", "certs"],
     "certificates.html": ["certs"],
     "references.html": ["refs"],
     // navigationAreas: Yachtmaster Offshore mileage milestone (computeYacht

@@ -1405,6 +1405,58 @@ function getEmptyTenderEntry() {
    * period, not per voyage, so a proportional split is the most accurate
    * apportionment the data supports.
    */
+  /**
+   * How much of one Sea Time entry falls inside a date window, as a 0..1
+   * factor. Added 2026-08-16.
+   *
+   * WHY THIS EXISTS. A SEA-V Sea Time entry is one row per signed-on /
+   * signed-off period, carrying whole-contract TOTALS in
+   * actualSeaServiceDays / standbyServiceDays / yardServiceDays /
+   * watchkeepingDays. Those buckets have no internal dates, so anything that
+   * needs "only the part of this contract inside a window" cannot simply clip
+   * them the way seatimesGatedByCertIssueDate() clips dateJoined.
+   *
+   * That gap was a live over-award. MSN 1858 SS3.1(b) requires 6 months'
+   * seagoing service WHILE HOLDING RYA Yachtmaster Offshore (or IYT Master of
+   * Yachts Limited). computeMaster200SeaService summed the gated entries'
+   * buckets in full, so a 12-month contract with the certificate issued
+   * halfway through contributed all 300 of its seagoing days rather than the
+   * ~150 served while holding it — 9.86 months against a 6-month target, when
+   * the true figure was ~4.9. The badge awarded on service that did not
+   * qualify.
+   *
+   * Pro-rating is an approximation: 120 watchkeeping days concentrated in a
+   * contract's first month get spread evenly across it. It is the most
+   * accurate apportionment the stored data supports — the alternative is
+   * asking crew to split entries at certificate dates, which is worse for
+   * them and barely more accurate. Date-derived figures (daysBetweenDates on
+   * clipped entries) are already exact and must NOT be apportioned again.
+   */
+  function apportionEntryToWindow(entry, fromIso, toIso) {
+    const joined = entry?.dateJoined ? new Date(entry.dateJoined) : null;
+    if (!joined || Number.isNaN(joined.getTime())) return 1;
+
+    const today = new Date();
+    const rawLeft = entry?.dateLeft ? new Date(entry.dateLeft) : today;
+    if (Number.isNaN(rawLeft.getTime())) return 1;
+    const left = rawLeft > today ? today : rawLeft;
+
+    const from = fromIso ? new Date(fromIso) : null;
+    const toRaw = toIso ? new Date(toIso) : today;
+    const to = toRaw > today ? today : toRaw;
+
+    const windowStart = from && !Number.isNaN(from.getTime()) && from > joined ? from : joined;
+    const windowEnd = !Number.isNaN(to.getTime()) && to < left ? to : left;
+
+    const contractMs = left - joined;
+    if (contractMs <= 0) return windowStart <= windowEnd ? 1 : 0;
+
+    const overlapMs = windowEnd - windowStart;
+    if (overlapMs <= 0) return 0;
+
+    return Math.min(1, overlapMs / contractMs);
+  }
+
   const OOW_RECENCY_WINDOW_YEARS = 5;
   const OOW_RECENCY_MIN_DAYS = 183;
 
@@ -1430,12 +1482,7 @@ function getEmptyTenderEntry() {
         actual + Math.min(toNumber(entry.standbyServiceDays), actual) + toNumber(entry.yardServiceDays);
       if (seagoing <= 0) return;
 
-      const contractDays = daysBetweenDates(entry.dateJoined, entry.dateLeft);
-      const overlapStart = joined < cutoff ? cutoff : joined;
-      const overlapDays = Math.max(0, Math.round((left - overlapStart) / 86400000));
-      const fraction = contractDays > 0 ? Math.min(1, overlapDays / contractDays) : 1;
-
-      recentDays += seagoing * fraction;
+      recentDays += seagoing * apportionEntryToWindow(entry, cutoff.toISOString(), null);
     });
 
     recentDays = Math.round(recentDays);
@@ -1464,7 +1511,22 @@ function getEmptyTenderEntry() {
    * on vessels 15m+, including either 12 months on vessels 24m+ or 6 months
    * on vessels 500GT+.
    */
-  function computeMasterSeaService(seatimes, vessels) {
+  /*
+   * `certs` added 2026-08-16 and OPTIONAL for backwards compatibility. When
+   * supplied, watchkeeping is gated to service performed while holding OOW
+   * Yachts <3000GT, exactly as computeMaster3000SeaService does — so the Sea
+   * Time page tracker and the Master badge can no longer show two different
+   * watchkeeping totals for the same person. Omit `certs` and the old ungated
+   * behaviour is preserved, but the two surfaces will disagree again.
+   *
+   * Not holding the certificate at all means zero qualifying watchkeeping, not
+   * "all of it" — service before the ticket is service before the ticket.
+   */
+  function computeMasterSeaService(seatimes, vessels, certs) {
+    const gate = certs
+      ? seatimesGatedByCertIssueDate(seatimes, certs, MASTER_3000GT_GATING_CERT_CODE)
+      : null;
+
     let totalWatchkeeping15m = 0;
     let totalOnboard24mDays = 0;
     let totalOnboard500gtDays = 0;
@@ -1474,10 +1536,18 @@ function getEmptyTenderEntry() {
       const gt = getEntryVesselGt(entry, vessels);
       const days = daysBetweenDates(entry.dateJoined, entry.dateLeft);
 
-      if (lengthM >= 15) totalWatchkeeping15m += toNumber(entry.watchkeepingDays);
+      if (lengthM >= 15) {
+        const wk = toNumber(entry.watchkeepingDays);
+        if (!gate) totalWatchkeeping15m += wk;
+        else if (gate.held) {
+          totalWatchkeeping15m += wk * apportionEntryToWindow(entry, gate.issuedDate, null);
+        }
+      }
       if (lengthM >= 24) totalOnboard24mDays += days;
       if (gt >= 500) totalOnboard500gtDays += days;
     });
+
+    totalWatchkeeping15m = Math.round(totalWatchkeeping15m);
 
     const months24m = totalOnboard24mDays / DAYS_PER_MONTH;
     const months500gt = totalOnboard500gtDays / DAYS_PER_MONTH;
@@ -1495,6 +1565,8 @@ function getEmptyTenderEntry() {
 
     return {
       totalWatchkeeping15m,
+      watchkeepingGated: !!gate,
+      watchkeepingGateHeld: gate ? gate.held : null,
       totalOnboard24mDays,
       totalOnboard500gtDays,
       months24m,
@@ -1610,13 +1682,24 @@ function getEmptyTenderEntry() {
       };
     }
 
+    // MSN 1858 SS3.1(b) — "while holding". Iterates the ORIGINAL entries, not
+    // gated.gatedEntries: those have had dateJoined rewritten to the issue
+    // date, so apportioning them against the same date would always return a
+    // factor of 1. apportionEntryToWindow() returns 0 for contracts that ended
+    // before the certificate, which reproduces the gate's own exclusion.
+    // Standby is capped at that entry's own actual sea days per SS5.2, applied
+    // AFTER apportionment so the cap tracks the qualifying portion.
     let totalDays = 0;
-    gated.gatedEntries.forEach((entry) => {
-      const actual = toNumber(entry.actualSeaServiceDays);
-      const standby = Math.min(toNumber(entry.standbyServiceDays), actual);
-      const yard = toNumber(entry.yardServiceDays);
+    (seatimes || []).forEach((entry) => {
+      const factor = apportionEntryToWindow(entry, gated.issuedDate, null);
+      if (factor <= 0) return;
+
+      const actual = toNumber(entry.actualSeaServiceDays) * factor;
+      const standby = Math.min(toNumber(entry.standbyServiceDays) * factor, actual);
+      const yard = toNumber(entry.yardServiceDays) * factor;
       totalDays += actual + standby + yard;
     });
+    totalDays = Math.round(totalDays);
 
     const months = totalDays / DAYS_PER_MONTH;
 
@@ -1687,15 +1770,26 @@ function getEmptyTenderEntry() {
       }
     });
 
-    // Ungated on purpose — see comment above. Mirrors
-    // computeMasterSeaService's totalWatchkeeping15m sum exactly (same
-    // filter: vessel length >= 15m, same field: entry.watchkeepingDays,
-    // same source: the crew member's full seatimes list).
+    // GATED as of 2026-08-16 — reversing the 2026-08-05 decision recorded
+    // above. MSN 1858 SS3.5(b) reads "12 months' onboard yacht service as a
+    // deck officer ... including 120 days' watchkeeping service ... while
+    // holding an OOW yachts <3000GT". The watchkeeping days sit inside the
+    // same sentence, under the same "while holding" condition, as the onboard
+    // months beside them — gating one and not the other split a single
+    // requirement in half.
+    //
+    // The original objection was real: the gated figure (~29 days) disagreed
+    // with the Sea Time page tracker (~88), and two different numbers for the
+    // same thing eroded trust. That is now fixed the other way round —
+    // computeMasterSeaService() takes certs and gates the tracker identically,
+    // so both surfaces show one number and it is the one the MCA would count.
     let watchkeepingDays = 0;
     (seatimes || []).forEach((entry) => {
-      const lengthM = getEntryVesselLengthMeters(entry, vessels);
-      if (lengthM >= 15) watchkeepingDays += toNumber(entry.watchkeepingDays);
+      if (getEntryVesselLengthMeters(entry, vessels) < 15) return;
+      watchkeepingDays +=
+        toNumber(entry.watchkeepingDays) * apportionEntryToWindow(entry, gated.issuedDate, null);
     });
+    watchkeepingDays = Math.round(watchkeepingDays);
 
     const onboardMonths = onboardDays / DAYS_PER_MONTH;
     const onboardMet = onboardMonths >= MASTER_500GT_ONBOARD_TARGET_MONTHS;
@@ -1779,15 +1873,16 @@ function getEmptyTenderEntry() {
       if (gt >= 500) totalOnboard500gtDays += days;
     });
 
-    // Ungated on purpose — see comment above. Mirrors
-    // computeMasterSeaService's totalWatchkeeping15m sum exactly (same
-    // filter: vessel length >= 15m, same field: entry.watchkeepingDays,
-    // same source: the crew member's full seatimes list).
+    // GATED as of 2026-08-16 — same reasoning as computeMaster500SeaService
+    // above. MSN 1858 SS3.6(a): 240 days' watchkeeping service while holding
+    // OOW yachts <3000GT.
     let totalWatchkeeping15m = 0;
     (seatimes || []).forEach((entry) => {
-      const lengthM = getEntryVesselLengthMeters(entry, vessels);
-      if (lengthM >= 15) totalWatchkeeping15m += toNumber(entry.watchkeepingDays);
+      if (getEntryVesselLengthMeters(entry, vessels) < 15) return;
+      totalWatchkeeping15m +=
+        toNumber(entry.watchkeepingDays) * apportionEntryToWindow(entry, gated.issuedDate, null);
     });
+    totalWatchkeeping15m = Math.round(totalWatchkeeping15m);
     const watchMet = totalWatchkeeping15m >= MASTER_WATCHKEEPING_TARGET;
 
     const months24m = totalOnboard24mDays / DAYS_PER_MONTH;
