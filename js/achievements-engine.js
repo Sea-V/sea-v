@@ -12,6 +12,7 @@
     createId,
     totalQualifyingDays,
     computeOowSeaService,
+    computeOow36MonthsOnboard,
     isOowSeaTimeComplete: sharedIsOowSeaTimeComplete,
     computeYachtmasterOffshoreMiles,
     computeMaster200SeaService,
@@ -50,8 +51,12 @@
     return window.SeavState?.achievements || [];
   }
 
+  // Delegates to the shared MSN 1858 SS3.3 figure in js/seav-data.js rather than
+  // re-summing day buckets here (2026-08-16). The local sum double-counted
+  // watchkeeping and ignored the 90-day yard cap, so the "36 Months Onboard"
+  // badge unlocked before the requirement was actually met.
   function getTotalSeaDays() {
-    return getSeatimes().reduce((sum, item) => sum + totalQualifyingDays(item), 0);
+    return computeOow36MonthsOnboard(getSeatimes()).totalDays;
   }
 
   function parseMeters(value) {

@@ -208,7 +208,11 @@ pacific_crossing: {
       badgeKey: "master_200gt_sea_service",
       description: "Logged 6 months' seagoing service while holding RYA Yachtmaster Offshore — the sea-service requirement for Master (Code Vessel) <200GT (MSN 1858 §3.1). Only sea time logged after your Yachtmaster Offshore issue date counts.",
       approvalRequired: false,
-      trigger: { type: "master_200gt_gated_sea_service", gatingCertCode: "RYA YMO" }
+      // MSN 1858 SS3.1(b) accepts either awarding body's ticket.
+      trigger: {
+        type: "master_200gt_gated_sea_service",
+        gatingCertCode: ["RYA YMO", "IYT MOY LTD"]
+      }
     },
 
     master_500gt_sea_service: {
@@ -260,6 +264,13 @@ pacific_crossing: {
       badgeKey: "chief_mate_yachts_unlimited",
       description: "Holding Master Yachts <3000GT meets the Certificate of Competency prerequisite for Chief Mate Yachts Unlimited (MSN 1858 §4.3(a)) — the new pathway letting yacht deck officers progress beyond 3000GT on yacht sea time alone, no Merchant Navy tickets required. Ancillary courses, 9 academic modules at an MCA-approved college, an MCA practical assessment, ENG1 and the oral exam are still required for the actual CoC.",
       approvalRequired: false,
+      // SCOPE NOTE (2026-08-16): MSN 1858 Amendment 2 SS4.3 gives TWO routes to
+      // Chief Mate Yachts Unlimited. Only Route A is implemented — holding
+      // Master Yachts <3000GT, which is a pure certificate check. Route B
+      // (OOW Unlimited plus 12 months' onboard yacht service as OOW including
+      // 6 months' seagoing service, all on vessels 500GT+) is NOT implemented,
+      // so Route B crew will not see this badge. Deliberate scope limit, not a
+      // bug — recorded here so it is not mistaken for one.
       trigger: { type: "chief_mate_unlimited_direct" }
     },
     master_yachts_unlimited: {
@@ -272,6 +283,13 @@ pacific_crossing: {
       badgeKey: "master_yachts_unlimited",
       description: "Logged 6 months served in the Master capacity, including 3 months actual sea service, on vessels 500GT or over, while holding Master Yachts <3000GT — one of three routes to Master Yachts Unlimited (MSN 1858 Amendment 2, 2026); the other two need a Merchant Navy ticket not tracked here. Counted from your Sea Time entries' capacity-served field, so keep that accurate for entries where you served as Master.",
       approvalRequired: false,
+      // SCOPE NOTE (2026-08-16): MSN 1858 Amendment 2 SS4.4 gives THREE routes to
+      // Master Yachts Unlimited. Only route (ii) is implemented — while holding
+      // Master Yachts <3000GT, 6 months' onboard service as Master including
+      // 3 months' seagoing, on vessels 500GT+. Not implemented: (i) via Chief
+      // Mate Yachts Unlimited (12 months incl. 6 seagoing), and (iii) via OOW
+      // Unlimited (36 months total incl. 15 months seagoing). Deliberate scope
+      // limit — recorded so it is not mistaken for a bug.
       trigger: { type: "master_unlimited_master3000_route", gatingCertCode: "MASTER Y3000" }
     },
 

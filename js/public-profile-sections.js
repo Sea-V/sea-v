@@ -1087,7 +1087,9 @@
     // longer appear anywhere on the private dashboard.
     const approved = achievements.filter(
       (item) =>
-        (item.status === "Verified" || (item.status !== "Declined" && item.autoAwarded)) &&
+        (item.status === "Verified" ||
+          item.status === "Self-declared" ||
+          (item.status !== "Declined" && item.autoAwarded)) &&
         (!item.code || !window.SeavBadges?.getAchievement || !!window.SeavBadges.getAchievement(item.code))
     );
 

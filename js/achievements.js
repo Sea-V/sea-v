@@ -768,7 +768,13 @@
             vesselId: formData.vesselId,
             vessel: getVessels().find((v) => v.id === formData.vesselId)?.name || "",
             date: formData.date,
-            status: "Verified",
+            // Manually claimed badges are self-declared: the crew member picks
+            // them, there is no approval queue, and the optional evidence upload
+            // is never read by anything. Writing "Verified" here — the same
+            // status the computed badges get — made an unchecked claim
+            // indistinguishable from a calculated one in the database, on a
+            // platform whose whole proposition is verification. 2026-08-16.
+            status: "Self-declared",
             witnessName: "",
             witnessPosition: "",
             witnessEmail: "",

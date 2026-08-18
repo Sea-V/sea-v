@@ -29,7 +29,17 @@ profile; collect verified references from past employers.
 - `scripts/` — generators (badges, SEO head, script tags) + test harnesses.
 
 ## Conventions
-- Commits: `vNNN: short description`. Currently at **v479**. Increment every commit.
+- Commits: `vNNN: short description`. Increment every commit.
+- **Release checklist — run in this order, every commit. Do NOT hand-edit
+  `?v=` query strings:**
+  1. Bump `ASSET_VERSION` in `js/seav-config.js` AND the duplicated
+     `const ASSET_VERSION` in `scripts/patch-html-scripts.mjs`. They must
+     match — the script rewrites every query string from its own constant,
+     so a stale value silently reverts the bump.
+  2. `node scripts/patch-html-scripts.mjs`
+  3. `npm run lint`
+  4. `node scripts/test-site.mjs` (needs a local server:
+     `python3 -m http.server 8765`)
 - Schema changes: write a new `docs/schema-*.sql`, apply it, commit it. Never
   edit an old migration file.
 - Keep page modules thin; shared logic goes in `seav-*` or `api*`.
@@ -86,25 +96,41 @@ thing most easily broken by an agent that starts editing without looking.
 `.dash-card` inside a page shell needs its padding overridden or it sits
 10px out of line.
 
-## Current state (2026-08-15)
-- HEAD = v480 "shorten CV template picker labels to colour names only".
-- The Resend diagnostic logging is now committed (1afa3c4) but **still not
-  deployed** — the live edge function is version 5 and has none of it, so the
-  "email failed" report remains undiagnosed. It logs `refereeEmail` in plain
-  text (crew PII); strip it once root-caused.
-- **Uncommitted:** seatime alignment/typography fixes (`css/pages/seatime.css`,
-  `css/core/variables.css`, `seatime.html`) — see thread 2 below.
+## Current state (2026-08-16)
+- HEAD = v484. Jack pushes every commit himself from Cursor — this sandbox
+  cannot push (403), and committing from it leaves stale `.git/*.lock` files
+  it has no permission to delete. **Write files here; commit in Cursor.**
+- Referee verification email is **live and working** (confirmed 2026-08-10,
+  test send to admin@sea-v.com). Sends via Resend from `verify@sea-v.com`.
+  The manual copy-paste share-link fallback was deliberately removed — the
+  automated email is the only send path and failures show a hard error.
+- Earlier "email failed" report is **root-caused and fixed**: the secrets had
+  been saved in Supabase **Vault** rather than **Edge Functions → Secrets**.
+  No code fix was needed. The diagnostic logging in commit `1afa3c4` was
+  therefore never required and is still undeployed (live function = v5).
 
 ## Open threads
-1. Referee email failing. Next step: deploy the diagnostic, send one test
-   reference, read the function logs, then remove the logging.
-2. Seatime page spacing/alignment pass. Done so far: single 28px gutter across
-   the KPI band (was 18px, so Service summary + TRB/OOW panels sat out of
-   line); the KPI caveat line moved off borrowed `public-profile` classes onto
-   `.seatime-shell-card .seatime-kpi-caveat` using `--font-label` and the new
-   `--seav-note-color`. Not yet committed, not yet checked in a browser beyond
-   the user's screenshots. Remaining: `seatime.css` still holds ~125 hardcoded
-   px values that predate the token scale.
+1. **Rotate the Resend API key** ("SEA-V Supabase SMTP") — the full key was
+   visible in a chat screenshot. It is shared, so after regenerating update it
+   in BOTH places: Supabase Auth SMTP settings (signup/reset emails) AND
+   Edge Functions → Secrets → `RESEND_API_KEY`. Highest priority.
+2. Remove the obsolete diagnostic logging from
+   `supabase/functions/reference-verification/index.ts` (commit `1afa3c4`).
+   It logs `refereeEmail` in plain text (crew PII) and is no longer needed
+   now the cause is known. Never deployed, so this is a code tidy-up only.
+3. Seatime page spacing/alignment pass — shipped v481–v484. Remaining:
+   `seatime.css` still holds ~125 hardcoded px values predating the tokens.
+4. Review all docs in `Sea-V Structure/` and list outstanding items (asked
+   for, paused on usage limits). Start with `SEA-V-Known-Gaps-Tracker.md`,
+   the risk register, the 17-item codes site-tightening list, the MSN 1858
+   Am.2 audit flag. That folder is NOT in this repo — it must be connected
+   separately.
+5. Known security gaps still open: `certificates.attachment` exposed to anon
+   via a table-wide grant (fix: re-apply the column-scoped grant), and
+   `auth_leaked_password_protection` still toggled off in the dashboard.
+
+See `CHAT-HANDOFF-2026-08-16.md` for the fuller backlog (delete-tests, #509,
+#528, #38/#39, #418, #439, ClickUp retries) — absorb and delete that file.
 
 ## Working agreement — keep token cost down
 The previous chat cost a fortune. Cause: one enormous thread, plus browser

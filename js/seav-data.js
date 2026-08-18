@@ -1345,12 +1345,42 @@ function getEmptyTenderEntry() {
     };
   }
 
-  /** MSN 1858 SS3.3's 36-month total onboard yacht service (any vessel size, since age 16). */
+  /**
+   * MSN 1858 SS3.3's 36-month total onboard yacht service (any vessel size,
+   * since age 16).
+   *
+   * 2026-08-16 correction. This previously summed totalQualifyingDays() —
+   * actual + standby + yard + watchkeeping — across every entry, which
+   * inflated the figure two ways at once:
+   *
+   *   1. Watchkeeping days are kept WHILE at sea, so they are already inside
+   *      actualSeaServiceDays. Adding them again double-counted that time.
+   *   2. It ignored the 90-day yard cap, so a long refit could push a crew
+   *      member over 36 months on yard time alone.
+   *
+   * On Jack's own demo data that read 1269 days (786 + 131 + 264 + 88) and
+   * unlocked the badge, while the Sea Time page's own capped OOW-qualifying
+   * figure was 1007 — i.e. the badge said "36 months met" when it wasn't.
+   *
+   * "Onboard yacht service" is a DURATION of service onboard, not a total of
+   * service-type buckets, so it is now measured from each entry's signed-on /
+   * signed-off dates — the same daysBetweenDates() basis computeMasterSeaService()
+   * already uses for its own onboard-months math. Entries with no usable dates
+   * fall back to actual + standby + yard (watchkeeping deliberately excluded,
+   * being a subset of actual sea service).
+   */
   function computeOow36MonthsOnboard(seatimes) {
-    const totalDays = (seatimes || []).reduce(
-      (sum, entry) => sum + totalQualifyingDays(entry),
-      0
-    );
+    const totalDays = (seatimes || []).reduce((sum, entry) => {
+      const dated = daysBetweenDates(entry.dateJoined, entry.dateLeft);
+      if (dated > 0) return sum + dated;
+      return (
+        sum +
+        toNumber(entry.actualSeaServiceDays) +
+        toNumber(entry.standbyServiceDays) +
+        toNumber(entry.yardServiceDays)
+      );
+    }, 0);
+
     return {
       totalDays,
       target: OOW_36_MONTHS_TARGET_DAYS,
@@ -1358,10 +1388,73 @@ function getEmptyTenderEntry() {
     };
   }
 
+  /**
+   * MSN 1858 SS4.1: "At least 6 months of the qualifying seagoing service must
+   * have been performed within the 5 years immediately preceding the MCA's
+   * receipt of your application."
+   *
+   * Added 2026-08-16 — nothing implemented this before, so a crew member whose
+   * entire career ended a decade ago still showed as having met the OOW sea
+   * time requirement.
+   *
+   * "Seagoing service" follows SS4.2 and this file's existing reading of it
+   * (see computeMaster200SeaService below): actual + standby + yard, with
+   * standby capped at that entry's own actual sea days per SS5.2. Entries that
+   * straddle the 5-year boundary are pro-rated by the fraction of the contract
+   * that falls inside the window — SEA-V stores one row per signed-on/off
+   * period, not per voyage, so a proportional split is the most accurate
+   * apportionment the data supports.
+   */
+  const OOW_RECENCY_WINDOW_YEARS = 5;
+  const OOW_RECENCY_MIN_DAYS = 183;
+
+  function computeOowRecentSeagoingService(seatimes, vessels, now) {
+    const today = now instanceof Date && !Number.isNaN(now.getTime()) ? now : new Date();
+    const cutoff = new Date(today);
+    cutoff.setFullYear(cutoff.getFullYear() - OOW_RECENCY_WINDOW_YEARS);
+
+    let recentDays = 0;
+
+    (seatimes || []).forEach((entry) => {
+      if (getEntryVesselLengthMeters(entry, vessels) < 15) return;
+
+      const joined = entry.dateJoined ? new Date(entry.dateJoined) : null;
+      const rawLeft = entry.dateLeft ? new Date(entry.dateLeft) : today;
+      if (!joined || Number.isNaN(joined.getTime()) || Number.isNaN(rawLeft.getTime())) return;
+
+      const left = rawLeft > today ? today : rawLeft;
+      if (left < cutoff) return;
+
+      const actual = toNumber(entry.actualSeaServiceDays);
+      const seagoing =
+        actual + Math.min(toNumber(entry.standbyServiceDays), actual) + toNumber(entry.yardServiceDays);
+      if (seagoing <= 0) return;
+
+      const contractDays = daysBetweenDates(entry.dateJoined, entry.dateLeft);
+      const overlapStart = joined < cutoff ? cutoff : joined;
+      const overlapDays = Math.max(0, Math.round((left - overlapStart) / 86400000));
+      const fraction = contractDays > 0 ? Math.min(1, overlapDays / contractDays) : 1;
+
+      recentDays += seagoing * fraction;
+    });
+
+    recentDays = Math.round(recentDays);
+
+    return {
+      recentDays,
+      target: OOW_RECENCY_MIN_DAYS,
+      windowYears: OOW_RECENCY_WINDOW_YEARS,
+      cutoff: cutoff.toISOString().slice(0, 10),
+      met: recentDays >= OOW_RECENCY_MIN_DAYS
+    };
+  }
+
   function isOowSeaTimeComplete(seatimes, vessels) {
     return (
       computeOowSeaService(seatimes, vessels).allMet &&
-      computeOow36MonthsOnboard(seatimes).met
+      computeOow36MonthsOnboard(seatimes).met &&
+      // MSN 1858 SS4.1 recency condition — added 2026-08-16.
+      computeOowRecentSeagoingService(seatimes, vessels).met
     );
   }
 
@@ -1443,13 +1536,29 @@ function getEmptyTenderEntry() {
    * Entries that ended entirely before the issue date are still excluded —
    * none of that time was served while holding the cert.
    */
+  /*
+   * `certCode` accepts a single code OR an array of codes (2026-08-16). Several
+   * MSN 1858 tiers name more than one acceptable prerequisite — SS3.1(b) allows
+   * "RYA Yachtmaster Offshore OR IYT Master of Yachts Limited" — and passing a
+   * single code silently locked out everyone holding the alternative. When more
+   * than one is held the EARLIEST issue date wins, since the crew member's
+   * qualifying clock legitimately started the moment the first of them was held.
+   */
   function seatimesGatedByCertIssueDate(seatimes, certs, certCode) {
-    const cert = findSavedCertByCode(certs, certCode);
-    const issuedDate = cert?.issued ? new Date(cert.issued) : null;
+    const codes = Array.isArray(certCode) ? certCode : [certCode];
+
+    const issuedIso = codes
+      .map((code) => findSavedCertByCode(certs, code)?.issued || null)
+      .filter((iso) => iso && !Number.isNaN(new Date(iso).getTime()))
+      .sort((a, b) => new Date(a) - new Date(b))[0] || null;
+
+    const issuedDate = issuedIso ? new Date(issuedIso) : null;
 
     if (!issuedDate || Number.isNaN(issuedDate.getTime())) {
       return { held: false, issuedDate: null, gatedEntries: [] };
     }
+
+    const cert = { issued: issuedIso };
 
     const gatedEntries = (seatimes || [])
       .filter((entry) => {
@@ -1479,9 +1588,15 @@ function getEmptyTenderEntry() {
   // 115-day sub-clause, not a general rule).
   const MASTER_200GT_TARGET_MONTHS = 6;
   const MASTER_200GT_GATING_CERT_CODE = "RYA YMO";
+  // MSN 1858 SS3.1(b) accepts "RYA Yachtmaster Offshore OR IYT Master of Yachts
+  // Limited". IYT MOY LTD was already in the certificate catalog but was not
+  // accepted by this gate, so IYT-route crew could never unlock the badge no
+  // matter how much qualifying service they logged. Same class of bug as the
+  // v466 Chief Mate fix; swept for here on 2026-08-16.
+  const MASTER_200GT_GATING_CERT_CODES = [MASTER_200GT_GATING_CERT_CODE, "IYT MOY LTD"];
 
   function computeMaster200SeaService(seatimes, certs) {
-    const gated = seatimesGatedByCertIssueDate(seatimes, certs, MASTER_200GT_GATING_CERT_CODE);
+    const gated = seatimesGatedByCertIssueDate(seatimes, certs, MASTER_200GT_GATING_CERT_CODES);
 
     if (!gated.held) {
       return {
@@ -2591,6 +2706,7 @@ window.SeavData = {
   daysBetweenDates,
   computeOowSeaService,
   computeOow36MonthsOnboard,
+  computeOowRecentSeagoingService,
   isOowSeaTimeComplete,
   computeMasterSeaService,
   seatimesGatedByCertIssueDate,
