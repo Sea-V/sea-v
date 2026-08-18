@@ -76,6 +76,13 @@
     return window.SeavState?.vessels || [];
   }
 
+  // Needed by buildCertRow's multi-definition branch to pull the certificate
+  // prerequisites of the summary definition (2026-08-16). "certs" is already
+  // in achievements.html's PAGE_LOAD_KEYS.
+  function getCerts() {
+    return window.SeavState?.certs || [];
+  }
+
   function isEarnedRecord(item) {
     if (!item || item.status === "Declined") return false;
     return true;
@@ -560,9 +567,20 @@
         ? 100
         : 0;
 
-    const subRequirements = breakdownDefinitions.flatMap(
-      (definition) => window.SeavAchievementEngine?.getSubRequirements?.(definition) || []
-    );
+    // The summary definition's own sea-time row is dropped (it only re-derives
+    // "are the other three met") but its PREREQUISITE rows are not — those
+    // describe the certificate as a whole, not any one sub-milestone, and are
+    // declared against the summary code. Without this the entire OOW <3000GT
+    // prerequisite list was computed and then silently discarded, so the
+    // Milestones page showed certificate requirements under single-definition
+    // certs like Master <200GT and none at all under OOW. Jack spotted it
+    // 2026-08-16.
+    const subRequirements = [
+      ...breakdownDefinitions.flatMap(
+        (definition) => window.SeavAchievementEngine?.getSubRequirements?.(definition) || []
+      ),
+      ...(window.SeavData?.computeMilestonePrerequisites?.(primary.code, getCerts()) || [])
+    ];
 
     const primaryRecord = primaryInstances[0];
     const unlockedTitle = unlocked

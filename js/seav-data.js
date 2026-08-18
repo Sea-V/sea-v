@@ -2639,12 +2639,15 @@ function getSortedVesselOptions(vessels = []) {
       const row = { label: req.label, current: 0, target: 1, percent: 0, note: "" };
 
       if (!held) {
+        // Optional and conditional rows are shown but never counted (see the
+        // tally below), so they are reported honestly as not held rather than
+        // marked "Met" — saying a crew member holds something they don't is
+        // the one thing this table must never do. 2026-08-16, per Jack.
         row.note = req.optional
           ? "Optional at this level — not required"
           : req.conditional
             ? `${req.conditional} — not on your Certificates page`
             : "Not on your Certificates page yet";
-        if (req.optional) { row.current = 1; row.percent = 100; }
         return row;
       }
 
@@ -2680,10 +2683,11 @@ function getSortedVesselOptions(vessels = []) {
       return row;
     });
 
-    // Counted rows exclude conditional ones — they depend on the vessel, not
-    // the certificate tier, so they cannot fairly count against the crew
-    // member here.
-    const counted = rows.filter((_, i) => !list[i].conditional);
+    // The tally counts only what is genuinely required at this tier.
+    // Conditional rows depend on the vessel rather than the certificate tier;
+    // optional rows ('Opt' in the source matrix) are not required at all.
+    // Both are still displayed — they just cannot count for or against.
+    const counted = rows.filter((_, i) => !list[i].conditional && !list[i].optional);
     const met = counted.filter((r) => r.percent >= 100).length;
 
     return [
