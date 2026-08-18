@@ -109,39 +109,50 @@
    gold, larger title that reads as a section label rather than another
    list item — count badge stays pinned to the right via a mirrored
    empty grid column so centering holds regardless of the count's width.
+
+   DENSITY PASS 2026-08-16. The heading now reads clearly enough on the
+   divider alone, so the group box (radius/border/background) is gone and
+   the title is left-aligned like every other section title on the site —
+   the mirrored empty grid column that existed only to keep it centered
+   went with it. Head padding 16/18 -> 10/14 and the inter-group gap
+   24 -> 12px. Each category previously cost ~90px before a single
+   certificate appeared; across 8 categories that was ~700px of the page
+   carrying no certificate data. Rows and the KPI row above are untouched.
 ========================================================= */
 
 .cert-category-group {
-  border-radius: 14px;
-  border: 1px solid var(--surface-border);
-
-  background: rgba(255, 255, 255, 0.03);
-
-  overflow: hidden;
+  min-width: 0;
 }
 
 .cert-category-group + .cert-category-group {
-  margin-top: 24px;
+  margin-top: 12px;
 }
 
 .cert-category-group-head {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr);
+  display: flex;
   align-items: center;
 
   gap: 10px;
 
-  padding: 16px 18px;
+  padding: 10px 14px;
 
   border-bottom: 1px solid var(--surface-border);
-  background: rgba(255, 210, 90, 0.045);
+
+  /* Expiry state rides the border, never the title text — accents belong on
+     borders/outlines per .cursor/rules/field-label-typography.mdc, and a
+     filled red header repeated down the page reads louder, not calmer. */
+  border-left: 2px solid transparent;
+}
+
+.cert-category-group-head.has-warning {
+  border-left-color: rgba(255, 159, 67, 0.75);
+}
+
+.cert-category-group-head.has-expired {
+  border-left-color: rgba(220, 53, 69, 0.8);
 }
 
 .cert-category-group-title {
-  grid-column: 2;
-
-  display: flex;
-  justify-content: center;
   min-width: 0;
 }
 
@@ -153,7 +164,6 @@
   font-size: 15px;
   font-weight: 800;
   letter-spacing: 0.2px;
-  text-align: center;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -161,14 +171,14 @@
 }
 
 .cert-category-group-count {
-  grid-column: 3;
-  justify-self: end;
+  margin-left: auto;
 
   min-width: 22px;
   padding: 1px 8px;
 
   border-radius: 999px;
-  background: rgba(255, 210, 90, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
 
   color: #ffffff;
 
@@ -179,12 +189,25 @@
   flex-shrink: 0;
 }
 
+/* Same values as .pill-warning / .pill-expired in css/components/pills.css.
+   The count is the only fill that changes colour, so one small element
+   carries the state instead of the whole header. */
+.cert-category-group-count.has-warning {
+  border-color: rgba(255, 159, 67, 0.34);
+  background: rgba(255, 159, 67, 0.18);
+}
+
+.cert-category-group-count.has-expired {
+  border-color: rgba(220, 53, 69, 0.34);
+  background: rgba(220, 53, 69, 0.18);
+}
+
 .cert-category-group-body {
   display: flex;
   flex-direction: column;
   gap: 8px;
 
-  padding: 16px 14px 16px;
+  padding: 10px 0 2px;
 }
 
 .cert-compact-card {

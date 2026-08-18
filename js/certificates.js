@@ -410,14 +410,27 @@
   // the click-to-expand/collapse behavior for a whole category unnecessary
   // (2026-08-03) — categories now just section off the list at a glance,
   // with nothing to open or close.
+  // Worst status contained in the group, used to tint the count pill and the
+  // head's left border (2026-08-16). Expired outranks expiring; anything else
+  // leaves the head neutral. Rows inside need no extra ordering — sortCerts()
+  // already sorts by expiry ascending, so expired dates land first and
+  // "no expiry" last.
+  function certGroupStatusClass(certs) {
+    const classes = (certs || []).map((cert) => statusFromCert(cert).statusClass);
+    if (classes.includes("pill-expired")) return "has-expired";
+    if (classes.includes("pill-warning")) return "has-warning";
+    return "";
+  }
+
   function buildCertCategoryGroupHtml(group) {
+    const flag = certGroupStatusClass(group.certs);
     return `
       <section class="cert-category-group">
-        <div class="cert-category-group-head">
+        <div class="cert-category-group-head ${flag}">
           <span class="cert-category-group-title">
             <strong>${Seav.escapeHtml(group.label)}</strong>
           </span>
-          <span class="cert-category-group-count">${group.certs.length}</span>
+          <span class="cert-category-group-count ${flag}">${group.certs.length}</span>
         </div>
         <div class="cert-category-group-body">
           ${group.certs.map(buildRow).join("")}
