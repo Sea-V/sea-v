@@ -2623,20 +2623,44 @@ function getSortedVesselOptions(vessels = []) {
    * ({label, current, target, percent, note}) — target 1 renders as
    * "Met" / "Not yet", so no new UI is needed.
    */
+  /**
+   * Returns STRUCTURED DATA, not requirement rows (changed 2026-08-16).
+   *
+   * The first cut reused buildRequirementRow(), which draws a progress bar.
+   * Jack's objection was right: a bar says "you are accumulating toward a
+   * target", which is true of sea time and meaningless for a certificate you
+   * either hold or you don't — 0% and 100% are the only values it can ever
+   * take. Certificates now render as their own block (a collapsed summary
+   * with a segmented meter, opening to a list grouped by state), so this
+   * returns the facts and js/achievements.js decides how to draw them.
+   *
+   *   { total, held, items: [{ label, state, note, required }] }
+   *
+   * state: "held" | "warn" (expiring, or held but not yet long enough)
+   *      | "exp" (expired) | "miss" (not held)
+   */
   function computeMilestonePrerequisites(code, certs) {
     const list = MILESTONE_PREREQUISITES[code] || [];
-    if (!list.length) return [];
+    if (!list.length) return null;
 
     const today = new Date();
 
-    const rows = list.map((req) => {
+    const items = list.map((req) => {
       const codes = req.anyOf || [req.code];
       const held = codes
         .map((c) => findSavedCertByCode(certs, c))
         .filter(Boolean)
         .sort((a, b) => new Date(a.issued || 0) - new Date(b.issued || 0))[0] || null;
 
-      const row = { label: req.label, current: 0, target: 1, percent: 0, note: "" };
+      const row = {
+        label: req.label,
+        state: "miss",
+        note: "",
+        // Conditional rows depend on the vessel rather than the certificate
+        // tier; optional rows are 'Opt' in the source matrix. Both are shown
+        // but never counted, and never sit in the meter.
+        required: !req.conditional && !req.optional
+      };
 
       if (!held) {
         // Optional and conditional rows are shown but never counted (see the
@@ -2655,6 +2679,7 @@ function getSortedVesselOptions(vessels = []) {
       const expired =
         !held.noExpiry && held.expiry && new Date(held.expiry) < today;
       if (expired) {
+        row.state = "exp";
         row.note = `Expired ${prettyDate(held.expiry)} — renew before applying`;
         return row;
       }
@@ -2664,46 +2689,33 @@ function getSortedVesselOptions(vessels = []) {
       if (req.heldForMonths && held.issued) {
         const eligibleFrom = addMonths(held.issued, req.heldForMonths);
         if (eligibleFrom && eligibleFrom > today) {
+          row.state = "warn";
           row.note =
             `Held since ${prettyDate(held.issued)}. Must be held ${req.heldForMonths} months — counts from ${prettyDate(eligibleFrom.toISOString())}`;
           return row;
         }
       }
 
-      row.current = 1;
-      row.percent = 100;
       const expiringSoon =
         !held.noExpiry && held.expiry &&
         (new Date(held.expiry) - today) / 86400000 <= 90;
+
+      row.state = expiringSoon ? "warn" : "held";
       row.note = expiringSoon
         ? `Expires ${prettyDate(held.expiry)} — renew before applying`
         : held.issued
-          ? `Held · issued ${prettyDate(held.issued)}`
+          ? `Issued ${prettyDate(held.issued)}`
           : "Held";
       return row;
     });
 
-    // The tally counts only what is genuinely required at this tier.
-    // Conditional rows depend on the vessel rather than the certificate tier;
-    // optional rows ('Opt' in the source matrix) are not required at all.
-    // Both are still displayed — they just cannot count for or against.
-    const counted = rows.filter((_, i) => !list[i].conditional && !list[i].optional);
-    const met = counted.filter((r) => r.percent >= 100).length;
+    const required = items.filter((row) => row.required);
 
-    return [
-      {
-        label: "Certificates & courses held",
-        current: met,
-        target: counted.length,
-        unit: "",
-        percent: counted.length ? Math.round((met / counted.length) * 100) : 0,
-        note:
-          met === counted.length
-            ? "All prerequisites held"
-            : `${counted.length - met} still outstanding — listed below`
-      },
-      ...rows
-    ];
+    return {
+      items,
+      total: required.length,
+      held: required.filter((row) => row.state === "held").length
+    };
   }
 
   function computeMilestoneProgress(definition, context) {

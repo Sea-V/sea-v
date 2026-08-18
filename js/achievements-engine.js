@@ -784,10 +784,18 @@
    * simply show what is still needed for the Certificate of Competency.
    */
   function getSubRequirements(definition) {
-    const seaTime = getSeaTimeSubRequirements(definition);
-    const prerequisites =
-      window.SeavData?.computeMilestonePrerequisites?.(definition?.code, getCerts()) || [];
-    return [...seaTime, ...prerequisites];
+    return getSeaTimeSubRequirements(definition);
+  }
+
+  /**
+   * Certificate prerequisites for a milestone, as structured data —
+   * { total, held, items } — or null where the milestone has none declared.
+   * Kept separate from getSubRequirements() because certificates are drawn as
+   * their own block rather than as progress rows (see js/achievements.js).
+   */
+  function getPrerequisites(definition) {
+    if (!definition?.code) return null;
+    return window.SeavData?.computeMilestonePrerequisites?.(definition.code, getCerts()) || null;
   }
 
   // A code only counts as "earned" if it hasn't been declined — e.g. a
@@ -868,6 +876,7 @@
     runAchievementEvaluation,
     getProgressForDefinition,
     getSubRequirements,
+    getPrerequisites,
     getNextMilestone,
     getInProgressMilestones
   };

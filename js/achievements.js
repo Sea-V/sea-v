@@ -76,12 +76,6 @@
     return window.SeavState?.vessels || [];
   }
 
-  // Needed by buildCertRow's multi-definition branch to pull the certificate
-  // prerequisites of the summary definition (2026-08-16). "certs" is already
-  // in achievements.html's PAGE_LOAD_KEYS.
-  function getCerts() {
-    return window.SeavState?.certs || [];
-  }
 
   function isEarnedRecord(item) {
     if (!item || item.status === "Declined") return false;
@@ -421,6 +415,99 @@
     return `${formatReqNumber(req.current)} / ${formatReqNumber(req.target)}${unit}`;
   }
 
+  /* ---------------------------------------------------------------
+     Certificate prerequisites block — 2026-08-16.
+
+     Deliberately NOT buildRequirementRow(). A progress bar means "you are
+     accumulating toward a target"; a certificate is held or it isn't, so the
+     bar could only ever read 0% or 100%. This draws state instead of
+     progress: a collapsed summary carrying a segmented meter (one segment per
+     required certificate, coloured by state), opening to a list grouped by
+     what the crew member can act on.
+
+     CLOSED BY DEFAULT, per Jack — the milestone stays short, and the meter in
+     the summary already says whether anything needs attention without opening
+     it. The meter lives INSIDE <summary> for exactly that reason: a <details>
+     hides every child except the summary when closed.
+
+     No blue anywhere in here. Blue stays the language of sea time, so the two
+     halves of a milestone never read as the same kind of measure.
+     --------------------------------------------------------------- */
+
+  const CERT_STATE_ICON = {
+    held: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 12.5l4 4L18 8" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    warn: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 7v6M12 16.5v.5" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>`,
+    exp: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 7v6M12 16.5v.5" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>`,
+    miss: ""
+  };
+
+  function buildCertItem(item) {
+    return `
+      <li class="ach-cert-item">
+        <span class="ach-cert-ico is-${Seav.escapeHtml(item.state)}">${CERT_STATE_ICON[item.state] || ""}</span>
+        <span class="ach-cert-name">${Seav.escapeHtml(item.label || "")}</span>
+        <small class="ach-cert-note">${Seav.escapeHtml(item.note || "")}</small>
+      </li>
+    `;
+  }
+
+  function buildCertGroup(title, dotClass, mutedClass, items) {
+    if (!items.length) return "";
+    return `
+      <div class="ach-cert-group ${mutedClass}">
+        <div class="ach-cert-group-head">
+          <span class="ach-cert-group-dot ${dotClass}" aria-hidden="true"></span>
+          <span class="ach-cert-group-title">${Seav.escapeHtml(title)} · ${items.length}</span>
+        </div>
+        <ul class="ach-cert-list">${items.map(buildCertItem).join("")}</ul>
+      </div>
+    `;
+  }
+
+  function buildPrerequisitesBlock(prerequisites) {
+    if (!prerequisites || !prerequisites.items?.length) return "";
+
+    const items = prerequisites.items;
+    const required = items.filter((i) => i.required);
+
+    const attention = required.filter((i) => i.state === "exp" || i.state === "warn");
+    const toObtain = required.filter((i) => i.state === "miss");
+    const held = required.filter((i) => i.state === "held");
+    const notRequired = items.filter((i) => !i.required);
+
+    // One segment per REQUIRED certificate — optional and vessel-conditional
+    // items are shown in the list but never counted, so they never sit here.
+    const meter = required
+      .map((i) => `<i class="is-${Seav.escapeHtml(i.state)}"></i>`)
+      .join("");
+
+    const outstanding = required.length - held.length;
+    const summaryLabel = outstanding
+      ? `${outstanding} of ${required.length} certificates or courses still outstanding`
+      : "All required certificates and courses held";
+
+    return `
+      <details class="ach-certs">
+        <summary class="ach-certs-summary" aria-label="${Seav.escapeHtml(summaryLabel)}">
+          <span class="ach-certs-head">
+            <svg class="ach-certs-chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="ach-certs-title">Certificates &amp; courses</span>
+            <span class="ach-certs-count">${held.length} / ${required.length}</span>
+          </span>
+          <span class="ach-certs-meter" aria-hidden="true">${meter}</span>
+        </summary>
+        <div class="ach-certs-body">
+          ${buildCertGroup("Needs attention", "is-att", "", attention)}
+          ${buildCertGroup("Still to obtain", "is-no", "is-muted", toObtain)}
+          ${buildCertGroup("Held", "is-ok", "is-muted", held)}
+          ${buildCertGroup("Not required at this level", "is-no", "is-muted", notRequired)}
+        </div>
+      </details>
+    `;
+  }
+
   function buildRequirementRow(req) {
     return `
       <li class="ach-req-row">
@@ -450,7 +537,8 @@
     subtitle,
     imagePath,
     description,
-    subRequirements
+    subRequirements,
+    prerequisites
   }) {
     return `
       <details class="ach-milestone-row ${unlocked ? "is-unlocked" : "is-locked"}" data-tier="${Seav.escapeHtml(tier)}">
@@ -482,6 +570,7 @@
           <ul class="ach-req-list">
             ${subRequirements.map(buildRequirementRow).join("")}
           </ul>
+          ${buildPrerequisitesBlock(prerequisites)}
         </div>
       </details>
     `;
@@ -518,7 +607,8 @@
       subtitle: certRowSubtitle(unlocked, primary?.date, progress.percent),
       imagePath,
       description: full.description || "",
-      subRequirements
+      subRequirements,
+      prerequisites: window.SeavAchievementEngine?.getPrerequisites?.(definition) || null
     });
   }
 
@@ -578,8 +668,7 @@
     const subRequirements = [
       ...breakdownDefinitions.flatMap(
         (definition) => window.SeavAchievementEngine?.getSubRequirements?.(definition) || []
-      ),
-      ...(window.SeavData?.computeMilestonePrerequisites?.(primary.code, getCerts()) || [])
+      )
     ];
 
     const primaryRecord = primaryInstances[0];
@@ -595,7 +684,11 @@
       subtitle: certRowSubtitle(unlocked, primaryRecord?.date, percent),
       imagePath,
       description: full.description || "",
-      subRequirements
+      subRequirements,
+      // Prerequisites belong to the certificate as a whole, so they come from
+      // the summary definition — the one buildCertRow drops from the sea-time
+      // breakdown because its row would only re-derive "are the others met".
+      prerequisites: window.SeavAchievementEngine?.getPrerequisites?.(primary) || null
     });
   }
 

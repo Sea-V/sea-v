@@ -24,37 +24,37 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=491" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=491" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=491" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=491" />
+  <link rel="icon" href="/favicon.ico?v=492" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=492" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=492" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=492" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Milestones</title>
 
-  <link rel="stylesheet" href="styles.css?v=491" />
+  <link rel="stylesheet" href="styles.css?v=492" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=491"></script>
-  <script src="js/supabase.js?v=491"></script>
-  <script src="js/auth.js?v=491"></script>
-  <script src="js/feedback.js?v=491" defer></script>
-  <script src="js/core.js?v=491" defer></script>
-  <script src="js/bug-reports.js?v=491" defer></script>
-  <script src="js/seav-upload.js?v=491" defer></script>
-  <script src="js/seav-data.js?v=491" defer></script>
-  <script src="js/seav-page-colors.js?v=491"></script>
-  <script src="js/seav-badges.js?v=491" defer></script>
-  <script src="js/api-core.js?v=491" defer></script>
-  <script src="js/api-mappers.js?v=491" defer></script>
-  <script src="js/api.js?v=491" defer></script>
-  <script src="js/state.js?v=491" defer></script>
-  <script src="js/seav-notifications.js?v=491" defer></script>
-  <script src="js/achievements-engine.js?v=491" defer></script>
-  <script src="js/badge-unlock.js?v=491" defer></script>
+  <script src="js/seav-config.js?v=492"></script>
+  <script src="js/supabase.js?v=492"></script>
+  <script src="js/auth.js?v=492"></script>
+  <script src="js/feedback.js?v=492" defer></script>
+  <script src="js/core.js?v=492" defer></script>
+  <script src="js/bug-reports.js?v=492" defer></script>
+  <script src="js/seav-upload.js?v=492" defer></script>
+  <script src="js/seav-data.js?v=492" defer></script>
+  <script src="js/seav-page-colors.js?v=492"></script>
+  <script src="js/seav-badges.js?v=492" defer></script>
+  <script src="js/api-core.js?v=492" defer></script>
+  <script src="js/api-mappers.js?v=492" defer></script>
+  <script src="js/api.js?v=492" defer></script>
+  <script src="js/state.js?v=492" defer></script>
+  <script src="js/seav-notifications.js?v=492" defer></script>
+  <script src="js/achievements-engine.js?v=492" defer></script>
+  <script src="js/badge-unlock.js?v=492" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=491" defer></script>
-  <script src="js/achievements.js?v=491" defer></script>
+  <script src="js/seav-share.js?v=492" defer></script>
+  <script src="js/achievements.js?v=492" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -156,8 +156,16 @@
             The category is already wired: CAREER_PATH_CATEGORIES in
             js/achievements.js includes "Engineering Progression", so the day
             definitions carry that category they render without further work.
-            Known blocker: the engineering ladder needs a vessel engine-power
-            (kW) field that doesn't exist yet — see the known-gaps tracker.
+
+            The old blocker is GONE (verified 2026-08-16): vessels.engine_kw
+            exists, the vs_engine_kw form field saves it, and js/vessels.js
+            renders it as "Engine power ... kW". The known-gaps tracker still
+            records this ladder as blocked on a missing kW field — that entry
+            is stale. Remaining caveat: engine_kw is a TEXT column, so any
+            MSN 1859 power-band gate needs the same tolerant parsing
+            js/seav-data.js already applies to vessel length/GT (all five
+            populated rows are currently clean integers, but nothing enforces
+            that).
           -->
           <section class="ach-progress-section ach-department ach-department--soon" aria-disabled="true">
             <div class="ach-section-head ach-department-summary">

@@ -842,6 +842,259 @@
   font-size: 12px;
 }
 
+/* ---------------------------------------------------------------
+   Certificate prerequisites block — 2026-08-16.
+
+   Certificates are binary: held or not. They deliberately borrow NONE of
+   the blue progress-bar language above them, which means "accumulating
+   toward a target". The segmented meter shows composition instead —
+   one segment per required certificate, coloured by state.
+
+   Colours are the existing pill values: mint from .pill-valid, amber from
+   .pill-warning (css/components/pills.css) and this page's coral expired
+   (rgba(255,109,125,...), shared with certificates.css and
+   specialist-qualifications.css). The empty-segment track is the same
+   rgba(255,255,255,0.08) the sea-time bars use, so the two read as one
+   family while staying clearly different instruments.
+   --------------------------------------------------------------- */
+
+.ach-certs {
+  margin-top: 14px;
+
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+
+  background: rgba(255, 255, 255, 0.03);
+
+  overflow: hidden;
+}
+
+.ach-certs-summary {
+  padding: 11px 13px 12px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.ach-certs-summary::-webkit-details-marker {
+  display: none;
+}
+
+.ach-certs-summary:focus-visible {
+  outline: 2px solid rgba(91, 188, 255, 0.55);
+  outline-offset: -2px;
+}
+
+.ach-certs-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.ach-certs-chev {
+  width: 13px;
+  height: 13px;
+
+  flex: 0 0 auto;
+
+  color: rgba(255, 255, 255, 0.45);
+
+  transition: transform 0.15s ease;
+}
+
+.ach-certs[open] .ach-certs-chev {
+  transform: rotate(90deg);
+}
+
+.ach-certs-title {
+  color: rgba(255, 255, 255, 0.8);
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ach-certs-count {
+  margin-left: auto;
+
+  color: #ffffff;
+
+  font-size: 11.5px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+/* Sits inside <summary> on purpose: a <details> hides every child except
+   the summary when closed, and the whole point of the meter is being
+   readable without opening the block. */
+.ach-certs-meter {
+  display: flex;
+  gap: 3px;
+}
+
+.ach-certs-meter i {
+  height: 5px;
+  flex: 1;
+
+  border-radius: 2px;
+
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ach-certs-meter i.is-held { background: #5ee6a8; }
+.ach-certs-meter i.is-warn { background: #ff9f43; }
+.ach-certs-meter i.is-exp { background: #ff6d7d; }
+
+.ach-certs-body {
+  padding: 12px 13px 13px;
+
+  border-top: 1px solid var(--surface-border);
+}
+
+.ach-cert-group + .ach-cert-group {
+  margin-top: 14px;
+}
+
+.ach-cert-group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 8px;
+}
+
+.ach-cert-group-dot {
+  width: 7px;
+  height: 7px;
+
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+}
+
+.ach-cert-group-dot.is-att { background: #ff9f43; }
+.ach-cert-group-dot.is-ok { background: #5ee6a8; }
+.ach-cert-group-dot.is-no { background: rgba(255, 255, 255, 0.3); }
+
+.ach-cert-group-title {
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.ach-cert-list {
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ach-cert-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  min-width: 0;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ach-cert-name {
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ach-cert-note {
+  margin-left: auto;
+
+  flex: 0 0 auto;
+
+  color: rgba(255, 255, 255, 0.42);
+
+  font-size: 11px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+/* Satisfied and not-required groups recede so the actionable ones lead. */
+.ach-cert-group.is-muted .ach-cert-item {
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.ach-cert-group.is-muted .ach-cert-note {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+/* An icon as well as a colour — the accessibility audit already flags one
+   contrast failure on this site, so state is never colour alone. */
+.ach-cert-ico {
+  width: 15px;
+  height: 15px;
+
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+}
+
+.ach-cert-ico svg {
+  width: 10px;
+  height: 10px;
+}
+
+.ach-cert-ico.is-held {
+  border: 1px solid rgba(94, 230, 168, 0.42);
+  background: rgba(94, 230, 168, 0.16);
+  color: #5ee6a8;
+}
+
+.ach-cert-ico.is-warn {
+  border: 1px solid rgba(255, 159, 67, 0.34);
+  background: rgba(255, 159, 67, 0.18);
+  color: #ff9f43;
+}
+
+.ach-cert-ico.is-exp {
+  border: 1px solid rgba(255, 109, 125, 0.34);
+  background: rgba(255, 109, 125, 0.22);
+  color: #ff6d7d;
+}
+
+.ach-cert-ico.is-miss {
+  border: 1px dashed rgba(255, 255, 255, 0.26);
+  background: transparent;
+}
+
+@media (max-width: 560px) {
+  .ach-cert-note {
+    display: none;
+  }
+}
+
 .ach-empty {
   grid-column: 1 / -1;
   padding: 32px 16px;
