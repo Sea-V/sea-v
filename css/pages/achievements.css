@@ -156,10 +156,17 @@
   padding: 16px 18px;
   margin-bottom: 22px;
   border-radius: 20px;
-  border: 1px solid rgba(91, 188, 255, 0.22);
-  /* Solid fill, not a gradient — Jack wants solid colors site-wide
+
+  /* 2026-08-16: was dashboard blue (rgba(91,188,255,...)) on a page whose
+     own colour is --page-achievements #ffb347 — it read as a card borrowed
+     from another page. Now the same hue as the shell and the section
+     panels, just carried at a heavier weight so it still leads the page:
+     shell 0.28 / panels 0.18 / this 0.34 border, on a 0.08 fill. One hue,
+     three weights, instead of four unrelated colours.
+     Solid fill, not a gradient — Jack wants solid colors site-wide
      2026-08-03. */
-  background: rgba(91, 188, 255, 0.07);
+  border: 1px solid rgba(255, 179, 71, 0.34);
+  background: rgba(255, 179, 71, 0.08);
 }
 
 /* 2026-08-05, per Jack: Dashboard widget now shows EVERY currently
@@ -248,7 +255,7 @@
    collectible showcase. */
 
 .ach-progress-section {
-  margin-bottom: 28px;
+  margin-bottom: 16px;
 }
 
 /* 2026-08-05, per Jack: one dropdown per real-world certificate (Yachtmaster
@@ -752,8 +759,37 @@
 /* Section headers — shared by the Deck Progression and Seafarer Awards
    sections. */
 
+/* Every department / awards section is the same panel — 2026-08-16, per
+   Jack. Previously the sections had no container at all while the shell,
+   KPI row and next-up card each carried a different border colour. The
+   milestone colour (--page-achievements) now runs shell → panels → next-up
+   at descending weights; the KPI row deliberately keeps its Seatime-matched
+   border (Jack's call 2026-08-03, so the two pages' KPI bands agree). */
+.ach-progress-section,
+.ach-trophy-section {
+  padding: 16px 18px 18px;
+
+  border-radius: 18px;
+  border: 1px solid rgba(255, 179, 71, 0.18);
+
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .ach-section-head {
   margin: 0 0 14px;
+}
+
+/* Titles line up whether or not the section opens: the chevron is absolutely
+   positioned in a fixed 22px gutter rather than pushing the text along, so
+   Deck Progression, Engineering and Seafarer Awards all start on the same
+   vertical. */
+.ach-section-head h3,
+.ach-section-head p {
+  padding-left: 22px;
+}
+
+.ach-section-head h3 {
+  position: relative;
 }
 
 /* ---------------------------------------------------------------
@@ -775,19 +811,23 @@
 .ach-department-summary h3::before {
   content: "›";
 
-  display: inline-block;
-  margin-right: 8px;
+  position: absolute;
+  left: 4px;
+  top: 50%;
 
-  color: var(--accent-blue);
+  display: inline-block;
+
+  color: var(--page-achievements, #ffb347);
 
   font-size: 18px;
   line-height: 1;
 
+  transform: translateY(-50%);
   transition: transform 0.15s ease;
 }
 
 .ach-department[open] > .ach-department-summary h3::before {
-  transform: rotate(90deg);
+  transform: translateY(-50%) rotate(90deg);
 }
 
 .ach-department-summary:focus-visible {
