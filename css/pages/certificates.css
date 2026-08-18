@@ -149,7 +149,11 @@
 }
 
 .cert-category-group-head.has-expired {
-  border-left-color: rgba(220, 53, 69, 0.8);
+  /* Coral, not the shared .pill-expired red — this page and
+     specialist-qualifications.css both use rgba(255,109,125,...) for expired,
+     so the category flag follows the row pill it sits above rather than
+     dragging a third red onto the page. Jack's call 2026-08-16. */
+  border-left-color: rgba(255, 109, 125, 0.8);
 }
 
 .cert-category-group-title {
@@ -189,17 +193,20 @@
   flex-shrink: 0;
 }
 
-/* Same values as .pill-warning / .pill-expired in css/components/pills.css.
-   The count is the only fill that changes colour, so one small element
-   carries the state instead of the whole header. */
+/* Matched to the row status pills on THIS page, so a category flag and the
+   pills beneath it are never two different shades of the same state:
+   .cert-status-pill.pill-warning (shared amber) and
+   .cert-status-pill.pill-expired (this page's coral, also used by
+   specialist-qualifications.css). The count is the only fill that changes
+   colour, so one small element carries the state, not the whole header. */
 .cert-category-group-count.has-warning {
   border-color: rgba(255, 159, 67, 0.34);
   background: rgba(255, 159, 67, 0.18);
 }
 
 .cert-category-group-count.has-expired {
-  border-color: rgba(220, 53, 69, 0.34);
-  background: rgba(220, 53, 69, 0.18);
+  border-color: rgba(255, 109, 125, 0.34);
+  background: rgba(255, 109, 125, 0.22);
 }
 
 .cert-category-group-body {
@@ -355,8 +362,15 @@
 }
 
 .cert-status-pill.pill-warning {
-  border: 1px solid rgba(255, 210, 90, 0.34);
-  background: rgba(255, 210, 90, 0.16);
+  /* Was gold rgba(255,210,90,...), a leftover from the page's old gold accent.
+     Now the shared amber from .pill-warning (css/components/pills.css), which
+     is what the category count pill and head left-border use — the row pill
+     and the category flag were showing two different "expiring" colours.
+     2026-08-16. Values are set here rather than inherited because the row
+     markup carries .cert-status-pill, not .pill, so the shared rule's
+     border-color would land with no border-width. */
+  border: 1px solid rgba(255, 159, 67, 0.34);
+  background: rgba(255, 159, 67, 0.18);
 }
 
 .cert-status-pill.pill-expired {
