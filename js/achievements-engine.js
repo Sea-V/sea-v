@@ -15,6 +15,7 @@
     computeOow36MonthsOnboard,
     isOowSeaTimeComplete: sharedIsOowSeaTimeComplete,
     computeYachtmasterOffshoreMiles,
+    computeGeoCrossing,
     computeMaster200SeaService,
     computeMaster500SeaService,
     computeMaster3000SeaService,
@@ -219,6 +220,12 @@
         const entries = seatimesWithSeaDays();
         return vesselContextFromSeatimeEntry(entries[entries.length - 1] || null);
       }
+      case "geo_crossing": {
+        // Real attribution, not cosmetic: the crossing happened on one
+        // specific passage, and that passage records its vessel.
+        const { passage } = computeGeoCrossing(getNavigationEntries(), trigger.geo);
+        return vesselContextFromSeatimeEntry(passage || null);
+      }
       case "yachtmaster_offshore_miles": {
         // Cosmetic attribution only (like oow_eligible above) — the pass/fail
         // is a career-wide mileage total, not tied to one passage, so this
@@ -271,6 +278,9 @@
 
       case "yachtmaster_offshore_miles":
         return computeYachtmasterOffshoreMiles(getNavigationEntries()).allMet;
+
+      case "geo_crossing":
+        return computeGeoCrossing(getNavigationEntries(), trigger.geo).met;
 
       case "master_200gt_gated_sea_service":
         return computeMaster200SeaService(getSeatimes(), getCerts()).met;
@@ -355,7 +365,12 @@
     "master_3000gt_gated_sea_service",
     "chief_mate_unlimited_direct",
     "chief_mate_3000_eligible",
-    "master_unlimited_master3000_route"
+    "master_unlimited_master3000_route",
+    // A crossing that happened cannot un-happen. Also protects against the
+    // same lazy-load problem the others guard: navigationAreas is only in
+    // PAGE_LOAD_KEYS for some pages, so an evaluation elsewhere would see an
+    // empty list and revoke a legitimately earned badge.
+    "geo_crossing"
   ]);
 
   async function evaluateAutomaticAchievements() {
@@ -548,6 +563,21 @@
           }
         ];
       }
+      case "geo_crossing": {
+        const result = computeGeoCrossing(getNavigationEntries(), trigger.geo);
+        return [
+          {
+            label: "Crossed on a logged passage",
+            current: result.met ? 1 : 0,
+            target: 1,
+            percent: result.met ? 100 : 0,
+            note: result.met
+              ? `${result.passageName}${result.date ? ` · ${result.date}` : ""}`
+              : "Log the passage on the Navigation page and this unlocks itself"
+          }
+        ];
+      }
+
       case "yachtmaster_offshore_miles": {
         const result = computeYachtmasterOffshoreMiles(getNavigationEntries());
         const totalPct = result.TARGET_NM

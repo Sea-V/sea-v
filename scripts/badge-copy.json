@@ -1,15 +1,184 @@
 [
-  { "file": "oow-250-actual-days", "tier": "bronze", "hero": "250", "sub": "ACTUAL DAYS", "page": "seatime" },
-  { "file": "oow-365-qualifying-days", "tier": "silver", "hero": "365", "sub": "QUALIFYING DAYS", "page": "seatime" },
-  { "file": "oow-36-months-onboard", "tier": "gold", "hero": "36", "sub": "MONTHS ONBOARD", "page": "seatime" },
-  { "file": "oow-3000gt-sea-time", "tier": "platinum", "hero": "OOW", "sub": "SEA TIME MET", "page": "seatime" },
-  { "file": "yachtmaster-offshore", "tier": "gold", "hero": "OFFSHORE", "sub": "MILES COMPLETE", "page": "navigation" },
-  { "file": "master-200gt-sea-service", "tier": "gold", "hero": "MASTER 200", "sub": "SEA SERVICE MET", "page": "seatime" },
-  { "file": "master-500gt-sea-service", "tier": "platinum", "hero": "MASTER 500", "sub": "SEA SERVICE MET", "page": "seatime" },
-  { "file": "master-3000gt-sea-service", "tier": "platinum", "hero": "MASTER 3000", "sub": "SEA SERVICE MET", "page": "seatime" },
-  { "file": "chief-mate-3000gt-eligible", "tier": "gold", "hero": "CHIEF MATE", "sub": "ELIGIBLE", "page": "certificates" },
-  { "file": "chief-mate-yachts-unlimited", "tier": "platinum", "hero": "CHIEF MATE", "sub": "UNLTD PREREQ MET", "page": "certificates" },
-  { "file": "master-yachts-unlimited", "tier": "platinum", "hero": "MASTER", "sub": "UNLTD SEA SERVICE MET", "page": "seatime" },
-  { "file": "atlantic-crossing", "tier": "gold", "hero": "ATLANTIC", "sub": "CROSSING", "page": "navigation" },
-  { "file": "pacific-crossing", "tier": "platinum", "hero": "PACIFIC", "sub": "CROSSING", "page": "navigation" }
+  {
+    "file": "oow-250-actual-days",
+    "tier": "bronze",
+    "hero": "250",
+    "sub": "ACTUAL DAYS",
+    "page": "seatime"
+  },
+  {
+    "file": "oow-365-qualifying-days",
+    "tier": "silver",
+    "hero": "365",
+    "sub": "QUALIFYING DAYS",
+    "page": "seatime"
+  },
+  {
+    "file": "oow-36-months-onboard",
+    "tier": "gold",
+    "hero": "36",
+    "sub": "MONTHS ONBOARD",
+    "page": "seatime"
+  },
+  {
+    "file": "oow-3000gt-sea-time",
+    "tier": "platinum",
+    "hero": "OOW",
+    "sub": "SEA TIME MET",
+    "page": "seatime"
+  },
+  {
+    "file": "yachtmaster-offshore",
+    "tier": "gold",
+    "hero": "OFFSHORE",
+    "sub": "MILES COMPLETE",
+    "page": "navigation"
+  },
+  {
+    "file": "master-200gt-sea-service",
+    "tier": "gold",
+    "hero": "MASTER 200",
+    "sub": "SEA SERVICE MET",
+    "page": "seatime"
+  },
+  {
+    "file": "master-500gt-sea-service",
+    "tier": "platinum",
+    "hero": "MASTER 500",
+    "sub": "SEA SERVICE MET",
+    "page": "seatime"
+  },
+  {
+    "file": "master-3000gt-sea-service",
+    "tier": "platinum",
+    "hero": "MASTER 3000",
+    "sub": "SEA SERVICE MET",
+    "page": "seatime"
+  },
+  {
+    "file": "chief-mate-3000gt-eligible",
+    "tier": "gold",
+    "hero": "CHIEF MATE",
+    "sub": "ELIGIBLE",
+    "page": "certificates"
+  },
+  {
+    "file": "chief-mate-yachts-unlimited",
+    "tier": "platinum",
+    "hero": "CHIEF MATE",
+    "sub": "UNLTD PREREQ MET",
+    "page": "certificates"
+  },
+  {
+    "file": "master-yachts-unlimited",
+    "tier": "platinum",
+    "hero": "MASTER",
+    "sub": "UNLTD SEA SERVICE MET",
+    "page": "seatime"
+  },
+  {
+    "file": "atlantic-crossing",
+    "tier": "gold",
+    "hero": "ATLANTIC",
+    "sub": "CROSSING",
+    "page": "navigation"
+  },
+  {
+    "file": "pacific-crossing",
+    "tier": "platinum",
+    "hero": "PACIFIC",
+    "sub": "CROSSING",
+    "page": "navigation"
+  },
+  {
+    "file": "equator-crossing",
+    "tier": "silver",
+    "hero": "EQUATOR",
+    "sub": "CROSSING",
+    "page": "navigation"
+  },
+  {
+    "file": "date-line-crossing",
+    "tier": "gold",
+    "hero": "DATE LINE",
+    "sub": "CROSSING",
+    "page": "navigation"
+  },
+  {
+    "file": "arctic-circle-crossing",
+    "tier": "platinum",
+    "hero": "ARCTIC CIRCLE",
+    "sub": "CROSSING",
+    "page": "navigation"
+  },
+  {
+    "file": "antarctic-circle-crossing",
+    "tier": "platinum",
+    "hero": "ANTARCTIC CIRCLE",
+    "sub": "CROSSING",
+    "page": "navigation"
+  },
+  {
+    "file": "indian-ocean-crossing",
+    "tier": "gold",
+    "hero": "INDIAN",
+    "sub": "CROSSING",
+    "page": "navigation"
+  },
+  {
+    "file": "panama-canal-transit",
+    "tier": "silver",
+    "hero": "PANAMA",
+    "sub": "CANAL TRANSIT",
+    "page": "navigation"
+  },
+  {
+    "file": "suez-canal-transit",
+    "tier": "silver",
+    "hero": "SUEZ",
+    "sub": "CANAL TRANSIT",
+    "page": "navigation"
+  },
+  {
+    "file": "corinth-canal-transit",
+    "tier": "bronze",
+    "hero": "CORINTH",
+    "sub": "CANAL TRANSIT",
+    "page": "navigation"
+  },
+  {
+    "file": "cape-horn-rounding",
+    "tier": "platinum",
+    "hero": "CAPE HORN",
+    "sub": "ROUNDING",
+    "page": "navigation"
+  },
+  {
+    "file": "good-hope-rounding",
+    "tier": "gold",
+    "hero": "GOOD HOPE",
+    "sub": "ROUNDING",
+    "page": "navigation"
+  },
+  {
+    "file": "magellan-transit",
+    "tier": "gold",
+    "hero": "MAGELLAN",
+    "sub": "STRAIT TRANSIT",
+    "page": "navigation"
+  },
+  {
+    "file": "drake-passage-crossing",
+    "tier": "platinum",
+    "hero": "DRAKE",
+    "sub": "PASSAGE",
+    "page": "navigation"
+  },
+  {
+    "file": "northwest-passage-transit",
+    "tier": "platinum",
+    "hero": "NORTHWEST",
+    "sub": "PASSAGE",
+    "page": "navigation"
+  }
 ]

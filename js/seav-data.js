@@ -2417,6 +2417,113 @@ function getSortedVesselOptions(vessels = []) {
   ========================================================= */
 
   /* =========================================================
+     GEOGRAPHIC CROSSINGS — derived from logged passages, 2026-08-16.
+
+     Every one of these is a fact about a route the crew member has already
+     logged on the Navigation page, so it is computed rather than claimed. A
+     self-declared "I crossed the Equator" and a passage whose track runs from
+     9°N to 17°S are not the same evidence, and verification depth is the gap
+     the market audit names as SEA-V's weakest point.
+
+     ONLY the four unambiguous tests live here. Canal transits, cape roundings
+     and ocean crossings stay manual: a spike over the 50 real passages showed
+     proximity alone over-detects badly — five passages sat inside a box around
+     the Panama Canal, but only three had points at BOTH Colón and Balboa, so
+     "near the canal" awarded two transits that never happened. Those need
+     agreed definitions before they can be trusted to a rule.
+
+     Validation, same spike: on real data these tests independently agreed with
+     names crew had typed themselves — "Arctic Expedition – Tromsø to Svalbard"
+     detected as Arctic, "Pacific Crossing – Panama to Tahiti" as Equator.
+     ========================================================= */
+
+  const ARCTIC_CIRCLE_LAT = 66.5634;
+  const ANTARCTIC_CIRCLE_LAT = -66.5634;
+
+  /**
+   * Every fixed point of a passage, in order: departure, waypoints, arrival.
+   * Waypoints alone aren't enough — 7 of the 50 logged passages have none, and
+   * the endpoints still carry a usable track for them.
+   */
+  function passagePoints(entry) {
+    const points = [];
+    const push = (lat, lng) => {
+      const la = Number(lat);
+      const ln = Number(lng);
+      if (Number.isFinite(la) && Number.isFinite(ln) && (la !== 0 || ln !== 0)) {
+        points.push({ lat: la, lng: ln });
+      }
+    };
+
+    push(entry?.fromLat, entry?.fromLng);
+    (Array.isArray(entry?.waypoints) ? entry.waypoints : []).forEach((w) =>
+      push(w?.lat, w?.lng)
+    );
+    push(entry?.toLat ?? entry?.lat, entry?.toLng ?? entry?.lng);
+
+    return points;
+  }
+
+  function passageCrossesGeo(entry, geo) {
+    const points = passagePoints(entry);
+    if (points.length < 2) return false;
+
+    const lats = points.map((p) => p.lat);
+
+    switch (geo) {
+      case "equator":
+        return Math.min(...lats) < 0 && Math.max(...lats) > 0;
+
+      case "arctic_circle":
+        return Math.max(...lats) >= ARCTIC_CIRCLE_LAT;
+
+      case "antarctic_circle":
+        return Math.min(...lats) <= ANTARCTIC_CIRCLE_LAT;
+
+      // A track that crosses the antimeridian shows up as a jump of more than
+      // 180° between consecutive points, because longitude wraps at ±180. A
+      // vessel cannot legitimately travel half the globe between two fixes.
+      case "date_line":
+        return points.some((p, i) => {
+          if (i === 0) return false;
+          return Math.abs(p.lng - points[i - 1].lng) > 180;
+        });
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * The earliest passage that crosses `geo`, or null. Earliest rather than
+   * latest so the badge dates from when it was actually first achieved.
+   */
+  function findGeoCrossingPassage(navigationEntries, geo) {
+    return (
+      [...(navigationEntries || [])]
+        .filter((entry) => passageCrossesGeo(entry, geo))
+        .sort((a, b) =>
+          String(a?.departureDate || a?.visitedDate || "").localeCompare(
+            String(b?.departureDate || b?.visitedDate || "")
+          )
+        )[0] || null
+    );
+  }
+
+  function computeGeoCrossing(navigationEntries, geo) {
+    const passage = findGeoCrossingPassage(navigationEntries, geo);
+    return {
+      met: !!passage,
+      passage,
+      passageName:
+        passage?.passageName ||
+        [passage?.fromPort, passage?.toPort].filter(Boolean).join(" → ") ||
+        "",
+      date: passage?.departureDate || passage?.visitedDate || ""
+    };
+  }
+
+  /* =========================================================
      MILESTONE CERTIFICATE PREREQUISITES  (Phase 1 — display only)
 
      Sea time is only half of what a Certificate of Competency needs. Every
@@ -3116,6 +3223,8 @@ window.SeavData = {
   computeYachtmasterOffshoreMiles,
   computeMilestoneProgress,
   computeMilestonePrerequisites,
+  computeGeoCrossing,
+  passageCrossesGeo,
   MILESTONE_PREREQUISITES,
   getInProgressCertGroups,
   getSeatimeVerificationDisplay,

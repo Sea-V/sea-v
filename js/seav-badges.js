@@ -116,6 +116,110 @@ pacific_crossing: {
   lockedImage: LOCKED_IMAGE,
   tier: "platinum"
 },
+equator_crossing: {
+  key: "equator_crossing",
+  label: "Equator Crossing",
+  fileName: "equator-crossing.svg",
+  image: "/img/badges/equator-crossing.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "silver"
+},
+date_line_crossing: {
+  key: "date_line_crossing",
+  label: "International Date Line Crossing",
+  fileName: "date-line-crossing.svg",
+  image: "/img/badges/date-line-crossing.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "gold"
+},
+arctic_circle_crossing: {
+  key: "arctic_circle_crossing",
+  label: "Arctic Circle Crossing",
+  fileName: "arctic-circle-crossing.svg",
+  image: "/img/badges/arctic-circle-crossing.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "platinum"
+},
+antarctic_circle_crossing: {
+  key: "antarctic_circle_crossing",
+  label: "Antarctic Circle Crossing",
+  fileName: "antarctic-circle-crossing.svg",
+  image: "/img/badges/antarctic-circle-crossing.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "platinum"
+},
+indian_ocean_crossing: {
+  key: "indian_ocean_crossing",
+  label: "Indian Ocean Crossing",
+  fileName: "indian-ocean-crossing.svg",
+  image: "/img/badges/indian-ocean-crossing.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "gold"
+},
+panama_canal_transit: {
+  key: "panama_canal_transit",
+  label: "Panama Canal Transit",
+  fileName: "panama-canal-transit.svg",
+  image: "/img/badges/panama-canal-transit.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "silver"
+},
+suez_canal_transit: {
+  key: "suez_canal_transit",
+  label: "Suez Canal Transit",
+  fileName: "suez-canal-transit.svg",
+  image: "/img/badges/suez-canal-transit.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "silver"
+},
+corinth_canal_transit: {
+  key: "corinth_canal_transit",
+  label: "Corinth Canal Transit",
+  fileName: "corinth-canal-transit.svg",
+  image: "/img/badges/corinth-canal-transit.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "bronze"
+},
+cape_horn_rounding: {
+  key: "cape_horn_rounding",
+  label: "Cape Horn Rounding",
+  fileName: "cape-horn-rounding.svg",
+  image: "/img/badges/cape-horn-rounding.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "platinum"
+},
+good_hope_rounding: {
+  key: "good_hope_rounding",
+  label: "Cape of Good Hope Rounding",
+  fileName: "good-hope-rounding.svg",
+  image: "/img/badges/good-hope-rounding.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "gold"
+},
+magellan_transit: {
+  key: "magellan_transit",
+  label: "Strait of Magellan Transit",
+  fileName: "magellan-transit.svg",
+  image: "/img/badges/magellan-transit.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "gold"
+},
+drake_passage_crossing: {
+  key: "drake_passage_crossing",
+  label: "Drake Passage Crossing",
+  fileName: "drake-passage-crossing.svg",
+  image: "/img/badges/drake-passage-crossing.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "platinum"
+},
+northwest_passage_transit: {
+  key: "northwest_passage_transit",
+  label: "Northwest Passage Transit",
+  fileName: "northwest-passage-transit.svg",
+  image: "/img/badges/northwest-passage-transit.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "platinum"
+},
 };
 
   const ACHIEVEMENTS = {
@@ -301,6 +405,165 @@ pacific_crossing: {
       sourcePage: "navigation",
       badgeKey: "atlantic_crossing",
       description: "Completed an Atlantic crossing.",
+      approvalRequired: true,
+      trigger: { type: "manual" }
+    },
+    /* ---------------------------------------------------------------
+       Geographic milestones, 2026-08-16.
+
+       The four below are DERIVED: each is a geometric fact about a passage
+       already logged on the Navigation page, so the badge is evidence rather
+       than a claim. See computeGeoCrossing() in js/seav-data.js.
+       --------------------------------------------------------------- */
+    equator_crossing: {
+      code: "equator_crossing",
+      title: "Equator Crossing",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "equator_crossing",
+      description: "Crossed the Equator on a logged passage — detected from the route itself, not self-declared.",
+      approvalRequired: false,
+      trigger: { type: "geo_crossing", geo: "equator" }
+    },
+    date_line_crossing: {
+      code: "date_line_crossing",
+      title: "International Date Line Crossing",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "date_line_crossing",
+      description: "Crossed the International Date Line on a logged passage — detected from the route itself, not self-declared.",
+      approvalRequired: false,
+      trigger: { type: "geo_crossing", geo: "date_line" }
+    },
+    arctic_circle_crossing: {
+      code: "arctic_circle_crossing",
+      title: "Arctic Circle Crossing",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "arctic_circle_crossing",
+      description: "Sailed north of 66°33′ N on a logged passage — detected from the route itself, not self-declared.",
+      approvalRequired: false,
+      trigger: { type: "geo_crossing", geo: "arctic_circle" }
+    },
+    antarctic_circle_crossing: {
+      code: "antarctic_circle_crossing",
+      title: "Antarctic Circle Crossing",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "antarctic_circle_crossing",
+      description: "Sailed south of 66°33′ S on a logged passage — detected from the route itself, not self-declared.",
+      approvalRequired: false,
+      trigger: { type: "geo_crossing", geo: "antarctic_circle" }
+    },
+
+    /* The rest stay MANUAL for now — a spike over the 50 logged passages
+       showed proximity tests over-detect (five passages sat in a box around
+       the Panama Canal; only three actually transited it). They need agreed
+       definitions — what counts as rounding the Horn, which pairs of points
+       prove a canal transit — before a rule can be trusted. Until then these
+       are self-declared and stored with status "Self-declared", so they never
+       masquerade as computed. Jack's call 2026-08-16: "we will just have to
+       trust them for now". */
+    indian_ocean_crossing: {
+      code: "indian_ocean_crossing",
+      title: "Indian Ocean Crossing",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "indian_ocean_crossing",
+      description: "Completed an Indian Ocean crossing.",
+      approvalRequired: true,
+      trigger: { type: "manual" }
+    },
+    panama_canal_transit: {
+      code: "panama_canal_transit",
+      title: "Panama Canal Transit",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "panama_canal_transit",
+      description: "Transited the Panama Canal.",
+      approvalRequired: true,
+      trigger: { type: "manual" }
+    },
+    suez_canal_transit: {
+      code: "suez_canal_transit",
+      title: "Suez Canal Transit",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "suez_canal_transit",
+      description: "Transited the Suez Canal.",
+      approvalRequired: true,
+      trigger: { type: "manual" }
+    },
+    corinth_canal_transit: {
+      code: "corinth_canal_transit",
+      title: "Corinth Canal Transit",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "corinth_canal_transit",
+      description: "Transited the Corinth Canal.",
+      approvalRequired: true,
+      trigger: { type: "manual" }
+    },
+    cape_horn_rounding: {
+      code: "cape_horn_rounding",
+      title: "Cape Horn Rounding",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "cape_horn_rounding",
+      description: "Rounded Cape Horn.",
+      approvalRequired: true,
+      trigger: { type: "manual" }
+    },
+    good_hope_rounding: {
+      code: "good_hope_rounding",
+      title: "Cape of Good Hope Rounding",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "good_hope_rounding",
+      description: "Rounded the Cape of Good Hope.",
+      approvalRequired: true,
+      trigger: { type: "manual" }
+    },
+    magellan_transit: {
+      code: "magellan_transit",
+      title: "Strait of Magellan Transit",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "magellan_transit",
+      description: "Transited the Strait of Magellan.",
+      approvalRequired: true,
+      trigger: { type: "manual" }
+    },
+    drake_passage_crossing: {
+      code: "drake_passage_crossing",
+      title: "Drake Passage Crossing",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "drake_passage_crossing",
+      description: "Crossed the Drake Passage.",
+      approvalRequired: true,
+      trigger: { type: "manual" }
+    },
+    northwest_passage_transit: {
+      code: "northwest_passage_transit",
+      title: "Northwest Passage Transit",
+      category: "Passage & Navigation",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "northwest_passage_transit",
+      description: "Transited the Northwest Passage.",
       approvalRequired: true,
       trigger: { type: "manual" }
     },
