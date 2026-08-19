@@ -65,6 +65,25 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-profile-shell {
   margin: 0 auto;
+
+  /* 2026-08-16. The shell inherits .dashboard-shell-card (dashboard.css:5),
+     which is the ONE shell on the site still using solid var(--page-shell-bg)
+     — every other page (achievements, certificates, cv-generator, navigation,
+     payslips, seatime, onboard-experience, hobbies-interests, admin) uses
+     --page-shell-bg-translucent. On the Dashboard that difference is invisible
+     because nothing moves behind it, but body.public-profile-page is one of
+     the four pages that gets the animated ocean background
+     (css/components/ocean-background.css:6), so the card sat on it as a flat
+     opaque slab while every other card on the page let the ocean through.
+     That's why the "Profile not public" box looked like it belonged to a
+     different design.
+
+     Scoped here rather than fixed on .dashboard-shell-card itself: the app
+     shell behind it is --navy-900 (#172438), lighter than --page-shell-bg
+     (#0e1c2e), so switching the shared rule to 85% opacity WOULD visibly
+     lighten the Dashboard. That's a separate decision, not a side effect of
+     this one. */
+  background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85));
 }
 
 .public-profile-state-wrap {
