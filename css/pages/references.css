@@ -421,6 +421,218 @@
   flex: 1;
 }
 
+/* =========================================================
+   ATTESTATION SIGN-OFF (verified references) — 2026-08-16
+
+   Replaces the avatar-chip treatment for the verified state only; pending
+   and declined still use the compact .ref-signoff row above, which is right
+   for them — there is no signature to show.
+
+   Jack's brief: give the signature its own box and make it unmistakably the
+   captain's, with the date. The paper panel is near-white on purpose — a
+   signature is ink on paper, and a light stroke on a navy panel reads as a
+   logo instead.
+========================================================= */
+
+.ref-signoff--attest {
+  display: block;
+
+  padding: 0;
+
+  overflow: hidden;
+}
+
+.ref-signoff-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 10px 16px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(209, 107, 255, 0.05);
+}
+
+.ref-signoff-eyebrow {
+  color: var(--page-references, #d16bff);
+
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+/* Mint from .pill-valid (css/components/pills.css) — "verified" reads the
+   same here as it does on every other page. */
+.ref-signoff-chip {
+  margin-left: auto;
+
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 3px 10px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(94, 230, 168, 0.4);
+  background: rgba(94, 230, 168, 0.15);
+
+  color: #5ee6a8;
+
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.ref-signoff-chip svg {
+  width: 11px;
+  height: 11px;
+}
+
+.ref-signoff-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 18px;
+
+  padding: 16px;
+}
+
+.ref-signoff-paper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+
+  padding: 14px 18px 8px;
+
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.ref-signoff-paper .ref-signoff-ink {
+  width: 100%;
+  max-width: 230px;
+  max-height: 56px;
+
+  object-fit: contain;
+}
+
+/* Fallback when no drawn signature exists — the typed name, set in an
+   italic serif so it still reads as a signature rather than as body copy. */
+.ref-signoff-typed {
+  color: #1a2a44;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 600;
+
+  line-height: 1.9;
+}
+
+.ref-signoff-rule {
+  width: 100%;
+  height: 1px;
+
+  margin-top: 6px;
+
+  background: rgba(20, 32, 54, 0.35);
+}
+
+.ref-signoff-caption {
+  margin-top: 6px;
+
+  color: rgba(20, 32, 54, 0.6);
+
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.ref-signoff-attest-body {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+
+  min-width: 0;
+}
+
+.ref-signoff-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  min-width: 0;
+}
+
+/* Blue labels, white values — .cursor/rules/field-label-typography.mdc. */
+.ref-signoff-label {
+  color: var(--seav-field-label-color, #5bbcff);
+
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.ref-signoff-value {
+  color: var(--seav-field-value-color, #ffffff);
+
+  font-size: 13.5px;
+  font-weight: 700;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ref-signoff-value small {
+  display: block;
+
+  margin-top: 1px;
+
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+/* How it was signed. This provenance is what separates a SEA-V reference
+   from a typed name, and it was not surfaced anywhere before. */
+.ref-signoff-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 9px 16px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+  color: rgba(255, 255, 255, 0.42);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ref-signoff-foot svg {
+  width: 12px;
+  height: 12px;
+
+  flex: 0 0 auto;
+}
+
+@media (max-width: 760px) {
+  .ref-signoff-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .ref-signoff-value {
+    white-space: normal;
+  }
+}
+
 .ref-signoff-name {
   color: #ffffff;
 

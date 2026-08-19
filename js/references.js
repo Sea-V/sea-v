@@ -404,21 +404,86 @@
         `;
       }
 
-      // Verified — the actual trust footer: signature (drawn image, or
-      // typed name as fallback), rank, and the date it was signed.
+      /* Verified — the attestation block. 2026-08-16, per Jack: this is the
+         single most important element on a reference, and it was being drawn
+         into `.ref-card-avatar` — the same round 34px chip used for initials
+         bubbles — with the signature capped at 26px on a white circle. It read
+         as an avatar rather than as a signature.
+
+         Now a proper sign-off: the signature on its own paper panel above a
+         ruled line, with the attestation beside it as labelled fields. The CoC
+         number sits WITH the rank deliberately — "Sean Black, Captain" is a
+         name, but "Sean Black, Captain, CoC ***4567" is an attestation by an
+         identifiable licensed officer, which is what a sea-service testimonial
+         actually is. The number was already held, just buried in the details
+         grid.
+
+         Ink on paper, not inverted onto navy — a light signature on a dark
+         panel reads as a logo. */
       const sig = verification.signatureImage;
       const sigUrl = sig ? Seav.getFileDisplayUrl(sig, REF_FILES_BUCKET) : "";
-      const avatarHtml = sigUrl
-        ? `<div class="ref-card-avatar ref-signoff-avatar--signature"><img class="seav-signature-display" src="${Seav.escapeHtml(sigUrl)}" alt="Referee signature" loading="lazy"
-            onerror="this.parentElement.outerHTML='<div class=&quot;ref-card-avatar&quot; aria-hidden=&quot;true&quot;>${initials}</div>';" /></div>`
-        : `<div class="ref-card-avatar" aria-hidden="true">${initials}</div>`;
+      const signerName = Seav.escapeHtml(verification.signatureName || r.name || "—");
+
+      // Only claim "the Master" when the referee actually signed as one —
+      // references get signed by chief officers, chief engineers and pursers
+      // too, and overstating the rank on a trust element is the one thing this
+      // block must not do.
+      const rankRaw = String(verification.rank || "").toLowerCase();
+      const isMaster = /captain|master|skipper/.test(rankRaw);
+      const eyebrow = isMaster ? "Signed by the Master" : "Referee sign-off";
+      const paperCaption = isMaster ? "Signature of the Master" : "Referee signature";
+
+      const paperInner = sigUrl
+        ? `<img class="seav-signature-display ref-signoff-ink" src="${Seav.escapeHtml(sigUrl)}" alt="Signature of ${signerName}" loading="lazy"
+             onerror="this.outerHTML='<span class=&quot;ref-signoff-typed&quot;>${signerName}</span>';" />`
+        : `<span class="ref-signoff-typed">${signerName}</span>`;
+
+      const field = (label, value, sub) => `
+        <div class="ref-signoff-field">
+          <span class="ref-signoff-label">${Seav.escapeHtml(label)}</span>
+          <span class="ref-signoff-value">${value}${
+            sub ? `<small>${sub}</small>` : ""
+          }</span>
+        </div>
+      `;
+
+      const provenance = [
+        r.email ? `Signed via a single-use verification link sent to ${Seav.escapeHtml(r.email)}` : "Signed via a single-use verification link",
+        signedValue !== "—" ? signedValue : ""
+      ].filter(Boolean).join(" · ");
 
       return `
-        <div class="ref-signoff ref-signoff--verified">
-          ${avatarHtml}
-          <div class="ref-signoff-body">
-            <div class="ref-signoff-name">${Seav.escapeHtml(verification.signatureName || r.name || "—")}</div>
-            <div class="ref-signoff-meta">${rankValue !== "—" ? `${rankValue} · ` : ""}Signed ${signedValue}</div>
+        <div class="ref-signoff ref-signoff--verified ref-signoff--attest">
+          <div class="ref-signoff-head">
+            <span class="ref-signoff-eyebrow">${Seav.escapeHtml(eyebrow)}</span>
+            <span class="ref-signoff-chip">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 12.5l4 4L18 8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Verified
+            </span>
+          </div>
+
+          <div class="ref-signoff-grid">
+            <div class="ref-signoff-paper">
+              ${paperInner}
+              <span class="ref-signoff-rule" aria-hidden="true"></span>
+              <span class="ref-signoff-caption">${Seav.escapeHtml(paperCaption)}</span>
+            </div>
+
+            <div class="ref-signoff-attest-body">
+              ${field("Signed by", signerName)}
+              ${field("Rank", rankValue, cocValue !== "—" ? `Certificate of Competency ${cocValue}` : "")}
+              ${field("Date signed", signedValue)}
+            </div>
+          </div>
+
+          <div class="ref-signoff-foot">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 11V8a4 4 0 018 0v3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>${provenance}</span>
           </div>
         </div>
       `;
