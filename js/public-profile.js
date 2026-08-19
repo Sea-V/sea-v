@@ -258,6 +258,24 @@
       const content = document.getElementById("ppContent");
       const loading = document.getElementById("ppLoading");
 
+      // Every branch below is a finished load — profile shown, profile
+      // private, or failed — so the overlay comes down in all three rather
+      // than only on success. Added 2026-08-16.
+      //
+      // Takes the class off directly rather than relying on
+      // SeavFeedback.hidePageLoader() alone: that function early-returns
+      // while its internal `pageLoader` is null, and it is only assigned by
+      // ensurePageLoader(), which nothing on this page triggers because
+      // nothing here ever calls showPageLoader(). Leaning on it by itself
+      // would have left this overlay up permanently — worse than the bare
+      // text line it replaced. hidePageLoader() is still called so
+      // feedback.js's own counter stays consistent if it is in use.
+      const hideLoader = () => {
+        document.getElementById("appPageLoader")?.classList.remove("is-visible");
+        document.body.classList.remove("seav-is-loading");
+        window.SeavFeedback?.hidePageLoader?.();
+      };
+
       try {
         await waitForSupabase();
 
@@ -265,6 +283,7 @@
         const isPublic = isProfilePublic(profile);
 
         if (loading) loading.hidden = true;
+        hideLoader();
 
         if (!isPublic) {
           if (gate) gate.hidden = false;
@@ -357,6 +376,7 @@
       } catch (err) {
         console.error("[SEA-V] Public profile render failed:", err);
         if (loading) loading.hidden = true;
+        hideLoader();
         if (content) content.hidden = true;
         if (gate) {
           gate.hidden = false;
@@ -372,11 +392,25 @@
       }
     }
 
+    // Failsafe. Every path through refreshPublicProfileView() hides the
+    // overlay, but only if it reaches one — a fetch that hangs without
+    // rejecting would leave a full-screen loader up indefinitely, which is
+    // worse than no loader at all, and this is the one page a stranger or a
+    // recruiter might land on first. After 15s the page shows whatever it
+    // has; hidePageLoader() is idempotent, so the normal path calling it
+    // first costs nothing. 2026-08-16.
+    const loaderFailsafe = window.setTimeout(() => {
+      document.getElementById("appPageLoader")?.classList.remove("is-visible");
+      document.body.classList.remove("seav-is-loading");
+      window.SeavFeedback?.hidePageLoader?.();
+    }, 15000);
+
     if (window.SeavAuth?.whenReady) {
       await window.SeavAuth.whenReady();
     }
     wirePublicProfileNav();
     await refreshPublicProfileView();
+    window.clearTimeout(loaderFailsafe);
 
     document.addEventListener("seav:data-updated", refreshPublicProfileView);
   }
