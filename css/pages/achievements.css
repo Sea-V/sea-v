@@ -285,9 +285,12 @@
   background: rgba(255, 255, 255, 0.035);
 }
 
+/* Border only — 2026-08-16, per Jack: the amber fill made completed rows
+   read as dull/washed rather than finished. The inside stays the same
+   neutral surface as an in-progress row, so completion is signalled by the
+   edge and the tick, not by tinting the whole card. */
 .ach-progress-row.is-unlocked {
-  border-color: rgba(255, 179, 71, 0.28);
-  background: rgba(255, 179, 71, 0.06);
+  border-color: rgba(94, 230, 168, 0.42);
 }
 
 .ach-progress-row-badge {
@@ -374,9 +377,19 @@
   background: rgba(255, 255, 255, 0.035);
 }
 
-.ach-milestone-row.is-unlocked {
-  border-color: rgba(255, 179, 71, 0.28);
-  background: rgba(255, 179, 71, 0.06);
+/* Border only, and keyed on READINESS rather than is-unlocked — 2026-08-16.
+   The amber fill made finished rows look dull; the inside now stays the
+   same neutral surface at every stage and only the edge changes. Colours
+   match the certificate block inside: mint = everything held and ready to
+   apply, amber = sea time met with certificates outstanding. A row with no
+   prerequisites declared resolves to "ready" as soon as it unlocks, so
+   geographic and manual milestones behave exactly as before. */
+.ach-milestone-row.is-ready {
+  border-color: rgba(94, 230, 168, 0.42);
+}
+
+.ach-milestone-row.is-sea-time {
+  border-color: rgba(255, 159, 67, 0.38);
 }
 
 /* 2026-08-05 audit fix: this dropdown wrapper (.ach-milestone-row) reuses
@@ -537,11 +550,9 @@
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
+/* Border only — see .ach-progress-row.is-unlocked above (2026-08-16). */
 .ach-trophy.is-unlocked {
-  border-color: rgba(255, 179, 71, 0.28);
-  /* Solid fill, not a gradient — Jack wants solid colors site-wide
-     2026-08-03. */
-  background: rgba(255, 179, 71, 0.06);
+  border-color: rgba(94, 230, 168, 0.42);
 }
 
 .ach-trophy.is-unlocked:hover {
