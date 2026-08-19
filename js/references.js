@@ -424,14 +424,29 @@
       const sigUrl = sig ? Seav.getFileDisplayUrl(sig, REF_FILES_BUCKET) : "";
       const signerName = Seav.escapeHtml(verification.signatureName || r.name || "—");
 
-      // Only claim "the Master" when the referee actually signed as one —
-      // references get signed by chief officers, chief engineers and pursers
-      // too, and overstating the rank on a trust element is the one thing this
-      // block must not do.
-      const rankRaw = String(verification.rank || "").toLowerCase();
-      const isMaster = /captain|master|skipper/.test(rankRaw);
-      const eyebrow = isMaster ? "Signed by the Master" : "Referee sign-off";
-      const paperCaption = isMaster ? "Signature of the Master" : "Referee signature";
+      /* The heading uses the referee's OWN rank rather than guessing at one.
+         verification.rank is free text the referee types when signing
+         (verify-reference.html #vrRank, "Captain, Chief Officer, etc.",
+         pre-filled from the referee title the crew member entered) — nothing
+         is auto-assigned. So a chief officer's reference reads "Signed by the
+         Chief Officer", not a generic fallback, and a Staff Captain is never
+         silently promoted to Master by a keyword match. 2026-08-16, after Jack
+         asked what happens when the signer isn't a captain.
+
+         Free text can be anything, so anything that doesn't look like a bare
+         rank — too long, or carrying a name/vessel after a comma — falls back
+         to the neutral wording rather than producing "Signed by the Capt Sean
+         Black, M/Y Senses". The Rank field below always shows it verbatim
+         either way. */
+      const rankText = String(verification.rank || "").trim();
+      const looksLikeRank =
+        rankText.length > 0 && rankText.length <= 28 && !/[,;/|]/.test(rankText);
+      const rankLabel = looksLikeRank
+        ? rankText.replace(/\s+/g, " ")
+        : "";
+
+      const eyebrow = rankLabel ? `Signed by the ${rankLabel}` : "Referee sign-off";
+      const paperCaption = rankLabel ? `Signature of the ${rankLabel}` : "Referee signature";
 
       const paperInner = sigUrl
         ? `<img class="seav-signature-display ref-signoff-ink" src="${Seav.escapeHtml(sigUrl)}" alt="Signature of ${signerName}" loading="lazy"
@@ -454,14 +469,12 @@
 
       return `
         <div class="ref-signoff ref-signoff--verified ref-signoff--attest">
+          <!-- No "Verified" chip here: the card header already carries the
+               status pill, and it is visible collapsed as well as expanded.
+               Two pills saying the same word on one card was duplication.
+               Removed 2026-08-16, per Jack. -->
           <div class="ref-signoff-head">
             <span class="ref-signoff-eyebrow">${Seav.escapeHtml(eyebrow)}</span>
-            <span class="ref-signoff-chip">
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M6 12.5l4 4L18 8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Verified
-            </span>
           </div>
 
           <div class="ref-signoff-grid">
