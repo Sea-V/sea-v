@@ -32,8 +32,7 @@
     getSortedVesselOptions,
     getVesselColor,
     formatDatePretty,
-    computeOowSeaService,
-    computeMasterSeaService
+    computeOowSeaService
   } = window.SeavData;
 
   const STORAGE_KEY = KEYS.SEATIMES;
@@ -102,13 +101,6 @@
     return window.SeavState?.vessels || [];
   }
 
-  // Needed so computeMasterSeaService can gate watchkeeping to service performed
-  // while holding OOW Yachts <3000GT (MSN 1858 SS3.6(a)) — added 2026-08-16
-  // alongside "certs" in this page's PAGE_LOAD_KEYS in js/state.js.
-  function getCerts() {
-    return window.SeavState?.certs || [];
-  }
-
   function getVesselById(vesselId) {
     if (!vesselId) return null;
     return getVessels().find((v) => v.id === vesselId) || null;
@@ -143,202 +135,21 @@
 
     // 2026-08-05, Jack: raw total above isn't capped to any MCA route, so it
     // was reading as "qualifying" when it isn't. This box reuses the
-    // already-verified capped OOW <3000GT calculator (same one the tracker
-    // below already uses) so a real, standards-based figure sits next to
-    // the raw one instead of replacing it.
+    // already-verified capped OOW <3000GT calculator (shared with the
+    // Milestones page via js/seav-data.js) so a real, standards-based figure
+    // sits next to the raw one instead of replacing it.
     if (kpiOowCapped) {
       const oow = computeOowSeaService(seatimes, getVessels());
       kpiOowCapped.textContent = String(oow.totalQualifying15m);
     }
   }
 
-  // Per-user "I hold the OOW cert and want to see Master progress" tick box —
-  // a local preference, not official data, so it lives in localStorage rather
-  // than Supabase (mirrors js/badge-unlock.js's per-user storageKey pattern).
-  const OOW_MASTER_CONFIRM_KEY = "seav_oow_master_confirmed";
-  let latestOowAllMet = false;
-
-  function getOowMasterConfirmStorageKey() {
-    const userId = window.SeavAuth?.getUserId?.();
-    return userId ? `${OOW_MASTER_CONFIRM_KEY}_${userId}` : OOW_MASTER_CONFIRM_KEY;
-  }
-
-  function isOowMasterConfirmed() {
-    try {
-      return localStorage.getItem(getOowMasterConfirmStorageKey()) === "1";
-    } catch {
-      return false;
-    }
-  }
-
-  function setOowMasterConfirmed(value) {
-    try {
-      localStorage.setItem(getOowMasterConfirmStorageKey(), value ? "1" : "0");
-    } catch {
-      /* ignore storage errors (private browsing, quota, etc.) */
-    }
-  }
-
-  // Grid hides as soon as eligibility is met (pill takes over) — independent
-  // of the tick box, which only gates the separate Master section reveal.
-  function applyOowMasterVisibility(allMet, confirmed) {
-    const oowGrid = document.getElementById("seatimeOowGrid");
-    const masterSection = document.getElementById("seatimeMasterSection");
-    if (oowGrid) oowGrid.hidden = allMet;
-    if (masterSection) masterSection.hidden = !confirmed;
-  }
-
-  function wireOowMasterConfirmCheckbox() {
-    const confirmCheck = document.getElementById("seatimeOowConfirmCheck");
-    if (!confirmCheck || confirmCheck.dataset.wired) return;
-    confirmCheck.dataset.wired = "1";
-    confirmCheck.addEventListener("change", () => {
-      setOowMasterConfirmed(confirmCheck.checked);
-      applyOowMasterVisibility(latestOowAllMet, latestOowAllMet && confirmCheck.checked);
-    });
-  }
-
-  /**
-   * Guide-only OOW (Yachts <3000GT) II/1 eligibility tracker.
-   * Figures verified against MCA MSN 1858 (M+F) Amendment 2 (18 May 2026),
-   * section 3.3 — the current in-force requirement as of this build:
-   *   - 365 days seagoing service on vessels 15m+ load line length:
-   *       - minimum 250 days actual sea service
-   *       - 115 days from any combination of actual/standby/yard, where
-   *         standby never exceeds that voyage's actual sea days and yard
-   *         service counts up to a max of 90 days total
-   * (Section 3.3 also requires 36 months' onboard yacht service of any size
-   * since age 16 — that leg isn't shown as its own box, but is covered in
-   * the "read more" dropdown below since it's rarely the limiting factor.)
-   * This works from each entry's day totals (not day-by-day consecutive
-   * tracking), so it is a guide, not an official assessment. Once met, the
-   * boxes above are replaced by a status pill and a tick box lets the crew
-   * confirm they hold the cert before the Master <3000GT tracker appears.
-   */
-  function updateOowTracker(seatimes) {
-    const qualDaysEl = document.getElementById("oowQualifyingDays");
-    const qualBar = document.getElementById("oowQualifyingBar");
-    const qualBox = document.getElementById("oowQualifyingBox");
-    const actualEl = document.getElementById("oowActualDays");
-    const actualBar = document.getElementById("oowActualBar");
-    const actualBox = document.getElementById("oowActualBox");
-    const breakdownEl = document.getElementById("seatimeOowBreakdown");
-    const statusEl = document.getElementById("seatimeOowStatus");
-    const confirmWrap = document.getElementById("seatimeOowConfirmWrap");
-    const confirmCheck = document.getElementById("seatimeOowConfirmCheck");
-
-    if (!qualDaysEl && !actualEl) return;
-
-    // Shared with js/achievements-engine.js via js/seav-data.js so the
-    // OOW badge triggers and this tracker can never disagree. Standby is
-    // capped by BOTH "14 consecutive days at one time" AND "never exceeds
-    // that voyage's own actual sea days" per MSN 1858 SS4.2.
-    const {
-      totalActual15m,
-      totalStandby15mCounted,
-      totalYard15mRaw,
-      totalYard15mCounted,
-      totalQualifying15m,
-      qualifyingMet,
-      actualMet,
-      allMet,
-      ACTUAL_MIN,
-      QUALIFYING_TARGET,
-      YARD_CAP
-    } = computeOowSeaService(seatimes, getVessels());
-
-    latestOowAllMet = allMet;
-
-    if (qualDaysEl) qualDaysEl.textContent = `${totalQualifying15m} / ${QUALIFYING_TARGET}`;
-    if (qualBar) {
-      qualBar.style.width = `${Math.min(100, (totalQualifying15m / QUALIFYING_TARGET) * 100)}%`;
-    }
-    if (qualBox) qualBox.classList.toggle("is-met", qualifyingMet);
-
-    if (actualEl) actualEl.textContent = `${totalActual15m} / ${ACTUAL_MIN}`;
-    if (actualBar) {
-      actualBar.style.width = `${Math.min(100, (totalActual15m / ACTUAL_MIN) * 100)}%`;
-    }
-    if (actualBox) actualBox.classList.toggle("is-met", actualMet);
-
-    if (statusEl) statusEl.hidden = !allMet;
-    if (confirmWrap) confirmWrap.hidden = !allMet;
-
-    wireOowMasterConfirmCheckbox();
-    const confirmed = allMet && isOowMasterConfirmed();
-    if (confirmCheck) confirmCheck.checked = confirmed;
-    applyOowMasterVisibility(allMet, confirmed);
-
-    if (breakdownEl) {
-      breakdownEl.innerHTML = `On vessels 15m and over: <strong>${totalActual15m}</strong> actual sea days, <strong>${totalStandby15mCounted}</strong> standby days counted, <strong>${totalYard15mCounted}</strong> of ${totalYard15mRaw} yard days counted (capped at ${YARD_CAP}).`;
-    }
-
-    updateMasterTracker(seatimes);
-  }
-
-  /**
-   * Guide-only Master (Yachts <3000GT) II/2 sea-service tracker — MSN 1858
-   * Amendment 2, section 3.6(a): while serving as OOW <3000GT, 240 days
-   * watchkeeping service on vessels 15m+, including either 12 months on
-   * vessels 24m+ or 6 months on vessels 500GT+. Only this sea-service leg is
-   * trackable from logged data — ancillary certs, the Master <500GT CoC/
-   * Celestial Nav (or equivalent modules), and the oral exam are separate
-   * requirements not covered here. (Section 3.6(a) also requires 24 months'
-   * onboard service as a Deck Officer — that leg isn't shown as its own box,
-   * matching the OOW tracker's 36-month box above.) Revealed once the OOW
-   * tracker above is confirmed via its tick box.
-   */
-  function updateMasterTracker(seatimes) {
-    const watchEl = document.getElementById("masterWatchkeeping");
-    const watchBar = document.getElementById("masterWatchkeepingBar");
-    const watchBox = document.getElementById("masterWatchkeepingBox");
-    const specialEl = document.getElementById("masterSpecial");
-    const specialLabelEl = document.getElementById("masterSpecialLabel");
-    const specialBar = document.getElementById("masterSpecialBar");
-    const specialBox = document.getElementById("masterSpecialBox");
-    const breakdownEl = document.getElementById("seatimeMasterBreakdown");
-    const statusEl = document.getElementById("seatimeMasterStatus");
-
-    if (!watchEl && !specialEl) return;
-
-    const WATCHKEEPING_TARGET = 240;
-
-    // Shared with js/achievements-engine.js via js/seav-data.js.
-    const {
-      totalWatchkeeping15m,
-      months24m,
-      months500gt,
-      watchMet,
-      use500gtPath,
-      specialValue,
-      specialTarget,
-      specialMet,
-      allMasterMet
-    } = computeMasterSeaService(seatimes, getVessels(), getCerts());
-
-    if (watchEl) watchEl.textContent = `${totalWatchkeeping15m} / ${WATCHKEEPING_TARGET}`;
-    if (watchBar) {
-      watchBar.style.width = `${Math.min(100, (totalWatchkeeping15m / WATCHKEEPING_TARGET) * 100)}%`;
-    }
-    if (watchBox) watchBox.classList.toggle("is-met", watchMet);
-
-    if (specialEl) specialEl.textContent = `${specialValue.toFixed(1)} / ${specialTarget} mo`;
-    if (specialLabelEl) {
-      specialLabelEl.textContent = use500gtPath
-        ? "Months on vessels 500GT+"
-        : "Months on vessels 24m+";
-    }
-    if (specialBar) {
-      specialBar.style.width = `${Math.min(100, (specialValue / specialTarget) * 100)}%`;
-    }
-    if (specialBox) specialBox.classList.toggle("is-met", specialMet);
-
-    if (statusEl) statusEl.hidden = !allMasterMet;
-
-    if (breakdownEl) {
-      breakdownEl.innerHTML = `On vessels 15m and over: <strong>${totalWatchkeeping15m}</strong> watchkeeping days. Specialised experience: <strong>${months24m.toFixed(1)}</strong> months on 24m+ vessels, <strong>${months500gt.toFixed(1)}</strong> months on 500GT+ vessels.`;
-    }
-  }
+  // The OOW <3000GT and Master <3000GT eligibility trackers (updateOowTracker,
+  // updateMasterTracker, and the seav_oow_master_confirmed localStorage tick
+  // box) were removed 2026-08-21. Every deck route now has its own milestone
+  // on achievements.html driven by the same computeOowSeaService /
+  // computeMasterSeaService helpers in js/seav-data.js, so this page duplicated
+  // one route's progress. The capped KPI above still uses computeOowSeaService.
 
   const SEATIME_TABLE_HEAD = `
     <thead>
@@ -431,10 +242,10 @@
   // (getSortedVesselOptions — most recently active first); entries within
   // a group keep whatever order they arrive in (already date-sorted by
   // renderSeatimes before this runs). Purely a rendering change — the
-  // flat `seatimes` array passed in is untouched, so OOW/Master tracker
-  // math (updateOowTracker/updateMasterTracker) and CSV export
-  // (exportSeatimeCsv), which both read straight from getSeatimes(), are
-  // unaffected by how entries are grouped for display.
+  // flat `seatimes` array passed in is untouched, so the service-summary KPI
+  // math (updateServiceKpisFromData) and CSV export (exportSeatimeCsv), which
+  // both read straight from getSeatimes(), are unaffected by how entries are
+  // grouped for display.
   function buildSeatimeVesselGroups(seatimes) {
     const vessels = getVessels();
     const groups = new Map();
@@ -521,7 +332,6 @@
 
     renderSeatimeRows(seatimes);
     updateServiceKpisFromData(seatimes);
-    updateOowTracker(seatimes);
   }
 
   function populateSeattimeVesselOptions() {

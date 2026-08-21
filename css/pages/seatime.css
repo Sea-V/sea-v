@@ -159,9 +159,8 @@
 /* Keep all 6 in one row (Jack confirmed 2026-08-07 they're small enough to
    fit) — the label was the only thing at risk of wrapping onto 2 lines in
    a narrower 1/6-width box (e.g. "OOW-qualifying (capped)"), which is what
-   stretched the row taller than the rest of the page. Same shrink already
-   used just below for the OOW/Master boxes in this same squeeze situation
-   (.seatime-oow-panel .kpi-label). */
+   stretched the row taller than the rest of the page. (The OOW/Master
+   eligibility boxes that used the same shrink were removed 2026-08-21.) */
 .seatime-shell-card .seatime-kpi-panel .kpi-label {
   font-size: 10px;
   letter-spacing: 0.4px;
@@ -668,201 +667,49 @@
 }
 
 /* =========================================================
-   OOW ELIGIBILITY TRACKER
+   CAREER PROGRESS LINK
 ========================================================= */
 
-.seatime-oow-panel .kpi-row-grid-3 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+/* Replaced the OOW <3000GT / Master <3000GT eligibility trackers that sat
+   here until 2026-08-21 (Jack: "we have too many milestones to just have
+   oow as a focus"). Every deck route now has its own milestone on
+   achievements.html running the same MSN 1858 maths, so this page points
+   there instead of duplicating one route.
+
+   Selector is prefixed with .seatime-shell-card so it out-specifies
+   `.dash-card p` (0,1,1) in css/core/layout.css — the same trap
+   .seatime-kpi-caveat fell into on 2026-08-09. */
+.seatime-shell-card .seatime-progress-link {
+  margin: 26px 0 0;
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-body);
+  line-height: 1.5;
+  color: var(--seav-note-color);
 }
 
-.seatime-oow-panel .kpi-row-grid-2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.seatime-oow-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.seatime-oow-summary {
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
-}
-
-.seatime-oow-summary::-webkit-details-marker {
-  display: none;
-}
-
-.seatime-oow-summary .kpi-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.seatime-oow-summary .kpi-title::before {
-  content: "›";
-  display: inline-block;
-  color: var(--seatime-accent);
-  font-size: 18px;
-  line-height: 1;
-  transition: transform 0.15s ease;
-}
-
-.seatime-oow-panel[open] .seatime-oow-summary .kpi-title::before {
-  transform: rotate(90deg);
-}
-
-.seatime-oow-panel > .kpi-row-grid {
-  margin-top: 16px;
-}
-
-.seatime-oow-status {
+.seatime-shell-card .seatime-progress-link a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  /* Matches .pill-valid (pills.css) — same mint green used by the TRB
-     "Completed" pill and certs/references verified pills, so all green
-     "complete"-style pills read as one consistent color across the page. */
-  border: 1px solid rgba(94, 230, 168, 0.42);
-  background: rgba(94, 230, 168, 0.16);
-  /* "Eligibility complete" text is white on request — border/background
-     stay green, and the checkmark icon keeps its own green color below
-     (it uses stroke="currentColor", so it needs its own override now
-     that the parent's text color no longer doubles as its color too). */
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 700;
+  margin-left: 4px;
+  color: var(--accent-blue);
+  text-decoration: none;
 }
 
-.seatime-oow-status svg {
+.seatime-shell-card .seatime-progress-link a:hover,
+.seatime-shell-card .seatime-progress-link a:focus-visible {
+  text-decoration: underline;
+}
+
+.seatime-shell-card .seatime-progress-link svg {
   width: 14px;
   height: 14px;
-  color: #5ee6a8;
+  flex: 0 0 auto;
+  transition: transform 0.15s ease;
 }
 
-.seatime-oow-box {
-  position: relative;
-}
-
-.seatime-oow-box-check {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 62px;
-  color: #4cd97b;
-  font-size: 12px;
-  font-weight: 700;
-  text-align: center;
-}
-
-.seatime-oow-box-check svg {
-  width: 26px;
-  height: 26px;
-}
-
-.seatime-oow-box.is-met .seatime-oow-box-metric {
-  display: none;
-}
-
-.seatime-oow-box.is-met .seatime-oow-box-check {
-  display: flex;
-}
-
-.seatime-oow-confirm {
-  margin-top: 12px !important;
-  padding: 12px 14px !important;
-  border-radius: 12px;
-  border: 1px solid rgba(76, 217, 123, 0.3);
-  background: rgba(76, 217, 123, 0.08);
-}
-
-.seatime-oow-confirm span {
-  color: rgba(214, 226, 238, 0.92) !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-}
-
-.seatime-master-section {
-  margin-top: 22px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(130, 158, 255, 0.14);
-}
-
-.seatime-master-head {
-  margin-bottom: 4px;
-}
-
-/* Boxes take up a lot of vertical space at the default kpi-box size —
-   scope a smaller footprint just within this tracker. */
-.seatime-oow-panel .kpi-box {
-  padding: 12px 14px;
-}
-
-.seatime-oow-panel .kpi-num {
-  font-size: 17px;
-}
-
-.seatime-oow-panel .kpi-label {
-  font-size: 10px;
-}
-
-.seatime-oow-panel .seatime-oow-box-check {
-  min-height: 44px;
-}
-
-.seatime-oow-panel .seatime-oow-box-check svg {
-  width: 20px;
-  height: 20px;
-}
-
-.seatime-progress-bar {
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  overflow: hidden;
-  margin-top: 8px;
-}
-
-.seatime-progress-bar span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: #5bbcff;
-  transition: width 0.35s ease;
-}
-
-/* This sits right under the bordered KPI box grid (both in the OOW
-   section and the Master section below it), so 14px read as barely any
-   gap at all against a strong box edge — bumped to a more generous 20px,
-   matching the gap already used above the grid itself
-   (.seatime-oow-panel > .kpi-row-grid). */
-.seatime-oow-breakdown {
-  margin-top: 20px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: rgba(214, 226, 238, 0.82);
-}
-
-.seatime-oow-note {
-  margin-top: 10px;
-  font-size: 12px;
-  line-height: 1.5;
-  color: rgba(214, 226, 238, 0.55);
-}
-
-@media (max-width: 760px) {
-  .seatime-oow-panel .kpi-row-grid-3,
-  .seatime-oow-panel .kpi-row-grid-2 {
-    grid-template-columns: 1fr;
-  }
+.seatime-shell-card .seatime-progress-link a:hover svg {
+  transform: translateX(2px);
 }
 
 /* =========================================================
@@ -873,10 +720,9 @@
   border-top: 1px solid rgba(130, 158, 255, 0.10);
 }
 
-/* margin-top was missing entirely, so whatever sits above this (the OOW
-   confirm checkbox, or the Master breakdown paragraph) had zero gap
-   before it — same 14px rhythm already used by .seatime-oow-breakdown
-   and similar stacked elements elsewhere on this page. */
+/* margin-top was missing entirely, so whatever sits above this had zero gap
+   before it — same 14px rhythm used by stacked elements elsewhere on this
+   page. */
 .seatime-checklist-panel {
   margin-top: 14px;
 

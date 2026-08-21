@@ -805,8 +805,10 @@
 
 /* ---------------------------------------------------------------
    Department sections (Deck, Engineering, ...) — 2026-08-16.
-   Disclosure styling copied from .seatime-oow-summary so the two
-   pages use one chevron convention rather than two.
+   Disclosure styling was copied from .seatime-oow-summary so the two
+   pages shared one chevron convention; that rule was removed with the
+   Sea Time page's OOW tracker on 2026-08-21, so this is now the
+   canonical definition.
    --------------------------------------------------------------- */
 
 .ach-department-summary {
