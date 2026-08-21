@@ -1115,6 +1115,65 @@
   white-space: nowrap;
 }
 
+/* Actionable requirement rows (currently only the Training Record Book).
+   The whole row is the button so it is an easy target on a phone, with the
+   "Update" affordance only appearing where something can actually be
+   changed — every other row is evidence, not a control. 2026-08-16. */
+.ach-cert-item--action {
+  padding: 0;
+}
+
+.ach-cert-action {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin: -3px 0;
+  padding: 3px 6px 3px 0;
+
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+
+  color: inherit;
+  font: inherit;
+  text-align: left;
+
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ach-cert-action:hover,
+.ach-cert-action:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ach-cert-action:focus-visible {
+  outline: 2px solid rgba(91, 188, 255, 0.55);
+  outline-offset: 1px;
+}
+
+.ach-cert-edit {
+  flex: 0 0 auto;
+
+  padding: 2px 8px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(91, 188, 255, 0.3);
+
+  color: var(--accent-blue);
+
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.ach-cert-item--action .ach-cert-note {
+  margin-left: auto;
+}
+
 /* Satisfied and not-required groups recede so the actionable ones lead. */
 .ach-cert-group.is-muted .ach-cert-item {
   color: rgba(255, 255, 255, 0.48);

@@ -442,13 +442,27 @@
   };
 
   function buildCertItem(item) {
-    return `
-      <li class="ach-cert-item">
-        <span class="ach-cert-ico is-${Seav.escapeHtml(item.state)}">${CERT_STATE_ICON[item.state] || ""}</span>
-        <span class="ach-cert-name">${Seav.escapeHtml(item.label || "")}</span>
-        <small class="ach-cert-note">${Seav.escapeHtml(item.note || "")}</small>
-      </li>
+    const inner = `
+      <span class="ach-cert-ico is-${Seav.escapeHtml(item.state)}">${CERT_STATE_ICON[item.state] || ""}</span>
+      <span class="ach-cert-name">${Seav.escapeHtml(item.label || "")}</span>
+      <small class="ach-cert-note">${Seav.escapeHtml(item.note || "")}</small>
     `;
+
+    // Rows the crew member can act on directly — currently only the Training
+    // Record Book, which is a profile status rather than an upload, so there
+    // is nowhere else to change it now the Sea Time panel is gone.
+    if (item.action === "trb") {
+      return `
+        <li class="ach-cert-item ach-cert-item--action">
+          <button type="button" class="ach-cert-action" data-open-trb aria-label="Update Training Record Book status">
+            ${inner}
+            <span class="ach-cert-edit">Update</span>
+          </button>
+        </li>
+      `;
+    }
+
+    return `<li class="ach-cert-item">${inner}</li>`;
   }
 
   function buildCertGroup(title, dotClass, mutedClass, items) {
@@ -975,7 +989,65 @@
       });
     }
 
+    /* Training Record Book — moved here from the Sea Time page 2026-08-16.
+       Same three profile fields, same save path; only the location changed.
+
+       The whole profile object is spread before saving because
+       mapProfileToSupabase upserts the entire row — saving a bare
+       { trbStatus } would blank every other profile field. That trap is
+       inherited from the original implementation and is the reason this
+       reads longer than it looks like it should. */
+    function fillTrbForm() {
+      const profile = window.SeavState?.profile || {};
+      const set = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value || "";
+      };
+      set("trb_status", profile.trbStatus || "not_started");
+      set("trb_target_qualification", profile.trbTargetQualification);
+      set("trb_notes", profile.trbNotes);
+    }
+
+    async function saveTrbForm() {
+      const existingProfile = window.SeavState?.profile || {};
+      const value = (id) => document.getElementById(id)?.value?.trim() || "";
+
+      const updatedProfile = {
+        ...existingProfile,
+        trbStatus: document.getElementById("trb_status")?.value || "not_started",
+        trbTargetQualification: value("trb_target_qualification"),
+        trbNotes: value("trb_notes")
+      };
+
+      await Seav.withSaving(async () => {
+        await window.SeavAPI.save(KEYS.PROFILE, updatedProfile);
+        // window.SeavState.profile is a read-only getter — patchData() is the
+        // public way to update the in-memory snapshot after a save.
+        window.SeavState?.patchData?.({ profile: updatedProfile });
+        window.SeavModals?.closeAllModals?.();
+        renderPage();
+        Seav.notify("success", "Training Record Book saved", "Your TRB status is up to date.");
+      }, { sub: "Saving Training Record Book" });
+    }
+
+    const trbForm = document.getElementById("trbForm");
+    if (trbForm) {
+      trbForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        saveTrbForm();
+      });
+    }
+
     document.addEventListener("click", async (e) => {
+      const trbBtn = e.target.closest("[data-open-trb]");
+      if (trbBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        fillTrbForm();
+        window.SeavModals?.openModal?.("trbModal");
+        return;
+      }
+
       const editBtn = e.target.closest("[data-edit-achievement-id]");
       if (editBtn) {
         e.preventDefault();

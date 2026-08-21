@@ -727,90 +727,11 @@
     await SeavAPI.upsertItemById(STORAGE_KEY, seatimeData);
   }
 
-  // Training Record Book (TRB) tracker -- a simple status/notes form, not
-  // a list like the rest of this page. One TRB per crew member (they carry
-  // it across placements until submitted), so it's stored on `profile`
-  // (single row per user) rather than a new table, saved through the same
-  // SeavAPI.save(KEYS.PROFILE, ...) path profile.js already uses. Must
-  // spread the existing profile object first -- mapProfileToSupabase
-  // upserts the whole row, so saving a bare {trbStatus: ...} object would
-  // wipe every other profile field back to blank.
-  const TRB_STATUS_LABELS = {
-    not_started: { label: "Not started", pillClass: "pill-neutral" },
-    in_progress: { label: "In progress", pillClass: "pill-warning" },
-    submitted_to_mca: { label: "Submitted to MCA", pillClass: "pill-valid" },
-    completed: { label: "Completed", pillClass: "pill-valid" }
-  };
-
-  // Mirrors js/profile.js's formDirty guard (2026-08-07 Mia Bailey
-  // incident). renderTrbPanel() runs on EVERY seav:data-updated event
-  // app-wide -- saving an unrelated sea time entry, a certificate,
-  // anything -- not just TRB-specific changes, so without this it could
-  // silently overwrite in-progress TRB notes mid-keystroke. Only ever set
-  // true by a genuine "input" event, never by a programmatic fill.
-  let trbFormDirty = false;
-
-  function renderTrbPanel() {
-    const statusEl = document.getElementById("trb_status");
-    const targetEl = document.getElementById("trb_target_qualification");
-    const notesEl = document.getElementById("trb_notes");
-    const badgeEl = document.getElementById("seatimeTrbStatusBadge");
-    if (!statusEl && !badgeEl) return;
-
-    const profile = window.SeavState?.profile || {};
-    const status = profile.trbStatus || "not_started";
-
-    // Skip re-filling the editable fields while the user has unsaved
-    // changes in them -- the status badge below still always reflects
-    // whatever's actually saved, so it never goes stale either way.
-    if (!trbFormDirty) {
-      if (statusEl) statusEl.value = status;
-      if (targetEl) targetEl.value = profile.trbTargetQualification || "";
-      if (notesEl) notesEl.value = profile.trbNotes || "";
-    }
-
-    if (badgeEl) {
-      const info = TRB_STATUS_LABELS[status] || TRB_STATUS_LABELS.not_started;
-      badgeEl.textContent = info.label;
-      badgeEl.className = `pill ${info.pillClass}`;
-    }
-  }
-
-  async function saveTrbForm() {
-    const status = document.getElementById("trb_status")?.value || "not_started";
-    const target = document.getElementById("trb_target_qualification")?.value.trim() || "";
-    const notes = document.getElementById("trb_notes")?.value.trim() || "";
-
-    const existingProfile = window.SeavState?.profile || {};
-
-    // Same blank-never-overwrites-real-data safety net as js/profile.js
-    // (2026-08-07 Mia Bailey incident) -- a blank field falls back to
-    // whatever was already saved instead of erasing it.
-    const keep = (formValue, existingValue) =>
-      (formValue === "" || formValue == null) && existingValue ? existingValue : formValue;
-
-    const updatedProfile = {
-      ...existingProfile,
-      trbStatus: status,
-      trbTargetQualification: keep(target, existingProfile.trbTargetQualification),
-      trbNotes: keep(notes, existingProfile.trbNotes)
-    };
-
-    await Seav.withSaving(async () => {
-      await window.SeavAPI.save(KEYS.PROFILE, updatedProfile);
-
-      // window.SeavState.profile is a read-only getter (see js/state.js) --
-      // assigning to it directly throws "Attempted to assign to readonly
-      // property" in strict mode. patchData() is the actual public API for
-      // updating the in-memory snapshot after a save, and it already
-      // writes the cache itself (no separate syncCache() call needed).
-      window.SeavState?.patchData?.({ profile: updatedProfile });
-
-      trbFormDirty = false;
-      renderTrbPanel();
-      Seav.notify("success", "TRB progress saved", "Your Training Record Book status is up to date.");
-    }, { sub: "Saving TRB progress" });
-  }
+  // The Training Record Book form lived here until 2026-08-16. It moved to
+  // the Milestones page (achievements.html #trbModal, js/achievements.js)
+  // because the TRB is an OOW <3000GT requirement on MCA form MSF 4343,
+  // not a measure of sea time. The data is unchanged — still profile.trbStatus
+  // / trbTargetQualification / trbNotes, saved through the same profile path.
 
   // Guards against double-initialization when this file is lazy-loaded onto
   // a page other than seatime.html (see Dashboard's "Log sea time" quick
@@ -851,21 +772,9 @@
       }
       populateSeattimeVesselOptions();
       renderSeatimes();
-      renderTrbPanel();
     };
 
     Seav.bindStateRefresh(runRefresh, { label: "Sea time refresh" });
-
-    const trbForm = document.getElementById("seatimeTrbForm");
-    if (trbForm) {
-      // .value = assignments in renderTrbPanel() never fire "input", so
-      // this only trips on genuine typing/selection -- see trbFormDirty.
-      trbForm.addEventListener("input", () => { trbFormDirty = true; });
-      trbForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        saveTrbForm();
-      });
-    }
 
     const exportBtn = document.getElementById("btnExportSeatimeCsv");
     if (exportBtn) {

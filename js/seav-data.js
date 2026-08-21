@@ -2570,6 +2570,22 @@ function getSortedVesselOptions(vessels = []) {
     conditional: "Required only on ISPS-registered vessels"
   };
 
+  /* The Training Record Book is an OOW requirement on MSF 4343, but it is not
+     a certificate — there is nothing to upload and no catalog code. It is a
+     status the crew member keeps on their profile (profile.trbStatus, saved
+     from the TRB form). Moved here from the Sea Time page 2026-08-16, per
+     Jack: it belongs with the OOW progression it feeds, not with sea time.
+
+     Kept as a status rather than converted to a manual on/off badge so
+     "submitted to MCA, awaiting return" stays expressible — a boolean would
+     have thrown that away. */
+  const TRB_PREREQUISITE_STATES = {
+    completed: { state: "held", note: "Completed" },
+    submitted_to_mca: { state: "warn", note: "Submitted to the MCA — awaiting return" },
+    in_progress: { state: "warn", note: "In progress" },
+    not_started: { state: "miss", note: "Not started" }
+  };
+
   const MILESTONE_PREREQUISITES = {
     // RYA ticket, not an MCA CoC — RYA's own exam prerequisites.
     yachtmaster_offshore: [
@@ -2592,6 +2608,7 @@ function getSortedVesselOptions(vessels = []) {
       { code: "HELM-O", label: "HELM (operational)" },
       { code: "NAV RADAR OOW", label: "Navigation & Radar (OOW yachts) module" },
       { code: "GEN SHIP KNOW", label: "General Ship Knowledge (OOW yachts) module" },
+      { trb: true, label: "Training Record Book (MCA-approved)" },
       ENG1_REQ,
       SECURITY_COND
     ],
@@ -2746,13 +2763,28 @@ function getSortedVesselOptions(vessels = []) {
    * state: "held" | "warn" (expiring, or held but not yet long enough)
    *      | "exp" (expired) | "miss" (not held)
    */
-  function computeMilestonePrerequisites(code, certs) {
+  function computeMilestonePrerequisites(code, certs, profile) {
     const list = MILESTONE_PREREQUISITES[code] || [];
     if (!list.length) return null;
 
     const today = new Date();
 
     const items = list.map((req) => {
+      // Not every requirement is a certificate. The TRB is a status on the
+      // crew member's profile, so it resolves from there and carries an
+      // `action` the UI turns into an edit affordance. 2026-08-16.
+      if (req.trb) {
+        const key = String(profile?.trbStatus || "not_started");
+        const resolved = TRB_PREREQUISITE_STATES[key] || TRB_PREREQUISITE_STATES.not_started;
+        return {
+          label: req.label,
+          state: resolved.state,
+          note: resolved.note,
+          required: true,
+          action: "trb"
+        };
+      }
+
       const codes = req.anyOf || [req.code];
       const held = codes
         .map((c) => findSavedCertByCode(certs, c))

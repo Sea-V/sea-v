@@ -825,7 +825,13 @@
    */
   function getPrerequisites(definition) {
     if (!definition?.code) return null;
-    return window.SeavData?.computeMilestonePrerequisites?.(definition.code, getCerts()) || null;
+    return (
+      window.SeavData?.computeMilestonePrerequisites?.(
+        definition.code,
+        getCerts(),
+        window.SeavState?.profile
+      ) || null
+    );
   }
 
   // A code only counts as "earned" if it hasn't been declined — e.g. a
