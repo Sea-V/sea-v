@@ -89,7 +89,7 @@
   const PUBLIC_ARRAY_COLUMNS = {
     vessels: [
       "id", "user_id", "name", "flag", "gt", "vessel_length", "builder", "vessel_role",
-      "vessel_type", "program", "experience_onboard", "date_from", "date_to", "photo",
+      "vessel_type", "contract_type", "program", "experience_onboard", "date_from", "date_to", "photo",
       "imo", "mmsi", "official_number", "call_sign", "year_built", "net_tonnage", "engine_kw",
       "classification_society", "additional_duties", "created_at", "updated_at"
     ].join(","),

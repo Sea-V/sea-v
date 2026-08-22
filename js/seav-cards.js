@@ -168,6 +168,9 @@
     const classificationSociety = vessel.classification_society ? Seav.escapeHtml(vessel.classification_society) : "";
     const additionalDuties = vessel.additional_duties ? Seav.escapeHtml(vessel.additional_duties) : "";
     const role = Seav.escapeHtml(vessel.vessel_role || vessel.role || "—");
+    const contractType = Seav.escapeHtml(
+      window.SeavData?.getVesselContractType?.(vessel) || "—"
+    );
     const type = Seav.escapeHtml(vessel.vessel_type || vessel.type || "—");
     const program = Seav.escapeHtml(vessel.program || "—");
     const experience = vessel.experience_onboard || vessel.desc || "";
@@ -239,9 +242,16 @@
               </div>
             </div>
 
+            <!-- Three items, matching the .vessel-main-grid row above
+                 (Jack, 2026-08-21: "its currently split in two, let split in
+                 three to match to row above"). No CSS change needed —
+                 .vessel-stats-grid is flex-wrap with a calc() basis that
+                 already targets exactly 3 per row; at two items they were
+                 just flex-growing to fill it. -->
             <div class="vessel-stats-grid">
               <div><span>GT</span><strong>${gt}</strong></div>
               <div><span>Length</span><strong>${length}</strong></div>
+              <div><span>Contract type</span><strong>${contractType}</strong></div>
             </div>
 
             <!-- 2026-08-05, Jack: "vessel specs do not exist in the public

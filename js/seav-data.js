@@ -3147,6 +3147,47 @@ function getSortedVesselOptions(vessels = []) {
     return !v?.to || !String(v.to).trim();
   }
 
+  /**
+   * Contract types for a vessel engagement, in rough order of how common
+   * they are in yachting. Added 2026-08-21 per Jack.
+   *
+   * Source vocabulary is Yotspot's own job-search "Position Type" filter
+   * (yotspot.com/job-search.html), so the words match what crew already see
+   * when they look for work. Three deliberate deviations:
+   *   - "Contract" is spelled out as "Fixed-term contract" — a value of
+   *     "Contract" under a field labelled "Contract type" reads as a bug.
+   *   - "Relief" is added. Covering someone else's leave is an everyday
+   *     yachting engagement and is neither daywork nor temporary; Yotspot
+   *     has no equivalent because it lists vacancies, not service history.
+   *   - "Freelance" is added for the same reason.
+   *
+   * Single-select by design (Jack, 2026-08-21). A permanent rotational job
+   * is genuinely both, but the rotation detail already has a home in the
+   * vessel's Leave / rotation field, so the crew member picks the primary
+   * contract shape here and the ratio lives there.
+   *
+   * Order matters — it is the render order of the <select>. Append new
+   * values rather than reordering: saved records store the label itself.
+   */
+  const VESSEL_CONTRACT_TYPES = [
+    "Permanent",
+    "Rotational",
+    "Fixed-term contract",
+    "Seasonal",
+    "Temporary",
+    "Relief",
+    "Daywork",
+    "Freelance",
+    "Delivery",
+    "Sail racing",
+    "Internship / cadetship",
+    "Part-time"
+  ];
+
+  function getVesselContractType(v) {
+    return String(v?.contract_type || v?.contractType || "").trim();
+  }
+
   function getVesselRole(v) {
     return v?.vessel_role || v?.role || "Crew";
   }
@@ -3309,6 +3350,8 @@ window.SeavData = {
   getSortedVesselOptions,
   getVesselColor,
   getCurrentVessel,
+  VESSEL_CONTRACT_TYPES,
+  getVesselContractType,
   isVesselOpenEnded,
   getVesselRole,
   getVesselType,

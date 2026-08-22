@@ -98,7 +98,36 @@
     if (otherEl) otherEl.value = "";
   }
 
-  function populateVesselCurrencyOptions() {
+  // Renders the Contract type <select> from the single shared vocabulary in
+// js/seav-data.js (VESSEL_CONTRACT_TYPES) so the form and the vessel card can
+// never offer/display different words. Idempotent — safe to call on every
+// modal open. A blank first option is deliberate: contract type is optional,
+// and every vessel logged before 2026-08-21 has none, so the field must be
+// able to represent "not stated" rather than defaulting everyone to
+// "Permanent". A saved value that is no longer in the list (renamed later) is
+// re-added so editing an old record never silently rewrites its contract type.
+function populateVesselContractTypeOptions(existingValue = null) {
+  const select = document.getElementById("vs_contract_type");
+  if (!select) return;
+
+  const types = window.SeavData?.VESSEL_CONTRACT_TYPES || [];
+  // null (no argument) means "keep whatever is selected" — for the initial
+  // wiring, where the control just needs its options. An explicit "" means
+  // "clear it", which is what the Add-vessel reset needs; `existingValue ||
+  // select.value` would have quietly ignored that and kept the last edited
+  // vessel's contract type on the new record.
+  const current = existingValue === null ? select.value || "" : existingValue;
+  const values = types.includes(current) || !current ? types : [...types, current];
+
+  select.innerHTML = [
+    `<option value="">Not stated</option>`,
+    ...values.map((t) => `<option value="${Seav.escapeHtml(t)}">${Seav.escapeHtml(t)}</option>`)
+  ].join("");
+
+  select.value = current;
+}
+
+function populateVesselCurrencyOptions() {
     const select = document.getElementById("vs_salary_currency");
     if (!select || !PAYSLIP_CURRENCIES) return;
 
@@ -194,6 +223,9 @@ function buildVesselCardBody(v, options = {}) {
   const role = v.vessel_role || v.role ? Seav.escapeHtml(v.vessel_role || v.role) : "—";
   const type = v.vessel_type || v.type ? Seav.escapeHtml(v.vessel_type || v.type) : "—";
   const program = v.program ? Seav.escapeHtml(v.program) : "—";
+  const contractType = window.SeavData.getVesselContractType(v)
+    ? Seav.escapeHtml(window.SeavData.getVesselContractType(v))
+    : "—";
   const rawSalary = v.salary ? String(v.salary) : "";
   const leavePackage = v.leave_package ? Seav.escapeHtml(v.leave_package) : "—";
   const additionalDuties = v.additional_duties ? Seav.escapeHtml(v.additional_duties) : "—";
@@ -276,6 +308,7 @@ function buildVesselCardBody(v, options = {}) {
           <div class="vessel-stats-grid">
             <div><span>GT</span><strong>${gt}</strong></div>
             <div><span>Length</span><strong>${length}</strong></div>
+            <div><span>Contract type</span><strong>${contractType}</strong></div>
           </div>
 
           <details class="vessel-specs-toggle">
@@ -613,6 +646,13 @@ function fillVesselForm(vessel) {
   if (programEl) programEl.value = vessel.program || "";
   if (builderEl) builderEl.value = vessel.builder || "";
 
+  // The saved value is passed in rather than assigned afterwards: a record
+  // holding a contract type that is no longer in VESSEL_CONTRACT_TYPES would
+  // otherwise have no matching <option>, and the select would silently snap
+  // to "Not stated" — quietly rewriting the crew member's own record the
+  // next time they pressed Save on an unrelated field.
+  populateVesselContractTypeOptions(window.SeavData.getVesselContractType(vessel));
+
   populateVesselCurrencyOptions();
   const parsedSalary = parseVesselSalary(vessel.salary);
   const salaryCurrencyEl = document.getElementById("vs_salary_currency");
@@ -665,6 +705,11 @@ function resetVesselFormState() {
     toWrap.style.display = "";
   }
 
+  // Blank, not a default: a brand-new vessel has no contract type until the
+  // crew member states one, and defaulting to "Permanent" would put a claim
+  // on their CV they never made.
+  populateVesselContractTypeOptions("");
+
   populateVesselCurrencyOptions();
   const salaryCurrencyEl = document.getElementById("vs_salary_currency");
   if (salaryCurrencyEl) salaryCurrencyEl.value = "GBP";
@@ -703,6 +748,7 @@ function readVesselForm() {
     to,
     role: document.getElementById("vs_role")?.value.trim() || "",
     type: document.getElementById("vs_type")?.value.trim() || "",
+    contractType: document.getElementById("vs_contract_type")?.value.trim() || "",
     program: document.getElementById("vs_program")?.value.trim() || "",
     salary: (() => {
       const amount = document.getElementById("vs_salary_amount")?.value.trim() || "";
@@ -837,6 +883,7 @@ async function saveVesselData(vesselData) {
     const toWrap = document.getElementById("vs_to_wrap");
 
     populateVesselCurrencyOptions();
+    populateVesselContractTypeOptions();
 
     const vsPhotoInput = document.getElementById("vs_photo");
     const vsPhotoBtn = document.getElementById("vsPhotoBtn");

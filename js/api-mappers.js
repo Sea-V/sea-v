@@ -120,6 +120,8 @@ function mapProfileToSupabase(item) {
     vessel_role: v.vessel_role || "",
     vessel_type: v.vessel_type || "",
 
+    contract_type: v.contract_type || "",
+
     program: v.program || "",
     salary: v.salary || "",
     leave_package: v.leave_package || "",
@@ -157,6 +159,7 @@ function mapVesselToSupabase(item) {
     classification_society: item.classification_society || "",
     vessel_role: item.vessel_role || item.role || "",
     vessel_type: item.vessel_type || item.type || "",
+    contract_type: item.contract_type || item.contractType || "",
     program: item.program || "",
     salary: item.salary || "",
     leave_package: item.leave_package || "",
