@@ -40,8 +40,28 @@ profile; collect verified references from past employers.
   3. `npm run lint`
   4. `node scripts/test-site.mjs` (needs a local server:
      `python3 -m http.server 8765`)
-- Schema changes: write a new `docs/schema-*.sql`, apply it, commit it. Never
-  edit an old migration file.
+- **Anything that touches Supabase or storage MUST be applied to the live
+  project and smoke-tested in the same session — never left as a .sql file
+  for later (Jack's standing rule, 2026-08-21).** The order is:
+  1. Write a new `docs/schema-*.sql`. Never edit an old migration file.
+  2. Apply it (Supabase MCP `apply_migration`, or by hand).
+  3. Smoke-test it: existing rows unchanged, a write/read/revert round trip,
+     and — for anything the public profile reads — that anon can see the new
+     column and still cannot see the private ones.
+  4. Run `get_advisors` (security) and confirm no NEW findings.
+  5. Extend `scripts/test-supabase.mjs` so the change is covered on every
+     future run, then note in the .sql header that it was applied and tested.
+- **anon's SELECT on every table is COLUMN-SCOPED.** A new column is invisible
+  to the public profile until `grant select (col) on <table> to anon` runs, and
+  it must also be added to `PUBLIC_ARRAY_COLUMNS` in `js/api.js`. Deliberately
+  ungranted today: `vessels.salary`, `vessels.leave_package`,
+  `certificates.attachment`, and the sensitive `profile` fields.
+- **`scripts/test-supabase.mjs` cannot run from this sandbox or the device** —
+  neither has network egress to `*.supabase.co`. Use the Supabase MCP for live
+  checks; Jack runs the script itself from Cursor.
+- `js/vessels.js` and `scripts/test-supabase.mjs` are **CRLF**; every other
+  file is LF. Editing them with a naive read/write silently reformats the whole
+  file into a thousand-line diff. Open with `newline=""` both ways.
 - Keep page modules thin; shared logic goes in `seav-*` or `api*`.
 
 ## Design standards — READ BEFORE ANY CSS OR UI EDIT

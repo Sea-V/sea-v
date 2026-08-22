@@ -49,7 +49,7 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
   ].join(","),
   vessels: [
     "id", "user_id", "name", "flag", "gt", "vessel_length", "builder", "vessel_role",
-    "vessel_type", "program", "experience_onboard", "date_from", "date_to", "photo",
+    "vessel_type", "contract_type", "program", "experience_onboard", "date_from", "date_to", "photo",
     "created_at", "updated_at"
   ].join(","),
   seatimes: [
@@ -331,6 +331,49 @@ async function testProfileColumns(config) {
   return columnSafe;
 }
 
+// Vessels carry two deliberately private columns — salary and leave_package —
+// that anon must never read, alongside a public set that the public profile
+// depends on. Added 2026-08-21 with the contract_type column: anon's SELECT on
+// vessels is column-scoped, so a new column is invisible to the public profile
+// until it is explicitly granted, and a careless grant is how a private field
+// leaks. This probe asserts both directions every run.
+const PUBLIC_VESSEL_SENSITIVE_COLUMNS = ["salary", "leave_package"];
+
+async function testVesselColumns(config) {
+  console.log(`\nVessel column probe:`);
+
+  const safeProbe = await restGet(
+    config,
+    "vessels",
+    `select=${PUBLIC_TABLE_SAFE_COLUMNS.vessels}&limit=1`
+  );
+
+  let ok = safeProbe.ok || safeProbe.status === 401;
+  if (safeProbe.ok) {
+    console.log(`✓ public columns readable  ${safeProbe.status}  OK — includes contract_type`);
+  } else if (safeProbe.status === 401) {
+    console.log(`✓ public columns  401  OK — no public rows readable under current RLS`);
+  } else {
+    console.log(
+      `✗ public column probe  ${safeProbe.status}  ${JSON.stringify(safeProbe.body).slice(0, 160)}`
+    );
+    console.log("→ A column in PUBLIC_ARRAY_COLUMNS.vessels is missing its anon grant.");
+  }
+
+  for (const column of PUBLIC_VESSEL_SENSITIVE_COLUMNS) {
+    const probe = await restGet(config, "vessels", `select=${column}&limit=1`);
+    const blocked = probe.status === 401 || probe.status === 403;
+    if (blocked) {
+      console.log(`✓ ${column} blocked  ${probe.status}  OK — private column denied to anon`);
+    } else {
+      console.log(`✗ ${column} readable  ${probe.status}  FAIL — revoke the anon grant on vessels.${column}`);
+      ok = false;
+    }
+  }
+
+  return ok;
+}
+
 async function testStorageUploads(config) {
   const storageProbe = await storageUpload(
     config,
@@ -389,6 +432,7 @@ async function main() {
   let profileWriteBlocked = true;
   let payslipWriteBlocked = true;
   let columnSafe = false;
+  let vesselColumnsSafe = false;
   let storageBlocked = false;
 
   if (step === "0" || step === "all") {
@@ -400,6 +444,7 @@ async function main() {
   if (step === "1" || step === "all") {
     if (step === "1") console.log("(Skipping table scan — run with --step 0 or --step all for full scan)\n");
     columnSafe = await testProfileColumns(config);
+    vesselColumnsSafe = await testVesselColumns(config);
   }
 
   if (step === "2") {
@@ -426,8 +471,9 @@ async function main() {
     console.log(payslipWriteBlocked ? "Payslip writes blocked (good)." : "Payslip writes NOT blocked — run schema-phase2.sql");
     console.log("Next: run docs/hardening-steps/step1-profile-columns.sql in Supabase, then --step 1");
   } else if (step === "1") {
-    passed = columnSafe;
+    passed = columnSafe && vesselColumnsSafe;
     console.log(columnSafe ? "Step 1 passed." : "Step 1 not passed yet — run step1-profile-columns.sql");
+    console.log(vesselColumnsSafe ? "Vessel columns safe." : "Vessel column grants wrong — see probe above.");
     console.log("Next: run docs/hardening-steps/step2-status-rls.sql, then --step 2");
   } else if (step === "2") {
     passed = true;
@@ -446,7 +492,8 @@ async function main() {
     profileWriteBlocked &&
     payslipWriteBlocked &&
     storageBlocked &&
-    columnSafe
+    columnSafe &&
+    vesselColumnsSafe
   ) {
     passed = true;
     console.log("All Phase 2 security checks passed.");

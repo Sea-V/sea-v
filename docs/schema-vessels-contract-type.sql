@@ -1,7 +1,9 @@
 -- Add the crew member's contract type to each vessel engagement.
--- NOT YET APPLIED to the live project as of 2026-08-21 -- apply this
--- before deploying the matching front-end (v507), or saving a vessel
--- will fail on an unknown column.
+-- Applied to the live project on 2026-08-21 via Supabase migration
+-- `add_vessels_contract_type`, and smoke-tested the same day: 21 existing
+-- rows all null, write/read/revert round trip clean, anon can read
+-- contract_type and is still denied salary and leave_package, no new
+-- security advisories.
 --
 -- Purely additive: nullable text with no default, so every existing
 -- vessel row is untouched and nothing linked to a vessel (sea time,
