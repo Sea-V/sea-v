@@ -59,9 +59,16 @@ profile; collect verified references from past employers.
 - **`scripts/test-supabase.mjs` cannot run from this sandbox or the device** —
   neither has network egress to `*.supabase.co`. Use the Supabase MCP for live
   checks; Jack runs the script itself from Cursor.
-- `js/vessels.js` and `scripts/test-supabase.mjs` are **CRLF**; every other
-  file is LF. Editing them with a naive read/write silently reformats the whole
-  file into a thousand-line diff. Open with `newline=""` both ways.
+- **Line endings are mixed across the repo — 77 tracked files are CRLF**
+  (`js/vessels.js`, `js/supabase.js`, `js/auth.js`, `js/tenders.js`,
+  `js/navigation-*.js`, `js/seav-config.js`, most of `docs/*.sql`,
+  `scripts/*.mjs`, several `css/` files, and more). A naive read/write
+  reformats the whole file into a thousand-line diff, and a `\n` search
+  pattern silently fails to match. Check first:
+  `git ls-files -z | xargs -0 file | grep CRLF`
+  Or edit line-ending-agnostically: read bytes, note whether `\r\n` is
+  present, normalise to `\n` to match, restore on write. `sed -i` is safe —
+  it is line-oriented and leaves the `\r` alone.
 - Keep page modules thin; shared logic goes in `seav-*` or `api*`.
 
 ## Design standards — READ BEFORE ANY CSS OR UI EDIT

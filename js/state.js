@@ -118,9 +118,28 @@
     "payslips.html": ["payslips"]
   };
 
+  // "/" is the LOGIN page, not the dashboard. This returned "dashboard.html"
+  // until 2026-08-22, while js/auth.js's own currentPageFile() returned
+  // "index.html" for the same path -- two modules, same question, opposite
+  // answers. Aligned on auth.js's answer, which is the correct one.
+  //
+  // Scope, stated honestly: this branch is close to dead today. index.html and
+  // signup.html do not load this file at all (only auth/core/feedback/index/
+  // seav-config/supabase), so nothing here runs at "/" either way. It was
+  // briefly suspected of explaining Vercel Speed Insights showing "/" at RES 69
+  // against "/index.html" at 100 -- it does not, because this file is not on
+  // that page. That gap is still unexplained and rests on 13 samples.
+  //
+  // It is fixed anyway because the fallback becomes live the moment any page
+  // that DOES load state.js is served at a directory URL, and a wrong answer
+  // there silently drops the page into the ALL_STATE_KEYS /
+  // all-file-hydration-buckets path -- loading every table and signing every
+  // URL for a page that needs a fraction of them.
+  //
+  // Keep the two implementations in agreement. If one changes, change both.
   function currentPageFile() {
     const part = location.pathname.split("/").pop();
-    if (!part || part === "") return "dashboard.html";
+    if (!part || part === "") return "index.html";
     return part.split("?")[0].split("#")[0].toLowerCase();
   }
 

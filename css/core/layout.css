@@ -1244,3 +1244,56 @@ body.app-page::after {
 body.page-fading #pageFade {
   opacity: 1;
 }
+/* =========================================================
+   CLS — RESERVED SPACE FOR JS-FILLED CONTAINERS
+   2026-08-22. Measured, not guessed: a layout-shift observer on
+   /vessels.html recorded ONE shift of 0.7264 (the page's whole CLS
+   budget is 0.1) with sources [main.dash, footer.page-quote-footer].
+========================================================= */
+
+/* Why the footer is the villain. These pages carry almost no static markup —
+   a shell head, then one empty <div> that JS fills after the Supabase round
+   trip. At first paint the page is therefore SHORT, so .page-quote-footer sits
+   inside the viewport. When the records arrive the footer is shoved down by
+   the full height of the rendered list — a ~1100px move of an element that was
+   on screen, which is what a 0.73 shift looks like.
+
+   Vercel Speed Insights splits the pages exactly on this, with no exceptions —
+   the footer's position in the static HTML predicts the score:
+
+     vessels 128   77  |  seatime    310   99
+     specialist 149 80  |  navigation 403  100
+     tenders 151   77  |  dashboard  493  100
+     onboard 211   80  |  profile    505  100
+
+   The good pages are not faster. They are TALLER before JS runs, so their
+   footer starts below the fold and its later movement is never a visible
+   shift. .dash already sets min-height: calc(100vh - 190px), but that stretches
+   the GRID, not the content column — the footer still flows straight after a
+   short card, near the top of all that space.
+
+   :empty is the whole trick: the reserve exists only while the container is
+   waiting, and evaporates the moment JS writes into it, so no page ends up
+   with dead space at the bottom. Nothing to undo, and nothing to keep in sync
+   with the real content height.
+
+   The value only has to carry the footer past the fold — the shift stops
+   counting once it is off screen, it does not have to be pixel-accurate. It is
+   deliberately expressed against the viewport rather than a fixed px so it
+   holds on a laptop and a 27" display alike. Re-measure with the observer
+   after changing it. */
+#vesselsGrid:empty,
+#tendersGrid:empty,
+#oeList:empty,
+#sqList:empty {
+  min-height: calc(100vh - 300px);
+}
+
+/* The KPI rows above those lists are built by JS too and are short enough that
+   a reserve is cheap. Sized from the rendered rows (~92px box + margin) rather
+   than the viewport, since these have a fixed, known height. */
+#tendersKpiRow:empty,
+#oeKpiRow:empty,
+#sqKpiRow:empty {
+  min-height: 104px;
+}
