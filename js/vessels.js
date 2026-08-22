@@ -531,7 +531,16 @@ async function renderVessels(options = {}) {
   // vessel unconditionally, ignoring whether it actually had a `to` date.
   // `current` must now be null (not a fallback guess) when nobody is
   // genuinely open-ended.
-  const current = sortedVessels.find((v) => !v.to) || null;
+  // 2026-08-21: the open-ended test moved to SeavData.isVesselOpenEnded so
+  // this page, the Dashboard's single-vessel card and the Public Profile's
+  // default-open dropdown all decide "is this vessel current" the same way.
+  // It also treats a blank-but-present `to` ("", "   ") as open-ended, which
+  // the old bare `!v.to` did not.
+  const current = sortedVessels.find((v) => window.SeavData.isVesselOpenEnded(v)) || null;
+
+  // Which card opens on load — genuinely current if there is one, otherwise
+  // the most recent, badged "Previous". Same helper the other two pages use.
+  const defaultOpenId = window.SeavData.getCurrentVessel(sortedVessels)?.id || "";
 
   if (!vesselsGrid) return;
 
@@ -542,14 +551,13 @@ async function renderVessels(options = {}) {
   // with two different templates; consolidating removes that duplicate
   // code path and the visual inconsistency between them.
   vesselsGrid.innerHTML = sortedVessels
-    .map((v, i) =>
+    .map((v) =>
       buildVesselCard(v, {
         isCurrent: !!current && v.id === current.id,
         // Keep the "something is open on load" UX even when no vessel is
         // genuinely current — open the most-recent-by-start-date vessel
-        // (sortedVessels[0]) instead, just correctly badged "Previous"
-        // rather than "Current".
-        forceOpen: (!!keepOpenId && v.id === keepOpenId) || (!current && i === 0)
+        // instead, just correctly badged "Previous" rather than "Current".
+        forceOpen: (!!keepOpenId && v.id === keepOpenId) || (!current && v.id === defaultOpenId)
       })
     )
     .join("");

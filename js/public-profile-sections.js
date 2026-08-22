@@ -646,7 +646,7 @@
     // (--vessel-accent-border), and the four inner collapsibles keep each
     // record TYPE's own site accent, per Jack's 2026-08-05 correction.
     const buildBlock = (v, options = {}) => {
-      const isCurrent = !v.to;
+      const isCurrent = window.SeavData.isVesselOpenEnded(v);
       const isOpen = !!options.isOpen;
       const vesselColor = getPublicVesselColor(v.id, vessels || []);
       const role = String(v.vessel_role || v.role || "").trim();
@@ -687,12 +687,14 @@
     };
 
     // Most recent vessel with no end date; if the crew member is between
-    // jobs and nothing is open-ended, the most recent one overall. `sorted`
-    // is already newest-first, so [0] of either list is the right pick.
-    // Only ever applied to the visible slice — vessels revealed by "Show N
-    // more" stay closed, or expanding that block would dump a wall of open
-    // cards on the page.
-    const defaultOpenId = (sorted.find((v) => !v.to) || sorted[0])?.id || "";
+    // jobs and nothing is open-ended, the most recent one overall. Shared
+    // with the Vessels page and the Dashboard's single-vessel card via
+    // SeavData.getCurrentVessel — written out inline here until 2026-08-21,
+    // which is how three pages end up disagreeing about which boat is
+    // current. Only ever applied to the visible slice — vessels revealed by
+    // "Show N more" stay closed, or expanding that block would dump a wall
+    // of open cards on the page.
+    const defaultOpenId = window.SeavData.getCurrentVessel(sorted)?.id || "";
 
     const unattachedHtml = buildUnattachedCard(
       (tenders || []).filter((t) => !t.vesselId || !vesselIds.has(t.vesselId)),

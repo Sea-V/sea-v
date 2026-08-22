@@ -3106,6 +3106,47 @@ function getSortedVesselOptions(vessels = []) {
      js/achievements-engine.js (see below).
   ========================================================= */
 
+  /**
+   * The one vessel that represents "where this crew member is now" — used by
+   * the Dashboard's single-vessel card, the Public Profile's default-open
+   * dropdown, and the Vessels page's default-open card. Added 2026-08-21;
+   * before that the same rule was written out separately in each place, which
+   * is exactly how three pages end up disagreeing about which boat is current.
+   *
+   * Rule: the most recently joined vessel with no end date. If nothing is
+   * open-ended (the crew member is between jobs) it falls back to the most
+   * recently joined vessel overall, so the answer is never empty for someone
+   * with any history at all. A record with no start date sorts last rather
+   * than winning on a missing value.
+   *
+   * Returns null for an empty list. Callers that need to know WHICH of the
+   * two cases they got should test isVesselOpenEnded() themselves — a closed
+   * record means "most recent", not "current", and labels must say so.
+   *
+   * NOT the same as getCurrentVesselIndex() above, despite the name: that one
+   * deliberately returns -1 rather than guessing when nothing is open-ended
+   * (2026-08-05 fix). This one is for UI that must always show something and
+   * labels the fallback honestly. Don't collapse them into one.
+   */
+  function getCurrentVessel(vesselsInput) {
+    const vessels = (vesselsInput || []).filter(Boolean);
+    if (!vessels.length) return null;
+
+    const byJoinedDesc = [...vessels].sort((a, b) => {
+      const da = a.from ? new Date(a.from) : new Date(0);
+      const db = b.from ? new Date(b.from) : new Date(0);
+      return db - da;
+    });
+
+    return byJoinedDesc.find(isVesselOpenEnded) || byJoinedDesc[0] || null;
+  }
+
+  // A blank-but-present end date ("", "   ") means the same as no end date —
+  // matches getCurrentVesselIndex's own test rather than a bare !v.to.
+  function isVesselOpenEnded(v) {
+    return !v?.to || !String(v.to).trim();
+  }
+
   function getVesselRole(v) {
     return v?.vessel_role || v?.role || "Crew";
   }
@@ -3267,6 +3308,8 @@ window.SeavData = {
   getVesselHistory,
   getSortedVesselOptions,
   getVesselColor,
+  getCurrentVessel,
+  isVesselOpenEnded,
   getVesselRole,
   getVesselType,
   getVesselLength,

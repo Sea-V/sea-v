@@ -61,6 +61,9 @@
     if (icon) heading.prepend(icon);
   }
 
+  // count === null renders the bare title with no "(N)" — for a card that
+  // shows one specific record rather than the first N of a list, where a
+  // total in the heading would just be confusing next to a single item.
   function updateCardTitle(containerId, baseTitle, count) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -71,7 +74,7 @@
     const heading = card.querySelector(".dashboard-card-headline h3, .dash-card > h3");
     if (!heading) return;
 
-    setHeadingText(heading, `${baseTitle} (${count})`);
+    setHeadingText(heading, count === null ? baseTitle : `${baseTitle} (${count})`);
   }
 
   const haversineNm = window.SeavData.haversineNm;
@@ -220,31 +223,54 @@ async function renderCertSnippet() {
   `;
 }
 
- async function renderVesselSnippet() {
+ // 2026-08-21, per Jack: the dashboard shows ONE vessel, not the latest
+ // three. His reasoning: "dashboard should reflect current items and pages
+ // can be used to access history" — a vessel is a state ("I am aboard X"),
+ // unlike sea time / tenders / references, which are event streams where a
+ // recent-3 list genuinely informs. Those cards are deliberately unchanged.
+ //
+ // Layout is the full .vessel-profile-card (SeavCards.buildVesselCardFull),
+ // the same card the Vessels page and Public Profile use — Jack: "at least
+ // we have one style and we stick to it". Not the .dash-mini-card grid,
+ // which would have rendered a single card at a third width with two empty
+ // columns beside it.
+ //
+ // Heading is honest about which of the two cases this is: "Current vessel"
+ // only when the record is genuinely open-ended, otherwise "Most recent
+ // vessel" — a departed crew member's dashboard must not read as though
+ // they are still aboard. No "(N)" count: it would sit next to a single
+ // card and imply that many are shown. The card headline's own "View all"
+ // link is the path to history.
+async function renderVesselSnippet() {
   const dashVesselSnippet = document.getElementById("dashVesselSnippet");
   if (!dashVesselSnippet) return;
 
   const vessels = window.SeavState?.vessels || [];
-  updateCardTitle("dashVesselSnippet", "Vessels", vessels.length);
 
   if (!vessels.length) {
+    updateCardTitle("dashVesselSnippet", "Vessels", 0);
     dashVesselSnippet.innerHTML = `<div class="muted">No vessels yet.</div>`;
     return;
   }
 
-  const latestThree = [...vessels]
-    .sort((a, b) => {
-      const da = a.from ? new Date(a.from) : new Date(0);
-      const db = b.from ? new Date(b.from) : new Date(0);
-      return db - da;
-    })
-    .slice(0, 3);
+  // Shared with the Public Profile's default-open dropdown and the Vessels
+  // page — see getCurrentVessel() in js/seav-data.js. Written out separately
+  // in each place before today, which is how three pages drift apart.
+  const vessel = window.SeavData.getCurrentVessel(vessels);
+  if (!vessel) {
+    updateCardTitle("dashVesselSnippet", "Vessels", vessels.length);
+    dashVesselSnippet.innerHTML = `<div class="muted">No vessels yet.</div>`;
+    return;
+  }
+
+  const isCurrent = window.SeavData.isVesselOpenEnded(vessel);
+  updateCardTitle("dashVesselSnippet", isCurrent ? "Current vessel" : "Most recent vessel", null);
 
   const vesselPhotoBucket =
     window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos";
   if (window.SeavApiCore?.hydrateItemsFileField) {
     await window.SeavApiCore.hydrateItemsFileField(
-      latestThree,
+      [vessel],
       "photo",
       vesselPhotoBucket
     );
@@ -253,18 +279,13 @@ async function renderCertSnippet() {
 
   // Fingerprint taken after hydration so an already-cached signed URL
   // (unchanged) still compares equal and skips the rebuild — this is what
-  // stops the vessel photos from flashing on every unrelated data refresh.
-  if (skipUnchangedRender("vessel", JSON.stringify(latestThree))) return;
+  // stops the vessel photo from flashing on every unrelated data refresh.
+  if (skipUnchangedRender("vessel", JSON.stringify(vessel))) return;
 
-  dashVesselSnippet.innerHTML = `
-    <div class="dash-mini-card-grid">
-      ${latestThree
-        .map((vessel) =>
-          window.SeavCards.buildVesselCard(vessel, { photoBucket: vesselPhotoBucket })
-        )
-        .join("")}
-    </div>
-  `;
+  dashVesselSnippet.innerHTML = window.SeavCards.buildVesselCardFull(vessel, {
+    photoBucket: vesselPhotoBucket,
+    vesselColor: window.SeavData.getVesselColor(vessel.id, vessels)
+  });
 }
 
 async function renderTenderSnippet() {
