@@ -26,7 +26,7 @@
     truncate, setSectionCount, buildShowMoreButton,
     formatNm, getPublicVesselColor, buildPublicNavigationStats,
     getNavigationEndpointMarkers, hasPlottableNavigationData,
-    formatExpiryShort, formatDates,
+    formatExpiryShort, formatDates, formatOnboardDuration,
     isReferenceVerified
   } = U;
 
@@ -626,18 +626,73 @@
     const hidden = sorted.slice(LIMITS.vessels);
     const moreId = "ppVesselMore";
 
-    // Per Jack's 2026-08-05 correction: each vessel's card is followed
-    // immediately by its own Tenders / Onboard Experience / References /
-    // Awards collapsibles — not merged into the card's own grid (Sea Time
-    // was a fifth collapsible here too, removed 2026-08-09 per Jack).
-    // Wrapping both in one block keeps them together as a single
-    // pagination + "show more" unit.
-    const buildBlock = (v) => `
-      <div class="pp-vessel-block" data-pp-more-item>
-        ${buildVesselCard(v, vessels)}
-        ${buildVesselLinkedSections(v, tenders, verifiedRefs, publicOnboard, manualAchievements, vessels)}
-      </div>
-    `;
+    // 2026-08-21, per Jack: each vessel is now a collapsible, the same
+    // component the Vessels page uses for its own history list
+    // (.vessel-history-collapsible / .vessel-history-summary in
+    // css/pages/vessels.css — imported globally via styles.css, so nothing
+    // new to define here). Inside it, Jack's 2026-08-05 structure is
+    // unchanged: the vessel's own card followed immediately by its Tenders /
+    // Onboard Experience / References / Awards collapsibles (Sea Time was a
+    // fifth here, removed 2026-08-09 — sea time is private-only).
+    //
+    // The current vessel opens by default and every other one starts closed.
+    // Bodies are still built EAGERLY, unlike the Vessels page's lazy version:
+    // a public profile is a document a recruiter skims, prints or Cmd-Fs, and
+    // markup that isn't in the DOM does none of those. Vessel photos already
+    // carry loading="lazy", which is where the real weight is.
+    //
+    // Colour follows the Vessels page exactly — the per-vessel colour is on
+    // the dot only, never the border. The border stays the shared neutral
+    // (--vessel-accent-border), and the four inner collapsibles keep each
+    // record TYPE's own site accent, per Jack's 2026-08-05 correction.
+    const buildBlock = (v, options = {}) => {
+      const isCurrent = !v.to;
+      const isOpen = !!options.isOpen;
+      const vesselColor = getPublicVesselColor(v.id, vessels || []);
+      const role = String(v.vessel_role || v.role || "").trim();
+
+      // Role is a free-text field ("Your rank or position on board"), so it
+      // can be blank or long — dropped entirely when empty rather than
+      // printing a dash, and ellipsised by CSS when it runs on.
+      const metaLine = [
+        role ? Seav.escapeHtml(role) : "",
+        Seav.escapeHtml(formatDates(v.from, v.to)),
+        Seav.escapeHtml(formatOnboardDuration(v.from, v.to))
+      ]
+        .filter(Boolean)
+        .join(" &middot; ");
+
+      return `
+        <details
+          class="vessel-history-collapsible pp-vessel-collapsible"
+          data-vessel-id="${Seav.escapeHtml(v.id || "")}"
+          data-is-current="${isCurrent ? "1" : "0"}"
+          ${isOpen ? "open" : ""}
+          ${options.more ? "data-pp-more-item" : ""}
+        >
+          <summary class="vessel-history-summary">
+            ${vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(vesselColor)}"></span>` : ""}
+            <span class="vessel-history-summary-title">
+              <strong>${Seav.escapeHtml(v.name || "Unnamed Vessel")}</strong>
+              ${metaLine ? `<small class="pp-vessel-summary-meta">${metaLine}</small>` : ""}
+            </span>
+            <span class="vessel-current-badge vessel-history-summary-badge">${isCurrent ? "Current" : "Previous"}</span>
+          </summary>
+          <div class="vessel-history-collapsible-body pp-vessel-block">
+            ${buildVesselCard(v, vessels)}
+            ${buildVesselLinkedSections(v, tenders, verifiedRefs, publicOnboard, manualAchievements, vessels)}
+          </div>
+        </details>
+      `;
+    };
+
+    // Most recent vessel with no end date; if the crew member is between
+    // jobs and nothing is open-ended, the most recent one overall. `sorted`
+    // is already newest-first, so [0] of either list is the right pick.
+    // Only ever applied to the visible slice — vessels revealed by "Show N
+    // more" stay closed, or expanding that block would dump a wall of open
+    // cards on the page.
+    const defaultOpenId = (sorted.find((v) => !v.to) || sorted[0])?.id || "";
 
     const unattachedHtml = buildUnattachedCard(
       (tenders || []).filter((t) => !t.vesselId || !vesselIds.has(t.vesselId)),
@@ -654,12 +709,12 @@
     // "Show more vessels" — it isn't part of the vessel pagination unit.
     vesselBox.innerHTML = `
       <div class="pp-vessel-full-list">
-        ${visible.map((v) => buildBlock(v).replace(" data-pp-more-item", "")).join("")}
+        ${visible.map((v) => buildBlock(v, { isOpen: v.id === defaultOpenId })).join("")}
       </div>
       ${
         hidden.length
           ? `<div class="public-cv-more-block pp-vessel-full-list" id="${moreId}" hidden>
-              ${hidden.map((v) => buildBlock(v)).join("")}
+              ${hidden.map((v) => buildBlock(v, { more: true })).join("")}
             </div>`
           : ""
       }

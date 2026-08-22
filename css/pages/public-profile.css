@@ -636,12 +636,85 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
    and just needed moving".
 ========================================================= */
 
-/* Wraps a vessel's own card + its linked-section collapsibles as one unit
-   inside .pp-vessel-full-list (that flex column already provides the
-   16px gap between vessels; this is just the grouping wrapper). */
+/* Wraps a vessel's own card + its linked-section collapsibles as one unit.
+   Since 2026-08-21 this is also the <details> body of .pp-vessel-collapsible,
+   so it inherits .vessel-history-collapsible-body's padding from
+   css/pages/vessels.css — nothing to add here beyond the stacking. */
 .pp-vessel-block {
   display: flex;
   flex-direction: column;
+}
+
+/* =========================================================
+   PER-VESSEL COLLAPSIBLE — 2026-08-21
+   Jack: "wrap the vessels into dropdown sections same as the vessels page
+   … leave the current vessel or last vessel open by default".
+
+   The shell itself is .vessel-history-collapsible from css/pages/vessels.css
+   (imported globally by styles.css) — deliberately NOT re-declared here, so
+   the two pages can never drift apart. Only the public-profile-specific
+   differences live below.
+========================================================= */
+
+/* The card body already prints Role Onboard and Dates Onboard in its own
+   .vessel-main-grid (js/seav-cards.js buildVesselCardFull), so leaving this
+   line up while the card is open would show both twice. Same fix, and the
+   same reason, as .vessel-history-summary-badge's [open] rule in
+   vessels.css (Jack, 2026-08-07: "verified twice in the same card"). */
+.pp-vessel-collapsible[open] .pp-vessel-summary-meta {
+  display: none;
+}
+
+/* vessels.css hides the summary badge on [open] because that page's card
+   body renders its own copy. The public-profile card calls
+   buildCurrentBadge(isCurrent, { includePrevious: false }), which returns
+   nothing at all for a past vessel — so on this page the [open] rule would
+   leave an expanded previous vessel with no status marker anywhere. Current
+   vessels still hand off to the body's badge as designed; only the
+   "Previous" case keeps its summary badge. */
+.pp-vessel-collapsible[open][data-is-current="0"] .vessel-history-summary-badge {
+  display: inline-flex;
+}
+
+/* Role is free text with no length limit — one long entry would otherwise
+   push the Current/Previous badge off the row. */
+.pp-vessel-summary-meta {
+  display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The "Other — not linked to a specific vessel" catch-all is the same
+   collapsible component, so once every real vessel became one too it read
+   as just another boat. Muted border + no colour dot keeps it clearly
+   secondary, and it stays closed and last in the list. */
+.pp-vessel-unattached .vessel-history-collapsible {
+  border-color: rgba(214, 226, 238, 0.14);
+}
+
+.pp-vessel-unattached .vessel-history-summary-title strong {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* At narrow widths the summary is chevron + dot + name + role/dates/duration
+   + badge, which does not fit 375px on one line. The title column takes the
+   free space and the meta wraps under the name; the badge stays pinned
+   right. */
+@media (max-width: 560px) {
+  .pp-vessel-collapsible .vessel-history-summary {
+    flex-wrap: wrap;
+  }
+
+  .pp-vessel-collapsible .vessel-history-summary-title {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .pp-vessel-summary-meta {
+    white-space: normal;
+  }
 }
 
 /* Sits between a vessel's own card and its first linked-section

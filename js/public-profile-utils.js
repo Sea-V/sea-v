@@ -534,6 +534,59 @@
     return `${start} – ${end}`;
   }
 
+  /**
+   * "2 yrs 4 mos" from a vessel engagement's start/end dates, for the
+   * collapsed vessel row on the public profile (added 2026-08-21 per Jack).
+   *
+   * This is CALENDAR time between the two dates — not time actually aboard.
+   * Rotational crew are ashore for a large part of an engagement, so on a
+   * 2:2 rotation this reads roughly double the real presence. That is why
+   * the label next to it says "onboard" in the engagement sense and never
+   * anything implying sea service: the qualifying figures on this account
+   * are computed from real logged days (computeOowSeaService et al.) and
+   * must never be confused with this one.
+   *
+   * daysBetweenDates already caps a future end date at today, so a contract
+   * logged ahead of joining reads as no time rather than its full length.
+   * An open-ended (current) vessel therefore grows day by day on its own.
+   * Returns "" when there is no start date — the caller drops the segment
+   * rather than printing a placeholder.
+   */
+  function formatOnboardDuration(fromIso, toIso) {
+    if (!fromIso) return "";
+
+    const start = new Date(fromIso);
+    if (Number.isNaN(start.getTime())) return "";
+
+    // daysBetweenDates does the two guards that matter — a future end date
+    // is capped at today (a contract logged before joining reads as no time
+    // rather than its full length) and a reversed/zero range returns 0.
+    if ((window.SeavData?.daysBetweenDates?.(fromIso, toIso || "") || 0) <= 0) return "";
+
+    const today = new Date();
+    const rawEnd = toIso ? new Date(toIso) : today;
+    const end = rawEnd > today ? today : rawEnd;
+
+    // Calendar months, not days / 30.44. The averaged version drifts: a
+    // 2022-01-01 → 2024-05-01 engagement is exactly 2 yrs 4 mos but floors
+    // to "2 yrs 3 mos" once it is measured in average-length months, and
+    // Jack asked for this figure "based on the start and end date".
+    let totalMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+    if (end.getDate() < start.getDate()) totalMonths -= 1;
+
+    // A 20-day job floors to 0 and would print "0 mos", which reads as a
+    // bug rather than a short contract.
+    if (totalMonths < 1) return "< 1 mo";
+
+    const years = Math.floor(totalMonths / 12);
+    const months = totalMonths % 12;
+
+    const parts = [];
+    if (years) parts.push(`${years} yr${years === 1 ? "" : "s"}`);
+    if (months) parts.push(`${months} mo${months === 1 ? "" : "s"}`);
+    return parts.join(" ");
+  }
+
   function truncate(text, max = 220) {
     return window.SeavData?.truncateText
       ? window.SeavData.truncateText(text, max)
@@ -645,7 +698,14 @@
         if (collapsedLabel) {
           btn.textContent = collapsedLabel;
         } else {
-          const count = target.querySelectorAll("[data-pp-more-item]").length;
+          // :scope > — the recount must only see the panel's own top-level
+          // rows. Nested content carries this attribute too (onboard rows
+          // via seav-cards.js buildOnboardRow, for one), so an unscoped
+          // query counted every descendant and a re-collapsed vessel list
+          // came back reading "Show 23 more vessels" for 3 hidden vessels.
+          // Every caller builds the hidden panel as a flat list of direct
+          // children, so scoping is safe across all of them.
+          const count = target.querySelectorAll(":scope > [data-pp-more-item]").length;
           const label = btn.getAttribute("data-pp-label") || "items";
           btn.textContent = `Show ${count} more ${label}`;
         }
@@ -829,7 +889,7 @@
     groupSeatimeByVessel, groupTendersByVessel, groupAchievementsByVessel, toNumber, renderVerificationBadge,
     normalizeCode, parseMeters, formatExpiryShort, getComplianceClass,
     isMandatoryCert, isRecommendedCert, findCertByCode, findSavedCertByCode, getCertPublicStatus,
-    buildCareerTagline, formatDates, truncate, setSectionCount, buildShowMoreButton,
+    buildCareerTagline, formatDates, formatOnboardDuration, truncate, setSectionCount, buildShowMoreButton,
     bindPublicCertToggles, resolvePublicCertKey, getPublicCertTypeLabel, isPublicCertExpanded,
     bindExpandToggles, getSectionNavOffset, scrollToSection, setActiveSectionNavLink,
     bindSectionNav, renderSectionNav, renderTrustStrip

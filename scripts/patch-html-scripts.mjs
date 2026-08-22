@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 504;
+const ASSET_VERSION = 505;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
