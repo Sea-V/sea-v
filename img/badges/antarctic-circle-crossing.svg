@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="ANTARCTIC CIRCLE CROSSING" data-source-page="navigation" data-tier="platinum">
   <defs>
-    <linearGradient id="ring-nac8eh" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#28c4ad"/>
-      <stop offset="50%" stop-color="#39e0c4"/>
-      <stop offset="100%" stop-color="#8af0e0"/>
+    <linearGradient id="ring-rqzra1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b9cbdd"/>
+      <stop offset="50%" stop-color="#e8f2ff"/>
+      <stop offset="100%" stop-color="#ffffff"/>
     </linearGradient>
-    <radialGradient id="disc-nac8eh" cx="38%" cy="32%" r="68%">
-      <stop offset="0%" stop-color="#8af0e0"/>
-      <stop offset="100%" stop-color="#39e0c4"/>
+    <radialGradient id="disc-rqzra1" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e8f2ff"/>
     </radialGradient>
-    <linearGradient id="shine-nac8eh" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-rqzra1" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <clipPath id="txt-nac8eh">
+    <clipPath id="txt-rqzra1">
       <path d="M 60.00 18.00 L 92.91 37.00 L 92.91 75.00 L 60.00 94.00 L 27.09 75.00 L 27.09 37.00 Z"/>
     </clipPath>
-    <filter id="sh-nac8eh" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-rqzra1" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-nac8eh)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-nac8eh)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-nac8eh)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-nac8eh)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-nac8eh)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-nac8eh)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-nac8eh)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-nac8eh)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-nac8eh)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-nac8eh)"/>
+  <g filter="url(#sh-rqzra1)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-rqzra1)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-rqzra1)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-rqzra1)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-rqzra1)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-rqzra1)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-rqzra1)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-rqzra1)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-rqzra1)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-rqzra1)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
-  <g clip-path="url(#txt-nac8eh)">
+  <g clip-path="url(#txt-rqzra1)">
   
   <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
     <text font-size="10" font-weight="900" letter-spacing="0.15" fill="#0F172A"><tspan x="60" y="48.5" dy="0">ANTARCTIC</tspan><tspan x="60"  dy="9.0">CIRCLE</tspan></text>
     <text font-size="7.4" font-weight="700" letter-spacing="0.6" fill="#0F172A"><tspan x="60" y="66.8" dy="0">CROSSING</tspan></text>
-    <line x1="40" y1="70.8" x2="80" y2="70.8" stroke="#39e0c4" stroke-width="1.6" stroke-linecap="round" opacity="0.4"/>
+    <line x1="40" y1="70.8" x2="80" y2="70.8" stroke="#e8f2ff" stroke-width="1.6" stroke-linecap="round" opacity="0.4"/>
   </g>
   </g>
 

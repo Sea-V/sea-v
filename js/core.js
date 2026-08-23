@@ -639,8 +639,31 @@ function buildDashboardMilestoneRow(instances) {
     label = primary?.autoAwarded ? "Career-wide milestone" : "Logged milestone";
   }
 
+  // 2026-08-22, per Jack: the progress bar is gone. It was hardcoded to
+  // width:100% / aria-valuenow="100" on every award, always — a bar that can
+  // never say anything, sitting next to a tick that already says "unlocked".
+  // "the progress bars dont make sense unless we are working towards them."
+  // The in-progress rows above (renderDashboardInProgress) keep theirs; those
+  // are genuinely partial.
+  //
+  // The family colour and flag stripe come from the same source the Milestones
+  // card and the public profile use — getAwardTreatment in js/seav-badges.js —
+  // so one award looks like itself on all three surfaces. Returns null for a
+  // non-geographic badge, which then renders exactly as it did before.
+  const treatment = window.SeavBadges?.getAwardTreatment?.(code) || null;
+  const stripeHtml = treatment
+    ? `<span class="ach-progress-row-flag" aria-hidden="true">${treatment.stripe
+        .map((color) => `<i style="background:${window.Seav.escapeHtml(color)}"></i>`)
+        .join("")}</span>`
+    : "";
+
   return `
-    <article class="ach-progress-row is-unlocked" data-tier="${window.Seav.escapeHtml(tier)}">
+    <article
+      class="ach-progress-row is-unlocked${treatment ? " ach-progress-row--award" : ""}"
+      data-tier="${window.Seav.escapeHtml(tier)}"
+      ${treatment ? `data-award-family="${window.Seav.escapeHtml(treatment.family)}" style="--award-edge:${window.Seav.escapeHtml(treatment.edge)}"` : ""}
+    >
+      ${stripeHtml}
       <div class="ach-progress-row-badge">
         <img src="${window.Seav.escapeHtml(imagePath)}" alt="${window.Seav.escapeHtml(title)}" />
       </div>
@@ -650,9 +673,6 @@ function buildDashboardMilestoneRow(instances) {
         </div>
         ${full.description ? `<p class="ach-progress-row-desc">${window.Seav.escapeHtml(full.description)}</p>` : ""}
         <p class="ach-progress-row-label">${window.Seav.escapeHtml(label)}</p>
-        <div class="ach-progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-          <span style="width: 100%"></span>
-        </div>
       </div>
       <div class="ach-progress-row-check" title="Unlocked" aria-label="Unlocked">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">

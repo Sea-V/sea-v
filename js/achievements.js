@@ -346,13 +346,32 @@
         `
         : instanceList;
 
+    // Award colour family + the flag stripe across the card's top border
+    // (2026-08-22, Jack). getAwardTreatment returns null for anything that
+    // isn't a geographic Seafarer Award — Deck Progression rows keep exactly
+    // the look they had. See AWARD_FAMILY_BY_CODE in js/seav-badges.js.
+    const treatment = window.SeavBadges.getAwardTreatment?.(definition.code) || null;
+    const stripeHtml = treatment
+      ? `<span class="ach-trophy-flag" aria-hidden="true">${treatment.stripe
+          .map((color) => `<i style="background:${Seav.escapeHtml(color)}"></i>`)
+          .join("")}</span>`
+      : "";
+    const countryHtml =
+      treatment && treatment.country
+        ? `<span class="ach-trophy-country">${treatment.stripe
+            .map((color) => `<i style="background:${Seav.escapeHtml(color)}"></i>`)
+            .join("")}<b>${Seav.escapeHtml(treatment.country)}</b></span>`
+        : "";
+
     return `
       <article
-        class="ach-trophy ${unlocked ? "is-unlocked" : "is-locked"}"
+        class="ach-trophy ${unlocked ? "is-unlocked" : "is-locked"}${treatment ? " ach-trophy--award" : ""}"
         data-tier="${Seav.escapeHtml(tier)}"
         data-source-page="${Seav.escapeHtml(sourcePage)}"
         data-category="${Seav.escapeHtml(definition.category || "")}"
+        ${treatment ? `data-award-family="${Seav.escapeHtml(treatment.family)}" style="--award-edge:${Seav.escapeHtml(treatment.edge)};--award-back:${Seav.escapeHtml(treatment.back)}"` : ""}
       >
+        ${stripeHtml}
         <div class="ach-trophy-badge-wrap">
           ${unlocked ? `<span class="ach-trophy-glow" aria-hidden="true"></span>` : ""}
           ${instances.length > 1 ? `<span class="ach-trophy-count">×${instances.length}</span>` : ""}
@@ -361,6 +380,7 @@
 
         <h4 class="ach-trophy-title">${Seav.escapeHtml(full.title || "")}</h4>
         <p class="ach-trophy-category">${Seav.escapeHtml(definition.category || "")}</p>
+        ${countryHtml}
 
         ${
           unlocked

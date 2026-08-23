@@ -30,6 +30,32 @@ const TEXT = "#0F172A";
 const FONT =
   "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
 
+/* Award colour families — 2026-08-22, per Jack.
+ *
+ * Every Passage & Navigation badge used to resolve to PAGES.navigation, which
+ * is why all fifteen came out the same teal. A badge may now name a `family`
+ * in badge-copy.json instead; anything without one still falls through to its
+ * page colour, so no other badge in the set changes.
+ *
+ * Deliberately NOT added to scripts/page-colors.json: that file also drives the
+ * sidebar, page accents and js/seav-page-colors.js, and these are not pages.
+ *
+ * Same shape as a page entry — `ring` is the [dark, mid, light] triple the hex
+ * ring and inner disc are built from, `sidebar` is the thin accent rule between
+ * the two lines of type.
+ */
+const FAMILIES = {
+  // Open water. Nobody owns it, so these never carry a flag.
+  ocean: { ring: ["#3d8fd4", "#5bbcff", "#9ddcff"], sidebar: "#5bbcff" },
+  // Capes, straits and passages — a place on a coast.
+  place: { ring: ["#2fb877", "#5ee6a8", "#a5f2cf"], sidebar: "#5ee6a8" },
+  // The three canals. Sand and stone rather than sea.
+  canal: { ring: ["#b08a5e", "#d8b98a", "#f0dcc0"], sidebar: "#d8b98a" },
+  // The polar circles. A cool off-white, not #fff: the hex carries dark text
+  // inside it and pure white made it the brightest thing on a dark page.
+  polar: { ring: ["#b9cbdd", "#e8f2ff", "#ffffff"], sidebar: "#e8f2ff" }
+};
+
 function pageRing(page) {
   const [a, b, c] = page.ring;
   return { a, b, c };
@@ -182,8 +208,8 @@ function vertexTicks(uid) {
     .join("\n    ");
 }
 
-function buildSvg({ file: _file, tier, hero, sub, page, locked = false }) {
-  const theme = PAGES[page] || PAGES.seatime;
+function buildSvg({ file: _file, tier, hero, sub, page, family, locked = false }) {
+  const theme = FAMILIES[family] || PAGES[page] || PAGES.seatime;
   const ring = pageRing(theme);
   const inner = pageInner(theme);
   const uid = Math.random().toString(36).slice(2, 8);

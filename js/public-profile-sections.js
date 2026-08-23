@@ -487,12 +487,31 @@
       ? `<img src="${Seav.escapeHtml(imagePath)}" alt="" loading="lazy" />`
       : `<span class="public-cv-highlight-badge-fallback">${initial}</span>`;
 
+    // 2026-08-22, per Jack: award cards and in-progress cards used to share
+    // .public-cv-highlight-card outright, so the only thing telling them apart
+    // was that one carried a progress bar — an award read as "a milestone that
+    // happens to be finished". --award marks it as its own thing and carries
+    // the family colour + flag stripe from getAwardTreatment in
+    // js/seav-badges.js, the same source the Milestones card and the dashboard
+    // widget read. Non-geographic awards get null back and render as before.
+    const treatment = window.SeavBadges?.getAwardTreatment?.(item.code) || null;
+    const stripeHtml = treatment
+      ? `<span class="public-cv-highlight-flag" aria-hidden="true">${treatment.stripe
+          .map((color) => `<i style="background:${Seav.escapeHtml(color)}"></i>`)
+          .join("")}</span>`
+      : "";
+
     return `
-      <article class="public-cv-highlight-card">
+      <article
+        class="public-cv-highlight-card${treatment ? " public-cv-highlight-card--award" : ""}"
+        ${treatment ? `data-award-family="${Seav.escapeHtml(treatment.family)}" style="--award-edge:${Seav.escapeHtml(treatment.edge)}"` : ""}
+      >
+        ${stripeHtml}
         <span class="public-cv-highlight-badge">${badgeInner}</span>
         <div class="public-cv-highlight-body">
           <p class="public-cv-highlight-title">${Seav.escapeHtml(title)}</p>
           <p class="public-cv-highlight-desc">${Seav.escapeHtml(meta)}</p>
+          ${treatment && treatment.country ? `<p class="public-cv-highlight-country">${Seav.escapeHtml(treatment.country)}</p>` : ""}
         </div>
       </article>
     `;

@@ -81,104 +81,119 @@
     "tier": "gold",
     "hero": "ATLANTIC",
     "sub": "CROSSING",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "ocean"
   },
   {
     "file": "pacific-crossing",
     "tier": "platinum",
     "hero": "PACIFIC",
     "sub": "CROSSING",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "ocean"
   },
   {
     "file": "equator-crossing",
     "tier": "silver",
     "hero": "EQUATOR",
     "sub": "CROSSING",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "ocean"
   },
   {
     "file": "date-line-crossing",
     "tier": "gold",
     "hero": "DATE LINE",
     "sub": "CROSSING",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "ocean"
   },
   {
     "file": "arctic-circle-crossing",
     "tier": "platinum",
     "hero": "ARCTIC CIRCLE",
     "sub": "CROSSING",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "polar"
   },
   {
     "file": "antarctic-circle-crossing",
     "tier": "platinum",
     "hero": "ANTARCTIC CIRCLE",
     "sub": "CROSSING",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "polar"
   },
   {
     "file": "indian-ocean-crossing",
     "tier": "gold",
     "hero": "INDIAN",
     "sub": "CROSSING",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "ocean"
   },
   {
     "file": "panama-canal-transit",
     "tier": "silver",
     "hero": "PANAMA",
     "sub": "CANAL TRANSIT",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "canal"
   },
   {
     "file": "suez-canal-transit",
     "tier": "silver",
     "hero": "SUEZ",
     "sub": "CANAL TRANSIT",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "canal"
   },
   {
     "file": "corinth-canal-transit",
     "tier": "bronze",
     "hero": "CORINTH",
     "sub": "CANAL TRANSIT",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "canal"
   },
   {
     "file": "cape-horn-rounding",
     "tier": "platinum",
     "hero": "CAPE HORN",
     "sub": "ROUNDING",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "place"
   },
   {
     "file": "good-hope-rounding",
     "tier": "gold",
     "hero": "GOOD HOPE",
     "sub": "ROUNDING",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "place"
   },
   {
     "file": "magellan-transit",
     "tier": "gold",
     "hero": "MAGELLAN",
     "sub": "STRAIT TRANSIT",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "place"
   },
   {
     "file": "drake-passage-crossing",
     "tier": "platinum",
     "hero": "DRAKE",
     "sub": "PASSAGE",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "place"
   },
   {
     "file": "northwest-passage-transit",
     "tier": "platinum",
     "hero": "NORTHWEST",
     "sub": "PASSAGE",
-    "page": "navigation"
+    "page": "navigation",
+    "family": "place"
   }
 ]

@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="CHIEF MATE ELIGIBLE" data-source-page="certificates" data-tier="gold">
   <defs>
-    <linearGradient id="ring-r9jwcb" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ring-sdco41" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#d4ad3a"/>
       <stop offset="50%" stop-color="#ffd25a"/>
       <stop offset="100%" stop-color="#ffe699"/>
     </linearGradient>
-    <radialGradient id="disc-r9jwcb" cx="38%" cy="32%" r="68%">
+    <radialGradient id="disc-sdco41" cx="38%" cy="32%" r="68%">
       <stop offset="0%" stop-color="#ffe699"/>
       <stop offset="100%" stop-color="#ffd25a"/>
     </radialGradient>
-    <linearGradient id="shine-r9jwcb" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="shine-sdco41" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.24"/>
       <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <clipPath id="txt-r9jwcb">
+    <clipPath id="txt-sdco41">
       <path d="M 60.00 18.00 L 92.91 37.00 L 92.91 75.00 L 60.00 94.00 L 27.09 75.00 L 27.09 37.00 Z"/>
     </clipPath>
-    <filter id="sh-r9jwcb" x="-20%" y="-15%" width="140%" height="150%">
+    <filter id="sh-sdco41" x="-20%" y="-15%" width="140%" height="150%">
       <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.28"/>
     </filter>
   </defs>
 
-  <g filter="url(#sh-r9jwcb)">
-    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-r9jwcb)" stroke-width="5" stroke-linejoin="round"/>
-    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-r9jwcb)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-r9jwcb)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-r9jwcb)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-r9jwcb)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-r9jwcb)" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-r9jwcb)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-r9jwcb)"/>
-    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-r9jwcb)"/>
+  <g filter="url(#sh-sdco41)">
+    <path d="M 60.00 6.00 L 103.30 31.00 L 103.30 81.00 L 60.00 106.00 L 16.70 81.00 L 16.70 31.00 Z" fill="none" stroke="url(#ring-sdco41)" stroke-width="5" stroke-linejoin="round"/>
+    <line x1="60.00" y1="12.00" x2="60.00" y2="8.00" stroke="url(#ring-sdco41)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="34.00" x2="101.57" y2="32.00" stroke="url(#ring-sdco41)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="98.11" y1="78.00" x2="101.57" y2="80.00" stroke="url(#ring-sdco41)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="60.00" y1="100.00" x2="60.00" y2="104.00" stroke="url(#ring-sdco41)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="78.00" x2="18.43" y2="80.00" stroke="url(#ring-sdco41)" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="21.89" y1="34.00" x2="18.43" y2="32.00" stroke="url(#ring-sdco41)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#disc-sdco41)"/>
+    <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="url(#shine-sdco41)"/>
     <path d="M 60.00 16.00 L 94.64 36.00 L 94.64 76.00 L 60.00 96.00 L 25.36 76.00 L 25.36 36.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1"/>
   </g>
 
-  <g clip-path="url(#txt-r9jwcb)">
+  <g clip-path="url(#txt-sdco41)">
   
   <g font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" text-anchor="middle">
     <text font-size="16.4" font-weight="900" letter-spacing="0.15" fill="#0F172A"><tspan x="60" y="49.0" dy="0">CHIEF</tspan><tspan x="60"  dy="13.9">MATE</tspan></text>

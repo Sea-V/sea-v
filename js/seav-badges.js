@@ -650,6 +650,88 @@ northwest_passage_transit: {
       : withBadgeCacheBust(item.badgeLockedImage || item.badgeImage);
   }
 
+  /* =========================================================
+     AWARD COLOUR FAMILIES  —  2026-08-22, per Jack
+     =========================================================
+     Every Passage & Navigation badge used to render in one teal, because they
+     all resolved to the "navigation" page colour in scripts/generate-badges.mjs.
+     They now split four ways, and the same split drives the CARD around the
+     badge on all three surfaces (Milestones, the dashboard widget, the public
+     profile) so a Cape Horn card looks like a Cape Horn card everywhere.
+
+     Keep in step with the `family` field in scripts/badge-copy.json — that
+     drives the SVG's own ring colours, this drives the card's border, backdrop
+     and top stripe. They must name the same family for a badge or the hexagon
+     and the card it sits in will disagree.
+
+     `flag` is the country whose water or land the award is earned in, rendered
+     as solid colour segments in the card's 4px top border. Segments, not an
+     image or an emoji: emoji flags have no glyphs in Chrome on Windows and
+     render as bare letters, and a gradient would break the solid-colour rule.
+     Awards in international water carry no flag and fall back to the family
+     colour, so the top edge still reads as deliberate rather than missing.
+
+     Cape of Good Hope has no entry ON PURPOSE: six colours in a Y-shape does
+     not reduce to honest stripes. It takes the family colour until someone
+     draws that one flag as a real SVG. */
+  const AWARD_FAMILIES = {
+    ocean: { edge: "rgba(91,188,255,0.42)",  back: "#5bbcff", label: "Ocean crossing" },
+    place: { edge: "rgba(94,230,168,0.42)",  back: "#5ee6a8", label: "Place" },
+    canal: { edge: "rgba(216,185,138,0.46)", back: "#d8b98a", label: "Canal" },
+    polar: { edge: "rgba(232,242,255,0.40)", back: "#e8f2ff", label: "Polar" }
+  };
+
+  const AWARD_FLAGS = {
+    panama: { name: "Panama",       colors: ["#0A5BB4", "#FFFFFF", "#D21034"] },
+    egypt:  { name: "Egypt",        colors: ["#CE1126", "#FFFFFF", "#000000"] },
+    greece: { name: "Greece",       colors: ["#0D5EAF", "#FFFFFF"] },
+    chile:  { name: "Chile",        colors: ["#0039A6", "#FFFFFF", "#D52B1E"] },
+    canada: { name: "Canada",       colors: ["#D80621", "#FFFFFF", "#D80621"] }
+  };
+
+  const AWARD_FAMILY_BY_CODE = {
+    atlantic_crossing:         { family: "ocean" },
+    pacific_crossing:          { family: "ocean" },
+    indian_ocean_crossing:     { family: "ocean" },
+    equator_crossing:          { family: "ocean" },
+    date_line_crossing:        { family: "ocean" },
+
+    panama_canal_transit:      { family: "canal", flag: "panama" },
+    suez_canal_transit:        { family: "canal", flag: "egypt" },
+    corinth_canal_transit:     { family: "canal", flag: "greece" },
+
+    cape_horn_rounding:        { family: "place", flag: "chile" },
+    magellan_transit:          { family: "place", flag: "chile" },
+    northwest_passage_transit: { family: "place", flag: "canada" },
+    good_hope_rounding:        { family: "place" },
+    drake_passage_crossing:    { family: "place" },
+
+    arctic_circle_crossing:    { family: "polar" },
+    antarctic_circle_crossing: { family: "polar" }
+  };
+
+  /* Returns the card treatment for one award code, or null for a badge that
+     has no family (every Deck Progression milestone, for one) — callers render
+     those exactly as they do today. */
+  function getAwardTreatment(code) {
+    const entry = AWARD_FAMILY_BY_CODE[code];
+    if (!entry) return null;
+
+    const family = AWARD_FAMILIES[entry.family];
+    if (!family) return null;
+
+    const flag = entry.flag ? AWARD_FLAGS[entry.flag] : null;
+    return {
+      family: entry.family,
+      edge: family.edge,
+      back: family.back,
+      label: family.label,
+      country: flag ? flag.name : "",
+      // Always at least one segment, so the stripe is never an empty strip.
+      stripe: flag ? flag.colors : [family.back]
+    };
+  }
+
   window.SeavBadges = {
     BADGES,
     ACHIEVEMENTS,
@@ -663,6 +745,9 @@ northwest_passage_transit: {
     normalizeBadgePath,
     withBadgeCacheBust,
     resolveBadgeImage,
-    resolveItemBadgeImage
+    resolveItemBadgeImage,
+    AWARD_FAMILIES,
+    AWARD_FLAGS,
+    getAwardTreatment
   };
 })();

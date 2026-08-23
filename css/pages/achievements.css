@@ -1320,3 +1320,110 @@
     white-space: normal;
   }
 }
+
+/* =========================================================
+   SEAFARER AWARD COLOUR FAMILIES — 2026-08-22
+   Jack: "the colors need to vary" — green for geographical areas, a SEA-V blue
+   for ocean crossings, beige for the canals, ice white for the polar circles,
+   with the country's flag worked into the card's border.
+
+   The four families and the flag colours live in ONE place, AWARD_FAMILY_BY_CODE
+   in js/seav-badges.js, and are read by this card, the dashboard widget
+   (.ach-progress-row--award) and the public profile
+   (.public-cv-highlight-card--award). The badge SVG's own ring colour comes
+   from the matching `family` field in scripts/badge-copy.json — the two must
+   name the same family or the hexagon and its card disagree.
+
+   Only the border, the badge backdrop and the top stripe are tinted. Type is
+   untouched: .cursor/rules/field-label-typography.mdc puts accents on borders
+   and icons, never on label text, and that holds here.
+========================================================= */
+
+.ach-trophy--award {
+  border-color: var(--award-edge, rgba(255, 255, 255, 0.08));
+  padding-top: 20px;
+}
+
+/* Option B, Jack's pick: the flag IS the card's top border. Solid segments,
+   never a gradient (solid colours site-wide, 2026-08-03), and never an emoji
+   flag — Chrome on Windows ships no flag glyphs and renders them as bare
+   letters. An award in international water gets a single segment in its family
+   colour, so the edge always reads as deliberate rather than missing. */
+.ach-trophy-flag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  display: flex;
+  pointer-events: none;
+}
+
+.ach-trophy-flag i {
+  flex: 1;
+}
+
+/* The hexagon's own soft backdrop picks up the family colour so the badge and
+   its card belong together. Locked stays grey — the colour is the reward. */
+.ach-trophy--award.is-unlocked .ach-trophy-badge-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 22px;
+  background: var(--award-back, transparent);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+/* Named underneath, because a 4px stripe cannot carry a country on its own —
+   nobody identifies Chile from three thin bands. The chip repeats the stripe
+   so the two read as the same object. */
+.ach-trophy-country {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.ach-trophy-country i {
+  width: 5px;
+  height: 11px;
+}
+
+.ach-trophy-country i:first-of-type {
+  border-radius: 2px 0 0 2px;
+}
+
+.ach-trophy-country i:last-of-type {
+  border-radius: 0 2px 2px 0;
+}
+
+.ach-trophy-country b {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--seav-meta-muted-color, rgba(255, 255, 255, 0.45));
+}
+
+/* ---- Dashboard widget rows (js/core.js buildDashboardMilestoneRow) ---- */
+
+.ach-progress-row--award {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--award-edge, rgba(255, 255, 255, 0.08));
+}
+
+.ach-progress-row-flag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  display: flex;
+  pointer-events: none;
+}
+
+.ach-progress-row-flag i {
+  flex: 1;
+}
