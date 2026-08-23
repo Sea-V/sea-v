@@ -16,17 +16,9 @@
     formatDatePretty
   } = window.SeavData;
 
-  const DASH_NAV_TILE_URL =
-    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-  const DASH_NAV_ATTRIBUTION =
-    '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
-  const DASH_NAV_WORLD_BOUNDS = [[-85, -180], [85, 180]];
-  const DASH_NAV_MOUNT_RETRY_DELAYS = [900, 1800];
-
-  let dashNavigationChart = null;
-  let dashNavigationLayer = null;
-  let dashNavigationRenderId = 0;
-  let dashCountryHighlightLayer = null;
+  // The Leaflet tile URL, attribution, world bounds, mount-retry delays and the
+  // four chart/layer handles that used to live here went with the dashboard
+  // mini-map on 2026-08-22. navigation.html keeps its own copies.
 
   // js/core.js's bindStateRefresh reruns the dashboard's full refresh() on
   // EVERY "seav:data-updated" event app-wide — not just changes to a given
@@ -77,8 +69,9 @@
     setHeadingText(heading, count === null ? baseTitle : `${baseTitle} (${count})`);
   }
 
-  const haversineNm = window.SeavData.haversineNm;
-  const formatNm = window.SeavData.formatNm;
+  // haversineNm / formatNm were imported here only for the mini-map's
+  // straight-chord distance. Removed with it 2026-08-22 — the passage rows
+  // deliberately carry no distance, see renderNavigationSnippet.
 
   async function renderSeatimeSnippet() {
     const dashSeatimeSnippet = document.getElementById("dashSeatimeSnippet");
@@ -338,487 +331,98 @@ function getDashboardVesselColor(vesselId) {
   return window.SeavData?.getVesselColor?.(vesselId) || "#64748b";
 }
 
-function hasDashboardCoord(lat, lng) {
-  const latNum = Number(lat);
-  const lngNum = Number(lng);
-  return Number.isFinite(latNum) && Number.isFinite(lngNum) && !(latNum === 0 && lngNum === 0);
+// 2026-08-22, per Jack: the dashboard no longer draws a chart. "i dont think
+// we need the nav map on the dashboard, i think the last three passages logged
+// will suffice as a reminder." This card is now the same shape as every other
+// snippet — the three most recent records, title plus a meta line — and the
+// aggregates (total distance, countries, per-vessel breakdown) live on
+// navigation.html, where the full picture belongs.
+//
+// Removed with it: the Leaflet mini-map and ~530 lines of chart machinery
+// (initDashboardNavigationChart, drawDashboardNavigationChart, the tile-load
+// diagnostics, the container-ready and Leaflet-arrival polls, the country
+// highlight layer, buildDashboardPassagePaths, buildDashboardNavigationStats,
+// getDashboardRouteCoords/Distance and the waypoint normaliser). dashboard.html
+// dropped the Leaflet CSS/JS and js/navigation-passage.js + navigation-routing.js
+// at the same time — nothing else on the page used them.
+//
+// No distance on these rows, deliberately. The routed sea-lane figure needs
+// navigation-passage.js + navigation-routing.js (34 KB) to compute, and the
+// cheap straight-chord alternative disagrees with the number navigation.html
+// shows for the same passage — the exact mismatch a comment on the old
+// buildDashboardPassagePaths existed to explain. A reminder card does not need
+// a number that can contradict its own detail page.
+
+const DASH_NAV_LIMIT = 3;
+
+function passageSortDate(entry) {
+  return entry.departureDate || entry.visitedDate || entry.arrivalDate || "";
 }
 
-function normalizeDashboardWaypoints(value) {
-  if (!Array.isArray(value)) return [];
-  return value
-    .map((wp) => ({
-      lat: Number(wp?.lat),
-      lng: Number(wp?.lng),
-      label: wp?.label ? String(wp.label) : ""
-    }))
-    .filter((wp) => hasDashboardCoord(wp.lat, wp.lng));
-}
-
-function getDashboardRouteCoords(entry) {
-  const normalized = window.SeavNavigationHelpers?.normalizeNavEntry
-    ? window.SeavNavigationHelpers.normalizeNavEntry(entry)
-    : entry;
-  const fromLat = Number(normalized.fromLat ?? normalized.from_lat ?? 0);
-  const fromLng = Number(normalized.fromLng ?? normalized.from_lng ?? 0);
-  const toLat = Number(normalized.toLat ?? normalized.lat ?? normalized.to_lat ?? 0);
-  const toLng = Number(normalized.toLng ?? normalized.lng ?? normalized.to_lng ?? 0);
-  const waypoints = normalizeDashboardWaypoints(normalized.waypoints);
-
-  if (!hasDashboardCoord(fromLat, fromLng) || !hasDashboardCoord(toLat, toLng)) return [];
-  if (fromLat === toLat && fromLng === toLng && !waypoints.length) return [];
-
-  return [
-    [fromLat, fromLng],
-    ...waypoints.map((wp) => [wp.lat, wp.lng]),
-    [toLat, toLng]
-  ];
-}
-
-function getDashboardRouteDistance(coords) {
-  let total = 0;
-  for (let i = 1; i < coords.length; i += 1) {
-    total += haversineNm(coords[i - 1][0], coords[i - 1][1], coords[i][0], coords[i][1]);
-  }
-  return total;
-}
-
-// The dashboard mini-map used to draw a straight line through only the
-// stored from/waypoints/to anchors (getDashboardRouteCoords below) — never
-// the actual curved sea-route navigation.html's own map draws
-// (js/navigation-map.js uses SeavNavigationPassage.buildPassagePaths, which
-// great-circle-interpolates direct legs and routes along sea lanes when
-// available). That's why editing a passage's route on navigation.html never
-// visibly changed anything on the dashboard: the dashboard was never
-// plotting that route to begin with, just a straight chord between anchors.
-// Reuse the same buildPassagePaths() navigation.html uses so both maps show
-// the same line for the same passage. Falls back to the old straight-anchor
-// behaviour only if navigation-passage.js somehow isn't loaded.
-async function buildDashboardPassagePaths(entries) {
-  const P = window.SeavNavigationPassage;
-  const H = window.SeavNavigationHelpers;
-  if (P?.buildPassagePaths) {
-    try {
-      // buildPassagePaths (like navigation.html's own loadNavEntries) expects
-      // normalized camelCase fields (entry.fromLat, not entry.from_lat) to
-      // detect a routable entry at all — feeding it raw/un-normalized entries
-      // silently produces zero paths rather than an error.
-      const normalized = H?.normalizeNavEntry ? entries.map(H.normalizeNavEntry) : entries;
-      return await P.buildPassagePaths(normalized);
-    } catch (error) {
-      console.warn("[SEA-V] Dashboard routed passage paths failed:", error);
-    }
-  }
-
-  return entries
-    .map((entry) => {
-      const coords = getDashboardRouteCoords(entry);
-      if (coords.length < 2) return null;
-      const vesselId = entry.vesselId || entry.vessel_id || "";
-      return {
-        coords,
-        color: getDashboardVesselColor(vesselId),
-        distanceNm: getDashboardRouteDistance(coords),
-        vesselId,
-        vesselName: getDashboardVesselName(vesselId),
-        fromPort: entry.fromPort || entry.from_port || "",
-        toPort: entry.toPort || entry.to_port || entry.port || "",
-        fromCountry: entry.fromCountry || entry.from_country || "",
-        toCountry: entry.toCountry || entry.to_country || entry.country || "",
-        passageName: entry.passageName || entry.passage_name || ""
-      };
-    })
-    .filter(Boolean);
-}
-
-function buildDashboardNavigationStats(paths) {
-  const countries = new Set();
-  const vessels = new Map();
-  let totalNm = 0;
-
-  paths.forEach((path) => {
-    totalNm += Number(path.distanceNm) || 0;
-
-    if (path.fromCountry) countries.add(path.fromCountry);
-    if (path.toCountry) countries.add(path.toCountry);
-
-    const vesselId = path.vesselId || "";
-    if (!vessels.has(vesselId)) {
-      vessels.set(vesselId, {
-        id: vesselId,
-        name: path.vesselName || getDashboardVesselName(vesselId),
-        passages: 0,
-        countries: new Set()
-      });
-    }
-    const vessel = vessels.get(vesselId);
-    vessel.passages += 1;
-    if (path.fromCountry) vessel.countries.add(path.fromCountry);
-    if (path.toCountry) vessel.countries.add(path.toCountry);
-  });
-
-  const vesselRows = [...vessels.values()]
-    .sort((a, b) => b.passages - a.passages || a.name.localeCompare(b.name))
-    .slice(0, 4);
-
-  return {
-    paths,
-    totalNm,
-    countries: countries.size,
-    vessels: vessels.size,
-    vesselRows
-  };
-}
-
-function destroyDashboardNavigationChart() {
-  if (!dashNavigationChart) return;
-  try {
-    dashNavigationChart.remove();
-  } catch (error) {
-    console.warn("[SEA-V] Dashboard nav chart cleanup:", error);
-  }
-  dashNavigationChart = null;
-  dashNavigationLayer = null;
-  dashCountryHighlightLayer = null;
-}
-
-// Leaflet computes its tile grid against the container size at map creation.
-// On first dashboard load the snippet HTML can exist before the grid has been
-// painted, so wait for a measurable chart before mounting or fitting the map.
-function whenDashboardChartContainerReady(container, callback) {
-  const attempt = () => {
-    if (!container?.isConnected) return false;
-    const rect = container.getBoundingClientRect();
-    if (rect.width > 0 && rect.height > 0) {
-      callback();
-      return true;
-    }
-    return false;
-  };
-
-  if (attempt()) return;
-
-  window.requestAnimationFrame(() => {
-    if (attempt()) return;
-    window.requestAnimationFrame(() => {
-      if (attempt()) return;
-      window.setTimeout(callback, 300);
-    });
-  });
-}
-
-function hasDashboardNavLoadedTiles(container) {
-  return !!container?.querySelector?.(".leaflet-tile-loaded");
-}
-
-// Surfaces failures on-screen instead of only in devtools console — added
-// after a Safari-only "map not loading" report we couldn't reproduce or
-// diagnose from a partial console screenshot. Two variants: a destructive
-// one for total init failure (container is unusable anyway), and an
-// additive one for partial failures (e.g. tiles blocked) where the map
-// object is still alive and routes/polylines may still be worth showing.
-function replaceDashboardNavShellWithDiagnostic(message) {
-  const shell = document.querySelector(
-    "#dashNavigationSnippet .dashboard-navigation-chart-shell"
-  );
-  if (shell) {
-    shell.innerHTML = `<div class="muted" style="padding:12px;">${Seav.escapeHtml(message)}</div>`;
-  }
-}
-
-function appendDashboardNavDiagnostic(message) {
-  const shell = document.querySelector(
-    "#dashNavigationSnippet .dashboard-navigation-chart-shell"
-  );
-  if (!shell || shell.querySelector(".dash-nav-diag")) return;
-  const diag = document.createElement("div");
-  diag.className = "muted dash-nav-diag";
-  diag.style.cssText = "padding:6px 4px 0; font-size:12px;";
-  diag.textContent = message;
-  shell.appendChild(diag);
-}
-
-function initDashboardNavigationChart(container) {
-  if (dashNavigationChart || !container || typeof L === "undefined") return false;
-
-  try {
-    // Keep the dashboard preview to one world copy. Leaflet tile layers wrap by
-    // default; noWrap + maxBounds prevents the repeated-world view while still
-    // allowing normal pan/zoom inside the real map extent.
-    dashNavigationChart = L.map(container, {
-      center: [30, 0],
-      zoom: 2,
-      minZoom: 2,
-      maxBounds: DASH_NAV_WORLD_BOUNDS,
-      maxBoundsViscosity: 1,
-      worldCopyJump: false,
-      zoomControl: true,
-      attributionControl: true,
-      dragging: true,
-      touchZoom: true,
-      scrollWheelZoom: false,
-      doubleClickZoom: true,
-      boxZoom: false,
-      keyboard: false,
-      preferCanvas: true
-    });
-
-    const tileLayer = L.tileLayer(DASH_NAV_TILE_URL, {
-      attribution: DASH_NAV_ATTRIBUTION,
-      subdomains: "abcd",
-      maxZoom: 18,
-      noWrap: true,
-      bounds: DASH_NAV_WORLD_BOUNDS,
-      keepBuffer: 2,
-      updateWhenIdle: true
-    }).addTo(dashNavigationChart);
-
-    // If every tile request errors out (network block, ad/content blocker,
-    // CSP) the map div stays visibly blank even though Leaflet "loaded" fine
-    // — from the user's side that looks identical to "the map isn't
-    // loading." This makes that failure mode visible without needing
-    // devtools open.
-    let tilesLoaded = 0;
-    let tileErrors = 0;
-    tileLayer.on("load", () => {
-      tilesLoaded += 1;
-    });
-    tileLayer.on("tileerror", () => {
-      tileErrors += 1;
-      if (tileErrors >= 4 && tilesLoaded === 0) {
-        appendDashboardNavDiagnostic(
-          "Map tiles failed to load (network or content blocker) — routes are still listed below."
-        );
-      }
-    });
-
-    dashNavigationLayer = L.layerGroup().addTo(dashNavigationChart);
-    return true;
-  } catch (error) {
-    console.error("[SEA-V] Dashboard nav chart init failed:", error);
-    destroyDashboardNavigationChart();
-    replaceDashboardNavShellWithDiagnostic(`Map failed to load: ${error?.message || error}`);
-    return false;
-  }
-}
-
-async function renderNavigationSnippet() {
+function renderNavigationSnippet() {
   const box = document.getElementById("dashNavigationSnippet");
   if (!box) return;
 
   const entries = window.SeavState?.navigationAreas || [];
-  updateCardTitle("dashNavigationSnippet", "Navigation chart", entries.length);
-
-  // Skip the rebuild entirely when nothing this card depends on has changed
-  // AND a map is already mounted (or the empty-state message is already
-  // showing) — otherwise this destroys and remounts the whole Leaflet map,
-  // including a full tile reload, on every unrelated "seav:data-updated"
-  // event anywhere in the app. If the chart never successfully mounted
-  // (dashNavigationChart is null after a failure) this still falls through
-  // so a retry can happen.
-  const fingerprint = JSON.stringify({ entries, vessels: vesselNameFingerprint() });
-  const unchanged = renderFingerprints.get("navigation") === fingerprint;
-  renderFingerprints.set("navigation", fingerprint);
-  if (unchanged && (dashNavigationChart || !entries.length)) return;
-
-  const renderId = ++dashNavigationRenderId;
-
-  destroyDashboardNavigationChart();
+  updateCardTitle("dashNavigationSnippet", "Navigation", entries.length);
 
   if (!entries.length) {
-    if (renderId !== dashNavigationRenderId) return;
     box.innerHTML = `<div class="muted">No passages logged yet.</div>`;
     return;
   }
 
-  let stats;
-  try {
-    const paths = await buildDashboardPassagePaths(entries);
-    stats = buildDashboardNavigationStats(paths);
-  } catch (error) {
-    // Surface the real reason on-screen. Previously a throw here (before any
-    // map code even ran) left the card silently blank with only a console
-    // log — indistinguishable from "map not loading" but with a totally
-    // different cause and fix.
-    box.innerHTML = `<div class="muted" style="padding:12px;">Navigation chart failed to load: ${Seav.escapeHtml(error?.message || String(error))}</div>`;
-    throw error;
-  }
+  const H = window.SeavNavigationHelpers;
 
-  if (renderId !== dashNavigationRenderId) return;
+  // normalizeNavEntry resolves a port named in free text back to its record,
+  // which is what makes formatRouteLabel produce "Palma, Spain → Gibraltar"
+  // rather than a bare country. Skipping it is the same bug already fixed once
+  // on the Navigation page, where legacy entries lost their country names.
+  const normalized = (H?.normalizeNavEntry ? entries.map(H.normalizeNavEntry) : entries)
+    .slice()
+    .sort((a, b) => String(passageSortDate(b)).localeCompare(String(passageSortDate(a))))
+    .slice(0, DASH_NAV_LIMIT);
+
+  if (skipUnchangedRender("navigation", JSON.stringify({ normalized, vessels: vesselNameFingerprint() }))) return;
 
   box.innerHTML = `
-    <div class="dashboard-navigation-layout">
-      <div class="dashboard-navigation-chart-shell">
-        <div class="dashboard-navigation-chart" id="dashNavigationChart"></div>
-      </div>
-      <div class="dashboard-navigation-stats">
-        <div class="dashboard-navigation-stat">
-          <span>Total distance</span>
-          <strong>${Seav.escapeHtml(formatNm(stats.totalNm))}</strong>
-        </div>
-        <div class="dashboard-navigation-stat">
-          <span>Passages</span>
-          <strong>${stats.paths.length}</strong>
-        </div>
-        <div class="dashboard-navigation-stat">
-          <span>Countries</span>
-          <strong>${stats.countries}</strong>
-        </div>
-        <div class="dashboard-navigation-stat">
-          <span>Vessels</span>
-          <strong>${stats.vessels}</strong>
-        </div>
-        <div class="dashboard-navigation-vessel-list">
-          ${stats.vesselRows.length
-            ? stats.vesselRows
-                .map((row) => `
-                  <div class="dashboard-navigation-vessel-row">
-                    <i style="background:${Seav.escapeHtml(getDashboardVesselColor(row.id))}"></i>
-                    <span>${Seav.escapeHtml(row.name)}</span>
-                    <b>${row.passages} ${row.passages === 1 ? "passage" : "passages"} · ${row.countries.size} ${row.countries.size === 1 ? "country" : "countries"}</b>
-                  </div>
-                `)
-                .join("")
-            : `<div class="muted">No vessel-linked passages yet.</div>`}
-        </div>
-      </div>
-    </div>
-    <div class="dashboard-navigation-foot">
-      <span>${entries.length} passage${entries.length === 1 ? "" : "s"} logged</span>
-      <a href="navigation.html">Manage passages</a>
+    <div class="list">
+      ${normalized
+        .map((entry) => {
+          const route = H?.formatRouteLabel ? H.formatRouteLabel(entry) : "Passage";
+          const title = entry.passageName || route;
+          const vesselName = getDashboardVesselName(entry.vesselId || entry.vessel_id);
+          const from = passageSortDate(entry);
+          const to = entry.arrivalDate || "";
+          const dates = from && to && from !== to ? `${from} → ${to}` : from || to || "";
+          const meta = [
+            // Only shown when a passage name is set — otherwise the route IS
+            // the title and repeating it below reads as a rendering fault.
+            entry.passageName ? route : "",
+            vesselName,
+            dates,
+            entry.isTidal ? "Tidal waters" : ""
+          ]
+            .filter(Boolean)
+            .map((part) => Seav.escapeHtml(String(part)))
+            .join(" · ");
+
+          return `
+            <div class="list-row">
+              <div style="min-width:0;">
+                <div class="list-title">
+                  <span class="navigation-log-color" style="background:${Seav.escapeHtml(
+                    getDashboardVesselColor(entry.vesselId || entry.vessel_id)
+                  )}"></span>
+                  ${Seav.escapeHtml(title)}
+                </div>
+                <div class="list-sub">${meta}</div>
+              </div>
+            </div>
+          `;
+        })
+        .join("")}
     </div>
   `;
-
-  const container = document.getElementById("dashNavigationChart");
-  if (!container) return;
-
-  // On a fresh login redirect (as opposed to a plain refresh of an
-  // already-open dashboard), this render can fire before the Leaflet
-  // <script> has actually finished loading — e.g. a slow/blocked first
-  // fetch of the CDN script. A refresh "fixes" it purely because the
-  // script is warm in cache by then. Rather than give up immediately,
-  // poll briefly for `L` to show up and retry, so the map still appears
-  // without the user needing to reload the page.
-  if (typeof L === "undefined") {
-    waitForLeaflet(() => {
-      if (
-        renderId === dashNavigationRenderId &&
-        document.getElementById("dashNavigationChart") === container
-      ) {
-        drawDashboardNavigationChart(container, stats, entries, 0, renderId);
-      }
-    });
-    return;
-  }
-
-  drawDashboardNavigationChart(container, stats, entries, 0, renderId);
-}
-
-const DASH_NAV_LEAFLET_POLL_MS = 200;
-const DASH_NAV_LEAFLET_POLL_ATTEMPTS = 25; // ~5s total
-
-function waitForLeaflet(onReady, attemptsLeft = DASH_NAV_LEAFLET_POLL_ATTEMPTS) {
-  if (typeof L !== "undefined") {
-    onReady();
-    return;
-  }
-  if (attemptsLeft <= 0) {
-    // Leaflet never showed up (genuinely blocked/failed to load, not just slow) —
-    // only now fall back to the static message, and only if this render pass'
-    // chart container is still the one on screen (user hasn't navigated away
-    // or triggered a fresh re-render in the meantime).
-    const shell = document.querySelector(
-      "#dashNavigationSnippet .dashboard-navigation-chart-shell"
-    );
-    if (shell) shell.innerHTML = `<div class="muted">Chart preview unavailable.</div>`;
-    return;
-  }
-  window.setTimeout(() => waitForLeaflet(onReady, attemptsLeft - 1), DASH_NAV_LEAFLET_POLL_MS);
-}
-
-function drawDashboardNavigationChart(container, stats, entries = [], retryAttempt = 0, renderId = dashNavigationRenderId) {
-  whenDashboardChartContainerReady(container, () => {
-    if (renderId !== dashNavigationRenderId) return;
-    if (!initDashboardNavigationChart(container) || !dashNavigationLayer) return;
-
-    dashNavigationLayer.clearLayers();
-
-    const H = window.SeavNavigationHelpers;
-    if (H?.renderCountryHighlightLayer) {
-      // `entries` here is window.SeavState.navigationAreas straight from the
-      // API — raw, not run through H.normalizeNavEntry. Legacy/free-text
-      // entries can have valid lat/lng but a blank from_country/to_country
-      // (the exact Iceland/Greenland/Norway/UAE bug already fixed for the
-      // Navigation page — see resolveNavEntryCoords' name-only port lookup).
-      // That fix only takes effect via normalizeNavEntry, so without calling
-      // it here too the same countries would silently drop out of this
-      // overlay again even though the underlying data is fine.
-      const normalizedEntries = H.normalizeNavEntry ? entries.map(H.normalizeNavEntry) : entries;
-      H.renderCountryHighlightLayer(dashNavigationChart, normalizedEntries, dashCountryHighlightLayer).then(
-        (layer) => {
-          dashCountryHighlightLayer = layer;
-        }
-      );
-    }
-
-    const bounds = [];
-    stats.paths.forEach((path) => {
-      const coords = path.coords || [];
-      if (coords.length < 2) return;
-      const vesselId = path.vesselId || "";
-      const color = path.color || getDashboardVesselColor(vesselId);
-      const from = path.fromPort || "Departure";
-      const to = path.toPort || path.port || "Arrival";
-      const line = L.polyline(coords, {
-        color,
-        weight: 2,
-        opacity: 0.94,
-        lineCap: "round",
-        lineJoin: "round"
-      });
-
-      line.bindTooltip(`${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`, { sticky: true });
-      line.bindPopup(
-        `<strong>${Seav.escapeHtml(path.passageName || path.vesselName || getDashboardVesselName(vesselId))}</strong><br/>${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`
-      );
-      dashNavigationLayer.addLayer(line);
-
-      coords.forEach((coord) => bounds.push(coord));
-    });
-
-    const settleDashboardChart = () => {
-      if (!dashNavigationChart) return;
-      dashNavigationChart.invalidateSize(true);
-      if (bounds.length) {
-        dashNavigationChart.fitBounds(L.latLngBounds(bounds), {
-          padding: [52, 52],
-          maxZoom: 9,
-          animate: false
-        });
-      }
-      dashNavigationChart.panInsideBounds(DASH_NAV_WORLD_BOUNDS, { animate: false });
-    };
-
-    settleDashboardChart();
-    // Extra passes cover late layout shifts (web fonts, sibling cards resizing)
-    // that can happen only on the first dashboard load.
-    window.setTimeout(settleDashboardChart, 250);
-    window.setTimeout(settleDashboardChart, 800);
-
-    const retryDelay = DASH_NAV_MOUNT_RETRY_DELAYS[retryAttempt];
-    if (retryDelay === undefined) return;
-
-    window.setTimeout(() => {
-      if (renderId !== dashNavigationRenderId) return;
-      if (!container.isConnected || hasDashboardNavLoadedTiles(container)) return;
-
-      // Cold first loads can leave Leaflet with no requested/painted tiles even
-      // though the map object exists. Remount in-place instead of relying on a
-      // manual browser refresh.
-      destroyDashboardNavigationChart();
-      drawDashboardNavigationChart(container, stats, entries, retryAttempt + 1);
-    }, retryDelay);
-  });
 }
 
   function truncateText(text, max = 140) {

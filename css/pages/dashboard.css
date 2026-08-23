@@ -289,6 +289,13 @@
 }
 
 .dashboard-card-headline a,
+/* NOTE 2026-08-22: the .dashboard-navigation-* rules below are no longer used by
+   the dashboard — its Navigation card became a three-row passage list and the
+   mini-map went. They are kept because the PUBLIC PROFILE still renders a chart
+   with exactly these class names (js/public-profile-sections.js
+   renderNavigation, public-profile.html #ppNavigationSection). Do not delete
+   them as dead dashboard CSS; move them to css/pages/public-profile.css if this
+   file is ever tidied. */
 .dashboard-navigation-foot a {
   color: #5bbcff;
   font-size: 12px;

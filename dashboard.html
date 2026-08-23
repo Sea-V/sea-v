@@ -24,58 +24,58 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=509" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=509" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=509" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=509" />
+  <link rel="icon" href="/favicon.ico?v=510" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=510" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=510" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=510" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V Dashboard</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=509" />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  />
+  <link rel="stylesheet" href="styles.css?v=510" />
+  <!-- Leaflet CSS removed 2026-08-22 with the dashboard mini-map. navigation.html
+       still loads its own. -->
 
   <!-- Core Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=509"></script>
-  <script src="js/supabase.js?v=509"></script>
-  <script src="js/auth.js?v=509"></script>
-  <script src="js/feedback.js?v=509" defer></script>
-  <script src="js/core.js?v=509" defer></script>
-  <script src="js/bug-reports.js?v=509" defer></script>
-  <script src="js/seav-upload.js?v=509" defer></script>
-  <script src="js/seav-data.js?v=509" defer></script>
-  <script src="js/seav-badges.js?v=509" defer></script>
-  <script src="js/api-core.js?v=509" defer></script>
-  <script src="js/api-mappers.js?v=509" defer></script>
-  <script src="js/api.js?v=509" defer></script>
-  <script src="js/state.js?v=509" defer></script>
-  <script src="js/seav-notifications.js?v=509" defer></script>
-  <script src="js/achievements-engine.js?v=509" defer></script>
-  <script src="js/badge-unlock.js?v=509" defer></script>
+  <script src="js/seav-config.js?v=510"></script>
+  <script src="js/supabase.js?v=510"></script>
+  <script src="js/auth.js?v=510"></script>
+  <script src="js/feedback.js?v=510" defer></script>
+  <script src="js/core.js?v=510" defer></script>
+  <script src="js/bug-reports.js?v=510" defer></script>
+  <script src="js/seav-upload.js?v=510" defer></script>
+  <script src="js/seav-data.js?v=510" defer></script>
+  <script src="js/seav-badges.js?v=510" defer></script>
+  <script src="js/api-core.js?v=510" defer></script>
+  <script src="js/api-mappers.js?v=510" defer></script>
+  <script src="js/api.js?v=510" defer></script>
+  <script src="js/state.js?v=510" defer></script>
+  <script src="js/seav-notifications.js?v=510" defer></script>
+  <script src="js/achievements-engine.js?v=510" defer></script>
+  <script src="js/badge-unlock.js?v=510" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-  <script src="js/seav-share.js?v=509" defer></script>
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-    defer
-  ></script>
-  <script src="js/seav-cards.js?v=509" defer></script>
+  <script src="js/seav-share.js?v=510" defer></script>
+  <!-- Leaflet JS removed 2026-08-22 with the dashboard mini-map — nothing else on
+       this page used it. Two fewer cross-origin requests and no map tiles per load. -->
+  <script src="js/seav-cards.js?v=510" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="js/navigation-ports.js?v=509" defer></script>
-  <script src="js/navigation-helpers.js?v=509" defer></script>
-  <script src="js/navigation-passage.js?v=509" defer></script>
-  <script src="js/navigation-routing.js?v=509" defer></script>
-  <script src="js/dashboard-snippets.js?v=509" defer></script>
-  <script src="js/dashboard.js?v=509" defer></script>
+  <!-- navigation-ports + navigation-helpers stay: renderNavigationSnippet uses
+       normalizeNavEntry (which reads the port list) and formatRouteLabel to title
+       each passage row. navigation-passage.js and navigation-routing.js were only
+       ever loaded to compute the mini-map's routed sea-lane distance -- 34 KB for
+       a number the passage rows deliberately do not show. Removed 2026-08-22. -->
+  <script src="js/navigation-ports.js?v=510" defer></script>
+  <script src="js/navigation-helpers.js?v=510" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
+  <script src="js/navigation-ports.js?v=510" defer></script>
+  <script src="js/navigation-helpers.js?v=510" defer></script>
+  <script src="js/navigation-passage.js?v=510" defer></script>
+  <script src="js/navigation-routing.js?v=510" defer></script>
+  <script src="js/dashboard-snippets.js?v=510" defer></script>
+  <script src="js/dashboard.js?v=510" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -386,12 +386,15 @@
         </article>
 
         <!-- =========================
-             NAVIGATION CHART
+             NAVIGATION
+             Three most recent passages, not a chart (Jack, 2026-08-22).
+             .dashboard-navigation-card dropped with the map -- it only existed
+             to size the chart shell.
         ========================== -->
-        <article class="dash-card dash-card-accent-navigation dashboard-navigation-card">
+        <article class="dash-card dash-card-accent-navigation">
           <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="navigation" aria-hidden="true"></span>Navigation chart</h3>
-            <a href="navigation.html">Open full chart</a>
+            <h3><span class="dashboard-card-icon" data-dash-icon="navigation" aria-hidden="true"></span>Navigation</h3>
+            <a href="navigation.html">View all</a>
           </div>
           <div id="dashNavigationSnippet"></div>
         </article>
