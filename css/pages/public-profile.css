@@ -1471,3 +1471,16 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   text-transform: uppercase;
   color: var(--seav-meta-muted-color, rgba(255, 255, 255, 0.45));
 }
+
+/* Awards inside a vessel's own collapsible render as the Milestones trophy
+   card now (SeavCards.buildAwardTile), so this list becomes a grid. Scoped to
+   a modifier rather than changed on .public-cv-highlight-list itself, because
+   that class is still used by the in-progress milestone cards further down the
+   page — those stay a stacked column, since a card with a progress bar reads
+   better full width. Narrower minmax than the Milestones grid: these sit inside
+   a vessel card, which is already indented. */
+.public-cv-award-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}

@@ -617,81 +617,19 @@ function groupSidebarAchievements(records) {
 // statement" that also show the progress bar, so this always renders a bar:
 // 100% + an unlock summary for earned milestones, or the real in-progress
 // percent (via achievements-engine.js) for anything not yet earned.
+// 2026-08-22, per Jack: Seafarer Awards on the dashboard are the same card as
+// on Milestones now, in a grid — they were full-width rows "taking the entire
+// row up for no reason", each carrying a progress bar hardcoded to 100% that
+// could never say anything.
+//
+// The markup comes from SeavCards.buildAwardTile (js/seav-cards.js), shared
+// with the public profile, so one award looks like itself everywhere. The
+// in-progress rows above (renderDashboardInProgress) are untouched and keep
+// their bars — those are genuinely partial.
 function buildDashboardMilestoneRow(instances) {
-  const code = instances[0]?.code;
-  const full = code && window.SeavBadges?.getAchievementWithBadge?.(code);
-  if (!full) return "";
-
-  const tier = full.badge?.tier || "default";
-  const imagePath = window.SeavBadges.resolveBadgeImage(full.badgeKey, true);
-  const title = full.title || "Milestone";
-  const primary = instances[0];
-
-  let label;
-  if (instances.length > 1) {
-    const vessels = instances.map((entry) => entry.vessel).filter(Boolean);
-    label = vessels.length
-      ? `${instances.length} times — ${vessels.slice(0, 2).join(", ")}${vessels.length > 2 ? "…" : ""}`
-      : `${instances.length} times logged`;
-  } else if (primary?.vessel) {
-    label = `Unlocked on ${primary.vessel}`;
-  } else {
-    label = primary?.autoAwarded ? "Career-wide milestone" : "Logged milestone";
-  }
-
-  // 2026-08-22, per Jack: the progress bar is gone. It was hardcoded to
-  // width:100% / aria-valuenow="100" on every award, always — a bar that can
-  // never say anything, sitting next to a tick that already says "unlocked".
-  // "the progress bars dont make sense unless we are working towards them."
-  // The in-progress rows above (renderDashboardInProgress) keep theirs; those
-  // are genuinely partial.
-  //
-  // The family colour and flag stripe come from the same source the Milestones
-  // card and the public profile use — getAwardTreatment in js/seav-badges.js —
-  // so one award looks like itself on all three surfaces. Returns null for a
-  // non-geographic badge, which then renders exactly as it did before.
-  const treatment = window.SeavBadges?.getAwardTreatment?.(code) || null;
-  const stripeHtml = treatment
-    ? `<span class="ach-progress-row-flag" aria-hidden="true">${treatment.stripe
-        .map((color) => `<i style="background:${window.Seav.escapeHtml(color)}"></i>`)
-        .join("")}</span>`
-    : "";
-
-  return `
-    <article
-      class="ach-progress-row is-unlocked${treatment ? " ach-progress-row--award" : ""}"
-      data-tier="${window.Seav.escapeHtml(tier)}"
-      ${treatment ? `data-award-family="${window.Seav.escapeHtml(treatment.family)}" style="--award-edge:${window.Seav.escapeHtml(treatment.edge)}"` : ""}
-    >
-      ${stripeHtml}
-      <div class="ach-progress-row-badge">
-        <img src="${window.Seav.escapeHtml(imagePath)}" alt="${window.Seav.escapeHtml(title)}" />
-      </div>
-      <div class="ach-progress-row-body">
-        <div class="ach-progress-row-title-wrap">
-          <span class="ach-progress-row-title">${window.Seav.escapeHtml(title)}</span>
-        </div>
-        ${full.description ? `<p class="ach-progress-row-desc">${window.Seav.escapeHtml(full.description)}</p>` : ""}
-        <p class="ach-progress-row-label">${window.Seav.escapeHtml(label)}</p>
-      </div>
-      <div class="ach-progress-row-check" title="Unlocked" aria-label="Unlocked">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </article>
-  `;
+  return window.SeavCards?.buildAwardTile?.(instances[0], instances) || "";
 }
 
-// 2026-08-05, per Jack: the Milestones widget no longer shows every earned
-// Deck Progression badge — just what's currently in progress. Renders ALL
-// not-yet-earned cert groups with real progress (window.SeavAchievementEngine
-// .getInProgressMilestones(), which merges OOW's split catalog definitions
-// into one card, same as the private Milestones page), not just the single
-// closest one — e.g. Master <500GT AND Master <3000GT both show if he's
-// working on both at once. Each card reuses the same .ach-next-milestone
-// markup/CSS the old single "Next up" callout used; #dashNextMilestone
-// itself is now a list wrapper (dashboard.html), not a card.
 function renderDashboardInProgress() {
   const mount = document.getElementById("dashNextMilestone");
   if (!mount) return;

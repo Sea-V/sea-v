@@ -21,6 +21,88 @@
     return window.SeavData?.formatDatePretty ? window.SeavData.formatDatePretty(value) : value || "—";
   }
 
+
+  /* =========================================================
+     SEAFARER AWARD TILE  —  2026-08-22, per Jack
+     =========================================================
+     "make these in dashboard the same style cards as in milestones but only
+     for the awards as they're taking the entire row up for no reason."
+
+     Produces the SAME .ach-trophy markup the Milestones page renders, so the
+     three surfaces stop drawing an award three different ways. Milestones keeps
+     its own buildTrophyTile() — that one also handles locked states, progress
+     bars, prerequisites and edit/delete, none of which belong on a read-only
+     summary. This is the finished-award subset of it.
+
+     If .ach-trophy's structure ever changes in css/pages/achievements.css, both
+     builders have to move together. They are deliberately not merged: the
+     alternative was exporting a builder with six branches nobody reads.
+
+     Awards are, by definition, finished — so there is no progress bar here, and
+     there never should be. That was the whole point of the change.
+  ========================================================= */
+  function buildAwardTile(item, instances) {
+    const code = item?.code || instances?.[0]?.code || "";
+    const full = window.SeavBadges?.getAchievementWithBadge?.(code) || null;
+    const list = instances && instances.length ? instances : [item].filter(Boolean);
+    if (!list.length) return "";
+
+    const primary = list[0];
+    const title = full?.title || primary.title || "Milestone";
+    const category = full?.category || primary.category || "";
+    const tier = full?.badge?.tier || "default";
+    const imagePath =
+      window.SeavBadges?.resolveItemBadgeImage?.(primary) ||
+      window.SeavBadges?.resolveBadgeImage?.(full?.badgeKey, true) ||
+      "";
+
+    // Same colour family + flag stripe the Milestones card and the dashboard
+    // widget read — AWARD_FAMILY_BY_CODE in js/seav-badges.js. Null for any
+    // badge that is not a geographic award; the tile still renders, just
+    // without a family tint.
+    const treatment = window.SeavBadges?.getAwardTreatment?.(code) || null;
+    const seg = (color) => `<i style="background:${Seav.escapeHtml(color)}"></i>`;
+
+    const vessels = list.map((entry) => entry.vessel).filter(Boolean);
+    let status;
+    if (list.length > 1) {
+      status = vessels.length
+        ? `${list.length} times — ${vessels.slice(0, 2).join(", ")}${vessels.length > 2 ? "…" : ""}`
+        : `${list.length} times logged`;
+    } else if (primary.vessel) {
+      status = `On ${primary.vessel}`;
+    } else {
+      status = primary.autoAwarded ? "Career-wide milestone" : "Logged milestone";
+    }
+
+    const dateText = list.length === 1 ? formatCardDate(primary.date) : "";
+
+    return `
+      <article
+        class="ach-trophy is-unlocked${treatment ? " ach-trophy--award" : ""}"
+        data-tier="${Seav.escapeHtml(tier)}"
+        data-category="${Seav.escapeHtml(category)}"
+        ${treatment ? `data-award-family="${Seav.escapeHtml(treatment.family)}" style="--award-edge:${Seav.escapeHtml(treatment.edge)};--award-back:${Seav.escapeHtml(treatment.back)}"` : ""}
+      >
+        ${treatment ? `<span class="ach-trophy-flag" aria-hidden="true">${treatment.stripe.map(seg).join("")}</span>` : ""}
+        <div class="ach-trophy-badge-wrap">
+          <span class="ach-trophy-glow" aria-hidden="true"></span>
+          ${list.length > 1 ? `<span class="ach-trophy-count">×${list.length}</span>` : ""}
+          ${imagePath ? `<img class="ach-trophy-badge" src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(title)}" loading="lazy" />` : ""}
+        </div>
+        <h4 class="ach-trophy-title">${Seav.escapeHtml(title)}</h4>
+        ${category ? `<p class="ach-trophy-category">${Seav.escapeHtml(category)}</p>` : ""}
+        ${
+          treatment && treatment.country
+            ? `<span class="ach-trophy-country">${treatment.stripe.map(seg).join("")}<b>${Seav.escapeHtml(treatment.country)}</b></span>`
+            : ""
+        }
+        <p class="ach-trophy-status ach-trophy-status--unlocked">${Seav.escapeHtml(status)}</p>
+        ${dateText ? `<p class="ach-trophy-meta"><span class="ach-trophy-date">${Seav.escapeHtml(dateText)}</span></p>` : ""}
+      </article>
+    `;
+  }
+
   function buildCardPhotoHtml(fileValue, bucket, altText) {
     const photoUrl =
       Seav.getFileDisplayUrl(fileValue, bucket) ||
@@ -617,6 +699,7 @@
   window.SeavCards = {
     buildVesselCard,
     buildVesselCardFull,
+    buildAwardTile,
     buildTenderCard,
     buildOnboardRow,
     buildSpecialistRow,

@@ -475,54 +475,25 @@
   // is always true here — nested one level under the vessel already, so
   // repeating the vessel name on every card would just restate the group
   // heading above it; description (or a generic fallback) is shown instead.
-  function buildAchievementHighlightCard(item, hideVesselMeta = true) {
-    const vessel = !hideVesselMeta && item.vessel ? item.vessel : "";
-    const title = item.title || "Milestone";
-    const meta =
-      vessel ||
-      (item.description ? truncate(item.description, 70) : hideVesselMeta ? "Logged milestone" : "Career-wide milestone");
-    const imagePath = window.SeavBadges?.resolveItemBadgeImage?.(item) || "";
-    const initial = Seav.escapeHtml((title || "M").trim().charAt(0).toUpperCase() || "M");
-    const badgeInner = imagePath
-      ? `<img src="${Seav.escapeHtml(imagePath)}" alt="" loading="lazy" />`
-      : `<span class="public-cv-highlight-badge-fallback">${initial}</span>`;
-
-    // 2026-08-22, per Jack: award cards and in-progress cards used to share
-    // .public-cv-highlight-card outright, so the only thing telling them apart
-    // was that one carried a progress bar — an award read as "a milestone that
-    // happens to be finished". --award marks it as its own thing and carries
-    // the family colour + flag stripe from getAwardTreatment in
-    // js/seav-badges.js, the same source the Milestones card and the dashboard
-    // widget read. Non-geographic awards get null back and render as before.
-    const treatment = window.SeavBadges?.getAwardTreatment?.(item.code) || null;
-    const stripeHtml = treatment
-      ? `<span class="public-cv-highlight-flag" aria-hidden="true">${treatment.stripe
-          .map((color) => `<i style="background:${Seav.escapeHtml(color)}"></i>`)
-          .join("")}</span>`
-      : "";
-
-    return `
-      <article
-        class="public-cv-highlight-card${treatment ? " public-cv-highlight-card--award" : ""}"
-        ${treatment ? `data-award-family="${Seav.escapeHtml(treatment.family)}" style="--award-edge:${Seav.escapeHtml(treatment.edge)}"` : ""}
-      >
-        ${stripeHtml}
-        <span class="public-cv-highlight-badge">${badgeInner}</span>
-        <div class="public-cv-highlight-body">
-          <p class="public-cv-highlight-title">${Seav.escapeHtml(title)}</p>
-          <p class="public-cv-highlight-desc">${Seav.escapeHtml(meta)}</p>
-          ${treatment && treatment.country ? `<p class="public-cv-highlight-country">${Seav.escapeHtml(treatment.country)}</p>` : ""}
-        </div>
-      </article>
-    `;
+  // 2026-08-22, per Jack: awards render as the Milestones card here too, via
+  // the shared SeavCards.buildAwardTile. The old .public-cv-highlight-card
+  // markup stays for the in-progress milestones below, which is what that class
+  // was really for — the two only ever looked alike because they shared it.
+  //
+  // hideVesselMeta is gone: the tile always names the vessel (or "Career-wide"),
+  // which is the single most useful thing on an employer-facing award. Inside a
+  // vessel's own Awards collapsible that repeats the heading one level up, and
+  // that is the right trade — the card is also read on its own elsewhere.
+  function buildAchievementHighlightCard(item) {
+    return window.SeavCards?.buildAwardTile?.(item, [item]) || "";
   }
 
   function buildVesselAwardsSection(vesselAwards) {
     if (!vesselAwards.length) return "";
-    const rows = vesselAwards.map((item) => buildAchievementHighlightCard(item, true)).join("");
+    const rows = vesselAwards.map((item) => buildAchievementHighlightCard(item)).join("");
     return buildVesselSectionGroup(
       "Awards",
-      `<div class="public-cv-highlight-list">${rows}</div>`,
+      `<div class="public-cv-highlight-list public-cv-award-grid">${rows}</div>`,
       vesselAwards.length,
       true,
       "awards"
