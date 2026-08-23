@@ -1378,9 +1378,16 @@
 /* Named underneath, because a 4px stripe cannot carry a country on its own —
    nobody identifies Chile from three thin bands. The chip repeats the stripe
    so the two read as the same object. */
+/* flex, not inline-flex: .ach-trophy sets no text-align of its own — every
+   child centres itself individually (.ach-trophy-title, -category, -status all
+   carry their own `text-align: center`). An inline-flex span therefore got the
+   default left alignment and sat off to one side while everything above it was
+   centred. A block-level flex row centres its own contents and does not depend
+   on the parent at all. */
 .ach-trophy-country {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   margin: 0 0 8px;
 }
