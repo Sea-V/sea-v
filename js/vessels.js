@@ -992,6 +992,13 @@ async function saveVesselData(vesselData) {
   classification_society: formData.classificationSociety,
   vessel_role: formData.role,
   vessel_type: formData.type,
+  // 2026-08-24: contract_type was missing from this list. readVesselForm()
+  // read it and mapVesselToSupabase() maps it, so every layer LOOKED wired --
+  // but this payload is a hand-written whitelist, so the value never reached
+  // the mapper and `item.contract_type || item.contractType || ""` fell through
+  // to the empty string. It saved successfully, wrote "", and the card showed
+  // an em dash. Anything added to the vessel form has to be added HERE too.
+  contract_type: formData.contractType,
   program: formData.program,
   salary: formData.salary,
   leave_package: formData.leavePackage,
