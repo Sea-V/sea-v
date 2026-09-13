@@ -7,7 +7,13 @@
   // has no live editable state, only read-only public data.
   if (!window.Seav || !window.SeavAPI || !window.SeavData) return;
   const STORAGE_KEY = window.SeavData.KEYS.NAVIGATION_AREAS;
-  const MAP_TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+  // Keyed from js/seav-config.js (CARTO_TILE_URL) since 2026-09-13 — CARTO now
+  // watermarks unkeyed raster tiles. The literal below is the pre-key form and
+  // is only a fallback for the case where seav-config.js somehow has not loaded;
+  // it will render watermarked rather than blank, which is the better failure.
+  const MAP_TILE_URL =
+    window.SeavConfig?.CARTO_TILE_URL ||
+    "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png";
   const MAP_TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
   const MAP_DEFAULT_VIEW = { lat: 30, lng: 0, zoom: 2 };
 

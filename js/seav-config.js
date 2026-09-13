@@ -2,6 +2,16 @@
 (function () {
   "use strict";
 
+  /* Built once here so the Navigation page and the public profile can never
+     drift apart on tile URL or key. Matches CARTO's own documented form
+     exactly: bare host, no {s} subdomain placeholder, key as a query param.
+     No {r} — Leaflet only substitutes that when detectRetina is set, which we
+     never set, so it has always resolved to an empty string. */
+  function cartoTileUrl(style, key) {
+    const base = `https://basemaps.cartocdn.com/rastertiles/${style}/{z}/{x}/{y}.png`;
+    return key ? `${base}?key=${encodeURIComponent(key)}` : base;
+  }
+
   const isLocal =
     location.hostname === "localhost" ||
     location.hostname === "127.0.0.1" ||
@@ -9,10 +19,34 @@
 
   window.SeavConfig = {
     /** Bump when deploying JS/CSS changes — keep HTML ?v= in sync (see scripts/patch-html-scripts.mjs). */
-    ASSET_VERSION: 514,
+    ASSET_VERSION: 515,
 
     /** Bump when regenerating img/badges/*.svg (cache-bust on badge image URLs). */
     BADGE_ASSET_VERSION: 30,
+
+    /**
+     * CARTO basemap key — 2026-09-13.
+     *
+     * CARTO began requiring a key for the raster basemaps at
+     * basemaps.cartocdn.com; unkeyed tiles render with an "API KEY REQUIRED"
+     * watermark repeated across the map. Free tier, 5M tile requests a month,
+     * which this will never approach.
+     *
+     * Public by design. It ships in client-side JS and is visible to anyone
+     * who views source — that is how every browser basemap key works, and is
+     * NOT the same class of thing as the Resend key. CARTO's condition is that
+     * it is not reused across unrelated projects, so it belongs to SEA-V only.
+     *
+     * THE RASTER BASEMAPS ARE BEING RETIRED. CARTO's own guidance is to move
+     * to their vector basemaps. This unblocks the watermark today; it is not
+     * the long-term answer.
+     */
+    CARTO_BASEMAP_KEY: "cb1_3iw7_1_e5868442b93b80c7e149a70a",
+
+    /** Full Leaflet tile URL, key included. Read this, not the key. */
+    get CARTO_TILE_URL() {
+      return cartoTileUrl("voyager", this.CARTO_BASEMAP_KEY);
+    },
 
     /** Allow base64 dataUrl fallback when Supabase upload fails (local dev only). */
     ALLOW_DATAURL_FALLBACK: isLocal,

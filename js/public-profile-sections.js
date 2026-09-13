@@ -32,8 +32,12 @@
 
   const Seav = window.Seav;
 
+  // Same keyed CARTO URL the Navigation page uses — see js/seav-config.js.
+  // public-profile.html loads seav-config.js first, so this resolves for
+  // signed-out visitors too.
   const PP_NAV_TILE_URL =
-    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+    window.SeavConfig?.CARTO_TILE_URL ||
+    "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png";
   const PP_NAV_ATTRIBUTION =
     '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
   const HI_PHOTO_BUCKET =
@@ -214,7 +218,6 @@
 
       L.tileLayer(PP_NAV_TILE_URL, {
         attribution: PP_NAV_ATTRIBUTION,
-        subdomains: "abcd",
         maxZoom: 18
       }).addTo(ppNavigationChart);
 

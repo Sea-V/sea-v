@@ -522,7 +522,9 @@
 
     L.tileLayer(MAP_TILE_URL, {
       attribution: MAP_TILE_ATTRIBUTION,
-      subdomains: "abcd",
+      // `subdomains` dropped 2026-09-13 with the {s} placeholder — CARTO's
+      // keyed URL is a single bare host. Leaving it set would be harmless but
+      // misleading, since nothing substitutes it any more.
       maxZoom: 18,
       keepBuffer: 2,
       updateWhenIdle: true
