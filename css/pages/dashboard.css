@@ -1522,6 +1522,10 @@
   color: #ffffff;
   text-decoration: none;
 
+  /* 1px inner top highlight: the tile reads as a lit surface rather than a
+     flat rectangle. Not a gradient — a single hairline. */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
   transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1), border-color 0.22s ease;
 }
 
@@ -1530,10 +1534,15 @@
   border-color: color-mix(in srgb, var(--a, #5bbcff) 55%, transparent);
 }
 
+/* Ruled header: a hairline separates the label row from the number, so a
+   tile is a header plus a value rather than three stacked lines. */
 .dash-tile-head {
   display: flex;
   align-items: center;
   gap: 9px;
+
+  padding-bottom: 11px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .dash-tile-ic {
@@ -1543,7 +1552,7 @@
 
   width: 26px;
   height: 26px;
-  border-radius: 9px;
+  border-radius: 8px;
 
   color: var(--a, #5bbcff);
   border: 1px solid color-mix(in srgb, var(--a, #5bbcff) 42%, transparent);
@@ -1555,9 +1564,12 @@
   height: 15px;
 }
 
+/* White, matching .dash-link:hover in css/core/layout.css. Was
+   --seav-meta-label-color (#5bbcff) — too much blue once twelve tiles carry
+   it, and the page colour already reads from the icon (Jack, 2026-09-16). */
 .dash-tile-label {
   font-weight: 800;
-  color: var(--seav-meta-label-color);
+  color: #ffffff;
 }
 
 .dash-tile-count {
@@ -1608,6 +1620,18 @@
 
 .dash-tile-milestones {
   grid-column: span 2;
+}
+
+/* The ruled header costs 12px (11px padding + 1px rule), which is exactly
+   enough to push the third progress bar out of a 158px tile. This tile runs
+   a tighter header and row gap so all three still fit — measured, not
+   guessed: measured in a browser at 158px rows until nothing overflows. */
+.dash-tile-milestones .dash-tile-head {
+  padding-bottom: 7px;
+}
+
+.dash-tile-milestones .dash-tile-milestone-rows {
+  gap: 4px;
 }
 
 .dash-tile-milestone-rows {
@@ -1687,19 +1711,25 @@
   transform: scale(1.06);
 }
 
-.dash-vessel-scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(9, 20, 34, 0.42);
-}
-
+/* One scrim, bottom third, faded at the top edge.
+   Replaces a full-tile 42% veil plus a hard-edged 72% block — those two
+   layers met in a visible horizontal line straight across the photo, and
+   between them they crushed the whole image (Jack spotted it, 2026-09-16).
+   This is the one deliberate gradient in the app: it is a text-legibility
+   scrim, not decorative shading, and any hard-edged alternative puts the
+   line back. Everything else stays solid per 2026-08-03. */
 .dash-vessel-scrim-bottom {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 72%;
-  background: rgba(9, 20, 34, 0.62);
+  height: 38%;
+  background: linear-gradient(
+    to bottom,
+    rgba(9, 20, 34, 0) 0%,
+    rgba(9, 20, 34, 0.62) 38%,
+    rgba(9, 20, 34, 0.84) 100%
+  );
 }
 
 .dash-vessel-body {
@@ -1708,9 +1738,12 @@
   padding: 16px 17px;
 }
 
+/* White like the tile labels — "Current vessel" is a title too, and it sat
+   in the same blue. Size and weight carry the hierarchy against the vessel
+   name below it, not colour. */
 .dash-vessel-eyebrow {
   font-weight: 800;
-  color: var(--seav-meta-label-color);
+  color: #ffffff;
 }
 
 .dash-vessel-body h3 {
@@ -1772,4 +1805,84 @@
   background: var(--pill-bg);
 
   font-weight: 800;
+}
+
+/* =========================================================
+   DASHBOARD BENTO • MOBILE
+   The desktop grid is four fixed columns with a 2x2 photo —
+   at 390px that is four 80px columns, which is what broke.
+   Below 900px it becomes two columns; the vessel photo and
+   Milestones take the full width and everything else pairs up.
+
+   The page scrolls here, deliberately. "One screen, nothing
+   below the fold" is a desktop rule: on a phone scrolling is
+   the native behaviour and forcing 16 tiles into one viewport
+   is what makes them unreadable.
+========================================================= */
+
+@media (max-width: 900px) {
+  .dash-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-auto-rows: minmax(140px, auto);
+
+    height: auto;
+    min-height: 0;
+
+    padding: 14px 14px 18px;
+    gap: 12px;
+  }
+
+  .dash-vessel,
+  .dash-tile-milestones {
+    grid-column: 1 / -1;
+  }
+
+  .dash-vessel {
+    grid-row: auto;
+    height: 210px;
+  }
+
+  /* A 38% scrim is tuned to the desktop tile's proportions; at 210px the
+     text block is taller relative to the photo and the eyebrow ends up over
+     bright water. Taller scrim, same fade. */
+  .dash-vessel-scrim-bottom {
+    height: 52%;
+  }
+
+  /* 44px pushes the unit onto its own line in a half-width tile. */
+  .dash-tile-num {
+    font-size: 30px;
+  }
+
+  .dash-tile {
+    padding: 12px 13px;
+  }
+
+  .dash-tile-head {
+    padding-bottom: 9px;
+  }
+}
+
+/* Quick actions: four across does not fit a phone. */
+@media (max-width: 760px) {
+  .dashboard-shell-card .dashboard-quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .dash-bento {
+    gap: 10px;
+    padding: 12px 12px 16px;
+  }
+
+  .dash-tile-num {
+    font-size: 28px;
+  }
+
+  .dash-vessel {
+    height: 190px;
+  }
 }

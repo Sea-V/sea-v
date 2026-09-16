@@ -75,6 +75,19 @@
     return tile;
   }
 
+  /**
+   * Append a unit only when the stored value does not already carry one.
+   *
+   * Vessel length is stored bare ("59") but tender length is stored with its
+   * unit ("28 ft"), so a blanket append produced "59" on one tile and
+   * "28 ft m" on the other. Both were visible in production.
+   */
+  function withUnit(value, unit) {
+    const text = String(value ?? "").trim();
+    if (!text) return "";
+    return /[a-z]/i.test(text) ? text : `${text} ${unit}`;
+  }
+
   function vesselNameFor(vesselId) {
     if (!vesselId) return "Unassigned";
     return (
@@ -199,11 +212,14 @@
     const name = mostUrgent.name || "Certificate";
     const badge = String(info.badge || "").trim();
 
+    // getCertExpiryInfo returns Title Case badges ("Expires Soon"), which
+    // read as part of the certificate's name mid-sentence: "ENG1 Medical
+    // Certificate Expires Soon". Use the verb form instead.
+    const verb = badge.toLowerCase() === "expired" ? "expired" : "expires";
+
     setTile("dashCertTile", {
       count: certs.length,
-      last: badge
-        ? `${name} ${badge} — ${formatDatePretty(mostUrgent.expiry)}`
-        : `Next renewal — ${name}, ${formatDatePretty(mostUrgent.expiry)}`
+      last: `${name} — ${verb} ${formatDatePretty(mostUrgent.expiry)}`
     });
   }
 
@@ -276,7 +292,7 @@
     const onboard = formatTimeOnboard(vessel.from, vessel.to);
     const meta = [
       vessel.vessel_role || vessel.role,
-      vessel.vessel_length || vessel.length,
+      withUnit(vessel.vessel_length || vessel.length, "m"),
       vessel.gt ? `${vessel.gt} GT` : "",
       vessel.flag,
       onboard ? `${onboard} aboard` : ""
@@ -309,7 +325,6 @@
       ? `
         <img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(vessel.name || "Vessel")}"
           onerror="this.remove();" />
-        <div class="dash-vessel-scrim"></div>
         <div class="dash-vessel-scrim-bottom"></div>
       `
       : `<span class="dash-vessel-addphoto">Add a photo</span>`;
@@ -338,13 +353,12 @@
     }
 
     const latest = [...tenders].reverse()[0];
-    const detail = [latest.make, latest.model, latest.length ? `${latest.length} m` : ""]
-      .filter(Boolean)
-      .join(" ");
+    const name = [latest.make, latest.model].filter(Boolean).join(" ");
+    const size = withUnit(latest.length, "m");
 
     setTile("dashTenderTile", {
       count: tenders.length,
-      last: `Latest — ${detail || latest.name || "Tender"}`
+      last: `Latest — ${[name || latest.name || "Tender", size].filter(Boolean).join(", ")}`
     });
   }
 
@@ -507,21 +521,28 @@
     const countEl = document.getElementById("dashMilestoneCount");
     if (!rows) return;
 
-    const achievements = window.SeavState?.achievements || [];
-    const earned = new Set(
-      achievements
-        .filter((item) => item && item.status !== "Declined" && item.code)
-        .map((item) => item.code)
-    ).size;
-    const total = window.SeavBadges?.listAchievements?.().length || 0;
+    const all = window.SeavAchievementEngine?.getInProgressMilestones?.() || [];
+    const inProgress = all.slice(0, DASH_MILESTONE_LIMIT);
 
+    // Counts how many are in progress, not how many are "earned".
+    //
+    // The earned/total fraction this used to show was wrong in production —
+    // it read "38 / 26 earned". The numerator counted achievement RECORDS
+    // (Seafarer Awards log one row per instance, so a crossing sailed three
+    // times is three rows) while the denominator counted DEFINITIONS, and
+    // progression milestones are computed by the engine rather than stored
+    // as rows at all. The two numbers were never measuring the same thing,
+    // so the fraction could and did exceed 1.
+    //
+    // There is no public API for a true earned count — getEarnedAchievementCodes
+    // is private to js/achievements-engine.js. Rather than reconstruct it here
+    // and risk a second wrong number, this reports what the tile actually
+    // shows. If the fraction is wanted back, export that function first.
     if (countEl) {
-      countEl.textContent = total ? `${earned} / ${total} earned` : `${earned} earned`;
+      countEl.textContent = all.length
+        ? `${all.length} in progress`
+        : "";
     }
-
-    const inProgress = (
-      window.SeavAchievementEngine?.getInProgressMilestones?.() || []
-    ).slice(0, DASH_MILESTONE_LIMIT);
 
     if (!inProgress.length) {
       rows.innerHTML = `<div class="dash-tile-last">Nothing in progress right now.</div>`;
