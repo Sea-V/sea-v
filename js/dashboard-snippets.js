@@ -12,6 +12,7 @@
     getCertExpiryInfo,
     getReferenceStatus,
     getSeatimeTotals,
+    totalQualifyingDays,
     formatDatePretty
   } = window.SeavData;
 
@@ -49,7 +50,7 @@
    * strings is user data (vessel names, referee names, port pairs), so the
    * escaping question is removed rather than answered per call site.
    */
-  function setTile(tileId, { count, unit, last }) {
+  function setTile(tileId, { count, unit, last, sub, foot }) {
     const tile = document.getElementById(tileId);
     if (!tile) return null;
 
@@ -71,6 +72,19 @@
 
     const lastEl = tile.querySelector(".dash-tile-last");
     if (lastEl && typeof last === "string") lastEl.textContent = last;
+
+    // The second detail line is optional: a tile hides it rather than
+    // showing an empty row, so tiles with one fact do not look broken
+    // next to tiles with two.
+    const subEl = tile.querySelector(".dash-tile-sub");
+    if (subEl) {
+      const text = typeof sub === "string" ? sub : "";
+      subEl.textContent = text;
+      subEl.hidden = !text;
+    }
+
+    const footEl = tile.querySelector(".dash-tile-foot");
+    if (footEl && typeof foot === "string") footEl.textContent = foot;
 
     return tile;
   }
@@ -154,11 +168,15 @@
       .filter(Boolean)
       .join(" → ");
 
+    const qualifying = totalQualifyingDays ? totalQualifyingDays(latest) : null;
+
     setTile("dashSeatimeTile", {
       count: totals.total,
       unit: "days",
-      // "Total logged days" is seatime.html's own KPI label, sentence case.
-      last: `Total logged days · latest ${vesselNameFor(latest.vesselId)}${range ? `, ${range}` : ""}`
+      last: [vesselNameFor(latest.vesselId), range].filter(Boolean).join(" · "),
+      sub: qualifying != null ? `${qualifying} qualifying days` : ""
+      // Footer ("Total logged days") is static in the markup — it names what
+      // the number counts, which "Sea time" alone does not say.
     });
   }
 
@@ -185,7 +203,8 @@
     if (!expiryCerts.length) {
       setTile("dashCertTile", {
         count: certs.length,
-        last: "No certificates with expiry dates yet. Add expiry dates on the certificates page to track renewals here."
+        last: "No expiry dates recorded",
+        sub: "Add them on the certificates page to track renewals"
       });
       return;
     }
@@ -219,7 +238,8 @@
 
     setTile("dashCertTile", {
       count: certs.length,
-      last: `${name} — ${verb} ${formatDatePretty(mostUrgent.expiry)}`
+      last: name,
+      sub: `${verb === "expired" ? "Expired" : "Expires"} ${formatDatePretty(mostUrgent.expiry)}`
     });
   }
 
@@ -266,7 +286,8 @@
       const joined = latestJoined.from ? formatDatePretty(latestJoined.from) : "";
       setTile("dashVesselCountTile", {
         count: vessels.length,
-        last: `Latest — ${latestJoined.name || "Unnamed vessel"}${joined ? `, joined ${joined}` : ""}`
+        last: latestJoined.name || "Unnamed vessel",
+        sub: joined ? `Joined ${joined}` : ""
       });
     }
 
@@ -358,7 +379,8 @@
 
     setTile("dashTenderTile", {
       count: tenders.length,
-      last: `Latest — ${[name || latest.name || "Tender", size].filter(Boolean).join(", ")}`
+      last: name || latest.name || "Tender",
+      sub: size
     });
   }
 
@@ -394,10 +416,12 @@
     const route = H?.formatRouteLabel ? H.formatRouteLabel(latest) : "";
     const title = latest.passageName || route || "Passage";
 
+    const when = passageSortDate(latest);
+
     setTile("dashNavigationTile", {
       count: entries.length,
-      unit: entries.length === 1 ? "passage" : "passages",
-      last: `Latest — ${title}`
+      last: title,
+      sub: when ? formatDatePretty(when) : ""
     });
   }
 
@@ -424,9 +448,8 @@
 
     setTile("dashRefTile", {
       count: refs.length,
-      last: [latest.name || "—", latest.title || "", statusLabel]
-        .filter(Boolean)
-        .join(" · ")
+      last: [latest.name || "—", latest.title || ""].filter(Boolean).join(", "),
+      sub: statusLabel
     });
   }
 
@@ -453,7 +476,8 @@
 
     setTile("dashSpecialistTile", {
       count: entries.length,
-      last: `Latest — ${latest.name || latest.title || "Qualification"}`
+      last: latest.name || latest.title || "Qualification",
+      sub: latest.dateObtained ? formatDatePretty(latest.dateObtained) : ""
     });
   }
 
@@ -480,7 +504,8 @@
 
     setTile("dashOnboardTile", {
       count: entries.length,
-      last: `Latest — ${latest.title || latest.name || "Experience"}`
+      last: latest.title || latest.name || "Experience",
+      sub: latest.dateFrom ? formatDatePretty(latest.dateFrom) : ""
     });
   }
 
@@ -506,7 +531,8 @@
 
     setTile("dashPayslipTile", {
       count: payslips.length,
-      last: when ? `Latest — ${formatDatePretty(when)}` : "Latest payslip logged"
+      last: when ? formatDatePretty(when) : "Latest payslip",
+      sub: ""
     });
   }
 

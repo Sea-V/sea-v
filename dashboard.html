@@ -24,58 +24,58 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=517" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=517" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=517" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=517" />
+  <link rel="icon" href="/favicon.ico?v=518" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=518" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=518" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=518" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V Dashboard</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=517" />
+  <link rel="stylesheet" href="styles.css?v=518" />
   <!-- Leaflet CSS removed 2026-08-22 with the dashboard mini-map. navigation.html
        still loads its own. -->
 
   <!-- Core Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=517"></script>
-  <script src="js/supabase.js?v=517"></script>
-  <script src="js/auth.js?v=517"></script>
-  <script src="js/feedback.js?v=517" defer></script>
-  <script src="js/core.js?v=517" defer></script>
-  <script src="js/bug-reports.js?v=517" defer></script>
-  <script src="js/seav-upload.js?v=517" defer></script>
-  <script src="js/seav-data.js?v=517" defer></script>
-  <script src="js/seav-badges.js?v=517" defer></script>
-  <script src="js/api-core.js?v=517" defer></script>
-  <script src="js/api-mappers.js?v=517" defer></script>
-  <script src="js/api.js?v=517" defer></script>
-  <script src="js/state.js?v=517" defer></script>
-  <script src="js/seav-notifications.js?v=517" defer></script>
-  <script src="js/achievements-engine.js?v=517" defer></script>
-  <script src="js/badge-unlock.js?v=517" defer></script>
+  <script src="js/seav-config.js?v=518"></script>
+  <script src="js/supabase.js?v=518"></script>
+  <script src="js/auth.js?v=518"></script>
+  <script src="js/feedback.js?v=518" defer></script>
+  <script src="js/core.js?v=518" defer></script>
+  <script src="js/bug-reports.js?v=518" defer></script>
+  <script src="js/seav-upload.js?v=518" defer></script>
+  <script src="js/seav-data.js?v=518" defer></script>
+  <script src="js/seav-badges.js?v=518" defer></script>
+  <script src="js/api-core.js?v=518" defer></script>
+  <script src="js/api-mappers.js?v=518" defer></script>
+  <script src="js/api.js?v=518" defer></script>
+  <script src="js/state.js?v=518" defer></script>
+  <script src="js/seav-notifications.js?v=518" defer></script>
+  <script src="js/achievements-engine.js?v=518" defer></script>
+  <script src="js/badge-unlock.js?v=518" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-  <script src="js/seav-share.js?v=517" defer></script>
+  <script src="js/seav-share.js?v=518" defer></script>
   <!-- Leaflet JS removed 2026-08-22 with the dashboard mini-map — nothing else on
        this page used it. Two fewer cross-origin requests and no map tiles per load. -->
-  <script src="js/seav-cards.js?v=517" defer></script>
+  <script src="js/seav-cards.js?v=518" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
   <!-- navigation-ports + navigation-helpers stay: renderNavigationSnippet uses
        normalizeNavEntry (which reads the port list) and formatRouteLabel to title
        each passage row. navigation-passage.js and navigation-routing.js were only
        ever loaded to compute the mini-map's routed sea-lane distance -- 34 KB for
        a number the passage rows deliberately do not show. Removed 2026-08-22. -->
-  <script src="js/navigation-ports.js?v=517" defer></script>
-  <script src="js/navigation-helpers.js?v=517" defer></script>
+  <script src="js/navigation-ports.js?v=518" defer></script>
+  <script src="js/navigation-helpers.js?v=518" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="js/navigation-ports.js?v=517" defer></script>
-  <script src="js/navigation-helpers.js?v=517" defer></script>
-  <script src="js/navigation-passage.js?v=517" defer></script>
-  <script src="js/navigation-routing.js?v=517" defer></script>
-  <script src="js/dashboard-snippets.js?v=517" defer></script>
-  <script src="js/dashboard.js?v=517" defer></script>
+  <script src="js/navigation-ports.js?v=518" defer></script>
+  <script src="js/navigation-helpers.js?v=518" defer></script>
+  <script src="js/navigation-passage.js?v=518" defer></script>
+  <script src="js/navigation-routing.js?v=518" defer></script>
+  <script src="js/dashboard-snippets.js?v=518" defer></script>
+  <script src="js/dashboard.js?v=518" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -205,28 +205,27 @@
       <!-- =========================================================
            BENTO GRID — one screen, nothing below the fold.
            Replaces the previous stack of 11 full snippet cards
-           (v516). Each tile is a count plus the single most recent
-           entry, linking to the page that owns it; the page itself
-           keeps the full history. Grid is exactly 4 x 4 = 16 cells:
-           vessel photo 2x2 (4) + Milestones 2-wide (2) + ten single
-           tiles. Wording matches each card's previous h3 verbatim,
-           colours are the --page-* identity set, and tiles are solid
-           --page-shell-panel like every other .dash-card (no
-           backdrop-filter — solid colours site-wide, 2026-08-03).
+           (v516). Grid is exactly 4 x 4 = 16 cells: vessel photo
+           2x2 (4) + Milestones 2-wide (2) + nine single tiles + the
+           profile completion tile.
+
+           Tile anatomy (v518): a ruled header carrying the label and
+           the value, a body carrying the actual latest record, and —
+           only where it disambiguates — a footer naming what the
+           number counts. The number sits at --font-kpi (22px), the
+           size .kpi-num already uses on seatime, hobbies-interests
+           and admin, so the dashboard matches the rest of the site
+           instead of shouting at it.
 
            Hobbies & interests, CV Generator, Public Profile and
-           Land-Based Experience are sidebar-only: the grid holds
-           sixteen cells and career evidence gets them first.
-           Seafarer Awards moved off the dashboard entirely — they
-           render identically on achievements.html and the public
-           profile (Jack, 2026-09-15).
+           Land-Based Experience are sidebar-only. Seafarer Awards
+           render on achievements.html and the public profile.
       ========================================================= -->
       <div class="dash-bento">
 
-        <!-- Current / most recent vessel — 2x2 anchor. Built by
-             renderVesselSnippet(); the no-photo and pre-hydration
-             states are handled there, not here, so the tile keeps its
-             full footprint either way. -->
+        <!-- Current / most recent vessel — 2x2 anchor, built by
+             renderVesselSnippet(). No-photo and pre-hydration states
+             are handled there so the tile keeps its footprint. -->
         <a class="dash-vessel" href="vessels.html" id="dashVesselTile"
            style="--a: var(--page-vessels);"></a>
 
@@ -234,66 +233,81 @@
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="seatime" aria-hidden="true"></span>
             <span class="dash-tile-label">Sea time</span>
+            <div class="dash-tile-num">0 <span class="dash-tile-unit">days</span></div>
           </div>
-          <div class="dash-tile-num">0 <span class="dash-tile-unit">days</span></div>
-          <div class="dash-tile-last">No sea service yet.</div>
+          <div class="dash-tile-body">
+            <div class="dash-tile-last">No sea service yet.</div>
+            <div class="dash-tile-sub"></div>
+          </div>
+          <div class="dash-tile-foot">Total logged days</div>
         </a>
 
         <!-- Profile completion — real computed percentage, reusing the
-             .progress-bar/.progress-fill component and the existing
-             profileProgress* ids, so js/dashboard.js drives it
-             unchanged. Replaced a mocked-up "career readiness" ring
-             that had no data source behind it. -->
+             .progress-bar component and the existing profileProgress*
+             ids so js/dashboard.js drives it unchanged. -->
         <a class="dash-tile dash-tile-progress" href="profile.html" id="profileCompletionCard"
            style="--a: var(--page-profile);">
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="profile" aria-hidden="true"></span>
             <span class="dash-tile-label">Profile completion</span>
+            <div class="dash-tile-num" id="profileProgressPercent">0%</div>
           </div>
-          <div class="dash-tile-num" id="profileProgressPercent">0%</div>
-          <div class="progress-bar">
-            <div class="progress-fill progress-good" id="profileProgressFill" style="width: 0%;"></div>
+          <div class="dash-tile-body">
+            <div class="progress-bar">
+              <div class="progress-fill progress-good" id="profileProgressFill" style="width: 0%;"></div>
+            </div>
+            <div class="dash-tile-last" id="profileProgressMissing"></div>
           </div>
-          <div class="dash-tile-last" id="profileProgressMissing"></div>
+          <div class="dash-tile-foot" id="profileProgressFields"></div>
         </a>
 
         <a class="dash-tile" href="navigation.html" id="dashNavigationTile" style="--a: var(--page-navigation);">
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="navigation" aria-hidden="true"></span>
             <span class="dash-tile-label">Navigation</span>
+            <div class="dash-tile-num">0 </div>
           </div>
-          <div class="dash-tile-num">0 <span class="dash-tile-unit">passages</span></div>
-          <div class="dash-tile-last">No passages logged yet.</div>
+          <div class="dash-tile-body">
+            <div class="dash-tile-last">No passages logged yet.</div>
+            <div class="dash-tile-sub"></div>
+          </div>
+          <div class="dash-tile-foot">Passages logged</div>
         </a>
 
         <a class="dash-tile" href="certificates.html" id="dashCertTile" style="--a: var(--page-certificates);">
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="certificates" aria-hidden="true"></span>
             <span class="dash-tile-label">Certificates</span>
+            <div class="dash-tile-num">0 </div>
           </div>
-          <div class="dash-tile-num">0</div>
-          <div class="dash-tile-last">No certificates yet.</div>
+          <div class="dash-tile-body">
+            <div class="dash-tile-last">No certificates yet.</div>
+            <div class="dash-tile-sub"></div>
+          </div>
+          <div class="dash-tile-foot">Next renewal</div>
         </a>
 
         <a class="dash-tile" href="vessels.html" id="dashVesselCountTile" style="--a: var(--page-vessels);">
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="vessels" aria-hidden="true"></span>
             <span class="dash-tile-label">Vessels</span>
+            <div class="dash-tile-num">0 </div>
           </div>
-          <div class="dash-tile-num">0</div>
-          <div class="dash-tile-last">No vessels yet.</div>
+          <div class="dash-tile-body">
+            <div class="dash-tile-last">No vessels yet.</div>
+            <div class="dash-tile-sub"></div>
+          </div>
         </a>
 
-        <!-- Milestones — spans two columns because three progress bars
-             need the width. Bars use .ach-progress-bar, the same
-             component and the same blue as achievements.html, so the
-             dashboard cannot drift from the page it summarises. -->
+        <!-- Milestones — spans two columns because the progress bars need
+             the width. Bars use .ach-progress-bar, the same component and
+             the same blue as achievements.html. -->
         <a class="dash-tile dash-tile-milestones" href="achievements.html" id="dashMilestoneTile"
            style="--a: var(--page-achievements);">
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="achievements" aria-hidden="true"></span>
             <span class="dash-tile-label">Milestones</span>
-            <span class="dash-tile-count" id="dashMilestoneCount"></span>
+            <div class="dash-tile-num" id="dashMilestoneCount"></div>
           </div>
           <div class="dash-tile-milestone-rows" id="dashMilestoneRows"></div>
         </a>
@@ -302,45 +316,60 @@
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="tenders" aria-hidden="true"></span>
             <span class="dash-tile-label">Tenders</span>
+            <div class="dash-tile-num">0 </div>
           </div>
-          <div class="dash-tile-num">0</div>
-          <div class="dash-tile-last">No tenders yet.</div>
+          <div class="dash-tile-body">
+            <div class="dash-tile-last">No tenders yet.</div>
+            <div class="dash-tile-sub"></div>
+          </div>
         </a>
 
         <a class="dash-tile" href="onboard-experience.html" id="dashOnboardTile" style="--a: var(--page-onboard-experience);">
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="onboard" aria-hidden="true"></span>
             <span class="dash-tile-label">Onboard experience</span>
+            <div class="dash-tile-num">0 </div>
           </div>
-          <div class="dash-tile-num">0</div>
-          <div class="dash-tile-last">No onboard experience logged yet.</div>
+          <div class="dash-tile-body">
+            <div class="dash-tile-last">No onboard experience logged yet.</div>
+            <div class="dash-tile-sub"></div>
+          </div>
         </a>
 
         <a class="dash-tile" href="specialist-qualifications.html" id="dashSpecialistTile" style="--a: var(--page-specialist-qualifications);">
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="specialist" aria-hidden="true"></span>
             <span class="dash-tile-label">Specialist qualifications</span>
+            <div class="dash-tile-num">0 </div>
           </div>
-          <div class="dash-tile-num">0</div>
-          <div class="dash-tile-last">No specialist qualifications logged yet.</div>
+          <div class="dash-tile-body">
+            <div class="dash-tile-last">No specialist qualifications logged yet.</div>
+            <div class="dash-tile-sub"></div>
+          </div>
         </a>
 
         <a class="dash-tile" href="references.html" id="dashRefTile" style="--a: var(--page-references);">
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="references" aria-hidden="true"></span>
             <span class="dash-tile-label">References</span>
+            <div class="dash-tile-num">0 </div>
           </div>
-          <div class="dash-tile-num">0</div>
-          <div class="dash-tile-last">No references yet.</div>
+          <div class="dash-tile-body">
+            <div class="dash-tile-last">No references yet.</div>
+            <div class="dash-tile-sub"></div>
+          </div>
         </a>
 
         <a class="dash-tile" href="payslips.html" id="dashPayslipTile" style="--a: var(--page-payslips);">
           <div class="dash-tile-head">
             <span class="dash-tile-ic" data-dash-icon="payslips" aria-hidden="true"></span>
             <span class="dash-tile-label">Payslips</span>
+            <div class="dash-tile-num">0 </div>
           </div>
-          <div class="dash-tile-num">0</div>
-          <div class="dash-tile-last">No payslips yet.</div>
+          <div class="dash-tile-body">
+            <div class="dash-tile-last">No payslips yet.</div>
+            <div class="dash-tile-sub"></div>
+          </div>
         </a>
 
       </div>

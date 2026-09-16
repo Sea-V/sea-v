@@ -225,6 +225,15 @@
         missingBox.textContent = `Missing — ${missing.join(", ")}`;
       }
     }
+
+    // v518: the tile's footer states the actual fraction, so the percentage
+    // in the header is checkable rather than just asserted.
+    const fieldsBox = document.getElementById("profileProgressFields");
+    if (fieldsBox) {
+      const checks = getProfileCompletionChecks(profile || {});
+      const done = checks.length - missing.length;
+      fieldsBox.textContent = `${done} of ${checks.length} fields`;
+    }
   }
 
   async function renderDashboardSnippets() {
