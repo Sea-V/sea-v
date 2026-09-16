@@ -194,7 +194,7 @@
   }
 
   function updateProfileCompletion(profile) {
-    const card = document.getElementById("profileCompletionCard");
+    const strip = document.getElementById("profileCompletionStrip");
     const badge = document.getElementById("dashboardProfileCompleteBadge");
     const fill = document.getElementById("profileProgressFill");
     const percentText = document.getElementById("profileProgressPercent");
@@ -204,46 +204,27 @@
     const missing = getMissingProfileFields(profile || {});
     const isComplete = missing.length === 0;
 
-    // v516: the completion card is a tile in a fixed 4x4 grid now, so a
-    // complete profile can no longer hide it — that would punch a hole in
-    // the layout. It stays put and reads 100% / "Profile complete" instead.
-    // The badge (which lived on the old profile card) is kept wired for any
-    // page that still renders one.
-    if (card) card.hidden = false;
+    // v521: a complete profile removes the strip entirely and leaves only the
+    // tick beside the page title. The strip lives above the grid now, so
+    // hiding it costs no layout — which is exactly why it moved out of the
+    // bento, where hiding a tile would have punched a hole in the grid.
+    if (strip) strip.hidden = isComplete;
     if (badge) badge.hidden = !isComplete;
 
-    if (!fill || !percentText) return;
+    if (isComplete) return;
 
-    fill.style.width = `${percent}%`;
-    fill.className = `progress-fill ${getProgressClass(percent)}`;
-    percentText.textContent = `${percent}%`;
-
-    if (missingBox) {
-      if (isComplete) {
-        missingBox.textContent = "Profile complete.";
-      } else {
-        missingBox.textContent = `Missing — ${missing.join(", ")}`;
-      }
+    if (fill) {
+      fill.style.width = `${percent}%`;
+      fill.className = `progress-fill ${getProgressClass(percent)}`;
     }
 
-    // v518: the tile's footer states the actual fraction, so the percentage
-    // in the header is checkable rather than just asserted.
-    const fieldsBox = document.getElementById("profileProgressFields");
-    if (fieldsBox) {
+    if (percentText) percentText.textContent = `${percent}%`;
+
+    if (missingBox) {
       const checks = getProfileCompletionChecks(profile || {});
       const done = checks.length - missing.length;
-      // Matches the status-dot footer every other tile uses (v520). Built
-      // node-by-node rather than with innerHTML — nothing here is user text,
-      // but the tiles' own renderer holds the same rule and one exception is
-      // how that stops being true.
-      fieldsBox.textContent = "";
-      const stat = document.createElement("span");
-      stat.className = `dash-tile-stat dash-tile-stat--${isComplete ? "ok" : "warn"}`;
-      stat.appendChild(document.createElement("i"));
-      stat.appendChild(
-        document.createTextNode(`${done} of ${checks.length} fields`)
-      );
-      fieldsBox.appendChild(stat);
+      missingBox.textContent =
+        `${done} of ${checks.length} fields · missing ${missing.join(", ")}`;
     }
   }
 

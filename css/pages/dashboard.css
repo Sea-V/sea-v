@@ -1697,8 +1697,11 @@
 
 /* ---------- milestones (spans two columns) ---------- */
 
+/* Three columns from v521: the profile completion tile left the grid, and
+   Milestones is what the freed cell went to — more room for the names, the
+   percentages and the bars than any count tile needed. */
 .dash-tile-milestones {
-  grid-column: span 2;
+  grid-column: span 3;
 }
 
 /* The ruled header costs 12px (11px padding + 1px rule), which is exactly
@@ -1961,5 +1964,159 @@
 
   .dash-vessel {
     height: 190px;
+  }
+}
+
+
+/* =========================================================
+   DASHBOARD • PROFILE COMPLETION STRIP (v521)
+   Was a grid tile. It is a prompt rather than a record, so it
+   sits above the grid as a full-width strip and removes itself
+   once the profile is complete — at which point the tick beside
+   the page title is the whole story.
+========================================================= */
+
+.dashboard-profile-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 12px 24px 14px;
+  border-bottom: 1px solid rgba(91, 188, 255, 0.14);
+}
+
+.dashboard-profile-strip[hidden] {
+  display: none;
+}
+
+.dashboard-profile-strip-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+
+  color: var(--page-profile);
+  border: 1px solid color-mix(in srgb, var(--page-profile) 42%, transparent);
+  background: color-mix(in srgb, var(--page-profile) 14%, transparent);
+}
+
+.dashboard-profile-strip-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.dashboard-profile-strip-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dashboard-profile-strip-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.dashboard-profile-strip-label {
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.dashboard-profile-strip-percent {
+  font-weight: 800;
+  color: var(--seav-meta-muted-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-profile-strip .progress-bar {
+  height: 8px;
+}
+
+/* Missing fields, clamped to one line — the strip is a nudge, and the
+   Profile page is where the full list belongs. */
+.dashboard-profile-strip-missing {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 40%;
+
+  font-weight: 600;
+  color: var(--seav-note-color);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-profile-strip-link {
+  flex: 0 0 auto;
+
+  display: inline-flex;
+  align-items: center;
+
+  height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
+  border-radius: var(--pill-radius);
+  border: 1px solid var(--pill-blue-border);
+  background: var(--pill-blue-bg);
+
+  color: #ffffff;
+  font-weight: 800;
+  text-decoration: none;
+
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.dashboard-profile-strip-link:hover {
+  background: var(--pill-blue-bg-hover);
+  border-color: var(--pill-blue-border-hover);
+}
+
+/* The tick that replaces the whole strip once nothing is missing. */
+.dashboard-shell-copy h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.dashboard-profile-complete-badge {
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-green);
+}
+
+.dashboard-profile-complete-badge[hidden] {
+  display: none;
+}
+
+.dashboard-profile-complete-badge svg {
+  width: 19px;
+  height: 19px;
+}
+
+@media (max-width: 760px) {
+  .dashboard-profile-strip {
+    flex-wrap: wrap;
+    padding: 12px 14px 14px;
+  }
+
+  .dashboard-profile-strip-body {
+    flex: 1 1 100%;
+    order: 2;
+  }
+
+  .dashboard-profile-strip-missing {
+    max-width: 100%;
+    flex: 1 1 100%;
+    order: 3;
+    white-space: normal;
+  }
+
+  .dashboard-profile-strip-link {
+    order: 1;
+    margin-left: auto;
   }
 }
