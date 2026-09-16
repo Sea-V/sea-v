@@ -232,7 +232,18 @@
     if (fieldsBox) {
       const checks = getProfileCompletionChecks(profile || {});
       const done = checks.length - missing.length;
-      fieldsBox.textContent = `${done} of ${checks.length} fields`;
+      // Matches the status-dot footer every other tile uses (v520). Built
+      // node-by-node rather than with innerHTML — nothing here is user text,
+      // but the tiles' own renderer holds the same rule and one exception is
+      // how that stops being true.
+      fieldsBox.textContent = "";
+      const stat = document.createElement("span");
+      stat.className = `dash-tile-stat dash-tile-stat--${isComplete ? "ok" : "warn"}`;
+      stat.appendChild(document.createElement("i"));
+      stat.appendChild(
+        document.createTextNode(`${done} of ${checks.length} fields`)
+      );
+      fieldsBox.appendChild(stat);
     }
   }
 

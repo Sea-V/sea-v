@@ -1623,13 +1623,56 @@
    obvious from the label (Sea time counts days, not entries; Certificates
    shows the next renewal, not the newest). Everywhere else it would just
    repeat "Most recent" eleven times. */
+/* Footer carries a live status breakdown — how many sea time entries are
+   actually verified, how many certificates are current, how many payslips
+   have a document. Each state takes the colour it already has elsewhere in
+   the app, so the whole grid is scannable for trouble at a glance
+   (Jack picked this over a plain text footer, 2026-09-16). */
 .dash-tile-foot {
   margin-top: auto;
   padding-top: 9px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+
   font-weight: 700;
   color: var(--seav-meta-muted-color);
+}
+
+/* A section with nothing worth breaking down hides the row rather than
+   printing "0 of 0" — a new user's dashboard should not read as broken. */
+.dash-tile-foot:empty {
+  display: none;
+}
+
+.dash-tile-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dash-tile-stat i {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.dash-tile-stat--ok i {
+  background: var(--accent-green);
+}
+
+.dash-tile-stat--warn i {
+  background: var(--progress-amber);
+}
+
+.dash-tile-stat--bad i {
+  background: var(--progress-red);
 }
 
 /* Clamped to two lines so no vessel name, port pair or referee

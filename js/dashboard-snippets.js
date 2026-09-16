@@ -50,7 +50,7 @@
    * strings is user data (vessel names, referee names, port pairs), so the
    * escaping question is removed rather than answered per call site.
    */
-  function setTile(tileId, { count, unit, last, sub, foot }) {
+  function setTile(tileId, { count, unit, last, sub, foot, stats }) {
     const tile = document.getElementById(tileId);
     if (!tile) return null;
 
@@ -84,9 +84,57 @@
     }
 
     const footEl = tile.querySelector(".dash-tile-foot");
-    if (footEl && typeof foot === "string") footEl.textContent = foot;
+    if (footEl) {
+      if (Array.isArray(stats)) {
+        setStats(footEl, stats);
+      } else if (typeof foot === "string") {
+        footEl.textContent = foot;
+      }
+    }
 
     return tile;
+  }
+
+  /**
+   * Render the footer's status breakdown.
+   *
+   * Each entry is { n, label, tone }. Zero-count entries are dropped rather
+   * than printed, so a section with nothing to report leaves the row empty
+   * and .dash-tile-foot:empty hides it — a new user sees a clean tile, not
+   * "0 verified · 0 logged".
+   *
+   * Tones map to colours the app already uses for these states: ok = green,
+   * warn = amber, bad = red, anything else neutral.
+   */
+  function setStats(footEl, stats) {
+    footEl.textContent = "";
+
+    const shown = stats.filter((stat) => stat && stat.n > 0).slice(0, DASH_STAT_LIMIT);
+    if (!shown.length) return;
+
+    shown.forEach((stat) => {
+      const el = document.createElement("span");
+      el.className = "dash-tile-stat" + (stat.tone ? ` dash-tile-stat--${stat.tone}` : "");
+      const dot = document.createElement("i");
+      el.appendChild(dot);
+      el.appendChild(document.createTextNode(`${stat.n} ${stat.label}`));
+      footEl.appendChild(el);
+    });
+  }
+
+  // Two fit a half-width tile on one line; a third wraps and pushes the
+  // footer into the body. Buckets are ordered most-urgent-first by each
+  // renderer, so the two that survive are the two worth seeing.
+  const DASH_STAT_LIMIT = 2;
+
+  function countBy(list, fn) {
+    const out = new Map();
+    list.forEach((item) => {
+      const key = fn(item);
+      if (!key) return;
+      out.set(key, (out.get(key) || 0) + 1);
+    });
+    return out;
   }
 
   /**
@@ -169,6 +217,7 @@
       .join(" → ");
 
     const qualifying = totalQualifyingDays ? totalQualifyingDays(latest) : null;
+    const byStatus = countBy(seatimes, (e) => e.verificationStatus || "Logged");
 
     setTile("dashSeatimeTile", {
       count: totals.total,
@@ -177,7 +226,14 @@
       // A just-opened or future-dated entry has no day breakdown yet, and
       // "0 qualifying days" on the newest record reads as a fault rather
       // than as an empty field. Show it only when there is something to show.
-      sub: qualifying ? `${qualifying} qualifying days` : ""
+      sub: qualifying ? `${qualifying} qualifying days` : "",
+      // Real statuses from getSeatimeVerificationDisplay: Verified,
+      // Pending Verification, Logged.
+      stats: [
+        { n: byStatus.get("Verified") || 0, label: "verified", tone: "ok" },
+        { n: byStatus.get("Pending Verification") || 0, label: "pending", tone: "warn" },
+        { n: byStatus.get("Logged") || 0, label: "logged" }
+      ]
       // Footer ("Total logged days") is static in the markup — it names what
       // the number counts, which "Sea time" alone does not say.
     });
@@ -239,10 +295,28 @@
     // Certificate Expires Soon". Use the verb form instead.
     const verb = badge.toLowerCase() === "expired" ? "expired" : "expires";
 
+    // Badges from getCertExpiryInfo: "Expired", "Expires Soon", "No Expiry",
+    // anything else is current. Ordered most urgent first so the two that
+    // survive DASH_STAT_LIMIT are the two that matter.
+    const buckets = countBy(certs, (cert) => {
+      if (isNoExpiry?.(cert)) return "none";
+      if (!String(cert.expiry || "").trim()) return "none";
+      const badge = String(getCertExpiryInfo(cert.expiry).badge || "").toLowerCase();
+      if (badge === "expired") return "expired";
+      if (badge === "expires soon") return "soon";
+      return "valid";
+    });
+
     setTile("dashCertTile", {
       count: certs.length,
       last: name,
-      sub: `${verb === "expired" ? "Expired" : "Expires"} ${formatDatePretty(mostUrgent.expiry)}`
+      sub: `${verb === "expired" ? "Expired" : "Expires"} ${formatDatePretty(mostUrgent.expiry)}`,
+      stats: [
+        { n: buckets.get("expired") || 0, label: "expired", tone: "bad" },
+        { n: buckets.get("soon") || 0, label: "expiring", tone: "warn" },
+        { n: buckets.get("valid") || 0, label: "valid", tone: "ok" },
+        { n: buckets.get("none") || 0, label: "no expiry" }
+      ]
     });
   }
 
@@ -287,10 +361,16 @@
 
     if (latestJoined) {
       const joined = latestJoined.from ? formatDatePretty(latestJoined.from) : "";
+      const current = vessels.filter((v) => window.SeavData.isVesselOpenEnded(v)).length;
+
       setTile("dashVesselCountTile", {
         count: vessels.length,
         last: latestJoined.name || "Unnamed vessel",
-        sub: joined ? `Joined ${joined}` : ""
+        sub: joined ? `Joined ${joined}` : "",
+        stats: [
+          { n: current, label: "current", tone: "ok" },
+          { n: vessels.length - current, label: "previous" }
+        ]
       });
     }
 
@@ -388,10 +468,23 @@
     // The record's fields are name / type / model / length — there is no
     // "make". Reading one produced undefined and pushed the model into the
     // headline, which is why an Axopar showed as "Cabin 28".
+    // TENDER_PROFICIENCY_LEVELS: Familiarisation, Competent, Advanced,
+    // Coxswain (displayed as "Proficient"). Anything at Coxswain or Advanced
+    // counts as signed off; the rest is still working up.
+    const byLevel = countBy(tenders, (t) => t.proficiencyLevel || "");
+    const signedOff =
+      (byLevel.get("Coxswain") || 0) + (byLevel.get("Advanced") || 0);
+    const working =
+      (byLevel.get("Competent") || 0) + (byLevel.get("Familiarisation") || 0);
+
     setTile("dashTenderTile", {
       count: tenders.length,
       last: latest.name || latest.model || "Tender",
-      sub: [latest.model, withUnit(latest.length, "m")].filter(Boolean).join(" · ")
+      sub: [latest.model, withUnit(latest.length, "m")].filter(Boolean).join(" · "),
+      stats: [
+        { n: signedOff, label: "advanced", tone: "ok" },
+        { n: working, label: "in training" }
+      ]
     });
   }
 
@@ -429,10 +522,23 @@
 
     const when = passageSortDate(latest);
 
+    const countries = new Set();
+    const ports = new Set();
+    entries.forEach((e) => {
+      [e.toCountry || e.country, e.fromCountry].forEach((c) => c && countries.add(c));
+      [e.toPort || e.port, e.fromPort].forEach((pt) => pt && ports.add(pt));
+    });
+
     setTile("dashNavigationTile", {
       count: entries.length,
       last: title,
-      sub: when ? formatDatePretty(when) : ""
+      sub: when ? formatDatePretty(when) : "",
+      // Neutral, not a status: these are coverage figures, and colouring them
+      // green would imply a pass/fail that does not exist.
+      stats: [
+        { n: countries.size, label: countries.size === 1 ? "country" : "countries" },
+        { n: ports.size, label: ports.size === 1 ? "port" : "ports" }
+      ]
     });
   }
 
@@ -457,10 +563,20 @@
     const status = getReferenceStatus(latest);
     const statusLabel = window.SeavData.getReferenceStatusDisplay?.(status)?.label || "";
 
+    // getReferenceStatus returns Verified / Declined / Sent for Verification
+    // / Draft.
+    const byRefStatus = countBy(refs, (ref) => getReferenceStatus(ref));
+
     setTile("dashRefTile", {
       count: refs.length,
       last: [latest.name || "—", latest.title || ""].filter(Boolean).join(", "),
-      sub: statusLabel
+      sub: statusLabel,
+      stats: [
+        { n: byRefStatus.get("Declined") || 0, label: "declined", tone: "bad" },
+        { n: byRefStatus.get("Sent for Verification") || 0, label: "awaiting", tone: "warn" },
+        { n: byRefStatus.get("Verified") || 0, label: "verified", tone: "ok" },
+        { n: byRefStatus.get("Draft") || 0, label: "draft" }
+      ]
     });
   }
 
@@ -485,10 +601,13 @@
       return db - da;
     })[0];
 
+    const sqCats = new Set(entries.map((e) => e.category).filter(Boolean));
+
     setTile("dashSpecialistTile", {
       count: entries.length,
       last: latest.name || latest.title || "Qualification",
-      sub: latest.dateObtained ? formatDatePretty(latest.dateObtained) : ""
+      sub: latest.dateObtained ? formatDatePretty(latest.dateObtained) : "",
+      stats: [{ n: sqCats.size, label: sqCats.size === 1 ? "category" : "categories" }]
     });
   }
 
@@ -513,10 +632,13 @@
       return db - da;
     })[0];
 
+    const cats = new Set(entries.map((e) => e.category).filter(Boolean));
+
     setTile("dashOnboardTile", {
       count: entries.length,
       last: latest.title || latest.name || "Experience",
-      sub: latest.dateFrom ? formatDatePretty(latest.dateFrom) : ""
+      sub: latest.dateFrom ? formatDatePretty(latest.dateFrom) : "",
+      stats: [{ n: cats.size, label: cats.size === 1 ? "category" : "categories" }]
     });
   }
 
@@ -544,10 +666,16 @@
 
     const period = [latest.payPeriod, latest.taxYear].filter(Boolean).join(" · ");
 
+    const withDoc = payslips.filter((ps) => !!ps.attachment).length;
+
     setTile("dashPayslipTile", {
       count: payslips.length,
       last: period || (latest.employer || "Latest payslip"),
-      sub: latest.paymentDate ? `Paid ${formatDatePretty(latest.paymentDate)}` : ""
+      sub: latest.paymentDate ? `Paid ${formatDatePretty(latest.paymentDate)}` : "",
+      stats: [
+        { n: withDoc, label: "with document", tone: "ok" },
+        { n: payslips.length - withDoc, label: "without", tone: "warn" }
+      ]
     });
   }
 
