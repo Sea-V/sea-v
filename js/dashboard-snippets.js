@@ -174,7 +174,10 @@
       count: totals.total,
       unit: "days",
       last: [vesselNameFor(latest.vesselId), range].filter(Boolean).join(" · "),
-      sub: qualifying != null ? `${qualifying} qualifying days` : ""
+      // A just-opened or future-dated entry has no day breakdown yet, and
+      // "0 qualifying days" on the newest record reads as a fault rather
+      // than as an empty field. Show it only when there is something to show.
+      sub: qualifying ? `${qualifying} qualifying days` : ""
       // Footer ("Total logged days") is static in the markup — it names what
       // the number counts, which "Sea time" alone does not say.
     });
@@ -373,14 +376,22 @@
       return;
     }
 
-    const latest = [...tenders].reverse()[0];
-    const name = [latest.make, latest.model].filter(Boolean).join(" ");
-    const size = withUnit(latest.length, "m");
+    // Tenders carry no date of their own, so "latest" means most recently
+    // added. createdAt is the only ordering the record actually has —
+    // .reverse() on the state array was assuming an order nothing guarantees.
+    const latest = [...tenders].sort((a, b) => {
+      const da = a.createdAt ? new Date(a.createdAt) : new Date(0);
+      const db = b.createdAt ? new Date(b.createdAt) : new Date(0);
+      return db - da;
+    })[0];
 
+    // The record's fields are name / type / model / length — there is no
+    // "make". Reading one produced undefined and pushed the model into the
+    // headline, which is why an Axopar showed as "Cabin 28".
     setTile("dashTenderTile", {
       count: tenders.length,
-      last: name || latest.name || "Tender",
-      sub: size
+      last: latest.name || latest.model || "Tender",
+      sub: [latest.model, withUnit(latest.length, "m")].filter(Boolean).join(" · ")
     });
   }
 
@@ -521,18 +532,22 @@
       return;
     }
 
+    // The payslip record's date field is paymentDate — periodEnd and date do
+    // not exist on it, so the old sort key was undefined on every row
+    // (new Date(undefined) is NaN, which sorts nothing) and the date line
+    // always fell through to a placeholder.
     const latest = [...payslips].sort((a, b) => {
-      const da = a.periodEnd || a.date ? new Date(a.periodEnd || a.date) : new Date(0);
-      const db = b.periodEnd || b.date ? new Date(b.periodEnd || b.date) : new Date(0);
+      const da = a.paymentDate ? new Date(a.paymentDate) : new Date(0);
+      const db = b.paymentDate ? new Date(b.paymentDate) : new Date(0);
       return db - da;
     })[0];
 
-    const when = latest.periodEnd || latest.date;
+    const period = [latest.payPeriod, latest.taxYear].filter(Boolean).join(" · ");
 
     setTile("dashPayslipTile", {
       count: payslips.length,
-      last: when ? formatDatePretty(when) : "Latest payslip",
-      sub: ""
+      last: period || (latest.employer || "Latest payslip"),
+      sub: latest.paymentDate ? `Paid ${formatDatePretty(latest.paymentDate)}` : ""
     });
   }
 
