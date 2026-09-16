@@ -1458,3 +1458,318 @@
   letter-spacing: 0.2px;
   text-transform: none;
 }
+/* =========================================================
+   DASHBOARD • BENTO GRID (v516)
+   Replaces the stacked snippet cards with one screen of
+   count tiles. Every value below resolves to an existing
+   token; the only new one is --font-tile-num, declared in
+   css/core/variables.css next to --font-kpi.
+
+   Note on typography: css/core/typography.css loads last and
+   forces `font-size: var(--font-body) !important` on a named
+   list of classes, plus `text-transform: none !important` on
+   every element under body.app-page. So (a) tile labels are
+   sentence case by design, not by choice, and (b) .dash-tile-num
+   is deliberately NOT in that list — the same escape hatch
+   .kpi-num already relies on — which is why it can be 44px.
+   Renaming it into that list would silently flatten it to 14px.
+========================================================= */
+
+/* Slim quick-action row: was 18px/12px padding (~86px tall), now
+   ~56px, so the grid below still fits one screen (Jack, 2026-09-15). */
+.dashboard-shell-card .dashboard-quick-actions {
+  padding: 10px 24px;
+  gap: 10px;
+}
+
+.dashboard-shell-card .dashboard-quick-action {
+  padding: 8px 12px;
+}
+
+.dash-bento {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* 158px keeps a tile's content box at 130px, which is what the
+     Milestones tile needs for a header plus three name/bar rows
+     (measured, not estimated). Rows grow on a taller viewport. */
+  grid-template-rows: repeat(4, minmax(158px, 1fr));
+  gap: var(--dash-layout-gap);
+
+  height: calc(100vh - 300px);
+  min-height: 692px;
+
+  padding: 20px 24px 24px;
+}
+
+/* ---------- count tile ---------- */
+
+.dash-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+
+  padding: 14px 15px;
+  border-radius: var(--seav-meta-item-radius);
+  border: 1px solid var(--surface-border);
+  /* Solid, matching every other .dash-card. No backdrop-filter:
+     fourteen blurred panels over a photo is the most expensive
+     thing that could go on this page, and solid is the house
+     style anyway (2026-08-03). */
+  background: var(--page-shell-panel);
+
+  color: #ffffff;
+  text-decoration: none;
+
+  transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1), border-color 0.22s ease;
+}
+
+.dash-tile:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--a, #5bbcff) 55%, transparent);
+}
+
+.dash-tile-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.dash-tile-ic {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+
+  color: var(--a, #5bbcff);
+  border: 1px solid color-mix(in srgb, var(--a, #5bbcff) 42%, transparent);
+  background: color-mix(in srgb, var(--a, #5bbcff) 14%, transparent);
+}
+
+.dash-tile-ic svg {
+  width: 15px;
+  height: 15px;
+}
+
+.dash-tile-label {
+  font-weight: 800;
+  color: var(--seav-meta-label-color);
+}
+
+.dash-tile-count {
+  margin-left: auto;
+  font-weight: 800;
+  color: var(--seav-meta-muted-color);
+}
+
+.dash-tile-num {
+  margin-top: auto;
+
+  font-size: var(--font-tile-num);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+}
+
+.dash-tile-unit {
+  font-size: var(--font-body);
+  font-weight: 700;
+  color: var(--seav-meta-muted-color);
+}
+
+/* Clamped to two lines so no vessel name, port pair or referee
+   name can overflow its tile regardless of length. */
+.dash-tile-last {
+  margin-top: 4px;
+
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--seav-note-color);
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------- profile completion ---------- */
+
+.dash-tile-progress .progress-bar {
+  flex: 0 0 auto;
+  height: 8px;
+  margin-top: 9px;
+}
+
+/* ---------- milestones (spans two columns) ---------- */
+
+.dash-tile-milestones {
+  grid-column: span 2;
+}
+
+.dash-tile-milestone-rows {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dash-tile-milestone-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 10px;
+  align-items: baseline;
+}
+
+.dash-tile-milestone-name {
+  font-weight: 800;
+  color: #ffffff;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-tile-milestone-percent {
+  font-weight: 800;
+  color: var(--seav-meta-muted-color);
+  font-variant-numeric: tabular-nums;
+}
+
+/* .ach-progress-bar is achievements.css's own component — same 6px
+   height, same #5bbcff fill — so the dashboard cannot drift from the
+   Milestones page it summarises. */
+.dash-tile-milestone-row .ach-progress-bar {
+  grid-column: 1 / -1;
+}
+
+/* ---------- current / most recent vessel (2x2) ---------- */
+
+.dash-vessel {
+  position: relative;
+  grid-column: span 2;
+  grid-row: span 2;
+
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+
+  border-radius: var(--seav-meta-item-radius);
+  border: 1px solid var(--surface-border);
+  background: rgba(0, 0, 0, 0.24);
+
+  color: #ffffff;
+  text-decoration: none;
+
+  transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1), border-color 0.22s ease;
+}
+
+.dash-vessel:hover {
+  transform: translateY(-3px);
+  border-color: rgba(214, 226, 238, 0.55);
+}
+
+.dash-vessel img {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  transition: transform 1.1s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.dash-vessel:hover img {
+  transform: scale(1.06);
+}
+
+.dash-vessel-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 20, 34, 0.42);
+}
+
+.dash-vessel-scrim-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72%;
+  background: rgba(9, 20, 34, 0.62);
+}
+
+.dash-vessel-body {
+  position: relative;
+  width: 100%;
+  padding: 16px 17px;
+}
+
+.dash-vessel-eyebrow {
+  font-weight: 800;
+  color: var(--seav-meta-label-color);
+}
+
+.dash-vessel-body h3 {
+  margin: 2px 0 3px;
+  font-size: var(--font-page-title) !important;
+  font-weight: 800 !important;
+}
+
+.dash-vessel-body p {
+  margin: 0;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.dash-vessel-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.dash-vessel-chips .pill {
+  display: inline-flex;
+  align-items: center;
+
+  height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
+  border-radius: var(--pill-radius);
+  border: 1px solid var(--pill-border);
+  background: var(--pill-bg);
+}
+
+.dash-vessel-chips .pill-current {
+  border-color: rgba(94, 230, 168, 0.45);
+  background: rgba(94, 230, 168, 0.18);
+}
+
+/* No photo on file: the tile keeps its full 2x2 footprint and the
+   ocean background shows through a dashed edge, rather than
+   collapsing to a grey box and taking the composition with it. */
+.dash-vessel-empty {
+  border-style: dashed;
+  border-color: rgba(214, 226, 238, 0.3);
+  background: rgba(14, 28, 46, 0.34);
+}
+
+.dash-vessel-addphoto {
+  position: absolute;
+  top: 14px;
+  right: 15px;
+
+  display: inline-flex;
+  align-items: center;
+
+  height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
+  border-radius: var(--pill-radius);
+  border: 1px solid var(--pill-border);
+  background: var(--pill-bg);
+
+  font-weight: 800;
+}

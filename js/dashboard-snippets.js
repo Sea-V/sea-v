@@ -1,4 +1,4 @@
-// /js/dashboard-snippets.js — dashboard card renderers
+// /js/dashboard-snippets.js — dashboard bento tile renderers
 (function () {
   "use strict";
 
@@ -9,27 +9,31 @@
 
   const Seav = window.Seav;
   const {
-    totalQualifyingDays,
     getCertExpiryInfo,
     getReferenceStatus,
-    getSeatimeVerificationDisplay,
+    getSeatimeTotals,
     formatDatePretty
   } = window.SeavData;
 
-  // The Leaflet tile URL, attribution, world bounds, mount-retry delays and the
-  // four chart/layer handles that used to live here went with the dashboard
-  // mini-map on 2026-08-22. navigation.html keeps its own copies.
+  // v516: the dashboard is one screen of count tiles instead of eleven
+  // stacked snippet cards. Each renderer below now writes a number and a
+  // single "latest" line into its tile; the owning page keeps the full
+  // history. Removed with the card stack: the three-row list builders, the
+  // KPI band feeders, the Seafarer Awards grid and the Hobbies & interests
+  // card (sidebar-only now — sixteen cells, career evidence first).
+  //
+  // Export names are unchanged so js/dashboard.js's renderer array keeps
+  // working; only renderHobbiesSnippet was dropped and renderPayslipTile /
+  // renderMilestoneTile added.
 
   // js/core.js's bindStateRefresh reruns the dashboard's full refresh() on
   // EVERY "seav:data-updated" event app-wide — not just changes to a given
-  // card's own data (background signed-URL re-hydration, a save on a
-  // completely different page in another tab, etc.). Every snippet renderer
-  // below used to rebuild its card's innerHTML unconditionally on each of
-  // those calls, tearing down and recreating <img> photo elements and (worse)
-  // destroying/remounting the whole Leaflet navigation map every time — a
-  // visible flash even though the result was identical, most noticeable on
-  // Safari. renderFingerprints tracks the last-rendered input per card so a
-  // renderer can skip its rebuild when nothing it actually depends on changed.
+  // tile's own data (background signed-URL re-hydration, a save on a
+  // completely different page in another tab, etc.). renderFingerprints
+  // tracks the last-rendered input per tile so a renderer can skip its
+  // rebuild when nothing it actually depends on changed. This still matters
+  // for the vessel tile, whose <img> would otherwise be torn down and
+  // recreated on every unrelated refresh — a visible flash, worst on Safari.
   const renderFingerprints = new Map();
 
   function skipUnchangedRender(key, fingerprint) {
@@ -38,551 +42,515 @@
     return false;
   }
 
-  function vesselNameFingerprint() {
-    return (window.SeavState?.vessels || []).map((v) => [v.id, v.name]);
+  /**
+   * Write a count tile's number and supporting line.
+   *
+   * `last` is set with textContent, never innerHTML — every one of these
+   * strings is user data (vessel names, referee names, port pairs), so the
+   * escaping question is removed rather than answered per call site.
+   */
+  function setTile(tileId, { count, unit, last }) {
+    const tile = document.getElementById(tileId);
+    if (!tile) return null;
+
+    const numEl = tile.querySelector(".dash-tile-num");
+    if (numEl) {
+      // Thousands separator: sea time runs past 1,000 days quickly and
+      // "1015 days" reads as a serial number.
+      numEl.textContent =
+        typeof count === "number" && Number.isFinite(count)
+          ? count.toLocaleString("en-GB")
+          : String(count);
+      if (unit) {
+        const unitEl = document.createElement("span");
+        unitEl.className = "dash-tile-unit";
+        unitEl.textContent = ` ${unit}`;
+        numEl.appendChild(unitEl);
+      }
+    }
+
+    const lastEl = tile.querySelector(".dash-tile-last");
+    if (lastEl && typeof last === "string") lastEl.textContent = last;
+
+    return tile;
   }
 
-  // heading.textContent = "..." wipes ALL child nodes, including the
-  // data-dash-icon <span> that populateDashboardCardIcons() already
-  // populated with SVG on load. Detach-and-reattach the icon node around
-  // the text rewrite instead of recreating it, so the icon survives every
-  // title update (card counts refresh on every "seav:data-updated" event).
-  function setHeadingText(heading, text) {
-    const icon = heading.querySelector(".dashboard-card-icon");
-    heading.textContent = text;
-    if (icon) heading.prepend(icon);
+  function vesselNameFor(vesselId) {
+    if (!vesselId) return "Unassigned";
+    return (
+      (window.SeavState?.vessels || []).find((v) => v.id === vesselId)?.name ||
+      "Unnamed vessel"
+    );
   }
 
-  // count === null renders the bare title with no "(N)" — for a card that
-  // shows one specific record rather than the first N of a list, where a
-  // total in the heading would just be confusing next to a single item.
-  function updateCardTitle(containerId, baseTitle, count) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
+  /**
+   * "3 yrs 7 mos" / "8 mos" / "3 wks" for a vessel's service span.
+   *
+   * Written here rather than imported because the codebase has no shared
+   * duration formatter — checked before adding this one. If a second caller
+   * ever needs it, it should move to js/seav-data.js rather than be copied.
+   */
+  function formatTimeOnboard(from, to) {
+    if (!from) return "";
+    const start = new Date(from);
+    const end = to ? new Date(to) : new Date();
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return "";
+    if (end < start) return "";
 
-    const card = container.closest(".dash-card");
-    if (!card) return;
+    const months =
+      (end.getFullYear() - start.getFullYear()) * 12 +
+      (end.getMonth() - start.getMonth()) -
+      (end.getDate() < start.getDate() ? 1 : 0);
 
-    const heading = card.querySelector(".dashboard-card-headline h3, .dash-card > h3");
-    if (!heading) return;
+    if (months < 1) {
+      const weeks = Math.max(1, Math.round((end - start) / (7 * 24 * 60 * 60 * 1000)));
+      return `${weeks} ${weeks === 1 ? "wk" : "wks"}`;
+    }
 
-    setHeadingText(heading, count === null ? baseTitle : `${baseTitle} (${count})`);
+    const years = Math.floor(months / 12);
+    const rem = months % 12;
+    const parts = [];
+    if (years) parts.push(`${years} ${years === 1 ? "yr" : "yrs"}`);
+    if (rem) parts.push(`${rem} ${rem === 1 ? "mo" : "mos"}`);
+    return parts.join(" ");
   }
 
-  // haversineNm / formatNm were imported here only for the mini-map's
-  // straight-chord distance. Removed with it 2026-08-22 — the passage rows
-  // deliberately carry no distance, see renderNavigationSnippet.
+  // ---------------------------------------------------------------
+  // Sea time
+  // ---------------------------------------------------------------
 
   async function renderSeatimeSnippet() {
-    const dashSeatimeSnippet = document.getElementById("dashSeatimeSnippet");
-    if (!dashSeatimeSnippet) return;
-
     const seatimes = window.SeavState?.seatimes || [];
-    updateCardTitle("dashSeatimeSnippet", "Sea time", seatimes.length);
+    const totals = getSeatimeTotals(seatimes);
 
     if (!seatimes.length) {
-      dashSeatimeSnippet.innerHTML = `<div class="muted">No sea service yet.</div>`;
+      setTile("dashSeatimeTile", { count: 0, unit: "days", last: "No sea service yet." });
       return;
     }
 
-    const latestThree = [...seatimes]
-      .sort((a, b) => {
-        const da = a.dateJoined ? new Date(a.dateJoined) : new Date(0);
-        const db = b.dateJoined ? new Date(b.dateJoined) : new Date(0);
-        return db - da;
-      })
-      .slice(0, 3);
+    const latest = [...seatimes].sort((a, b) => {
+      const da = a.dateJoined ? new Date(a.dateJoined) : new Date(0);
+      const db = b.dateJoined ? new Date(b.dateJoined) : new Date(0);
+      return db - da;
+    })[0];
 
-    const fingerprint = JSON.stringify({ latestThree, vessels: vesselNameFingerprint() });
-    if (skipUnchangedRender("seatime", fingerprint)) return;
+    const range = [
+      latest.dateJoined ? formatDatePretty(latest.dateJoined) : "",
+      latest.dateLeft ? formatDatePretty(latest.dateLeft) : "Present"
+    ]
+      .filter(Boolean)
+      .join(" → ");
 
-    dashSeatimeSnippet.innerHTML = `
-      <div class="dash-snippet-rows">
-        ${latestThree.map((item) => {
-          const flagGt = [
-            item.flag ? Seav.escapeHtml(item.flag) : "—",
-            item.gt ? `${Seav.escapeHtml(item.gt)} GT` : "—"
-          ].join(" • ");
-          const verificationDisplay = getSeatimeVerificationDisplay(item.verificationStatus || "Logged");
-          const vesselName = Seav.escapeHtml(
-            (window.SeavState?.vessels || []).find((v) => v.id === item.vesselId)?.name || "—"
-          );
-          const dateRange = `${Seav.escapeHtml(item.dateJoined || "—")} – ${Seav.escapeHtml(item.dateLeft || "Present")}`;
-
-          return `
-            <div class="dash-snippet-row">
-              <div class="dash-snippet-row-main">
-                <div class="dash-snippet-row-title">${vesselName}</div>
-                <div class="dash-snippet-row-meta">${dateRange} • ${flagGt} • ${totalQualifyingDays(item)} qualifying days</div>
-              </div>
-              <span class="${Seav.escapeHtml(verificationDisplay.className)}">${Seav.escapeHtml(verificationDisplay.label)}</span>
-            </div>
-          `;
-        }).join("")}
-      </div>
-    `;
+    setTile("dashSeatimeTile", {
+      count: totals.total,
+      unit: "days",
+      // "Total logged days" is seatime.html's own KPI label, sentence case.
+      last: `Total logged days · latest ${vesselNameFor(latest.vesselId)}${range ? `, ${range}` : ""}`
+    });
   }
 
-function updateCertCardCompleteState(displayCount) {
-  const container = document.getElementById("dashCertSnippet");
-  const card = container?.closest(".dash-card");
-  const heading = card?.querySelector(".dashboard-card-headline h3, .dash-card > h3");
+  // ---------------------------------------------------------------
+  // Certificates
+  // ---------------------------------------------------------------
 
-  if (heading) {
-    setHeadingText(heading, displayCount > 0 ? `Certificates (${displayCount})` : "Certificates");
-  }
-}
+  async function renderCertSnippet() {
+    const certs = (window.SeavState?.certs || []).filter(
+      (cert) => window.SeavData?.isSavedCert?.(cert) ?? !!cert?.name
+    );
 
-async function renderCertSnippet() {
-  const dashCertSnippet = document.getElementById("dashCertSnippet");
-  if (!dashCertSnippet) return;
+    if (!certs.length) {
+      setTile("dashCertTile", { count: 0, last: "No certificates yet." });
+      return;
+    }
 
-  const certs = (window.SeavState?.certs || []).filter(
-    (cert) => window.SeavData?.isSavedCert?.(cert) ?? !!cert?.name
-  );
+    const isNoExpiry = window.SeavData?.isCertNoExpiry;
+    const expiryCerts = certs.filter((cert) => {
+      if (isNoExpiry?.(cert)) return false;
+      return !!String(cert.expiry || "").trim();
+    });
 
-  const isNoExpiry = window.SeavData?.isCertNoExpiry;
+    if (!expiryCerts.length) {
+      setTile("dashCertTile", {
+        count: certs.length,
+        last: "No certificates with expiry dates yet. Add expiry dates on the certificates page to track renewals here."
+      });
+      return;
+    }
 
-  const expiryCerts = certs.filter((cert) => {
-    if (isNoExpiry?.(cert)) return false;
-    return !!String(cert.expiry || "").trim();
-  });
-
-  updateCertCardCompleteState(expiryCerts.length);
-
-  if (!expiryCerts.length) {
-    dashCertSnippet.innerHTML = `
-      <p class="dashboard-cert-attention-note muted">
-        ${
-          certs.length
-            ? "No certificates with expiry dates yet. Add expiry dates on the certificates page to track renewals here."
-            : "No certificates yet."
-        }
-      </p>
-    `;
-    return;
-  }
-
-  function getDashboardCertStatus(cert) {
-    return getCertExpiryInfo(cert.expiry);
-  }
-
-  const sortedCerts = [...expiryCerts].sort((a, b) => {
-    const aInfo = getDashboardCertStatus(a);
-    const bInfo = getDashboardCertStatus(b);
-
-    const score = (info) => {
-      const badge = String(info.badge || "").toLowerCase();
+    // Most urgent first, using the same badge vocabulary the certificates
+    // page shows ("expired" / "expires soon") rather than a second wording
+    // invented for the dashboard.
+    const score = (cert) => {
+      const badge = String(getCertExpiryInfo(cert.expiry).badge || "").toLowerCase();
       if (badge === "expired") return 0;
       if (badge === "expires soon") return 1;
       return 2;
     };
 
-    const aScore = score(aInfo);
-    const bScore = score(bInfo);
+    const mostUrgent = [...expiryCerts].sort((a, b) => {
+      const byScore = score(a) - score(b);
+      if (byScore !== 0) return byScore;
+      const da = a.expiry ? new Date(a.expiry) : new Date("9999-12-31");
+      const db = b.expiry ? new Date(b.expiry) : new Date("9999-12-31");
+      return da - db;
+    })[0];
 
-    if (aScore !== bScore) return aScore - bScore;
+    const info = getCertExpiryInfo(mostUrgent.expiry);
+    const name = mostUrgent.name || "Certificate";
+    const badge = String(info.badge || "").trim();
 
-    const aDate = a.expiry ? new Date(a.expiry) : new Date("9999-12-31");
-    const bDate = b.expiry ? new Date(b.expiry) : new Date("9999-12-31");
-    return aDate - bDate;
-  });
-
-  if (skipUnchangedRender("cert", JSON.stringify(sortedCerts))) return;
-
-  dashCertSnippet.innerHTML = `
-    <div class="dash-snippet-rows">
-      ${sortedCerts
-        .map((cert) => {
-          const statusInfo = getDashboardCertStatus(cert);
-          const expiryDisplay = cert.expiry ? formatDatePretty(cert.expiry) : "—";
-
-          return `
-            <div class="dash-snippet-row">
-              <div class="dash-snippet-row-main">
-                <div class="dash-snippet-row-title">
-                  ${Seav.escapeHtml(cert.code || "—")} • ${Seav.escapeHtml(cert.name || "—")}
-                </div>
-                <div class="dash-snippet-row-meta">
-                  Expiry: ${Seav.escapeHtml(expiryDisplay)} • ${Seav.escapeHtml(statusInfo.label)}
-                </div>
-              </div>
-              <span class="${statusInfo.statusClass}">${Seav.escapeHtml(statusInfo.badge)}</span>
-            </div>
-          `;
-        })
-        .join("")}
-    </div>
-  `;
-}
-
- // 2026-08-21, per Jack: the dashboard shows ONE vessel, not the latest
- // three. His reasoning: "dashboard should reflect current items and pages
- // can be used to access history" — a vessel is a state ("I am aboard X"),
- // unlike sea time / tenders / references, which are event streams where a
- // recent-3 list genuinely informs. Those cards are deliberately unchanged.
- //
- // Layout is the full .vessel-profile-card (SeavCards.buildVesselCardFull),
- // the same card the Vessels page and Public Profile use — Jack: "at least
- // we have one style and we stick to it". Not the .dash-mini-card grid,
- // which would have rendered a single card at a third width with two empty
- // columns beside it.
- //
- // Heading is honest about which of the two cases this is: "Current vessel"
- // only when the record is genuinely open-ended, otherwise "Most recent
- // vessel" — a departed crew member's dashboard must not read as though
- // they are still aboard. No "(N)" count: it would sit next to a single
- // card and imply that many are shown. The card headline's own "View all"
- // link is the path to history.
-async function renderVesselSnippet() {
-  const dashVesselSnippet = document.getElementById("dashVesselSnippet");
-  if (!dashVesselSnippet) return;
-
-  const vessels = window.SeavState?.vessels || [];
-
-  if (!vessels.length) {
-    updateCardTitle("dashVesselSnippet", "Vessels", 0);
-    dashVesselSnippet.innerHTML = `<div class="muted">No vessels yet.</div>`;
-    return;
+    setTile("dashCertTile", {
+      count: certs.length,
+      last: badge
+        ? `${name} ${badge} — ${formatDatePretty(mostUrgent.expiry)}`
+        : `Next renewal — ${name}, ${formatDatePretty(mostUrgent.expiry)}`
+    });
   }
 
-  // Shared with the Public Profile's default-open dropdown and the Vessels
-  // page — see getCurrentVessel() in js/seav-data.js. Written out separately
-  // in each place before today, which is how three pages drift apart.
-  const vessel = window.SeavData.getCurrentVessel(vessels);
-  if (!vessel) {
-    updateCardTitle("dashVesselSnippet", "Vessels", vessels.length);
-    dashVesselSnippet.innerHTML = `<div class="muted">No vessels yet.</div>`;
-    return;
-  }
+  // ---------------------------------------------------------------
+  // Vessels — the 2x2 photo tile, plus the count tile
+  // ---------------------------------------------------------------
 
-  const isCurrent = window.SeavData.isVesselOpenEnded(vessel);
-  updateCardTitle("dashVesselSnippet", isCurrent ? "Current vessel" : "Most recent vessel", null);
+  async function renderVesselSnippet() {
+    const tile = document.getElementById("dashVesselTile");
+    const vessels = window.SeavState?.vessels || [];
 
-  const vesselPhotoBucket =
-    window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos";
-  if (window.SeavApiCore?.hydrateItemsFileField) {
-    await window.SeavApiCore.hydrateItemsFileField(
-      [vessel],
-      "photo",
-      vesselPhotoBucket
-    );
-    window.SeavState?.syncCache?.();
-  }
+    setTile("dashVesselCountTile", {
+      count: vessels.length,
+      last: vessels.length ? "" : "No vessels yet."
+    });
 
-  // Fingerprint taken after hydration so an already-cached signed URL
-  // (unchanged) still compares equal and skips the rebuild — this is what
-  // stops the vessel photo from flashing on every unrelated data refresh.
-  if (skipUnchangedRender("vessel", JSON.stringify(vessel))) return;
+    if (!tile) return;
 
-  dashVesselSnippet.innerHTML = window.SeavCards.buildVesselCardFull(vessel, {
-    photoBucket: vesselPhotoBucket,
-    vesselColor: window.SeavData.getVesselColor(vessel.id, vessels)
-  });
-}
-
-async function renderTenderSnippet() {
-  const dashTenderSnippet = document.getElementById("dashTenderSnippet");
-  if (!dashTenderSnippet) return;
-
-  const tenders = window.SeavState?.tenders || [];
-  updateCardTitle("dashTenderSnippet", "Tenders", tenders.length);
-
-  if (!tenders.length) {
-    dashTenderSnippet.innerHTML = `<div class="muted">No tenders yet.</div>`;
-    return;
-  }
-
-  const latestThree = [...tenders].slice().reverse().slice(0, 3);
-
-  if (window.SeavApiCore?.hydrateItemsFileField) {
-    await window.SeavApiCore.hydrateItemsFileField(
-      latestThree,
-      "photo",
-      window.SeavApiCore.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos"
-    );
-    window.SeavState?.syncCache?.();
-  }
-
-  const tenderPhotoBucket =
-    window.SeavApiCore?.STORAGE_BUCKETS?.TENDER_PHOTOS || "tender-photos";
-
-  if (skipUnchangedRender("tender", JSON.stringify(latestThree))) return;
-
-  dashTenderSnippet.innerHTML = `
-    <div class="dash-mini-card-grid">
-      ${latestThree
-        .map((tender) =>
-          window.SeavCards.buildTenderCard(tender, window.SeavState?.vessels || [], {
-            photoBucket: tenderPhotoBucket
-          })
-        )
-        .join("")}
-    </div>
-  `;
-}
-
-function getDashboardVesselName(vesselId) {
-  if (!vesselId) return "Unassigned";
-  return (window.SeavState?.vessels || []).find((v) => v.id === vesselId)?.name || "Unnamed vessel";
-}
-
-function getDashboardVesselColor(vesselId) {
-  return window.SeavData?.getVesselColor?.(vesselId) || "#64748b";
-}
-
-// 2026-08-22, per Jack: the dashboard no longer draws a chart. "i dont think
-// we need the nav map on the dashboard, i think the last three passages logged
-// will suffice as a reminder." This card is now the same shape as every other
-// snippet — the three most recent records, title plus a meta line — and the
-// aggregates (total distance, countries, per-vessel breakdown) live on
-// navigation.html, where the full picture belongs.
-//
-// Removed with it: the Leaflet mini-map and ~530 lines of chart machinery
-// (initDashboardNavigationChart, drawDashboardNavigationChart, the tile-load
-// diagnostics, the container-ready and Leaflet-arrival polls, the country
-// highlight layer, buildDashboardPassagePaths, buildDashboardNavigationStats,
-// getDashboardRouteCoords/Distance and the waypoint normaliser). dashboard.html
-// dropped the Leaflet CSS/JS and js/navigation-passage.js + navigation-routing.js
-// at the same time — nothing else on the page used them.
-//
-// No distance on these rows, deliberately. The routed sea-lane figure needs
-// navigation-passage.js + navigation-routing.js (34 KB) to compute, and the
-// cheap straight-chord alternative disagrees with the number navigation.html
-// shows for the same passage — the exact mismatch a comment on the old
-// buildDashboardPassagePaths existed to explain. A reminder card does not need
-// a number that can contradict its own detail page.
-
-const DASH_NAV_LIMIT = 3;
-
-function passageSortDate(entry) {
-  return entry.departureDate || entry.visitedDate || entry.arrivalDate || "";
-}
-
-function renderNavigationSnippet() {
-  const box = document.getElementById("dashNavigationSnippet");
-  if (!box) return;
-
-  const entries = window.SeavState?.navigationAreas || [];
-  updateCardTitle("dashNavigationSnippet", "Navigation", entries.length);
-
-  if (!entries.length) {
-    box.innerHTML = `<div class="muted">No passages logged yet.</div>`;
-    return;
-  }
-
-  const H = window.SeavNavigationHelpers;
-
-  // normalizeNavEntry resolves a port named in free text back to its record,
-  // which is what makes formatRouteLabel produce "Palma, Spain → Gibraltar"
-  // rather than a bare country. Skipping it is the same bug already fixed once
-  // on the Navigation page, where legacy entries lost their country names.
-  const normalized = (H?.normalizeNavEntry ? entries.map(H.normalizeNavEntry) : entries)
-    .slice()
-    .sort((a, b) => String(passageSortDate(b)).localeCompare(String(passageSortDate(a))))
-    .slice(0, DASH_NAV_LIMIT);
-
-  if (skipUnchangedRender("navigation", JSON.stringify({ normalized, vessels: vesselNameFingerprint() }))) return;
-
-  box.innerHTML = `
-    <div class="list">
-      ${normalized
-        .map((entry) => {
-          const route = H?.formatRouteLabel ? H.formatRouteLabel(entry) : "Passage";
-          const title = entry.passageName || route;
-          const vesselName = getDashboardVesselName(entry.vesselId || entry.vessel_id);
-          const from = passageSortDate(entry);
-          const to = entry.arrivalDate || "";
-          const dates = from && to && from !== to ? `${from} → ${to}` : from || to || "";
-          const meta = [
-            // Only shown when a passage name is set — otherwise the route IS
-            // the title and repeating it below reads as a rendering fault.
-            entry.passageName ? route : "",
-            vesselName,
-            dates,
-            entry.isTidal ? "Tidal waters" : ""
-          ]
-            .filter(Boolean)
-            .map((part) => Seav.escapeHtml(String(part)))
-            .join(" · ");
-
-          return `
-            <div class="list-row">
-              <div style="min-width:0;">
-                <div class="list-title">
-                  <span class="navigation-log-color" style="background:${Seav.escapeHtml(
-                    getDashboardVesselColor(entry.vesselId || entry.vessel_id)
-                  )}"></span>
-                  ${Seav.escapeHtml(title)}
-                </div>
-                <div class="list-sub">${meta}</div>
-              </div>
-            </div>
-          `;
-        })
-        .join("")}
-    </div>
-  `;
-}
-
-  function truncateText(text, max = 140) {
-    return window.SeavData?.truncateText
-      ? window.SeavData.truncateText(text, max)
-      : String(text || "").trim().slice(0, max);
-  }
-
-  async function renderReferenceSnippet() {
-    const dashRefSnippet = document.getElementById("dashRefSnippet");
-    if (!dashRefSnippet) return;
-
-    const refs = window.SeavState?.refs || [];
-    updateCardTitle("dashRefSnippet", "References", refs.length);
-
-    if (!refs.length) {
-      dashRefSnippet.innerHTML = `<div class="muted">No references yet.</div>`;
+    if (!vessels.length) {
+      tile.className = "dash-vessel dash-vessel-empty";
+      tile.innerHTML = `
+        <div class="dash-vessel-body">
+          <span class="dash-vessel-eyebrow">Current vessel</span>
+          <h3>No vessels yet</h3>
+          <p>Add your first vessel to anchor your career record.</p>
+        </div>
+      `;
       return;
     }
 
-    const latestThree = [...refs]
-      .sort((a, b) => {
-        const da = a.date ? new Date(a.date) : new Date(0);
-        const db = b.date ? new Date(b.date) : new Date(0);
-        return db - da;
-      })
-      .slice(0, 3);
+    // Shared with the Public Profile's default-open dropdown and the Vessels
+    // page — see getCurrentVessel() in js/seav-data.js. Written out separately
+    // in each place before 2026-08-21, which is how three pages drift apart.
+    const vessel = window.SeavData.getCurrentVessel(vessels);
+    if (!vessel) return;
 
-    if (skipUnchangedRender("reference", JSON.stringify(latestThree))) return;
+    const latestJoined = [...vessels].sort((a, b) => {
+      const da = a.from ? new Date(a.from) : new Date(0);
+      const db = b.from ? new Date(b.from) : new Date(0);
+      return db - da;
+    })[0];
 
-    dashRefSnippet.innerHTML = `
-      <div class="dash-snippet-rows">
-        ${latestThree.map((ref) => {
-          const status = getReferenceStatus(ref);
-          const statusInfo = window.SeavData.getReferenceStatusDisplay(status);
-          const quote = truncateText(ref.text, 140);
-          return `
-            <div class="dash-snippet-row">
-              <div class="dash-snippet-row-main">
-                <div class="dash-snippet-row-title">${Seav.escapeHtml(ref.name || "—")}</div>
-                <div class="dash-snippet-row-meta">${Seav.escapeHtml(ref.title || "—")} • ${Seav.escapeHtml(formatDatePretty(ref.date))}</div>
-                ${
-                  quote
-                    ? `<div class="dash-snippet-row-quote">“${Seav.escapeHtml(quote)}”</div>`
-                    : ``
-                }
-              </div>
-              <span class="${statusInfo.className}">${Seav.escapeHtml(statusInfo.label)}</span>
-            </div>
-          `;
-        }).join("")}
+    if (latestJoined) {
+      const joined = latestJoined.from ? formatDatePretty(latestJoined.from) : "";
+      setTile("dashVesselCountTile", {
+        count: vessels.length,
+        last: `Latest — ${latestJoined.name || "Unnamed vessel"}${joined ? `, joined ${joined}` : ""}`
+      });
+    }
+
+    const vesselPhotoBucket =
+      window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos";
+    if (window.SeavApiCore?.hydrateItemsFileField) {
+      await window.SeavApiCore.hydrateItemsFileField([vessel], "photo", vesselPhotoBucket);
+      window.SeavState?.syncCache?.();
+    }
+
+    // Fingerprint taken after hydration so an already-cached signed URL
+    // (unchanged) still compares equal and skips the rebuild — this is what
+    // stops the vessel photo from flashing on every unrelated data refresh.
+    if (skipUnchangedRender("vessel", JSON.stringify(vessel))) return;
+
+    const isCurrent = window.SeavData.isVesselOpenEnded(vessel);
+    const photoUrl =
+      Seav.getFileDisplayUrl?.(vessel.photo, vesselPhotoBucket) ||
+      vessel.photo?.url ||
+      vessel.photo?.dataUrl ||
+      "";
+
+    const onboard = formatTimeOnboard(vessel.from, vessel.to);
+    const meta = [
+      vessel.vessel_role || vessel.role,
+      vessel.vessel_length || vessel.length,
+      vessel.gt ? `${vessel.gt} GT` : "",
+      vessel.flag,
+      onboard ? `${onboard} aboard` : ""
+    ]
+      .filter(Boolean)
+      .map((part) => Seav.escapeHtml(String(part)))
+      .join(" · ");
+
+    const contractType = window.SeavData?.getVesselContractType?.(vessel) || "";
+    const seatimeCount = (window.SeavState?.seatimes || []).filter(
+      (entry) => entry.vesselId === vessel.id
+    ).length;
+
+    const chips = [
+      isCurrent ? `<span class="pill pill-current">Current</span>` : "",
+      contractType ? `<span class="pill">${Seav.escapeHtml(contractType)}</span>` : "",
+      seatimeCount
+        ? `<span class="pill">${seatimeCount} sea time ${seatimeCount === 1 ? "entry" : "entries"}</span>`
+        : ""
+    ]
+      .filter(Boolean)
+      .join("");
+
+    // No photo on file keeps the full 2x2 footprint: the ocean background
+    // shows through a dashed edge instead of a grey box. The tile is the
+    // composition's anchor — a text fallback in that slot reads as broken.
+    tile.className = photoUrl ? "dash-vessel" : "dash-vessel dash-vessel-empty";
+
+    const photoHtml = photoUrl
+      ? `
+        <img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(vessel.name || "Vessel")}"
+          onerror="this.remove();" />
+        <div class="dash-vessel-scrim"></div>
+        <div class="dash-vessel-scrim-bottom"></div>
+      `
+      : `<span class="dash-vessel-addphoto">Add a photo</span>`;
+
+    tile.innerHTML = `
+      ${photoHtml}
+      <div class="dash-vessel-body">
+        <span class="dash-vessel-eyebrow">${isCurrent ? "Current vessel" : "Most recent vessel"}</span>
+        <h3>${Seav.escapeHtml(vessel.name || "Unnamed Vessel")}</h3>
+        <p>${meta}</p>
+        ${chips ? `<div class="dash-vessel-chips">${chips}</div>` : ""}
       </div>
     `;
   }
 
-async function renderSpecialistSnippet() {
-  const dashSpecialistSnippet = document.getElementById("dashSpecialistSnippet");
-  if (!dashSpecialistSnippet) return;
+  // ---------------------------------------------------------------
+  // Tenders
+  // ---------------------------------------------------------------
 
-  const entries = window.SeavState?.specialistQualifications || [];
-  updateCardTitle("dashSpecialistSnippet", "Specialist qualifications", entries.length);
+  async function renderTenderSnippet() {
+    const tenders = window.SeavState?.tenders || [];
 
-  if (!entries.length) {
-    dashSpecialistSnippet.innerHTML = `<div class="muted">No specialist qualifications logged yet.</div>`;
-    return;
+    if (!tenders.length) {
+      setTile("dashTenderTile", { count: 0, last: "No tenders yet." });
+      return;
+    }
+
+    const latest = [...tenders].reverse()[0];
+    const detail = [latest.make, latest.model, latest.length ? `${latest.length} m` : ""]
+      .filter(Boolean)
+      .join(" ");
+
+    setTile("dashTenderTile", {
+      count: tenders.length,
+      last: `Latest — ${detail || latest.name || "Tender"}`
+    });
   }
 
-  const latest = [...entries]
-    .sort((a, b) => {
+  // ---------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------
+
+  function passageSortDate(entry) {
+    return entry.departureDate || entry.visitedDate || entry.arrivalDate || "";
+  }
+
+  function renderNavigationSnippet() {
+    const entries = window.SeavState?.navigationAreas || [];
+
+    if (!entries.length) {
+      setTile("dashNavigationTile", { count: 0, unit: "passages", last: "No passages logged yet." });
+      return;
+    }
+
+    const H = window.SeavNavigationHelpers;
+
+    // normalizeNavEntry resolves a port named in free text back to its record,
+    // which is what makes formatRouteLabel produce "Palma, Spain → Gibraltar"
+    // rather than a bare country. Skipping it is the same bug already fixed
+    // once on the Navigation page, where legacy entries lost their country
+    // names.
+    const latest = (H?.normalizeNavEntry ? entries.map(H.normalizeNavEntry) : entries)
+      .slice()
+      .sort((a, b) =>
+        String(passageSortDate(b)).localeCompare(String(passageSortDate(a)))
+      )[0];
+
+    const route = H?.formatRouteLabel ? H.formatRouteLabel(latest) : "";
+    const title = latest.passageName || route || "Passage";
+
+    setTile("dashNavigationTile", {
+      count: entries.length,
+      unit: entries.length === 1 ? "passage" : "passages",
+      last: `Latest — ${title}`
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // References
+  // ---------------------------------------------------------------
+
+  async function renderReferenceSnippet() {
+    const refs = window.SeavState?.refs || [];
+
+    if (!refs.length) {
+      setTile("dashRefTile", { count: 0, last: "No references yet." });
+      return;
+    }
+
+    const latest = [...refs].sort((a, b) => {
+      const da = a.date ? new Date(a.date) : new Date(0);
+      const db = b.date ? new Date(b.date) : new Date(0);
+      return db - da;
+    })[0];
+
+    const status = getReferenceStatus(latest);
+    const statusLabel = window.SeavData.getReferenceStatusDisplay?.(status)?.label || "";
+
+    setTile("dashRefTile", {
+      count: refs.length,
+      last: [latest.name || "—", latest.title || "", statusLabel]
+        .filter(Boolean)
+        .join(" · ")
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // Specialist qualifications
+  // ---------------------------------------------------------------
+
+  async function renderSpecialistSnippet() {
+    const entries = window.SeavState?.specialistQualifications || [];
+
+    if (!entries.length) {
+      setTile("dashSpecialistTile", {
+        count: 0,
+        last: "No specialist qualifications logged yet."
+      });
+      return;
+    }
+
+    const latest = [...entries].sort((a, b) => {
       const da = a.dateObtained ? new Date(a.dateObtained) : new Date(0);
       const db = b.dateObtained ? new Date(b.dateObtained) : new Date(0);
       return db - da;
-    })
-    .slice(0, 4);
+    })[0];
 
-  const getLabel =
-    window.SeavData?.getSpecialistCategoryLabel ||
-    ((value) => value || "—");
-
-  if (skipUnchangedRender("specialist", JSON.stringify(latest))) return;
-
-  dashSpecialistSnippet.innerHTML = `
-    <div class="list">
-      ${latest
-        .map((entry) => window.SeavCards.buildSpecialistRow(entry, { categoryLabel: getLabel }))
-        .join("")}
-    </div>
-  `;
-}
-
-async function renderOnboardSnippet() {
-  const dashOnboardSnippet = document.getElementById("dashOnboardSnippet");
-  if (!dashOnboardSnippet) return;
-
-  const entries = window.SeavState?.onboardExperiences || [];
-  updateCardTitle("dashOnboardSnippet", "Onboard experience", entries.length);
-
-  if (!entries.length) {
-    dashOnboardSnippet.innerHTML = `<div class="muted">No onboard experience logged yet.</div>`;
-    return;
+    setTile("dashSpecialistTile", {
+      count: entries.length,
+      last: `Latest — ${latest.name || latest.title || "Qualification"}`
+    });
   }
 
-  const latest = [...entries]
-    .sort((a, b) => {
+  // ---------------------------------------------------------------
+  // Onboard experience
+  // ---------------------------------------------------------------
+
+  async function renderOnboardSnippet() {
+    const entries = window.SeavState?.onboardExperiences || [];
+
+    if (!entries.length) {
+      setTile("dashOnboardTile", {
+        count: 0,
+        last: "No onboard experience logged yet."
+      });
+      return;
+    }
+
+    const latest = [...entries].sort((a, b) => {
       const da = a.dateFrom ? new Date(a.dateFrom) : new Date(0);
       const db = b.dateFrom ? new Date(b.dateFrom) : new Date(0);
       return db - da;
-    })
-    .slice(0, 4);
+    })[0];
 
-  const vessels = window.SeavState?.vessels || [];
-
-  if (skipUnchangedRender("onboard", JSON.stringify({ latest, vessels: vesselNameFingerprint() }))) {
-    return;
+    setTile("dashOnboardTile", {
+      count: entries.length,
+      last: `Latest — ${latest.title || latest.name || "Experience"}`
+    });
   }
 
-  dashOnboardSnippet.innerHTML = `
-    <div class="list">
-      ${latest
-        .map((entry) => window.SeavCards.buildOnboardRow(entry, vessels))
-        .join("")}
-    </div>
-  `;
-}
+  // ---------------------------------------------------------------
+  // Payslips — no card on the old dashboard; new tile in v516
+  // ---------------------------------------------------------------
 
-async function renderHobbiesSnippet() {
-  const dashHobbiesSnippet = document.getElementById("dashHobbiesSnippet");
-  if (!dashHobbiesSnippet) return;
+  async function renderPayslipTile() {
+    const payslips = window.SeavState?.payslips || [];
 
-  const entries = window.SeavState?.hobbiesInterests || [];
-  updateCardTitle("dashHobbiesSnippet", "Hobbies & interests", entries.length);
+    if (!payslips.length) {
+      setTile("dashPayslipTile", { count: 0, last: "No payslips yet." });
+      return;
+    }
 
-  if (!entries.length) {
-    dashHobbiesSnippet.innerHTML = `<div class="muted">No hobbies or interests logged yet.</div>`;
-    return;
-  }
-
-  const latest = [...entries]
-    .sort((a, b) => {
-      const da = a.dateFrom ? new Date(a.dateFrom) : new Date(a.updatedAt || 0);
-      const db = b.dateFrom ? new Date(b.dateFrom) : new Date(b.updatedAt || 0);
+    const latest = [...payslips].sort((a, b) => {
+      const da = a.periodEnd || a.date ? new Date(a.periodEnd || a.date) : new Date(0);
+      const db = b.periodEnd || b.date ? new Date(b.periodEnd || b.date) : new Date(0);
       return db - da;
-    })
-    .slice(0, 4);
+    })[0];
 
-  const getLabel =
-    window.SeavData?.getHobbyInterestCategoryLabel ||
-    ((value) => value || "—");
+    const when = latest.periodEnd || latest.date;
 
-  if (skipUnchangedRender("hobbies", JSON.stringify(latest))) return;
+    setTile("dashPayslipTile", {
+      count: payslips.length,
+      last: when ? `Latest — ${formatDatePretty(when)}` : "Latest payslip logged"
+    });
+  }
 
-  dashHobbiesSnippet.innerHTML = `
-    <div class="list">
-      ${latest
-        .map((entry) => window.SeavCards.buildHobbyRow(entry, { categoryLabel: getLabel }))
-        .join("")}
-    </div>
-  `;
-}
+  // ---------------------------------------------------------------
+  // Milestones — progress toward the next certificates
+  // ---------------------------------------------------------------
 
+  const DASH_MILESTONE_LIMIT = 3;
+
+  function renderMilestoneTile() {
+    const rows = document.getElementById("dashMilestoneRows");
+    const countEl = document.getElementById("dashMilestoneCount");
+    if (!rows) return;
+
+    const achievements = window.SeavState?.achievements || [];
+    const earned = new Set(
+      achievements
+        .filter((item) => item && item.status !== "Declined" && item.code)
+        .map((item) => item.code)
+    ).size;
+    const total = window.SeavBadges?.listAchievements?.().length || 0;
+
+    if (countEl) {
+      countEl.textContent = total ? `${earned} / ${total} earned` : `${earned} earned`;
+    }
+
+    const inProgress = (
+      window.SeavAchievementEngine?.getInProgressMilestones?.() || []
+    ).slice(0, DASH_MILESTONE_LIMIT);
+
+    if (!inProgress.length) {
+      rows.innerHTML = `<div class="dash-tile-last">Nothing in progress right now.</div>`;
+      return;
+    }
+
+    if (skipUnchangedRender("milestones", JSON.stringify(inProgress.map((e) => [e.certGroupKey, e.percent])))) {
+      return;
+    }
+
+    // .ach-progress-bar is achievements.css's own component, so this tile and
+    // the Milestones page it links to cannot render the same progress two
+    // different ways. Only three rows fit a tile's 130px content box, and a
+    // per-row caption does not — the detail stays on that page.
+    rows.innerHTML = inProgress
+      .map(
+        (entry) => `
+        <div class="dash-tile-milestone-row">
+          <span class="dash-tile-milestone-name">${Seav.escapeHtml(entry.certGroupKey || "")}</span>
+          <span class="dash-tile-milestone-percent">${Number(entry.percent) || 0}%</span>
+          <span class="ach-progress-bar" role="progressbar"
+            aria-valuenow="${Number(entry.percent) || 0}" aria-valuemin="0" aria-valuemax="100">
+            <span style="width: ${Number(entry.percent) || 0}%"></span>
+          </span>
+        </div>
+      `
+      )
+      .join("");
+  }
 
   window.SeavDashboardSnippets = {
     renderVesselSnippet,
@@ -593,6 +561,7 @@ async function renderHobbiesSnippet() {
     renderSpecialistSnippet,
     renderCertSnippet,
     renderReferenceSnippet,
-    renderHobbiesSnippet
+    renderPayslipTile,
+    renderMilestoneTile
   };
 })();

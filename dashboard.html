@@ -24,58 +24,58 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=515" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=515" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=515" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=515" />
+  <link rel="icon" href="/favicon.ico?v=516" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=516" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=516" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=516" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V Dashboard</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=515" />
+  <link rel="stylesheet" href="styles.css?v=516" />
   <!-- Leaflet CSS removed 2026-08-22 with the dashboard mini-map. navigation.html
        still loads its own. -->
 
   <!-- Core Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=515"></script>
-  <script src="js/supabase.js?v=515"></script>
-  <script src="js/auth.js?v=515"></script>
-  <script src="js/feedback.js?v=515" defer></script>
-  <script src="js/core.js?v=515" defer></script>
-  <script src="js/bug-reports.js?v=515" defer></script>
-  <script src="js/seav-upload.js?v=515" defer></script>
-  <script src="js/seav-data.js?v=515" defer></script>
-  <script src="js/seav-badges.js?v=515" defer></script>
-  <script src="js/api-core.js?v=515" defer></script>
-  <script src="js/api-mappers.js?v=515" defer></script>
-  <script src="js/api.js?v=515" defer></script>
-  <script src="js/state.js?v=515" defer></script>
-  <script src="js/seav-notifications.js?v=515" defer></script>
-  <script src="js/achievements-engine.js?v=515" defer></script>
-  <script src="js/badge-unlock.js?v=515" defer></script>
+  <script src="js/seav-config.js?v=516"></script>
+  <script src="js/supabase.js?v=516"></script>
+  <script src="js/auth.js?v=516"></script>
+  <script src="js/feedback.js?v=516" defer></script>
+  <script src="js/core.js?v=516" defer></script>
+  <script src="js/bug-reports.js?v=516" defer></script>
+  <script src="js/seav-upload.js?v=516" defer></script>
+  <script src="js/seav-data.js?v=516" defer></script>
+  <script src="js/seav-badges.js?v=516" defer></script>
+  <script src="js/api-core.js?v=516" defer></script>
+  <script src="js/api-mappers.js?v=516" defer></script>
+  <script src="js/api.js?v=516" defer></script>
+  <script src="js/state.js?v=516" defer></script>
+  <script src="js/seav-notifications.js?v=516" defer></script>
+  <script src="js/achievements-engine.js?v=516" defer></script>
+  <script src="js/badge-unlock.js?v=516" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-  <script src="js/seav-share.js?v=515" defer></script>
+  <script src="js/seav-share.js?v=516" defer></script>
   <!-- Leaflet JS removed 2026-08-22 with the dashboard mini-map — nothing else on
        this page used it. Two fewer cross-origin requests and no map tiles per load. -->
-  <script src="js/seav-cards.js?v=515" defer></script>
+  <script src="js/seav-cards.js?v=516" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
   <!-- navigation-ports + navigation-helpers stay: renderNavigationSnippet uses
        normalizeNavEntry (which reads the port list) and formatRouteLabel to title
        each passage row. navigation-passage.js and navigation-routing.js were only
        ever loaded to compute the mini-map's routed sea-lane distance -- 34 KB for
        a number the passage rows deliberately do not show. Removed 2026-08-22. -->
-  <script src="js/navigation-ports.js?v=515" defer></script>
-  <script src="js/navigation-helpers.js?v=515" defer></script>
+  <script src="js/navigation-ports.js?v=516" defer></script>
+  <script src="js/navigation-helpers.js?v=516" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="js/navigation-ports.js?v=515" defer></script>
-  <script src="js/navigation-helpers.js?v=515" defer></script>
-  <script src="js/navigation-passage.js?v=515" defer></script>
-  <script src="js/navigation-routing.js?v=515" defer></script>
-  <script src="js/dashboard-snippets.js?v=515" defer></script>
-  <script src="js/dashboard.js?v=515" defer></script>
+  <script src="js/navigation-ports.js?v=516" defer></script>
+  <script src="js/navigation-helpers.js?v=516" defer></script>
+  <script src="js/navigation-passage.js?v=516" defer></script>
+  <script src="js/navigation-routing.js?v=516" defer></script>
+  <script src="js/dashboard-snippets.js?v=516" defer></script>
+  <script src="js/dashboard.js?v=516" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -202,295 +202,148 @@
 
   <section class="dashboard-shell-section">
 
-      <!-- Top Section -->
-      <div class="dash-top">
+      <!-- =========================================================
+           BENTO GRID — one screen, nothing below the fold.
+           Replaces the previous stack of 11 full snippet cards
+           (v516). Each tile is a count plus the single most recent
+           entry, linking to the page that owns it; the page itself
+           keeps the full history. Grid is exactly 4 x 4 = 16 cells:
+           vessel photo 2x2 (4) + Milestones 2-wide (2) + ten single
+           tiles. Wording matches each card's previous h3 verbatim,
+           colours are the --page-* identity set, and tiles are solid
+           --page-shell-panel like every other .dash-card (no
+           backdrop-filter — solid colours site-wide, 2026-08-03).
 
-        <!-- =========================
-             PROFILE CARD
-        ========================== -->
-        <article class="dash-card dash-card-accent-profile dash-profile" id="profile">
-          <div
-            class="dashboard-profile-complete-badge"
-            id="dashboardProfileCompleteBadge"
-            hidden
-            title="Profile complete"
-            aria-label="Profile complete"
-          >
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+           Hobbies & interests, CV Generator, Public Profile and
+           Land-Based Experience are sidebar-only: the grid holds
+           sixteen cells and career evidence gets them first.
+           Seafarer Awards moved off the dashboard entirely — they
+           render identically on achievements.html and the public
+           profile (Jack, 2026-09-15).
+      ========================================================= -->
+      <div class="dash-bento">
+
+        <!-- Current / most recent vessel — 2x2 anchor. Built by
+             renderVesselSnippet(); the no-photo and pre-hydration
+             states are handled there, not here, so the tile keeps its
+             full footprint either way. -->
+        <a class="dash-vessel" href="vessels.html" id="dashVesselTile"
+           style="--a: var(--page-vessels);"></a>
+
+        <a class="dash-tile" href="seatime.html" id="dashSeatimeTile" style="--a: var(--page-seatime);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="seatime" aria-hidden="true"></span>
+            <span class="dash-tile-label">Sea time</span>
           </div>
-          <div class="dashboard-profile-wrap">
-            <div class="dashboard-profile-top">
+          <div class="dash-tile-num">0 <span class="dash-tile-unit">days</span></div>
+          <div class="dash-tile-last">No sea service yet.</div>
+        </a>
 
-              <!-- Left Column -->
-              <div class="dashboard-profile-left">
-                <div
-                  class="avatar avatar-large dashboard-avatar-modern"
-                  id="dashAvatar"
-                  aria-label="Profile photo"
-                ></div>
-              </div>
-
-              <!-- Right Column -->
-              <div class="dashboard-profile-heading">
-                <h3 class="profile-name dashboard-profile-name" id="dashProfileName">
-                  Demo User
-                </h3>
-
-                <div class="dashboard-profile-fields">
-
-                  <div class="dashboard-info-box">
-                    <span class="dashboard-info-label">Current Qualification</span>
-                    <span class="dashboard-info-value" id="dashProfileQualification">—</span>
-                  </div>
-
-                  <div class="dashboard-info-box">
-                    <span class="dashboard-info-label">Rank</span>
-                    <span class="dashboard-info-value" id="dashProfileRank">—</span>
-                  </div>
-
-                  <div class="dashboard-info-box">
-                    <span class="dashboard-info-label">Availability</span>
-                    <span class="dashboard-info-value" id="dashProfileAvailability">—</span>
-                  </div>
-
-                  <div class="dashboard-info-box">
-                    <span class="dashboard-info-label">Nationality</span>
-                    <span class="dashboard-info-value" id="dashProfileNationality">—</span>
-                  </div>
-
-                  <div class="dashboard-info-box">
-                    <span class="dashboard-info-label">Date of Birth</span>
-                    <span class="dashboard-info-value" id="dashProfileDob">—</span>
-                  </div>
-
-                  <div class="dashboard-info-box">
-                    <span class="dashboard-info-label">Location</span>
-                    <span class="dashboard-info-value" id="dashProfileLocation">—</span>
-                  </div>
-
-                  <div class="dashboard-info-box">
-                    <span class="dashboard-info-label">Email</span>
-                    <span class="dashboard-info-value" id="dashProfileEmail">—</span>
-                  </div>
-
-                  <div class="dashboard-info-box">
-                    <span class="dashboard-info-label">Phone</span>
-                    <span class="dashboard-info-value" id="dashProfilePhone">—</span>
-                  </div>
-
-                  <div class="dashboard-info-box">
-                    <span class="dashboard-info-label">Passports Held</span>
-                    <span class="dashboard-info-value" id="dashProfilePassportsHeld">—</span>
-                  </div>
-
-                  <div class="dashboard-info-box">
-                    <span class="dashboard-info-label">Visas Held</span>
-                    <span class="dashboard-info-value" id="dashProfileVisasHeld">—</span>
-                  </div>
-
-                </div>
-              </div>
-
-            </div>
-
-            <div class="dashboard-bio-under dashboard-profile-bio" id="dashCareerOverviewWrap">
-              <span class="dashboard-info-label">Career overview</span>
-              <p class="dashboard-summary-text" id="dashProfileBio">
-                Professional maritime profile.
-              </p>
-            </div>
+        <!-- Profile completion — real computed percentage, reusing the
+             .progress-bar/.progress-fill component and the existing
+             profileProgress* ids, so js/dashboard.js drives it
+             unchanged. Replaced a mocked-up "career readiness" ring
+             that had no data source behind it. -->
+        <a class="dash-tile dash-tile-progress" href="profile.html" id="profileCompletionCard"
+           style="--a: var(--page-profile);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="profile" aria-hidden="true"></span>
+            <span class="dash-tile-label">Profile completion</span>
           </div>
-        </article>
-
-        <!-- =========================
-             PROFILE COMPLETION
-        ========================== -->
-        <article class="dash-card dash-card-accent-profile" id="profileCompletionCard">
-          <div class="progress-section">
-            <div class="progress-label">Profile completion</div>
-
-            <div class="progress-bar">
-              <div
-                class="progress-fill progress-good"
-                id="profileProgressFill"
-                style="width: 0%;"
-              ></div>
-            </div>
-
-            <div class="progress-percent" id="profileProgressPercent">0%</div>
-            <div id="profileProgressMissing" class="progress-missing"></div>
+          <div class="dash-tile-num" id="profileProgressPercent">0%</div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-good" id="profileProgressFill" style="width: 0%;"></div>
           </div>
-        </article>
+          <div class="dash-tile-last" id="profileProgressMissing"></div>
+        </a>
+
+        <a class="dash-tile" href="navigation.html" id="dashNavigationTile" style="--a: var(--page-navigation);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="navigation" aria-hidden="true"></span>
+            <span class="dash-tile-label">Navigation</span>
+          </div>
+          <div class="dash-tile-num">0 <span class="dash-tile-unit">passages</span></div>
+          <div class="dash-tile-last">No passages logged yet.</div>
+        </a>
+
+        <a class="dash-tile" href="certificates.html" id="dashCertTile" style="--a: var(--page-certificates);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="certificates" aria-hidden="true"></span>
+            <span class="dash-tile-label">Certificates</span>
+          </div>
+          <div class="dash-tile-num">0</div>
+          <div class="dash-tile-last">No certificates yet.</div>
+        </a>
+
+        <a class="dash-tile" href="vessels.html" id="dashVesselCountTile" style="--a: var(--page-vessels);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="vessels" aria-hidden="true"></span>
+            <span class="dash-tile-label">Vessels</span>
+          </div>
+          <div class="dash-tile-num">0</div>
+          <div class="dash-tile-last">No vessels yet.</div>
+        </a>
+
+        <!-- Milestones — spans two columns because three progress bars
+             need the width. Bars use .ach-progress-bar, the same
+             component and the same blue as achievements.html, so the
+             dashboard cannot drift from the page it summarises. -->
+        <a class="dash-tile dash-tile-milestones" href="achievements.html" id="dashMilestoneTile"
+           style="--a: var(--page-achievements);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="achievements" aria-hidden="true"></span>
+            <span class="dash-tile-label">Milestones</span>
+            <span class="dash-tile-count" id="dashMilestoneCount"></span>
+          </div>
+          <div class="dash-tile-milestone-rows" id="dashMilestoneRows"></div>
+        </a>
+
+        <a class="dash-tile" href="tenders.html" id="dashTenderTile" style="--a: var(--page-tenders);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="tenders" aria-hidden="true"></span>
+            <span class="dash-tile-label">Tenders</span>
+          </div>
+          <div class="dash-tile-num">0</div>
+          <div class="dash-tile-last">No tenders yet.</div>
+        </a>
+
+        <a class="dash-tile" href="onboard-experience.html" id="dashOnboardTile" style="--a: var(--page-onboard-experience);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="onboard" aria-hidden="true"></span>
+            <span class="dash-tile-label">Onboard experience</span>
+          </div>
+          <div class="dash-tile-num">0</div>
+          <div class="dash-tile-last">No onboard experience logged yet.</div>
+        </a>
+
+        <a class="dash-tile" href="specialist-qualifications.html" id="dashSpecialistTile" style="--a: var(--page-specialist-qualifications);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="specialist" aria-hidden="true"></span>
+            <span class="dash-tile-label">Specialist qualifications</span>
+          </div>
+          <div class="dash-tile-num">0</div>
+          <div class="dash-tile-last">No specialist qualifications logged yet.</div>
+        </a>
+
+        <a class="dash-tile" href="references.html" id="dashRefTile" style="--a: var(--page-references);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="references" aria-hidden="true"></span>
+            <span class="dash-tile-label">References</span>
+          </div>
+          <div class="dash-tile-num">0</div>
+          <div class="dash-tile-last">No references yet.</div>
+        </a>
+
+        <a class="dash-tile" href="payslips.html" id="dashPayslipTile" style="--a: var(--page-payslips);">
+          <div class="dash-tile-head">
+            <span class="dash-tile-ic" data-dash-icon="payslips" aria-hidden="true"></span>
+            <span class="dash-tile-label">Payslips</span>
+          </div>
+          <div class="dash-tile-num">0</div>
+          <div class="dash-tile-last">No payslips yet.</div>
+        </a>
 
       </div>
-
-      <!-- Snippet cards — order matches sidebar nav -->
-      <div class="dashboard-stack">
-
-        <!-- =========================
-             VESSELS
-        ========================== -->
-        <article class="dash-card dash-card-accent-vessels">
-          <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="vessels" aria-hidden="true"></span>Vessels</h3>
-            <a href="vessels.html">View all</a>
-          </div>
-          <div id="dashVesselSnippet"></div>
-        </article>
-
-        <!-- =========================
-             SEA TIME
-        ========================== -->
-        <article class="dash-card dash-card-accent-seatime">
-          <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="seatime" aria-hidden="true"></span>Sea time</h3>
-            <a href="seatime.html">View all</a>
-          </div>
-          <div id="dashSeatimeSnippet"></div>
-        </article>
-
-        <!-- =========================
-             KPI SNAPSHOT
-        ========================== -->
-        <article class="dash-card dash-card-accent-seatime dash-kpis-row">
-          <h3 class="kpi-title"><span class="dashboard-card-icon" data-dash-icon="seatime" aria-hidden="true"></span>Career snapshot</h3>
-          <div class="kpi-row-grid kpi-row-grid-6">
-            <div class="kpi-box">
-              <div class="kpi-num" id="kpiSea">0</div>
-              <div class="kpi-label">Actual Sea Service</div>
-            </div>
-            <div class="kpi-box">
-              <div class="kpi-num" id="kpiPort">0</div>
-              <div class="kpi-label">Yard Service</div>
-            </div>
-            <div class="kpi-box">
-              <div class="kpi-num" id="kpiStandby">0</div>
-              <div class="kpi-label">Standby Service</div>
-            </div>
-            <div class="kpi-box">
-              <div class="kpi-num" id="kpiWatchkeeping">0</div>
-              <div class="kpi-label">Watchkeeping</div>
-            </div>
-            <div class="kpi-box">
-              <div class="kpi-num" id="kpiTotalDays">0</div>
-              <div class="kpi-label">Total Logged Days</div>
-            </div>
-            <div class="kpi-box">
-              <div class="kpi-num" id="kpiOowCapped">0</div>
-              <div class="kpi-label">OOW-Qualifying (Capped)</div>
-            </div>
-          </div>
-          <p class="public-profile-section-note public-profile-kpi-caveat">Capped figure applies MCA OOW &lt;3000GT rules (90-day yard cap, vessels 15m+ only) — other certificate routes may differ.</p>
-        </article>
-
-        <!-- =========================
-             NAVIGATION
-             Three most recent passages, not a chart (Jack, 2026-08-22).
-             .dashboard-navigation-card dropped with the map -- it only existed
-             to size the chart shell.
-        ========================== -->
-        <article class="dash-card dash-card-accent-navigation">
-          <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="navigation" aria-hidden="true"></span>Navigation</h3>
-            <a href="navigation.html">View all</a>
-          </div>
-          <div id="dashNavigationSnippet"></div>
-        </article>
-
-        <!-- =========================
-             TENDERS
-        ========================== -->
-        <article class="dash-card dash-card-accent-tenders">
-          <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="tenders" aria-hidden="true"></span>Tenders</h3>
-            <a href="tenders.html">View all</a>
-          </div>
-          <div id="dashTenderSnippet"></div>
-        </article>
-
-        <!-- =========================
-             ONBOARD EXPERIENCE
-        ========================== -->
-        <article class="dash-card dash-card-accent-onboard">
-          <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="onboard" aria-hidden="true"></span>Onboard experience</h3>
-            <a href="onboard-experience.html">View all</a>
-          </div>
-          <div id="dashOnboardSnippet"></div>
-        </article>
-
-        <!-- =========================
-             SPECIALIST QUALIFICATIONS
-        ========================== -->
-        <article class="dash-card dash-card-accent-specialist">
-          <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="specialist" aria-hidden="true"></span>Specialist qualifications</h3>
-            <a href="specialist-qualifications.html">View all</a>
-          </div>
-          <div id="dashSpecialistSnippet"></div>
-        </article>
-
-        <!-- =========================
-             CERTIFICATES
-        ========================== -->
-        <article class="dash-card dash-card-accent-certificates dash-card-certs">
-          <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="certificates" aria-hidden="true"></span>Certificates</h3>
-            <a href="certificates.html">View all</a>
-          </div>
-          <div id="dashCertSnippet"></div>
-        </article>
-
-        <!-- =========================
-             REFERENCES
-        ========================== -->
-        <article class="dash-card dash-card-accent-references">
-          <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="references" aria-hidden="true"></span>References</h3>
-            <a href="references.html">View all</a>
-          </div>
-          <div id="dashRefSnippet"></div>
-        </article>
-
-        <!-- =========================
-             MILESTONES
-             Moved here from the sidebar (was sidebar-badge-panel in every
-             page's sidebar) — now dashboard-only, using the same badge grid
-             CSS/JS (id="sidebarAchievements", .sidebar-badge-grid) so no
-             rendering logic had to change, just where it mounts. Ordered
-             above Hobbies & Interests to match the sidebar's Highlights
-             group order (Milestones, then Hobbies & Interests).
-        ========================== -->
-        <article class="dash-card dash-card-accent-achievements full-row">
-          <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="achievements" aria-hidden="true"></span>Milestones</h3>
-            <a href="achievements.html">View all</a>
-          </div>
-          <p class="dashboard-card-note">What you're currently working toward — a badge shows progress made, not that the qualification is held.</p>
-          <div class="ach-next-milestone-list" id="dashNextMilestone" hidden></div>
-          <p class="ach-next-label ach-sidebar-awards-label">Seafarer Awards</p>
-          <!-- .ach-trophy-grid, not .ach-progress-list: awards render as the same
-               card as the Milestones page (2026-08-22). The in-progress list
-               above keeps its stacked rows — those are rows because they carry a
-               bar and a target, which an award does not. -->
-          <div class="ach-trophy-grid" id="sidebarAchievements"></div>
-        </article>
-
-        <!-- =========================
-             HOBBIES & INTERESTS
-        ========================== -->
-        <article class="dash-card dash-card-accent-hobbies">
-          <div class="dashboard-card-headline">
-            <h3><span class="dashboard-card-icon" data-dash-icon="hobbies" aria-hidden="true"></span>Hobbies &amp; interests</h3>
-            <a href="hobbies-interests.html">View all</a>
-          </div>
-          <div id="dashHobbiesSnippet"></div>
-        </article>
-
-      </div>
-
       </section>
 
   </article>

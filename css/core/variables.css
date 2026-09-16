@@ -40,6 +40,12 @@
   --font-value: 14px;
   --font-kpi: 22px;
 
+  /* Dashboard bento tile number (v516). Sized here rather than inline so
+     it stays with --font-kpi, the only other number on the site that
+     escapes typography.css's blanket 14px rule. Both work for the same
+     reason: their class is not named in that rule's selector list. */
+  --font-tile-num: 44px;
+
   /* Empty form fields — hint text (not filled-in values) */
   --field-hint-color: rgba(148, 163, 184, 0.55);
   --field-value-color: #ffffff;

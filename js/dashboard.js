@@ -79,6 +79,12 @@
     }
   }
 
+  // v516: the dashboard's profile detail card was removed with the bento
+  // rewrite (its fields duplicated profile.html, which the Profile
+  // completion tile links to). This now early-returns on the dashboard —
+  // kept because the same renderer is the one place profile photo display
+  // logic lives, and deleting it would orphan ensureDashboardPhotosHydrated's
+  // avatar half. Worth a follow-up tidy, not a silent deletion.
   function renderDashboardProfile() {
     const dashAvatar = document.getElementById("dashAvatar");
     const dashProfileName = document.getElementById("dashProfileName");
@@ -134,7 +140,9 @@
       }
     }
 
-    updateProfileCompletion(profile);
+    // updateProfileCompletion moved to refresh() in v516 — it used to run
+    // here, after renderDashboardProfile()'s early return, so removing the
+    // profile card would have silently stopped the completion tile updating.
   }
 
   function profileHasPhoto(profile) {
@@ -196,14 +204,13 @@
     const missing = getMissingProfileFields(profile || {});
     const isComplete = missing.length === 0;
 
-    if (isComplete) {
-      if (card) card.hidden = true;
-      if (badge) badge.hidden = false;
-      return;
-    }
-
+    // v516: the completion card is a tile in a fixed 4x4 grid now, so a
+    // complete profile can no longer hide it — that would punch a hole in
+    // the layout. It stays put and reads 100% / "Profile complete" instead.
+    // The badge (which lived on the old profile card) is kept wired for any
+    // page that still renders one.
     if (card) card.hidden = false;
-    if (badge) badge.hidden = true;
+    if (badge) badge.hidden = !isComplete;
 
     if (!fill || !percentText) return;
 
@@ -212,10 +219,11 @@
     percentText.textContent = `${percent}%`;
 
     if (missingBox) {
-      missingBox.innerHTML = `
-      <span style="opacity:0.7;">Missing:</span>
-      ${missing.map((m) => `<span class="pill">${Seav.escapeHtml(m)}</span>`).join(" ")}
-    `;
+      if (isComplete) {
+        missingBox.textContent = "Profile complete.";
+      } else {
+        missingBox.textContent = `Missing — ${missing.join(", ")}`;
+      }
     }
   }
 
@@ -232,7 +240,8 @@
       S.renderSpecialistSnippet,
       S.renderCertSnippet,
       S.renderReferenceSnippet,
-      S.renderHobbiesSnippet
+      S.renderPayslipTile,
+      S.renderMilestoneTile
     ];
 
     await Promise.all(
@@ -254,6 +263,7 @@
     await ensureDashboardPhotosHydrated();
     await updateDayTypeKpis();
     await renderDashboardProfile();
+    updateProfileCompletion(loadProfile());
     await renderDashboardSnippets();
   }
 
@@ -418,10 +428,15 @@
   }
 
   function initDashboard() {
+    // These three probes must name elements the dashboard actually renders.
+    // v516 replaced the snippet cards, the profile card and the KPI band —
+    // the old probes (dashSeatimeSnippet / dashProfileName / kpiTotalDays)
+    // all went with them, which would have left initDashboard() returning
+    // early on its own page and the tiles stuck at zero.
     const isDashboard =
-      document.getElementById("dashSeatimeSnippet") ||
-      document.getElementById("dashProfileName") ||
-      document.getElementById("kpiTotalDays");
+      document.getElementById("dashSeatimeTile") ||
+      document.getElementById("dashVesselTile") ||
+      document.querySelector(".dash-bento");
 
     if (!isDashboard) return;
 
