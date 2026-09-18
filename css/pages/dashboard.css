@@ -198,6 +198,11 @@
 .dashboard-quick-action {
   display: flex;
   align-items: center;
+  /* Centred since the icon was removed (Jack, 2026-09-18 — "the page has too
+     many icons"). With the icon gone the label was the only child, and left
+     alignment in a quarter-width button read as a missing element rather than
+     a deliberate choice. */
+  justify-content: center;
   gap: 10px;
 
   padding: 12px 14px;
@@ -215,26 +220,6 @@
   background: color-mix(in srgb, var(--qa-accent, #5bbcff) 12%, transparent);
   border-color: color-mix(in srgb, var(--qa-accent, #5bbcff) 55%, rgba(255, 255, 255, 0.1));
   transform: translateY(-1px);
-}
-
-.dashboard-quick-action-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-
-  background: color-mix(in srgb, var(--qa-accent, #5bbcff) 16%, transparent);
-  color: var(--qa-accent, #5bbcff);
-}
-
-.dashboard-quick-action-icon svg {
-  width: 18px;
-  height: 18px;
-  display: block;
 }
 
 .dashboard-quick-action-label {
