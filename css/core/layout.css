@@ -99,7 +99,7 @@
   transform: translateY(-1px);
 }
 
-.nav-right a[href]:not(.icon):not(.insta-link):not(.notif-item) {
+.nav-right a[href]:not(.icon):not(.topbar-profile):not(.notif-item) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -126,8 +126,8 @@
     transform 0.18s ease;
 }
 
-.nav-right a[href]:not(.icon):not(.insta-link):not(.notif-item):hover,
-.nav-right a[href]:not(.icon):not(.insta-link):not(.notif-item).active {
+.nav-right a[href]:not(.icon):not(.topbar-profile):not(.notif-item):hover,
+.nav-right a[href]:not(.icon):not(.topbar-profile):not(.notif-item).active {
   color: #ffffff;
   background: rgba(124, 156, 184, 0.18);
   border-color: rgba(124, 156, 184, 0.42);
@@ -154,8 +154,7 @@
    TOPBAR ICONS
 ========================================================= */
 
-.topbar .icon,
-.insta-link {
+.topbar .icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -168,9 +167,7 @@
 }
 
 .app-topbar .icon,
-.app-topbar .insta-link,
-.public-topbar .icon,
-.public-topbar .insta-link {
+.public-topbar .icon {
   width: auto;
   height: auto;
   min-width: 0;
@@ -180,25 +177,6 @@
   width: 26px;
   height: 26px;
   display: block;
-}
-
-.insta-link {
-  opacity: 0.9;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.insta-link:hover {
-  opacity: 1;
-  transform: scale(1.08);
-}
-
-.topbar .insta-link svg {
-  color: #d1235d;
-  fill: currentColor;
-}
-
-.topbar .insta-link:hover svg {
-  color: #f10252;
 }
 
 /* =========================================================

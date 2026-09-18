@@ -1,0 +1,53 @@
+-- =============================================================================
+-- SEA-V -- Restore anon SELECT on the three sea_references columns the public
+--          profile has been asking for since 2026-08-01.
+-- =============================================================================
+--
+-- THE BUG
+-- -------
+-- js/api.js PUBLIC_ARRAY_COLUMNS.sea_references requests 17 columns. Three of
+-- them -- period_from, period_to, doc_type -- were never granted to anon:
+--
+--   * doc_type was added by docs/schema-sea-references-doc-type.sql
+--     (applied 2026-08-01) as a bare `alter table ... add column`, with no
+--     matching column-scoped grant.
+--   * period_from / period_to have no migration file at all and were never
+--     granted either.
+--
+-- anon's SELECT on every table is COLUMN-SCOPED (see CLAUDE.md). PostgREST
+-- plans the whole select list up front, so ONE ungranted column fails the
+-- ENTIRE query with 42501 -- it does not silently drop that column. The
+-- public profile therefore got zero reference rows, not partial ones.
+--
+-- Worse, it failed silently: fetchSupabaseArray() only dispatches the
+-- "seav:fetch-error" event when `options.public` is false (js/api.js:178).
+-- On the public profile it console.error()s and returns [], so the
+-- References section rendered empty with no visible error.
+--
+-- Live blast radius at time of fix: 7 public profiles, 5 verified references
+-- that should have been visible and were not.
+--
+-- WHY THESE THREE ARE SAFE TO EXPOSE
+-- ----------------------------------
+--   period_from / period_to -- the machine-readable halves of `period`, which
+--     is ALREADY granted to anon and renders on the public profile as free
+--     text ("Jan 2023 - Mar 2024"). No new information, just parseable.
+--   doc_type -- 'reference' | 'sea_service_testimonial'. A label describing
+--     which kind of document this is; the public profile needs it to title the
+--     card correctly. Carries no personal data.
+--
+-- Deliberately still NOT granted on this table, and unchanged here:
+--   email, message_to_referee, verification (raw -- holds the referee's real
+--   CoC number; verification_public is the redacted generated column).
+--
+-- Applied to the live project 2026-09-18 via migration
+-- `grant_anon_sea_references_period_doc_type`, and smoke-tested in the same
+-- session: has_column_privilege now true for all 17 public columns; the anon
+-- select returns the 5 verified rows; the ungranted columns above still fail
+-- for anon; get_advisors (security) reported no new findings.
+--
+-- Safe to re-run.
+-- =============================================================================
+
+grant select (period_from, period_to, doc_type)
+  on table public.sea_references to anon;

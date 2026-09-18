@@ -77,19 +77,73 @@
   gap: 12px;
 }
 
-.app-topbar .icon.insta-link {
+/* --- Profile chip --------------------------------------------------------
+   Replaced the Instagram link (Jack, 2026-09-18). The avatar keeps the exact
+   44px circle the Instagram icon occupied so the bar's right cluster does not
+   reflow; the position sits to its left, reading inward toward the logo.
+
+   The position is a field VALUE (the crew member's rank), not a label, so it
+   is white per .cursor/rules/field-label-typography.mdc — not blue, and not a
+   page accent. 14px matches .nav-left a, so both sides of the bar sit on one
+   scale. */
+
+.app-topbar .topbar-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.app-topbar .topbar-profile-position {
+  /* Ellipsis rather than wrap: the topbar is a fixed-height grid row, so a
+     two-line rank ("Chief Officer / Relief Captain") would grow the bar on
+     every page at once. */
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-value);
+  font-weight: var(--font-weight-body);
+  color: var(--seav-field-value-color);
+}
+
+.app-topbar .topbar-profile-avatar {
   width: 44px;
   height: 44px;
   min-width: 44px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
+  background-color: var(--seav-topbar-avatar-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #ffffff;
+  font-size: var(--font-value);
+  font-weight: var(--font-weight-title);
+  letter-spacing: 0.02em;
+  line-height: 1;
 }
 
-.app-topbar .icon.insta-link svg {
-  width: 22px;
-  height: 22px;
+/* With a photo the solid fill would show as a coloured rim wherever the
+   image does not cover, so drop it in that state only. */
+.app-topbar .topbar-profile-avatar.has-photo {
+  background-color: transparent;
 }
+
+.app-topbar .topbar-profile:hover .topbar-profile-avatar {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* No mobile rule here on purpose: css/core/layout.css's "HIDE APP TOPBAR
+   MOBILE" block already does `body[data-topbar="app"] .topbar { display: none }`
+   below 1000px, so the whole bar — chip included — is gone long before any
+   narrow-screen tuning could matter. A max-width media query on the chip would
+   be dead code. Verified 2026-09-18. */
 
 .public-topbar .login {
   min-height: 42px;

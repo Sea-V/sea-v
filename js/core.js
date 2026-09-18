@@ -393,16 +393,14 @@ const app = {
             </div>
 
             <a
-              class="icon insta-link"
-              href="https://instagram.com/seav_crew"
-              target="_blank"
-              rel="noopener"
-              aria-label="Instagram"
-              title="Instagram"
+              class="topbar-profile"
+              id="topbarProfileLink"
+              href="profile.html"
+              aria-label="Your profile"
+              title="Your profile"
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path fill="currentColor" d="M7.75 2C4.57 2 2 4.57 2 7.75v8.5C2 19.43 4.57 22 7.75 22h8.5C19.43 22 22 19.43 22 16.25v-8.5C22 4.57 19.43 2 16.25 2zm0 1.5h8.5c2.35 0 4.25 1.9 4.25 4.25v8.5c0 2.35-1.9 4.25-4.25 4.25h-8.5A4.25 4.25 0 0 1 3.5 16.25v-8.5C3.5 5.4 5.4 3.5 7.75 3.5M17.5 6.25a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10m0 1.5A3.5 3.5 0 1 1 8.5 12 3.5 3.5 0 0 1 12 8.5"/>
-              </svg>
+              <span class="topbar-profile-position" id="topbarProfilePosition" hidden></span>
+              <span class="topbar-profile-avatar" id="topbarProfileAvatar" aria-hidden="true"></span>
             </a>
           </div>
         </div>
@@ -793,6 +791,7 @@ function renderSidebarAchievements() {
         topbarMount.innerHTML = renderPublicTopbar(topbarActive);
       } else if (topbarType === "app") {
         topbarMount.innerHTML = renderAppTopbar();
+        wireTopbarProfile();
       }
     }
 
@@ -916,6 +915,71 @@ function renderSidebarAchievements() {
 
   function resolvePublicProfileUrl() {
     return buildPublicProfileUrl(window.SeavState?.profile);
+  }
+
+  /* Topbar profile chip — replaced the Instagram link (Jack, 2026-09-18).
+     Reads window.SeavState.profile, the same source wireSidebarPublicProfile
+     uses, so the topbar needs no data access of its own.
+
+     Re-renders on BOTH events, and both matter:
+       * seav:state-ready  — profile row arrives, so the position can render.
+       * seav:data-updated — profile.photo starts life as a bare storage path
+         and only becomes a signed URL after js/state.js's background file
+         hydration, which dispatches this. Without it the chip would sit on
+         the initials fallback for the whole session even for a crew member
+         who has uploaded a photo.
+
+     Falls back to initials in the same style as #refsList .ref-card-avatar.
+     Position is profile.rank, hidden entirely when unset — an em dash is
+     right in a data card but wrong in the chrome. */
+  function topbarProfileInitials(name) {
+    const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
+    }
+    return (parts[0]?.charAt(0) || "?").toUpperCase();
+  }
+
+  function wireTopbarProfile() {
+    const link = document.getElementById("topbarProfileLink");
+    const avatar = document.getElementById("topbarProfileAvatar");
+    const position = document.getElementById("topbarProfilePosition");
+    if (!link || !avatar || !position) return;
+
+    const update = () => {
+      const profile = window.SeavState?.profile || {};
+
+      const rank = String(profile.rank || "").trim();
+      position.textContent = rank;
+      position.hidden = !rank;
+
+      const name = String(profile.name || "").trim();
+      const label = name ? `${name} — your profile` : "Your profile";
+      link.title = label;
+      link.setAttribute("aria-label", label);
+
+      const photoUrl = getFileDisplayUrl(
+        profile.photo,
+        window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
+      );
+
+      if (photoUrl) {
+        // Same escaping as js/dashboard.js's dashAvatar — a signed URL can
+        // carry characters that would otherwise break out of the url("").
+        const safeUrl = String(photoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+        avatar.style.backgroundImage = `url("${safeUrl}")`;
+        avatar.textContent = "";
+        avatar.classList.add("has-photo");
+      } else {
+        avatar.style.backgroundImage = "";
+        avatar.textContent = topbarProfileInitials(name);
+        avatar.classList.remove("has-photo");
+      }
+    };
+
+    update();
+    document.addEventListener("seav:state-ready", update);
+    document.addEventListener("seav:data-updated", update);
   }
 
   function wireSidebarPublicProfile() {

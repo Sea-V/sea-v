@@ -50,7 +50,8 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
   vessels: [
     "id", "user_id", "name", "flag", "gt", "vessel_length", "builder", "vessel_role",
     "vessel_type", "contract_type", "program", "experience_onboard", "date_from", "date_to", "photo",
-    "created_at", "updated_at"
+    "imo", "mmsi", "official_number", "call_sign", "year_built", "net_tonnage", "engine_kw",
+    "classification_society", "additional_duties", "created_at", "updated_at"
   ].join(","),
   seatimes: [
     "id", "user_id", "vessel_id", "flag", "gt", "capacity_served", "date_joined",
@@ -61,9 +62,18 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
     "id", "user_id", "code", "name", "issue_date", "expiry_date", "status",
     "is_mandatory", "is_template", "created_at", "updated_at"
   ].join(","),
+  // Kept in lockstep with PUBLIC_ARRAY_COLUMNS.sea_references in js/api.js --
+  // testPublicColumnDrift() below fails the run if the two ever diverge again.
+  // This list previously named the RAW "verification" column (the referee's
+  // real CoC number, which api.js deliberately never requests publicly) and
+  // omitted period_from/period_to/doc_type, so it probed a column set the app
+  // does not use -- which is how the missing anon grants on those three went
+  // unnoticed from 2026-08-01 to 2026-09-18. See
+  // docs/schema-sea-references-public-column-grants.sql.
   sea_references: [
-    "id", "user_id", "name", "title", "vessel_id", "role", "period", "reference_text",
-    "reference_date", "status", "attachment", "verification", "created_at", "updated_at"
+    "id", "user_id", "name", "title", "vessel_id", "role", "period", "period_from",
+    "period_to", "reference_text", "reference_date", "status", "attachment",
+    "verification_public", "doc_type", "created_at", "updated_at"
   ].join(","),
   achievements: [
     "id", "user_id", "code", "title", "category", "dashboard_section", "badge_key",
@@ -75,10 +85,10 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
     "id", "user_id", "country", "port", "from_country", "from_port", "from_lat",
     "from_lng", "to_country", "to_port", "to_lat", "to_lng", "vessel_id", "seatime_id",
     "operation_type", "passage_name", "visited_date", "departure_date", "arrival_date",
-    "lat", "lng", "waypoints", "note", "created_at", "updated_at"
+    "lat", "lng", "waypoints", "note", "is_tidal", "created_at", "updated_at"
   ].join(","),
   onboard_experiences: [
-    "id", "user_id", "vessel_id", "category", "title", "description", "location_onboard",
+    "id", "user_id", "vessel_id", "category", "title", "description", "location_onboard", "position_held",
     "date_from", "date_to", "hours", "is_familiarisation", "status",
     "attachment", "created_at", "updated_at"
   ].join(","),
@@ -374,6 +384,149 @@ async function testVesselColumns(config) {
   return ok;
 }
 
+// sea_references carries three columns anon must never read: email and
+// message_to_referee (the referee's contact details) and "verification" -- the
+// raw sign-off blob holding the referee's real CoC number. The public profile
+// reads the redacted generated column verification_public instead. The public
+// set is equally load-bearing: PostgREST plans the whole select list up front,
+// so ONE ungranted column 42501s the ENTIRE query and the References section
+// renders empty. Added 2026-09-18 after exactly that happened.
+const PUBLIC_REFERENCE_SENSITIVE_COLUMNS = ["email", "message_to_referee", "verification"];
+
+async function testReferenceColumns(config) {
+  console.log(`\nReference column probe:`);
+
+  const safeProbe = await restGet(
+    config,
+    "sea_references",
+    `select=${PUBLIC_TABLE_SAFE_COLUMNS.sea_references}&limit=1`
+  );
+
+  let ok = safeProbe.ok || safeProbe.status === 401;
+  if (safeProbe.ok) {
+    console.log(`✓ public columns readable  ${safeProbe.status}  OK — includes period_from/period_to/doc_type`);
+  } else if (safeProbe.status === 401) {
+    console.log(`✓ public columns  401  OK — no public rows readable under current RLS`);
+  } else {
+    console.log(
+      `✗ public column probe  ${safeProbe.status}  ${JSON.stringify(safeProbe.body).slice(0, 160)}`
+    );
+    console.log("→ A column in PUBLIC_ARRAY_COLUMNS.sea_references is missing its anon grant.");
+    console.log("→ Fix: grant select (<column>) on table public.sea_references to anon;");
+  }
+
+  for (const column of PUBLIC_REFERENCE_SENSITIVE_COLUMNS) {
+    const probe = await restGet(config, "sea_references", `select=${column}&limit=1`);
+    const blocked = probe.status === 401 || probe.status === 403;
+    if (blocked) {
+      console.log(`✓ ${column} blocked  ${probe.status}  OK — private column denied to anon`);
+    } else {
+      console.log(`✗ ${column} readable  ${probe.status}  FAIL — revoke the anon grant on sea_references.${column}`);
+      ok = false;
+    }
+  }
+
+  return ok;
+}
+
+// certificates was hardened to column-scoped anon SELECT in
+// docs/schema-phase2-public-hardening.sql, then silently un-hardened by a
+// blanket `grant select on table public.certificates to anon` in
+// docs/schema-certificates-issuer-provider.sql:22. That left the certificate
+// scan path (attachment) and the CoC/STCW document number readable by anyone
+// holding the publishable anon key -- 39 attachments and 49 certificate
+// numbers across 53 rows by the time it was caught on 2026-09-18. Re-closed by
+// docs/schema-certificates-anon-column-hardening.sql; asserted here every run
+// so a future blanket grant fails the suite instead of going unnoticed.
+const PUBLIC_CERTIFICATE_SENSITIVE_COLUMNS = [
+  "attachment",
+  "certificate_number",
+  "issuing_authority",
+  "training_provider",
+  "show_on_cv"
+];
+
+async function testCertificateColumns(config) {
+  console.log(`\nCertificate column probe:`);
+
+  const safeProbe = await restGet(
+    config,
+    "certificates",
+    `select=${PUBLIC_TABLE_SAFE_COLUMNS.certificates}&limit=1`
+  );
+
+  let ok = safeProbe.ok || safeProbe.status === 401;
+  if (safeProbe.ok) {
+    console.log(`✓ public columns readable  ${safeProbe.status}  OK`);
+  } else if (safeProbe.status === 401) {
+    console.log(`✓ public columns  401  OK — no public rows readable under current RLS`);
+  } else {
+    console.log(
+      `✗ public column probe  ${safeProbe.status}  ${JSON.stringify(safeProbe.body).slice(0, 160)}`
+    );
+    console.log("→ A column in PUBLIC_ARRAY_COLUMNS.certificates is missing its anon grant.");
+  }
+
+  for (const column of PUBLIC_CERTIFICATE_SENSITIVE_COLUMNS) {
+    const probe = await restGet(config, "certificates", `select=${column}&limit=1`);
+    const blocked = probe.status === 401 || probe.status === 403;
+    if (blocked) {
+      console.log(`✓ ${column} blocked  ${probe.status}  OK — private column denied to anon`);
+    } else {
+      console.log(`✗ ${column} readable  ${probe.status}  FAIL — anon can read certificates.${column}`);
+      console.log("→ Re-run docs/schema-certificates-anon-column-hardening.sql.");
+      ok = false;
+    }
+  }
+
+  return ok;
+}
+
+// The probes above can only test the column lists THIS file declares. If those
+// drift from PUBLIC_ARRAY_COLUMNS in js/api.js -- what the app actually asks
+// anon for -- the probes pass while the real page 42501s. That is precisely the
+// 2026-08-01 sea_references regression. This check needs no network: it parses
+// js/api.js and asserts the two agree, exactly, for every shared table.
+function testPublicColumnDrift() {
+  console.log(`\nPublic column drift check (js/api.js vs this harness):`);
+
+  const apiSrc = fs.readFileSync(path.join(__dirname, "../js/api.js"), "utf8");
+  const start = apiSrc.indexOf("const PUBLIC_ARRAY_COLUMNS");
+  const end = apiSrc.indexOf("async function fetchSupabaseArray");
+  if (start === -1 || end === -1) {
+    console.log("✗ could not locate PUBLIC_ARRAY_COLUMNS in js/api.js — check the parser above");
+    return false;
+  }
+
+  const block = apiSrc.slice(start, end).replace(/\/\/.*/g, "");
+  const apiColumns = {};
+  for (const match of block.matchAll(/(\w+):\s*\[([\s\S]*?)\]\.join/g)) {
+    apiColumns[match[1]] = [...match[2].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  }
+
+  let ok = true;
+  for (const [table, apiCols] of Object.entries(apiColumns)) {
+    const local = PUBLIC_TABLE_SAFE_COLUMNS[table];
+    if (!local) continue;
+    const localCols = local.split(",");
+    const missingHere = apiCols.filter((c) => !localCols.includes(c));
+    const extraHere = localCols.filter((c) => !apiCols.includes(c));
+    if (missingHere.length || extraHere.length) {
+      ok = false;
+      console.log(`✗ ${table} drifted`);
+      if (missingHere.length) console.log(`    api.js has, harness missing: ${missingHere.join(", ")}`);
+      if (extraHere.length) console.log(`    harness has, api.js missing:  ${extraHere.join(", ")}`);
+    } else {
+      console.log(`✓ ${table}  ${apiCols.length} columns match`);
+    }
+  }
+
+  if (!ok) {
+    console.log("→ Sync PUBLIC_TABLE_SAFE_COLUMNS here with PUBLIC_ARRAY_COLUMNS in js/api.js.");
+  }
+  return ok;
+}
+
 async function testStorageUploads(config) {
   const storageProbe = await storageUpload(
     config,
@@ -433,6 +586,9 @@ async function main() {
   let payslipWriteBlocked = true;
   let columnSafe = false;
   let vesselColumnsSafe = false;
+  let referenceColumnsSafe = false;
+  let certificateColumnsSafe = false;
+  let columnDriftSafe = false;
   let storageBlocked = false;
 
   if (step === "0" || step === "all") {
@@ -445,6 +601,9 @@ async function main() {
     if (step === "1") console.log("(Skipping table scan — run with --step 0 or --step all for full scan)\n");
     columnSafe = await testProfileColumns(config);
     vesselColumnsSafe = await testVesselColumns(config);
+    referenceColumnsSafe = await testReferenceColumns(config);
+    certificateColumnsSafe = await testCertificateColumns(config);
+    columnDriftSafe = testPublicColumnDrift();
   }
 
   if (step === "2") {
@@ -471,9 +630,17 @@ async function main() {
     console.log(payslipWriteBlocked ? "Payslip writes blocked (good)." : "Payslip writes NOT blocked — run schema-phase2.sql");
     console.log("Next: run docs/hardening-steps/step1-profile-columns.sql in Supabase, then --step 1");
   } else if (step === "1") {
-    passed = columnSafe && vesselColumnsSafe;
+    passed =
+      columnSafe &&
+      vesselColumnsSafe &&
+      referenceColumnsSafe &&
+      certificateColumnsSafe &&
+      columnDriftSafe;
     console.log(columnSafe ? "Step 1 passed." : "Step 1 not passed yet — run step1-profile-columns.sql");
     console.log(vesselColumnsSafe ? "Vessel columns safe." : "Vessel column grants wrong — see probe above.");
+    console.log(referenceColumnsSafe ? "Reference columns safe." : "Reference column grants wrong — see probe above.");
+    console.log(certificateColumnsSafe ? "Certificate columns safe." : "Certificate column grants wrong — see probe above.");
+    console.log(columnDriftSafe ? "Public column lists in sync with js/api.js." : "Public column lists drifted from js/api.js.");
     console.log("Next: run docs/hardening-steps/step2-status-rls.sql, then --step 2");
   } else if (step === "2") {
     passed = true;
@@ -493,7 +660,10 @@ async function main() {
     payslipWriteBlocked &&
     storageBlocked &&
     columnSafe &&
-    vesselColumnsSafe
+    vesselColumnsSafe &&
+    referenceColumnsSafe &&
+    certificateColumnsSafe &&
+    columnDriftSafe
   ) {
     passed = true;
     console.log("All Phase 2 security checks passed.");
@@ -513,6 +683,12 @@ async function main() {
     }
     if (!columnSafe) {
       console.log("→ Run docs/hardening-steps/step1-profile-columns.sql");
+    }
+    if (!referenceColumnsSafe) {
+      console.log("→ Run docs/schema-sea-references-public-column-grants.sql");
+    }
+    if (!certificateColumnsSafe) {
+      console.log("→ Run docs/schema-certificates-anon-column-hardening.sql");
     }
   }
   console.log("");

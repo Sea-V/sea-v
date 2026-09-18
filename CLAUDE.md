@@ -55,10 +55,29 @@ profile; collect verified references from past employers.
   to the public profile until `grant select (col) on <table> to anon` runs, and
   it must also be added to `PUBLIC_ARRAY_COLUMNS` in `js/api.js`. Deliberately
   ungranted today: `vessels.salary`, `vessels.leave_package`,
-  `certificates.attachment`, and the sensitive `profile` fields.
-- **`scripts/test-supabase.mjs` cannot run from this sandbox or the device** —
-  neither has network egress to `*.supabase.co`. Use the Supabase MCP for live
-  checks; Jack runs the script itself from Cursor.
+  `certificates.attachment`, `certificates.certificate_number`,
+  `certificates.issuing_authority`, `certificates.training_provider`,
+  `certificates.show_on_cv`, `sea_references.email`,
+  `sea_references.message_to_referee`, `sea_references.verification` (raw —
+  the public profile reads the redacted `verification_public` instead), and
+  the sensitive `profile` fields.
+- **The reverse trap bites just as hard: PostgREST plans the whole select list
+  up front, so ONE ungranted column fails the ENTIRE query with 42501** — it
+  does not silently drop that column. And `fetchSupabaseArray` only dispatches
+  `seav:fetch-error` when `options.public` is false, so on the public profile
+  the section just renders empty. `sea_references` lost its entire References
+  section this way from 2026-08-01 to 2026-09-18. `testPublicColumnDrift()` in
+  `scripts/test-supabase.mjs` now fails the suite if `PUBLIC_TABLE_SAFE_COLUMNS`
+  there ever drifts from `PUBLIC_ARRAY_COLUMNS` in `js/api.js` again.
+- **`scripts/test-supabase.mjs` cannot be *executed* from this sandbox —
+  `node` is not on PATH** (nor is `npm`, so `npm run lint` cannot run either).
+  Jack runs both from Cursor. **The network, however, is NOT the blocker:
+  corrected 2026-09-18 — the sandbox DOES have egress to `*.supabase.co`.**
+  Plain `curl` against `/rest/v1/...` with the anon key from `js/supabase.js`
+  works, and it is the highest-fidelity check available: it exercises the real
+  PostgREST path including column-scoped grants, which a Supabase MCP
+  `execute_sql` (run as a superuser) does NOT. Use curl-as-anon to verify
+  anything public-facing; use the MCP for schema, policies and advisors.
 - **Line endings are mixed across the repo — 77 tracked files are CRLF**
   (`js/vessels.js`, `js/supabase.js`, `js/auth.js`, `js/tenders.js`,
   `js/navigation-*.js`, `js/seav-config.js`, most of `docs/*.sql`,
@@ -123,8 +142,8 @@ thing most easily broken by an agent that starts editing without looking.
 `.dash-card` inside a page shell needs its padding overridden or it sits
 10px out of line.
 
-## Current state (end of 2026-08-16)
-- HEAD = **v494**, working tree clean. Jack pushes every commit himself from
+## Current state (2026-09-18)
+- HEAD = **v523**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -153,17 +172,32 @@ thing most easily broken by an agent that starts editing without looking.
   `--page-achievements`; Deck Progression collapsible with an Engineering
   "Coming Soon" section.
 
+### Shipped 2026-09-18 (v523)
+- Public References restored: granted anon `period_from`, `period_to`, `doc_type`
+  on `sea_references`. Five verified references across seven public profiles
+  had been invisible since 2026-08-01.
+- Certificates re-hardened to the 11 public columns; attachment / certificate
+  number / issuer / provider / show_on_cv revoked from anon.
+- `scripts/test-supabase.mjs` now probes those grants and fails on drift from
+  `PUBLIC_ARRAY_COLUMNS` in `js/api.js`. Still needs one real
+  `node scripts/test-supabase.mjs --step all` run from Cursor.
+- Topbar Instagram link replaced with a profile chip (photo or initials + rank).
+- Edge function diagnostic logging removed (never live; matches deployed v5).
+
 ## Open threads
 1. **Rotate the Resend API key** ("SEA-V Supabase SMTP") — the full key was
    visible in a chat screenshot. Shared: regenerate, then update in BOTH
    Supabase Auth SMTP settings AND Edge Functions → Secrets. Highest priority.
-2. **`certificates.attachment` is readable by `anon`** — verified still live
-   2026-08-16. `docs/schema-certificates-issuer-provider.sql:22` issued a
-   blanket grant that undid the earlier column-scoped hardening. Oldest open
-   exposure; fix is one migration.
-3. Remove the obsolete diagnostic logging from
-   `supabase/functions/reference-verification/index.ts` (`1afa3c4`) — logs
-   `refereeEmail` in plain text. Never deployed; code tidy-up only.
+2. ~~`certificates.attachment` is readable by `anon`~~ — **CLOSED 2026-09-18.**
+   `docs/schema-certificates-anon-column-hardening.sql`, applied as
+   `revoke_anon_certificates_private_columns`. Exposure at time of fix: 53 cert
+   rows on public profiles, 39 with an `attachment` path and 49 with a
+   `certificate_number`. Re-scoped anon to the 11 columns `js/api.js` actually
+   requests; no UI change (the public profile never linked the file).
+3. ~~Remove the obsolete diagnostic logging from the edge function~~ —
+   **CLOSED 2026-09-18.** All four `console.log` calls removed from
+   `supabase/functions/reference-verification/index.ts`, which now matches the
+   deployed v5 byte for byte. No redeploy needed — the logging was never live.
 4. **`chief_mate_3000gt_eligible` is labelled "Eligible"** while its trigger
    checks sea time only. Now visible on screen since the prerequisite rows
    render beneath it. Either narrow the label or move to Phase 2.
