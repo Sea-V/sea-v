@@ -468,43 +468,13 @@
   min-height: auto;
 }
 
-.dashboard-profile-complete-badge {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 2;
-
-  width: 30px;
-  height: 30px;
-
-  display: grid;
-  place-items: center;
-
-  border-radius: 50%;
-  border: 1px solid rgba(94, 230, 168, 0.32);
-
-  /* Solid fill, not a radial-gradient glow — Jack wants solid colors
-     site-wide 2026-08-03, no corner glow. */
-  background: rgba(18, 42, 34, 0.72);
-
-  box-shadow:
-    0 0 0 3px rgba(94, 230, 168, 0.07),
-    0 6px 16px rgba(0, 0, 0, 0.22);
-
-  color: #72e4b8;
-
-  pointer-events: none;
-}
-
-.dashboard-profile-complete-badge svg {
-  width: 14px;
-  height: 14px;
-  display: block;
-}
-
-.dash-profile:has(.dashboard-profile-complete-badge:not([hidden])) {
-  border-color: rgba(91, 188, 255, 0.24);
-}
+/* The pre-v516 badge rules lived here: position:absolute, top/right 16px, a
+   30px circle, plus a .dash-profile:has() border tint. They pinned the tick to
+   the corner of the profile CARD, which v516 deleted — so from v521 the tick
+   escaped its heading and parked itself in the top-right of the shell instead.
+   .dash-profile no longer exists anywhere in the markup. Removed in v522; the
+   tick is styled with the rest of the strip at the end of this file, and the
+   circle is drawn by the SVG itself. */
 
 .dash-kpis {
   display: flex;

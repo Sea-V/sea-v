@@ -509,33 +509,47 @@
   // Issuing authority / training provider dropdowns — same "pick from a
   // curated list, or type it yourself" shape as ct_type/ct_name above, just
   // both optional (see js/seav-cert-issuers.js for the lists + why).
-  const CertIssuers = window.SeavCertIssuers || { OTHER: "Other", ISSUING_AUTHORITIES: [], TRAINING_PROVIDERS: [] };
+  // Resolved on every call, not captured at module load.
+  //
+  // js/seav-cert-issuers.js is loaded by certificates.html, but this module is
+  // ALSO lazy-loaded by the dashboard's "Upload certificate" quick action. When
+  // it was captured here at load time, the dashboard — which does not ship that
+  // file — froze both lists to empty for the life of the page, so the Issuing
+  // authority and Training provider dropdowns rendered with no options and no
+  // "Other". Reading it late means a missing dependency degrades to empty lists
+  // for one call instead of permanently. (The dashboard now loads the file too;
+  // this is the belt to that braces.)
+  const CERT_ISSUERS_FALLBACK = { OTHER: "Other", ISSUING_AUTHORITIES: [], TRAINING_PROVIDERS: [] };
+
+  function certIssuers() {
+    return window.SeavCertIssuers || CERT_ISSUERS_FALLBACK;
+  }
 
   function fillIssuerSelects(currentAuthority = "", currentProvider = "") {
     const authoritySelect = document.getElementById("ct_authority");
     const providerSelect = document.getElementById("ct_provider");
 
     if (authoritySelect) {
-      const knownAuthority = CertIssuers.ISSUING_AUTHORITIES.includes(currentAuthority);
+      const knownAuthority = certIssuers().ISSUING_AUTHORITIES.includes(currentAuthority);
       authoritySelect.innerHTML =
         `<option value="">Not applicable / not listed</option>` +
-        CertIssuers.ISSUING_AUTHORITIES
+        certIssuers().ISSUING_AUTHORITIES
           .map((name) => `<option value="${Seav.escapeHtml(name)}"${name === currentAuthority ? " selected" : ""}>${Seav.escapeHtml(name)}</option>`)
           .join("");
       if (currentAuthority && !knownAuthority) {
-        authoritySelect.value = CertIssuers.OTHER;
+        authoritySelect.value = certIssuers().OTHER;
       }
     }
 
     if (providerSelect) {
-      const knownProvider = CertIssuers.TRAINING_PROVIDERS.includes(currentProvider);
+      const knownProvider = certIssuers().TRAINING_PROVIDERS.includes(currentProvider);
       providerSelect.innerHTML =
         `<option value="">Not applicable / not listed</option>` +
-        CertIssuers.TRAINING_PROVIDERS
+        certIssuers().TRAINING_PROVIDERS
           .map((name) => `<option value="${Seav.escapeHtml(name)}"${name === currentProvider ? " selected" : ""}>${Seav.escapeHtml(name)}</option>`)
           .join("");
       if (currentProvider && !knownProvider) {
-        providerSelect.value = CertIssuers.OTHER;
+        providerSelect.value = certIssuers().OTHER;
       }
     }
 
@@ -547,10 +561,10 @@
     const select = document.getElementById("ct_authority");
     const otherWrap = document.getElementById("ct_authority_other_wrap");
     const otherInput = document.getElementById("ct_authority_other");
-    const isOther = select?.value === CertIssuers.OTHER;
+    const isOther = select?.value === certIssuers().OTHER;
 
     if (otherWrap) otherWrap.hidden = !isOther;
-    if (otherInput && isOther && presetOtherValue && presetOtherValue !== CertIssuers.OTHER) {
+    if (otherInput && isOther && presetOtherValue && presetOtherValue !== certIssuers().OTHER) {
       otherInput.value = presetOtherValue;
     } else if (otherInput && !isOther) {
       otherInput.value = "";
@@ -561,10 +575,10 @@
     const select = document.getElementById("ct_provider");
     const otherWrap = document.getElementById("ct_provider_other_wrap");
     const otherInput = document.getElementById("ct_provider_other");
-    const isOther = select?.value === CertIssuers.OTHER;
+    const isOther = select?.value === certIssuers().OTHER;
 
     if (otherWrap) otherWrap.hidden = !isOther;
-    if (otherInput && isOther && presetOtherValue && presetOtherValue !== CertIssuers.OTHER) {
+    if (otherInput && isOther && presetOtherValue && presetOtherValue !== certIssuers().OTHER) {
       otherInput.value = presetOtherValue;
     } else if (otherInput && !isOther) {
       otherInput.value = "";
@@ -578,8 +592,8 @@
     const providerOther = document.getElementById("ct_provider_other")?.value.trim() || "";
 
     return {
-      issuingAuthority: authoritySelect === CertIssuers.OTHER ? authorityOther : authoritySelect,
-      trainingProvider: providerSelect === CertIssuers.OTHER ? providerOther : providerSelect
+      issuingAuthority: authoritySelect === certIssuers().OTHER ? authorityOther : authoritySelect,
+      trainingProvider: providerSelect === certIssuers().OTHER ? providerOther : providerSelect
     };
   }
 

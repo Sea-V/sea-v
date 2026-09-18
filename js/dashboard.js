@@ -317,6 +317,10 @@
       pageUrl: "certificates.html",
       modalId: "certModal",
       scriptSrc: "js/certificates.js",
+      // certificates.js reads window.SeavCertIssuers for the Issuing authority
+      // and Training provider lists. certificates.html ships that file; the
+      // dashboard did not, so both dropdowns opened empty here (v522).
+      deps: ["js/seav-cert-issuers.js"],
       globalName: "SeavCertificates",
       initFn: "init",
       openFn: "openAddModal"
@@ -370,16 +374,31 @@
         });
       }
 
-      if (!window[config.globalName]) {
-        const version = window.SeavConfig?.ASSET_VERSION || "";
-        await new Promise((resolve, reject) => {
+      const version = window.SeavConfig?.ASSET_VERSION || "";
+
+      // A lifted modal needs the same modules its own page loads, not just the
+      // one that defines its API. Anything a page lists before its module and
+      // the dashboard does not ship belongs in `deps`.
+      function loadScriptOnce(src) {
+        if (document.querySelector(`script[data-quick-action-dep="${src}"]`)) {
+          return Promise.resolve();
+        }
+        return new Promise((resolve, reject) => {
           const script = document.createElement("script");
-          script.src = `${config.scriptSrc}?v=${version}`;
+          script.src = `${src}?v=${version}`;
           script.defer = true;
+          script.dataset.quickActionDep = src;
           script.onload = resolve;
-          script.onerror = () => reject(new Error(`Failed to load ${config.scriptSrc}`));
+          script.onerror = () => reject(new Error(`Failed to load ${src}`));
           document.head.appendChild(script);
         });
+      }
+
+      if (!window[config.globalName]) {
+        for (const dep of config.deps || []) {
+          await loadScriptOnce(dep);
+        }
+        await loadScriptOnce(config.scriptSrc);
       }
 
       const api = window[config.globalName];
