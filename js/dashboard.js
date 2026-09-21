@@ -79,72 +79,6 @@
     }
   }
 
-  // v516: the dashboard's profile detail card was removed with the bento
-  // rewrite (its fields duplicated profile.html, which the Profile
-  // completion tile links to). This now early-returns on the dashboard —
-  // kept because the same renderer is the one place profile photo display
-  // logic lives, and deleting it would orphan ensureDashboardPhotosHydrated's
-  // avatar half. Worth a follow-up tidy, not a silent deletion.
-  function renderDashboardProfile() {
-    const dashAvatar = document.getElementById("dashAvatar");
-    const dashProfileName = document.getElementById("dashProfileName");
-    const dashProfileRank = document.getElementById("dashProfileRank");
-    const dashProfileQualification = document.getElementById("dashProfileQualification");
-    const dashProfileNationality = document.getElementById("dashProfileNationality");
-    const dashProfileDob = document.getElementById("dashProfileDob");
-    const dashProfileLocation = document.getElementById("dashProfileLocation");
-    const dashProfileEmail = document.getElementById("dashProfileEmail");
-    const dashProfilePhone = document.getElementById("dashProfilePhone");
-    const dashProfileBio = document.getElementById("dashProfileBio");
-    const dashProfilePassportsHeld = document.getElementById("dashProfilePassportsHeld");
-    const dashProfileVisasHeld = document.getElementById("dashProfileVisasHeld");
-    const dashProfileAvailability = document.getElementById("dashProfileAvailability");
-
-    if (!dashProfileName && !dashAvatar) return;
-
-    const profile = loadProfile();
-
-    function formatDob(value) {
-      if (!value || !value.includes("-")) return "—";
-      const parts = value.split("-");
-      return parts[2] + "/" + parts[1] + "/" + parts[0];
-    }
-
-    if (dashProfileName) dashProfileName.textContent = profile.name || "Demo User";
-    if (dashProfileRank) dashProfileRank.textContent = profile.rank || "—";
-    if (dashProfileQualification) dashProfileQualification.textContent = profile.qualification || "—";
-    if (dashProfileNationality) dashProfileNationality.textContent = profile.nationality || "—";
-    if (dashProfileDob) dashProfileDob.textContent = formatDob(profile.dob);
-    if (dashProfileLocation) dashProfileLocation.textContent = profile.location || "—";
-    if (dashProfileEmail) dashProfileEmail.textContent = profile.email || "—";
-    if (dashProfilePhone) dashProfilePhone.textContent = profile.phone || "—";
-    const careerOverview = profile.bio || "—";
-    if (dashProfileBio) dashProfileBio.textContent = careerOverview;
-    if (dashProfilePassportsHeld) dashProfilePassportsHeld.textContent = profile.passportsHeld || "—";
-    if (dashProfileVisasHeld) dashProfileVisasHeld.textContent = profile.visasHeld || "—";
-    if (dashProfileAvailability) dashProfileAvailability.textContent = profile.availability || "—";
-
-    if (dashAvatar) {
-      const profilePhotoUrl = Seav.getFileDisplayUrl(
-        profile.photo,
-        window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
-      );
-
-      if (profilePhotoUrl) {
-        const safeUrl = String(profilePhotoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-        dashAvatar.style.backgroundImage = `url("${safeUrl}")`;
-        dashAvatar.style.backgroundSize = "cover";
-        dashAvatar.style.backgroundPosition = "center";
-      } else {
-        dashAvatar.style.backgroundImage = "";
-      }
-    }
-
-    // updateProfileCompletion moved to refresh() in v516 — it used to run
-    // here, after renderDashboardProfile()'s early return, so removing the
-    // profile card would have silently stopped the completion tile updating.
-  }
-
   function profileHasPhoto(profile) {
     const photo = profile?.photo;
     if (window.SeavApiCore?.hasStoredFile?.(photo)) return true;
@@ -263,7 +197,13 @@
   async function refresh() {
     await ensureDashboardPhotosHydrated();
     await updateDayTypeKpis();
-    await renderDashboardProfile();
+    // renderDashboardProfile() was called here until 2026-09-20. v516 deleted
+    // the profile detail card, taking dashAvatar and all eleven dashProfile*
+    // elements with it, so the function early-returned on every load. Its
+    // avatar logic now lives in wireTopbarProfile() in js/core.js (the topbar
+    // profile chip), which is what its "one place profile photo display logic
+    // lives" comment was protecting. profileHasPhoto() below is NOT dead —
+    // updateProfileCompletion's checklist uses it.
     updateProfileCompletion(loadProfile());
     await renderDashboardSnippets();
   }

@@ -167,14 +167,21 @@
     // years above and future years below, and day/month stay blank so
     // the field still isn't a complete date until those are chosen too.
     //
-    // 2026-08-05, per Jack: skip this anchor when { anchorYear: false } is
-    // passed — a genuinely-optional field like a certificate's expiry date
-    // (many certs have none) shouldn't show a year pre-selected, since it
-    // makes the field look partially filled in and risks a crew member
-    // accidentally creating an expiry date just by picking day+month
-    // without noticing the year was already set. Defaults to true so every
-    // other date field on the site (issue dates, sea time dates, etc. —
-    // where "now" is a genuinely useful starting point) is unaffected.
+    // { anchorYear: false } skips the anchor, leaving the year blank.
+    //
+    // Added 2026-08-05 for the certificate expiry field, on the reasoning that
+    // a genuinely-optional date (many certs never expire) shouldn't look
+    // part-completed, and that a pre-set year risked a crew member creating an
+    // expiry date just by picking day+month. REVERTED 2026-09-20, per Jack: a
+    // blank year makes the browser open the dropdown at the TOP of the list,
+    // so certificate expiry was the only date field on the site starting at
+    // 1950, ~75 rows from "now". The scrolling cost beat the accidental-expiry
+    // risk.
+    //
+    // NOTHING PASSES THIS TODAY — every date field anchors on the current
+    // year. Kept because the option is sound for some future optional date,
+    // but do not re-apply it to certificate expiry without asking: that round
+    // trip is exactly what this note exists to prevent.
     if (!anchorYear) return;
 
     const yearEl = document.getElementById(`${prefix}_year`);

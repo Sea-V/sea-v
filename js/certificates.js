@@ -608,6 +608,38 @@
     if (checkbox && isMandatory) checkbox.checked = true;
   }
 
+  // "This certificate does not expire" — disables and clears the expiry
+  // triplet so a non-expiring cert is stated, not inferred from a blank
+  // field. Nothing new is persisted: mapCertFromSupabase derives
+  // `noExpiry: !c.expiry_date`, and computeStoredStatus already writes the
+  // "No Expiry" status, so ticking this simply guarantees expiry saves empty.
+  function applyNoExpiry(checked, { reanchor = true } = {}) {
+    ["year", "month", "day"].forEach((part) => {
+      const el = document.getElementById(`ct_expiry_${part}`);
+      if (el) el.disabled = checked;
+    });
+
+    // .modal-date-group.is-disabled already existed in css/components/modals.css
+    // (opacity 0.55 + pointer-events:none) with nothing setting it — this is
+    // the first caller. Do not "clean up" that rule as dead CSS.
+    const wrap = document.getElementById("ct_expiry_year")?.closest(".modal-date-group");
+    if (wrap) wrap.classList.toggle("is-disabled", checked);
+
+    if (checked) {
+      // Blank all three, including the year, so nothing can be read back out.
+      Seav.setDateTriplet("ct_expiry", "");
+    } else if (reanchor) {
+      // Re-anchor on the current year, matching every other date field.
+      Seav.clearDateTriplet("ct_expiry");
+    }
+  }
+
+  function setNoExpiryChecked(checked, options) {
+    const el = document.getElementById("ct_no_expiry");
+    if (el) el.checked = checked;
+    applyNoExpiry(checked, options);
+  }
+
   function onTypeChange() {
     const code = document.getElementById("ct_type")?.value || "";
     const nameWrap = document.getElementById("ct_name_wrap");
@@ -663,11 +695,19 @@
     if (nameEl) nameEl.disabled = false;
 
     Seav.clearDateTriplet("ct_issued");
-    // Expiry is genuinely optional (plenty of certs never expire) — don't
-    // pre-fill the year like every other date field does, so the field
-    // starts fully blank and a crew member can't accidentally create an
-    // expiry date just by picking day+month.
-    Seav.clearDateTriplet("ct_expiry", { anchorYear: false });
+    // 2026-09-20, per Jack: anchor the expiry year like every other date
+    // field. This REVERSES the 2026-08-05 decision to pass
+    // { anchorYear: false } here — the reasoning then was that expiry is
+    // genuinely optional (plenty of certs never expire), so a pre-filled
+    // year made the field look part-completed and risked someone creating an
+    // expiry date by picking day+month without noticing. In practice the
+    // opposite cost was worse: with no year selected the browser opens the
+    // dropdown at the top of the list, so this was the ONLY date field on the
+    // site that started at 1950 and needed ~75 rows of scrolling. Consistency
+    // won. The { anchorYear: false } option still exists in js/core.js if a
+    // field ever needs it again — nothing uses it now.
+    Seav.clearDateTriplet("ct_expiry");
+    setNoExpiryChecked(false, { reanchor: false });
     fillTypeSelect("");
     onTypeChange();
     fillIssuerSelects("", "");
@@ -704,6 +744,9 @@
 
     Seav.setDateTriplet("ct_issued", cert.issued || "");
     Seav.setDateTriplet("ct_expiry", cert.expiry || "");
+    // An empty expiry_date IS "no expiry" everywhere else in the app, so the
+    // box reflects that rather than inventing a second meaning for blank.
+    setNoExpiryChecked(!cert.expiry, { reanchor: false });
     fillIssuerSelects(cert.issuingAuthority || "", cert.trainingProvider || "");
     const certNumberEl = document.getElementById("ct_cert_number");
     if (certNumberEl) certNumberEl.value = cert.certificateNumber || "";
@@ -722,7 +765,9 @@
     const isCustom = typeCode === CUSTOM;
     const issued = Seav.readDateTriplet("ct_issued");
     const expiry = Seav.readDateTriplet("ct_expiry");
-    const noExpiry = !expiry;
+    // Explicit tick wins; a blank field still counts as no-expiry so the
+    // behaviour for anyone who never touches the checkbox is unchanged.
+    const noExpiry = !!document.getElementById("ct_no_expiry")?.checked || !expiry;
 
     let code = "";
     let name = "";
@@ -832,6 +877,9 @@
       });
     });
 
+    document.getElementById("ct_no_expiry")?.addEventListener("change", (e) => {
+      applyNoExpiry(e.target.checked);
+    });
     document.getElementById("ct_type")?.addEventListener("change", onTypeChange);
     document.getElementById("ct_authority")?.addEventListener("change", () => onAuthorityChange());
     document.getElementById("ct_provider")?.addEventListener("change", () => onProviderChange());

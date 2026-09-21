@@ -1432,7 +1432,10 @@
 ========================================================= */
 
 /* Slim quick-action row: was 18px/12px padding (~86px tall), now
-   ~56px, so the grid below still fits one screen (Jack, 2026-09-15). */
+   ~56px, so the grid below still fits one screen (Jack, 2026-09-15).
+   2026-09-20: icons removed, so the row measures 55.9px (button 34.9px) and
+   .dash-bento's offset below dropped 300px -> 283px to match. If this padding
+   changes again, that offset has to move with it. */
 .dashboard-shell-card .dashboard-quick-actions {
   padding: 10px 24px;
   gap: 10px;
@@ -1451,7 +1454,12 @@
   grid-template-rows: repeat(4, minmax(158px, 1fr));
   gap: var(--dash-layout-gap);
 
-  height: calc(100vh - 300px);
+  /* 283px, not 300px, since 2026-09-20: removing the quick-action icons took
+     the row from 73.0px to 55.9px (measured against the real stylesheet, both
+     states side by side). This offset is the chrome ABOVE the bento, so it has
+     to shrink by the same 17px or the reclaimed space just sits idle at the
+     foot of the page instead of going to the tiles. */
+  height: calc(100vh - 283px);
   min-height: 692px;
 
   padding: 20px 24px 24px;

@@ -142,8 +142,8 @@ thing most easily broken by an agent that starts editing without looking.
 `.dash-card` inside a page shell needs its padding overridden or it sits
 10px out of line.
 
-## Current state (2026-09-18)
-- HEAD = **v523**. Jack pushes every commit himself from
+## Current state (2026-09-20)
+- HEAD = **v525**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -184,10 +184,30 @@ thing most easily broken by an agent that starts editing without looking.
 - Topbar Instagram link replaced with a profile chip (photo or initials + rank).
 - Edge function diagnostic logging removed (never live; matches deployed v5).
 
+### Shipped 2026-09-18 (v524)
+- Dashboard quick-action icons removed, labels centred. `--qa-accent` still
+  colours each border/hover, so the per-page identity survives.
+
+### Shipped 2026-09-20 (v525)
+- Certificate expiry year now anchors like every other date field, with a
+  **"This certificate does not expire"** tickbox that disables and blanks the
+  triplet. No schema change — empty `expiry_date` already means no expiry.
+- 53 orphaned `achievements` rows deleted
+  (`docs/data-cleanup-orphaned-achievements.sql`). Restore file stays off-repo
+  at `~/Desktop/sea-v-orphaned-achievements-restore-2026-09-20.sql`.
+- Dead `renderDashboardProfile()` removed from `js/dashboard.js`.
+- `.dash-bento` offset 300px → 283px to reclaim the space the v524 icon
+  removal left idle at the foot of the dashboard.
+
 ## Open threads
-1. **Rotate the Resend API key** ("SEA-V Supabase SMTP") — the full key was
-   visible in a chat screenshot. Shared: regenerate, then update in BOTH
-   Supabase Auth SMTP settings AND Edge Functions → Secrets. Highest priority.
+1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not
+   raise it again.** The key ("SEA-V Supabase SMTP") stays as it is, despite
+   having been visible in full in a chat screenshot around 2026-08-16. Risk
+   accepted: whoever holds it can send mail as the verified `sea-v.com` domain,
+   which matters chiefly because SEA-V trains crew to expect exactly such a
+   mail from `verify@sea-v.com`. If it is ever revisited, the key is shared by
+   BOTH Supabase Auth SMTP settings and Edge Functions → Secrets, and updating
+   only one silently breaks the other.
 2. ~~`certificates.attachment` is readable by `anon`~~ — **CLOSED 2026-09-18.**
    `docs/schema-certificates-anon-column-hardening.sql`, applied as
    `revoke_anon_certificates_private_columns`. Exposure at time of fix: 53 cert
@@ -198,9 +218,18 @@ thing most easily broken by an agent that starts editing without looking.
    **CLOSED 2026-09-18.** All four `console.log` calls removed from
    `supabase/functions/reference-verification/index.ts`, which now matches the
    deployed v5 byte for byte. No redeploy needed — the logging was never live.
-4. **`chief_mate_3000gt_eligible` is labelled "Eligible"** while its trigger
-   checks sea time only. Now visible on screen since the prerequisite rows
-   render beneath it. Either narrow the label or move to Phase 2.
+4. ~~`chief_mate_3000gt_eligible` is labelled "Eligible"~~ — **DECIDED
+   2026-09-20: leave as is.** Note the original diagnosis was wrong: the
+   trigger does NOT check sea time only. `computeChiefMate3000Eligibility`
+   returns `oowMet && yachtmasterOceanHeld`, and the Yachtmaster Ocean check
+   has been there since v390 (2026-08-04), twelve days before the thread was
+   written. The real mismatch is scale: the trigger checks 2 things while
+   `MILESTONE_PREREQUISITES` renders 14 rows beneath it, and `oowMet` accepts
+   OOW **sea time alone** while the prerequisite rows resolve from saved
+   CERTIFICATES — so the badge can read "Eligible" above an unmet
+   "OOW Yachts <3000GT" row. Jack accepts this; the badge description already
+   states ancillary courses and ENG1 are outstanding. Do not "fix" it without
+   asking again.
 5. **Questions for the MCA, blocking further prerequisite work:** the EDH
    18-month rule anchors to CoC issue per one source and the oral exam per
    another; whether "while holding" runs from certificate issue or exam pass
@@ -211,13 +240,24 @@ thing most easily broken by an agent that starts editing without looking.
    passages sat in a box around the Panama Canal, only three transited it. A
    both-ends test fixes canals; Cape Horn needs Jack's definition of
    "rounding". Until then they stay manual.
-7. **Stale claims in `SEA-V-Known-Gaps-Tracker`** — it still records the
-   engineering ladder as blocked on a missing vessel engine-kW field. That
-   field exists (`vessels.engine_kw`, 5 rows populated, form + mapper + display
-   all built). The tracker has now been the source of two stale claims in one
-   day; it needs the same verification pass the outstanding list got.
-8. `auth_leaked_password_protection` no longer appears in the security
-   advisor — likely enabled, but confirm in the dashboard before ticking.
+7. ~~Stale claims in `SEA-V-Known-Gaps-Tracker`~~ — **CLOSED 2026-09-20.**
+   Full verification pass written into the file. Two body rows were wrong and
+   are now corrected in place: the engine-kW claim (corrected in its appendix
+   on 2026-08-18 but left standing in the roadmap table — an appendix
+   correction does not fix a body row), and the whole **Reference
+   verification** section, which said the edge function was not deployed and
+   recommended shipping with a manual share-link flow that no longer exists.
+   Confirmed still open: `certificate_catalog` broad grants (RLS denies them;
+   TRUNCATE escapes RLS but `anon` is NOLOGIN and PostgREST exposes no
+   TRUNCATE, so unreachable), the zero-policy token table, `pg_net`, and the
+   ten SECURITY DEFINER RPCs. The 53 orphaned `achievements` rows were deleted
+   in v525. Drift: unused indexes are **8**, not 7, and the per-table split
+   in the old row is backwards.
+8. `auth_leaked_password_protection` — **cannot be settled from code.** Absent
+   from the security advisor on 2026-09-20, which suggests enabled, but it is a
+   GoTrue setting: not queryable by SQL or the Supabase MCP. Needs one look at
+   Authentication → Policies in the dashboard. Grouped with thread 1 as the
+   dashboard-only work.
 
 Two reviewed documents live in `Sea-V Structure/02 Product Documentation/`:
 `SEA-V-OUTSTANDING-2026-08-16.md` (every item tagged done / stale / open /
