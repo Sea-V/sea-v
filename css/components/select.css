@@ -1,0 +1,99 @@
+/* =========================================================
+   SELECT CONTROLS — one appearance on every OS
+   =========================================================
+
+   THE PROBLEM
+   A native <select> is painted by the operating system. The same markup
+   therefore renders differently on macOS and Windows: different arrow glyph,
+   different internal padding, different control height, different font
+   metrics. Jack saw this as "the dropdowns look inconsistent on the Lenovo"
+   (2026-09-20) — but an audit showed they were never consistent on the Mac
+   either. Before this file there were SEVEN independent select styling blocks
+   and three had no skin at all (.navigation-filter-label select set only
+   width + color-scheme, .admin-report-status-select only margin-left,
+   .profile-chip-picker select only flex/min-width), so those fell straight
+   through to the OS.
+
+   THE FIX
+   appearance:none removes the OS chrome, and everything the OS used to supply
+   is declared here instead. Colours stay with the component/page rules, so
+   deliberately different surfaces keep their identity — see the CV generator
+   note below.
+
+   WHY THIS LOADS LAST, AND WHY !important
+   Several existing rules set the `background` and `padding` SHORTHANDS on
+   selects (.modal-form, .modal-date-field, .cvgen-editor,
+   .onboard-skill-add-row, .ps-filter-label, .verify-reference-page). A
+   shorthand resets background-image and padding-right, which would erase the
+   arrow and let a long label run underneath it — and they out-specify a bare
+   `select`, so load order alone cannot win. The chrome properties below are
+   therefore !important, scoped to exactly the handful that must not vary.
+   This is the same approach, for the same reason, that css/core/typography.css
+   already takes against "scattered 11–13px rules in page CSS".
+
+   WHAT THIS CANNOT DO
+   The OPEN dropdown list is still drawn by the OS. `color-scheme: dark` and
+   the `option` rules below are the only levers on it: Windows honours them and
+   renders a dark popup, macOS largely ignores option colours. Making the open
+   list pixel-identical across OSes needs a custom JS listbox replacing all 56
+   <select> elements — deliberately not done. The CLOSED control, which is what
+   is on screen 99% of the time, is now identical.
+========================================================= */
+
+select {
+  /* Chrome — must not vary by OS or by component. */
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+
+  background-image: var(--seav-select-arrow) !important;
+  background-repeat: no-repeat !important;
+  background-position: right var(--seav-select-arrow-inset) center !important;
+  background-size: var(--seav-select-arrow-size) !important;
+
+  padding-right: var(--seav-select-arrow-gap) !important;
+
+  /* Steers the native popup dark on Windows. */
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+/* Default skin, for selects no component rule dresses. Plain `select`
+   specificity (0,0,1) on purpose: every existing component rule out-specifies
+   it, so .modal-form, .ps-filter-label, .cvgen-editor and friends keep exactly
+   the look they have today, while the previously-unskinned ones stop falling
+   through to the OS. */
+select {
+  /* No `width` here on purpose. The previously-unskinned selects were
+     auto-width, and .admin-report-status-select in particular relies on
+     `margin-left: auto` to sit at the end of its meta row — forcing 100%
+     would stretch it across the row. Components that want full width already
+     declare it themselves. */
+  padding: 12px 14px;
+  border: 1px solid var(--seav-select-border);
+  border-radius: var(--seav-select-radius);
+  background-color: var(--seav-select-bg);
+  color: var(--seav-field-value-color);
+  font-family: var(--font-app);
+  font-size: var(--font-value);
+  line-height: 1.4;
+}
+
+/* The popup, as far as any OS lets us. */
+select option {
+  background-color: #0f2236;
+  color: var(--seav-field-value-color);
+}
+
+/* The CV generator editor is DELIBERATELY light — it mirrors the white CV
+   preview surface beside it (css/pages/cv-generator.css). It keeps that, and
+   only swaps to the dark chevron so the arrow stays legible. Do not "fix"
+   this one to match the dark controls. */
+.cvgen-editor select {
+  background-image: var(--seav-select-arrow-on-light) !important;
+  color-scheme: light;
+}
+
+select:disabled {
+  cursor: not-allowed;
+}

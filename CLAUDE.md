@@ -143,7 +143,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-20)
-- HEAD = **v525**. Jack pushes every commit himself from
+- HEAD = **v526**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -198,6 +198,41 @@ thing most easily broken by an agent that starts editing without looking.
 - Dead `renderDashboardProfile()` removed from `js/dashboard.js`.
 - `.dash-bento` offset 300px → 283px to reclaim the space the v524 icon
   removal left idle at the foot of the dashboard.
+
+### Shipped 2026-09-20 (v526) — select normalisation
+Jack reported the dropdowns looking inconsistent between his Mac and a Lenovo.
+An audit found they were never consistent on the Mac either: SEVEN independent
+select styling blocks, three with no skin at all — `.navigation-filter-label
+select` set only width + color-scheme, `.admin-report-status-select` only
+margin-left, `.profile-chip-picker select` only flex/min-width — so those
+rendered as raw OS controls.
+
+New `css/components/select.css`, imported **LAST** in `styles.css` (after
+`responsive/mobile.css`; `patch-html-scripts.mjs` versions `@import`s too, so
+the new one gets bumped automatically).
+- `appearance: none` plus a token chevron replaces the OS chrome. Those chrome
+  properties carry `!important` because six existing rules set the
+  `background`/`padding` SHORTHANDS on selects — a shorthand resets
+  background-image and padding-right, and they out-specify a bare `select`, so
+  load order alone cannot win. Same reason and same approach
+  `css/core/typography.css` already uses against scattered page font sizes.
+- New tokens in `variables.css`: `--seav-select-bg/-border/-radius`,
+  `--seav-select-arrow{,-on-light}`, `-arrow-gap/-inset/-size`. A `url()`
+  cannot resolve `var()`, so the two chevrons are separate baked data URIs.
+- **The CV generator select stays light on purpose** — it mirrors the white CV
+  preview beside it, and only swaps to the dark chevron. Do not "fix" it.
+- The base skin sets **no `width`** deliberately: the unskinned selects were
+  auto-width and `.admin-report-status-select` relies on `margin-left: auto`.
+- **Limits, stated plainly.** The OPEN dropdown list is still drawn by the OS.
+  `color-scheme: dark` and the `select option` rule are the only levers on it
+  (Windows honours them, macOS largely ignores option colours). A genuinely
+  identical popup needs a custom JS listbox replacing all 56 `<select>`
+  elements — deliberately not done. **None of this was verified on Windows** —
+  there is no Windows machine here. The fix is to stop depending on OS
+  defaults, which is verifiable; the Lenovo result is not, from here.
+- Verified on Mac: all 8 selects on an audit page collapse to ONE chrome
+  signature (appearance:none | arrow right 14px centre | 12x8 | padding-right
+  38px | radius 12px | 14px), widths still contextual.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not

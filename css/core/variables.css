@@ -151,6 +151,28 @@
   --seav-topbar-avatar-bg: var(--logo-ocean);
 
   /* =========================================================
+     SELECT CONTROLS
+     A native <select> is drawn by the OS, so the same markup renders
+     differently on macOS and Windows — different arrow, different internal
+     metrics, different popup. css/components/select.css strips that with
+     appearance:none and supplies these instead, so the closed control is
+     identical everywhere. Added 2026-09-20 after Jack found the dropdowns
+     inconsistent between his Mac and a Lenovo.
+  ========================================================= */
+  --seav-select-bg: rgba(0, 0, 0, 0.22);
+  --seav-select-border: rgba(255, 255, 255, 0.12);
+  --seav-select-radius: 12px;
+  /* Room for the arrow so a long option label never runs under it. */
+  --seav-select-arrow-gap: 38px;
+  --seav-select-arrow-inset: 14px;
+  --seav-select-arrow-size: 12px 8px;
+  /* Chevrons as data URIs — a url() cannot resolve var(), so the stroke
+     colour is baked in and the two variants are switched by selector.
+     -on-light is for deliberately light controls (the CV generator editor). */
+  --seav-select-arrow: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.5 6 6.5l5-5' fill='none' stroke='%23ffffff' stroke-opacity='0.65' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  --seav-select-arrow-on-light: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.5 6 6.5l5-5' fill='none' stroke='%230b1733' stroke-opacity='0.7' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+
+  /* =========================================================
      GLASS SURFACES
      Solid flat fills, not gradients — Jack wants solid colors site-wide
      2026-08-03, easier to work with than shading. Each value is the
