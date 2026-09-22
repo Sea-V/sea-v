@@ -296,6 +296,13 @@
     }
 
     function addPassportChip(name) {
+      // Chips are mutated by a button click, not by typing, so the
+      // form's "input" listener never fires for them. Without marking the
+      // form dirty here, keep() sees a blank passports/visas field that it
+      // cannot attribute to the person, treats it as the blank-form failure
+      // mode, and restores the old value — which is exactly why removing
+      // every chip appeared to do nothing (Jack, 2026-09-21, v527).
+      formDirty = true;
       const trimmed = String(name || "").trim();
       if (!trimmed) return;
       const exists = passportChips.some((chip) => chip.toLowerCase() === trimmed.toLowerCase());
@@ -306,6 +313,13 @@
     }
 
     function removePassportChip(name) {
+      // Chips are mutated by a button click, not by typing, so the
+      // form's "input" listener never fires for them. Without marking the
+      // form dirty here, keep() sees a blank passports/visas field that it
+      // cannot attribute to the person, treats it as the blank-form failure
+      // mode, and restores the old value — which is exactly why removing
+      // every chip appeared to do nothing (Jack, 2026-09-21, v527).
+      formDirty = true;
       passportChips = passportChips.filter((chip) => chip !== name);
       renderPassportChips();
       updatePhotoThumbFromForm();
@@ -363,6 +377,13 @@
     }
 
     function addVisaChip(name) {
+      // Chips are mutated by a button click, not by typing, so the
+      // form's "input" listener never fires for them. Without marking the
+      // form dirty here, keep() sees a blank passports/visas field that it
+      // cannot attribute to the person, treats it as the blank-form failure
+      // mode, and restores the old value — which is exactly why removing
+      // every chip appeared to do nothing (Jack, 2026-09-21, v527).
+      formDirty = true;
       const trimmed = String(name || "").trim();
       if (!trimmed) return;
       const exists = visaChips.some((chip) => chip.toLowerCase() === trimmed.toLowerCase());
@@ -373,6 +394,13 @@
     }
 
     function removeVisaChip(name) {
+      // Chips are mutated by a button click, not by typing, so the
+      // form's "input" listener never fires for them. Without marking the
+      // form dirty here, keep() sees a blank passports/visas field that it
+      // cannot attribute to the person, treats it as the blank-form failure
+      // mode, and restores the old value — which is exactly why removing
+      // every chip appeared to do nothing (Jack, 2026-09-21, v527).
+      formDirty = true;
       visaChips = visaChips.filter((chip) => chip !== name);
       renderVisaChips();
       updatePhotoThumbFromForm();

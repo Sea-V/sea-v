@@ -143,7 +143,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-20)
-- HEAD = **v527**. Jack pushes every commit himself from
+- HEAD = **v528**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -286,6 +286,25 @@ dashboard. That is a SEPARATE staleness bug from the one above — it was not
 what Jack hit (his data genuinely never changed), and it is unfixed. The
 pattern to copy is `SeavState.updateCerts()`, which writes the cache and
 dispatches `seav:data-updated`; there is no `updateProfile()` equivalent.
+
+### Shipped 2026-09-21 (v528) — chips never marked the form dirty
+v527 shipped the keep() fix but **removing passport/visa chips still silently
+reverted**. Cause: `formDirty` was set only by `form.addEventListener("input")`,
+and a chip is added/removed by a BUTTON CLICK, which fires no input event. So
+for `passportsHeld`/`visasHeld`, keep() saw a blank it could not attribute to
+the person, read it as the blank-form failure mode, and restored the old value.
+
+`addPassportChip`, `removePassportChip`, `addVisaChip` and `removeVisaChip` now
+set `formDirty = true`. `setPassportChips`/`setVisaChips` deliberately do NOT —
+they are the programmatic fill called by `fillForm()`, and marking them dirty
+would disarm the blank-form protection on every load. Verified against the real
+`keep()`: blank + existing "British" + shown + dirty=false -> "British" (the
+v527 bug); same with dirty=true -> cleared.
+
+**General lesson for this form:** any control that changes state WITHOUT
+typing — chips today, any future toggle, drag-reorder or picker — must set
+`formDirty` itself, or keep() will quietly undo it. The `input` listener only
+covers real inputs, selects and textareas.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not
