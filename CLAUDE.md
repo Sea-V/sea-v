@@ -143,7 +143,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-20)
-- HEAD = **v526**. Jack pushes every commit himself from
+- HEAD = **v527**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -233,6 +233,59 @@ the new one gets bumped automatically).
 - Verified on Mac: all 8 selects on an audit page collapse to ONE chrome
   signature (appearance:none | arrow right 14px centre | 12x8 | padding-right
   38px | radius 12px | 14px), widths still contextual.
+
+### Shipped 2026-09-21 (v527) — profile fields could not be cleared
+Jack reported "the green tick stays when I remove stuff" from the profile.
+**The tick was correct.** `js/profile.js`'s `keep()` — the 2026-08-07 Mia
+Bailey data-loss backstop — restored the saved value for ANY blank field, so
+nothing was ever cleared: the save ran, `updated_at` moved, and every blanked
+field came straight back. Confirmed against the live row (`ac09b28e`, updated
+seconds after the test, passports/visas/bio/phone/location all still
+populated). The original comment admitted the cost outright: "there's
+currently no way to explicitly blank out one of these fields via this form."
+
+Fixed per Jack's choice of a **per-field snapshot check** (2026-09-21):
+- `fillForm()` now records `lastFilled`, the values it actually PUT ON SCREEN.
+- `keep(field)` saves `""` only when the field **showed** a value and the form
+  has been edited since (`formDirty`). If the field never rendered its saved
+  value, that is the blank-form state the incident was about and the saved
+  value still wins. `lastFilled` starts `null`, so nothing can be cleared
+  before a fill has happened.
+- `keep()` now takes the field name and reads `formData`/`existingProfile`
+  itself, so the two values and the snapshot cannot drift apart. 13 call sites.
+
+Truth table, verified by extracting the real `keep()` from the file and
+running it (all 6 pass): shown+dirty -> cleared; never-shown -> kept;
+not-dirty -> kept; no-fill-yet -> kept; typed value -> saved; empty stays
+empty.
+
+**Also fixed, same change:** `populateQualificationOptions()` rebuilt the
+qualification `<select>` and restored the previous value with a bare
+`select.value = current`, which fails SILENTLY when the rebuilt list no longer
+contains that value (a legacy free-text qualification, or a saved cert since
+deleted) — leaving the select blank. Cosmetic before; not any more, because
+keep() now reads a blank-that-previously-showed-a-value as a deliberate clear,
+and a mid-edit background refresh lands exactly there (formDirty is true, so
+refreshProfileView deliberately does not re-fill). It now calls
+`ensureSelectHasValue` first, the same guard `fillForm()` already used.
+
+**2026-09-21 follow-up — the "editing does nothing" report was the same bug.**
+Confirmed from edge_logs: the save POST returns 200 with all 24 columns, a
+refetch GET fires ~400ms later, there is exactly ONE profile row with
+`id == user_id`, and `auth.js` only syncs `email`. Nothing was broken beyond
+keep(). Jack was testing **sea-v.com**, i.e. v526 — the fix was sitting
+uncommitted in the working tree the whole time. Note for future debugging:
+`profile.updated_at` is NOT evidence a save landed, because `ensureProfileRow`
+in `js/auth.js` PATCHes it on every INITIAL_SESSION (i.e. every page load).
+
+**Still worth knowing (not fixed):** `SeavAPI.save()` writes the profile to
+Supabase but never updates `SeavState` or the localStorage cache, and
+`state.loadAll()` serves that cache for `CACHE_TTL_MS` (5 min) without
+revalidating. So a profile edit can still take up to 5 minutes to show on the
+dashboard. That is a SEPARATE staleness bug from the one above — it was not
+what Jack hit (his data genuinely never changed), and it is unfixed. The
+pattern to copy is `SeavState.updateCerts()`, which writes the cache and
+dispatches `seav:data-updated`; there is no `updateProfile()` equivalent.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not

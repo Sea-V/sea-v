@@ -79,6 +79,11 @@
     // the form was last filled — see refreshProfileView() below for why
     // this exists (2026-08-07 Mia Bailey data-loss incident).
     let formDirty = false;
+    // What fillForm() last actually PUT ON SCREEN, per field. keep() compares
+    // against this to tell a deliberate clear from the blank-form failure mode
+    // — see keep() in saveProfileFromForm(). Starts null so that, before any
+    // fill has happened, nothing can be treated as deliberately cleared.
+    let lastFilled = null;
 
     function setMode(next) {
       mode = next;
@@ -190,7 +195,22 @@
               `<option value="${Seav.escapeHtml(cert.name)}">${Seav.escapeHtml(cert.name)}</option>`
           )
           .join("");
-      if (current) select.value = current;
+      // Re-add the value when the rebuilt list no longer contains it — a
+      // legacy free-text qualification, or a saved certificate that has since
+      // been deleted. `select.value = current` fails silently in that case and
+      // leaves the select BLANK.
+      //
+      // That was cosmetic until 2026-09-21. It is not any more: keep() now
+      // treats a blank field that previously showed a value as a deliberate
+      // clear, so a mid-edit background refresh landing here (formDirty is
+      // true, so refreshProfileView deliberately does NOT re-fill) would blank
+      // the select and the next Save would erase the stored qualification.
+      // fillForm() already guards its own set with ensureSelectHasValue; this
+      // rebuild has to do the same.
+      if (current) {
+        ensureSelectHasValue(select, current);
+        select.value = current;
+      }
     }
 
     populateQualificationOptions();
@@ -481,6 +501,26 @@
       if (fields.bio) fields.bio.value = profile.bio || "";
 
       renderPhotoThumb(profile.photo, { isNewSelection: false });
+
+      // Mirrors exactly the values written above, normalised the same way, so
+      // keep() can ask "did this field actually show a value?" rather than
+      // "is there one saved?" — the two differ precisely in the case that
+      // caused the 2026-08-07 data loss.
+      lastFilled = {
+        firstName: profile.firstName || "",
+        lastName: profile.lastName || "",
+        rank: profile.rank || "",
+        dischargeBookNumber: profile.dischargeBookNumber || "",
+        qualification: profile.qualification || "",
+        nationality: profile.nationality || "",
+        dob: profile.dob || "",
+        location: profile.location || "",
+        email: profile.email || "",
+        phone: profile.phone || "",
+        passportsHeld: profile.passportsHeld || "",
+        visasHeld: profile.visasHeld || "",
+        bio: profile.bio || ""
+      };
     }
 
     let previewObjectUrl = null;
@@ -600,36 +640,55 @@
         throw new Error("Profile photo upload failed.");
       }
 
-      // Safety net for the 2026-08-07 Mia Bailey data-loss incident: a
-      // blank field in the form must never be treated as "the user wants
-      // this cleared" — it falls back to whatever was already saved
-      // instead. This is deliberate even though it means there's currently
-      // no way to explicitly blank out one of these fields via this form;
-      // that's a far smaller cost than silently erasing real data because
-      // the form happened to render blank (load race, stuck edit session,
-      // anything). refreshProfileView()'s formDirty guard fixes the known
-      // root cause of the blank-form state; this is the backstop in case
-      // some other path ever gets the form into the same situation.
-      const keep = (formValue, existingValue) =>
-        (formValue === "" || formValue == null) && existingValue ? existingValue : formValue;
+      // Safety net for the 2026-08-07 Mia Bailey data-loss incident: a blank
+      // field must never be treated as "clear this" just because it is blank,
+      // because a form that failed to render (load race, stuck edit session)
+      // looks identical to one a person deliberately emptied.
+      //
+      // Until 2026-09-21 this kept the saved value for ANY blank, which made
+      // it impossible to clear a field at all — Jack hit exactly that testing
+      // the profile completion bar: the save ran, updated_at moved, and every
+      // blanked field came straight back, so the completion tick correctly
+      // stayed at 100%.
+      //
+      // Now it distinguishes the two cases per field:
+      //   the field SHOWED a value (lastFilled) and the form has been edited
+      //     since (formDirty)              -> a real clear, save ""
+      //   the field never showed its value -> the blank-form state, keep it
+      // The incident case is still protected: if the form never rendered the
+      // saved value, lastFilled is blank (or null before any fill) and the
+      // saved value survives regardless of what the form says.
+      const keep = (field) => {
+        const formValue = formData[field];
+        const existingValue = existingProfile[field];
+
+        const isBlank = formValue === "" || formValue == null;
+        if (!isBlank) return formValue;
+        if (!existingValue) return formValue;
+
+        const shownAtFill = lastFilled ? lastFilled[field] : "";
+        const wasShown = !(shownAtFill === "" || shownAtFill == null);
+
+        return formDirty && wasShown ? "" : existingValue;
+      };
 
       const profile = {
         ...existingProfile,
         id: profileId,
-        firstName: keep(formData.firstName, existingProfile.firstName),
-        lastName: keep(formData.lastName, existingProfile.lastName),
-        rank: keep(formData.rank, existingProfile.rank),
-        dischargeBookNumber: keep(formData.dischargeBookNumber, existingProfile.dischargeBookNumber),
-        qualification: keep(formData.qualification, existingProfile.qualification),
-        nationality: keep(formData.nationality, existingProfile.nationality),
-        dob: keep(formData.dob, existingProfile.dob),
-        location: keep(formData.location, existingProfile.location),
-        email: keep(formData.email, existingProfile.email),
-        phone: keep(formData.phone, existingProfile.phone),
-        passportsHeld: keep(formData.passportsHeld, existingProfile.passportsHeld),
-        visasHeld: keep(formData.visasHeld, existingProfile.visasHeld),
+        firstName: keep("firstName"),
+        lastName: keep("lastName"),
+        rank: keep("rank"),
+        dischargeBookNumber: keep("dischargeBookNumber"),
+        qualification: keep("qualification"),
+        nationality: keep("nationality"),
+        dob: keep("dob"),
+        location: keep("location"),
+        email: keep("email"),
+        phone: keep("phone"),
+        passportsHeld: keep("passportsHeld"),
+        visasHeld: keep("visasHeld"),
         availability: formData.availability,
-        bio: keep(formData.bio, existingProfile.bio),
+        bio: keep("bio"),
         publicEnabled: !!existingProfile.publicEnabled,
         photo
       };
