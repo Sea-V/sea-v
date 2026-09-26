@@ -534,6 +534,17 @@
   min-height: 88px;
 }
 
+/* `display: flex !important` below beats the UA's `[hidden] { display: none }`,
+   so setting .hidden on a .modal-check wrapper did nothing at all. That silently
+   broke toggleShowOnCvVisibility() in js/certificates.js, which hides the
+   "Display on CV Generator" box for mandatory certs: the box stayed visible and
+   tickable, the untick saved, and then the CV ignored it and the next open
+   forced it back on. Found 2026-09-22. Any future hidden .modal-check needs
+   this guard too. */
+.modal-check[hidden] {
+  display: none !important;
+}
+
 .modal-check {
   display: flex !important;
   align-items: center;

@@ -745,6 +745,11 @@
 
     async function saveProfileNow(profile) {
       await SeavAPI.save(KEYS.PROFILE, profile);
+      // Push the saved values straight into shared state + the cached
+      // snapshot. Without this the write lands in Supabase but every other
+      // page keeps reading the pre-edit cache for up to CACHE_TTL_MS (5 min),
+      // which is why an edit could look like it had not saved at all.
+      window.SeavState?.updateProfile?.(profile);
       return profile;
     }
 

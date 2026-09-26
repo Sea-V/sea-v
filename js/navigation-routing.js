@@ -109,6 +109,35 @@
     { id: "cape_town", lat: -33.9249, lng: 18.4241 },
     { id: "sydney", lat: -33.8688, lng: 151.2093 },
     { id: "auckland", lat: -36.8509, lng: 174.7645 },
+
+    // South Pacific. Before these, Auckland was the ONLY hub east of Sydney in
+    // the entire Pacific — and a port only joins the graph if a hub is within
+    // PORT_HUB_SNAP_NM (120). Nuku'alofa's nearest hub was Auckland at 1,079 NM,
+    // so every island group added in v519 was an isolated node and
+    // buildSeaRoute() answered "No sea lane found" for anything between them.
+    // Chosen at real ports so the island clusters snap to them.
+    { id: "norfolk_island", lat: -29.0545, lng: 167.9619 },
+    { id: "noumea", lat: -22.2758, lng: 166.458 },
+    { id: "port_vila", lat: -17.7333, lng: 168.3167 },
+    { id: "honiara", lat: -9.4333, lng: 159.95 },
+    { id: "suva", lat: -18.1416, lng: 178.4419 },
+    { id: "lautoka", lat: -17.6169, lng: 177.4675 },
+    { id: "savusavu", lat: -16.7833, lng: 179.3333 },
+    { id: "nukualofa", lat: -21.1393, lng: -175.2049 },
+    { id: "neiafu", lat: -18.6506, lng: -173.9831 },
+    { id: "apia", lat: -13.8333, lng: -171.7667 },
+    { id: "pago_pago", lat: -14.2781, lng: -170.7025 },
+    { id: "alofi", lat: -19.0556, lng: -169.9186 },
+    { id: "mata_utu", lat: -13.2825, lng: -176.1736 },
+    { id: "funafuti", lat: -8.5167, lng: 179.2 },
+    { id: "tarawa", lat: 1.35, lng: 172.9333 },
+    { id: "rarotonga", lat: -21.205, lng: -159.7828 },
+    { id: "aitutaki", lat: -18.8547, lng: -159.7861 },
+    { id: "papeete", lat: -17.535, lng: -149.5696 },
+    { id: "bay_of_islands", lat: -35.3167, lng: 174.1167 },
+    { id: "wellington", lat: -41.2865, lng: 174.7762 },
+    { id: "lyttelton", lat: -43.603, lng: 172.719 },
+    { id: "bluff", lat: -46.6, lng: 168.3333 },
     { id: "ushuaia", lat: -54.8019, lng: -68.303 },
     { id: "punta_arenas", lat: -53.1638, lng: -70.9171 }
   ];
@@ -167,7 +196,27 @@
     // Indian Ocean & Asia
     ["suez", "aden"], ["aden", "mumbai"], ["mumbai", "dubai"],
     ["dubai", "malacca"], ["malacca", "singapore"], ["singapore", "sydney"],
-    ["sydney", "auckland"], ["cape_town", "funchal"], ["cape_town", "mumbai"],
+    ["sydney", "auckland"],
+
+    // South Pacific sea lanes. Island-hopping chains rather than one long
+    // leg, so a passage follows a plausible course instead of a straight line
+    // through whatever happens to lie between two distant ports.
+    ["sydney", "norfolk_island"], ["norfolk_island", "auckland"],
+    ["sydney", "noumea"], ["noumea", "norfolk_island"], ["noumea", "auckland"],
+    ["noumea", "port_vila"], ["port_vila", "honiara"], ["port_vila", "suva"],
+    ["auckland", "bay_of_islands"], ["bay_of_islands", "suva"],
+    ["auckland", "wellington"], ["wellington", "lyttelton"], ["lyttelton", "bluff"],
+    ["auckland", "nukualofa"], ["bay_of_islands", "nukualofa"],
+    ["suva", "lautoka"], ["suva", "savusavu"], ["lautoka", "noumea"],
+    ["suva", "nukualofa"], ["suva", "mata_utu"], ["suva", "funafuti"],
+    ["funafuti", "tarawa"], ["tarawa", "hawaii"],
+    ["nukualofa", "neiafu"], ["neiafu", "apia"], ["neiafu", "alofi"],
+    ["apia", "pago_pago"], ["mata_utu", "apia"],
+    ["alofi", "rarotonga"], ["nukualofa", "rarotonga"],
+    ["rarotonga", "aitutaki"], ["aitutaki", "papeete"], ["rarotonga", "papeete"],
+    ["papeete", "hawaii"],
+
+    ["cape_town", "funchal"], ["cape_town", "mumbai"],
     ["mauritius", "mumbai"], ["canaries", "cartagena"],
     // South America
     ["punta_arenas", "ushuaia"]
@@ -388,24 +437,31 @@
     return path[0] === startId ? path : null;
   }
 
+  /**
+   * A passage always begins where you are and ends where you are going.
+   *
+   * These two points used to be included only when the first/last lane node
+   * was within ENDPOINT_MAX_NM, and dropped silently otherwise. That did two
+   * bad things at once: it drew a course that never touched the crew member's
+   * own ports, and — because scoreNodePath() measures the length of exactly
+   * these coords — it made abandoning the origin *cheaper*, so the scorer
+   * preferred it. Nuku'alofa to Suva came back as a 119 NM leg that started in
+   * Fiji, against a 402 NM direct line.
+   *
+   * It stayed hidden until the Pacific because everywhere else the hub network
+   * is dense enough that the nearest node is inside 45 NM anyway, in which
+   * case this is exactly what the old code already did. dedupeCoords drops the
+   * duplicate when a port and its lane node share a position.
+   */
   function coordsFromNodePath(fromLat, fromLng, nodePath, toLat, toLng) {
-    const coords = [];
-
-    const firstNode = waypointById.get(nodePath[0]);
-    const lastNode = waypointById.get(nodePath[nodePath.length - 1]);
-
-    if (haversineNm(fromLat, fromLng, firstNode.lat, firstNode.lng) <= ENDPOINT_MAX_NM) {
-      coords.push([fromLat, fromLng]);
-    }
+    const coords = [[fromLat, fromLng]];
 
     nodePath.forEach((id) => {
       const point = waypointById.get(id);
       if (point) coords.push([point.lat, point.lng]);
     });
 
-    if (haversineNm(toLat, toLng, lastNode.lat, lastNode.lng) <= ENDPOINT_MAX_NM) {
-      coords.push([toLat, toLng]);
-    }
+    coords.push([toLat, toLng]);
 
     return dedupeCoords(coords);
   }
@@ -420,6 +476,18 @@
       : Infinity;
 
     if (endGap > ENDPOINT_MAX_NM) {
+      penalty += 50000;
+    }
+
+    // Mirror of the end-gap penalty above, which had no counterpart for the
+    // start. Both ends should prefer joining the lane network close to the
+    // real port rather than striking out across open water to a distant node.
+    const firstCoord = coords[0];
+    const startGap = firstCoord
+      ? haversineNm(fromLat, fromLng, firstCoord[0], firstCoord[1])
+      : Infinity;
+
+    if (startGap > ENDPOINT_MAX_NM) {
       penalty += 50000;
     }
 

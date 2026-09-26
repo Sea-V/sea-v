@@ -472,6 +472,29 @@
       return this.data[key];
     },
 
+    // The profile counterpart of updateCerts() below. SeavAPI.save() writes the
+    // profile straight to Supabase and touches neither this state nor the
+    // localStorage snapshot, while loadAll() serves that snapshot for
+    // CACHE_TTL_MS (5 min) without revalidating — so an edit could take up to
+    // five minutes to appear on the dashboard, the CV or the public profile,
+    // and looked exactly like a save that had failed. Added 2026-09-22.
+    //
+    // Merges onto the existing profile rather than replacing it: the Profile
+    // form does not carry every field (username and the trb_* values are
+    // edited elsewhere), so a wholesale replace would blank them in the cache
+    // until the next fetch.
+    updateProfile(profile) {
+      if (!profile || typeof profile !== "object") return this.data.profile;
+
+      const next = { ...(this.data.profile || {}), ...profile };
+      next.id = profile.id || this.data.profile?.id || DEFAULT_PROFILE.id;
+
+      this.data.profile = next;
+      writeCachedData(this.data);
+      document.dispatchEvent(new CustomEvent("seav:data-updated"));
+      return this.data.profile;
+    },
+
     updateCerts(certs) {
       this.data.certs = safeArray(certs);
       writeCachedData(this.data);

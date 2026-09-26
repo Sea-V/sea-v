@@ -295,7 +295,7 @@
               // for every cert so showing it every time would clutter every
               // row for no informational gain. To change it, expand the row
               // and use Edit (js/certificates.js openEditModal).
-              !cert.isMandatory && cert.showOnCv === false
+              cert.showOnCv === false
                 ? `<span class="cert-cv-flag">Not on CV</span>`
                 : ""
             }
@@ -601,12 +601,15 @@
   // regardless of this checkbox (enforced in js/cv-engine-model.js), so
   // the checkbox itself is hidden for them — ticking/unticking it would
   // have no visible effect and would just be confusing.
-  function toggleShowOnCvVisibility(isMandatory) {
-    const wrap = document.getElementById("ct_show_on_cv_wrap");
-    const checkbox = document.getElementById("ct_show_on_cv");
-    if (wrap) wrap.hidden = isMandatory;
-    if (checkbox && isMandatory) checkbox.checked = true;
-  }
+  // Kept as a named no-op rather than deleted, so the call sites still read
+  // as a deliberate decision. Until 2026-09-22 this hid the "Display on CV
+  // Generator" box for mandatory certs and forced it ticked, because
+  // cv-engine-model.js force-included them anyway. Two things were wrong with
+  // that: the hide never worked (.modal-check had `display: flex !important`,
+  // which beats `[hidden]`), and force-ticking on open silently undid a real
+  // untick the person had already saved. Mandatory certs are now governed by
+  // the tickbox like every other cert, so there is nothing to hide or force.
+  function toggleShowOnCvVisibility() {}
 
   // "This certificate does not expire" — disables and clears the expiry
   // triplet so a non-expiring cert is stated, not inferred from a blank
@@ -652,10 +655,10 @@
     if (!isCustom) {
       const item = findCatalog(code);
       if (nameEl && item) nameEl.value = item.name;
-      toggleShowOnCvVisibility(!!item?.isMandatory);
+      toggleShowOnCvVisibility();
     } else if (nameEl) {
       nameEl.value = "";
-      toggleShowOnCvVisibility(false);
+      toggleShowOnCvVisibility();
     }
     updateSourceNote(code);
   }
@@ -754,7 +757,7 @@
     renderCertAttachmentHint(cert.attachment || null);
     const showOnCvEl = document.getElementById("ct_show_on_cv");
     if (showOnCvEl) showOnCvEl.checked = cert.showOnCv !== false;
-    toggleShowOnCvVisibility(!!cert.isMandatory);
+    toggleShowOnCvVisibility();
     window.SeavModals?.openModal?.("certModal");
   }
 
@@ -801,10 +804,10 @@
       noExpiry,
       isMandatory,
       isTemplate,
-      // Mandatory certs always show on the CV Generator regardless of this
-      // flag (enforced in js/cv-engine-model.js) — the checkbox is hidden
-      // for them (see toggleShowOnCvVisibility), so it stays at its
-      // checked-by-default state and is simply ignored for those rows.
+      // Governs EVERY cert since 2026-09-22, mandatory ones included — the
+      // old "mandatory certs always show regardless" rule is gone from
+      // js/cv-engine-model.js. Defaults to ticked for a cert whose modal
+      // never rendered the box.
       showOnCv: document.getElementById("ct_show_on_cv")?.checked ?? true,
       issuingAuthority,
       trainingProvider,

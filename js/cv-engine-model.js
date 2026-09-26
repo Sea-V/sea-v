@@ -267,12 +267,20 @@
     // Mandatory CoC/STCW certificates always appear on the CV regardless
     // of the "Display on CV Generator" checkbox (certificates.html) —
     // that checkbox only controls additional/optional certificates. See
-    // js/certificates.js's toggleShowOnCvVisibility, which hides the
-    // checkbox entirely for mandatory certs so it can't be unticked.
+    // 2026-09-22: mandatory certs are NO LONGER force-included. They used to
+    // be, on the reasoning that a yacht CV without STCW basics reads as
+    // incomplete — but the checkbox that was supposed to be hidden for them
+    // never actually was (.modal-check carried `display: flex !important`,
+    // which beats the UA's `[hidden] { display: none }`), so the box stayed
+    // visible and tickable, the untick saved `show_on_cv = false` correctly,
+    // and then this line silently ignored it while the next modal open forced
+    // the tick back on. Three of Jack's certs sat in that state. Honouring the
+    // tickbox for every cert is the only version where the control means what
+    // it says. To restore the old rule, put `!!cert.isMandatory ||` back.
     const certs = (state?.certs || []).filter((cert) => {
       const isSaved = typeof isSavedCert === "function" ? isSavedCert(cert) : !!cert?.name;
       if (!isSaved) return false;
-      return !!cert.isMandatory || cert.showOnCv !== false;
+      return cert.showOnCv !== false;
     });
     const specialist = sortByDateDesc(state?.specialistQualifications || [], "dateObtained");
     const onboard = state?.onboardExperiences || [];

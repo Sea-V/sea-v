@@ -69,9 +69,20 @@ profile; collect verified references from past employers.
   section this way from 2026-08-01 to 2026-09-18. `testPublicColumnDrift()` in
   `scripts/test-supabase.mjs` now fails the suite if `PUBLIC_TABLE_SAFE_COLUMNS`
   there ever drifts from `PUBLIC_ARRAY_COLUMNS` in `js/api.js` again.
-- **`scripts/test-supabase.mjs` cannot be *executed* from this sandbox —
-  `node` is not on PATH** (nor is `npm`, so `npm run lint` cannot run either).
-  Jack runs both from Cursor. **The network, however, is NOT the blocker:
+- **`node` IS available — it is just not on PATH.** Corrected 2026-09-21.
+  There is no Homebrew, no nvm, no `npm`, and no shell init file on this Mac;
+  `node` in a plain terminal fails with "command not found" for Jack too.
+  Cursor ships its own:
+      /Applications/Cursor.app/Contents/Resources/app/resources/helpers/node
+  (v24.18.1, arm64). That is what Cursor's agent uses to run
+  `patch-html-scripts.mjs` on every commit. Use the full path here for
+  `patch-html-scripts.mjs`, `test-site.mjs` and `test-supabase.mjs`.
+  **`npm` does not exist at all**, so `npm run lint` can never work — run
+  eslint directly: `<node> node_modules/eslint/bin/eslint.js js/*.js`.
+  All three ran clean on 2026-09-21 (lint exit 0; test-site all static +
+  HTTP checks passed; test-supabase `--step all` exit 0, including the
+  reference/certificate column probes and the 10-table drift check, which
+  had never actually executed until then). **The network, however, is NOT the blocker:
   corrected 2026-09-18 — the sandbox DOES have egress to `*.supabase.co`.**
   Plain `curl` against `/rest/v1/...` with the anon key from `js/supabase.js`
   works, and it is the highest-fidelity check available: it exercises the real
@@ -143,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-20)
-- HEAD = **v528**. Jack pushes every commit himself from
+- HEAD = **v529**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -305,6 +316,52 @@ v527 bug); same with dirty=true -> cleared.
 typing — chips today, any future toggle, drag-reorder or picker — must set
 `formDirty` itself, or keep() will quietly undo it. The `input` listener only
 covers real inputs, selects and textareas.
+
+### Shipped 2026-09-22 (v529) — instant refresh + the CV tickbox
+Jack: "I want the page to reflect instantly what is saved or removed", and
+"show on CV generator isn't updating after I untick the cert, it goes back to
+blue and shows on the CV". Two separate causes, both fixed.
+
+**1. `.modal-check` defeated the `hidden` attribute.**
+`css/components/modals.css` had `.modal-check { display: flex !important }`
+with no `[hidden]` guard, and an author `!important` beats the UA's
+`[hidden] { display: none }`. So `toggleShowOnCvVisibility()`'s
+`wrap.hidden = isMandatory` did **nothing** — the "Display on CV Generator"
+box stayed visible and tickable for mandatory certs. Added
+`.modal-check[hidden] { display: none !important }`. Any future hidden
+`.modal-check` needs that guard; `ct_no_expiry_wrap` is the other one.
+
+**2. The tickbox now governs EVERY cert, mandatory included.**
+The untick was saving correctly all along — `show_on_cv` was `false` in the DB
+for EFA, PST and FPFF. Two other rules undid it: `cv-engine-model.js` returned
+`!!cert.isMandatory || cert.showOnCv !== false` (so mandatory certs were on the
+CV regardless), and `toggleShowOnCvVisibility` force-set `checked = true` on
+every modal open (hence "goes back to blue"). A control that accepts input,
+persists it, then ignores and reverts it is broken however it is framed, so the
+mandatory override is gone. `toggleShowOnCvVisibility` is now a named no-op
+(kept so the call sites still read as deliberate). The "Not on CV" card flag
+dropped its `!cert.isMandatory` condition so it covers those rows too.
+Measured on Jack's 22 certs: 22 on the CV before, 19 after — exactly the three
+he had unticked. **To restore the old behaviour, put `!!cert.isMandatory ||`
+back in `cv-engine-model.js`.**
+
+**3. Profile saves now propagate instantly.**
+New `SeavState.updateProfile()` in `js/state.js`, mirroring `updateCerts()`:
+merges onto the existing profile (the form does not carry `username` or the
+`trb_*` fields, so a wholesale replace would blank them in the cache), writes
+the cached snapshot, and dispatches `seav:data-updated`. `saveProfileNow()` in
+`js/profile.js` calls it after `SeavAPI.save()`. This closes the 5-minute
+staleness noted under v527 — `loadAll()` served the pre-edit cache for
+`CACHE_TTL_MS` without revalidating, which made a successful save look failed
+and cost two debugging rounds.
+
+**4. Pacific passages.** Navigation unwraps longitudes across the antimeridian
+so a Tonga → New Zealand track no longer draws the long way around the world,
+and the routing graph now has South Pacific hubs so those island ports can
+join a sea lane.
+
+Checklist run: patch-html-scripts updated 26 files, lint exit 0, test-site all
+static + HTTP checks passed.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not
