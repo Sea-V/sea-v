@@ -124,19 +124,34 @@
     };
   }
 
-  function ringToPathD(ring) {
+  // Rings that straddle the antimeridian (Fiji, Chukotka) jump from +180 to
+  // -180 mid-ring in the boundary data, which draws a stroke across the whole
+  // world. Unwrapped they stay in one piece, running past +/-180 -- the
+  // neighbouring world copy (WORLD_COPY_OFFSETS) brings them back into view.
+  // A ring that winds right round a pole (Antarctica) cannot be unwrapped
+  // without failing to close, so it is left as it was.
+  function continuousRing(ring) {
+    const unwrap = window.SeavNavigationHelpers?.unwrapLngs;
+    if (typeof unwrap !== "function" || ring.length < 2) return ring;
+    const run = unwrap(ring.map(([lng, lat]) => [lat, lng]));
+    if (Math.abs(run[run.length - 1][1] - run[0][1]) > 180) return ring;
+    return run.map(([lat, lng]) => [lng, lat]);
+  }
+
+  // xOffset draws the ring on a neighbouring world copy (+/-WORLD_MAP_W).
+  function ringToPathD(ring, xOffset = 0) {
     if (!Array.isArray(ring) || ring.length < 2) return "";
     return (
-      ring
+      continuousRing(ring)
         .map(([lng, lat], i) => {
           const p = projectLngLat(lng, lat);
-          return `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+          return `${i === 0 ? "M" : "L"}${(p.x + xOffset).toFixed(1)},${p.y.toFixed(1)}`;
         })
         .join(" ") + " Z"
     );
   }
 
-  function geometryToPathD(geometry) {
+  function geometryToPathD(geometry, xOffset = 0) {
     if (!geometry) return "";
     const polys =
       geometry.type === "Polygon"
@@ -146,17 +161,47 @@
           : [];
     // Outer ring only (no hole cut-outs) -- irrelevant at this small scale
     // and keeps the path data light for html2canvas to rasterize.
-    return polys.map((poly) => (poly[0] ? ringToPathD(poly[0]) : "")).join(" ");
+    return polys.map((poly) => (poly[0] ? ringToPathD(poly[0], xOffset) : "")).join(" ");
   }
 
-  function findCountryPathD(geo, countryName) {
+  function findCountryPathD(geo, countryName, viewBox) {
     if (!geo || !countryName) return "";
     const isoCodes = window.SeavNavigationPorts?.COUNTRY_ISO_NUMERIC || {};
     const id = isoCodes[countryName];
     if (!id) return "";
     const feature = (geo.features || []).find((f) => String(f.id) === String(id));
-    return feature ? geometryToPathD(feature.geometry) : "";
+    return feature ? featurePathInView(feature, viewBox) : "";
   }
+
+  // A passage across the antimeridian (Nuku'alofa -175 -> Whangarei +174)
+  // steps from about -179.8 to +178.9. Projected as-is, the track jumps from
+  // the far left of the world to the far right, so the crop became the whole
+  // world with a line across it. Same fix as the Navigation chart (v529) and
+  // the public profile map (v534): the shared unwrapLngs keeps each step
+  // within 180 degrees of the last, so the track can run past +/-180. Then
+  // the whole run is shifted by a multiple of 360 so its centre sits inside
+  // [-180, 180] -- x stays as close to [0, WORLD_MAP_W] as it can, and only
+  // the side it overflows needs a second copy of the land (featurePathInView).
+  function unwrapPassageLngs(latlngs) {
+    const unwrap = window.SeavNavigationHelpers?.unwrapLngs;
+    const run = typeof unwrap === "function" ? unwrap(latlngs) : latlngs;
+    if (!run.length) return run;
+    let minLng = Infinity;
+    let maxLng = -Infinity;
+    run.forEach(([, lng]) => {
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+    });
+    const shift = -360 * Math.round((minLng + maxLng) / 2 / 360);
+    return run.map(([lat, lng]) => [lat, lng + shift]);
+  }
+
+  // The copy of lng (+/- n*360) closest to anchorLng, so the markers and
+  // waypoints land on the same side of the date line as the unwrapped track.
+  function nearestLngCopy(lng, anchorLng) {
+    return lng + 360 * Math.round((anchorLng - lng) / 360);
+  }
+
 
   // Crops/zooms to a set of real projected points, like the live map's
   // fitBounds -- generous padding so nearby coastline still shows, capped
@@ -198,7 +243,12 @@
 
     let x = minX - padX;
     let y = minY - padY;
-    x = Math.max(Math.min(x, WORLD_MAP_W - w), -w * 0.1);
+    // Horizontal clamp only for a track inside one world copy. An unwrapped
+    // track past the edge is meant to show the neighbouring copy, which
+    // featurePathInView draws; clamping would crop the track off instead.
+    if (minX >= 0 && maxX <= WORLD_MAP_W) {
+      x = Math.max(Math.min(x, WORLD_MAP_W - w), -w * 0.1);
+    }
     y = Math.max(Math.min(y, WORLD_MAP_H - h), -h * 0.1);
 
     return { x, y, w, h };
@@ -243,7 +293,7 @@
     let minLat = Infinity;
     let maxLat = -Infinity;
     polys.forEach((poly) => {
-      (poly[0] || []).forEach(([lng, lat]) => {
+      continuousRing(poly[0] || []).forEach(([lng, lat]) => {
         if (lng < minLng) minLng = lng;
         if (lng > maxLng) maxLng = lng;
         if (lat < minLat) minLat = lat;
@@ -254,6 +304,23 @@
     const topLeft = projectLngLat(minLng, maxLat);
     const bottomRight = projectLngLat(maxLng, minLat);
     return { x1: topLeft.x, y1: topLeft.y, x2: bottomRight.x, y2: bottomRight.y };
+  }
+
+  // The boundary data covers one world, but an unwrapped track (or ring) can
+  // run past x=0 or x=WORLD_MAP_W. Each feature is drawn on whichever of
+  // the three world copies its bbox puts inside the crop -- almost always
+  // just the middle one. The copies are baked into the path coordinates, so
+  // the land is still ONE <path> for html2canvas, not three.
+  const WORLD_COPY_OFFSETS = [-WORLD_MAP_W, 0, WORLD_MAP_W];
+
+  function featurePathInView(feature, viewBox) {
+    const bbox = projectedFeatureBBox(feature.geometry);
+    if (!bbox) return "";
+    return WORLD_COPY_OFFSETS.filter((offset) =>
+      bboxIntersectsViewBox({ ...bbox, x1: bbox.x1 + offset, x2: bbox.x2 + offset }, viewBox)
+    )
+      .map((offset) => geometryToPathD(feature.geometry, offset))
+      .join(" ");
   }
 
   function bboxIntersectsViewBox(bbox, viewBox) {
@@ -290,13 +357,23 @@
     }
     if (!geo) return null;
 
-    const fromPt = projectLngLat(entry.fromLng, entry.fromLat);
-    const toPt = projectLngLat(entry.toLng, entry.toLat);
-
     const hasRoute = Array.isArray(routeCoords) && routeCoords.length >= 2;
-    const routePts = hasRoute
-      ? routeCoords.map(([lat, lng]) => projectLngLat(lng, lat))
-      : [fromPt, toPt];
+    const track = unwrapPassageLngs(
+      (hasRoute
+        ? routeCoords
+        : [
+            [entry.fromLat, entry.fromLng],
+            [entry.toLat, entry.toLng]
+          ]
+      ).map(([lat, lng]) => [Number(lat), Number(lng)])
+    );
+    const trackStartLng = track[0][1];
+    const trackEndLng = track[track.length - 1][1];
+    const trackMidLng = (Math.min(...track.map((c) => c[1])) + Math.max(...track.map((c) => c[1]))) / 2;
+
+    const fromPt = projectLngLat(nearestLngCopy(Number(entry.fromLng), trackStartLng), entry.fromLat);
+    const toPt = projectLngLat(nearestLngCopy(Number(entry.toLng), trackEndLng), entry.toLat);
+    const routePts = hasRoute ? track.map(([lat, lng]) => projectLngLat(lng, lat)) : [fromPt, toPt];
 
     // Waypoints are every point in the route between the true start/end --
     // drawn as their own markers (see below) so the exact course logged
@@ -305,7 +382,7 @@
       Array.isArray(entry.waypoints) && entry.waypoints.length
         ? entry.waypoints
             .filter((wp) => hasRealCoord(wp?.lat, wp?.lng))
-            .map((wp) => projectLngLat(wp.lng, wp.lat))
+            .map((wp) => projectLngLat(nearestLngCopy(Number(wp.lng), trackMidLng), wp.lat))
         : [];
 
     const viewBox = computeViewBoxForPoints(routePts.concat(waypointPts), 0.5, 70);
@@ -313,10 +390,10 @@
     let fromCountryD = "";
     let toCountryD = "";
     try {
-      fromCountryD = findCountryPathD(geo, entry.fromCountry);
+      fromCountryD = findCountryPathD(geo, entry.fromCountry, viewBox);
       toCountryD =
         entry.toCountry && entry.toCountry !== entry.fromCountry
-          ? findCountryPathD(geo, entry.toCountry)
+          ? findCountryPathD(geo, entry.toCountry, viewBox)
           : "";
     } catch {
       fromCountryD = "";
@@ -330,11 +407,7 @@
     let landD = "";
     try {
       landD = (geo.features || [])
-        .map((feature) => {
-          const bbox = projectedFeatureBBox(feature.geometry);
-          if (!bboxIntersectsViewBox(bbox, viewBox)) return "";
-          return geometryToPathD(feature.geometry);
-        })
+        .map((feature) => featurePathInView(feature, viewBox))
         .filter(Boolean)
         .join(" ");
     } catch {

@@ -160,20 +160,33 @@
       const color = getPublicVesselColor(vesselId, vessels);
       const from = entry.fromPort || entry.from_port || "Departure";
       const to = entry.toPort || entry.to_port || entry.port || "Arrival";
-      const line = L.polyline(coords, {
-        color,
-        weight: 2,
-        opacity: 0.94,
-        lineCap: "round",
-        lineJoin: "round"
-      });
+      // Same antimeridian handling as the Navigation page (2026-09-26): a
+      // Tonga -> New Zealand track steps from -179.8 to +178.9, which Leaflet
+      // drew literally -- the long way round the world. Unwrap first, then
+      // draw a copy either side so the line survives panning across the date
+      // line, exactly as navigation-map.js does. Bounds use only the centre
+      // copy, so the chart frames the passage where it actually is.
+      const unwrap = H?.unwrapLngs || ((latlngs) => latlngs);
+      const unwrapped = unwrap(coords.map((point) => [point[0], point[1]]));
+      [-360, 0, 360].forEach((lngOffset) => {
+        const line = L.polyline(
+          unwrapped.map(([lat, lng]) => [lat, lng + lngOffset]),
+          {
+            color,
+            weight: 2,
+            opacity: 0.94,
+            lineCap: "round",
+            lineJoin: "round"
+          }
+        );
 
-      // Leaflet writes string tooltips as innerHTML, and port names are free
-      // text typed by the profile owner -- escape, or a crafted port name runs
-      // script for every visitor (navigation-map.js already escapes its own).
-      line.bindTooltip(`${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`, { sticky: true });
-      ppNavigationLayer.addLayer(line);
-      coords.forEach((coord) => bounds.push(coord));
+        // Leaflet writes string tooltips as innerHTML, and port names are free
+        // text typed by the profile owner -- escape, or a crafted port name runs
+        // script for every visitor (navigation-map.js already escapes its own).
+        line.bindTooltip(`${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`, { sticky: true });
+        ppNavigationLayer.addLayer(line);
+      });
+      unwrapped.forEach((coord) => bounds.push(coord));
     });
 
     navigationAreas.forEach((entry) => {

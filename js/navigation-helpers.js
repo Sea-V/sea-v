@@ -336,7 +336,37 @@
     return layer;
   }
 
+  /**
+   * Make a run of longitudes continuous across the antimeridian.
+   *
+   * A great-circle from Tonga (-175) to New Zealand (+174) is correctly
+   * interpolated as ... -179.8, 178.9 ... — the short way, 11 degrees apart.
+   * Leaflet reads that 358-degree jump literally and draws the segment all the
+   * way back around the world, which is what a Tonga -> New Zealand passage
+   * looked like on the chart.
+   *
+   * Unwrapping keeps each step within 180 degrees of the previous one by
+   * carrying an offset, so the same course becomes ... -179.8, -181.1 ...
+   * Leaflet is happy with out-of-range longitudes and draws the short way.
+   * Callers apply it BEFORE making their +/-360 world copies, so every copy
+   * inherits it. Used by js/navigation-map.js and the public profile map
+   * (js/public-profile-sections.js) -- keep it here so they cannot diverge.
+   */
+  function unwrapLngs(latlngs) {
+    let offset = 0;
+    return latlngs.map(([lat, lng], i, all) => {
+      if (i > 0) {
+        const previous = all[i - 1][1] + offset;
+        const delta = lng + offset - previous;
+        if (delta > 180) offset -= 360;
+        else if (delta < -180) offset += 360;
+      }
+      return [lat, lng + offset];
+    });
+  }
+
   window.SeavNavigationHelpers = {
+    unwrapLngs,
     STORAGE_KEY, MAP_TILE_URL, MAP_TILE_ATTRIBUTION, MAP_DEFAULT_VIEW,
     getPortList, getCountryList, getCountryIsoNumeric, roundCoord,
     getVessels, getSeatimes, getVesselName, getVesselColor, loadNavEntries,

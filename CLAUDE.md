@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v533**. Jack pushes every commit himself from
+- HEAD = **v535**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -428,6 +428,34 @@ single source of truth — the listbox only sets its value and dispatches
 inputs use them too. `.cvgen-template-menu[hidden]` is guarded explicitly
 (the v529 `.modal-check` trap). Verified on a harness loading the real CV
 engine: keyboard and mouse selection both switch the preview scheme.
+
+### Shipped 2026-09-26 (v534–v535) — public profile map crossed the date line the long way
+v529's antimeridian fix (`unwrapLngs`) lived only in `navigation-map.js`, which
+the public profile does not load, so Jack's Nuku'alofa -> Whangarei passage
+still drew right round the world there. `unwrapLngs` moved to
+`navigation-helpers.js` (loaded by both pages); `navigation-map.js` aliases it
+and `paintPublicNavigationChart` now unwraps and draws the same -360/0/+360
+copies, with bounds from the centre copy only. Checked on the live public
+profile (anon data, local server): the passage is a short line north of NZ.
+Any future map that draws passages must use `H.unwrapLngs` too.
+
+### Shipped 2026-09-26 (v535) — passage share card crossed the date line too
+The third copy of the bug: `js/seav-share.js` projects onto a flat
+2000x1000 SVG, so Nuku'alofa -> Whangarei cropped to the whole world with a
+line across it. The track now goes through `unwrapLngs`, is shifted by
++/-360 so its centre sits in [-180, 180], and the from/to markers and
+waypoints snap to the copy nearest the track. Because the crop can now run
+past x=0 or x=2000, `featurePathInView` draws each land feature on whichever
+of three world copies (-2000/0/+2000) intersects the crop, baked into the
+one combined land path (still one `<path>` for html2canvas). Land rings that
+straddle 180 (Fiji, Chukotka) are unwrapped as well — they used to draw a
+stroke across the whole map — except rings that wind round a pole
+(Antarctica). The horizontal viewBox clamp now applies only to tracks inside
+one world. Verified in a node harness with the real module and the 50m
+atlas: Tonga -> Whangarei viewBox 369 wide (was 2000) with Tonga and NZ both
+drawn; Suva -> Tonga and Nome -> Provideniya correct; a Mediterranean card
+renders pixel-identical to v534. Only navigation.html uses the passage card
+(it needs `SeavNavigationMap.loadWorldGeoJson`) and it loads the helpers.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not
