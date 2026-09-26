@@ -153,8 +153,8 @@ thing most easily broken by an agent that starts editing without looking.
 `.dash-card` inside a page shell needs its padding overridden or it sits
 10px out of line.
 
-## Current state (2026-09-20)
-- HEAD = **v530**. Jack pushes every commit himself from
+## Current state (2026-09-26)
+- HEAD = **v531**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -369,6 +369,44 @@ longer consulted — waypoints already worked that way, and a guessed route
 looked more authoritative than it was. A line that crosses land is what
 waypoints are for.
 
+### Shipped 2026-09-26 (v531) — full-audit fixes, first batch
+A six-area audit (security, DB, front-end data, domain maths, CSS, hygiene)
+ran first; the findings not fixed below are thread 9. **Both migrations are
+applied live and smoke-tested** as the real `authenticated` role (JWT claims
+set, every probe rolled back): attacks refused, normal edit / draft / void /
+upsert paths and the full request -> referee-confirm -> Verified flow still
+work. Security advisors: same 23 findings before and after, none new.
+- **`profile_owner_all` was `user_id OR id`, with no UNIQUE on user_id** — a
+  user could move their own row onto another user's `user_id`, set
+  `public_enabled`, and make that person's data anon-readable. Now requires
+  BOTH, plus `profile_user_id_unique`. Column grants deliberately NOT revoked:
+  `SeavAPI.save()` upserts id/user_id on every save.
+  `docs/schema-profile-owner-policy-hardening.sql`.
+- **Crew could set their own reference `Verified`** with a plain PATCH. New
+  trigger `sea_references_verification_guard`: `authenticated`/`anon` may not
+  move a row INTO Sent/Verified/Declined, nor change verification/text/date
+  while it is in one. The definer RPCs run as `postgres` and are unaffected.
+  `docs/schema-sea-references-verification-guard.sql`. **The 3 live
+  `Verified` rows (demo-r2/3/4) were set by hand and never verified** — the
+  "five verified references" under v523 is wrong. Left untouched.
+- `test-supabase.mjs` gained `testOwnerWriteGuards`, which needs
+  `SEAV_TEST_EMAIL` / `SEAV_TEST_PASSWORD` for a throwaway account and prints
+  SKIPPED without them. **It has never actually run** — no test account here.
+- Stored XSS: public-profile map tooltips (Leaflet writes strings as
+  innerHTML) now escape port names; the reference signature fallback no
+  longer uses an inline `onerror` (escaped text is decoded back into the JS
+  string before it runs — never interpolate into an inline handler).
+- `.vercelignore` + Netlify 404 rules: `/CLAUDE.md`, `docs/`, `scripts/`,
+  `supabase/`, `.cursor/` were all publicly served (200) on sea-v.com.
+  **Verify after deploy:** `curl -sI https://www.sea-v.com/CLAUDE.md` -> 404.
+- `withSaving({ rethrow: true })` now means "caller reports the error" (no
+  toast). Profile form, username, public toggle and navigation pass it —
+  they showed success after a failed save.
+- "36 Months Onboard" progress bar used the pre-v481 formula; now
+  `computeOow36MonthsOnboard`, same as the unlock check.
+- New `parseGrossTonnage`: live "2,205 GT" / "1,906 GT" parsed as 2 and 1.
+  Length keeps `parseLengthMeters` (a decimal comma is plausible there).
+
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not
    raise it again.** The key ("SEA-V Supabase SMTP") stays as it is, despite
@@ -428,6 +466,24 @@ waypoints are for.
    GoTrue setting: not queryable by SQL or the Supabase MCP. Needs one look at
    Authentication → Policies in the dashboard. Grouped with thread 1 as the
    dashboard-only work.
+
+9. **Rest of the 2026-09-26 audit, not yet fixed** (roughly by impact):
+   storage `*_owner_select` path-planting branch (a user can put another
+   user's file path in their own row and read it); no rate limit on the
+   verification email (any address, any number of times); background file
+   hydration in `state.js` overwrites newer state so deletes reappear;
+   Master Unlimited counts pre-certificate sea days (`seav-data.js` ~2027);
+   passage can't be unlinked from sea time (mapper omits null `seatime_id`);
+   vessel delete orphans linked rows; payslip / specialist-qual delete toasts
+   success on failure; payslip total mixes currencies; UTC date parsing
+   shifts dates west of UK; `dashboard.html:72-76` duplicate script tags and
+   dead `navigation-routing.js` (patch script re-inserts it); CSP allows
+   unsafe-inline/eval and whole CDNs, supabase-js unpinned; `navigation_areas`
+   / `tenders` have TABLE-level anon SELECT; auth-form focus outlines and
+   modal dialog semantics; muted token 4.42:1 contrast. **Needs Jack's call:**
+   day counts exclude the end date; overlapping contracts double-count; yard
+   uncapped in the dated 36-month path; standby cap is per contract, not
+   total; typography.css forces 14px so `--font-label` 11px can never apply.
 
 Two reviewed documents live in `Sea-V Structure/02 Product Documentation/`:
 `SEA-V-OUTSTANDING-2026-08-16.md` (every item tagged done / stale / open /

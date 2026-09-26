@@ -564,6 +564,117 @@ async function testStorageUploads(config) {
   return !storageProbe.ok && !payslipStorageProbe.ok;
 }
 
+// Owner-side write guards (docs/schema-profile-owner-policy-hardening.sql and
+// docs/schema-sea-references-verification-guard.sql, 2026-09-26). Neither is
+// visible to anon, so these probes sign in as a real test account. Set
+// SEAV_TEST_EMAIL / SEAV_TEST_PASSWORD to a throwaway SEA-V account (never a
+// real crew member's); without them the probes are skipped, not passed.
+async function authedRequest(config, token, method, pathAndQuery, body) {
+  const res = await fetch(`${config.url}/rest/v1/${pathAndQuery}`, {
+    method,
+    headers: {
+      apikey: config.key,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation"
+    },
+    body: body === undefined ? undefined : JSON.stringify(body)
+  });
+  const text = await res.text();
+  let parsed;
+  try {
+    parsed = text ? JSON.parse(text) : null;
+  } catch {
+    parsed = text;
+  }
+  return { ok: res.ok, status: res.status, body: parsed };
+}
+
+async function testOwnerWriteGuards(config) {
+  const email = process.env.SEAV_TEST_EMAIL;
+  const password = process.env.SEAV_TEST_PASSWORD;
+
+  console.log(`\nOwner write guards (signed in as a test account):`);
+  if (!email || !password) {
+    console.log("- SKIPPED  set SEAV_TEST_EMAIL and SEAV_TEST_PASSWORD to run these probes");
+    return true;
+  }
+
+  const login = await fetch(`${config.url}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { apikey: config.key, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  }).then(async (res) => ({ ok: res.ok, status: res.status, body: await res.json().catch(() => null) }));
+
+  const token = login.body?.access_token;
+  const uid = login.body?.user?.id;
+  if (!login.ok || !token || !isUuid(uid)) {
+    console.log(`✗ test account sign-in failed  ${login.status}  FAIL`);
+    return false;
+  }
+
+  let allPassed = true;
+  const report = (label, pass, status, detail) => {
+    allPassed = allPassed && pass;
+    console.log(`${pass ? "✓" : "✗"} ${label}  ${status}  ${pass ? "OK" : "FAIL"} — ${detail}`);
+  };
+
+  const repoint = await authedRequest(
+    config,
+    token,
+    "PATCH",
+    `profile?id=eq.${uid}`,
+    { user_id: "00000000-0000-0000-0000-000000000099" }
+  );
+  report(
+    "profile user_id re-point blocked",
+    !repoint.ok,
+    repoint.status,
+    repoint.ok ? "a user can move their row onto another user_id" : "owner policy requires id AND user_id"
+  );
+
+  const probeId = `smoke-guard-${Date.now()}`;
+  try {
+    const forgedInsert = await authedRequest(config, token, "POST", "sea_references", {
+      id: `${probeId}-v`,
+      user_id: uid,
+      name: "Guard probe",
+      status: "Verified"
+    });
+    report(
+      "insert as Verified blocked",
+      !forgedInsert.ok,
+      forgedInsert.status,
+      forgedInsert.ok ? "crew can create a Verified reference" : "trigger refused it"
+    );
+
+    const draft = await authedRequest(config, token, "POST", "sea_references", {
+      id: probeId,
+      user_id: uid,
+      name: "Guard probe",
+      status: "Draft"
+    });
+    report("draft insert allowed", draft.ok, draft.status, draft.ok ? "normal save path works" : "normal save path broken");
+
+    if (draft.ok) {
+      const promote = await authedRequest(config, token, "PATCH", `sea_references?id=eq.${probeId}`, {
+        status: "Verified",
+        verification: { confirmed: true }
+      });
+      report(
+        "Draft -> Verified blocked",
+        !promote.ok,
+        promote.status,
+        promote.ok ? "crew can self-verify" : "trigger refused it"
+      );
+    }
+  } finally {
+    await authedRequest(config, token, "DELETE", `sea_references?id=in.(${probeId},${probeId}-v)`);
+  }
+
+  return allPassed;
+}
+
 const STEP_HELP = {
   0: "Baseline — tables + existing RLS",
   1: "After step1-profile-columns.sql",
@@ -590,6 +701,7 @@ async function main() {
   let certificateColumnsSafe = false;
   let columnDriftSafe = false;
   let storageBlocked = false;
+  let ownerGuardsSafe = true;
 
   if (step === "0" || step === "all") {
     failedTables = (await testTables(config)).filter((r) => !r.pass);
@@ -604,6 +716,10 @@ async function main() {
     referenceColumnsSafe = await testReferenceColumns(config);
     certificateColumnsSafe = await testCertificateColumns(config);
     columnDriftSafe = testPublicColumnDrift();
+  }
+
+  if (step === "all") {
+    ownerGuardsSafe = await testOwnerWriteGuards(config);
   }
 
   if (step === "2") {
@@ -663,7 +779,8 @@ async function main() {
     vesselColumnsSafe &&
     referenceColumnsSafe &&
     certificateColumnsSafe &&
-    columnDriftSafe
+    columnDriftSafe &&
+    ownerGuardsSafe
   ) {
     passed = true;
     console.log("All Phase 2 security checks passed.");
@@ -689,6 +806,9 @@ async function main() {
     }
     if (!certificateColumnsSafe) {
       console.log("→ Run docs/schema-certificates-anon-column-hardening.sql");
+    }
+    if (!ownerGuardsSafe) {
+      console.log("→ Run docs/schema-profile-owner-policy-hardening.sql and docs/schema-sea-references-verification-guard.sql");
     }
   }
   console.log("");

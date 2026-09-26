@@ -12,6 +12,26 @@
     return;
   }
 
+  // A signature image that fails to load (expired signed URL, or a non-image
+  // at the signature path) falls back to the typed signer name. This used to
+  // be an inline onerror="this.outerHTML='...${signerName}...'" -- but the
+  // browser decodes the escaped name back into the JS string before running
+  // it, so a referee-typed name containing a quote could run script on the
+  // crew member's References page. textContent never parses markup.
+  // `error` does not bubble, hence the capture-phase listener.
+  document.addEventListener(
+    "error",
+    (event) => {
+      const img = event.target;
+      if (img?.tagName !== "IMG" || !img.classList.contains("ref-signoff-ink")) return;
+      const typed = document.createElement("span");
+      typed.className = "ref-signoff-typed";
+      typed.textContent = img.dataset.signerName || "";
+      img.replaceWith(typed);
+    },
+    true
+  );
+
   if (!window.SeavData) {
     console.warn("[SEA-V] SeavData not found. Did you include js/seav-data.js before references.js?");
     return;
@@ -450,7 +470,7 @@
 
       const paperInner = sigUrl
         ? `<img class="seav-signature-display ref-signoff-ink" src="${Seav.escapeHtml(sigUrl)}" alt="Signature of ${signerName}" loading="lazy"
-             onerror="this.outerHTML='<span class=&quot;ref-signoff-typed&quot;>${signerName}</span>';" />`
+             data-signer-name="${signerName}" />`
         : `<span class="ref-signoff-typed">${signerName}</span>`;
 
       const field = (label, value, sub) => `

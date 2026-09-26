@@ -347,7 +347,7 @@
           editId ? "Passage updated" : "Passage logged",
           `${fromDetails.portName} → ${toDetails.portName} ${editId ? "updated on" : "added to"} your chart.`
         );
-        }, { sub: editId ? "Updating navigation passage" : "Logging navigation passage" });
+        }, { sub: editId ? "Updating navigation passage" : "Logging navigation passage", rethrow: true });
       } catch (error) {
         console.error("[SEA-V] Navigation passage save failed:", error);
         const raw =

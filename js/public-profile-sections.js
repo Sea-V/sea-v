@@ -168,7 +168,10 @@
         lineJoin: "round"
       });
 
-      line.bindTooltip(`${from} → ${to}`, { sticky: true });
+      // Leaflet writes string tooltips as innerHTML, and port names are free
+      // text typed by the profile owner -- escape, or a crafted port name runs
+      // script for every visitor (navigation-map.js already escapes its own).
+      line.bindTooltip(`${Seav.escapeHtml(from)} → ${Seav.escapeHtml(to)}`, { sticky: true });
       ppNavigationLayer.addLayer(line);
       coords.forEach((coord) => bounds.push(coord));
     });
@@ -186,7 +189,7 @@
           fillOpacity: 0.88,
           weight: 2
         });
-        marker.bindTooltip(label, { sticky: true });
+        marker.bindTooltip(Seav.escapeHtml(label), { sticky: true });
         ppNavigationLayer.addLayer(marker);
         bounds.push(coord);
       });

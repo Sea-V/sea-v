@@ -1242,6 +1242,25 @@ function getEmptyTenderEntry() {
     return match ? Number(match[1]) : 0;
   }
 
+  // GT is free text (vessels.gt) and people write thousands separators:
+  // parseLengthMeters read the live "2,205 GT" as 2 and "1,906 GT" as 1,
+  // dropping those yachts out of every 500GT Master path (2026-09-26 audit).
+  // Kept separate from length on purpose -- a length of "49,9" may be a
+  // decimal comma, but a tonnage essentially never has a fractional part
+  // written with one. Commas, spaces and apostrophes are grouping; a dot is
+  // grouping only when exactly three digits follow it ("2.500" -> 2500,
+  // "499.5" -> 499.5).
+  function parseGrossTonnage(raw) {
+    const match = String(raw || "").match(/\d[\d,.' ]*/);
+    if (!match) return 0;
+    const cleaned = match[0]
+      .trim()
+      .replace(/[,' ]/g, "")
+      .replace(/\.(?=\d{3}(?:\D|$))/g, "");
+    const value = parseFloat(cleaned);
+    return Number.isFinite(value) ? value : 0;
+  }
+
   function findVesselById(vessels, vesselId) {
     if (!vesselId) return null;
     return (vessels || []).find((v) => v.id === vesselId) || null;
@@ -1254,7 +1273,7 @@ function getEmptyTenderEntry() {
 
   function getEntryVesselGt(entry, vessels) {
     const vessel = findVesselById(vessels, entry?.vesselId);
-    return parseLengthMeters(vessel?.gt);
+    return parseGrossTonnage(vessel?.gt);
   }
 
   // 2026-08-05, per Jack: a future-dated Sea Time entry (a contract logged
@@ -2870,7 +2889,12 @@ function getSortedVesselOptions(vessels = []) {
 
     switch (trigger.type) {
       case "sea_days": {
-        const current = (seatimes || []).reduce((sum, entry) => sum + totalQualifyingDays(entry), 0);
+        // Same figure the unlock check uses (achievements-engine.js
+        // getTotalSeaDays). This bar still summed totalQualifyingDays -- the
+        // pre-v481 formula that double-counts watchkeeping and ignores the yard
+        // cap -- so it could read "1200 / 1095, 100%" on a locked badge.
+        // Fixed 2026-09-26 audit.
+        const current = computeOow36MonthsOnboard(seatimes).totalDays;
         const target = Number(trigger.minDays || 0);
         return {
           current,

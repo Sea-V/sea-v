@@ -1,0 +1,26 @@
+# Files that exist for development only and must never be served from
+# sea-v.com. Vercel serves every tracked file by default; before this file
+# (2026-09-26 audit) /CLAUDE.md, every docs/*.sql migration, the test
+# harnesses, supabase/config.toml and the Cursor rules were all publicly
+# readable. Nothing at runtime loads any of these.
+
+# Project notes and handoffs
+*.md
+
+# Schema migrations, scripts, tooling
+docs/
+scripts/
+supabase/
+.cursor/
+.github/
+node_modules/
+eslint.config.js
+netlify.toml
+
+# Local clutter (untracked today, but never deploy it if it is ever added)
+_to_delete/
+design-concepts/
+.codex-presentations/
+Claude outputs/
+*.pptx
+*.ndjson

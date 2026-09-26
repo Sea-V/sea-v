@@ -740,7 +740,7 @@
       }
 
       return saved;
-      }, { sub: "Updating your profile" });
+      }, { sub: "Updating your profile", rethrow: true });
     }
 
     async function saveProfileNow(profile) {
@@ -789,11 +789,12 @@
         // successful save — Edit is the only way back into the form.
         setMode("view");
       } catch (err) {
+        // Stay in edit mode so the typed changes are not thrown away.
         console.error("[SEA-V] Profile save failed:", err);
         Seav.notify(
           "error",
           "Could not save profile",
-          "Check the browser console (F12) for details."
+          Seav.formatActionError(err, "Check the browser console (F12) for details.")
         );
       }
     });
@@ -989,7 +990,7 @@
           } else if (window.SeavState?.data) {
             window.SeavState.data.profile = updated;
           }
-        }, { sub: "Updating your public link" });
+        }, { sub: "Updating your public link", rethrow: true });
 
         syncPublicSharePanel(updated);
         setPublicShareUsernameHint("Saved — your link is updated.", false);
@@ -1147,7 +1148,7 @@
           } else if (window.SeavState?.data) {
             window.SeavState.data.profile = updated;
           }
-        }, { sub: "Updating public profile" });
+        }, { sub: "Updating public profile", rethrow: true });
 
         syncPublicSharePanel(updated);
 

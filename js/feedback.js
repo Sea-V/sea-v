@@ -198,11 +198,19 @@
       return await task();
     } catch (err) {
       console.error("[SEA-V] Save failed:", err);
+      // `rethrow: true` means the caller owns the failure: it has its own
+      // catch with a tailored message (or a control to revert), so no toast
+      // here -- otherwise the person gets two errors. Without it the error is
+      // reported here and swallowed, so a caller that shows a success notice
+      // AFTER `await withSaving(...)` will show it on failure too. Put the
+      // success notice inside the task, or pass rethrow. (2026-09-26 audit:
+      // the profile form said "Profile anchored" and the public-profile toggle
+      // reported the wrong visibility after failed saves.)
+      if (options.rethrow) throw err;
       error(
         options.errorTitle || "Save failed",
         options.errorMessage || formatActionError(err)
       );
-      if (options.rethrow) throw err;
       return undefined;
     } finally {
       hideSaving();

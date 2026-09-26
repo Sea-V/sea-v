@@ -62,7 +62,7 @@
       });
     }
 
-    const label = wp.label ? `${index + 1}: ${wp.label}` : `Waypoint ${index + 1}`;
+    const label = wp.label ? `${index + 1}: ${Seav.escapeHtml(wp.label)}` : `Waypoint ${index + 1}`;
     marker.bindTooltip(label, { direction: "top" });
     return marker;
   }
