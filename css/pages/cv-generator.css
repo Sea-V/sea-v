@@ -388,6 +388,102 @@
   top: 110px;
 }
 
+/* ---------------------------------------------------------
+   Collapsible settings panel + fit-to-width preview
+   2026-09-26, per Jack: the settings column should fold away
+   horizontally, and the A4 preview should grow into the space it
+   frees. js/cv-generator.js toggles .is-editor-collapsed and sets
+   --cv-preview-zoom from the frame's width (ResizeObserver).
+
+   `zoom`, not `transform: scale()`: zoom scales the layout box too,
+   so the frame's height follows the scaled page with no measuring.
+   Screen only -- print resets zoom to 1 (@media print below) and the
+   Word export is built from the CV model, not this DOM, so the saved
+   PDF/.docx stay true A4. Below 1100px the layout already stacks, so
+   the toggle is hidden and the collapse rules do not apply.
+--------------------------------------------------------- */
+
+.cvgen-preview-frame .cv-document {
+  zoom: var(--cv-preview-zoom, 1);
+}
+
+.cvgen-editor-toggle {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--pill-height);
+  padding: 0 var(--pill-padding-x);
+  border-radius: 999px;
+  border: 1px solid var(--pill-blue-border);
+  background: var(--pill-blue-bg);
+  color: var(--seav-field-value-color);
+  font: inherit;
+  font-size: var(--pill-font-size);
+  font-weight: var(--font-weight-body);
+  cursor: pointer;
+}
+
+.cvgen-editor-toggle:hover {
+  background: var(--pill-blue-bg-hover);
+  border-color: var(--pill-blue-border-hover);
+}
+
+.cvgen-editor-toggle:focus-visible {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--pill-blue-bg-hover);
+}
+
+.cvgen-editor-toggle-icon {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  color: var(--accent-blue);
+  transition: transform 0.2s ease;
+}
+
+@media (min-width: 1101px) {
+  .cvgen-workspace.is-editor-collapsed {
+    grid-template-columns: var(--pill-height) minmax(0, 1fr);
+  }
+
+  /* The rail keeps the page's two-column rhythm but drops the panel
+     chrome, so it reads as a handle rather than an empty card. */
+  .cvgen-workspace.is-editor-collapsed .cvgen-editor {
+    position: sticky;
+    top: 110px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .cvgen-workspace.is-editor-collapsed .cvgen-editor > :not(.cvgen-editor-toggle) {
+    display: none;
+  }
+
+  .cvgen-workspace.is-editor-collapsed .cvgen-editor-toggle {
+    align-self: stretch;
+    width: var(--pill-height);
+    padding: 0;
+  }
+
+  .cvgen-workspace.is-editor-collapsed .cvgen-editor-toggle-label {
+    display: none;
+  }
+
+  .cvgen-workspace.is-editor-collapsed .cvgen-editor-toggle-icon {
+    transform: rotate(180deg);
+  }
+}
+
+@media (max-width: 1100px) {
+  .cvgen-editor-toggle {
+    display: none;
+  }
+}
+
 .cvgen-footnote {
   margin: 16px 0 0;
   color: rgba(255, 255, 255, 0.45);
@@ -873,6 +969,8 @@
     width: 210mm;
     min-height: auto;
     margin: 0;
+    /* The on-screen fit-to-width zoom must never reach the printed page. */
+    zoom: 1;
     /* Rounded corners are a screen-preview touch to match the app shell —
        the actual saved/printed CV should stay a normal rectangular page. */
     border-radius: 0;

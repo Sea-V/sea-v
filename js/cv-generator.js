@@ -415,6 +415,112 @@
     updateSaveStatus();
   }
 
+  // Collapsible settings panel + fit-to-width preview (2026-09-26, per
+  // Jack). Pure layout: nothing here touches the draft, the CV model or
+  // the export paths. See the matching block in css/pages/cv-generator.css.
+  const EDITOR_COLLAPSED_KEY = "seav_cvgen_editor_collapsed";
+  // .cv-document is `width: 210mm`; CSS fixes 1in = 96px = 25.4mm.
+  const A4_WIDTH_PX = (210 * 96) / 25.4;
+  // Below 0.6 the text is unreadable, so the frame's existing horizontal
+  // scroll takes over; above 1.6 a wide monitor just gets a comically big page.
+  const PREVIEW_ZOOM_MIN = 0.6;
+  const PREVIEW_ZOOM_MAX = 1.6;
+  // Matches the stylesheet: <=1100px the workspace stacks (no collapse),
+  // <=900px the CV document is already fluid (width: 100%, no zoom needed).
+  const STACKED_QUERY = window.matchMedia("(max-width: 1100px)");
+  const FLUID_QUERY = window.matchMedia("(max-width: 900px)");
+  const ZOOM_SUPPORTED = !!(window.CSS?.supports && window.CSS.supports("zoom", "2"));
+
+  function readEditorCollapsedPref() {
+    try {
+      return window.localStorage.getItem(EDITOR_COLLAPSED_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function writeEditorCollapsedPref(collapsed) {
+    try {
+      window.localStorage.setItem(EDITOR_COLLAPSED_KEY, collapsed ? "1" : "0");
+    } catch {
+      // Storage blocked (private window etc.) -- the toggle still works for this visit.
+    }
+  }
+
+  function setEditorCollapsed(collapsed) {
+    const workspace = document.querySelector(".cvgen-workspace");
+    const toggle = document.getElementById("btnToggleCvEditor");
+    if (!workspace || !toggle) return;
+
+    workspace.classList.toggle("is-editor-collapsed", collapsed);
+    const label = collapsed ? "Show CV settings" : "Hide CV settings";
+    toggle.setAttribute("aria-expanded", String(!collapsed));
+    toggle.setAttribute("aria-label", label);
+    toggle.title = label;
+    const text = toggle.querySelector(".cvgen-editor-toggle-label");
+    if (text) text.textContent = collapsed ? "Show settings" : "Hide settings";
+  }
+
+  function fitPreviewToFrame() {
+    const frame = document.querySelector(".cvgen-preview-frame");
+    const preview = document.getElementById("cvPreview");
+    if (!frame || !preview) return;
+
+    if (!ZOOM_SUPPORTED || FLUID_QUERY.matches) {
+      preview.style.removeProperty("--cv-preview-zoom");
+      return;
+    }
+
+    const styles = window.getComputedStyle(frame);
+    const available =
+      frame.clientWidth - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight);
+    // Floor to 1% and keep a pixel spare so rounding can never tip the page
+    // wider than the frame and flash a horizontal scrollbar (which would
+    // narrow the frame and re-trigger the observer).
+    const fit = Math.floor(((available - 1) / A4_WIDTH_PX) * 100) / 100;
+    const zoom = Math.min(PREVIEW_ZOOM_MAX, Math.max(PREVIEW_ZOOM_MIN, fit));
+    preview.style.setProperty("--cv-preview-zoom", String(zoom));
+  }
+
+  function initWorkspaceLayout() {
+    const toggle = document.getElementById("btnToggleCvEditor");
+    const frame = document.querySelector(".cvgen-preview-frame");
+
+    setEditorCollapsed(readEditorCollapsedPref());
+
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        const collapsed = !document
+          .querySelector(".cvgen-workspace")
+          ?.classList.contains("is-editor-collapsed");
+        setEditorCollapsed(collapsed);
+        writeEditorCollapsedPref(collapsed);
+        // Collapsing moves the toggle to the rail; keep focus on it so a
+        // keyboard user can reopen the panel straight away.
+        toggle.focus();
+      });
+    }
+
+    if (frame && typeof window.ResizeObserver === "function") {
+      let pending = 0;
+      new window.ResizeObserver(() => {
+        // Defer to the next frame: setting the zoom inside the callback
+        // resizes the frame's height, which otherwise logs a benign
+        // "ResizeObserver loop" warning on every change.
+        window.cancelAnimationFrame(pending);
+        pending = window.requestAnimationFrame(fitPreviewToFrame);
+      }).observe(frame);
+    } else {
+      window.addEventListener("resize", fitPreviewToFrame);
+    }
+
+    // The stacked (<=1100px) layout ignores the collapsed class in CSS, so
+    // only the fit needs recomputing when the breakpoints flip.
+    STACKED_QUERY.addEventListener?.("change", fitPreviewToFrame);
+    FLUID_QUERY.addEventListener?.("change", fitPreviewToFrame);
+    fitPreviewToFrame();
+  }
+
   function initCvGenerator() {
     ensureDraft();
     refreshUi();
@@ -427,6 +533,7 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    initWorkspaceLayout();
     if (window.SeavState?.ready) {
       initCvGenerator();
     } else {

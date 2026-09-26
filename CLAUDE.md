@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v531**. Jack pushes every commit himself from
+- HEAD = **v532**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -406,6 +406,15 @@ work. Security advisors: same 23 findings before and after, none new.
   `computeOow36MonthsOnboard`, same as the unlock check.
 - New `parseGrossTonnage`: live "2,205 GT" / "1,906 GT" parsed as 2 and 1.
   Length keeps `parseLengthMeters` (a decimal comma is plausible there).
+- **CV generator: collapsible settings + fit-to-width preview** (per Jack).
+  `#btnToggleCvEditor` folds `.cvgen-editor` to a 30px rail (>1100px only;
+  state in localStorage `seav_cvgen_editor_collapsed`). The A4 preview is
+  sized with CSS `zoom` via `--cv-preview-zoom` (ResizeObserver, clamped
+  0.6-1.6, off at <=900px where the page is already fluid). Print resets
+  zoom to 1; the .docx export never reads the DOM. Note it also SHRINKS the
+  preview when the panel is open on a laptop (0.76 at 1440px) — before, the
+  page sat at 100% and scrolled sideways. Verified on a stubbed copy of the
+  page (the real one needs a login); not yet seen with real CV data.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not
