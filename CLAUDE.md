@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-20)
-- HEAD = **v529**. Jack pushes every commit himself from
+- HEAD = **v530**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -362,6 +362,12 @@ join a sea lane.
 
 Checklist run: patch-html-scripts updated 26 files, lint exit 0, test-site all
 static + HTTP checks passed.
+
+### Shipped 2026-09-26 (v530)
+Passages are now a direct great-circle on every leg. The sea-lane graph is no
+longer consulted — waypoints already worked that way, and a guessed route
+looked more authoritative than it was. A line that crosses land is what
+waypoints are for.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not

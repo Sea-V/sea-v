@@ -16,21 +16,25 @@
       return buildLegRoute._cache.get(cacheKey);
     }
 
-    let coords = null;
-
-    if (window.SeavNavigationRouting?.buildSeaRoute) {
-      const leg = await window.SeavNavigationRouting.buildSeaRoute(a.lat, a.lng, b.lat, b.lng);
-      if (leg?.coords?.length >= 2) {
-        coords = leg.coords.map((point) => [point[0], point[1]]);
-      }
-    }
-
-    if (!coords) {
-      coords = [
-        [a.lat, a.lng],
-        [b.lat, b.lng]
-      ];
-    }
+    // Direct great-circle, always (Jack, 2026-09-26).
+    //
+    // This used to ask SeavNavigationRouting for a path through a graph of
+    // sea-lane hubs, falling back to a straight line when it found none. Two
+    // reasons that is gone:
+    //
+    //   SEA-V logs passages that were actually sailed. The crew member knows
+    //   the course; the graph was guessing at one, and a guess that looks
+    //   authoritative on a chart is worse than an honest straight line the
+    //   navigator then shapes.
+    //
+    //   Waypoints already worked this way. buildRouteThroughAnchors used
+    //   direct legs the moment you placed one, so adding a waypoint silently
+    //   changed the shape of the whole passage. Now the two agree: a leg is a
+    //   leg, and a waypoint just splits one into two.
+    //
+    // The trade is that a direct line can cross land — Fort Lauderdale to Los
+    // Angeles runs over Mexico. That is what waypoints are for.
+    const coords = buildDirectLeg(a, b);
 
     // Guarantee the leg starts and ends exactly on its anchors, so manually
     // placed waypoints are always visited even if they sit far from a sea lane.
@@ -319,16 +323,13 @@
     );
     if (valid.length < 2) return null;
 
-    // With manual waypoints the navigator is taking control of the course, so we
-    // connect every anchor in sequence (departure -> wp1 -> ... -> arrival).
-    // Without waypoints we still auto-route along sea lanes to dodge land.
-    const useManualCourse = valid.length > 2;
+    // Every anchor is connected in sequence (departure -> wp1 -> ... -> arrival),
+    // each leg a direct great-circle. There is no longer a separate
+    // no-waypoint path: a passage with no waypoints is simply one leg.
     const coords = [];
 
     for (let i = 0; i < valid.length - 1; i += 1) {
-      const legCoords = useManualCourse
-        ? buildDirectLeg(valid[i], valid[i + 1])
-        : await buildLegRoute(valid[i], valid[i + 1]);
+      const legCoords = await buildLegRoute(valid[i], valid[i + 1]);
 
       legCoords.forEach((point) => {
         const prev = coords[coords.length - 1];
