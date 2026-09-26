@@ -195,32 +195,153 @@
     const templateSelect = document.getElementById("cvTemplateSelect");
     if (!picker || !templateSelect) return;
 
-    picker.innerHTML = (window.SeavCvEngine.CV_TEMPLATES || [])
-      .map((t) => {
-        const swatch = CV_TEMPLATE_SWATCHES[t.id] || "#5bbcff";
-        return `
-          <button
-            type="button"
-            class="cvgen-template-option"
-            role="radio"
-            aria-checked="false"
-            data-template-id="${Seav.escapeHtml(t.id)}"
-            style="--tpl-color: ${swatch};"
-          >
+    const templates = window.SeavCvEngine.CV_TEMPLATES || [];
+    const swatchFor = (id) => CV_TEMPLATE_SWATCHES[id] || "#5bbcff";
+
+    // 2026-09-26, per Jack: a dropdown instead of five stacked rows. A
+    // native <option> cannot draw the colour circle, so this is a small
+    // WAI-ARIA listbox: a button that opens a list, focus stays on the
+    // list (aria-activedescendant) while arrow keys move the highlight.
+    picker.innerHTML = `
+      <button type="button" class="cvgen-template-trigger" id="cvTemplateTrigger"
+              aria-haspopup="listbox" aria-expanded="false"
+              aria-controls="cvTemplateMenu" aria-labelledby="cvTemplateLabel cvTemplateTrigger">
+        <span class="cvgen-template-swatch" aria-hidden="true"></span>
+        <span class="cvgen-template-trigger-label"></span>
+      </button>
+      <ul class="cvgen-template-menu" id="cvTemplateMenu" role="listbox"
+          tabindex="-1" aria-labelledby="cvTemplateLabel" hidden>
+        ${templates
+          .map(
+            (t) => `
+          <li class="cvgen-template-option" role="option" aria-selected="false"
+              id="cvTemplateOption-${Seav.escapeHtml(t.id)}"
+              data-template-id="${Seav.escapeHtml(t.id)}"
+              style="--tpl-color: ${swatchFor(t.id)};">
             <span class="cvgen-template-swatch" aria-hidden="true"></span>
             <span class="cvgen-template-option-label">${Seav.escapeHtml(t.label)}</span>
-          </button>
-        `;
-      })
-      .join("");
+            <svg class="cvgen-template-check" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </li>`
+          )
+          .join("")}
+      </ul>
+    `;
 
-    picker.addEventListener("click", (event) => {
-      const btn = event.target.closest(".cvgen-template-option");
-      if (!btn || !picker.contains(btn)) return;
-      const id = btn.getAttribute("data-template-id");
+    const trigger = picker.querySelector(".cvgen-template-trigger");
+    const menu = picker.querySelector(".cvgen-template-menu");
+    const options = () => Array.from(menu.querySelectorAll(".cvgen-template-option"));
+
+    const setActive = (option) => {
+      options().forEach((o) => o.classList.toggle("is-active", o === option));
+      if (option) {
+        menu.setAttribute("aria-activedescendant", option.id);
+        option.scrollIntoView({ block: "nearest" });
+      } else {
+        menu.removeAttribute("aria-activedescendant");
+      }
+    };
+
+    const isOpen = () => !menu.hidden;
+
+    const open = () => {
+      if (isOpen()) return;
+      menu.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      setActive(options().find((o) => o.dataset.templateId === templateSelect.value) || options()[0]);
+      menu.focus();
+    };
+
+    const close = ({ restoreFocus = true } = {}) => {
+      if (!isOpen()) return;
+      menu.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      setActive(null);
+      if (restoreFocus) trigger.focus();
+    };
+
+    const choose = (option) => {
+      const id = option?.dataset.templateId;
+      close();
       if (!id || templateSelect.value === id) return;
       templateSelect.value = id;
       templateSelect.dispatchEvent(new Event("change"));
+    };
+
+    const move = (step) => {
+      const list = options();
+      const current = list.findIndex((o) => o.classList.contains("is-active"));
+      const next = Math.min(list.length - 1, Math.max(0, current + step));
+      setActive(list[next]);
+    };
+
+    // Safari does not focus a button on click, so without this a click on
+    // the trigger while open would blur the list (closing it via focusout)
+    // and then reopen it on click. open() moves focus to the list anyway.
+    trigger.addEventListener("mousedown", (event) => event.preventDefault());
+    trigger.addEventListener("click", () => (isOpen() ? close() : open()));
+    trigger.addEventListener("keydown", (event) => {
+      if (["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) {
+        event.preventDefault();
+        open();
+      }
+    });
+
+    menu.addEventListener("keydown", (event) => {
+      const list = options();
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          move(1);
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          move(-1);
+          break;
+        case "Home":
+          event.preventDefault();
+          setActive(list[0]);
+          break;
+        case "End":
+          event.preventDefault();
+          setActive(list[list.length - 1]);
+          break;
+        case "Enter":
+        case " ":
+          event.preventDefault();
+          choose(list.find((o) => o.classList.contains("is-active")));
+          break;
+        case "Escape":
+          event.preventDefault();
+          close();
+          break;
+        case "Tab":
+          close({ restoreFocus: false });
+          break;
+        default:
+          break;
+      }
+    });
+
+    menu.addEventListener("mousemove", (event) => {
+      const option = event.target.closest(".cvgen-template-option");
+      if (option && !option.classList.contains("is-active")) setActive(option);
+    });
+    // mousedown, not click: keeps focus from leaving the list (which would
+    // fire the focusout close below before the click lands).
+    menu.addEventListener("mousedown", (event) => {
+      const option = event.target.closest(".cvgen-template-option");
+      if (!option) return;
+      event.preventDefault();
+      choose(option);
+    });
+
+    picker.addEventListener("focusout", (event) => {
+      if (!picker.contains(event.relatedTarget)) close({ restoreFocus: false });
+    });
+    document.addEventListener("mousedown", (event) => {
+      if (isOpen() && !picker.contains(event.target)) close({ restoreFocus: false });
     });
   }
 
@@ -228,11 +349,21 @@
     const picker = document.getElementById("cvTemplatePicker");
     const templateSelect = document.getElementById("cvTemplateSelect");
     if (!picker || !templateSelect) return;
+
     const current = templateSelect.value;
-    picker.querySelectorAll(".cvgen-template-option").forEach((btn) => {
-      const isSelected = btn.getAttribute("data-template-id") === current;
-      btn.classList.toggle("is-selected", isSelected);
-      btn.setAttribute("aria-checked", isSelected ? "true" : "false");
+    const template = (window.SeavCvEngine.CV_TEMPLATES || []).find((t) => t.id === current);
+    const trigger = picker.querySelector(".cvgen-template-trigger");
+    if (trigger) {
+      trigger.style.setProperty("--tpl-color", CV_TEMPLATE_SWATCHES[current] || "#5bbcff");
+      const label = trigger.querySelector(".cvgen-template-trigger-label");
+      if (label) label.textContent = template?.label || "";
+    }
+
+    picker.querySelectorAll(".cvgen-template-option").forEach((option) => {
+      option.setAttribute(
+        "aria-selected",
+        option.getAttribute("data-template-id") === current ? "true" : "false"
+      );
     });
   }
 

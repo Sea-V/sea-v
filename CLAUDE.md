@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v532**. Jack pushes every commit himself from
+- HEAD = **v533**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -415,6 +415,19 @@ work. Security advisors: same 23 findings before and after, none new.
   preview when the panel is open on a laptop (0.76 at 1440px) — before, the
   page sat at 100% and scrolled sideways. Verified on a stubbed copy of the
   page (the real one needs a login); not yet seen with real CV data.
+
+### Shipped 2026-09-26 (v533) — CV template dropdown
+Jack: the five stacked template rows should be a dropdown "to look smoother",
+with the colour in a circle beside each name. A native `<option>` cannot draw
+the circle, so `renderTemplatePicker()` builds a small WAI-ARIA listbox
+(trigger button + `role=listbox`, `aria-activedescendant`, arrows / Home /
+End / Enter / Escape / Tab). The hidden `#cvTemplateSelect` is still the
+single source of truth — the listbox only sets its value and dispatches
+`change`. Styled as the editor's light field; its values are now tokens
+(`--seav-cv-field-*`, `--seav-cv-menu-*` in variables.css) and the editor's
+inputs use them too. `.cvgen-template-menu[hidden]` is guarded explicitly
+(the v529 `.modal-check` trap). Verified on a harness loading the real CV
+engine: keyboard and mouse selection both switch the preview scheme.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not

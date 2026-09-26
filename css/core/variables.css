@@ -172,6 +172,20 @@
   --seav-select-arrow: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.5 6 6.5l5-5' fill='none' stroke='%23ffffff' stroke-opacity='0.65' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   --seav-select-arrow-on-light: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.5 6 6.5l5-5' fill='none' stroke='%230b1733' stroke-opacity='0.7' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 
+  /* The CV generator editor's deliberately LIGHT field surface — it mirrors
+     the white CV preview beside it (see the note in select.css). Shared by
+     its inputs/textareas and the custom template dropdown (2026-09-26), which
+     were previously hardcoding these same values. */
+  --seav-cv-field-bg: rgba(255, 255, 255, 0.94);
+  --seav-cv-field-border: rgba(124, 156, 184, 0.32);
+  --seav-cv-field-text: #0b1733;
+  --seav-cv-field-focus-border: rgba(91, 188, 255, 0.7);
+  --seav-cv-field-focus-ring: rgba(91, 188, 255, 0.18);
+  --seav-cv-field-hover-bg: rgba(11, 23, 51, 0.06);
+  /* Solid, unlike the 0.94 field: the open list floats over other fields. */
+  --seav-cv-menu-bg: #ffffff;
+  --seav-cv-menu-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+
   /* =========================================================
      GLASS SURFACES
      Solid flat fills, not gradients — Jack wants solid colors site-wide

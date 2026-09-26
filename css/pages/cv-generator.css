@@ -94,10 +94,10 @@
   width: 100%;
   box-sizing: border-box;
   padding: 10px 12px;
-  border: 1px solid rgba(124, 156, 184, 0.32);
+  border: 1px solid var(--seav-cv-field-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #0b1733;
+  background: var(--seav-cv-field-bg);
+  color: var(--seav-cv-field-text);
   font: inherit;
   font-size: 13px;
   font-weight: 600;
@@ -123,8 +123,8 @@
 .cvgen-editor input:not([type="checkbox"]):focus,
 .cvgen-editor select:focus,
 .cvgen-editor textarea:focus {
-  border-color: rgba(91, 188, 255, 0.7);
-  box-shadow: 0 0 0 2px rgba(91, 188, 255, 0.18);
+  border-color: var(--seav-cv-field-focus-border);
+  box-shadow: 0 0 0 2px var(--seav-cv-field-focus-ring);
 }
 
 .cvgen-toolbar-note {
@@ -242,73 +242,118 @@
   margin: 4px 0 0;
 }
 
-/* Visual, colour-swatch template picker — a presentational proxy in front
-   of the hidden native <select id="cvTemplateSelect">, which stays the
-   single source of truth for the selected template (see js/cv-generator.js
-   renderTemplatePicker/syncTemplatePicker). */
+/* Template dropdown — a custom listbox in front of the hidden native
+   <select id="cvTemplateSelect">, which stays the single source of truth
+   (js/cv-generator.js renderTemplatePicker/syncTemplatePicker). Custom
+   because a native <option> cannot draw the colour circle.
+   2026-09-26, per Jack: the stacked list of five coloured rows became a
+   dropdown "to look smoother", with the colour in a circle beside each name.
+   Styled as the editor's light field (same tokens as its inputs), with the
+   same on-light chevron select.css gives .cvgen-editor select. */
 .cvgen-template-picker {
+  position: relative;
+}
+
+.cvgen-template-trigger {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px var(--seav-select-arrow-gap) 10px 12px;
+  border: 1px solid var(--seav-cv-field-border);
+  border-radius: var(--seav-select-radius);
+  background-color: var(--seav-cv-field-bg);
+  background-image: var(--seav-select-arrow-on-light);
+  background-repeat: no-repeat;
+  background-position: right var(--seav-select-arrow-inset) center;
+  background-size: var(--seav-select-arrow-size);
+  color: var(--seav-cv-field-text);
+  font: inherit;
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-body);
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cvgen-template-trigger:focus-visible,
+.cvgen-template-trigger[aria-expanded="true"] {
+  outline: none;
+  border-color: var(--seav-cv-field-focus-border);
+  box-shadow: 0 0 0 2px var(--seav-cv-field-focus-ring);
+}
+
+.cvgen-template-trigger-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cvgen-template-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--seav-cv-field-border);
+  border-radius: var(--seav-select-radius);
+  background: var(--seav-cv-menu-bg);
+  box-shadow: var(--seav-cv-menu-shadow);
+  outline: none;
+}
+
+/* The same trap v529 hit with .modal-check: any display rule would beat the
+   UA's [hidden] { display: none }, so guard it explicitly. */
+.cvgen-template-menu[hidden] {
+  display: none;
 }
 
 .cvgen-template-option {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(124, 156, 184, 0.28);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.78);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  text-align: left;
+  padding: 8px 10px;
+  border-radius: 9px;
+  color: var(--seav-cv-field-text);
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-body);
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.cvgen-template-option:hover {
-  border-color: rgba(124, 156, 184, 0.5);
-  background: rgba(255, 255, 255, 0.07);
+.cvgen-template-option.is-active {
+  background: var(--seav-cv-field-hover-bg);
 }
 
-.cvgen-template-option:focus-visible {
-  outline: none;
-  border-color: var(--tpl-color, #5bbcff);
-  box-shadow: 0 0 0 2px rgba(91, 188, 255, 0.25);
+.cvgen-template-option-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cvgen-template-check {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  color: var(--seav-cv-field-text);
+  visibility: hidden;
+}
+
+.cvgen-template-option[aria-selected="true"] .cvgen-template-check {
+  visibility: visible;
 }
 
 .cvgen-template-swatch {
   flex: 0 0 auto;
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: var(--tpl-color, #5bbcff);
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
-}
-
-.cvgen-template-option-label {
-  min-width: 0;
-}
-
-/* Selected row — filled with its own template colour, matching the row
-   Jack asked for ("when you select simple green, that row becomes simple
-   green"). Text switches to a readable dark/light shade depending on
-   scheme via the same on-dark-vs-on-light split the CV sidebar schemes
-   themselves use — simplest reliable approach is a light text colour with
-   enough contrast on every one of the 5 fixed swatch colours, since all
-   are mid-to-dark except pearl grey/simple green's accent-2 (still dark
-   enough at these values for white text to pass). */
-.cvgen-template-option.is-selected {
-  border-color: var(--tpl-color, #5bbcff);
-  background: var(--tpl-color, #5bbcff);
-  color: #ffffff;
-}
-
-.cvgen-template-option.is-selected .cvgen-template-swatch {
-  border-color: rgba(255, 255, 255, 0.75);
+  background: var(--tpl-color, var(--accent-blue));
+  /* A hairline ring so the lighter swatches still read on the white field. */
+  box-shadow: 0 0 0 1px var(--seav-cv-field-border);
 }
 
 .cvgen-toggle-grid {
