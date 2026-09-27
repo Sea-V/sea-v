@@ -505,15 +505,23 @@
       detailParts.push(`<div class="onboard-detail-meta">${metaBits.join(" • ")}</div>`);
     }
 
-    const attachmentUrl = entry.attachment?.url || "";
-    if (attachmentUrl) {
-      const isImage = (entry.attachment?.mime || "").startsWith("image/");
+    // Captioned photo strip (js/seav-photo-strip.js), then a document link.
+    // Stays inside the collapsed Details panel on purpose: per Jack
+    // (2026-09-27) the public profile must not overwhelm an employer, so
+    // photos are one click away, flagged by the "N photos" note in the row.
+    const Photos = window.SeavPhotoStrip;
+    const photos = Photos ? Photos.getEntryPhotos(entry) : [];
+    const photoStrip = Photos ? Photos.buildPhotoStrip(photos) : "";
+    if (photoStrip) detailParts.push(photoStrip);
+
+    const documentMeta = Photos ? Photos.getEntryDocument(entry) : entry.attachment;
+    const documentUrl = documentMeta?.url || "";
+    if (documentUrl) {
       detailParts.push(
-        isImage
-          ? `<img class="onboard-detail-photo" src="${Seav.escapeHtml(attachmentUrl)}" alt="${Seav.escapeHtml(entry.title || "Onboard experience photo")}" loading="lazy" />`
-          : `<a class="onboard-detail-attachment" href="${Seav.escapeHtml(attachmentUrl)}" target="_blank" rel="noopener">${Seav.escapeHtml(entry.attachment?.filename || "View attachment")}</a>`
+        `<a class="onboard-detail-attachment" href="${Seav.escapeHtml(documentUrl)}" target="_blank" rel="noopener">${Seav.escapeHtml(documentMeta.filename || "View document")}</a>`
       );
     }
+    const photoCount = photoStrip ? photos.filter((photo) => photo?.url).length : 0;
 
     const hasDetail = detailParts.length > 0;
 
@@ -522,7 +530,7 @@
         <div style="min-width:0;">
           <div class="list-title">${Seav.escapeHtml(entry.title || "—")}</div>
           <div class="list-sub">
-            ${metaLine}
+            ${metaLine}${photoCount ? ` • ${photoCount} photo${photoCount === 1 ? "" : "s"}` : ""}
           </div>
         </div>
         <div class="onboard-row-actions">

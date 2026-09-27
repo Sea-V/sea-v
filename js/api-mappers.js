@@ -541,7 +541,31 @@ function mapSignoffToSupabase(signoff) {
   };
 }
 
+function isImageFileMeta(file) {
+  const mime = String(file?.mime || "").toLowerCase();
+  if (mime) return mime.startsWith("image/");
+  return /\.(png|jpe?g|gif|webp|heic|heif)$/i.test(String(file?.filename || file?.path || ""));
+}
+
+// Before v536 an entry held ONE file in `attachment`, usually a photo. It
+// is now presented as the first gallery photo (labelled with the entry
+// title, since a label is required) and moves into `photos` the next time
+// the entry is saved -- see docs/schema-onboard-experiences-photos.sql for
+// why there was no data backfill. Documents (PDF) stay in `attachment`.
+function mapOnboardExperiencePhotos(row) {
+  const photos = Array.isArray(row.photos) ? row.photos : [];
+  const attachment = row.attachment || null;
+  if (!photos.length && attachment?.path && isImageFileMeta(attachment)) {
+    return {
+      photos: [{ ...attachment, label: row.title || "Photo", caption: "" }],
+      attachment: null
+    };
+  }
+  return { photos, attachment };
+}
+
 function mapOnboardExperienceFromSupabase(row) {
+  const { photos, attachment } = mapOnboardExperiencePhotos(row);
   return {
     id: row.id,
     vesselId: row.vessel_id || "",
@@ -556,7 +580,8 @@ function mapOnboardExperienceFromSupabase(row) {
     isFamiliarisation: !!row.is_familiarisation,
     status: row.status || "Draft",
     signoff: mapSignoffFromSupabase(row.signoff),
-    attachment: row.attachment || null,
+    attachment,
+    photos,
     createdAt: row.created_at || "",
     updatedAt: row.updated_at || ""
   };
@@ -578,6 +603,7 @@ function mapOnboardExperienceToSupabase(item) {
     status: item.status || "Draft",
     signoff: mapSignoffToSupabase(item.signoff),
     attachment: sanitizeFileForStorage(item.attachment, STORAGE_BUCKETS.ONBOARD_EXPERIENCE_FILES),
+    photos: sanitizeFileArrayForStorage(item.photos, STORAGE_BUCKETS.ONBOARD_EXPERIENCE_FILES).slice(0, 4),
     updated_at: new Date().toISOString()
   };
 }

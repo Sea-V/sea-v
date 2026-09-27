@@ -136,7 +136,10 @@ const ENTITY_FILE_FIELDS = {
   sea_references: [{ field: "attachment", bucket: STORAGE_BUCKETS.REFERENCE_FILES }],
   tenders: [{ field: "photo", bucket: STORAGE_BUCKETS.TENDER_PHOTOS }],
   achievements: [{ field: "attachment", bucket: STORAGE_BUCKETS.ACHIEVEMENT_FILES }],
-  onboard_experiences: [{ field: "attachment", bucket: STORAGE_BUCKETS.ONBOARD_EXPERIENCE_FILES }],
+  onboard_experiences: [
+    { field: "attachment", bucket: STORAGE_BUCKETS.ONBOARD_EXPERIENCE_FILES },
+    { field: "photos", bucket: STORAGE_BUCKETS.ONBOARD_EXPERIENCE_FILES, isArray: true }
+  ],
   hobbies_interests: [
     { field: "photos", bucket: STORAGE_BUCKETS.HOBBIES_INTEREST_PHOTOS, isArray: true }
   ],
@@ -206,7 +209,7 @@ function storedFileNeedsHydration(fileMeta, bucket = null) {
 function sanitizeFileForStorage(fileMeta, defaultBucket = null) {
   if (!fileMeta) return null;
   if (fileMeta.path) {
-    return {
+    const stored = {
       path: fileMeta.path,
       bucket: fileMeta.bucket || defaultBucket,
       filename: fileMeta.filename || null,
@@ -214,6 +217,13 @@ function sanitizeFileForStorage(fileMeta, defaultBucket = null) {
       size: fileMeta.size || null,
       uploadedAt: fileMeta.uploadedAt || null
     };
+    // Captioned photos (onboard_experiences.photos) carry their own text.
+    // Kept only when present, so every other file field stores exactly the
+    // shape it did before -- and this whitelist is why a label added
+    // anywhere else would be silently dropped on save.
+    if (typeof fileMeta.label === "string") stored.label = fileMeta.label;
+    if (typeof fileMeta.caption === "string") stored.caption = fileMeta.caption;
+    return stored;
   }
   return fileMeta;
 }

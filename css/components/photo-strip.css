@@ -1,0 +1,182 @@
+/* =========================================================
+   Captioned photo evidence (v536) -- markup from js/seav-photo-strip.js.
+   Fixed-width thumbnails with a label (field-label blue, per
+   .cursor/rules/field-label-typography.mdc) and an optional one-line
+   description. Labels/captions are <strong>/<small>, which
+   css/core/typography.css does not force to 14px, so --font-caption holds.
+   ========================================================= */
+
+.seav-photo-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, var(--seav-photo-thumb-width));
+  gap: var(--seav-photo-gap);
+  margin-top: 14px;
+}
+
+.seav-photo-tile {
+  margin: 0;
+  min-width: 0;
+}
+
+.seav-photo-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--seav-photo-thumb-ratio);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--seav-photo-border);
+  border-radius: var(--seav-photo-radius);
+  background: var(--seav-photo-bg);
+  cursor: zoom-in;
+}
+
+.seav-photo-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.seav-photo-thumb:hover img {
+  transform: scale(1.04);
+}
+
+.seav-photo-thumb:focus-visible {
+  outline: 2px solid var(--seav-field-label-color);
+  outline-offset: 2px;
+}
+
+.seav-photo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.seav-photo-label {
+  overflow: hidden;
+  color: var(--seav-field-label-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-body);
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.seav-photo-caption {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--seav-meta-desc-color);
+  font-size: var(--font-caption);
+  line-height: 1.35;
+}
+
+/* ---------- viewer (<dialog>) ---------- */
+
+.seav-photo-viewer {
+  max-width: min(var(--seav-photo-viewer-max-w), calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: var(--seav-field-value-color);
+}
+
+.seav-photo-viewer::backdrop {
+  background: var(--seav-photo-viewer-backdrop);
+}
+
+.seav-photo-viewer-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.seav-photo-viewer-img {
+  display: block;
+  max-width: 100%;
+  max-height: var(--seav-photo-viewer-max-h);
+  border-radius: var(--seav-photo-radius);
+  object-fit: contain;
+}
+
+.seav-photo-viewer-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 60ch;
+  text-align: center;
+}
+
+.seav-photo-viewer-text .seav-photo-label {
+  font-size: var(--font-body);
+  white-space: normal;
+}
+
+.seav-photo-viewer-text .seav-photo-caption {
+  display: block;
+  font-size: var(--font-body);
+}
+
+.seav-photo-viewer-count {
+  color: var(--seav-note-color);
+  font-size: var(--font-caption);
+}
+
+.seav-photo-viewer-btn {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--seav-photo-border);
+  border-radius: 50%;
+  background: var(--seav-photo-viewer-btn-bg);
+  color: var(--seav-field-value-color);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.seav-photo-viewer-btn:focus-visible {
+  outline: 2px solid var(--seav-field-label-color);
+  outline-offset: 2px;
+}
+
+.seav-photo-viewer-close {
+  top: 8px;
+  right: 8px;
+}
+
+.seav-photo-viewer-prev,
+.seav-photo-viewer-next {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.seav-photo-viewer-prev {
+  left: 8px;
+}
+
+.seav-photo-viewer-next {
+  right: 8px;
+}
+
+.seav-photo-viewer.is-single .seav-photo-viewer-prev,
+.seav-photo-viewer.is-single .seav-photo-viewer-next {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .seav-photo-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

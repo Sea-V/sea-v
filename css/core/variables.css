@@ -140,6 +140,27 @@
      as rgba(255,255,255,0.60) in .seatime-section-head p and copied by hand
      into new rules; tokenised 2026-08-15 so it stops drifting. */
   --seav-note-color: rgba(255, 255, 255, 0.60);
+
+  /* Captioned photo evidence -- js/seav-photo-strip.js and
+     css/components/photo-strip.css (v536). Onboard experience first,
+     land-based experience later. Tiles are a FIXED width so a single photo
+     stays a thumbnail instead of stretching across the card, which is
+     exactly what Jack objected to (2026-09-27). */
+  --font-caption: 12px;
+  --seav-photo-thumb-width: 148px;
+  --seav-photo-thumb-ratio: 4 / 3;
+  --seav-photo-row-thumb: 64px;
+  --seav-photo-mini: 24px;
+  --seav-photo-radius: 10px;
+  --seav-photo-radius-small: 6px;
+  --seav-photo-gap: 12px;
+  --seav-photo-border: rgba(255, 255, 255, 0.10);
+  --seav-photo-bg: rgba(0, 0, 0, 0.22);
+  --seav-photo-invalid: #f87171;
+  --seav-photo-viewer-backdrop: rgba(3, 10, 20, 0.88);
+  --seav-photo-viewer-btn-bg: rgba(8, 18, 32, 0.72);
+  --seav-photo-viewer-max-w: 960px;
+  --seav-photo-viewer-max-h: 76vh;
   --seav-meta-link-color: #9ddcff;
 
   /* Topbar profile chip — the initials fallback when a crew member has no

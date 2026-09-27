@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v535**. Jack pushes every commit himself from
+- HEAD = **v536**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -456,6 +456,40 @@ atlas: Tonga -> Whangarei viewBox 369 wide (was 2000) with Tonga and NZ both
 drawn; Suva -> Tonga and Nome -> Provideniya correct; a Mediterranean card
 renders pixel-identical to v534. Only navigation.html uses the passage card
 (it needs `SeavNavigationMap.loadWorldGeoJson`) and it loads the helpers.
+
+
+### Shipped 2026-09-27 (v536) — captioned photo evidence on onboard experience
+Jack: one photo per entry "takes the entire row up", and employers need a
+label and a line on what they are looking at. Decided with him: **up to 4
+photos, a label is required on each (caption optional, 80 chars), and the
+public profile stays COLLAPSED** ("I don't want the public profile to be
+intimidating" — photos are one click away behind Details, flagged by an
+"N photos" note in the row). Land-based experience is to reuse the same
+component when it is built.
+- New column `onboard_experiences.photos` (jsonb array, check <= 4), anon
+  granted, in `PUBLIC_ARRAY_COLUMNS` and the test drift list. Applied live and
+  smoke-tested (`docs/schema-onboard-experiences-photos.sql`).
+- **No data backfill.** `mapOnboardExperienceFromSupabase` presents an old
+  image `attachment` as photo 1 (labelled with the entry title) and it moves
+  into `photos` on the next save, same storage path. `attachment` is now the
+  PDF slot only.
+- **`sanitizeFileForStorage` was a whitelist** — it silently dropped any key
+  it did not know, so a label would never have saved. It now keeps
+  `label`/`caption` only when present; every other file field stores exactly
+  what it did before.
+- Shared `js/seav-photo-strip.js` (strip + `<dialog>` viewer with arrows and
+  Esc) and `css/components/photo-strip.css`, tokens `--seav-photo-*` and
+  `--font-caption` in variables.css. Labels/captions are `<strong>`/`<small>`
+  because typography.css forces 14px on p/span/label/button. Loaded on
+  onboard-experience.html, public-profile.html, and as a `deps` of the
+  dashboard's lazy onboard modal.
+- Verified on a harness running the real page scripts and stylesheet with
+  stubbed data (login needed for the real page): 4-photo strip in one row of
+  148px tiles, single photo stays a thumbnail, viewer, label-required block,
+  add/remove/edit-caption save, legacy migration, public row, 375px (2 cols,
+  no sideways scroll). Not yet seen with real signed Supabase URLs.
+- **Known gap:** removing a photo does not delete its file from storage
+  (hobbies has the same gap); deleting the whole entry does.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not

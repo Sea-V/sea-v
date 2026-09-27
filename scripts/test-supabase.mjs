@@ -90,7 +90,7 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
   onboard_experiences: [
     "id", "user_id", "vessel_id", "category", "title", "description", "location_onboard", "position_held",
     "date_from", "date_to", "hours", "is_familiarisation", "status",
-    "attachment", "created_at", "updated_at"
+    "attachment", "photos", "created_at", "updated_at"
   ].join(","),
   hobbies_interests: [
     "id", "user_id", "category", "title", "description", "date_from", "date_to",

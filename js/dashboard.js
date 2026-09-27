@@ -271,6 +271,8 @@
       pageUrl: "onboard-experience.html",
       modalId: "oeModal",
       scriptSrc: "js/onboard-experience.js",
+      // The modal's photo rows read saved photos through SeavPhotoStrip.
+      deps: ["js/seav-photo-strip.js"],
       globalName: "SeavOnboardExperience",
       initFn: "initOnboardExperience",
       openFn: "openAddModal"

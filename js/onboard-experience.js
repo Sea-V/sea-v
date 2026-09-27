@@ -26,6 +26,12 @@
   const OE_FILE_BUCKET =
     window.SeavApiCore?.STORAGE_BUCKETS?.ONBOARD_EXPERIENCE_FILES ||
     "onboard-experience-files";
+  // Captioned photos per entry (v536). The DB check constraint in
+  // docs/schema-onboard-experiences-photos.sql enforces the same 4.
+  const MAX_PHOTOS = 4;
+  const PHOTO_LABEL_MAX = 40;
+  const PHOTO_CAPTION_MAX = 80;
+  const Photos = window.SeavPhotoStrip;
   const expandedOeIds = new Set();
   const expandedVesselIds = new Set();
 
@@ -151,7 +157,18 @@
       return false;
     }
 
-    await window.SeavApiCore.hydrateItemsFileField(entries, "attachment", OE_FILE_BUCKET);
+    // attachment AND photos (ENTITY_FILE_FIELDS.onboard_experiences), in
+    // one batched signing call. Copied back in place: callers render straight
+    // from the state array.
+    const core = window.SeavApiCore;
+    if (core.hydrateArrayFiles) {
+      const hydrated = await core.hydrateArrayFiles(entries, "onboard_experiences");
+      hydrated.forEach((item, i) => {
+        if (item && entries[i] && item !== entries[i]) Object.assign(entries[i], item);
+      });
+    } else {
+      await core.hydrateItemsFileField(entries, "attachment", OE_FILE_BUCKET);
+    }
     window.SeavState?.syncCache?.();
     return true;
   }
@@ -182,58 +199,146 @@
     }
   }
 
-  function isImageAttachment(attachment, url) {
-    const mime = String(attachment?.mime || attachment?.mimetype || "").toLowerCase();
-    const name = String(attachment?.filename || attachment?.name || url || "").toLowerCase();
-    if (mime.startsWith("image/")) return true;
-    return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
+  /* ---------- photo editor (modal) ----------
+     editingPhotos is the modal's working copy: saved photos ({ stored }) and
+     newly picked files ({ file, previewUrl }), each with its own label and
+     caption. Nothing uploads until Save entry, so cancelling the modal
+     leaves storage untouched. */
+  let editingPhotos = [];
+  let photoKeySeq = 0;
+
+  function releasePhotoPreviews() {
+    editingPhotos.forEach((photo) => {
+      if (photo.previewUrl) URL.revokeObjectURL(photo.previewUrl);
+    });
   }
 
+  function setEditingPhotos(entry) {
+    releasePhotoPreviews();
+    const saved = entry && Photos ? Photos.getEntryPhotos(entry) : [];
+    editingPhotos = saved.slice(0, MAX_PHOTOS).map((photo) => ({
+      key: `p${(photoKeySeq += 1)}`,
+      stored: photo,
+      label: String(photo.label || ""),
+      caption: String(photo.caption || "")
+    }));
+    renderPhotoEditor();
+  }
+
+  function renderPhotoEditor() {
+    const rows = document.getElementById("oePhotoRows");
+    const count = document.getElementById("oePhotoCount");
+    const addBtn = document.getElementById("oePhotoAddBtn");
+    if (count) count.textContent = `${editingPhotos.length} / ${MAX_PHOTOS}`;
+    if (addBtn) addBtn.disabled = editingPhotos.length >= MAX_PHOTOS;
+    if (!rows) return;
+
+    rows.innerHTML = editingPhotos
+      .map((photo) => {
+        const src = photo.previewUrl || (photo.stored ? getAttachmentUrl(photo.stored) : "");
+        const key = Seav.escapeHtml(photo.key);
+        return `
+          <div class="oe-photo-row" data-oe-photo-key="${key}">
+            <span class="oe-photo-row-thumb">${src ? `<img src="${Seav.escapeHtml(src)}" alt="" />` : ""}</span>
+            <div class="oe-photo-row-fields">
+              <input type="text" data-oe-photo-field="label" maxlength="${PHOTO_LABEL_MAX}"
+                value="${Seav.escapeHtml(photo.label)}" aria-label="Photo label"
+                placeholder="Label, e.g. Tender launch" />
+              <input type="text" data-oe-photo-field="caption" maxlength="${PHOTO_CAPTION_MAX}"
+                value="${Seav.escapeHtml(photo.caption)}" aria-label="Photo description (optional)"
+                placeholder="What it shows, e.g. Lifting the chase tender at anchor (optional)" />
+            </div>
+            <button type="button" class="oe-photo-row-remove" data-oe-photo-remove="${key}" aria-label="Remove photo">&times;</button>
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  async function addPhotoFiles(fileList) {
+    const files = Array.from(fileList || []).filter((file) =>
+      String(file.type || "").startsWith("image/") || window.SeavUpload?.isHeicFile?.(file)
+    );
+    const room = MAX_PHOTOS - editingPhotos.length;
+    if (files.length > room) {
+      Seav.notify(
+        "error",
+        "Photo limit reached",
+        `You can add up to ${MAX_PHOTOS} photos per entry.`
+      );
+    }
+    for (const file of files.slice(0, Math.max(room, 0))) {
+      const previewUrl = (await window.SeavUpload?.buildPreviewUrl?.(file)) || "";
+      editingPhotos.push({ key: `p${(photoKeySeq += 1)}`, file, previewUrl, label: "", caption: "" });
+    }
+    renderPhotoEditor();
+    // New rows need a label before Save: put the cursor straight in it.
+    const firstBlank = editingPhotos.find((photo) => !photo.label.trim());
+    if (firstBlank) {
+      document
+        .querySelector(`[data-oe-photo-key="${firstBlank.key}"] [data-oe-photo-field="label"]`)
+        ?.focus();
+    }
+  }
+
+  // Uploads new files and returns the photos array to save, or null if any
+  // upload failed (uploadToStorage has already told the person why).
+  async function buildPhotosForSave(entryId) {
+    const result = [];
+    for (const photo of editingPhotos) {
+      const text = { label: photo.label.trim(), caption: photo.caption.trim() };
+      if (photo.stored) {
+        result.push({ ...photo.stored, ...text });
+        continue;
+      }
+      const uploaded = await window.SeavUpload?.uploadToStorage({
+        bucket: OE_FILE_BUCKET,
+        entityId: entryId,
+        file: photo.file,
+        existingMeta: null,
+        kind: "Photo",
+        maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES,
+        resizeImage: true
+      });
+      if (!uploaded) return null;
+      const hydrated = await hydrateAttachment(uploaded);
+      result.push({ ...(hydrated || uploaded), ...text });
+    }
+    return result;
+  }
+
+  // Photos render as the captioned strip (js/seav-photo-strip.js); the
+  // attachment is now only ever a document (PDF), shown as one link.
   function renderAttachmentSection(attachment) {
     if (!hasAttachment(attachment)) return "";
 
     const fileUrl = getAttachmentUrl(attachment);
-    if (!fileUrl) {
-      return `
-        <div class="onboard-attachment-section">
-          <div class="onboard-attachment-label">Photo</div>
-          <div class="onboard-attachment-preview onboard-attachment-preview--loading muted">
-            Loading photo…
-          </div>
-        </div>
-      `;
-    }
-
     const filename = attachment?.filename || attachment?.name || "Attachment";
-    const safeUrl = Seav.escapeHtml(fileUrl);
-    const safeName = Seav.escapeHtml(filename);
-
-    if (isImageAttachment(attachment, fileUrl)) {
-      return `
-        <div class="onboard-attachment-section">
-          <div class="onboard-attachment-label">Photo</div>
-          <div class="onboard-attachment-preview">
-            <img
-              class="onboard-attachment-image"
-              src="${safeUrl}"
-              alt="${safeName}"
-              loading="lazy"
-            />
-          </div>
-          <a class="onboard-attachment-link" href="${safeUrl}" target="_blank" rel="noopener">
-            Open full size
-          </a>
-        </div>
-      `;
+    if (!fileUrl) {
+      return `<div class="onboard-attachment-section onboard-attachment-section--file muted">Loading ${Seav.escapeHtml(filename)}…</div>`;
     }
 
     return `
       <div class="onboard-attachment-section onboard-attachment-section--file">
-        <div class="onboard-attachment-label">Attachment</div>
-        <a class="onboard-attachment-link" href="${safeUrl}" target="_blank" rel="noopener">
-          Download ${safeName}
+        <a class="onboard-attachment-link" href="${Seav.escapeHtml(fileUrl)}" target="_blank" rel="noopener">
+          ${Seav.escapeHtml(filename)}
         </a>
       </div>
+    `;
+  }
+
+  // Up to three tiny thumbnails beside the chevron, so a collapsed card
+  // still says "there is photo evidence here" without taking any height.
+  function renderSummaryThumbs(photos) {
+    const urls = photos.map((photo) => getAttachmentUrl(photo)).filter(Boolean);
+    if (!urls.length) return "";
+    const shown = urls.slice(0, 3);
+    const extra = urls.length - shown.length;
+    return `
+      <span class="oe-summary-thumbs" aria-label="${urls.length} photo${urls.length === 1 ? "" : "s"}">
+        ${shown.map((url) => `<img src="${Seav.escapeHtml(url)}" alt="" loading="lazy" />`).join("")}
+        ${extra > 0 ? `<small class="oe-summary-thumbs-more">+${extra}</small>` : ""}
+      </span>
     `;
   }
 
@@ -279,7 +384,10 @@
   function renderEntryCard(entry) {
     const entryId = entry.id || "";
     const categoryLabel = getOnboardCategoryLabel(entry.category);
-    const attachmentHtml = renderAttachmentSection(entry.attachment);
+    const photos = Photos ? Photos.getEntryPhotos(entry) : [];
+    const documentMeta = Photos ? Photos.getEntryDocument(entry) : entry.attachment;
+    const photosHtml = Photos ? Photos.buildPhotoStrip(photos, { bucket: OE_FILE_BUCKET }) : "";
+    const attachmentHtml = renderAttachmentSection(documentMeta);
 
         const familiarisationHtml = entry.isFamiliarisation
           ? `<span class="onboard-familiarisation-pill onboard-familiarisation-pill-compact">Familiarisation</span>`
@@ -304,6 +412,7 @@
                 ${familiarisationHtml}
               </div>
               <div class="onboard-modern-summary-right">
+                ${renderSummaryThumbs(photos)}
                 <span class="onboard-chevron" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -325,6 +434,7 @@
 
               <div class="onboard-modern-desc">${Seav.escapeHtml(entry.description || "")}</div>
 
+              ${photosHtml}
               ${attachmentHtml}
 
               ${Seav.seavActions(
@@ -444,7 +554,8 @@
     Seav.setDateTriplet("oe_date_to", entry?.dateTo || "");
     const fileInput = document.getElementById("oe_file");
     if (fileInput) fileInput.value = "";
-    renderAttachmentHint(entry?.attachment || null);
+    setEditingPhotos(entry || null);
+    renderAttachmentHint(Photos ? Photos.getEntryDocument(entry) : entry?.attachment || null);
 
     if (window.SeavModals?.openModal) window.SeavModals.openModal("oeModal");
   }
@@ -463,6 +574,7 @@
     Seav.clearDateTriplet("oe_date_to");
     populateVesselOptions();
     populateCategoryOptions();
+    setEditingPhotos(null);
     renderAttachmentHint(null);
 
     if (window.SeavModals?.openModal) window.SeavModals.openModal("oeModal");
@@ -916,6 +1028,39 @@
       });
     }
 
+    const photoInput = document.getElementById("oe_photos");
+    const photoAddBtn = document.getElementById("oePhotoAddBtn");
+    if (photoAddBtn && photoInput) {
+      photoAddBtn.addEventListener("click", () => photoInput.click());
+      photoInput.addEventListener("change", async () => {
+        await addPhotoFiles(photoInput.files);
+        photoInput.value = "";
+      });
+    }
+
+    const photoRows = document.getElementById("oePhotoRows");
+    if (photoRows) {
+      // Typing updates the working copy without re-rendering, so focus and
+      // the caret stay where they are.
+      photoRows.addEventListener("input", (e) => {
+        const field = e.target.getAttribute("data-oe-photo-field");
+        const key = e.target.closest("[data-oe-photo-key]")?.getAttribute("data-oe-photo-key");
+        const photo = editingPhotos.find((item) => item.key === key);
+        if (photo && field) {
+          photo[field] = e.target.value;
+          e.target.classList.remove("is-invalid");
+        }
+      });
+      photoRows.addEventListener("click", (e) => {
+        const key = e.target.closest("[data-oe-photo-remove]")?.getAttribute("data-oe-photo-remove");
+        if (!key) return;
+        const photo = editingPhotos.find((item) => item.key === key);
+        if (photo?.previewUrl) URL.revokeObjectURL(photo.previewUrl);
+        editingPhotos = editingPhotos.filter((item) => item.key !== key);
+        renderPhotoEditor();
+      });
+    }
+
     const form = document.getElementById("oeForm");
     if (form) {
       form.addEventListener("submit", async (e) => {
@@ -931,15 +1076,34 @@
           return;
         }
 
+        // Every photo needs a label (per Jack, 2026-09-27) -- it is what an
+        // employer reads under the thumbnail.
+        const unlabelled = editingPhotos.find((photo) => !photo.label.trim());
+        if (unlabelled) {
+          const input = document.querySelector(
+            `[data-oe-photo-key="${unlabelled.key}"] [data-oe-photo-field="label"]`
+          );
+          input?.classList.add("is-invalid");
+          input?.focus();
+          Seav.notify("error", "Label your photos", "Give each photo a short label before saving.");
+          return;
+        }
+
         const existing = formData.id
           ? getEntries().find((item) => item.id === formData.id) || null
           : null;
 
         await Seav.withSaving(async () => {
         const entryId = formData.id || createId("onboard");
+        const photos = await buildPhotosForSave(entryId);
+        if (!photos) return;
+
+        // attachment is the PDF slot only. An old image attachment has
+        // already been moved into photos (getEntryDocument returns null for
+        // it), so saving here clears it from `attachment`.
         let attachment = await buildAttachment(
           formData.file,
-          existing?.attachment || null,
+          Photos ? Photos.getEntryDocument(existing) : existing?.attachment || null,
           entryId
         );
         if (formData.file && !attachment) return;
@@ -962,6 +1126,7 @@
           hours: formData.hours,
           isFamiliarisation: formData.isFamiliarisation,
           attachment,
+          photos,
           createdAt: existing?.createdAt || now,
           updatedAt: now
         });
@@ -970,6 +1135,7 @@
         document.getElementById("oe_edit_id").value = "";
         Seav.clearDateTriplet("oe_date_from");
         Seav.clearDateTriplet("oe_date_to");
+        setEditingPhotos(null);
         if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
 
         Seav.notify(

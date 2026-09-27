@@ -373,14 +373,6 @@
   font-size: 14px;
 }
 
-.onboard-attachment-label {
-  margin-bottom: 8px;
-  color: #5bbcff;
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-}
 
 .onboard-attachment-link {
   display: inline-flex;
@@ -410,38 +402,12 @@
 
 .onboard-attachment-section--file {
   display: grid;
+  justify-items: start;
   gap: 10px;
 }
 
-.onboard-attachment-preview {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  min-height: 120px;
-  max-height: 280px;
-  margin-top: 8px;
-  padding: 10px;
-  overflow: hidden;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 143, 171, 0.22);
-  background: rgba(0, 0, 0, 0.22);
-  line-height: 0;
-  text-align: center;
-}
 
-.onboard-attachment-image {
-  display: inline-block;
-  max-width: 100%;
-  max-height: 260px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 8px;
-}
 
-.onboard-attachment-section .onboard-attachment-link {
-  margin-top: 10px;
-}
 
 .onboard-modern-body .seav-actions {
   margin-top: 16px;
@@ -763,4 +729,121 @@
   .onboard-kpi-row {
     grid-template-columns: 1fr;
   }
+}
+
+/* =========================================================
+   Captioned photos (v536). The strip itself is shared:
+   css/components/photo-strip.css. These are the page-only parts --
+   the modal's photo rows and the collapsed card's mini thumbnails.
+   ========================================================= */
+
+.oe-photo-editor {
+  display: grid;
+  gap: 10px;
+}
+
+.oe-photo-editor-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.oe-photo-editor-title {
+  color: var(--seav-field-label-color);
+  font-weight: var(--font-weight-body);
+}
+
+.oe-photo-editor-count {
+  color: var(--seav-note-color);
+}
+
+.oe-photo-rows {
+  display: grid;
+  gap: 8px;
+}
+
+.oe-photo-rows:empty {
+  display: none;
+}
+
+.oe-photo-row {
+  display: grid;
+  grid-template-columns: var(--seav-photo-row-thumb) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid var(--seav-photo-border);
+  border-radius: var(--seav-photo-radius);
+  background: var(--seav-photo-bg);
+}
+
+.oe-photo-row-thumb {
+  display: block;
+  width: var(--seav-photo-row-thumb);
+  aspect-ratio: var(--seav-photo-thumb-ratio);
+  overflow: hidden;
+  border-radius: var(--seav-photo-radius-small);
+  background: var(--seav-photo-bg);
+}
+
+.oe-photo-row-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.oe-photo-row-fields {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.oe-photo-row-fields input.is-invalid {
+  border-color: var(--seav-photo-invalid);
+}
+
+.oe-photo-row-remove {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--seav-photo-border);
+  border-radius: 50%;
+  background: var(--seav-photo-viewer-btn-bg);
+  color: var(--seav-field-value-color);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.oe-photo-row-remove:hover {
+  border-color: var(--page-onboard-experience);
+}
+
+#oePhotoAddBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.oe-summary-thumbs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.oe-summary-thumbs img {
+  width: var(--seav-photo-mini);
+  height: var(--seav-photo-mini);
+  border: 1px solid var(--seav-photo-border);
+  border-radius: var(--seav-photo-radius-small);
+  object-fit: cover;
+}
+
+.oe-summary-thumbs-more {
+  color: var(--seav-note-color);
+  font-size: var(--font-caption);
+}
+
+/* Open card shows the full strip below, so the minis would be repeats. */
+.onboard-modern-card.is-expanded .oe-summary-thumbs {
+  display: none;
 }
