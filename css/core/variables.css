@@ -161,6 +161,17 @@
   --seav-photo-viewer-btn-bg: rgba(8, 18, 32, 0.72);
   --seav-photo-viewer-max-w: 960px;
   --seav-photo-viewer-max-h: 76vh;
+
+  /* Drag-and-drop upload zones -- js/seav-upload.js enhanceDropZones (v537).
+     The active colours are the ones .profile-photo-thumb.is-drag-over
+     (css/pages/profile.css) already uses, so every drop target on the site
+     lights up the same way. */
+  --seav-dropzone-border: rgba(255, 255, 255, 0.16);
+  --seav-dropzone-radius: 14px;
+  --seav-dropzone-pad-y: 10px;
+  --seav-dropzone-pad-x: 12px;
+  --seav-dropzone-active-border: rgba(66, 214, 181, 0.75);
+  --seav-dropzone-active-bg: rgba(66, 214, 181, 0.12);
   --seav-meta-link-color: #9ddcff;
 
   /* Topbar profile chip — the initials fallback when a crew member has no

@@ -117,3 +117,28 @@
   color: var(--accent-blue, #5bbcff);
   font-weight: 700;
 }
+
+/* =========================================================
+   Drag-and-drop upload zones (v537). js/seav-upload.js adds .seav-dropzone
+   to every .profile-photo-field / [data-seav-dropzone] that holds a file
+   input, appends the <small> hint (a <small>, not a <p>/<span>, so
+   typography.css's forced 14px does not apply), and toggles .is-drag-over.
+   ========================================================= */
+.seav-dropzone {
+  padding: var(--seav-dropzone-pad-y) var(--seav-dropzone-pad-x);
+  border: 1px dashed var(--seav-dropzone-border);
+  border-radius: var(--seav-dropzone-radius);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.seav-dropzone.is-drag-over {
+  border-color: var(--seav-dropzone-active-border);
+  border-style: solid;
+  background: var(--seav-dropzone-active-bg);
+}
+
+.seav-drop-hint {
+  display: block;
+  color: var(--seav-note-color);
+  font-size: var(--font-caption);
+}

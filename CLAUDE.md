@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v536**. Jack pushes every commit himself from
+- HEAD = **v537**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -491,6 +491,32 @@ component when it is built.
 - **Known gap:** removing a photo does not delete its file from storage
   (hobbies has the same gap); deleting the whole entry does.
 
+
+### Shipped 2026-09-27 (v537) — drag-and-drop on every upload field
+Jack: "all the document attachments are choose file, can we add the drag
+option". `SeavUpload.wireDragDrop` existed but was only wired on the
+profile/vessel/tender photo THUMBNAILS, and could not have been reused:
+its accept check was mime-only (every ".pdf" drop silently rejected) and it
+took one file (multi-photo pickers lost the rest).
+- New delegated handler in `js/seav-upload.js` (`enhanceDropZones`): every
+  `.profile-photo-field` or `[data-seav-dropzone]` holding a file input gets
+  `.seav-dropzone` (dashed outline) and an "or drag a file here" `<small>`
+  hint; a drop is handed to the input and a real `change` fires, so each
+  page's existing handling runs unchanged. Extensions AND mime patterns
+  matched; `multiple` inputs get every accepted file; a rejected type gets a
+  toast. Fields with a `.profile-photo-thumb` are skipped (already wired).
+- `data-seav-dropzone` added on achievements (native input), hobbies photos,
+  onboard photos and the navigation KML/RTZ import. A MutationObserver on
+  `<body>` covers the dashboard's lazily injected quick-action modals.
+- A file dropped OUTSIDE a zone is now swallowed instead of the browser
+  navigating to it and losing an open form.
+- Styles in `css/components/forms.css`, tokens `--seav-dropzone-*`; the
+  active colour is the one `.profile-photo-thumb.is-drag-over` already used.
+- Verified on a harness with the real module + stylesheet and synthetic
+  DragEvents: PDF accepted, .docx refused with toast, 2 of 3 files into a
+  multi-photo input, stray drop contained, thumb field untouched, injected
+  modal enhanced. A real OS drag from Finder has not been tried.
+
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not
    raise it again.** The key ("SEA-V Supabase SMTP") stays as it is, despite
@@ -568,6 +594,17 @@ component when it is built.
    day counts exclude the end date; overlapping contracts double-count; yard
    uncapped in the dated 36-month path; standby cap is per contract, not
    total; typography.css forces 14px so `--font-label` 11px can never apply.
+
+10. **Public profile colours "don't match the private section"** (Jack,
+   2026-09-27, parked by him). Not yet pinned down. Measured the live
+   public profile: it reuses the private classes, and public-profile.css
+   copies each page accent on purpose (e.g. Tenders group border =
+   tenders.css shell green). Known differences: public shell border is blue
+   while each private shell uses its page accent; public per-vessel groups
+   have COLOURED borders while private vessel groups are neutral with a
+   coloured dot (Jack's own 2026-08-05 call). The private pages need a
+   login to measure. Next step: Jack signs in to the browser pane, or names
+   the specific cards/dropdowns.
 
 Two reviewed documents live in `Sea-V Structure/02 Product Documentation/`:
 `SEA-V-OUTSTANDING-2026-08-16.md` (every item tagged done / stale / open /

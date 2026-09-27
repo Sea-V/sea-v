@@ -357,12 +357,146 @@
     });
   }
 
+  // =========================================================
+  // Site-wide drag-and-drop for every upload field (v537, per Jack: "all
+  // the document attachments are choose file, can we add the drag option").
+  //
+  // Delegated from `document` rather than wired per input, so it also
+  // covers modals the dashboard injects later (loadQuickActionModal) with
+  // no per-page code. A drop zone is any .profile-photo-field (the shared
+  // "Choose file" block on certificates, references, sea time, payslips,
+  // vessels, specialist quals, onboard) or anything marked
+  // data-seav-dropzone (achievements, hobbies, onboard photos, the
+  // navigation route import). Fields with a .profile-photo-thumb are
+  // skipped: profile/vessel/tender photos already take drops on the
+  // thumbnail via wireDragDrop above.
+  //
+  // Like wireDragDrop, a drop is handed to the input and a real "change"
+  // event fires, so each page's existing selection handling runs unchanged.
+  // Unlike it, `accept` is matched on extensions too (".pdf") -- the
+  // mime-only check above would silently reject every PDF -- and a
+  // `multiple` input receives every accepted file, not just the first.
+  // =========================================================
+  const DROP_ZONE_SELECTOR = ".profile-photo-field, [data-seav-dropzone]";
+
+  function inputAcceptsFile(input, file) {
+    const accept = String(input.getAttribute("accept") || "").toLowerCase();
+    if (!accept.trim()) return true;
+    const name = String(file.name || "").toLowerCase();
+    const type = String(file.type || "").toLowerCase();
+    const matched = accept.split(",").some((raw) => {
+      const pattern = raw.trim();
+      if (!pattern) return false;
+      if (pattern.startsWith(".")) return name.endsWith(pattern);
+      if (pattern.endsWith("/*")) return type.startsWith(pattern.slice(0, -1));
+      return type === pattern;
+    });
+    if (matched) return true;
+    // HEIC often arrives with an empty type; uploadToStorage converts it.
+    return accept.includes("image/") && isHeicFile(file);
+  }
+
+  function zoneInput(zone) {
+    const input = zone?.querySelector('input[type="file"]');
+    return input && !input.disabled ? input : null;
+  }
+
+  function enhanceDropZones(root) {
+    if (!root || root.nodeType !== 1) return;
+    const zones = root.matches?.(DROP_ZONE_SELECTOR)
+      ? [root]
+      : Array.from(root.querySelectorAll?.(DROP_ZONE_SELECTOR) || []);
+    zones.forEach((zone) => {
+      if (zone.classList.contains("seav-dropzone")) return;
+      if (zone.querySelector(".profile-photo-thumb")) return;
+      const input = zoneInput(zone);
+      if (!input) return;
+      zone.classList.add("seav-dropzone");
+      const hint = document.createElement("small");
+      hint.className = "seav-drop-hint";
+      hint.textContent = input.multiple ? "or drag photos here" : "or drag a file here";
+      (zone.querySelector(".profile-photo-actions") || zone).appendChild(hint);
+    });
+  }
+
+  function dragHasFiles(e) {
+    return Array.from(e.dataTransfer?.types || []).includes("Files");
+  }
+
+  let activeZone = null;
+  function setActiveZone(zone) {
+    if (activeZone === zone) return;
+    activeZone?.classList.remove("is-drag-over");
+    activeZone = zone;
+    activeZone?.classList.add("is-drag-over");
+  }
+
+  document.addEventListener("dragover", (e) => {
+    if (!dragHasFiles(e)) return;
+    const zone = e.target.closest?.(".seav-dropzone") || null;
+    setActiveZone(zone);
+    // A visible native file input outside any zone handles its own drop.
+    if (!zone && e.target.matches?.('input[type="file"]')) return;
+    // Prevented everywhere else, so a file dropped just outside a zone does
+    // not make the browser navigate away to it and lose an open form.
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = zone ? "copy" : "none";
+  });
+
+  document.addEventListener("dragleave", (e) => {
+    // relatedTarget is null when the drag leaves the window altogether.
+    if (!e.relatedTarget) setActiveZone(null);
+  });
+
+  document.addEventListener("drop", (e) => {
+    if (!dragHasFiles(e)) return;
+    const zone = e.target.closest?.(".seav-dropzone") || null;
+    setActiveZone(null);
+    // Already taken by a wireDragDrop thumbnail.
+    if (e.defaultPrevented) return;
+    if (!zone && e.target.matches?.('input[type="file"]')) return;
+    e.preventDefault();
+
+    const input = zoneInput(zone);
+    if (!input) return;
+    const dropped = Array.from(e.dataTransfer?.files || []);
+    const accepted = dropped.filter((file) => inputAcceptsFile(input, file));
+    if (!accepted.length) {
+      if (dropped.length && window.Seav?.notify) {
+        window.Seav.notify("error", "File type not accepted", "That file can't be uploaded here.");
+      }
+      return;
+    }
+
+    const dt = new DataTransfer();
+    (input.multiple ? accepted : accepted.slice(0, 1)).forEach((file) => dt.items.add(file));
+    input.files = dt.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
+  function initDropZones() {
+    enhanceDropZones(document.body);
+    // Modals the dashboard fetches and appends later (loadQuickActionModal
+    // in js/dashboard.js) land as direct children of <body>.
+    if (!window.MutationObserver) return;
+    new window.MutationObserver((records) => {
+      records.forEach((record) => record.addedNodes.forEach((node) => enhanceDropZones(node)));
+    }).observe(document.body, { childList: true });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initDropZones);
+  } else {
+    initDropZones();
+  }
+
   window.SeavUpload = {
     uploadToStorage,
     isHeicFile,
     buildPreviewUrl,
     PHOTO_MAX_BYTES,
     resizePhotoIfNeeded,
-    wireDragDrop
+    wireDragDrop,
+    enhanceDropZones
   };
 })();
