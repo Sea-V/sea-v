@@ -92,7 +92,11 @@
 
   function formatDatePretty(value) {
     if (!value) return "";
-    const d = new Date(value);
+    // "YYYY-MM-DD" as a local calendar day. This page does not load
+    // js/seav-data.js, so parseDateOnly's rule is repeated here: a UTC parse
+    // showed referees the previous day anywhere west of the UK.
+    const day = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value).trim());
+    const d = day ? new Date(Number(day[1]), Number(day[2]) - 1, Number(day[3])) : new Date(value);
     if (Number.isNaN(d.getTime())) return String(value);
     return d.toLocaleDateString("en-GB", {
       day: "numeric",

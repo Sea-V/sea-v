@@ -503,12 +503,12 @@ function mapNavigationAreaToSupabase(item) {
     waypoints: normalizeWaypoints(item.waypoints),
     note: item.note || "",
     is_tidal: !!item.isTidal,
+    // Always sent, null when unlinked. It used to be added only when set,
+    // so clearing the link sent no seatime_id at all and the row kept the
+    // old one -- a passage could never be unlinked from its sea time.
+    seatime_id: item.seatimeId || null,
     updated_at: new Date().toISOString()
   };
-
-  if (item.seatimeId) {
-    payload.seatime_id = item.seatimeId;
-  }
 
   return payload;
 }

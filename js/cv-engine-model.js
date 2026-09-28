@@ -36,9 +36,13 @@
       .replaceAll("'", "&#039;");
   }
 
+  // Plain dates read as local calendar days -- see parseDateOnly in
+  // js/seav-data.js (a UTC parse printed the previous day west of the UK).
+  const parseDateOnly = window.SeavData?.parseDateOnly || ((value) => new Date(value));
+
   function formatCvDate(value) {
     if (!value) return "";
-    const date = new Date(value);
+    const date = parseDateOnly(value);
     if (Number.isNaN(date.getTime())) return formatDatePretty(value) || value;
     return date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
   }
@@ -51,7 +55,7 @@
 
   function formatYear(value) {
     if (!value) return "";
-    const date = new Date(value);
+    const date = parseDateOnly(value);
     if (Number.isNaN(date.getTime())) {
       const match = String(value).match(/\d{4}/);
       return match ? match[0] : value;

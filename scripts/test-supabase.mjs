@@ -672,6 +672,48 @@ async function testOwnerWriteGuards(config) {
     await authedRequest(config, token, "DELETE", `sea_references?id=in.(${probeId},${probeId}-v)`);
   }
 
+  // docs/schema-vessel-seatime-link-fks.sql (v538): deleting a vessel or a
+  // sea time record must KEEP the records linked to it and clear the link.
+  // Before, onboard_experiences / payslips kept a dangling vessel_id and
+  // navigation_areas a dangling seatime_id.
+  const linkId = `smoke-link-${Date.now()}`;
+  try {
+    const parents = await Promise.all([
+      authedRequest(config, token, "POST", "vessels", { id: `${linkId}-v`, user_id: uid, name: "Link probe" }),
+      authedRequest(config, token, "POST", "seatimes", { id: `${linkId}-s`, user_id: uid })
+    ]);
+    const children = parents.every((r) => r.ok)
+      ? await Promise.all([
+        authedRequest(config, token, "POST", "onboard_experiences", { id: `${linkId}-o`, user_id: uid, vessel_id: `${linkId}-v` }),
+        authedRequest(config, token, "POST", "payslips", { id: `${linkId}-p`, user_id: uid, vessel_id: `${linkId}-v` }),
+        authedRequest(config, token, "POST", "navigation_areas", { id: `${linkId}-n`, user_id: uid, seatime_id: `${linkId}-s` })
+      ])
+      : [];
+    if (!children.length || !children.every((r) => r.ok)) {
+      report("link probe set-up", false, (children.find((r) => !r.ok) || parents.find((r) => !r.ok))?.status, "could not create probe rows");
+    } else {
+      await authedRequest(config, token, "DELETE", `vessels?id=eq.${linkId}-v`);
+      await authedRequest(config, token, "DELETE", `seatimes?id=eq.${linkId}-s`);
+      const checks = [
+        ["onboard entry kept, vessel unlinked", "onboard_experiences", `${linkId}-o`, "vessel_id"],
+        ["payslip kept, vessel unlinked", "payslips", `${linkId}-p`, "vessel_id"],
+        ["passage kept, sea time unlinked", "navigation_areas", `${linkId}-n`, "seatime_id"]
+      ];
+      for (const [label, table, id, column] of checks) {
+        const row = await authedRequest(config, token, "GET", `${table}?id=eq.${id}&select=id,${column}`);
+        const kept = Array.isArray(row.body) && row.body.length === 1;
+        const unlinked = kept && row.body[0][column] === null;
+        report(label, unlinked, row.status, !kept ? "record was deleted or lost" : unlinked ? "link cleared" : "still points at the deleted parent");
+      }
+    }
+  } finally {
+    await authedRequest(config, token, "DELETE", `onboard_experiences?id=eq.${linkId}-o`);
+    await authedRequest(config, token, "DELETE", `payslips?id=eq.${linkId}-p`);
+    await authedRequest(config, token, "DELETE", `navigation_areas?id=eq.${linkId}-n`);
+    await authedRequest(config, token, "DELETE", `seatimes?id=eq.${linkId}-s`);
+    await authedRequest(config, token, "DELETE", `vessels?id=eq.${linkId}-v`);
+  }
+
   return allPassed;
 }
 

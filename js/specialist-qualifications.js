@@ -415,7 +415,11 @@
         });
         if (!confirmed) return;
 
-        await SeavAPI.deleteItemById(STORAGE_KEY, entryId);
+        try {
+          await SeavAPI.deleteItemById(STORAGE_KEY, entryId, { throwOnError: true });
+        } catch {
+          return; // SeavAPI has already shown "Delete failed".
+        }
         expandedSqIds.delete(entryId);
 
         Seav.notify("success", "Deleted", "Qualification removed from your profile.");

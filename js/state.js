@@ -712,7 +712,7 @@
           // already-successful photos from applying. Isolate failures per
           // table instead of letting one bad apple block the batch.
           try {
-            return { stateKey, hydrated: await core.hydrateArrayFiles(items, table) };
+            return { stateKey, snapshot: items, hydrated: await core.hydrateArrayFiles(items, table) };
           } catch (err) {
             console.warn(`[SEA-V] File hydration failed for ${table}:`, err);
             return null;
@@ -720,23 +720,48 @@
         })
       );
 
+      // The signing above takes seconds, and the list can change meanwhile
+      // (a delete, an add, a save). Writing `hydrated` back wholesale put the
+      // pre-signing snapshot over it -- deleted records reappeared, new ones
+      // vanished, edits reverted -- and writeCachedData then persisted that.
+      // Instead, give each record still in the list, unchanged since the
+      // snapshot (same object), its signed copy; leave everything else as is.
+      // hydrateArrayFiles maps index-for-index, so snapshot[i] -> hydrated[i].
       let changed = false;
       for (const result of results) {
         if (!result) continue;
-        state.data[result.stateKey] = result.hydrated;
+        const current = state.data[result.stateKey];
+        if (current === result.snapshot) {
+          state.data[result.stateKey] = result.hydrated;
+        } else if (Array.isArray(current)) {
+          const signed = new Map(result.snapshot.map((item, i) => [item, result.hydrated[i]]));
+          state.data[result.stateKey] = current.map((item) => signed.get(item) || item);
+        } else {
+          continue;
+        }
         changed = true;
       }
 
-      const profilePhoto = state.data.profile?.photo;
+      const profileBefore = state.data.profile;
       if (
         core.storedFileNeedsHydration?.(
-          profilePhoto,
+          profileBefore?.photo,
           core.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
         ) &&
         core.hydrateProfilePhoto
       ) {
-        state.data.profile = await core.hydrateProfilePhoto(state.data.profile);
-        changed = true;
+        const signedProfile = await core.hydrateProfilePhoto(profileBefore);
+        const profileNow = state.data.profile;
+        // Same race for the profile (SeavState.updateProfile replaces the
+        // object on save): only the signed photo is carried over, and only
+        // if it is still the same photo.
+        if (profileNow === profileBefore) {
+          state.data.profile = signedProfile;
+          changed = true;
+        } else if (profileNow?.photo?.path && profileNow.photo.path === signedProfile?.photo?.path) {
+          state.data.profile = { ...profileNow, photo: signedProfile.photo };
+          changed = true;
+        }
       }
 
       if (changed) {

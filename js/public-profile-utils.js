@@ -426,7 +426,7 @@
 
   function formatExpiryShort(expiry) {
     if (!expiry) return "";
-    const date = new Date(expiry);
+    const date = (window.SeavData?.parseDateOnly || ((v) => new Date(v)))(expiry);
     if (Number.isNaN(date.getTime())) return expiry;
     return date.toLocaleDateString("en-GB", { month: "short", year: "2-digit" });
   }
@@ -555,7 +555,10 @@
   function formatOnboardDuration(fromIso, toIso) {
     if (!fromIso) return "";
 
-    const start = new Date(fromIso);
+    // Local calendar days (seav-data.js parseDateOnly): a UTC parse moved
+    // the start back a day west of the UK and could drop a whole month.
+    const parseDay = window.SeavData?.parseDateOnly || ((value) => new Date(value));
+    const start = parseDay(fromIso);
     if (Number.isNaN(start.getTime())) return "";
 
     // daysBetweenDates does the two guards that matter — a future end date
@@ -564,7 +567,7 @@
     if ((window.SeavData?.daysBetweenDates?.(fromIso, toIso || "") || 0) <= 0) return "";
 
     const today = new Date();
-    const rawEnd = toIso ? new Date(toIso) : today;
+    const rawEnd = toIso ? parseDay(toIso) : today;
     const end = rawEnd > today ? today : rawEnd;
 
     // Calendar months, not days / 30.44. The averaged version drifts: a

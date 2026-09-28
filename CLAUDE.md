@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v537**. Jack pushes every commit himself from
+- HEAD = **v538**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -517,6 +517,51 @@ took one file (multi-photo pickers lost the rest).
   multi-photo input, stray drop contained, thumb field untouched, injected
   modal enhanced. A real OS drag from Finder has not been tried.
 
+### Written 2026-09-28 (v538) — five data bugs from the 2026-09-26 audit
+All five are struck from thread 9.
+1. **Passage could not be unlinked from sea time.** `mapNavigationAreaToSupabase`
+   only sent `seatime_id` when set, so clearing it sent nothing and the row
+   kept the old link. Now always sent, `null` when unlinked; the two
+   old-database fallbacks in `saveNavigationAreaItem` test for the key, and
+   only warn when a real link was dropped.
+2. **Deletes said "success" when they failed — and could lose files.**
+   `deleteItemById` swallowed errors (toast, then normal return), so payslips
+   and specialist quals showed "Deleted" right after "Delete failed". New
+   `{ throwOnError: true }` lets them skip it. `deleteSupabaseItem` now asks
+   for the deleted rows back (`.select("id")`): an RLS-refused delete is not a
+   PostgREST error, it just matches nothing, and used to count as success. A
+   row we could see but failed to remove now throws; one already gone does
+   not (the achievements engine deletes in parallel). **Storage files are now
+   removed AFTER the row** — they used to go first, so a failed delete left a
+   record pointing at deleted files. Verified live: other-user delete removes
+   0 rows with no error, owner removes 1 (rolled back).
+3. **Vessel / sea time delete left dangling links.** Five links already had
+   `ON DELETE SET NULL`; `onboard_experiences.vessel_id`, `payslips.vessel_id`
+   and `navigation_areas.seatime_id` had no FK at all. Added the same rule
+   (`docs/schema-vessel-seatime-link-fks.sql`, applied and smoke-tested; one
+   already-dangling payslip link cleared, restore line in the file). Records
+   are KEPT and unlinked, never deleted. `unlinkCachedChildren` in `js/api.js`
+   mirrors it in `SeavState` so pages don't show the dead link until reload.
+4. **Deleted records reappeared.** `hydrateStoredFilesInBackground` snapshotted
+   a list, signed its file URLs for seconds, then wrote the SNAPSHOT back over
+   the live list — undoing any delete/add/edit made meanwhile, and persisting
+   it to the cache. Now merges: a record still present and unchanged (same
+   object) gets its signed copy, everything else is left alone. Same fix for
+   the profile photo. Reproduced and verified by running the real state.js in
+   node: before `[A,B,C]` (B deleted, D added, C edited — all undone), after
+   `[A,C,D]` with C's edit kept and A signed.
+5. **Dates a day early west of the UK.** `new Date("2025-03-01")` is UTC
+   midnight = 28 Feb in PDT (Jack was on PDT, UTC-7, when fixed). New
+   `SeavData.parseDateOnly` reads YYYY-MM-DD as the local calendar day. Used
+   for display (`formatDatePretty`, CV dates, public expiry, referee page),
+   **cert expiry** (expired a day early), **payslip tax year/month** (6 April
+   fell into the previous tax year) and the calendar-month "time onboard"
+   durations (could drop a month). Verified under TZ=America/Los_Angeles
+   (all four wrong before, right after) and TZ=Europe/London (identical).
+   **Sea-time day counts deliberately untouched** — `daysBetweenDates` et al.
+   subtract and round, so they are already timezone-independent, and how
+   days count is still on the needs-Jack's-call list.
+
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not
    raise it again.** The key ("SEA-V Supabase SMTP") stays as it is, despite
@@ -580,13 +625,9 @@ took one file (multi-photo pickers lost the rest).
 9. **Rest of the 2026-09-26 audit, not yet fixed** (roughly by impact):
    storage `*_owner_select` path-planting branch (a user can put another
    user's file path in their own row and read it); no rate limit on the
-   verification email (any address, any number of times); background file
-   hydration in `state.js` overwrites newer state so deletes reappear;
+   verification email (any address, any number of times);
    Master Unlimited counts pre-certificate sea days (`seav-data.js` ~2027);
-   passage can't be unlinked from sea time (mapper omits null `seatime_id`);
-   vessel delete orphans linked rows; payslip / specialist-qual delete toasts
-   success on failure; payslip total mixes currencies; UTC date parsing
-   shifts dates west of UK; `dashboard.html:72-76` duplicate script tags and
+   payslip total mixes currencies; `dashboard.html:72-76` duplicate script tags and
    dead `navigation-routing.js` (patch script re-inserts it); CSP allows
    unsafe-inline/eval and whole CDNs, supabase-js unpinned; `navigation_areas`
    / `tenders` have TABLE-level anon SELECT; auth-form focus outlines and

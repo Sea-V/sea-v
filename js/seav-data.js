@@ -1084,9 +1084,28 @@ function getUkTaxYearOptions(count = 8) {
   return options;
 }
 
+// "YYYY-MM-DD" -> that calendar day at LOCAL midnight (v538).
+//
+// new Date("2025-03-01") is UTC midnight, which is still 28 Feb anywhere
+// west of the UK: every date displayed a day early, certificates expired a
+// day early, a payslip dated 6 April fell into the previous tax year, and
+// calendar-month durations could lose a month. Jack was on PDT (UTC-7) when
+// this was fixed. Anything that is not a plain date (a full ISO timestamp,
+// a Date) behaves exactly as new Date() always did.
+//
+// Deliberately NOT used by the sea-time day counts (daysBetweenDates and
+// friends): those subtract two dates and round, so the result is already
+// timezone-independent, and changing them could move badge totals.
+function parseDateOnly(value) {
+  if (value instanceof Date) return new Date(value.getTime());
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value ?? "").trim());
+  if (match) return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return new Date(value);
+}
+
 function inferUkTaxYear(dateStr) {
   if (!dateStr) return "";
-  const date = new Date(dateStr);
+  const date = parseDateOnly(dateStr);
   if (Number.isNaN(date.getTime())) return "";
 
   const y = date.getFullYear();
@@ -1138,7 +1157,7 @@ function getPayslipMonthsLogged(taxYear, entries = [], excludeEntryId = null) {
 
 function inferPayslipMonthFromDate(dateStr, taxYear) {
   if (!dateStr || !taxYear) return "";
-  const date = new Date(dateStr);
+  const date = parseDateOnly(dateStr);
   if (Number.isNaN(date.getTime())) return "";
 
   const monthValue = String(date.getMonth() + 1).padStart(2, "0");
@@ -2129,7 +2148,7 @@ function getEmptyTenderEntry() {
   function formatDatePretty(dateStr) {
   if (!dateStr) return "—";
 
-  const d = new Date(dateStr);
+  const d = parseDateOnly(dateStr);
   if (Number.isNaN(d.getTime())) return dateStr;
 
   return d.toLocaleDateString("en-GB", {
@@ -2169,7 +2188,7 @@ function getEmptyTenderEntry() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const exp = new Date(cert.expiry);
+    const exp = parseDateOnly(cert.expiry);
     if (Number.isNaN(exp.getTime())) return false;
     exp.setHours(0, 0, 0, 0);
 
@@ -2192,7 +2211,7 @@ function getEmptyTenderEntry() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const exp = new Date(expiry);
+    const exp = parseDateOnly(expiry);
     exp.setHours(0, 0, 0, 0);
 
     const diffMs = exp - today;
@@ -2748,13 +2767,13 @@ function getSortedVesselOptions(vessels = []) {
 
   function prettyDate(iso) {
     if (!iso) return "";
-    const d = new Date(iso);
+    const d = parseDateOnly(iso);
     if (Number.isNaN(d.getTime())) return "";
     return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
   }
 
   function addMonths(iso, months) {
-    const d = new Date(iso);
+    const d = parseDateOnly(iso);
     if (Number.isNaN(d.getTime())) return null;
     d.setMonth(d.getMonth() + Number(months || 0));
     return d;
@@ -2835,7 +2854,7 @@ function getSortedVesselOptions(vessels = []) {
 
       // Expired certificates do not satisfy a requirement.
       const expired =
-        !held.noExpiry && held.expiry && new Date(held.expiry) < today;
+        !held.noExpiry && held.expiry && parseDateOnly(held.expiry) < today;
       if (expired) {
         row.state = "exp";
         row.note = `Expired ${prettyDate(held.expiry)} — renew before applying`;
@@ -2856,7 +2875,7 @@ function getSortedVesselOptions(vessels = []) {
 
       const expiringSoon =
         !held.noExpiry && held.expiry &&
-        (new Date(held.expiry) - today) / 86400000 <= 90;
+        (parseDateOnly(held.expiry) - today) / 86400000 <= 90;
 
       row.state = expiringSoon ? "warn" : "held";
       row.note = expiringSoon
@@ -3284,6 +3303,7 @@ function getSortedVesselOptions(vessels = []) {
   ========================================================= */
 
 window.SeavData = {
+  parseDateOnly,
   KEYS,
   MANDATORY_CERTS,
   RECOMMENDED_CERTS,

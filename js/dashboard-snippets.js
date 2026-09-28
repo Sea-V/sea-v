@@ -167,8 +167,10 @@
    */
   function formatTimeOnboard(from, to) {
     if (!from) return "";
-    const start = new Date(from);
-    const end = to ? new Date(to) : new Date();
+    // Local calendar days -- see parseDateOnly in js/seav-data.js.
+    const parseDay = window.SeavData?.parseDateOnly || ((value) => new Date(value));
+    const start = parseDay(from);
+    const end = to ? parseDay(to) : new Date();
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return "";
     if (end < start) return "";
 

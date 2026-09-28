@@ -370,7 +370,11 @@
         });
         if (!confirmed) return;
 
-        await SeavAPI.deleteItemById(STORAGE_KEY, entryId);
+        try {
+          await SeavAPI.deleteItemById(STORAGE_KEY, entryId, { throwOnError: true });
+        } catch {
+          return; // SeavAPI has already shown "Delete failed".
+        }
         expandedPsIds.delete(entryId);
 
         Seav.notify("success", "Deleted", "Payslip removed from your records.");

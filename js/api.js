@@ -72,6 +72,35 @@
     return items;
   }
 
+  // Mirrors the ON DELETE SET NULL foreign keys in the in-memory state, so
+  // the page does not keep showing links to a record that is gone until the
+  // next full reload. The database clears these itself -- see
+  // docs/schema-vessel-seatime-link-fks.sql for the three added in v538.
+  function unlinkCachedChildren(parentKey, parentId) {
+    const K = window.SeavData?.KEYS;
+    if (!K || !parentId) return;
+    const links = {
+      [K.VESSELS]: {
+        prop: "vesselId",
+        keys: [K.SEATIMES, K.TENDERS, K.REFS, K.ACHIEVEMENTS, K.NAVIGATION_AREAS,
+          K.ONBOARD_EXPERIENCES, K.PAYSLIPS]
+      },
+      [K.SEATIMES]: { prop: "seatimeId", keys: [K.NAVIGATION_AREAS] }
+    }[parentKey];
+    if (!links) return;
+
+    links.keys.forEach((key) => {
+      const cached = getCachedArray(key);
+      if (!cached?.some((item) => item?.[links.prop] === parentId)) return;
+      writeCachedArray(
+        key,
+        cached.map((item) =>
+          item?.[links.prop] === parentId ? { ...item, [links.prop]: "" } : item
+        )
+      );
+    });
+  }
+
   async function resolveArrayAfterMutation(key, mutator) {
     const cached = getCachedArray(key);
     if (cached) {
@@ -323,13 +352,13 @@
       if (
         error &&
         isMissingSupabaseColumnError(error, "seatime_id") &&
-        payload.seatime_id
+        "seatime_id" in payload
       ) {
         ({ error } = await window.SeavSupabase
           .from("navigation_areas")
           .upsert([stripNavigationSeatimeLink(payload)]));
         if (!error) {
-          emitSchemaWarning(
+          if (payload.seatime_id) emitSchemaWarning(
             "navigation_areas",
             "Passage saved, but the sea time link was skipped because your database is missing navigation_areas.seatime_id. Run docs/navigation-complete-migration.sql in Supabase."
           );
@@ -352,7 +381,7 @@
     if (
       error &&
       isMissingSupabaseColumnError(error, "seatime_id") &&
-      payload.seatime_id
+      "seatime_id" in payload
     ) {
       query = window.SeavSupabase
         .from("navigation_areas")
@@ -361,7 +390,7 @@
       if (userId) query = query.eq("user_id", userId);
       ({ error } = await query);
       if (!error) {
-        emitSchemaWarning(
+        if (payload.seatime_id) emitSchemaWarning(
           "navigation_areas",
           "Passage saved, but the sea time link was skipped because your database is missing navigation_areas.seatime_id. Run docs/navigation-complete-migration.sql in Supabase."
         );
@@ -500,10 +529,11 @@
     }
 
     const row = await fetchSupabaseRowById(table, id);
-    if (row) {
-      await removeStoragePaths(collectStoragePathsFromRow(table, row));
-    }
 
+    // .select("id") returns the rows actually deleted. A delete that RLS
+    // refuses (expired session, someone else's row) is NOT an error to
+    // PostgREST -- it just matches nothing -- so without this check it
+    // reported success and the record stayed put.
     let query = window.SeavSupabase
       .from(table)
       .delete()
@@ -512,11 +542,25 @@
     const userId = getAuthUserId();
     if (userId) query = query.eq("user_id", userId);
 
-    const { error } = await runSupabaseWithRetry(() => query);
+    const { data, error } = await runSupabaseWithRetry(() => query.select("id"));
 
     if (error) {
       console.error(`[SEA-V] Supabase delete failed for ${table}:`, error);
       throw error;
+    }
+
+    // Only a row we could see and then failed to remove counts as a failure;
+    // one already gone (another tab, the achievements engine) is deleted.
+    if (row && Array.isArray(data) && data.length === 0) {
+      const refused = new Error("This record could not be deleted. Refresh the page and try again.");
+      console.error(`[SEA-V] Supabase delete removed no rows for ${table}:`, id);
+      throw refused;
+    }
+
+    // Files only after the row is gone. They used to be removed first, so a
+    // failed delete left a surviving record pointing at deleted files.
+    if (row) {
+      await removeStoragePaths(collectStoragePathsFromRow(table, row));
     }
   }
 
@@ -1076,15 +1120,21 @@ const SeavAPI = {
       return [];
     },
 
-    async deleteItemById(key, id) {
+    // Failures are reported with a toast (notifyDeleteFailure) and, by
+    // default, swallowed -- most callers just re-render. Pass
+    // { throwOnError: true } to ALSO rethrow, so a caller that shows its own
+    // "Deleted" confirmation can skip it when the delete did not happen.
+    async deleteItemById(key, id, options = {}) {
       try {
         if (isVesselKey(key)) {
           await deleteSupabaseItem("vessels", id);
+          unlinkCachedChildren(key, id);
           return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
         if (isSeatimeKey(key)) {
           await deleteSupabaseItem("seatimes", id);
+          unlinkCachedChildren(key, id);
           return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 
@@ -1141,6 +1191,7 @@ const SeavAPI = {
         return [];
       } catch (err) {
         notifyDeleteFailure(err);
+        if (options.throwOnError) throw err;
         return resolveArrayAfterMutation(key, (items) => items);
       }
     },
