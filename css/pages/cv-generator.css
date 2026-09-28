@@ -129,7 +129,7 @@
 
 .cvgen-toolbar-note {
   margin: 0 0 6px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -183,7 +183,7 @@
 .cvgen-editor-note,
 .cvgen-editor-empty {
   margin: 0 0 10px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -395,7 +395,7 @@
 
 .cvgen-vessel-meta {
   margin: 6px 0 8px 24px;
-  color: rgba(255, 255, 255, 0.52);
+  color: var(--seav-meta-muted-color);
   font-size: 11px;
 }
 
@@ -531,7 +531,7 @@
 
 .cvgen-footnote {
   margin: 16px 0 0;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   line-height: 1.55;
 }

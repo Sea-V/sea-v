@@ -272,7 +272,7 @@
   margin: 0;
   font-size: 12px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -302,7 +302,7 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   transition: transform 0.2s ease, color 0.15s ease;
 }
 
@@ -582,7 +582,7 @@
 
 .onboard-skill-empty {
   margin: 0;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   font-size: 14px;
 }
 
@@ -665,7 +665,7 @@
 
 .onboard-skill-row-label {
   min-width: 92px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   font-weight: 700;
 }

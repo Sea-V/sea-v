@@ -384,9 +384,12 @@ body.app-page::after {
 
   /* Fixed dark layer, separate from the animated ocean, so Safari does not
      depend on filter/brightness support for readable translucent shells. */
+  /* v539: tinted to the lifted shell navy and eased off (was near-black
+     8,18,35 at 0.35 -> 0.62 on top of a flat 0.32), so the page reads
+     lighter. Still dark enough for the translucent shells to stay legible. */
   background:
-    linear-gradient(180deg, rgba(8, 18, 35, 0.35) 0%, rgba(9, 20, 34, 0.62) 100%),
-    rgba(8, 18, 35, 0.32);
+    linear-gradient(180deg, rgba(20, 38, 60, 0.28) 0%, rgba(20, 38, 60, 0.5) 100%),
+    rgba(20, 38, 60, 0.22);
 }
 
 @keyframes appOceanDrift {
@@ -568,7 +571,7 @@ body.app-page::after {
 }
 
 .dash-sidebar-legal a {
-  color: rgba(255, 255, 255, 0.48);
+  color: var(--seav-meta-muted-color);
   text-decoration: none;
   transition: color 0.15s ease;
 }
@@ -847,7 +850,7 @@ body.app-page::after {
 .sidebar-badge-empty {
   width: 100%;
 
-  color: rgba(255,255,255,0.58);
+  color: var(--seav-meta-muted-color);
 
   font-size: 12px;
   text-align: center;

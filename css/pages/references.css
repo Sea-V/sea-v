@@ -120,7 +120,7 @@
 .reference-section-summary {
   margin-top: 10px;
 
-  color: rgba(255,255,255,0.58);
+  color: var(--seav-meta-muted-color);
   font-size: 13px;
   font-weight: 650;
   line-height: 1.5;
@@ -290,7 +290,7 @@
 }
 
 .ref-compact-title small {
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   font-weight: 600;
 }
@@ -565,7 +565,7 @@
 
   margin-top: 1px;
 
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
 
   font-size: 11.5px;
   font-weight: 600;
@@ -582,7 +582,7 @@
 
   border-top: 1px solid rgba(255, 255, 255, 0.07);
 
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--seav-meta-muted-color);
 
   font-size: 11px;
   font-weight: 600;
@@ -620,7 +620,7 @@
 .ref-signoff-meta {
   margin-top: 2px;
 
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
 
   font-size: 12px;
   font-weight: 500;
@@ -940,7 +940,7 @@
 
 .seav-verify-preview-note {
   margin: 0 0 12px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   line-height: 1.55;
   font-weight: 500;
@@ -966,7 +966,7 @@
 }
 
 .seav-verify-preview-label {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
 }
 
 .seav-verify-preview-value {
@@ -1004,7 +1004,7 @@
 
 .seav-verify-preview-empty {
   margin: 10px 0 0;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--seav-meta-muted-color);
   font-size: 13px;
   font-weight: 500;
   text-transform: none;

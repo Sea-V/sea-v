@@ -6,12 +6,21 @@
 
   --white: #ffffff;
 
-  --navy-900: #172438;
-  --navy-800: #21334d;
+  /* v539 (2026-09-28, per Jack: "the color is getting a bit dark and might
+     need some contrast"). Every navy below was lifted a few steps -- the
+     shell from #0e1c2e to #182c45 -- so the site reads lighter while staying
+     the same hue. Text contrast was checked against the new values: muted
+     copy at 64% white is 5.8:1 on the lightest card (the old 45% was 4.4:1,
+     under the 4.5:1 WCAG AA minimum). Pre-v539 values, to revert:
+     navy-900 #172438, navy-800 #21334d, shell #0e1c2e, panel #132238,
+     translucent rgba(14,28,46,0.85), surface-bg rgba(24,40,62,0.85),
+     -strong rgba(25,43,67,0.95), -soft rgba(29,48,73,0.69). */
+  --navy-900: #1d3350;
+  --navy-800: #274061;
 
   /* Solid page shell surfaces (no gradient shading) */
-  --page-shell-bg: #0e1c2e;
-  --page-shell-panel: #132238;
+  --page-shell-bg: #182c45;
+  --page-shell-panel: #1f3552;
   --page-shell-surface: var(--page-shell-panel);
 
   /* Same color as --page-shell-bg at 85% opacity (~15% transparent) — used
@@ -19,7 +28,7 @@
      panel, so the ocean background shows through slightly. Kept as a
      separate variable (not a change to --page-shell-bg itself) because the
      topbar also reads --page-shell-bg and needs to stay fully solid. */
-  --page-shell-bg-translucent: rgba(14, 28, 46, 0.85);
+  --page-shell-bg-translucent: rgba(24, 44, 69, 0.9);
 
   /* App layout */
   --sidebar-width: 280px;
@@ -134,12 +143,14 @@
   --seav-field-label-color: var(--seav-meta-label-color);
   --seav-field-value-color: #ffffff;
 
-  --seav-meta-muted-color: rgba(255, 255, 255, 0.45);
+  /* Was 0.45 (4.4:1, failed AA). Also what the v539 sweep put in place of
+     ~90 hardcoded rgba(255,255,255,0.42-0.58) text colours. */
+  --seav-meta-muted-color: rgba(255, 255, 255, 0.64);
   --seav-meta-desc-color: rgba(255, 255, 255, 0.78);
   /* Supporting note/footnote copy under a section or KPI band. Was hardcoded
      as rgba(255,255,255,0.60) in .seatime-section-head p and copied by hand
      into new rules; tokenised 2026-08-15 so it stops drifting. */
-  --seav-note-color: rgba(255, 255, 255, 0.60);
+  --seav-note-color: rgba(255, 255, 255, 0.66);
 
   /* Captioned photo evidence -- js/seav-photo-strip.js and
      css/components/photo-strip.css (v536). Onboard experience first,
@@ -226,11 +237,11 @@
      is unchanged.
   ========================================================= */
 
-  --surface-bg: rgba(24, 40, 62, 0.85);
+  --surface-bg: rgba(31, 53, 82, 0.85);
 
-  --surface-bg-strong: rgba(25, 43, 67, 0.95);
+  --surface-bg-strong: rgba(33, 56, 86, 0.95);
 
-  --surface-bg-soft: rgba(29, 48, 73, 0.69);
+  --surface-bg-soft: rgba(36, 60, 90, 0.69);
 
   --surface-border:
     rgba(255,255,255,0.12);

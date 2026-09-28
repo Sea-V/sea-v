@@ -739,7 +739,7 @@
 .profile-public-share-brand p {
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--seav-meta-muted-color);
 
   font-size: 11px;
   line-height: 1.35;
@@ -858,7 +858,7 @@
 .profile-public-share-hint {
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.48);
+  color: var(--seav-meta-muted-color);
 
   font-size: 11px;
   line-height: 1.4;
@@ -930,7 +930,7 @@
 }
 
 .profile-public-share-username-prefix {
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--seav-meta-muted-color);
 
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 11px;
@@ -971,7 +971,7 @@
 .profile-public-share-username-hint {
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.48);
+  color: var(--seav-meta-muted-color);
 
   font-size: 11px;
   line-height: 1.4;

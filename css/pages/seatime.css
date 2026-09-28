@@ -511,7 +511,7 @@
 }
 
 .seatime-vessel-group-title small {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
 
   font-size: 11px;
   font-weight: 600;
@@ -592,14 +592,14 @@
 .seatime-empty-state span {
   max-width: 420px;
 
-  color: rgba(255,255,255,0.58);
+  color: var(--seav-meta-muted-color);
 
   font-size: 13px;
   line-height: 1.6;
 }
 
 .seatime-no-file {
-  color: rgba(255,255,255,0.42);
+  color: var(--seav-meta-muted-color);
 
   font-size: 12px;
   font-weight: 600;
@@ -775,7 +775,7 @@
 }
 
 .seatime-checklist-summary small {
-  color: rgba(255,255,255,0.56);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   line-height: 1.35;
   font-weight: 600;

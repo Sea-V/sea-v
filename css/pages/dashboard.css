@@ -267,7 +267,7 @@
 
 .dashboard-card-note {
   margin: -6px 0 10px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--seav-meta-muted-color);
   font-size: 11px;
   line-height: 1.4;
   font-weight: 550;
@@ -394,7 +394,7 @@
 }
 
 .dashboard-navigation-vessel-row b {
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--seav-meta-muted-color);
   font-size: 8px;
   font-weight: 800;
   white-space: nowrap;
@@ -402,7 +402,7 @@
 
 .dashboard-navigation-chart .leaflet-control-attribution {
   background: rgba(8, 16, 28, 0.72);
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   font-size: 9px;
 }
 
@@ -1009,7 +1009,7 @@
   height: 100%;
   min-height: 0;
 
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--seav-meta-muted-color);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.4px;

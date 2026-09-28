@@ -206,7 +206,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-profile-tagline {
   margin: 4px 0 0;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   line-height: 1.4;
   font-weight: 600;
@@ -227,7 +227,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-profile-section-note {
   margin: -2px 0 10px;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--seav-meta-muted-color);
   font-size: 11px;
   line-height: 1.4;
   font-weight: 550;
@@ -302,7 +302,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-profile-footer-note {
   margin: 0;
-  color: rgba(255, 255, 255, 0.48);
+  color: var(--seav-meta-muted-color);
   font-size: 11px;
   font-weight: 650;
 }
@@ -434,7 +434,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-cv-section-note {
   margin: -2px 0 8px;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--seav-meta-muted-color);
   font-size: 10px;
   line-height: 1.4;
   font-weight: 550;
@@ -601,7 +601,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 .public-cv-highlight-desc,
 .public-cv-highlight-witness {
   margin: 0;
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--seav-meta-muted-color);
   font-size: 11px;
   line-height: 1.45;
   font-weight: 650;
@@ -919,7 +919,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--seav-meta-muted-color);
   font-size: 10px;
   font-weight: 600;
   text-align: right;
@@ -985,7 +985,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-cv-ref-meta {
   margin-top: 2px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--seav-meta-muted-color);
   font-size: 10px;
   line-height: 1.4;
   font-weight: 600;
@@ -1069,7 +1069,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 .onboard-detail-meta {
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.3px;
@@ -1148,7 +1148,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 .public-onboard-vessel-count {
   margin-left: auto;
   margin-right: 6px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--seav-meta-muted-color);
   font-size: 10px;
   font-weight: 600;
   white-space: nowrap;
@@ -1159,7 +1159,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   display: inline-flex;
   width: 16px;
   height: 16px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   transition: transform 0.15s ease;
 }
 
@@ -1321,7 +1321,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 .public-onboard-skill-row-label {
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--seav-meta-muted-color);
   font-size: 10px;
   font-weight: 600;
   white-space: nowrap;
@@ -1329,7 +1329,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-onboard-skill-note {
   margin: 0;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   font-size: 11px;
   line-height: 1.4;
 }
@@ -1362,7 +1362,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 .public-cv-empty-state span {
   max-width: 440px;
 
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--seav-meta-muted-color);
 
   font-size: 13px;
   line-height: 1.6;

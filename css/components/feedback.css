@@ -254,7 +254,7 @@
 
 .seav-page-loader-sub {
   margin: -10px 0 18px;
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   line-height: 1.45;
   font-weight: 600;

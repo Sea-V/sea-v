@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v538**. Jack pushes every commit himself from
+- HEAD = **v539**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -517,7 +517,7 @@ took one file (multi-photo pickers lost the rest).
   multi-photo input, stray drop contained, thumb field untouched, injected
   modal enhanced. A real OS drag from Finder has not been tried.
 
-### Written 2026-09-28 (v538) — five data bugs from the 2026-09-26 audit
+### Shipped 2026-09-28 (v538) — five data bugs from the 2026-09-26 audit
 All five are struck from thread 9.
 1. **Passage could not be unlinked from sea time.** `mapNavigationAreaToSupabase`
    only sent `seatime_id` when set, so clearing it sent nothing and the row
@@ -561,6 +561,37 @@ All five are struck from thread 9.
    **Sea-time day counts deliberately untouched** — `daysBetweenDates` et al.
    subtract and round, so they are already timezone-independent, and how
    days count is still on the needs-Jack's-call list.
+
+
+### Written 2026-09-28 (v539) — green-crew redesign, step 1: lighter + contrast
+Jack wants the site minimal and friendly for green crew, with the depth
+hidden until needed, and felt the colour was "getting a bit dark". Agreed
+plan, one testable step at a time: **(1) lighter palette + contrast**,
+(1b) remove a layer of box-in-box borders, (2) a menu that grows with the
+user (5 core items, the rest appear once they hold data, plus "Show all
+tools"), (3) dashboard as a to-do: CV-ready meter, one "next step" card,
+hide zero KPI tiles, (4) first-run setup (role -> basics -> first boat) and
+shorter forms behind "More details". Jack said "do what you think will look
+better" on the open choices: ocean background keeps its motion (he asked for
+visible drift before) with a lighter overlay; page accent colours stay as
+the ONE thin shell border per page (they were already low-alpha); the CV
+generator's white A4 preview is untouched.
+- Tokens lifted (variables.css, old values in its comment): shell
+  `#0e1c2e` -> `#182c45`, panel `#132238` -> `#1f3552`, translucent 0.85 ->
+  `rgba(24,44,69,0.9)`, `--surface-bg*` and `--navy-900/800` likewise. Every
+  page shell already read the token, so this reached all of them.
+- App ocean overlay (`body.app-page::after`, layout.css) re-tinted to the
+  new navy and eased off.
+- `--seav-meta-muted-color` 0.45 (4.4:1, failed AA) -> 0.64 (5.8:1 on the
+  lightest card); `--seav-note-color` 0.60 -> 0.66. **98 hardcoded
+  `color: rgba(255,255,255,0.42-0.58)` in 21 files now use the token.**
+  Skipped on purpose: `::placeholder`/disabled selectors (must stay fainter
+  than real values) and the 13 below 0.42 (decorative/disabled — not
+  reviewed individually yet).
+- Seen on the public profile (local server, live anon data) and the onboard
+  harness. Remaining noise is NESTING — at 800px the public profile shows
+  four stacked border lines each side (shell > section > vessel card > inner
+  card). That is step 1b.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not

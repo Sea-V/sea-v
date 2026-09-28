@@ -54,7 +54,7 @@
 .verify-reference-close-hint {
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
   font-size: 13px;
   line-height: 1.5;
   text-align: center;
@@ -190,7 +190,7 @@
 .verify-signature-hint {
   display: block;
   margin-top: 8px;
-  color: rgba(255, 255, 255, 0.52);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   font-weight: 500;
   line-height: 1.45;
@@ -329,7 +329,7 @@
 
   font-size: 12px;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.52);
+  color: var(--seav-meta-muted-color);
   text-align: center;
 }
 

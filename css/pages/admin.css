@@ -167,7 +167,7 @@
 
 .admin-report-date {
   margin-left: auto;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   font-weight: 600;
 }
@@ -186,7 +186,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 10px 16px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   font-weight: 600;
 }
@@ -203,7 +203,7 @@
 .admin-empty {
   margin: 20px 0 0;
   padding: 20px 0;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
   font-size: 13px;
   text-align: center;
 }

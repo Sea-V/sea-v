@@ -171,7 +171,7 @@
 .navigation-stat-subvalue {
   display: block;
   margin-top: 3px;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--seav-meta-muted-color);
   font-size: 10px;
   font-weight: 700;
 }
@@ -275,7 +275,7 @@
 
 .navigation-map .leaflet-control-attribution {
   background: rgba(8, 16, 28, 0.72);
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
 }
 
 .navigation-map .leaflet-control-attribution a {
@@ -432,7 +432,7 @@
   align-items: flex-start;
   gap: 10px;
   margin-top: 12px;
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
 }
 
@@ -456,7 +456,7 @@
 .navigation-field-hint {
   display: block;
   margin-top: 4px;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--seav-meta-muted-color);
   font-size: 11px;
   line-height: 1.35;
 }
@@ -467,7 +467,7 @@
    field moved below them as an optional fallback for non-port locations). */
 .navigation-route-intro {
   margin: 0 0 10px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   line-height: 1.45;
 }
@@ -565,7 +565,7 @@
 
 .navigation-waypoints-help {
   margin: 0 16px 14px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -604,7 +604,7 @@
 }
 
 .navigation-waypoint-empty {
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--seav-meta-muted-color);
   font-size: 12px;
   font-style: italic;
 }
@@ -847,7 +847,7 @@
 }
 
 .navigation-vessel-group-title small {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
   font-size: 11px;
   font-weight: 600;
 }

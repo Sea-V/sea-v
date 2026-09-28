@@ -331,7 +331,7 @@
 .modal-note {
   margin: 2px 0 0;
 
-  color: rgba(255, 255, 255, 0.52);
+  color: var(--seav-meta-muted-color);
 
   font-size: 12px;
   line-height: 1.55;
@@ -652,7 +652,7 @@
   font-size: 16px;
   line-height: 1;
 
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--seav-meta-muted-color);
 
   transition: transform 0.15s ease;
 }
@@ -662,7 +662,7 @@
 }
 
 .modal-more-details-hint {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--seav-meta-muted-color);
 
   font-weight: 600;
   font-size: 12px;
@@ -710,7 +710,7 @@
 }
 
 .modal-info-label {
-  color: rgba(255, 255, 255, 0.52);
+  color: var(--seav-meta-muted-color);
 
   font-size: 10px;
   font-weight: 800;
@@ -809,7 +809,7 @@
 }
 
 .modal-date-field-label {
-  color: rgba(255, 255, 255, 0.48);
+  color: var(--seav-meta-muted-color);
 
   font-size: 10px;
   font-weight: 800;
@@ -860,7 +860,7 @@
 .modal-date-hint {
   margin: -4px 0 0;
 
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--seav-meta-muted-color);
 
   font-size: 11px;
   line-height: 1.5;
