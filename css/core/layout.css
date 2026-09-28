@@ -439,6 +439,23 @@ body.app-page::after {
   color: rgba(255,255,255,0.22);
 }
 
+/* The two lines are <small> (see js/core.js); without this they would
+   render a step smaller than the badge's 10px. */
+.seav-version-badge small {
+  font-size: inherit;
+}
+
+/* On a phone a fixed corner badge sits on top of content (Jack's dashboard
+   screenshots, v540). Below 760px it drops into the page flow instead: it
+   is appended last to <body>, so it lands under the footer. */
+@media (max-width: 760px) {
+  .seav-version-badge {
+    position: static;
+    align-items: center;
+    margin: 4px auto max(12px, env(safe-area-inset-bottom));
+  }
+}
+
 /* =========================================================
    SIDEBAR
 ========================================================= */

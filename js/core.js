@@ -848,11 +848,13 @@ function renderSidebarAchievements() {
     badge.id = "seavVersionBadge";
     badge.className = "seav-version-badge";
 
-    const versionLine = document.createElement("span");
+    // <small>, not <span>: typography.css forces 14px !important on span,
+    // which blew the 10px badge up to body size (v540).
+    const versionLine = document.createElement("small");
     versionLine.className = "seav-version-badge-num";
     versionLine.textContent = `v${version}`;
 
-    const copyrightLine = document.createElement("span");
+    const copyrightLine = document.createElement("small");
     copyrightLine.className = "seav-version-badge-copyright";
     copyrightLine.textContent = `© ${new Date().getFullYear()} SEA-V`;
 

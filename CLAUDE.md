@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v539**. Jack pushes every commit himself from
+- HEAD = **v540**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -563,7 +563,7 @@ All five are struck from thread 9.
    days count is still on the needs-Jack's-call list.
 
 
-### Written 2026-09-28 (v539) — green-crew redesign, step 1: lighter + contrast
+### Shipped 2026-09-28 (v539) — green-crew redesign, step 1: lighter + contrast
 Jack wants the site minimal and friendly for green crew, with the depth
 hidden until needed, and felt the colour was "getting a bit dark". Agreed
 plan, one testable step at a time: **(1) lighter palette + contrast**,
@@ -592,6 +592,31 @@ generator's white A4 preview is untouched.
   harness. Remaining noise is NESTING — at 800px the public profile shows
   four stacked border lines each side (shell > section > vessel card > inner
   card). That is step 1b.
+
+
+### Written 2026-09-28 (v540) — mobile dashboard fixes from Jack's screenshots
+Jack sent three iPhone screenshots of the live v539 dashboard. Fixed:
+- **Grid 40px in from the quick actions, tiles squeezed.** `.dashboard-shell-section`
+  kept its desktop 28px padding on phones, on top of `.dash-bento`'s own
+  14px. Now 0 at <=900px; bento sides 14px at every phone width, matching
+  the quick actions (measured: both 37px -> 353px at 390px wide).
+- **Numbers clipped** ("1,313", "26", "22"). `.dash-tile-num` is nowrap in an
+  overflow:hidden tile and could flex-shrink. Now `flex-shrink: 0`, label
+  `min-width: 0` so it wraps instead, and the tile icon is hidden at
+  <=480px (95px is not enough for icon + "Certificates" + "22").
+- **Current-vessel text unreadable over a bright photo.** On <=900px the
+  tile stacks: photo on top (150px, 130px at <=420px), text on a solid
+  `--page-shell-panel` panel below, scrim hidden. No scrim strong enough to
+  work on an overcast sky left much photo visible. Desktop unchanged.
+- **Version badge floating over cards.** `position: static` below 760px
+  (it is appended last to body, so it lands under the footer). Its lines are
+  now `<small>` — as `<span>` typography.css forced them to 14px, which is
+  why the "10px" badge looked large everywhere, desktop included.
+Verified on a harness with the real dashboard.html markup + stylesheet at
+390x844 (no clipping, no sideways scroll) and 1440x900 (desktop unchanged).
+Still on the step-3 list from those screenshots: the header block (icon +
+title + 3-line description) takes ~40% of the first phone screen, and the
+four quick-action buttons differ in height and border colour.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not

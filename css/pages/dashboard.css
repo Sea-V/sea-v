@@ -1532,6 +1532,7 @@
    --seav-meta-label-color (#5bbcff) — too much blue once twelve tiles carry
    it, and the page colour already reads from the icon (Jack, 2026-09-16). */
 .dash-tile-label {
+  min-width: 0;
   font-weight: 800;
   color: #ffffff;
 }
@@ -1555,6 +1556,10 @@
    the value first moved onto the header row. */
 .dash-tile-num {
   margin-left: auto;
+  /* Never squeezed: it is nowrap inside an overflow:hidden tile, so letting
+     it shrink clipped the figure itself ("1,313" -> "1,31") on a phone.
+     The label wraps instead (v540). */
+  flex-shrink: 0;
 
   font-size: var(--font-kpi);
   font-weight: 800;
@@ -1873,6 +1878,15 @@
 ========================================================= */
 
 @media (max-width: 900px) {
+  /* v540, from Jack's phone screenshots: the section's desktop 28px padding
+     stacked on the bento's own 14px, so the grid sat ~40px in from the
+     quick actions (14px) above it and the tiles were squeezed until their
+     numbers clipped. The bento is the section's only child and carries
+     the page gutter itself. */
+  .dashboard-shell-section {
+    padding: 0;
+  }
+
   .dash-bento {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: none;
@@ -1890,16 +1904,32 @@
     grid-column: 1 / -1;
   }
 
+  /* Photo on top, text on a solid panel below (v540). At phone width the
+     text block is most of the tile, so text-over-photo put "Current vessel
+     / name / role" on bright sky — faint and unreadable in Jack's
+     screenshot of Senses under an overcast sky. No scrim strong enough to
+     fix that leaves much photo showing; stacking guarantees contrast for
+     any photo. Desktop keeps the text-over-photo composition. */
   .dash-vessel {
     grid-row: auto;
-    height: 210px;
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    background: var(--page-shell-panel);
   }
 
-  /* A 38% scrim is tuned to the desktop tile's proportions; at 210px the
-     text block is taller relative to the photo and the eyebrow ends up over
-     bright water. Taller scrim, same fade. */
+  .dash-vessel img {
+    position: static;
+    display: block;
+    height: 150px;
+  }
+
   .dash-vessel-scrim-bottom {
-    height: 52%;
+    display: none;
+  }
+
+  .dash-vessel-body {
+    padding: 12px 14px 14px;
   }
 
   .dash-tile {
@@ -1919,14 +1949,24 @@
   }
 }
 
+@media (max-width: 480px) {
+  /* Two tiles across leave ~95px for label + number beside a 26px icon, not
+     enough for "Certificates 22". The icon goes on phones; the label and
+     the number are the tile (and fewer icons, per Jack's minimal brief). */
+  .dash-tile-ic {
+    display: none;
+  }
+}
+
 @media (max-width: 420px) {
   .dash-bento {
     gap: 10px;
-    padding: 12px 12px 16px;
+    /* 14px sides, the same gutter as the quick actions above. */
+    padding: 12px 14px 16px;
   }
 
-  .dash-vessel {
-    height: 190px;
+  .dash-vessel img {
+    height: 130px;
   }
 }
 
