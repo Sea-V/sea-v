@@ -24,10 +24,10 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=541" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=541" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=541" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=541" />
+  <link rel="icon" href="/favicon.ico?v=542" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=542" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=542" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=542" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Public Profile</title>
@@ -68,7 +68,7 @@
     knows to keep the leading slash on this file — don't "simplify" these
     back to relative.
   -->
-  <link rel="stylesheet" href="/styles.css?v=541" />
+  <link rel="stylesheet" href="/styles.css?v=542" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -80,27 +80,27 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
-  <script src="/js/feedback.js?v=541" defer></script>
-  <script src="/js/core.js?v=541" defer></script>
-  <script src="/js/seav-data.js?v=541" defer></script>
-  <script src="/js/seav-badges.js?v=541" defer></script>
+  <script src="/js/feedback.js?v=542" defer></script>
+  <script src="/js/core.js?v=542" defer></script>
+  <script src="/js/seav-data.js?v=542" defer></script>
+  <script src="/js/seav-badges.js?v=542" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/seav-config.js?v=541"></script>
-  <script src="/js/supabase.js?v=541" defer></script>
-  <script src="/js/auth.js?v=541"></script>
-  <script src="/js/api-core.js?v=541" defer></script>
-  <script src="/js/api-mappers.js?v=541" defer></script>
-  <script src="/js/api.js?v=541" defer></script>
+  <script src="/js/seav-config.js?v=542"></script>
+  <script src="/js/supabase.js?v=542" defer></script>
+  <script src="/js/auth.js?v=542"></script>
+  <script src="/js/api-core.js?v=542" defer></script>
+  <script src="/js/api-mappers.js?v=542" defer></script>
+  <script src="/js/api.js?v=542" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="/js/navigation-ports.js?v=541" defer></script>
-  <script src="/js/navigation-helpers.js?v=541" defer></script>
-  <script src="/js/navigation-passage.js?v=541" defer></script>
-  <script src="/js/navigation-routing.js?v=541" defer></script>
-  <script src="/js/public-profile-utils.js?v=541" defer></script>
-  <script src="/js/seav-photo-strip.js?v=541" defer></script>
-  <script src="/js/seav-cards.js?v=541" defer></script>
-  <script src="/js/public-profile-sections.js?v=541" defer></script>
-  <script src="/js/public-profile.js?v=541" defer></script>
+  <script src="/js/navigation-ports.js?v=542" defer></script>
+  <script src="/js/navigation-helpers.js?v=542" defer></script>
+  <script src="/js/navigation-passage.js?v=542" defer></script>
+  <script src="/js/navigation-routing.js?v=542" defer></script>
+  <script src="/js/public-profile-utils.js?v=542" defer></script>
+  <script src="/js/seav-photo-strip.js?v=542" defer></script>
+  <script src="/js/seav-cards.js?v=542" defer></script>
+  <script src="/js/public-profile-sections.js?v=542" defer></script>
+  <script src="/js/public-profile.js?v=542" defer></script>
 </head>
 
 <body class="public-page public-profile-page">
@@ -145,6 +145,17 @@
   <div class="ocean" aria-hidden="true"></div>
   <div class="overlay" aria-hidden="true"></div>
 
+  <!--
+    New top (2026-09-29, Jack's approved "Step 3" from the design canvas),
+    behind the ?look=new preview flag until he signs it off on the live site:
+    js/public-profile.js adds body.pp-look-new, which hides the topbar and
+    the old shell heading and shows these two blocks. Without the flag they
+    stay display:none and the page is exactly as before.
+  -->
+  <div class="pp-wave" aria-hidden="true">
+    <img src="/img/ocean.jpg?v=339" alt="" />
+  </div>
+
   <header class="topbar app-topbar public-profile-topbar">
     <div class="topbar-inner">
       <nav class="nav-left" aria-label="SEA-V">
@@ -163,6 +174,29 @@
   </header>
 
   <main class="public-profile-main">
+
+    <div class="pp-hero" id="ppHero">
+      <div class="pp-hero-bar">
+        <a class="pp-hero-brand public-profile-brand" href="/index.html" aria-label="SEA-V home">
+          <img src="/img/logo.png?v=10" class="pp-hero-logo" alt="SEA-V" />
+        </a>
+        <div class="pp-hero-actions" id="ppHeroActions" hidden>
+          <button type="button" class="btn-ghost2 pp-hero-share" id="ppHeroShare" aria-label="Share profile">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <small class="pp-hero-btn-label">Share profile</small>
+          </button>
+          <button type="button" class="btn-blue pp-hero-cv" id="ppHeroCv">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11M8 11l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <small class="pp-hero-btn-label pp-hero-btn-label--keep">Download CV</small>
+          </button>
+        </div>
+      </div>
+      <div class="pp-hero-copy" id="ppHeroCopy" hidden>
+        <strong class="pp-hero-eyebrow">PUBLIC PROFILE</strong>
+        <h1 class="pp-hero-title" id="ppHeroTitle"></h1>
+        <div class="pp-hero-chips" id="ppHeroChips"></div>
+      </div>
+    </div>
 
     <div class="public-profile-content">
 

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v541**. Jack pushes every commit himself from
+- HEAD = **v542**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -620,7 +620,7 @@ four quick-action buttons differ in height and border colour.
 
 
 
-### Written 2026-09-29 (v541) — sign-in form shoved left on narrow screens (v540 regression)
+### Shipped 2026-09-29 (v541) — sign-in form shoved left on narrow screens (v540 regression)
 Jack's screenshot: on a narrow window the login form sat against the left
 edge with "v540 © 2026 SEA-V" beside it. v540 made `.seav-version-badge`
 `position: static` below 760px for EVERY page, but `index.html`/`signup.html`
@@ -634,11 +634,93 @@ profile badge still static, no sideways scroll. **Lesson: a rule that moves an
 element into the flow must be checked on every body layout, not just the
 page it was written for.**
 
+
+### Written 2026-09-29 (v542) — new public-profile top, behind `?look=new`
+Jack's approved canvas "Step 3", built for real. **Preview only:**
+`/u/<username>?look=new` (js/public-profile.js adds `body.pp-look-new` before
+anything renders). Without the flag the page is unchanged — measured: all
+section boxes identical to the pixel at 1280px, topbar still shown.
+- `.pp-wave` (after `.ocean`/`.overlay`): real `img/ocean.jpg`, no filter,
+  mask-faded, tokens `--pp-wave-*`. `body.pp-look-new { position: relative }`
+  is REQUIRED — body is this page's scroll container, and without it the
+  absolute wave anchored to the viewport and stayed put while scrolling.
+- `.pp-hero` inside `.public-profile-main` (shares the card's left edge):
+  logo | Share profile (`.btn-ghost2`) + Download CV (`.btn-blue` — Jack
+  asked for the page's own blue with white text, which is exactly that
+  class); then "PUBLIC PROFILE" / `rank · current vessel`
+  (`SeavData.getCurrentVessel`) / availability, location, nationality chips,
+  all via textContent. Old topbar + `#ppContent > .dashboard-shell-head`
+  hidden under the flag. Phone (<=560px): Share becomes a 44px icon button.
+- Text uses `<strong>`/`<small>` (typography.css forces 14px on span/button).
+  `.pp-hero-actions[hidden]` / `.pp-hero-copy[hidden]` guarded (display:flex
+  would beat the UA `[hidden]`).
+- **Share profile** works: `navigator.share`, else clipboard + toast; the
+  shared URL drops the `look` param.
+- **Download CV is a placeholder toast** ("CV downloads are coming"). A CV
+  built from PUBLIC data would be wrong: anon cannot read
+  `certificates.show_on_cv` (unticked certs would reappear) and contact
+  details are private. The real feature = crew publish a CV (not built).
+- To make it the default once Jack signs off: add `pp-look-new` to
+  `<body class>` in public-profile.html (or drop the flag check), then delete
+  the old topbar markup and the flag.
+Verified locally with live anon data at 1280 and 390 (Download CV toast,
+share icon on phone, no sideways scroll, wave scrolls with the page).
+
 ### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
 Jack found the public profile "boring and bland". Design canvas (private, Jack's
 account): https://claude.ai/artifact/Mw2fZsYB1ZtLCvtb1x3mJq — it opens on
-**v2** (`Profile2.dc.html` desktop + `ProfilePhone2.dc.html`), which Jack said
-is "getting there … starting to look good". Continue from v2, not v1.
+**v3** (`Profile3.dc.html` + `ProfilePhone3.dc.html`, 2026-09-29), built on v2
+("getting there … starting to look good"). Continue from v3. v3 changes, all
+Jack's asks: the ocean photo is ALWAYS the real `ocean.jpg`, **no colour
+filter on any theme**; the **coloured section icons are back** (sidebar icons
+from `js/core.js` in their `--page-*` colours, each section card bordered in
+its page colour at 0.3); the layout stays close to the current page all the
+way down; and Vessels became a **Career timeline** — a role-progression strip
+(first year each `vessel_role` was held: Deckhand 2010 -> Lead Deckhand 2014
+-> Bosun 2015 -> Chief Officer 2022) above a vertical timeline (start year +
+node on the left, vessel card with its role pill on the right), linked
+groups (Tenders / Onboard experience / References / Milestones) with their
+own icons and colours under each yacht. The pages are generated from live
+anon data by `build_profile3.py` + `profile3_template.html` in the session
+scratchpad (not in the repo).
+**2026-09-29, Jack: "render me the exact replica of the current public profile
+with no color options, we can then build from there".** The canvas now opens
+on `Current.dc.html` (+ `CurrentPhone.dc.html`): the live page's rendered DOM
+(anon data for jack-sorrell, scripts/on* handlers stripped) with ALL 50 site
+stylesheets + leaflet.css bundled into one uploaded CSS asset, `body.X`
+selectors rewritten to `div.X` (same specificity; the wrapper div carries
+`public-page public-profile-page`), and every signed image / map tile /
+badge re-hosted as a canvas asset. Measured against the live page at 1280px:
+all ten section boxes identical to the pixel, 30/30 images load. Static —
+the page's JS (collapsibles beyond native `<details>`, "show more", the live
+map) does not run on the canvas. **This replica is the new starting point;
+v1-v3 are reference only.**
+**Step 3 APPROVED by Jack 2026-09-29 ("i love it") — build this top for real.**
+Canvas boards `Wave3.dc.html` / `WavePhone3.dc.html` (steps built as copies:
+Current -> Wave -> Wave2 -> Wave3, each kept for comparison). Spec:
+- **No topbar** (About / Privacy / "Create yours" removed from the top).
+- **Wave band** at the very top: the real `img/ocean.jpg`, NO colour filter,
+  `object-position: center 72%` (darker water behind the logo),
+  `clamp(230px, 22vw, 290px)` tall, bottom edge faded with a CSS
+  `mask-image` gradient (transparency, not a colour overlay) into the page's
+  existing fixed ocean background. It is an absolutely positioned layer
+  behind `<main>`; no shading panels anywhere.
+- The logo row + heading live INSIDE `.public-profile-main`, before `#ppShell`,
+  so they share the card's width/left edge at every breakpoint (a separate
+  banner container drifted on phones).
+- Row 1: logo (plain, left) | right: "Share profile" (outline pill) + "Download
+  CV" (solid #5bbcff pill, dark text). **Phone: Share becomes a 44px round
+  icon button with aria-label** so all three fit one line.
+- Row 2, just above the card: "PUBLIC PROFILE" (12px, 800, #5bbcff,
+  letter-spaced) / **"<rank> · <current vessel>"** h1 (clamp 22-28px, 800) /
+  chips: availability, location, nationality (blue-tinted outline pills).
+  Replaces the old `.dashboard-shell-head` ("Jack Sorrell — public profile" +
+  subtitle), which repeated the name shown in the card.
+- The rest of the page is unchanged from live.
+**Open decision before building "Download CV":** generate live from the
+profile, or only offer a CV the crew member has published — recommended the
+latter so a half-finished CV never reaches an employer. "Share profile"
+reuses `SeavShare.shareProfile`.
 Decisions so far (all Jack's):
 - **Keep the current page's structure.** Everything hangs off a vessel: each
   vessel card (real photo, role, dates, duration) opens to its overview
@@ -655,9 +737,9 @@ Decisions so far (all Jack's):
   palettes (no free colour picker): Deck = the five CV schemes (Sea-V
   Original, Ocean Blue, Simple Green, Pearl Grey, Night Watch — same names
   and swatches as `CV_TEMPLATES`), Interior = Champagne, Rosé, Linen, Orchid.
-  A theme changes ONLY the wave-photo tint (`ocean.jpg` + `mix-blend-mode:
-  color`), the accent colour and the deep background hue; every theme is a
-  dark, professional variant. Layout never changes per theme. Palette values
+  A theme changes ONLY the accent colour and the deep background hue (the
+  wave-photo tint was dropped in v3 — Jack wants the real photo always);
+  every theme is a dark, professional variant. Layout never changes per theme. Palette values
   are in `Profile2.dc.html`'s `themes()`.
 Agreed build plan once the design is signed off: (1) new look on
 `public-profile.html`, default theme only, behind a preview link

@@ -1476,3 +1476,173 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 12px;
 }
+
+/* =========================================================
+   New top — wave + role headline (v542, preview: ?look=new)
+   Jack's approved design-canvas "Step 3". js/public-profile.js adds
+   body.pp-look-new; without it these blocks never render and the page is
+   exactly as before.
+   - No topbar: the logo sits on its own on the wave, with Share profile
+     (.btn-ghost2) and Download CV (.btn-blue: page blue, white text — Jack
+     asked for the page's own button colours) opposite it.
+   - The old shell heading ("<name> — public profile") is replaced by the
+     line an employer scans for: rank · current vessel, plus chips.
+   - The hero lives inside .public-profile-main so it shares the card's
+     width and left edge at every breakpoint.
+   Text elements are <strong>/<small>, not <span>: typography.css forces
+   14px !important on span/button text.
+   ========================================================= */
+.pp-wave,
+.pp-hero {
+  display: none;
+}
+
+body.pp-look-new {
+  /* body is the scroll container here; without a positioned body the
+     absolutely placed wave would anchor to the viewport and stay put while
+     the page scrolls under it. */
+  position: relative;
+}
+
+body.pp-look-new .public-profile-topbar,
+body.pp-look-new #ppContent > .dashboard-shell-head {
+  display: none;
+}
+
+body.pp-look-new .pp-wave {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: var(--pp-wave-height);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+body.pp-look-new .pp-wave img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--pp-wave-position);
+  -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 58%, transparent 100%);
+}
+
+body.pp-look-new .pp-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pp-hero-gap);
+  padding: 8px 0 18px;
+}
+
+.pp-hero-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pp-hero-brand {
+  display: block;
+  padding: 4px 0;
+}
+
+.pp-hero-logo {
+  display: block;
+  width: auto;
+  height: var(--pp-hero-logo-height);
+}
+
+.pp-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pp-hero-actions[hidden],
+.pp-hero-copy[hidden] {
+  display: none !important;
+}
+
+.pp-hero-share,
+.pp-hero-cv {
+  gap: 7px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.pp-hero-share svg,
+.pp-hero-cv svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.pp-hero-btn-label {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.pp-hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pp-hero-eyebrow {
+  color: var(--seav-field-label-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-title);
+}
+
+.pp-hero-title {
+  margin: 0;
+  color: var(--seav-entity-name-color);
+  font-size: var(--pp-hero-title-size);
+  font-weight: var(--font-weight-title);
+  line-height: 1.2;
+}
+
+.pp-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pp-hero-chip {
+  padding: 6px 12px;
+  border: 1px solid var(--pill-blue-border);
+  border-radius: 999px;
+  background: var(--pill-blue-bg);
+  color: var(--seav-field-value-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-body);
+  white-space: nowrap;
+}
+
+/* Phone: Share collapses to a 44px round icon button (it keeps its
+   aria-label) so the logo and both actions fit one line. */
+@media (max-width: 560px) {
+  .pp-hero-share {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  .pp-hero-share .pp-hero-btn-label {
+    display: none;
+  }
+
+  .pp-hero-cv {
+    min-height: 44px;
+  }
+
+  .pp-hero-logo {
+    height: 28px;
+  }
+}
+

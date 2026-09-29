@@ -2,6 +2,14 @@
 (function () {
   "use strict";
 
+  // New top (wave + role headline), behind a preview flag until Jack signs
+  // it off on the live site: /u/<username>?look=new. Set before anything
+  // renders so the old topbar never flashes. See css/pages/public-profile.css
+  // "New top" and the design canvas's approved "Step 3".
+  if (new URLSearchParams(window.location.search).get("look") === "new") {
+    document.body.classList.add("pp-look-new");
+  }
+
   async function waitForDependency(getter, maxMs = 8000) {
     const started = Date.now();
     while (Date.now() - started < maxMs) {
@@ -88,10 +96,81 @@
     }
 
     function wirePublicProfileNav() {
-      const brand = document.querySelector(".public-profile-brand");
-      if (!brand) return;
+      // Two brand links now: the topbar's, and the new hero's logo.
       const goDashboard = window.SeavAuth?.isAuthenticated?.() === true;
-      brand.setAttribute("href", goDashboard ? "dashboard.html" : "index.html");
+      document.querySelectorAll(".public-profile-brand").forEach((brand) => {
+        brand.setAttribute("href", goDashboard ? "dashboard.html" : "index.html");
+      });
+    }
+
+    // The link employers get: the page they are on, minus the preview flag.
+    function shareableProfileUrl() {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("look");
+      return url.toString();
+    }
+
+    async function shareThisProfile(displayName) {
+      const url = shareableProfileUrl();
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: `${displayName} · SEA-V`, url });
+          return;
+        } catch (err) {
+          if (err?.name === "AbortError") return;
+          // Any other share failure: fall back to copying the link.
+        }
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        Seav.notify("success", "Link copied", "This profile's link is on your clipboard.");
+      } catch {
+        Seav.notify("error", "Couldn't copy the link", url);
+      }
+    }
+
+    // Rank · current vessel, plus availability / location / nationality
+    // chips. Built with textContent only — every value here is crew-typed.
+    function renderHero(profile, vessels, displayName) {
+      const titleEl = document.getElementById("ppHeroTitle");
+      const chipsEl = document.getElementById("ppHeroChips");
+      const copyEl = document.getElementById("ppHeroCopy");
+      const actionsEl = document.getElementById("ppHeroActions");
+      if (!titleEl || !chipsEl || !copyEl) return;
+
+      const current = SeavData.getCurrentVessel?.(vessels);
+      const title = [profile.rank, current?.name].filter(Boolean).join(" · ");
+      titleEl.textContent = title || displayName;
+
+      chipsEl.textContent = "";
+      [profile.availability ? `● ${profile.availability}` : "", profile.location, profile.nationality]
+        .filter(Boolean)
+        .forEach((text) => {
+          const chip = document.createElement("small");
+          chip.className = "pp-hero-chip";
+          chip.textContent = text;
+          chipsEl.appendChild(chip);
+        });
+
+      copyEl.hidden = false;
+      if (actionsEl) actionsEl.hidden = false;
+
+      const shareBtn = document.getElementById("ppHeroShare");
+      if (shareBtn && !shareBtn.dataset.wired) {
+        shareBtn.dataset.wired = "1";
+        shareBtn.addEventListener("click", () => shareThisProfile(displayName));
+      }
+      // Download CV: a CV generated here from public data would be wrong —
+      // anon cannot read certificates.show_on_cv, so certs the crew member
+      // unticked would reappear, and contact details are private. The real
+      // version needs crew to PUBLISH a CV first (not built yet).
+      const cvBtn = document.getElementById("ppHeroCv");
+      if (cvBtn && !cvBtn.dataset.wired) {
+        cvBtn.dataset.wired = "1";
+        cvBtn.addEventListener("click", () => {
+          Seav.notify("info", "CV downloads are coming", "Soon crew will be able to publish a CV here for employers to download.");
+        });
+      }
     }
 
     function renderHeaderProfile(profile, vessels, metrics) {
@@ -116,6 +195,7 @@
       if (nameEl) nameEl.textContent = displayName;
       document.title = `${displayName} · Yacht CV · SEA-V`;
       if (shellTitle) shellTitle.textContent = `${displayName} — public profile`;
+      renderHero(profile, vessels, displayName);
 
       if (qualificationEl) qualificationEl.textContent = profile.qualification || "—";
       if (rankEl) rankEl.textContent = profile.rank || "—";
