@@ -24,10 +24,10 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=544" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=544" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=544" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=544" />
+  <link rel="icon" href="/favicon.ico?v=545" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=545" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=545" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=545" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Public Profile</title>
@@ -68,7 +68,7 @@
     knows to keep the leading slash on this file — don't "simplify" these
     back to relative.
   -->
-  <link rel="stylesheet" href="/styles.css?v=544" />
+  <link rel="stylesheet" href="/styles.css?v=545" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -80,30 +80,30 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
-  <script src="/js/feedback.js?v=544" defer></script>
-  <script src="/js/core.js?v=544" defer></script>
-  <script src="/js/seav-data.js?v=544" defer></script>
-  <script src="/js/seav-badges.js?v=544" defer></script>
+  <script src="/js/feedback.js?v=545" defer></script>
+  <script src="/js/core.js?v=545" defer></script>
+  <script src="/js/seav-data.js?v=545" defer></script>
+  <script src="/js/seav-badges.js?v=545" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/seav-config.js?v=544"></script>
-  <script src="/js/supabase.js?v=544" defer></script>
-  <script src="/js/auth.js?v=544"></script>
-  <script src="/js/api-core.js?v=544" defer></script>
-  <script src="/js/api-mappers.js?v=544" defer></script>
-  <script src="/js/api.js?v=544" defer></script>
+  <script src="/js/seav-config.js?v=545"></script>
+  <script src="/js/supabase.js?v=545" defer></script>
+  <script src="/js/auth.js?v=545"></script>
+  <script src="/js/api-core.js?v=545" defer></script>
+  <script src="/js/api-mappers.js?v=545" defer></script>
+  <script src="/js/api.js?v=545" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="/js/navigation-ports.js?v=544" defer></script>
-  <script src="/js/navigation-helpers.js?v=544" defer></script>
-  <script src="/js/navigation-passage.js?v=544" defer></script>
-  <script src="/js/navigation-routing.js?v=544" defer></script>
-  <script src="/js/public-profile-utils.js?v=544" defer></script>
-  <script src="/js/seav-photo-strip.js?v=544" defer></script>
-  <script src="/js/seav-cards.js?v=544" defer></script>
-  <script src="/js/public-profile-sections.js?v=544" defer></script>
-  <script src="/js/public-profile.js?v=544" defer></script>
+  <script src="/js/navigation-ports.js?v=545" defer></script>
+  <script src="/js/navigation-helpers.js?v=545" defer></script>
+  <script src="/js/navigation-passage.js?v=545" defer></script>
+  <script src="/js/navigation-routing.js?v=545" defer></script>
+  <script src="/js/public-profile-utils.js?v=545" defer></script>
+  <script src="/js/seav-photo-strip.js?v=545" defer></script>
+  <script src="/js/seav-cards.js?v=545" defer></script>
+  <script src="/js/public-profile-sections.js?v=545" defer></script>
+  <script src="/js/public-profile.js?v=545" defer></script>
 </head>
 
-<body class="public-page public-profile-page">
+<body class="public-page public-profile-page pp-look-new">
 
   <!--
     Same static #appPageLoader every app page ships (see seatime.html) —
@@ -155,23 +155,6 @@
   <div class="pp-wave" aria-hidden="true">
     <img src="/img/ocean.jpg?v=339" alt="" />
   </div>
-
-  <header class="topbar app-topbar public-profile-topbar">
-    <div class="topbar-inner">
-      <nav class="nav-left" aria-label="SEA-V">
-        <a href="/about.html">About</a>
-        <a href="/privacy.html">Privacy</a>
-      </nav>
-
-      <a class="brand public-profile-brand" href="/index.html">
-        <img src="/img/logo.png?v=10" class="seav-logo seav-logo--topbar" alt="SEA-V" width="34" height="34" />
-      </a>
-
-      <div class="nav-right">
-        <a href="/index.html" class="public-profile-topbar-cta">Create yours</a>
-      </div>
-    </div>
-  </header>
 
   <main class="public-profile-main">
 
@@ -401,6 +384,10 @@
                 Profile powered by SEA-V — structured maritime records employers can trust.
               </p>
               <a class="public-profile-footer-cta" href="/signup.html">Build your own SEA-V profile</a>
+              <nav class="public-profile-footer-links" aria-label="About SEA-V">
+                <a href="/about.html">About</a>
+                <a href="/privacy.html">Privacy</a>
+              </nav>
             </footer>
 
           </section>

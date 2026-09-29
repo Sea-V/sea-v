@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v544**. Jack pushes every commit himself from
+- HEAD = **v545**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -692,6 +692,17 @@ reads as identical. Now d0 rgba(6,15,27,.95) / d1 #0e1d31 / d2 #182c45 /
 d3 #22395a / d4 #2b4568 — the inner end is capped by #5bbcff label contrast,
 so the range comes from darkening the outside. Lesson: compare before/after
 screenshots side by side before calling a colour change done.
+**v545 — the new public profile is the DEFAULT** (Jack: "this look
+perfect", 2026-09-29). `pp-look-new` is now on `<body>` in
+public-profile.html; the `?look=new` JS flag is deleted (old links still
+work; Share strips the param). The old topbar markup is deleted — its About
+/ Privacy links moved to a quiet `.public-profile-footer-links` row, since
+it was the page's only privacy link. `getSectionNavOffset` already coped
+with a missing topbar. Checked on the plain URL at 1280 and 390 (no
+sideways scroll, share icon 44px). **Gotcha that cost a round trip:** Jack
+compared the live site against the static design-canvas board ("M/Y
+Senses", dark-text Download CV) and concluded nothing had deployed — ask
+which URL is on screen before chasing a cache.
 
 ### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
 Jack found the public profile "boring and bland". Design canvas (private, Jack's

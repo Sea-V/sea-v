@@ -1478,10 +1478,10 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 /* =========================================================
-   New top — wave + role headline (v542, preview: ?look=new)
-   Jack's approved design-canvas "Step 3". js/public-profile.js adds
-   body.pp-look-new; without it these blocks never render and the page is
-   exactly as before.
+   New top — wave + role headline (v542; the default since v544)
+   Jack's approved design-canvas "Step 3". public-profile.html carries
+   body.pp-look-new; the class stays as the scope so these rules cannot leak
+   onto another page. The old topbar markup was deleted in v544.
    - No topbar: the logo sits on its own on the wave, with Share profile
      (.btn-ghost2) and Download CV (.btn-blue: page blue, white text — Jack
      asked for the page's own button colours) opposite it.
@@ -1648,7 +1648,7 @@ body.pp-look-new .pp-hero {
 
 
 /* ---------------------------------------------------------
-   Depth ladder (preview, ?look=new) — Jack, 2026-09-29: "deepest blue
+   Depth ladder (default since v544) — Jack, 2026-09-29: "deepest blue
    outer, and lighter as we go into detail". Before, it ran the other way:
    section cards were the lightest navy and an opened vessel dropped to a
    darker card inside them. Each level is one --pp-depth-* step lighter
@@ -1703,4 +1703,24 @@ body.pp-look-new #ppShell :is(
   .ach-trophy
 ) {
   background: var(--pp-depth-4);
+}
+
+/* About / Privacy — moved here in v544 when the old topbar that carried them
+   was removed. Quiet: the footer CTA above stays the call to action. */
+.public-profile-footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 12px;
+}
+
+.public-profile-footer-links a {
+  color: var(--seav-note-color);
+  text-decoration: none;
+}
+
+.public-profile-footer-links a:hover,
+.public-profile-footer-links a:focus-visible {
+  color: var(--seav-field-label-color);
+  text-decoration: underline;
 }

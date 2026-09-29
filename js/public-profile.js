@@ -2,13 +2,10 @@
 (function () {
   "use strict";
 
-  // New top (wave + role headline), behind a preview flag until Jack signs
-  // it off on the live site: /u/<username>?look=new. Set before anything
-  // renders so the old topbar never flashes. See css/pages/public-profile.css
-  // "New top" and the design canvas's approved "Step 3".
-  if (new URLSearchParams(window.location.search).get("look") === "new") {
-    document.body.classList.add("pp-look-new");
-  }
+  // The new top (wave + role headline) and the depth ladder are the default
+  // since v544 (Jack signed them off 2026-09-29). body.pp-look-new is now set
+  // in public-profile.html itself; the ?look=new preview flag is gone, though
+  // old links carrying it still work and shareableProfileUrl() strips it.
 
   async function waitForDependency(getter, maxMs = 8000) {
     const started = Date.now();
