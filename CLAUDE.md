@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v542**. Jack pushes every commit himself from
+- HEAD = **v543**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -635,7 +635,7 @@ element into the flow must be checked on every body layout, not just the
 page it was written for.**
 
 
-### Written 2026-09-29 (v542) — new public-profile top, behind `?look=new`
+### Shipped 2026-09-29 (v542) — new public-profile top, behind `?look=new`
 Jack's approved canvas "Step 3", built for real. **Preview only:**
 `/u/<username>?look=new` (js/public-profile.js adds `body.pp-look-new` before
 anything renders). Without the flag the page is unchanged — measured: all
@@ -665,6 +665,27 @@ section boxes identical to the pixel at 1280px, topbar still shown.
   the old topbar markup and the flag.
 Verified locally with live anon data at 1280 and 390 (Download CV toast,
 share icon on phone, no sideways scroll, wave scrolls with the page).
+
+### Built 2026-09-29 (v543, not yet committed) — card depth ladder, preview only
+Jack: the cards "get darker when opening … deepest blue outer, and lighter
+as we go into detail". Under `body.pp-look-new` only: shell
+`--pp-depth-0` (the old vessel-card deep navy) -> section cards `-1`
+(`--page-shell-bg`) -> first-level boxes (vessel row, KPI tiles, info
+boxes, cert rows) `-2` (`--page-shell-panel`) -> opened vessel + linked
+groups `-3` (`--navy-800`) -> overview / experience / tender / trophy cards
+`-4` (#2b4568, the one new value; #5bbcff labels 4.8:1 on it). Borders
+untouched; the vessel photo well stays dark. `.kpi-box` needs `!important`
+(pills.css paints it with one). Rendered locally for Jack at 1280px.
+**Same change, LIVE already (DB):** onboard experience and self-declared
+awards never reached anonymous visitors — the anon policies required
+`Signed Off` / `Verified`, while the page code was written to show every
+entry (2026-08-09) and Self-declared awards. Jack signed in sees his own
+rows via the owner policy, which hid the gap from him. His call: onboard =
+everything except Draft; awards = Verified + Self-declared, the latter
+tagged "Self-declared" on the tile (`buildAwardTile(..., { markSelfDeclared })`,
+public profile only). `docs/schema-public-read-onboard-and-self-declared.sql`,
+applied + smoke-tested; `testPublicStatusGates` added to test-supabase.
+Reach: jack-sorrell +2 onboard +6 awards, simon-lindstrom +8 awards.
 
 ### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
 Jack found the public profile "boring and bland". Design canvas (private, Jack's

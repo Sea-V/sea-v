@@ -482,6 +482,31 @@ async function testCertificateColumns(config) {
   return ok;
 }
 
+// Row gates on two public tables (docs/schema-public-read-onboard-and-self-declared.sql,
+// v543): anon sees onboard experience in any status EXCEPT Draft, and awards
+// that are Verified or Self-declared -- never Declined or anything else. Asks
+// for exactly the rows that must stay private; any row back is a leak.
+async function testPublicStatusGates(config) {
+  console.log(`\nPublic row status gates:`);
+  const probes = [
+    ["onboard_experiences", "status=eq.Draft", "Draft onboard experience"],
+    ["achievements", "status=not.in.(Verified,Self-declared)", "declined / unverified awards"]
+  ];
+  let ok = true;
+  for (const [table, filter, label] of probes) {
+    const probe = await restGet(config, table, `select=id&${filter}&limit=5`);
+    const rows = Array.isArray(probe.body) ? probe.body.length : 0;
+    if (probe.status === 401 || (probe.ok && rows === 0)) {
+      console.log(`✓ ${label} hidden  ${probe.status}  OK`);
+    } else {
+      console.log(`✗ ${label}  ${probe.status}  FAIL — anon got ${rows} row(s) from ${table}`);
+      console.log("→ Re-run docs/schema-public-read-onboard-and-self-declared.sql.");
+      ok = false;
+    }
+  }
+  return ok;
+}
+
 // The probes above can only test the column lists THIS file declares. If those
 // drift from PUBLIC_ARRAY_COLUMNS in js/api.js -- what the app actually asks
 // anon for -- the probes pass while the real page 42501s. That is precisely the
@@ -742,6 +767,7 @@ async function main() {
   let referenceColumnsSafe = false;
   let certificateColumnsSafe = false;
   let columnDriftSafe = false;
+  let statusGatesSafe = false;
   let storageBlocked = false;
   let ownerGuardsSafe = true;
 
@@ -758,6 +784,7 @@ async function main() {
     referenceColumnsSafe = await testReferenceColumns(config);
     certificateColumnsSafe = await testCertificateColumns(config);
     columnDriftSafe = testPublicColumnDrift();
+    statusGatesSafe = await testPublicStatusGates(config);
   }
 
   if (step === "all") {
@@ -793,12 +820,14 @@ async function main() {
       vesselColumnsSafe &&
       referenceColumnsSafe &&
       certificateColumnsSafe &&
-      columnDriftSafe;
+      columnDriftSafe &&
+      statusGatesSafe;
     console.log(columnSafe ? "Step 1 passed." : "Step 1 not passed yet — run step1-profile-columns.sql");
     console.log(vesselColumnsSafe ? "Vessel columns safe." : "Vessel column grants wrong — see probe above.");
     console.log(referenceColumnsSafe ? "Reference columns safe." : "Reference column grants wrong — see probe above.");
     console.log(certificateColumnsSafe ? "Certificate columns safe." : "Certificate column grants wrong — see probe above.");
     console.log(columnDriftSafe ? "Public column lists in sync with js/api.js." : "Public column lists drifted from js/api.js.");
+    console.log(statusGatesSafe ? "Draft / declined rows hidden from anon." : "Private rows readable by anon — see probe above.");
     console.log("Next: run docs/hardening-steps/step2-status-rls.sql, then --step 2");
   } else if (step === "2") {
     passed = true;
@@ -822,6 +851,7 @@ async function main() {
     referenceColumnsSafe &&
     certificateColumnsSafe &&
     columnDriftSafe &&
+    statusGatesSafe &&
     ownerGuardsSafe
   ) {
     passed = true;

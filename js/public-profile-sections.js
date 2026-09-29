@@ -504,7 +504,7 @@
   // vessel's own Awards collapsible that repeats the heading one level up, and
   // that is the right trade — the card is also read on its own elsewhere.
   function buildAchievementHighlightCard(item) {
-    return window.SeavCards?.buildAwardTile?.(item, [item]) || "";
+    return window.SeavCards?.buildAwardTile?.(item, [item], { markSelfDeclared: true }) || "";
   }
 
   function buildVesselAwardsSection(vesselAwards) {

@@ -41,7 +41,10 @@
      Awards are, by definition, finished — so there is no progress bar here, and
      there never should be. That was the whole point of the change.
   ========================================================= */
-  function buildAwardTile(item, instances) {
+  // options.markSelfDeclared (public profile only, Jack 2026-09-29): tag a
+  // tile whose every instance is a manual 'Self-declared' award, so an
+  // employer can tell it from a verified or automatically earned one.
+  function buildAwardTile(item, instances, options = {}) {
     const code = item?.code || instances?.[0]?.code || "";
     const full = window.SeavBadges?.getAchievementWithBadge?.(code) || null;
     const list = instances && instances.length ? instances : [item].filter(Boolean);
@@ -76,6 +79,9 @@
     }
 
     const dateText = list.length === 1 ? formatCardDate(primary.date) : "";
+    const selfDeclared =
+      !!options.markSelfDeclared &&
+      list.every((entry) => entry.status === "Self-declared" && !entry.autoAwarded);
 
     return `
       <article
@@ -99,6 +105,7 @@
         }
         <p class="ach-trophy-status ach-trophy-status--unlocked">${Seav.escapeHtml(status)}</p>
         ${dateText ? `<p class="ach-trophy-meta"><span class="ach-trophy-date">${Seav.escapeHtml(dateText)}</span></p>` : ""}
+        ${selfDeclared ? `<small class="ach-trophy-self-declared">Self-declared</small>` : ""}
       </article>
     `;
   }

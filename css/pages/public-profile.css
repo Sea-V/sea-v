@@ -1646,3 +1646,61 @@ body.pp-look-new .pp-hero {
   }
 }
 
+
+/* ---------------------------------------------------------
+   Depth ladder (preview, ?look=new) — Jack, 2026-09-29: "deepest blue
+   outer, and lighter as we go into detail". Before, it ran the other way:
+   section cards were the lightest navy and an opened vessel dropped to a
+   darker card inside them. Each level is one --pp-depth-* step lighter
+   than the one holding it. Borders keep their page accents; only the
+   fills change. Innermost cells keep their translucent white wash, which
+   lifts them one more step. The vessel photo well stays dark on purpose.
+   --------------------------------------------------------- */
+/* 0 — the shell */
+body.pp-look-new #ppShell {
+  background: var(--pp-depth-0);
+}
+
+/* 1 — the section cards */
+body.pp-look-new #ppShell .dash-card {
+  background: var(--pp-depth-1);
+}
+
+/* 2 — what a section shows before anything is opened */
+body.pp-look-new #ppShell :is(
+  .dashboard-info-box,
+  .dashboard-bio-under,
+  .kpi-box,
+  .pp-vessel-collapsible,
+  .public-onboard-skills-wrap,
+  .dashboard-navigation-stat,
+  .dashboard-navigation-vessel-list,
+  .public-cv-highlight-card,
+  .public-cv-mini-row
+) {
+  background: var(--pp-depth-2);
+}
+
+/* css/components/pills.css paints every .kpi-box with !important, so only
+   an !important can move these tiles onto the ladder. */
+body.pp-look-new #ppShell .kpi-box {
+  background: var(--pp-depth-2) !important;
+}
+
+/* 3 — an opened vessel and its linked groups */
+body.pp-look-new #ppShell :is(
+  .vessel-profile-card,
+  .vessel-linked-section-group
+) {
+  background: var(--pp-depth-3);
+}
+
+/* 4 — the detail cards inside them */
+body.pp-look-new #ppShell :is(
+  .vessel-overview-card,
+  .vessel-experience-card,
+  .dash-mini-card,
+  .ach-trophy
+) {
+  background: var(--pp-depth-4);
+}
