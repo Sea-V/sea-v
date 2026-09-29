@@ -1656,9 +1656,14 @@ body.pp-look-new .pp-hero {
    fills change. Innermost cells keep their translucent white wash, which
    lifts them one more step. The vessel photo well stays dark on purpose.
    --------------------------------------------------------- */
-/* 0 — the shell */
+/* 0 — the shell: none. Jack, 2026-09-29 (v545): "remove the darkest shell
+   at the back and leave the other ones floating" — the section cards float
+   straight on the ocean, each with its own border, radius and shadow. The
+   ladder now starts at the section cards. */
 body.pp-look-new #ppShell {
-  background: var(--pp-depth-0);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 /* 1 — the section cards */

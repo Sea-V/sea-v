@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v545**. Jack pushes every commit himself from
+- HEAD = **v546**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -703,6 +703,13 @@ sideways scroll, share icon 44px). **Gotcha that cost a round trip:** Jack
 compared the live site against the static design-canvas board ("M/Y
 Senses", dark-text Download CV) and concluded nothing had deployed — ask
 which URL is on screen before chasing a cache.
+**v546 — no back shell.** Jack: "remove the darkest shell at the back and
+leave the other ones floating". `#ppShell` is transparent with no border or
+shadow under `pp-look-new`; `--pp-depth-0` retired. The section cards
+already had their own 12px gaps, 30px radius, border and shadow, so they
+float on the ocean unchanged. Only the footer text sits directly on the
+ocean — checked, it reads. 390px: cards 29px from each edge (in line with the hero), no sideways
+scroll.
 
 ### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
 Jack found the public profile "boring and bland". Design canvas (private, Jack's

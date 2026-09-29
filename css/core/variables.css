@@ -199,7 +199,8 @@
      units per step. Steps are now ~10-12 units, anchored at the inner end —
      #2b4568 is as light as a card can go with #5bbcff labels still AA
      (4.8:1) — so the extra range comes from darkening the outside. */
-  --pp-depth-0: rgba(6, 15, 27, 0.95);
+  /* --pp-depth-0 (the shell, rgba(6,15,27,.95)) retired in v545: the shell
+     is transparent now and the cards float on the ocean. */
   --pp-depth-1: #0e1d31;
   --pp-depth-2: var(--page-shell-bg);
   --pp-depth-3: #22395a;
