@@ -193,14 +193,16 @@
   --pp-hero-title-size: clamp(22px, 2.6vw, 28px);
   --pp-hero-gap: clamp(26px, 4vw, 48px);
   /* Public profile depth ladder (Jack, 2026-09-29): deepest navy on the
-     outside, one step lighter each time something is opened. Steps 0-3 are
-     the site's existing shades (vessel-profile-card's deep navy,
-     --page-shell-bg, --page-shell-panel, --navy-800); step 4 is the one new
-     value, kept dark enough that #5bbcff labels still pass AA (4.8:1). */
-  --pp-depth-0: rgba(15, 34, 56, 0.94);
-  --pp-depth-1: var(--page-shell-bg);
-  --pp-depth-2: var(--page-shell-panel);
-  --pp-depth-3: var(--navy-800);
+     outside, one step lighter each time something is opened. v543 used the
+     site's existing adjacent shades (#0f2238 -> #182c45 -> #1f3552 ->
+     #274061 -> #2b4568) and Jack, rightly, could not see any change: ~7 RGB
+     units per step. Steps are now ~10-12 units, anchored at the inner end —
+     #2b4568 is as light as a card can go with #5bbcff labels still AA
+     (4.8:1) — so the extra range comes from darkening the outside. */
+  --pp-depth-0: rgba(6, 15, 27, 0.95);
+  --pp-depth-1: #0e1d31;
+  --pp-depth-2: var(--page-shell-bg);
+  --pp-depth-3: #22395a;
   --pp-depth-4: #2b4568;
   --seav-meta-link-color: #9ddcff;
 

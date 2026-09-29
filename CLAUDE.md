@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v543**. Jack pushes every commit himself from
+- HEAD = **v544**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -666,7 +666,7 @@ section boxes identical to the pixel at 1280px, topbar still shown.
 Verified locally with live anon data at 1280 and 390 (Download CV toast,
 share icon on phone, no sideways scroll, wave scrolls with the page).
 
-### Built 2026-09-29 (v543, not yet committed) — card depth ladder, preview only
+### Shipped 2026-09-29 (v543) — card depth ladder, preview only
 Jack: the cards "get darker when opening … deepest blue outer, and lighter
 as we go into detail". Under `body.pp-look-new` only: shell
 `--pp-depth-0` (the old vessel-card deep navy) -> section cards `-1`
@@ -686,6 +686,12 @@ tagged "Self-declared" on the tile (`buildAwardTile(..., { markSelfDeclared })`,
 public profile only). `docs/schema-public-read-onboard-and-self-declared.sql`,
 applied + smoke-tested; `testPublicStatusGates` added to test-supabase.
 Reach: jack-sorrell +2 onboard +6 awards, simon-lindstrom +8 awards.
+**v544 — ladder steps widened.** Jack pushed v543 and saw "nothing has
+changed at all": the existing adjacent shades are ~7 RGB units apart, which
+reads as identical. Now d0 rgba(6,15,27,.95) / d1 #0e1d31 / d2 #182c45 /
+d3 #22395a / d4 #2b4568 — the inner end is capped by #5bbcff label contrast,
+so the range comes from darkening the outside. Lesson: compare before/after
+screenshots side by side before calling a colour change done.
 
 ### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
 Jack found the public profile "boring and bland". Design canvas (private, Jack's
