@@ -447,9 +447,13 @@ body.app-page::after {
 
 /* On a phone a fixed corner badge sits on top of content (Jack's dashboard
    screenshots, v540). Below 760px it drops into the page flow instead: it
-   is appended last to <body>, so it lands under the footer. */
+   is appended last to <body>, so it lands under the footer.
+   ONLY on block-layout pages (v541). The sign-in/sign-up and info pages lay
+   <body> out as a flex ROW, so an in-flow badge became a second column and
+   shoved the login form against the left edge (Jack's screenshot). Those
+   pages keep the fixed corner badge, which never overlapped their content. */
 @media (max-width: 760px) {
-  .seav-version-badge {
+  :is(body.app-page, body.public-profile-page) .seav-version-badge {
     position: static;
     align-items: center;
     margin: 4px auto max(12px, env(safe-area-inset-bottom));

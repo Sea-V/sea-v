@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v540**. Jack pushes every commit himself from
+- HEAD = **v541**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -594,7 +594,7 @@ generator's white A4 preview is untouched.
   card). That is step 1b.
 
 
-### Written 2026-09-28 (v540) — mobile dashboard fixes from Jack's screenshots
+### Shipped 2026-09-28 (v540) — mobile dashboard fixes from Jack's screenshots
 Jack sent three iPhone screenshots of the live v539 dashboard. Fixed:
 - **Grid 40px in from the quick actions, tiles squeezed.** `.dashboard-shell-section`
   kept its desktop 28px padding on phones, on top of `.dash-bento`'s own
@@ -617,6 +617,59 @@ Verified on a harness with the real dashboard.html markup + stylesheet at
 Still on the step-3 list from those screenshots: the header block (icon +
 title + 3-line description) takes ~40% of the first phone screen, and the
 four quick-action buttons differ in height and border colour.
+
+
+
+### Written 2026-09-29 (v541) — sign-in form shoved left on narrow screens (v540 regression)
+Jack's screenshot: on a narrow window the login form sat against the left
+edge with "v540 © 2026 SEA-V" beside it. v540 made `.seav-version-badge`
+`position: static` below 760px for EVERY page, but `index.html`/`signup.html`
+(and the other landing/info pages) lay `<body>` out as a flex ROW, so the
+in-flow badge became a second column (85px) and pushed `.container` to x=0.
+The static rule is now scoped to `:is(body.app-page, body.public-profile-page)`
+(block-layout bodies, where the badge lands under the footer); every other
+page keeps the fixed corner badge it always had. Verified locally at 573px
+and 375px: sign-in form 38px/38px, sign-up 8px/8px, badge fixed; public
+profile badge still static, no sideways scroll. **Lesson: a rule that moves an
+element into the flow must be checked on every body layout, not just the
+page it was written for.**
+
+### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
+Jack found the public profile "boring and bland". Design canvas (private, Jack's
+account): https://claude.ai/artifact/Mw2fZsYB1ZtLCvtb1x3mJq — it opens on
+**v2** (`Profile2.dc.html` desktop + `ProfilePhone2.dc.html`), which Jack said
+is "getting there … starting to look good". Continue from v2, not v1.
+Decisions so far (all Jack's):
+- **Keep the current page's structure.** Everything hangs off a vessel: each
+  vessel card (real photo, role, dates, duration) opens to its overview
+  (specs grid + "Experience onboard" text) and then its linked groups in the
+  site's section colours — Tenders green, Onboard experience coral, References
+  purple, Milestones amber — hidden when empty, as today. v1 (new layout,
+  alternating colour bands, big display type) was rejected as "messy".
+- **Crew photo must show** (ringed avatar on the profile card, which overlaps
+  a themed wave banner). **Site font only** (system stack, 600/800) — no web
+  fonts. **Real logo** `img/logo.png` on every theme, never tinted.
+- **No "depth" metaphor** (no metres, abyss, glow dots) — it makes no sense
+  in non-blue themes.
+- **Themes, CV-generator style, crew choose their own.** Nine curated
+  palettes (no free colour picker): Deck = the five CV schemes (Sea-V
+  Original, Ocean Blue, Simple Green, Pearl Grey, Night Watch — same names
+  and swatches as `CV_TEMPLATES`), Interior = Champagne, Rosé, Linen, Orchid.
+  A theme changes ONLY the wave-photo tint (`ocean.jpg` + `mix-blend-mode:
+  color`), the accent colour and the deep background hue; every theme is a
+  dark, professional variant. Layout never changes per theme. Palette values
+  are in `Profile2.dc.html`'s `themes()`.
+Agreed build plan once the design is signed off: (1) new look on
+`public-profile.html`, default theme only, behind a preview link
+(`?look=new`) to compare with real data before switching; (2) the other
+themes + a `public_theme` profile column (migration, anon grant,
+PUBLIC_ARRAY_COLUMNS, smoke test) + picker on the Profile page (mock:
+`Picker.dc.html`); (3) optional "use my current yacht's photo for the
+waves", and the share card matching the theme.
+Parked ideas: admin-only Claude integration via an edge function gated on
+`is_admin()` (Jack: "shelf this for now"); green-crew steps 1b-4 (flatten
+box-in-box nesting, menu that grows with the user, dashboard as a to-do,
+first-run setup) and the dashboard header / quick-action inconsistencies.
 
 ## Open threads
 1. ~~Rotate the Resend API key~~ — **DECLINED by Jack, 2026-09-20. Do not
