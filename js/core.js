@@ -965,23 +965,27 @@ function renderSidebarAchievements() {
     return (parts[0]?.charAt(0) || "?").toUpperCase();
   }
 
-  /* Topbar search (v556, Jack 2026-09-30). The Search button and Ctrl/⌘+K
-     open a glass panel. Version 1 searches the site's PAGES only — the list
-     is read from the rendered sidebar, so it always matches the menu and
-     skips "Coming soon" items (those are <span>s, not links). Searching the
-     crew member's own records is the next step, agreed with Jack; the
-     empty state says so rather than implying it already works.
-     Built lazily on first open; labels go in via textContent. */
+  /* Topbar search (v556 pages, v558 records — Jack 2026-09-30). The Search
+     button and Ctrl/⌘+K open a glass panel. With nothing typed it shows
+     Recent (last opened results) and every page; typing searches pages AND
+     the crew member's own records via js/seav-search.js (SeavSearch.find),
+     grouped by type. A record result opens its page with ?focus=<id>, where
+     seav-search.js scrolls to and rings that record. Pages are read from the
+     rendered sidebar, so the list always matches the menu and skips "Coming
+     soon" items (<span>s, not links). Built lazily on first open; every
+     label goes in via textContent. */
   function wireTopbarSearch() {
     const button = document.getElementById("topbarSearchBtn");
     if (!button) return;
+
+    const PAGE_LIMIT_WHEN_QUERY = 5;
 
     let root = null;
     let input = null;
     let list = null;
     let empty = null;
-    let pages = [];
-    let shown = [];
+    let options = [];
+    let optionEls = [];
     let active = 0;
     let lastFocus = null;
 
@@ -992,65 +996,116 @@ function renderSidebarAchievements() {
         .map((a) => {
           const icon = a.querySelector(".dash-icon");
           return {
-            label: (a.querySelector("span:last-child")?.textContent || a.textContent).trim(),
+            title: (a.querySelector("span:last-child")?.textContent || a.textContent).trim(),
+            sub: "",
             href: a.getAttribute("href"),
             newTab: a.target === "_blank",
             iconHtml: icon ? icon.innerHTML : "",
             // Each sidebar icon is tinted by page CSS; carry the computed
             // colour so the panel shows the same accent.
-            color: icon ? window.getComputedStyle(icon).color : ""
+            accent: icon ? window.getComputedStyle(icon).color : ""
           };
         })
         .filter((page) => {
-          if (!page.label || seen.has(page.href)) return false;
+          if (!page.title || seen.has(page.href)) return false;
           seen.add(page.href);
           return true;
         });
     };
 
     const setActive = (index) => {
-      if (!shown.length) return;
-      active = (index + shown.length) % shown.length;
-      [...list.children].forEach((li, i) => {
-        li.setAttribute("aria-selected", i === active ? "true" : "false");
-      });
-      const current = list.children[active];
-      if (current) {
-        input.setAttribute("aria-activedescendant", current.id);
-        current.scrollIntoView({ block: "nearest" });
+      if (!optionEls.length) return;
+      active = (index + optionEls.length) % optionEls.length;
+      optionEls.forEach((li, i) => li.setAttribute("aria-selected", i === active ? "true" : "false"));
+      const current = optionEls[active];
+      input.setAttribute("aria-activedescendant", current.id);
+      current.scrollIntoView({ block: "nearest" });
+    };
+
+    const buildSections = () => {
+      const raw = input.value.trim();
+      const query = raw.toLowerCase();
+      const search = window.SeavSearch;
+      const pages = readPages();
+
+      if (!query) {
+        const sections = [];
+        const recent = search?.recent?.() || [];
+        if (recent.length) sections.push({ label: "Recent", items: recent });
+        sections.push({ label: "Pages", items: pages });
+        return sections;
       }
+
+      const sections = [];
+      const pageHits = pages
+        .filter((p) => p.title.toLowerCase().includes(query))
+        .slice(0, PAGE_LIMIT_WHEN_QUERY);
+      if (pageHits.length) sections.push({ label: "Pages", items: pageHits });
+      (search?.find?.(raw) || []).forEach((group) => {
+        sections.push({ label: group.group, items: group.items });
+      });
+      return sections;
+    };
+
+    const buildRow = (item, index) => {
+      const li = document.createElement("li");
+      li.id = `seavSearchOption${index}`;
+      li.setAttribute("role", "option");
+      const link = document.createElement("a");
+      link.href = item.href;
+      link.tabIndex = -1;
+      if (item.newTab) {
+        link.target = "_blank";
+        link.rel = "noopener";
+      }
+      const icon = document.createElement("span");
+      icon.className = "seav-search-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.innerHTML = item.iconHtml || ""; // our own sidebar/SeavIcons SVG, not data
+      if (item.accent) icon.style.setProperty("--seav-search-accent", item.accent);
+      const words = document.createElement("span");
+      words.className = "seav-search-text";
+      const title = document.createElement("strong");
+      title.textContent = item.title;
+      words.append(title);
+      if (item.sub) {
+        const sub = document.createElement("small");
+        sub.textContent = item.sub;
+        words.append(sub);
+      }
+      link.append(icon, words);
+      // Record results (they carry an index id) go into Recent.
+      if (item.id) link.addEventListener("click", () => window.SeavSearch?.remember?.(item.id));
+      li.append(link);
+      li.addEventListener("mousemove", () => {
+        if (active !== index) setActive(index);
+      });
+      return li;
     };
 
     const render = () => {
-      const query = input.value.trim().toLowerCase();
-      shown = query ? pages.filter((p) => p.label.toLowerCase().includes(query)) : pages;
+      const sections = buildSections();
+      options = [];
+      optionEls = [];
       list.textContent = "";
-      shown.forEach((page, i) => {
-        const li = document.createElement("li");
-        li.id = `seavSearchOption${i}`;
-        li.setAttribute("role", "option");
-        const link = document.createElement("a");
-        link.href = page.href;
-        link.tabIndex = -1;
-        if (page.newTab) {
-          link.target = "_blank";
-          link.rel = "noopener";
-        }
-        const icon = document.createElement("span");
-        icon.className = "seav-search-icon";
-        icon.setAttribute("aria-hidden", "true");
-        icon.innerHTML = page.iconHtml; // our own sidebar SVG, not data
-        if (page.color) icon.style.setProperty("--seav-search-accent", page.color);
-        const label = document.createElement("strong");
-        label.textContent = page.label;
-        link.append(icon, label);
-        li.append(link);
-        li.addEventListener("mousemove", () => setActive(i));
-        list.append(li);
+      sections.forEach((section) => {
+        if (!section.items.length) return;
+        const heading = document.createElement("li");
+        heading.className = "seav-search-group";
+        heading.setAttribute("role", "presentation");
+        heading.textContent = section.label;
+        list.append(heading);
+        section.items.forEach((item) => {
+          const li = buildRow(item, options.length);
+          options.push(item);
+          optionEls.push(li);
+          list.append(li);
+        });
       });
-      empty.hidden = shown.length > 0;
-      if (!shown.length) {
-        empty.querySelector("strong").textContent = `No pages match “${input.value.trim()}”`;
+
+      empty.hidden = options.length > 0;
+      if (!options.length) {
+        empty.querySelector("strong").textContent = `No results for “${input.value.trim()}”`;
         input.removeAttribute("aria-activedescendant");
       } else {
         setActive(0);
@@ -1076,17 +1131,16 @@ function renderSidebarAchievements() {
               <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/>
               <path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
-            <input type="search" class="seav-search-input" placeholder="Search pages…"
+            <input type="search" class="seav-search-input" placeholder="Search your records and pages…"
               autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true"
               aria-controls="seavSearchList" aria-autocomplete="list" />
             <kbd>esc</kbd>
           </div>
           <div class="seav-search-body">
-            <em class="seav-search-group">Pages</em>
-            <ul class="seav-search-list" id="seavSearchList" role="listbox" aria-label="Pages"></ul>
+            <ul class="seav-search-list" id="seavSearchList" role="listbox" aria-label="Search results"></ul>
             <div class="seav-search-empty" hidden>
               <strong></strong>
-              <small>Searching your vessels, certificates and passages is coming soon.</small>
+              <small>Try a vessel, certificate, port, course or referee name.</small>
             </div>
           </div>
           <div class="seav-search-foot" aria-hidden="true">
@@ -1116,8 +1170,8 @@ function renderSidebarAchievements() {
           event.preventDefault();
           setActive(active - 1);
         } else if (event.key === "Enter") {
-          const link = list.children[active]?.querySelector("a");
-          if (link && shown.length) {
+          const link = optionEls[active]?.querySelector("a");
+          if (link) {
             event.preventDefault();
             link.click();
           }
@@ -1127,12 +1181,17 @@ function renderSidebarAchievements() {
           input.focus();
         }
       });
+
+      // Records still arriving (state.js loads other pages' data in the
+      // background just after load): refresh the open results.
+      document.addEventListener("seav:data-updated", () => {
+        if (root && !root.hidden) render();
+      });
     };
 
     const open = () => {
       if (!root) build();
       lastFocus = document.activeElement;
-      pages = readPages();
       input.value = "";
       root.hidden = false;
       button.setAttribute("aria-expanded", "true");

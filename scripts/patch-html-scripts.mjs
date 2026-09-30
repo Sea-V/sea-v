@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 556;
+const ASSET_VERSION = 557;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
@@ -129,6 +129,20 @@ function patchAppPage(html) {
     next = next.replace(
       '<script src="js/core.js" defer></script>',
       `<script src="js/core.js" defer></script>\n  <script src="js/seav-upload.js" defer></script>`
+    );
+  }
+
+  // Record search + ?focus= arrival (v558). App pages only — they are the
+  // ones whose topbar has the Search button (data-topbar="app").
+  if (
+    next.includes('data-topbar="app"') &&
+    next.includes('src="js/core.js') &&
+    !next.includes("js/seav-search.js")
+  ) {
+    // Versioned or not (core.js?v=NNN): the version pass below re-stamps it.
+    next = next.replace(
+      /<script src="js\/core\.js(\?v=\d+)?" defer><\/script>/,
+      (tag) => `${tag}\n  <script src="js/seav-search.js" defer></script>`
     );
   }
 

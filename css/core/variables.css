@@ -224,6 +224,7 @@
   --seav-glass-active: rgba(255, 255, 255, 0.14);
   --seav-glass-blur: blur(14px) saturate(1.2);
   --seav-glass-edge: rgba(255, 255, 255, 0.28);
+  --seav-glass-edge-strong: rgba(255, 255, 255, 0.42);
   --seav-glass-line: rgba(255, 255, 255, 0.16);
   --seav-glass-shadow: 0 18px 44px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   --pp-depth-1: var(--seav-glass-card);

@@ -193,8 +193,9 @@
 
 /* --- Search button (v556) --------------------------------------------------
    Opens the search panel (js/core.js wireTopbarSearch), also on Ctrl/⌘+K.
-   Smoked glass pill, same fill as the boxes inside a page. The label is a
-   <small>: typography.css forces 14px on span/button text. */
+   White frosted glass, like the sidebar and page cards (v557 — Jack: the
+   smoked-glass version was "too dark" in the bar). The label is a <small>:
+   typography.css forces 14px on span/button text. */
 
 .app-topbar .topbar-search {
   display: inline-flex;
@@ -203,8 +204,10 @@
   height: 40px;
   padding: 0 8px 0 14px;
   border-radius: 999px;
-  border: 1px solid var(--seav-glass-line);
-  background: var(--seav-glass-panel);
+  border: 1px solid var(--seav-glass-edge);
+  background: var(--seav-glass-card);
+  -webkit-backdrop-filter: var(--seav-glass-blur);
+  backdrop-filter: var(--seav-glass-blur);
   color: var(--seav-field-value-color);
   font: inherit;
   cursor: pointer;
@@ -213,8 +216,8 @@
 
 .app-topbar .topbar-search:hover,
 .app-topbar .topbar-search:focus-visible {
-  border-color: var(--seav-glass-edge);
-  background: var(--seav-glass-panel-deep);
+  border-color: var(--seav-glass-edge-strong);
+  background: var(--seav-glass-active);
 }
 
 .app-topbar .topbar-search svg {
@@ -294,7 +297,9 @@
   gap: 12px;
   padding: 16px 18px;
   border-bottom: 1px solid var(--seav-glass-line);
-  background: var(--seav-glass-panel);
+  /* v558: white glass like the topbar Search button (Jack: make the search
+     bar "the color rendered") — was the darker smoked panel. */
+  background: var(--seav-glass-card);
   color: var(--seav-meta-desc-color);
 }
 
@@ -333,10 +338,13 @@
 .seav-search-group {
   display: block;
   padding: 4px 10px 6px;
-  font-style: normal;
   font-size: var(--font-label);
   font-weight: var(--font-weight-title);
   color: var(--seav-field-label-color);
+}
+
+.seav-search-group:not(:first-child) {
+  margin-top: 10px;
 }
 
 .seav-search-list {
@@ -376,9 +384,28 @@
   height: 18px;
 }
 
+.seav-search-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 .seav-search-list strong {
   font-size: var(--font-value);
   font-weight: var(--font-weight-title);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seav-search-text small {
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-body);
+  color: var(--seav-note-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .seav-search-empty {
@@ -418,8 +445,32 @@
   color: var(--seav-note-color);
 }
 
+/* Arrival ring (v558): a search result opens "<page>?focus=<id>" and
+   js/seav-search.js adds this to the record's card for ~2.6s. */
+.seav-search-hit {
+  outline: 2px solid var(--seav-field-label-color);
+  outline-offset: 3px;
+  animation: seav-search-hit 2.6s ease-out;
+}
+
+@keyframes seav-search-hit {
+  0% {
+    box-shadow: 0 0 0 0 rgba(91, 188, 255, 0.55);
+  }
+  35% {
+    box-shadow: 0 0 0 10px rgba(91, 188, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(91, 188, 255, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .app-topbar .topbar-search {
     transition: none;
+  }
+
+  .seav-search-hit {
+    animation: none;
   }
 }

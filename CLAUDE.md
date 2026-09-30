@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v556**. Jack pushes every commit himself from
+- HEAD = **v557**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -826,6 +826,33 @@ focus returns to the button. **Next step, agreed: design record search
 (vessels, certs, passages...) with Jack.** Note: layout.css hides the whole
 app topbar below 1000px, so phones have no Search entry point yet.
 Verified on a local harness (real styles.css + core.js, no auth).
+**v557** — the topbar Search button was smoked glass and Jack found it
+"too dark"; now white frosted glass (`--seav-glass-card` + blur +
+`--seav-glass-edge`), hover `--seav-glass-active` + new
+`--seav-glass-edge-strong`. The panel's search box is now white glass too.
+**Also v557 — record search** (Jack: "build the search function").
+New `js/seav-search.js` (patch-html-scripts inserts it after core.js on
+every `data-topbar="app"` page — the rule matches `core.js?v=NNN`, a bare
+`src="js/core.js"` check silently never matched). `SeavSearch.find(q)`
+searches the crew member's OWN records already in `window.SeavState`
+(vessels, sea time, certs, passages, tenders, refs, onboard, milestones,
+specialist quals, hobbies, payslips) — no new queries; every page loads
+the other pages' keys in the background (state.js queueDeferredPageLoads),
+and the panel re-renders on `seav:data-updated`. Every query word must
+match; ranked title-prefix > word-prefix > title > elsewhere; grouped,
+5 per group. Labels use the pages' own helpers (getOnboardCategoryLabel,
+getPayslipMonthLabel...). Empty query = Recent (last 5 opened, localStorage
+`seav_search_recent`, re-resolved so deleted records drop) + Pages.
+**Arrival:** a result opens `<page>?focus=<id>`; seav-search.js finds the
+record by the id its edit button already carries (`data-edit-*-id`, plus
+data-vessel/cert/ref/ps-id), opens enclosing `<details>`, clicks a nearest
+`button[aria-expanded="false"]` for JS collapses (payslip tax years,
+onboard groups) and re-finds after the re-render, scrolls, rings it
+(`.seav-search-hit`, 2.6s) and strips ?focus. Verified: logic in node with
+the real seav-data.js; focus on the LIVE signed-in pages for certificates,
+vessels (closed group), navigation, payslips (collapsed year), tenders,
+sea time, onboard, milestones; panel on a local harness. References had no
+live rows to test.
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and
