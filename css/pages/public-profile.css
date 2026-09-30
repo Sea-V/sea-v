@@ -1770,3 +1770,56 @@ body.pp-look-new #ppTrustStrip {
 body.pp-look-new #ppTrustStrip .kpi-num {
   white-space: nowrap;
 }
+
+/* Career snapshot tiles (v549, Jack: boxes "have too much space ... jazz it
+   up"). Head row = icon badge + label, figure underneath at full tile width
+   (an icon beside "54,948 NM" does not fit four across a 713px card). Each
+   tile takes its section's sidebar colour on the icon and a left edge —
+   never on the label, which stays the standard blue
+   (field-label-typography.mdc). Padding down from the dashboard's 16px 18px.
+   !important only where pills.css sets the same property with it. */
+body.pp-look-new #ppTrustStrip .pp-snap {
+  gap: 10px;
+  padding: 12px 14px;
+  border-left: var(--pp-snap-edge) solid var(--pp-snap-accent) !important;
+}
+
+body.pp-look-new #ppTrustStrip .pp-snap--navigation { --pp-snap-accent: var(--page-navigation); }
+body.pp-look-new #ppTrustStrip .pp-snap--seatime { --pp-snap-accent: var(--page-seatime); }
+body.pp-look-new #ppTrustStrip .pp-snap--vessels { --pp-snap-accent: var(--page-vessels); }
+body.pp-look-new #ppTrustStrip .pp-snap--countries { --pp-snap-accent: var(--page-dashboard); }
+
+body.pp-look-new #ppTrustStrip .pp-snap-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+body.pp-look-new #ppTrustStrip .pp-snap-head .kpi-label {
+  margin: 0;
+  min-width: 0;
+}
+
+body.pp-look-new #ppTrustStrip .pp-snap-icon {
+  flex: 0 0 var(--pp-snap-icon-box);
+  display: grid;
+  place-items: center;
+  width: var(--pp-snap-icon-box);
+  height: var(--pp-snap-icon-box);
+  border-radius: 9px;
+  color: var(--pp-snap-accent);
+  background: color-mix(in srgb, var(--pp-snap-accent) 16%, transparent);
+}
+
+body.pp-look-new #ppTrustStrip .pp-snap-icon svg {
+  width: var(--pp-snap-icon-size);
+  height: var(--pp-snap-icon-size);
+}
+
+body.pp-look-new #ppTrustStrip .pp-snap-unit {
+  margin-left: 4px;
+  color: var(--seav-meta-desc-color);
+  font-size: var(--font-value);
+  font-weight: var(--font-weight-title);
+}

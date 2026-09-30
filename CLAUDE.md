@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v549**. Jack pushes every commit himself from
+- HEAD = **v550**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -740,6 +740,14 @@ so nothing new is exposed and no grant changed. Strip is
 `repeat(auto-fit, minmax(--pp-kpi-min 140px, 1fr))` with nowrap numbers:
 4 across at laptop width, 2x2 on a phone. Jack's live values: 54,948 NM,
 2.2 yrs (802 actual days, 638 verified), 7 yachts, 19 countries.
+**v550** — then "boxes have too much space ... jazz it up": each tile is a head row
+(section icon badge from `SeavIcons` — navigation / seatime / vessels, plus
+a local globe for countries — and the blue label) over the figure, whose
+unit is split off small ("54,948" + `<small>NM</small>`). The section's
+`--page-*` colour goes on the icon and a 3px left edge only (labels stay
+blue per field-label-typography.mdc). Padding 12px 14px; tokens
+`--pp-snap-icon-box/-icon-size/-edge`. Icon-beside-figure was tried first
+and does not fit four across the 713px card. 1280: 4 x 201px; 390: 2x2.
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and

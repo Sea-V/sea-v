@@ -199,6 +199,10 @@
   /* Career snapshot tile floor: four across on a laptop card, two by two on
      a phone, never narrower than a "54,948 NM" on one line. */
   --pp-kpi-min: 140px;
+  /* Career snapshot tile furniture (v549, "jazz it up"). */
+  --pp-snap-icon-box: 28px;
+  --pp-snap-icon-size: 16px;
+  --pp-snap-edge: 3px;
   /* Public profile depth ladder (Jack, 2026-09-29): deepest navy on the
      outside, one step lighter each time something is opened. v543 used the
      site's existing adjacent shades (#0f2238 -> #182c45 -> #1f3552 ->

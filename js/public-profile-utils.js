@@ -837,6 +837,16 @@
   // moved to the plain "is there anything at all to show" check at the end
   // (previously that check existed too, but was unreachable — the seaDays
   // gate above it always fired first for a crew member with no sea time).
+  // No globe in the sidebar set (core.js SeavIcons); same stroke style.
+  const ICON_GLOBE = `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M4 12h16M12 4c2.2 2.3 3.2 5 3.2 8s-1 5.7-3.2 8c-2.2-2.3-3.2-5-3.2-8s1-5.7 3.2-8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+
+  // "54,948 NM" -> { num: "54,948", unit: "NM" }; a value with no unit
+  // passes through whole.
+  function splitUnit(text) {
+    const match = /^(.*?)\s+([A-Za-z]+)$/.exec(String(text));
+    return match ? { num: match[1], unit: match[2] } : { num: String(text), unit: "" };
+  }
+
   // Years to one decimal once there is a year of it ("2.2 yrs"); days below
   // that, where "0.4 yrs" would read as nothing.
   function formatSeaTime(days) {
@@ -853,19 +863,46 @@
     // order, each hidden when it would read zero. Onboard tasks and Verified
     // refs came out — both live under each vessel already, and a small count
     // undersold the person here.
+    // Each tile carries its section's sidebar icon and accent (v549, Jack:
+    // "jazz it up"); the accent goes on the icon and the tile edge only —
+    // labels stay the standard blue. The unit is split from the number so the
+    // figure leads ("54,948" large, "NM" small).
+    const icons = window.SeavIcons || {};
     const items = [];
 
     if (metrics.navigationNm > 0) {
-      items.push({ value: formatNm(metrics.navigationNm), label: "Miles navigated" });
+      items.push({
+        ...splitUnit(formatNm(metrics.navigationNm)),
+        label: "Miles navigated",
+        icon: icons.navigation,
+        tone: "navigation"
+      });
     }
     if (metrics.actualSeaDays > 0) {
-      items.push({ value: formatSeaTime(metrics.actualSeaDays), label: "Actual sea time" });
+      items.push({
+        ...splitUnit(formatSeaTime(metrics.actualSeaDays)),
+        label: "Actual sea time",
+        icon: icons.seatime,
+        tone: "seatime"
+      });
     }
     if (metrics.vessels > 0) {
-      items.push({ value: String(metrics.vessels), label: metrics.vessels === 1 ? "Yacht" : "Yachts" });
+      items.push({
+        num: String(metrics.vessels),
+        unit: "",
+        label: metrics.vessels === 1 ? "Yacht" : "Yachts",
+        icon: icons.vessels,
+        tone: "vessels"
+      });
     }
     if (metrics.countries > 0) {
-      items.push({ value: String(metrics.countries), label: metrics.countries === 1 ? "Country" : "Countries" });
+      items.push({
+        num: String(metrics.countries),
+        unit: "",
+        label: metrics.countries === 1 ? "Country" : "Countries",
+        icon: ICON_GLOBE,
+        tone: "countries"
+      });
     }
 
     if (!items.length) {
@@ -875,12 +912,18 @@
       return;
     }
 
+    // item.icon is a fixed SVG string from core.js / this file, never data.
     strip.innerHTML = items
       .map(
         (item) => `
-          <div class="kpi-box">
-            <div class="kpi-num">${Seav.escapeHtml(item.value)}</div>
-            <div class="kpi-label">${Seav.escapeHtml(item.label)}</div>
+          <div class="kpi-box pp-snap pp-snap--${item.tone}">
+            <div class="pp-snap-head">
+              ${item.icon ? `<span class="pp-snap-icon" aria-hidden="true">${item.icon}</span>` : ""}
+              <div class="kpi-label">${Seav.escapeHtml(item.label)}</div>
+            </div>
+            <div class="kpi-num">${Seav.escapeHtml(item.num)}${
+              item.unit ? `<small class="pp-snap-unit">${Seav.escapeHtml(item.unit)}</small>` : ""
+            }</div>
           </div>
         `
       )
