@@ -1673,9 +1673,48 @@ body.pp-look-new #ppShell {
    !important and #ppCareerOverview carries an id selector: on this page the
    ladder is the final word on box fills. Photo wells stay dark on purpose. */
 
-/* 1 — the floating section cards */
+/* 1 — the floating section cards: white frosted glass (v551). The page
+   accent borders give way to one white glass edge — that is the look Jack
+   picked. Fallback below for browsers without backdrop-filter. */
 body.pp-look-new #ppShell .dash-card {
   background: var(--pp-depth-1) !important;
+  -webkit-backdrop-filter: var(--pp-glass-blur);
+  backdrop-filter: var(--pp-glass-blur);
+  border-color: var(--pp-glass-edge) !important;
+  box-shadow: var(--pp-glass-shadow) !important;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body.pp-look-new #ppShell .dash-card {
+    background: var(--pp-depth-1-solid) !important;
+  }
+}
+
+/* Every box inside a card shares one thin glass line (levels 2-5). Sits
+   before the Career snapshot rules, whose coloured left edge overrides it. */
+body.pp-look-new #ppShell :is(
+  .dashboard-info-box,
+  .dashboard-bio-under,
+  .kpi-box,
+  .pp-vessel-collapsible,
+  .public-onboard-skills-wrap,
+  .dashboard-navigation-stat,
+  .dashboard-navigation-vessel-list,
+  .public-cv-highlight-card,
+  .public-cv-mini-row,
+  .vessel-profile-card,
+  .vessel-linked-section-group,
+  .vessel-overview-card,
+  .vessel-experience-card,
+  .dash-mini-card,
+  .ach-trophy,
+  .vessel-linked-section-group .list-row,
+  .vessel-main-item,
+  .vessel-stats-grid > div,
+  .vessel-specs-grid > div,
+  .dash-mini-info-grid > div
+) {
+  border-color: var(--pp-glass-line) !important;
 }
 
 /* 2 — what a section shows before anything is opened */
@@ -1778,7 +1817,9 @@ body.pp-look-new #ppTrustStrip .kpi-num {
    never on the label, which stays the standard blue
    (field-label-typography.mdc). Padding down from the dashboard's 16px 18px.
    !important only where pills.css sets the same property with it. */
-body.pp-look-new #ppTrustStrip .pp-snap {
+/* #ppShell added (v551) so the coloured edge outranks the glass-line rule,
+   whose :is() list carries a two-class selector. */
+body.pp-look-new #ppShell #ppTrustStrip .pp-snap {
   gap: 10px;
   padding: 12px 14px;
   border-left: var(--pp-snap-edge) solid var(--pp-snap-accent) !important;

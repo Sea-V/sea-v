@@ -203,26 +203,25 @@
   --pp-snap-icon-box: 28px;
   --pp-snap-icon-size: 16px;
   --pp-snap-edge: 3px;
-  /* Public profile depth ladder (Jack, 2026-09-29): deepest navy on the
-     outside, one step lighter each time something is opened. v543 used the
-     site's existing adjacent shades (#0f2238 -> #182c45 -> #1f3552 ->
-     #274061 -> #2b4568) and Jack, rightly, could not see any change: ~7 RGB
-     units per step. Steps are now ~10-12 units, anchored at the inner end —
-     #2b4568 is as light as a card can go with #5bbcff labels still AA
-     (4.8:1) — so the extra range comes from darkening the outside. */
-  /* --pp-depth-0 (the shell, rgba(6,15,27,.95)) retired in v545: the shell
-     is transparent now and the cards float on the ocean. */
-  /* v547: five levels. Level 1 (the floating section cards) is the private
-     pages' own card colour, --page-shell-panel (Jack, 2026-09-30: "use shade
-     from the private pages ... slightly darker than the first box within").
-     Level 5 stays #2b4568, the lightest fill that keeps #5bbcff labels AA
-     (4.68:1); 2-4 split the gap evenly, so inner steps are small and the
-     borders do more of the separating. */
-  --pp-depth-1: var(--page-shell-panel);
-  --pp-depth-2: #22395a;
-  --pp-depth-3: #253d5d;
-  --pp-depth-4: #284163;
-  --pp-depth-5: #2b4568;
+  /* Public profile surfaces — FROSTED GLASS (Jack, 2026-09-30, v551, picked
+     from three rendered options: crisp white / frosted glass / two-tone).
+     History: v543-v547 was a solid navy "depth ladder" (#1f3552 -> #2b4568,
+     five levels) that Jack found bland. Now the section cards are white
+     glass over the ocean (blurred), the boxes inside are dark smoked glass
+     so labels and values keep their contrast, and the innermost tiles are a
+     faint white wash over that. Same five level names as before. */
+  --pp-depth-1: rgba(255, 255, 255, 0.10);
+  --pp-depth-2: rgba(8, 20, 36, 0.55);
+  --pp-depth-3: rgba(8, 20, 36, 0.45);
+  --pp-depth-4: rgba(255, 255, 255, 0.07);
+  --pp-depth-5: rgba(255, 255, 255, 0.06);
+  /* Solid stand-in for level 1 where backdrop-filter is unsupported —
+     white glass with nothing blurred behind it reads washed out. */
+  --pp-depth-1-solid: rgba(31, 53, 82, 0.92);
+  --pp-glass-blur: blur(14px) saturate(1.2);
+  --pp-glass-edge: rgba(255, 255, 255, 0.28);
+  --pp-glass-line: rgba(255, 255, 255, 0.16);
+  --pp-glass-shadow: 0 18px 44px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   --seav-meta-link-color: #9ddcff;
 
   /* Topbar profile chip — the initials fallback when a crew member has no

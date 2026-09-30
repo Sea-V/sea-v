@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v550**. Jack pushes every commit himself from
+- HEAD = **v551**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -748,6 +748,20 @@ unit is split off small ("54,948" + `<small>NM</small>`). The section's
 blue per field-label-typography.mdc). Padding 12px 14px; tokens
 `--pp-snap-icon-box/-icon-size/-edge`. Icon-beside-figure was tried first
 and does not fit four across the 713px card. 1280: 4 x 201px; 390: 2x2.
+**v551 — frosted glass** (Jack, 2026-09-30: the page "looks bland ... it's
+missing some white"; three palettes rendered on the live page as an
+injected style layer — crisp white / frosted glass / two-tone — and he
+picked glass; I had recommended two-tone). Same five `--pp-depth-*` levels,
+new values: L1 section cards `rgba(255,255,255,.10)` + `backdrop-filter:
+blur(14px) saturate(1.2)`, white glass edge `.28`, soft shadow + inset
+highlight (`--pp-glass-*`); L2 `rgba(8,20,36,.55)` and L3 `.45` smoked
+glass (keeps label/value contrast); L4/L5 white washes `.07`/`.06`. Every
+inner box shares one `--pp-glass-line` (.16) border. **The per-section
+page-accent borders on the cards are gone** — replaced by the glass edge,
+as in the preview he chose. `@supports not (backdrop-filter)` falls back
+to solid `--pp-depth-1-solid`. The Career snapshot edge rule needed
+`#ppShell` added: the glass-line `:is()` list carries a two-class selector
+and outranked it.
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and
