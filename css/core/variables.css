@@ -192,6 +192,10 @@
   --pp-hero-logo-height: clamp(28px, 3.2vw, 40px);
   --pp-hero-title-size: clamp(22px, 2.6vw, 28px);
   --pp-hero-gap: clamp(26px, 4vw, 48px);
+  /* Crew name on the public profile card (Jack, 2026-09-30: "too small ...
+     make it a bit bigger to fit the space"). One step under
+     --pp-hero-title-size so the headline above the card still leads. */
+  --pp-profile-name-size: clamp(20px, 2.2vw, 24px);
   /* Public profile depth ladder (Jack, 2026-09-29): deepest navy on the
      outside, one step lighter each time something is opened. v543 used the
      site's existing adjacent shades (#0f2238 -> #182c45 -> #1f3552 ->

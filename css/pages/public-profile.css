@@ -1747,3 +1747,13 @@ body.pp-look-new #ppShell .vessel-specs-toggle {
   color: var(--seav-field-label-color);
   text-decoration: underline;
 }
+
+/* Crew name on the profile card. typography.css pins every card h3 to
+   --font-body (14px) with !important; this is the one heading on the page
+   that is a person's name, so it gets its own size. (1,2,1) + !important
+   beats that rule's (0,1,1). */
+body.pp-look-new #ppShell #pp_name {
+  font-size: var(--pp-profile-name-size) !important;
+  font-weight: var(--font-weight-title) !important;
+  line-height: 1.2 !important;
+}

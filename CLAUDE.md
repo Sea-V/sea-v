@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v547**. Jack pushes every commit himself from
+- HEAD = **v548**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -724,6 +724,10 @@ transparent so its tiles sit at level 5 with their neighbours. All ladder
 rules carry `!important` (pills.css + the #ppCareerOverview id selector
 beat them otherwise). Measured with every <details> open: exactly one
 background per level. Photo wells, pills and buttons are not on the ladder.
+Also in v548: the crew name on the profile card (`#pp_name`) was 14px —
+typography.css pins every card h3 to `--font-body` with !important. Now
+`--pp-profile-name-size` clamp(20px, 2.2vw, 24px), weight 800, one step
+under the hero headline (Jack: "too small ... fit the space").
 
 ### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
 Jack found the public profile "boring and bland". Design canvas (private, Jack's
