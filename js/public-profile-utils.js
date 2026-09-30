@@ -837,24 +837,35 @@
   // moved to the plain "is there anything at all to show" check at the end
   // (previously that check existed too, but was unreachable — the seaDays
   // gate above it always fired first for a crew member with no sea time).
+  // Years to one decimal once there is a year of it ("2.2 yrs"); days below
+  // that, where "0.4 yrs" would read as nothing.
+  function formatSeaTime(days) {
+    if (days < 365) return `${days} ${days === 1 ? "day" : "days"}`;
+    return `${(days / 365).toFixed(1)} yrs`;
+  }
+
   function renderTrustStrip(metrics) {
     const strip = document.getElementById("ppTrustStrip");
     const kpiCard = document.getElementById("ppKpiCard");
     if (!strip) return;
 
+    // 2026-09-30, per Jack: "sharp ... simple". Four fixed tiles in a fixed
+    // order, each hidden when it would read zero. Onboard tasks and Verified
+    // refs came out — both live under each vessel already, and a small count
+    // undersold the person here.
     const items = [];
 
     if (metrics.navigationNm > 0) {
       items.push({ value: formatNm(metrics.navigationNm), label: "Miles navigated" });
     }
+    if (metrics.actualSeaDays > 0) {
+      items.push({ value: formatSeaTime(metrics.actualSeaDays), label: "Actual sea time" });
+    }
     if (metrics.vessels > 0) {
-      items.push({ value: String(metrics.vessels), label: "Vessels" });
+      items.push({ value: String(metrics.vessels), label: metrics.vessels === 1 ? "Yacht" : "Yachts" });
     }
-    if (metrics.verifiedRefs > 0) {
-      items.push({ value: String(metrics.verifiedRefs), label: "Verified refs" });
-    }
-    if (metrics.onboardOps > 0) {
-      items.push({ value: String(metrics.onboardOps), label: "Onboard tasks" });
+    if (metrics.countries > 0) {
+      items.push({ value: String(metrics.countries), label: metrics.countries === 1 ? "Country" : "Countries" });
     }
 
     if (!items.length) {

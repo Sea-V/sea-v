@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v548**. Jack pushes every commit himself from
+- HEAD = **v549**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -728,6 +728,27 @@ Also in v548: the crew name on the profile card (`#pp_name`) was 14px —
 typography.css pins every card h3 to `--font-body` with !important. Now
 `--pp-profile-name-size` clamp(20px, 2.2vw, 24px), weight 800, one step
 under the hero headline (Jack: "too small ... fit the space").
+(Jack committed the ladder as v547 and the name as v548.)
+**v549 — Career snapshot, "sharp ... simple"** (Jack, 2026-09-30). Four
+fixed tiles, each hidden at zero: Miles navigated / **Actual sea time**
+(sum of `actualSeaServiceDays`, "2.2 yrs", days under a year) / Yachts /
+Countries (distinct from/to countries across passages). Onboard tasks and
+Verified refs dropped. **Sea time on the public profile reverses part of
+the 2026-08-09 private-only call, at Jack's request** — only the one
+total; anon could already read the rows (Milestones progress uses them),
+so nothing new is exposed and no grant changed. Strip is
+`repeat(auto-fit, minmax(--pp-kpi-min 140px, 1fr))` with nowrap numbers:
+4 across at laptop width, 2x2 on a phone. Jack's live values: 54,948 NM,
+2.2 yrs (802 actual days, 638 verified), 7 yachts, 19 countries.
+**Also v549 — onboard experience visible again (DB, LIVE).** The v543
+anon rule "every status except Draft" hid every entry written since
+2026-08-09: sign-off was dropped then, the form has no status control, and
+`mapOnboardExperienceToSupabase` saves `status || "Draft"` — so Draft is
+simply the default, not a choice. Jack's 6 Senses entries were all hidden.
+New `docs/schema-public-read-onboard-all-statuses.sql` drops the status
+condition (owner must still be public_enabled); applied, smoke-tested,
+advisors 23/23. **Lesson: before recommending a rule on a status value,
+check the form can actually set it.**
 
 ### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
 Jack found the public profile "boring and bland". Design canvas (private, Jack's

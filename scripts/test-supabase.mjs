@@ -482,14 +482,16 @@ async function testCertificateColumns(config) {
   return ok;
 }
 
-// Row gates on two public tables (docs/schema-public-read-onboard-and-self-declared.sql,
-// v543): anon sees onboard experience in any status EXCEPT Draft, and awards
-// that are Verified or Self-declared -- never Declined or anything else. Asks
-// for exactly the rows that must stay private; any row back is a leak.
+// Row gate on public awards (docs/schema-public-read-onboard-and-self-declared.sql,
+// v543): anon sees awards that are Verified or Self-declared -- never Declined
+// or anything else. Asks for exactly the rows that must stay private; any row
+// back is a leak. Onboard experience has NO status gate since v549
+// (docs/schema-public-read-onboard-all-statuses.sql): sign-off was dropped on
+// 2026-08-09 and every entry saves as 'Draft', so a Draft probe here would
+// flag the intended behaviour.
 async function testPublicStatusGates(config) {
   console.log(`\nPublic row status gates:`);
   const probes = [
-    ["onboard_experiences", "status=eq.Draft", "Draft onboard experience"],
     ["achievements", "status=not.in.(Verified,Self-declared)", "declined / unverified awards"]
   ];
   let ok = true;
@@ -827,7 +829,7 @@ async function main() {
     console.log(referenceColumnsSafe ? "Reference columns safe." : "Reference column grants wrong — see probe above.");
     console.log(certificateColumnsSafe ? "Certificate columns safe." : "Certificate column grants wrong — see probe above.");
     console.log(columnDriftSafe ? "Public column lists in sync with js/api.js." : "Public column lists drifted from js/api.js.");
-    console.log(statusGatesSafe ? "Draft / declined rows hidden from anon." : "Private rows readable by anon — see probe above.");
+    console.log(statusGatesSafe ? "Declined / unverified awards hidden from anon." : "Private rows readable by anon — see probe above.");
     console.log("Next: run docs/hardening-steps/step2-status-rls.sql, then --step 2");
   } else if (step === "2") {
     passed = true;

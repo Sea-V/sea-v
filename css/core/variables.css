@@ -196,6 +196,9 @@
      make it a bit bigger to fit the space"). One step under
      --pp-hero-title-size so the headline above the card still leads. */
   --pp-profile-name-size: clamp(20px, 2.2vw, 24px);
+  /* Career snapshot tile floor: four across on a laptop card, two by two on
+     a phone, never narrower than a "54,948 NM" on one line. */
+  --pp-kpi-min: 140px;
   /* Public profile depth ladder (Jack, 2026-09-29): deepest navy on the
      outside, one step lighter each time something is opened. v543 used the
      site's existing adjacent shades (#0f2238 -> #182c45 -> #1f3552 ->

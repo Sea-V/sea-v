@@ -420,17 +420,27 @@
 
         const navigationDistanceMap = await buildPublicDistanceMap(navigationAreas);
 
-        // 2026-08-09, per Jack: sea time is now private-only — no longer
-        // surfaced on the public profile (standalone Sea Time Totals
-        // section, per-vessel Sea Time collapsible, or a "Sea days logged"
-        // header stat). `seatimes` is still fetched above because the
-        // Milestones section below derives certificate progress from it —
-        // that only shows a progress bar/percent, never raw sea time data.
+        // 2026-08-09, per Jack: sea time records are private-only — no
+        // Sea Time section or per-vessel breakdown on the public profile.
+        // 2026-09-30, per Jack: the Career snapshot does show ONE total,
+        // actual sea service ("sharp, like nm, years of actual seatime,
+        // number of vessels"). anon could already read these rows (the
+        // Milestones progress below is derived from them), so the total
+        // exposes nothing new; the individual contracts stay unshown.
+        const countries = new Set();
+        (navigationAreas || []).forEach((area) => {
+          [area.fromCountry, area.country].forEach((name) => {
+            const key = String(name || "").trim().toLowerCase();
+            if (key) countries.add(key);
+          });
+        });
         const metrics = {
           vessels: vessels.length,
           verifiedRefs: refs.filter(isReferenceVerified).length,
           onboardOps: onboardEntries.length,
-          navigationNm: computeNavigationTotalNm(navigationAreas, navigationDistanceMap)
+          navigationNm: computeNavigationTotalNm(navigationAreas, navigationDistanceMap),
+          actualSeaDays: (seatimes || []).reduce((sum, s) => sum + (Number(s.actualSeaServiceDays) || 0), 0),
+          countries: countries.size
         };
 
         renderHeaderProfile(profile, vessels, metrics);

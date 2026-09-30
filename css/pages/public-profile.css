@@ -1757,3 +1757,16 @@ body.pp-look-new #ppShell #pp_name {
   font-weight: var(--font-weight-title) !important;
   line-height: 1.2 !important;
 }
+
+/* Career snapshot (v547, Jack 2026-09-30: "sharp ... simple"). The strip
+   reuses the dashboard's five-column .kpi-row-grid-5, but holds four tiles
+   now and fewer when one would read zero, so it shares the row instead:
+   equal tiles edge to edge, wrapping to two by two on a phone. Values never
+   wrap mid-number ("54,948 / NM" did at 120px). */
+body.pp-look-new #ppTrustStrip {
+  grid-template-columns: repeat(auto-fit, minmax(var(--pp-kpi-min), 1fr));
+}
+
+body.pp-look-new #ppTrustStrip .kpi-num {
+  white-space: nowrap;
+}
