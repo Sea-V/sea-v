@@ -43,6 +43,35 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+/* --- App topbar: context bar (v556, Jack 2026-09-30) ---------------------
+   Picked from rendered options on the live dashboard. The solid bar and its
+   3px logo-gradient border give way to a soft dark fade with the logo
+   gradient as one glowing hairline underneath. Links left as plain text,
+   logo centred, Search + bell + photo right. The public/landing topbar
+   (.public-topbar) keeps the old bar. */
+
+.app-topbar .topbar-inner {
+  border: 0;
+  border-radius: 20px;
+  background: var(--seav-topbar-fade);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: none;
+}
+
+.app-topbar .topbar-inner::after {
+  content: "";
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 0;
+  height: var(--seav-topbar-line-height);
+  border-radius: var(--seav-topbar-line-height);
+  background: var(--seav-topbar-line);
+  box-shadow: var(--seav-topbar-line-glow);
+  pointer-events: none;
+}
+
 /* --- Logo --- */
 
 .app-topbar .brand,
@@ -72,6 +101,26 @@
   font-size: 14px;
 }
 
+/* App bar (v556): plain text links, no pills. min-height stays 42px so the
+   click target does not shrink with the chrome. */
+.app-topbar .nav-left {
+  gap: 24px;
+}
+
+.app-topbar .nav-left a {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--seav-meta-desc-color);
+}
+
+.app-topbar .nav-left a:hover,
+.app-topbar .nav-left a:focus-visible {
+  background: none;
+  color: var(--seav-field-value-color);
+  transform: none;
+}
+
 .app-topbar .nav-right,
 .public-topbar .nav-right {
   gap: 12px;
@@ -80,12 +129,8 @@
 /* --- Profile chip --------------------------------------------------------
    Replaced the Instagram link (Jack, 2026-09-18). The avatar keeps the exact
    44px circle the Instagram icon occupied so the bar's right cluster does not
-   reflow; the position sits to its left, reading inward toward the logo.
-
-   The position is a field VALUE (the crew member's rank), not a label, so it
-   is white per .cursor/rules/field-label-typography.mdc — not blue, and not a
-   page accent. 14px matches .nav-left a, so both sides of the bar sit on one
-   scale. */
+   reflow. Since v556 it is the photo alone (Jack: "remove chief officer and
+   only leave the picture"); the rank label and its rule are gone. */
 
 .app-topbar .topbar-profile {
   display: inline-flex;
@@ -93,19 +138,6 @@
   gap: 10px;
   min-width: 0;
   text-decoration: none;
-}
-
-.app-topbar .topbar-profile-position {
-  /* Ellipsis rather than wrap: the topbar is a fixed-height grid row, so a
-     two-line rank ("Chief Officer / Relief Captain") would grow the bar on
-     every page at once. */
-  max-width: 22ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: var(--font-value);
-  font-weight: var(--font-weight-body);
-  color: var(--seav-field-value-color);
 }
 
 .app-topbar .topbar-profile-avatar {
@@ -127,6 +159,7 @@
   font-weight: var(--font-weight-title);
   letter-spacing: 0.02em;
   line-height: 1;
+  box-shadow: var(--seav-topbar-avatar-ring);
 }
 
 /* With a photo the solid fill would show as a coloured rim wherever the
@@ -156,4 +189,237 @@
 
 .public-topbar .login:hover {
   background: rgba(114, 228, 255, 0.18);
+}
+
+/* --- Search button (v556) --------------------------------------------------
+   Opens the search panel (js/core.js wireTopbarSearch), also on Ctrl/⌘+K.
+   Smoked glass pill, same fill as the boxes inside a page. The label is a
+   <small>: typography.css forces 14px on span/button text. */
+
+.app-topbar .topbar-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 8px 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--seav-glass-line);
+  background: var(--seav-glass-panel);
+  color: var(--seav-field-value-color);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.app-topbar .topbar-search:hover,
+.app-topbar .topbar-search:focus-visible {
+  border-color: var(--seav-glass-edge);
+  background: var(--seav-glass-panel-deep);
+}
+
+.app-topbar .topbar-search svg {
+  width: 16px;
+  height: 16px;
+}
+
+.app-topbar .topbar-search-label {
+  font-size: var(--font-value);
+  font-weight: var(--font-weight-body);
+  color: var(--seav-field-value-color);
+}
+
+.app-topbar .topbar-search-kbd,
+.seav-search kbd {
+  padding: 3px 7px;
+  border-radius: 7px;
+  border: 1px solid var(--seav-kbd-border);
+  background: var(--seav-kbd-bg);
+  color: var(--seav-field-value-color);
+  font: var(--font-weight-body) var(--font-caption) / 1 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* --- Search panel (v556) ---------------------------------------------------
+   Dimmed, blurred page; a frosted glass panel near the top, the logo
+   gradient along its top edge. The panel mirrors the page levels: glass
+   panel, smoked-glass input row, the selected result outlined in blue.
+   display:grid below would beat the UA [hidden], so it is guarded. */
+
+.seav-search {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  justify-items: center;
+  align-items: start;
+  padding: var(--seav-search-top) 16px 16px;
+}
+
+.seav-search[hidden] {
+  display: none !important;
+}
+
+.seav-search-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--seav-search-backdrop);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.seav-search-panel {
+  position: relative;
+  width: min(var(--seav-search-width), 100%);
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid var(--seav-glass-edge);
+  background: var(--seav-glass-card);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  backdrop-filter: blur(22px) saturate(1.3);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.seav-search-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--seav-topbar-line-height);
+  background: var(--seav-topbar-line);
+}
+
+.seav-search-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--seav-glass-line);
+  background: var(--seav-glass-panel);
+  color: var(--seav-meta-desc-color);
+}
+
+.seav-search-field svg {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.seav-search-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  color: var(--seav-field-value-color);
+  font: inherit;
+  font-size: var(--font-value);
+  font-weight: var(--font-weight-body);
+}
+
+.seav-search-input::placeholder {
+  color: var(--seav-meta-muted-color);
+}
+
+.seav-search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.seav-search-body {
+  max-height: min(56vh, 420px);
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.seav-search-group {
+  display: block;
+  padding: 4px 10px 6px;
+  font-style: normal;
+  font-size: var(--font-label);
+  font-weight: var(--font-weight-title);
+  color: var(--seav-field-label-color);
+}
+
+.seav-search-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seav-search-list a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  color: var(--seav-field-value-color);
+  text-decoration: none;
+}
+
+.seav-search-list li[aria-selected="true"] a {
+  background: var(--seav-glass-panel);
+  box-shadow: inset 0 0 0 1px rgba(91, 188, 255, 0.45);
+}
+
+.seav-search-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  color: var(--seav-search-accent, var(--seav-field-label-color));
+  background: color-mix(in srgb, var(--seav-search-accent, var(--seav-field-label-color)) 16%, transparent);
+}
+
+.seav-search-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.seav-search-list strong {
+  font-size: var(--font-value);
+  font-weight: var(--font-weight-title);
+}
+
+.seav-search-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 10px 10px;
+}
+
+.seav-search-empty[hidden] {
+  display: none;
+}
+
+.seav-search-empty strong {
+  font-size: var(--font-value);
+  color: var(--seav-field-value-color);
+}
+
+.seav-search-empty small {
+  font-size: var(--font-caption);
+  color: var(--seav-note-color);
+}
+
+.seav-search-foot {
+  display: flex;
+  gap: 18px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--seav-glass-line);
+  background: var(--seav-glass-panel-deep);
+}
+
+.seav-search-foot small {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-caption);
+  color: var(--seav-note-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-topbar .topbar-search {
+    transition: none;
+  }
 }

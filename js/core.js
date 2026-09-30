@@ -376,6 +376,22 @@ const app = {
           </a>
 
           <div class="nav-right">
+            <button
+              type="button"
+              class="topbar-search"
+              id="topbarSearchBtn"
+              aria-haspopup="dialog"
+              aria-label="Search (Ctrl or Command + K)"
+              title="Search (⌘K)"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/>
+                <path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <small class="topbar-search-label">Search</small>
+              <kbd class="topbar-search-kbd" aria-hidden="true">⌘K</kbd>
+            </button>
+
             <div class="notif-bell-wrap">
               <button
                 type="button"
@@ -406,7 +422,6 @@ const app = {
               aria-label="Your profile"
               title="Your profile"
             >
-              <span class="topbar-profile-position" id="topbarProfilePosition" hidden></span>
               <span class="topbar-profile-avatar" id="topbarProfileAvatar" aria-hidden="true"></span>
             </a>
           </div>
@@ -799,6 +814,7 @@ function renderSidebarAchievements() {
       } else if (topbarType === "app") {
         topbarMount.innerHTML = renderAppTopbar();
         wireTopbarProfile();
+        wireTopbarSearch();
       }
     }
 
@@ -931,7 +947,7 @@ function renderSidebarAchievements() {
      uses, so the topbar needs no data access of its own.
 
      Re-renders on BOTH events, and both matter:
-       * seav:state-ready  — profile row arrives, so the position can render.
+       * seav:state-ready  — profile row arrives (name, photo path).
        * seav:data-updated — profile.photo starts life as a bare storage path
          and only becomes a signed URL after js/state.js's background file
          hydration, which dispatches this. Without it the chip would sit on
@@ -939,8 +955,8 @@ function renderSidebarAchievements() {
          who has uploaded a photo.
 
      Falls back to initials in the same style as #refsList .ref-card-avatar.
-     Position is profile.rank, hidden entirely when unset — an em dash is
-     right in a data card but wrong in the chrome. */
+     Since v556 the chip is the photo alone — the rank label beside it was
+     removed at Jack's request. */
   function topbarProfileInitials(name) {
     const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
     if (parts.length >= 2) {
@@ -949,18 +965,201 @@ function renderSidebarAchievements() {
     return (parts[0]?.charAt(0) || "?").toUpperCase();
   }
 
+  /* Topbar search (v556, Jack 2026-09-30). The Search button and Ctrl/⌘+K
+     open a glass panel. Version 1 searches the site's PAGES only — the list
+     is read from the rendered sidebar, so it always matches the menu and
+     skips "Coming soon" items (those are <span>s, not links). Searching the
+     crew member's own records is the next step, agreed with Jack; the
+     empty state says so rather than implying it already works.
+     Built lazily on first open; labels go in via textContent. */
+  function wireTopbarSearch() {
+    const button = document.getElementById("topbarSearchBtn");
+    if (!button) return;
+
+    let root = null;
+    let input = null;
+    let list = null;
+    let empty = null;
+    let pages = [];
+    let shown = [];
+    let active = 0;
+    let lastFocus = null;
+
+    const readPages = () => {
+      const seen = new Set();
+      return [...document.querySelectorAll("#sidebarMount a.dash-link[href]")]
+        .filter((a) => !a.classList.contains("dash-logout"))
+        .map((a) => {
+          const icon = a.querySelector(".dash-icon");
+          return {
+            label: (a.querySelector("span:last-child")?.textContent || a.textContent).trim(),
+            href: a.getAttribute("href"),
+            newTab: a.target === "_blank",
+            iconHtml: icon ? icon.innerHTML : "",
+            // Each sidebar icon is tinted by page CSS; carry the computed
+            // colour so the panel shows the same accent.
+            color: icon ? window.getComputedStyle(icon).color : ""
+          };
+        })
+        .filter((page) => {
+          if (!page.label || seen.has(page.href)) return false;
+          seen.add(page.href);
+          return true;
+        });
+    };
+
+    const setActive = (index) => {
+      if (!shown.length) return;
+      active = (index + shown.length) % shown.length;
+      [...list.children].forEach((li, i) => {
+        li.setAttribute("aria-selected", i === active ? "true" : "false");
+      });
+      const current = list.children[active];
+      if (current) {
+        input.setAttribute("aria-activedescendant", current.id);
+        current.scrollIntoView({ block: "nearest" });
+      }
+    };
+
+    const render = () => {
+      const query = input.value.trim().toLowerCase();
+      shown = query ? pages.filter((p) => p.label.toLowerCase().includes(query)) : pages;
+      list.textContent = "";
+      shown.forEach((page, i) => {
+        const li = document.createElement("li");
+        li.id = `seavSearchOption${i}`;
+        li.setAttribute("role", "option");
+        const link = document.createElement("a");
+        link.href = page.href;
+        link.tabIndex = -1;
+        if (page.newTab) {
+          link.target = "_blank";
+          link.rel = "noopener";
+        }
+        const icon = document.createElement("span");
+        icon.className = "seav-search-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.innerHTML = page.iconHtml; // our own sidebar SVG, not data
+        if (page.color) icon.style.setProperty("--seav-search-accent", page.color);
+        const label = document.createElement("strong");
+        label.textContent = page.label;
+        link.append(icon, label);
+        li.append(link);
+        li.addEventListener("mousemove", () => setActive(i));
+        list.append(li);
+      });
+      empty.hidden = shown.length > 0;
+      if (!shown.length) {
+        empty.querySelector("strong").textContent = `No pages match “${input.value.trim()}”`;
+        input.removeAttribute("aria-activedescendant");
+      } else {
+        setActive(0);
+      }
+    };
+
+    const close = () => {
+      if (!root || root.hidden) return;
+      root.hidden = true;
+      button.setAttribute("aria-expanded", "false");
+      if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+    };
+
+    const build = () => {
+      root = document.createElement("div");
+      root.className = "seav-search";
+      root.hidden = true;
+      root.innerHTML = `
+        <div class="seav-search-backdrop" data-search-close></div>
+        <div class="seav-search-panel" role="dialog" aria-modal="true" aria-label="Search">
+          <div class="seav-search-field">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/>
+              <path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input type="search" class="seav-search-input" placeholder="Search pages…"
+              autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true"
+              aria-controls="seavSearchList" aria-autocomplete="list" />
+            <kbd>esc</kbd>
+          </div>
+          <div class="seav-search-body">
+            <em class="seav-search-group">Pages</em>
+            <ul class="seav-search-list" id="seavSearchList" role="listbox" aria-label="Pages"></ul>
+            <div class="seav-search-empty" hidden>
+              <strong></strong>
+              <small>Searching your vessels, certificates and passages is coming soon.</small>
+            </div>
+          </div>
+          <div class="seav-search-foot" aria-hidden="true">
+            <small><kbd>↑</kbd><kbd>↓</kbd> move</small>
+            <small><kbd>↵</kbd> open</small>
+            <small><kbd>esc</kbd> close</small>
+          </div>
+        </div>
+      `;
+      document.body.append(root);
+      input = root.querySelector(".seav-search-input");
+      list = root.querySelector(".seav-search-list");
+      empty = root.querySelector(".seav-search-empty");
+
+      root.addEventListener("click", (event) => {
+        if (event.target.closest("[data-search-close]")) close();
+      });
+      input.addEventListener("input", render);
+      root.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          close();
+        } else if (event.key === "ArrowDown") {
+          event.preventDefault();
+          setActive(active + 1);
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          setActive(active - 1);
+        } else if (event.key === "Enter") {
+          const link = list.children[active]?.querySelector("a");
+          if (link && shown.length) {
+            event.preventDefault();
+            link.click();
+          }
+        } else if (event.key === "Tab") {
+          // One focusable control; keep focus inside the dialog.
+          event.preventDefault();
+          input.focus();
+        }
+      });
+    };
+
+    const open = () => {
+      if (!root) build();
+      lastFocus = document.activeElement;
+      pages = readPages();
+      input.value = "";
+      root.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+      render();
+      input.focus();
+    };
+
+    button.addEventListener("click", open);
+    document.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && String(event.key).toLowerCase() === "k") {
+        event.preventDefault();
+        if (root && !root.hidden) close();
+        else open();
+      }
+    });
+  }
+
   function wireTopbarProfile() {
     const link = document.getElementById("topbarProfileLink");
     const avatar = document.getElementById("topbarProfileAvatar");
-    const position = document.getElementById("topbarProfilePosition");
-    if (!link || !avatar || !position) return;
+    if (!link || !avatar) return;
 
+    // 2026-09-30 (v556), per Jack: the rank label beside the photo is gone —
+    // the bar shows the photo only. The name still reaches screen readers
+    // through the link's aria-label below.
     const update = () => {
       const profile = window.SeavState?.profile || {};
-
-      const rank = String(profile.rank || "").trim();
-      position.textContent = rank;
-      position.hidden = !rank;
 
       const name = String(profile.name || "").trim();
       const label = name ? `${name} — your profile` : "Your profile";

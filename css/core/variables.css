@@ -247,6 +247,20 @@
      part of the references accent family. Added 2026-09-18 when the chip
      replaced the Instagram link in the topbar. */
   --seav-topbar-avatar-bg: var(--logo-ocean);
+  /* App topbar, v556 (Jack, 2026-09-30, "context bar"): a soft dark fade
+     instead of a solid bar, and the logo gradient as one glowing hairline
+     under it instead of the old 3px gradient border. */
+  --seav-topbar-fade: linear-gradient(180deg, rgba(6, 14, 26, 0.55), rgba(6, 14, 26, 0.15));
+  --seav-topbar-line: linear-gradient(90deg, var(--logo-sky), var(--logo-ocean), var(--logo-deep));
+  --seav-topbar-line-height: 2px;
+  --seav-topbar-line-glow: 0 0 14px rgba(91, 188, 255, 0.55);
+  --seav-topbar-avatar-ring: 0 0 0 2px rgba(255, 255, 255, 0.22);
+  /* Search button + panel (v556). */
+  --seav-search-width: 600px;
+  --seav-search-top: 96px;
+  --seav-search-backdrop: rgba(3, 8, 15, 0.55);
+  --seav-kbd-bg: rgba(255, 255, 255, 0.12);
+  --seav-kbd-border: rgba(255, 255, 255, 0.2);
 
   /* =========================================================
      SELECT CONTROLS

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v555**. Jack pushes every commit himself from
+- HEAD = **v556**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -810,6 +810,22 @@ admin has no shell). One rule: `body.app-page [class$="-shell-card"] >
 [class$="-shell-head"]` = `--seav-glass-panel`. Shells are overflow:hidden
 with a 30px radius, so the band follows the rounded top with no radius of
 its own; the divider line under it is unchanged.
+**v556 — context topbar + Search** (Jack picked it from rendered options
+on the live dashboard, 2026-09-30). App topbar only (`.public-topbar` keeps
+the old bar): soft dark fade `--seav-topbar-fade` + blur, no border, the
+logo gradient as one glowing 2px hairline (`::after`,
+`--seav-topbar-line*`); links left as plain text; logo centred; right =
+Search button + bell + PHOTO ONLY (the rank label and its span/JS are
+removed; the name stays in the link's aria-label). **Search**: button
+`#topbarSearchBtn` and Ctrl/⌘+K open a glass panel (`wireTopbarSearch` in
+core.js, built lazily, `.seav-search[hidden]` guarded). **v1 searches
+PAGES only**, read from the rendered sidebar (so "Coming soon" spans are
+skipped and the list always matches the menu); the empty state says record
+search is coming. Keyboard: arrows / Enter / Esc, Tab kept in the dialog,
+focus returns to the button. **Next step, agreed: design record search
+(vessels, certs, passages...) with Jack.** Note: layout.css hides the whole
+app topbar below 1000px, so phones have no Search entry point yet.
+Verified on a local harness (real styles.css + core.js, no auth).
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and
