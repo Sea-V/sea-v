@@ -478,7 +478,7 @@ body.app-page::after {
   margin: 22px 0 0;
   padding: 18px 14px;
 
-  border-radius: 26px;
+  border-radius: var(--seav-sidebar-radius);
   border: 1px solid rgba(255,255,255,0.10);
 
   background: rgba(14, 28, 46, 0.85);

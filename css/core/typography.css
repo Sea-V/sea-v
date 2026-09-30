@@ -412,6 +412,50 @@ body.app-page .dash-sidebar .dash-link.dash-link--disabled {
   border-color: var(--seav-glass-line);
 }
 
+/* Sidebar home band (v558, Jack: remove "My SEA-V", "have profile and
+   dashboard buttons inside the darker section to match the pages title
+   section"). Desktop only — at <=1000px the sidebar is a horizontal strip
+   (layout.css) and keeps its current look. The band bleeds over the
+   sidebar's 18px/14px padding to the rounded top edge, takes the title
+   band's smoked glass and one divider under it; the next group drops its
+   own top divider so the line is not doubled. Its links sit a step lighter
+   than the band (white wash), as buttons do in the page title bands; the
+   current page keeps the lit --seav-glass-active fill. */
+@media (min-width: 1001px) {
+  /* min-height is set by core.js syncSidebarHomeBand to the page title
+     band's height, so the two dividers line up; links stay centred. */
+  body.app-page .dash-sidebar .dash-nav-group--home {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: -18px -14px 14px;
+    padding: 6px 14px;
+    border-bottom: 1px solid var(--seav-glass-line);
+    border-radius: var(--seav-sidebar-radius) var(--seav-sidebar-radius) 0 0;
+    background: var(--seav-glass-panel);
+  }
+
+  /* Sized so the band's natural height is 113px — the shortest title band
+     measured (Dashboard): 2 x 44px links + 4 x 3px margins + 2 x 6px
+     padding + 1px divider. Any taller title band stretches it (min-height
+     from core.js); a shorter one could not be matched. */
+  body.app-page .dash-sidebar .dash-nav-group--home .dash-link {
+    min-height: 44px;
+    margin: 3px 0;
+  }
+
+  body.app-page .dash-sidebar .dash-nav-group--home .dash-link:not(.active) {
+    background: var(--seav-glass-wash);
+  }
+
+  body.app-page .dash-sidebar .dash-nav-group--home + .dash-nav-group {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
 /* "Vessel specs" is a disclosure row, not a box — clear, as on the public
    profile, so its tiles sit at level 5 beside Role / Dates / GT. */
 body.app-page .vessel-specs-toggle {

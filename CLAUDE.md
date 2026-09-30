@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v558**. Jack pushes every commit himself from
+- HEAD = **v559**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -855,6 +855,20 @@ the real seav-data.js; focus on the LIVE signed-in pages for certificates,
 vessels (closed group), navigation, payslips (collapsed year), tenders,
 sea time, onboard, milestones; panel on a local harness. References had no
 live rows to test.
+**v559 — sidebar home band** (Jack: remove "My SEA-V", line the sidebar up
+with the page headers, Dashboard + Profile "inside the darker section to
+match the pages title section"). `.dash-title` removed from
+renderAppSidebar (the aside carries aria-label "My SEA-V"); the first group
+is `.dash-nav-group--home`. Desktop only (>=1001px; below that the sidebar
+is a horizontal strip, unchanged): smoked-glass band bled to the rounded
+top (`--seav-sidebar-radius`, now also used by .dash-sidebar), one divider,
+the next group's divider dropped. Page title bands vary 113-180px
+(measured), so `syncSidebarHomeBand()` in core.js sets the band's
+min-height to the current page's *-shell-head height (ResizeObserver);
+the band's natural height is exactly 113px (2 x 44px links, 3px margins,
+6px padding) so the shortest head still matches. Verified overlaid on the
+live signed-in pages at 1200px: band and title band share top AND divider
+on dashboard (102-215), certificates (102-259) and profile (102-282).
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and

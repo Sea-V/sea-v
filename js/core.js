@@ -507,16 +507,17 @@ const app = {
 function renderAppSidebar() {
   return `
     <div class="dash-side-stack">
-      <aside class="dash-sidebar">
-        <h2 class="dash-title">My SEA-V</h2>
-
+      <aside class="dash-sidebar" aria-label="My SEA-V">
         <nav class="dash-nav" aria-label="Main">
           ${renderSidebarGroup(
             "",
             [
               renderSidebarLink("dashboard.html", "Dashboard", iconDashboard),
               renderSidebarLink("profile.html", "Profile", iconProfile)
-            ].join("")
+            ].join(""),
+            // v558 (Jack): no "My SEA-V" heading; on desktop this group is the
+            // sidebar's dark top band, level with each page's title band.
+            "dash-nav-group--home"
           )}
 
           ${renderSidebarGroup(
@@ -827,6 +828,7 @@ function renderSidebarAchievements() {
     renderSidebarAchievements();
     wireLogout();
     wireSidebarPublicProfile();
+    syncSidebarHomeBand();
 
     document.addEventListener(
       "seav:state-ready",
@@ -1213,6 +1215,29 @@ function renderSidebarAchievements() {
         else open();
       }
     });
+  }
+
+  /* v559 (Jack): the sidebar's dark home band (Dashboard + Profile) sits
+     level with the page's title band. Tops already align; the page title
+     bands vary in height (113px Dashboard to 180px Profile, measured), so
+     the band takes the current page's *-shell-head height and follows it
+     as that changes (wrapping, resizing). Desktop only, matching the CSS
+     breakpoint — below it the sidebar is a horizontal strip. */
+  function syncSidebarHomeBand() {
+    const band = document.querySelector(".dash-sidebar .dash-nav-group--home");
+    const head = document.querySelector('[class$="-shell-card"] > [class$="-shell-head"]');
+    if (!band || !head) return;
+
+    const desktop = window.matchMedia("(min-width: 1001px)");
+    const apply = () => {
+      band.style.minHeight = desktop.matches ? `${head.offsetHeight}px` : "";
+    };
+
+    apply();
+    if (typeof window.ResizeObserver === "function") {
+      new window.ResizeObserver(apply).observe(head);
+    }
+    desktop.addEventListener?.("change", apply);
   }
 
   function wireTopbarProfile() {

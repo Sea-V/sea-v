@@ -222,6 +222,8 @@
   --seav-glass-wash-soft: rgba(255, 255, 255, 0.06);
   /* The one lit item in a smoked-glass list (current sidebar page). */
   --seav-glass-active: rgba(255, 255, 255, 0.14);
+  /* Matches .dash-sidebar's border-radius in layout.css. */
+  --seav-sidebar-radius: 26px;
   --seav-glass-blur: blur(14px) saturate(1.2);
   --seav-glass-edge: rgba(255, 255, 255, 0.28);
   --seav-glass-edge-strong: rgba(255, 255, 255, 0.42);
