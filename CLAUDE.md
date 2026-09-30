@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v552**. Jack pushes every commit himself from
+- HEAD = **v553**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -773,6 +773,24 @@ the dashboard current-vessel tile (needs its solid panel over photos), and
 any page rule that paints an inner box with !important (e.g.
 seatime.css `.seatime-shell-card .kpi-box`). **Unverified until Jack signs
 in to the browser pane** — private pages redirect to login.
+**v553 — the public profile's LEVELS on every private page.** v552 went
+live and Jack: "you've changed it all to frosted glass ... the boxes etc
+get darker, use the public profile as an example". Measured signed in (Jack
+signed in to the browser pane; 13 pages, every <details> open): v552's
+`:where()` list lost to page CSS, so each page mixed solid navy (every KPI
+box, dashboard tiles, `.seatime-table-wrap`), smoked glass and pale white
+washes at the SAME level. New block in typography.css after UNIFIED SHELL
+SURFACES: level 2 (boxes directly in the shell) `--seav-glass-panel`,
+level 3 (what opens inside) `--seav-glass-panel-deep`, level 4
+`--seav-glass-wash`, level 5 `--seav-glass-wash-soft`, all `!important`,
+class lists taken from the measurement. Re-measured with the rules
+overlaid on the live pages: exactly one background per level on all 13.
+Left alone on purpose: tinted highlights (nav highlight stat, next
+milestone, boundary notes, map hint, waypoint drop zone), buttons, pills,
+photo wells, modals, the CV's white A4, page accent borders. A page whose
+content only renders with data Jack has none of (e.g. payslip rows inside
+a closed year group) was not measured — check new pages/boxes against
+this list when they appear.
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and

@@ -270,6 +270,101 @@ body.app-page :where(
   background: var(--seav-glass-panel);
 }
 
+/* v553 — the public profile's glass LEVELS on every private page (Jack,
+   2026-09-30: "match the color used on the public profile ... glass back
+   card and the boxes etc get darker"). v552 only reached the :where() list
+   above, which page CSS out-ranks; measured signed in, each page mixed solid
+   navy (every KPI box, dashboard tiles, table wraps), smoked glass and pale
+   white washes at the SAME level, so it all read as one flat glass sheet.
+   Class lists come from that measurement (13 pages, every <details> open).
+   Level 1 is the page shell (glass card, above). !important because
+   pills.css / seatime.css paint .kpi-box with it. Deliberately left alone:
+   tinted highlights (.navigation-stat--highlight, .ach-next-milestone,
+   .page-boundary-note, .navigation-map-hint), buttons, pills, photo wells,
+   modals, and the CV's white A4 page. Page accent BORDERS are untouched. */
+
+/* 2 — boxes sitting directly in the page shell */
+body.app-page :is(
+  .dash-tile,
+  .dash-vessel,
+  .dashboard-quick-action,
+  .profile-form-card,
+  .profile-public-share,
+  .vessel-history-collapsible,
+  .kpi-box,
+  .sq-kpi-box,
+  .ach-kpi-box,
+  .onboard-kpi-box,
+  .hi-kpi-box,
+  .ps-kpi-box,
+  .seatime-checklist-panel,
+  .seatime-vessel-group,
+  .seatime-portal-link,
+  .tender-vessel-group,
+  .cert-compact-card,
+  .sq-compact-card,
+  .hi-modern-card,
+  .onboard-vessel-group,
+  .onboard-skill-row,
+  .onboard-skill-add-row,
+  .reference-shell-card .list-row,
+  .ach-trophy-section,
+  .navigation-vessel-group,
+  .navigation-stat:not(.navigation-stat--highlight),
+  .navigation-shell-card .modal-form,
+  .ps-toolbar,
+  .ps-year-group,
+  .cvgen-editor,
+  .cvgen-preview-frame
+) {
+  background: var(--seav-glass-panel) !important;
+}
+
+/* 3 — what opens inside those */
+body.app-page :is(
+  .vessel-profile-card,
+  .profile-chapter,
+  .seatime-table-wrap,
+  #tendersGrid .vessel-card,
+  .tender-vessel-group .vessel-card,
+  .ach-trophy,
+  .ach-milestone-row,
+  .navigation-route-block,
+  .navigation-log-row,
+  .seatime-guidance-list > li,
+  .cvgen-vessel-card
+) {
+  background: var(--seav-glass-panel-deep) !important;
+}
+
+/* 4 — cards inside an opened item */
+body.app-page :is(
+  .vessel-overview-card,
+  .vessel-sea-card,
+  .vessel-experience-card,
+  .vessel-linked-clean-card,
+  .ach-certs,
+  .ach-instance-row,
+  .vessel-card .vessel-meta-item
+) {
+  background: var(--seav-glass-wash) !important;
+}
+
+/* 5 — small field tiles */
+body.app-page :is(
+  .vessel-main-item,
+  .vessel-stats-grid > div,
+  .vessel-specs-grid > div
+) {
+  background: var(--seav-glass-wash-soft) !important;
+}
+
+/* "Vessel specs" is a disclosure row, not a box — clear, as on the public
+   profile, so its tiles sit at level 5 beside Role / Dates / GT. */
+body.app-page .vessel-specs-toggle {
+  background: transparent !important;
+}
+
 body.app-page .navigation-stat--highlight {
   background: rgba(91, 188, 255, 0.09);
 }
