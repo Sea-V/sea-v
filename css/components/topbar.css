@@ -408,6 +408,26 @@
   white-space: nowrap;
 }
 
+.seav-search-hint {
+  margin: 0;
+  padding: 10px 10px 8px;
+}
+
+.seav-search-hint[hidden] {
+  display: none;
+}
+
+/* Under Recent, the hint is a quiet footnote rather than the first thing. */
+.seav-search-list:not(:empty) + .seav-search-hint {
+  padding-top: 14px;
+}
+
+.seav-search-hint small {
+  font-size: var(--font-caption);
+  line-height: 1.5;
+  color: var(--seav-note-color);
+}
+
 .seav-search-empty {
   display: flex;
   flex-direction: column;

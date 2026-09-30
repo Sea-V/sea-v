@@ -967,7 +967,9 @@ function renderSidebarAchievements() {
 
   /* Topbar search (v556 pages, v558 records — Jack 2026-09-30). The Search
      button and Ctrl/⌘+K open a glass panel. With nothing typed it shows
-     Recent (last opened results) and every page; typing searches pages AND
+     Recent (last opened results) and a hint of what it can find — NOT the
+     page list (Jack, 2026-09-30: it only repeated the sidebar and pushed
+     Recent down). Typing searches pages (a few, as a keyboard shortcut) AND
      the crew member's own records via js/seav-search.js (SeavSearch.find),
      grouped by type. A record result opens its page with ?focus=<id>, where
      seav-search.js scrolls to and rings that record. Pages are read from the
@@ -978,12 +980,13 @@ function renderSidebarAchievements() {
     const button = document.getElementById("topbarSearchBtn");
     if (!button) return;
 
-    const PAGE_LIMIT_WHEN_QUERY = 5;
+    const PAGE_LIMIT_WHEN_QUERY = 3;
 
     let root = null;
     let input = null;
     let list = null;
     let empty = null;
+    let hint = null;
     let options = [];
     let optionEls = [];
     let active = 0;
@@ -1029,11 +1032,8 @@ function renderSidebarAchievements() {
       const pages = readPages();
 
       if (!query) {
-        const sections = [];
         const recent = search?.recent?.() || [];
-        if (recent.length) sections.push({ label: "Recent", items: recent });
-        sections.push({ label: "Pages", items: pages });
-        return sections;
+        return recent.length ? [{ label: "Recent", items: recent }] : [];
       }
 
       const sections = [];
@@ -1103,9 +1103,11 @@ function renderSidebarAchievements() {
         });
       });
 
-      empty.hidden = options.length > 0;
+      const typed = input.value.trim();
+      hint.hidden = Boolean(typed);
+      empty.hidden = !typed || options.length > 0;
       if (!options.length) {
-        empty.querySelector("strong").textContent = `No results for “${input.value.trim()}”`;
+        if (typed) empty.querySelector("strong").textContent = `No results for “${typed}”`;
         input.removeAttribute("aria-activedescendant");
       } else {
         setActive(0);
@@ -1138,6 +1140,9 @@ function renderSidebarAchievements() {
           </div>
           <div class="seav-search-body">
             <ul class="seav-search-list" id="seavSearchList" role="listbox" aria-label="Search results"></ul>
+            <p class="seav-search-hint">
+              <small>Search your vessels, sea time, certificates, passages, tenders, courses and more — or type a page name to jump there.</small>
+            </p>
             <div class="seav-search-empty" hidden>
               <strong></strong>
               <small>Try a vessel, certificate, port, course or referee name.</small>
@@ -1154,6 +1159,7 @@ function renderSidebarAchievements() {
       input = root.querySelector(".seav-search-input");
       list = root.querySelector(".seav-search-list");
       empty = root.querySelector(".seav-search-empty");
+      hint = root.querySelector(".seav-search-hint");
 
       root.addEventListener("click", (event) => {
         if (event.target.closest("[data-search-close]")) close();

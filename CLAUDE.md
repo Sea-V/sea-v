@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v557**. Jack pushes every commit himself from
+- HEAD = **v558**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -842,7 +842,9 @@ and the panel re-renders on `seav:data-updated`. Every query word must
 match; ranked title-prefix > word-prefix > title > elsewhere; grouped,
 5 per group. Labels use the pages' own helpers (getOnboardCategoryLabel,
 getPayslipMonthLabel...). Empty query = Recent (last 5 opened, localStorage
-`seav_search_recent`, re-resolved so deleted records drop) + Pages.
+`seav_search_recent`, re-resolved so deleted records drop) + a hint line —
+NOT the page list (Jack agreed: it only repeated the sidebar). Pages still
+match when typed, capped at 3, as a keyboard shortcut.
 **Arrival:** a result opens `<page>?focus=<id>`; seav-search.js finds the
 record by the id its edit button already carries (`data-edit-*-id`, plus
 data-vessel/cert/ref/ps-id), opens enclosing `<details>`, clicks a nearest
