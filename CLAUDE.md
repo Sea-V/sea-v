@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v551**. Jack pushes every commit himself from
+- HEAD = **v552**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -762,6 +762,17 @@ as in the preview he chose. `@supports not (backdrop-filter)` falls back
 to solid `--pp-depth-1-solid`. The Career snapshot edge rule needed
 `#ppShell` added: the glass-line `:is()` list carries a two-class selector
 and outranked it.
+**v552 — the same glass on every private page** (Jack: "lets review the
+private pages and do the same"). One place: typography.css UNIFIED SHELL
+SURFACES. `body.app-page [class$="-shell-card"]` = `--seav-glass-card` +
+blur + shadow (border untouched — each page keeps its v539 accent border);
+the `:where(...)` card list = `--seav-glass-panel` (was solid
+`--page-shell-panel`). New generic `--seav-glass-*` tokens; the public
+`--pp-*` glass tokens now alias them. Not touched: sidebar, topbar, modals,
+the dashboard current-vessel tile (needs its solid panel over photos), and
+any page rule that paints an inner box with !important (e.g.
+seatime.css `.seatime-shell-card .kpi-box`). **Unverified until Jack signs
+in to the browser pane** — private pages redirect to login.
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and

@@ -211,7 +211,7 @@ body.app-page :where(
    same solid palette instead of mixed gradients and tints.
 ========================================================= */
 
-/* ~15% transparent so the ocean background shows through slightly. This is
+/* (Pre-v552: ~15% transparent navy; now frosted glass, see below.) This is
    the rule that actually wins (loads after every page CSS file, and
    [class$="-shell-card"] has higher specificity than each page's own
    .xxx-shell-card selector) — the matching per-page background: declarations
@@ -219,9 +219,22 @@ body.app-page :where(
    mismatch if this rule's specificity/load-order ever changes. Scoped to
    body.app-page only, so the public profile (a different body class, no
    sidebar/topbar) is unaffected. */
+/* v552 — frosted glass, same as the public profile (Jack, 2026-09-30:
+   "lets review the private pages and do the same"). The page shell is the
+   white glass card over the ocean; its border is left alone, so each page
+   keeps its one thin accent border (the v539 decision). Browsers without
+   backdrop-filter get a solid navy instead of washed-out white. */
 body.app-page [class$="-shell-card"] {
-  background: rgba(14, 28, 46, 0.85);
-  background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85));
+  background: var(--seav-glass-card);
+  -webkit-backdrop-filter: var(--seav-glass-blur);
+  backdrop-filter: var(--seav-glass-blur);
+  box-shadow: var(--seav-glass-shadow);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body.app-page [class$="-shell-card"] {
+    background: var(--seav-glass-card-solid);
+  }
 }
 
 body.app-page :where(
@@ -252,7 +265,9 @@ body.app-page :where(
   .seatime-portal-link,
   .cvgen-vessel-card
 ) {
-  background: var(--page-shell-panel);
+  /* v552: dark smoked glass inside the white glass shell (was the solid
+     --page-shell-panel). */
+  background: var(--seav-glass-panel);
 }
 
 body.app-page .navigation-stat--highlight {

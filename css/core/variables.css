@@ -210,18 +210,29 @@
      glass over the ocean (blurred), the boxes inside are dark smoked glass
      so labels and values keep their contrast, and the innermost tiles are a
      faint white wash over that. Same five level names as before. */
-  --pp-depth-1: rgba(255, 255, 255, 0.10);
-  --pp-depth-2: rgba(8, 20, 36, 0.55);
+  /* Site-wide glass (v552): Jack, 2026-09-30, "lets review the private
+     pages and do the same". The private pages' shells and cards
+     (typography.css UNIFIED SHELL SURFACES) and the public profile's levels
+     below all read these. */
+  --seav-glass-card: rgba(255, 255, 255, 0.10);
+  --seav-glass-card-solid: rgba(31, 53, 82, 0.92);
+  --seav-glass-panel: rgba(8, 20, 36, 0.55);
+  --seav-glass-blur: blur(14px) saturate(1.2);
+  --seav-glass-edge: rgba(255, 255, 255, 0.28);
+  --seav-glass-line: rgba(255, 255, 255, 0.16);
+  --seav-glass-shadow: 0 18px 44px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  --pp-depth-1: var(--seav-glass-card);
+  --pp-depth-2: var(--seav-glass-panel);
   --pp-depth-3: rgba(8, 20, 36, 0.45);
   --pp-depth-4: rgba(255, 255, 255, 0.07);
   --pp-depth-5: rgba(255, 255, 255, 0.06);
   /* Solid stand-in for level 1 where backdrop-filter is unsupported —
      white glass with nothing blurred behind it reads washed out. */
-  --pp-depth-1-solid: rgba(31, 53, 82, 0.92);
-  --pp-glass-blur: blur(14px) saturate(1.2);
-  --pp-glass-edge: rgba(255, 255, 255, 0.28);
-  --pp-glass-line: rgba(255, 255, 255, 0.16);
-  --pp-glass-shadow: 0 18px 44px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  --pp-depth-1-solid: var(--seav-glass-card-solid);
+  --pp-glass-blur: var(--seav-glass-blur);
+  --pp-glass-edge: var(--seav-glass-edge);
+  --pp-glass-line: var(--seav-glass-line);
+  --pp-glass-shadow: var(--seav-glass-shadow);
   --seav-meta-link-color: #9ddcff;
 
   /* Topbar profile chip — the initials fallback when a crew member has no
