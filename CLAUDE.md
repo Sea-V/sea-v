@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v554**. Jack pushes every commit himself from
+- HEAD = **v555**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -803,6 +803,13 @@ untouched. Verified overlaid on the live dashboard (signed in). Gotcha:
 `.dash-link` has a 0.18s background transition, so a getComputedStyle read
 in the same tick as the style change returns the OLD colour. Topbar not
 touched yet.
+**v555 — title band** (Jack: the title area above each page's divider
+should "section the same as the first deeper color frosting"). Every
+private shell's first child is a `*-shell-head` (measured on all 13;
+admin has no shell). One rule: `body.app-page [class$="-shell-card"] >
+[class$="-shell-head"]` = `--seav-glass-panel`. Shells are overflow:hidden
+with a 30px radius, so the band follows the rounded top with no radius of
+its own; the divider line under it is unchanged.
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and

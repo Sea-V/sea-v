@@ -283,6 +283,17 @@ body.app-page :where(
    .page-boundary-note, .navigation-map-hint), buttons, pills, photo wells,
    modals, and the CV's white A4 page. Page accent BORDERS are untouched. */
 
+/* Page title band (v555, Jack: the title area above each page's divider
+   line should "section the same as the first deeper color frosting"). Every
+   private page's shell opens with a *-shell-head strip (icon + title +
+   description, measured on all 13); it takes the level-2 smoked glass, so
+   the page reads glass card -> dark title band -> content. The shells are
+   overflow:hidden with a 30px radius, so the band follows the rounded top
+   without a radius of its own. The divider line under it is unchanged. */
+body.app-page [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) {
+  background: var(--seav-glass-panel);
+}
+
 /* 2 — boxes sitting directly in the page shell */
 body.app-page :is(
   .dash-tile,
