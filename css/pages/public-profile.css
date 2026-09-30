@@ -1653,8 +1653,7 @@ body.pp-look-new .pp-hero {
    section cards were the lightest navy and an opened vessel dropped to a
    darker card inside them. Each level is one --pp-depth-* step lighter
    than the one holding it. Borders keep their page accents; only the
-   fills change. Innermost cells keep their translucent white wash, which
-   lifts them one more step. The vessel photo well stays dark on purpose.
+   fills change. The vessel photo well stays dark on purpose.
    --------------------------------------------------------- */
 /* 0 — the shell: none. Jack, 2026-09-29 (v545): "remove the darkest shell
    at the back and leave the other ones floating" — the section cards float
@@ -1666,9 +1665,17 @@ body.pp-look-new #ppShell {
   box-shadow: none;
 }
 
-/* 1 — the section cards */
+/* Five levels, one colour each (Jack, 2026-09-29, v545: "all the next boxes
+   in need to be the same color, and so on"). Every box at a level uses that
+   level's token — no translucent white washes left, those made same-level
+   boxes read differently depending on what sat behind them. !important on
+   every step because pills.css paints .kpi-box/.dashboard-info-box with
+   !important and #ppCareerOverview carries an id selector: on this page the
+   ladder is the final word on box fills. Photo wells stay dark on purpose. */
+
+/* 1 — the floating section cards */
 body.pp-look-new #ppShell .dash-card {
-  background: var(--pp-depth-1);
+  background: var(--pp-depth-1) !important;
 }
 
 /* 2 — what a section shows before anything is opened */
@@ -1683,12 +1690,6 @@ body.pp-look-new #ppShell :is(
   .public-cv-highlight-card,
   .public-cv-mini-row
 ) {
-  background: var(--pp-depth-2);
-}
-
-/* css/components/pills.css paints every .kpi-box with !important, so only
-   an !important can move these tiles onto the ladder. */
-body.pp-look-new #ppShell .kpi-box {
   background: var(--pp-depth-2) !important;
 }
 
@@ -1697,17 +1698,34 @@ body.pp-look-new #ppShell :is(
   .vessel-profile-card,
   .vessel-linked-section-group
 ) {
-  background: var(--pp-depth-3);
+  background: var(--pp-depth-3) !important;
 }
 
-/* 4 — the detail cards inside them */
+/* 4 — the cards inside them */
 body.pp-look-new #ppShell :is(
   .vessel-overview-card,
   .vessel-experience-card,
   .dash-mini-card,
-  .ach-trophy
+  .ach-trophy,
+  .vessel-linked-section-group .list-row
 ) {
-  background: var(--pp-depth-4);
+  background: var(--pp-depth-4) !important;
+}
+
+/* 5 — the field tiles inside those cards */
+body.pp-look-new #ppShell :is(
+  .vessel-main-item,
+  .vessel-stats-grid > div,
+  .vessel-specs-grid > div,
+  .dash-mini-info-grid > div
+) {
+  background: var(--pp-depth-5) !important;
+}
+
+/* "Vessel specs" is a disclosure row, not a box: clear so the spec tiles it
+   opens sit at level 5 beside Role / Dates / GT, not a level deeper. */
+body.pp-look-new #ppShell .vessel-specs-toggle {
+  background: transparent !important;
 }
 
 /* About / Privacy — moved here in v544 when the old topbar that carried them

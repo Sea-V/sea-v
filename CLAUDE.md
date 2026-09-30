@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v546**. Jack pushes every commit himself from
+- HEAD = **v547**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -710,6 +710,20 @@ already had their own 12px gaps, 30px radius, border and shadow, so they
 float on the ocean unchanged. Only the footer text sits directly on the
 ocean — checked, it reads. 390px: cards 29px from each edge (in line with the hero), no sideways
 scroll.
+**v547 — five levels, one colour each.** Jack: with the shell gone the
+dark "shifted to the next shell in"; brighten the floating cards, and
+"all the next boxes in need to be the same color, and so on". Ladder is
+now `--pp-depth-1..5` = `--page-shell-panel` (#1f3552, the private pages'
+card colour — Jack 2026-09-30: big cards "still too dark", use a private
+shade slightly darker than the first box within) / #22395a / #253d5d /
+#284163 / #2b4568 (ends at the AA cap for #5bbcff labels, 4.68:1, so the
+inner steps are small and the borders do more of the separating). Every translucent white
+wash inside the cards is replaced (info boxes, bio, onboard rows,
+GT/Length tiles, spec tiles, tender info cells); `.vessel-specs-toggle` is
+transparent so its tiles sit at level 5 with their neighbours. All ladder
+rules carry `!important` (pills.css + the #ppCareerOverview id selector
+beat them otherwise). Measured with every <details> open: exactly one
+background per level. Photo wells, pills and buttons are not on the ladder.
 
 ### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
 Jack found the public profile "boring and bland". Design canvas (private, Jack's

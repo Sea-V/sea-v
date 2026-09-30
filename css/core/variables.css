@@ -201,10 +201,17 @@
      (4.8:1) — so the extra range comes from darkening the outside. */
   /* --pp-depth-0 (the shell, rgba(6,15,27,.95)) retired in v545: the shell
      is transparent now and the cards float on the ocean. */
-  --pp-depth-1: #0e1d31;
-  --pp-depth-2: var(--page-shell-bg);
-  --pp-depth-3: #22395a;
-  --pp-depth-4: #2b4568;
+  /* v547: five levels. Level 1 (the floating section cards) is the private
+     pages' own card colour, --page-shell-panel (Jack, 2026-09-30: "use shade
+     from the private pages ... slightly darker than the first box within").
+     Level 5 stays #2b4568, the lightest fill that keeps #5bbcff labels AA
+     (4.68:1); 2-4 split the gap evenly, so inner steps are small and the
+     borders do more of the separating. */
+  --pp-depth-1: var(--page-shell-panel);
+  --pp-depth-2: #22395a;
+  --pp-depth-3: #253d5d;
+  --pp-depth-4: #284163;
+  --pp-depth-5: #2b4568;
   --seav-meta-link-color: #9ddcff;
 
   /* Topbar profile chip — the initials fallback when a crew member has no
