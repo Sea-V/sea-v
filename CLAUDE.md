@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v553**. Jack pushes every commit himself from
+- HEAD = **v554**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -791,6 +791,18 @@ photo wells, modals, the CV's white A4, page accent borders. A page whose
 content only renders with data Jack has none of (e.g. payslip rows inside
 a closed year group) was not measured — check new pages/boxes against
 this list when they appear.
+**v554 — glass sidebar** (Jack: "review the sidebar also as it needs to
+match"). `.dash-sidebar` was solid `--page-shell-bg-translucent` with pale
+white-wash links — inverted against the glass shells. Now (typography.css,
+glass block): sidebar = `--seav-glass-card` + blur + `--seav-glass-edge` +
+shadow (solid fallback); links `--seav-glass-panel`, hover
+`--seav-glass-panel-deep`, current page `--seav-glass-active` (new token,
+white .14) keeping its currentColor accent border, disabled roadmap items
+panel-deep. Fills/edges only — layout, mobile row layout, hover nudge
+untouched. Verified overlaid on the live dashboard (signed in). Gotcha:
+`.dash-link` has a 0.18s background transition, so a getComputedStyle read
+in the same tick as the style change returns the OLD colour. Topbar not
+touched yet.
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and

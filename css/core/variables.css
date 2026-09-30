@@ -220,6 +220,8 @@
   --seav-glass-panel-deep: rgba(8, 20, 36, 0.45);
   --seav-glass-wash: rgba(255, 255, 255, 0.07);
   --seav-glass-wash-soft: rgba(255, 255, 255, 0.06);
+  /* The one lit item in a smoked-glass list (current sidebar page). */
+  --seav-glass-active: rgba(255, 255, 255, 0.14);
   --seav-glass-blur: blur(14px) saturate(1.2);
   --seav-glass-edge: rgba(255, 255, 255, 0.28);
   --seav-glass-line: rgba(255, 255, 255, 0.16);

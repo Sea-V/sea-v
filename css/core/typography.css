@@ -359,6 +359,48 @@ body.app-page :is(
   background: var(--seav-glass-wash-soft) !important;
 }
 
+/* Sidebar (v554, Jack: "review the sidebar also as it needs to match").
+   Was solid translucent navy with pale white-wash links — the old look,
+   inverted against the glass shells beside it. Now the same two levels as
+   a page: the sidebar is the white glass card, its links smoked glass.
+   The current page is the one lit (white) link and keeps its accent
+   border (currentColor, from layout.css); hover steps to the lighter
+   smoked glass; not-yet-built items stay faint. Layout, sizes, the mobile
+   row layout and the hover nudge are untouched — fills and edges only. */
+body.app-page .dash-sidebar {
+  background: var(--seav-glass-card);
+  -webkit-backdrop-filter: var(--seav-glass-blur);
+  backdrop-filter: var(--seav-glass-blur);
+  border-color: var(--seav-glass-edge);
+  box-shadow: var(--seav-glass-shadow);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body.app-page .dash-sidebar {
+    background: var(--seav-glass-card-solid);
+  }
+}
+
+body.app-page .dash-sidebar .dash-link {
+  background: var(--seav-glass-panel);
+  border-color: var(--seav-glass-line);
+}
+
+body.app-page .dash-sidebar .dash-link:hover {
+  background: var(--seav-glass-panel-deep);
+  border-color: var(--seav-glass-edge);
+}
+
+body.app-page .dash-sidebar .dash-link.active {
+  background: var(--seav-glass-active);
+  border-color: currentColor;
+}
+
+body.app-page .dash-sidebar .dash-link.dash-link--disabled {
+  background: var(--seav-glass-panel-deep);
+  border-color: var(--seav-glass-line);
+}
+
 /* "Vessel specs" is a disclosure row, not a box — clear, as on the public
    profile, so its tiles sit at level 5 beside Role / Dates / GT. */
 body.app-page .vessel-specs-toggle {
