@@ -85,14 +85,12 @@ select option {
   color: var(--seav-field-value-color);
 }
 
-/* The CV generator editor is DELIBERATELY light — it mirrors the white CV
-   preview surface beside it (css/pages/cv-generator.css). It keeps that, and
-   only swaps to the dark chevron so the arrow stays legible. Do not "fix"
-   this one to match the dark controls. */
-.cvgen-editor select {
-  background-image: var(--seav-select-arrow-on-light) !important;
-  color-scheme: light;
-}
+/* The CV generator editor WAS deliberately light, mirroring the white CV
+   preview, and this rule swapped its selects to the dark chevron. Since v560
+   (Jack, 2026-10-02) its fields are dark glass like every other page, so the
+   standard chevron above applies. Only the custom template picker
+   (.cvgen-template-trigger, css/pages/cv-generator.css) stays light, with
+   its own on-light chevron — keep that one light. */
 
 select:disabled {
   cursor: not-allowed;

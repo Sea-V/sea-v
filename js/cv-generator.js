@@ -69,9 +69,11 @@
       parts.push(`${source.certs.length} cert${source.certs.length === 1 ? "" : "s"}`);
     }
 
+    // v560: a short status pill; "edit without changing your source data" is
+    // already said by the editor's own intro.
     hint.textContent = parts.length
-      ? `SEA-V records loaded (${parts.join(", ")}). Edit below without changing your source data.`
-      : "Add profile and career data in SEA-V, then polish your CV here.";
+      ? `Loaded from SEA-V · ${parts.join(", ")}`
+      : "Add your profile and vessels in SEA-V to fill this CV";
   }
 
   // Mirrors js/profile.js's renderProfilePublicQr -- qrcodejs needs a

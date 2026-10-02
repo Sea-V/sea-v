@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v559**. Jack pushes every commit himself from
+- HEAD = **v560**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -869,6 +869,19 @@ the band's natural height is exactly 113px (2 x 44px links, 3px margins,
 6px padding) so the shortest head still matches. Verified overlaid on the
 live signed-in pages at 1200px: band and title band share top AND divider
 on dashboard (102-215), certificates (102-259) and profile (102-282).
+**v560 — CV generator tidy-up** (Jack: "tidy it up, then we can work on
+it as i have some good ideas"). (1) Editor inputs/textareas move from the
+deliberately LIGHT surface to dark glass: `--seav-cv-field-*` now alias
+`--seav-glass-*`; the TEMPLATE PICKER alone keeps the light look via new
+`--seav-cv-picker-*` (old values). select.css's `.cvgen-editor select`
+on-light chevron rule is removed and its "do not fix" note rewritten — the
+light-editor decision of v526/v533 is superseded, with Jack's OK. (2) The
+two loose status lines become `.cvgen-status` pills ("Loaded from SEA-V ·
+profile, 7 vessels, 19 certs" / "Draft saved · 19:36"). (3) The Career
+overview text "looked bigger" — measured: it is 14px like every field
+(the 315px test string fills its 322px box exactly); a dense paragraph just
+reads heavier. No change. The Hide settings toggle (v531) still works live.
+Jack has CV generator ideas queued — ask before redesigning further.
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and
