@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v560**. Jack pushes every commit himself from
+- HEAD = **v561**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -882,6 +882,42 @@ overview text "looked bigger" — measured: it is 14px like every field
 (the 315px test string fills its 322px box exactly); a dense paragraph just
 reads heavier. No change. The Hide settings toggle (v531) still works live.
 Jack has CV generator ideas queued — ask before redesigning further.
+**v561 — the CV generator is the ONE place that decides what goes on the
+CV** (Jack's idea, 2026-10-02; his choices: save to the ACCOUNT, remove the
+Certificates-page tickbox, new items SHOWN by default).
+- **DB, LIVE:** new private table `cv_drafts` (user_id pk -> auth.users on
+  delete cascade, `draft` jsonb object <= 200 KB, owner-only RLS, nothing
+  granted to anon). `docs/schema-cv-drafts.sql`; smoke-tested as the real
+  authenticated role (rolled back) + curl-as-anon 401/42501; advisors
+  23/23; `testCvDraftsPrivate` in test-supabase.
+- `SeavAPI.fetchCvDraft()/saveCvDraft()` (api.js). NB `runSupabaseWithRetry`
+  RETURNS the retry's `{error}` instead of throwing — callers must check.
+- cv-generator.js: local save (350ms) + account save (1.2s debounce);
+  status pill "Saved to your account · hh:mm" / "Saved on this device only".
+  **The account copy wins on load** (no timestamp compare — every load
+  re-saves the device copy, so a stale device would always look newer),
+  unless the crew member edited before it arrived. No account row yet =
+  this device's draft is uploaded (that is the migration). Background
+  `seav:data-updated` syncs do NOT count as an edit.
+- Model: `draft.choices[group][id]` for certs / specialist / achievements /
+  refs / hobbies; `isChosen()` default true (refs: verified only, and an
+  unverified ref can never show). First run seeds `choices.certs` from the
+  old `show_on_cv=false` (Jack's EFA/PST/FPFF), and certificates.js now
+  KEEPS the stored show_on_cv on edit so that seed is never lost. New
+  sections switches: showDob, showNationality, showAvailability, showPorts,
+  showHobbies. Milestones = every ticked one (was "first 4"); duplicates
+  by title show once. **Hobbies & Interests is new on the CV** (preview +
+  Word). "Refresh from SEA-V" rebuilds TEXT only and keeps sections/choices.
+- UI: 8 collapsible `.cvgen-group`s (Personal info, Yacht experience,
+  Certificates, Specialist quals, Milestones & awards, References, Hobbies
+  & interests, SEA-V extras) with "x of y" counts, a section switch,
+  Select all / none, a tick per item.
+- Certificates page: tickbox, "Not on CV" flag and `.cert-cv-flag` removed.
+- Verified: engine in node with the real seav-data + CV model/render (seed,
+  per-item, refs, hobbies, switches, reset, new-item default); panel on a
+  harness of the real page (counts, ticks, select none, section off,
+  account save batching, account copy beats device copy). **Not yet seen
+  with Jack's live data** until this lands on the live site.
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and

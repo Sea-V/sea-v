@@ -176,7 +176,7 @@
     return formatCvDate(value) || formatDatePretty(value) || value;
   }
 
-  function getReferenceItems(source) {
+  function getReferenceItems(source, draft) {
     const vesselMap = new Map((source.vessels || []).map((v) => [v.id, v.name || ""]));
     return (source.refs || [])
       // Only put verified references in front of employers — a Draft (never
@@ -185,6 +185,8 @@
       // vouches for the crew member. See js/references.js for the status
       // lifecycle (Draft -> Sent for Verification -> Verified/Declined).
       .filter((ref) => ref?.name && ref.status === "Verified")
+      // v561: and only the ones ticked in the CV generator (default: on).
+      .filter((ref) => isChosen(draft, "refs", ref.id))
       .slice(0, 8)
       .map((ref) => ({
         name: ref.name,
@@ -281,18 +283,23 @@
     // the tick back on. Three of Jack's certs sat in that state. Honouring the
     // tickbox for every cert is the only version where the control means what
     // it says. To restore the old rule, put `!!cert.isMandatory ||` back.
-    const certs = (state?.certs || []).filter((cert) => {
-      const isSaved = typeof isSavedCert === "function" ? isSavedCert(cert) : !!cert?.name;
-      if (!isSaved) return false;
-      return cert.showOnCv !== false;
-    });
+    //
+    // v561 (Jack, 2026-10-02): the CV generator is now the ONE place that
+    // decides what goes on the CV. Every saved cert is in the source; the
+    // per-item choice lives in draft.choices.certs (see isChosen). The old
+    // show_on_cv=false values are carried into the draft once by
+    // seedChoices(), and the Certificates page no longer shows the tickbox.
+    const certs = (state?.certs || []).filter((cert) =>
+      typeof isSavedCert === "function" ? isSavedCert(cert) : !!cert?.name
+    );
     const specialist = sortByDateDesc(state?.specialistQualifications || [], "dateObtained");
     const onboard = state?.onboardExperiences || [];
     const achievements = state?.achievements || [];
     const navigation = state?.navigationAreas || [];
     const refs = state?.refs || [];
+    const hobbies = state?.hobbiesInterests || [];
 
-    return { profile, vessels, certs, specialist, onboard, achievements, navigation, refs };
+    return { profile, vessels, certs, specialist, onboard, achievements, navigation, refs, hobbies };
   }
 
   function getVesselExperience(vessel) {
@@ -404,8 +411,101 @@
       showContact: true,
       showReferences: true,
       showSeavBranding: true,
-      showQrCode: true
+      showQrCode: true,
+      // v561: finer personal-info switches, ports, and the new hobbies block.
+      showDob: true,
+      showNationality: true,
+      showAvailability: true,
+      showPorts: true,
+      showHobbies: true
     };
+  }
+
+  /* ---- Per-item CV choices (v561, Jack 2026-10-02) ----------------------
+     draft.choices[group][itemId] = true | false. Anything without a stored
+     choice uses the group default, so a NEW cert / milestone / hobby shows up
+     on the CV automatically (Jack's call). References default to verified
+     only, and an unverified one can never be shown (see getReferenceItems). */
+  const CHOICE_GROUPS = ["certs", "specialist", "achievements", "refs", "hobbies"];
+
+  function isChosen(draft, group, id, fallback = true) {
+    const stored = draft?.choices?.[group]?.[id];
+    return typeof stored === "boolean" ? stored : fallback;
+  }
+
+  function emptyChoices() {
+    return Object.fromEntries(CHOICE_GROUPS.map((g) => [g, {}]));
+  }
+
+  // First run for a draft without choices: carry over the certificates that
+  // were unticked on the Certificates page (show_on_cv = false) so nothing
+  // that was hidden suddenly reappears on the CV.
+  function seedChoices(source) {
+    const choices = emptyChoices();
+    (source.certs || []).forEach((cert) => {
+      if (cert?.id && cert.showOnCv === false) choices.certs[cert.id] = false;
+    });
+    return choices;
+  }
+
+  function normalizeChoices(choices) {
+    const next = emptyChoices();
+    CHOICE_GROUPS.forEach((g) => {
+      const stored = choices?.[g];
+      if (stored && typeof stored === "object") {
+        Object.entries(stored).forEach(([id, value]) => {
+          if (typeof value === "boolean") next[g][id] = value;
+        });
+      }
+    });
+    return next;
+  }
+
+  // Milestones can be earned more than once (one per vessel); the CV lists a
+  // title once, so the choice is keyed by the first record with that title.
+  function uniqueAchievements(source) {
+    const seen = new Set();
+    return (source.achievements || []).filter((item) => {
+      const key = String(item?.title || "").trim().toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  // What the CV generator lists under each group, in CV order.
+  function getChoiceItems(source) {
+    const certs = [...(source.certs || [])]
+      .sort((a, b) => certPriority(a) - certPriority(b))
+      .map((cert) => ({
+        id: cert.id,
+        label: getCertDisplayName(cert),
+        sub: cert.expiry && !cert.noExpiry ? `Expires ${formatCvDate(cert.expiry)}` : ""
+      }));
+    const specialist = (source.specialist || [])
+      .filter((e) => e?.id && String(e.title || "").trim())
+      .map((e) => ({ id: e.id, label: e.title, sub: e.issuingBody || "" }));
+    const achievements = uniqueAchievements(source).map((a) => ({
+      id: a.id,
+      label: a.title,
+      sub: a.category || ""
+    }));
+    const refs = (source.refs || [])
+      .filter((ref) => ref?.id && ref?.name)
+      .map((ref) => {
+        const verified = ref.status === "Verified";
+        return {
+          id: ref.id,
+          label: ref.name,
+          sub: verified ? ref.title || "" : `${ref.status || "Draft"} — only verified references go on a CV`,
+          disabled: !verified,
+          fallback: verified
+        };
+      });
+    const hobbies = (source.hobbies || [])
+      .filter((h) => h?.id && String(h.title || "").trim())
+      .map((h) => ({ id: h.id, label: h.title, sub: "" }));
+    return { certs, specialist, achievements, refs, hobbies };
   }
 
   // Hardcoded to the real production domain rather than window.location —
@@ -459,6 +559,7 @@
       profileBioSynced: profileOverview,
       headline: buildAutoHeadline(source),
       sections: getDefaultSections(),
+      choices: seedChoices(source),
       vessels: vesselEntries,
       vesselOrder: source.vessels.map((v) => v.id),
       updatedAt: new Date().toISOString()
@@ -469,6 +570,7 @@
     const next = {
       ...draft,
       sections: { ...getDefaultSections(), ...(draft.sections || {}) },
+      choices: draft.choices ? normalizeChoices(draft.choices) : seedChoices(source),
       vessels: { ...(draft.vessels || {}) },
       vesselOrder: Array.isArray(draft.vesselOrder) ? [...draft.vesselOrder] : []
     };
@@ -574,8 +676,13 @@
     return userId ? `${KEYS.CV_DRAFT}_${userId}` : KEYS.CV_DRAFT;
   }
 
-  function resetDraftFromSource(source, template) {
+  // "Refresh from SEA-V" rebuilds the TEXT (headline, overview, vessel
+  // notes) from the records. Since v561 it keeps which sections and items
+  // are on the CV — those are deliberate selections, not derived text.
+  function resetDraftFromSource(source, template, keep = {}) {
     const draft = createDefaultDraft(source, template);
+    if (keep.sections) draft.sections = { ...draft.sections, ...keep.sections };
+    if (keep.choices) draft.choices = normalizeChoices(keep.choices);
     return saveDraft(draft);
   }
 
@@ -610,8 +717,9 @@
       .map((item) => item.label);
   }
 
-  function getSpecialistQualificationItems(source) {
+  function getSpecialistQualificationItems(source, draft) {
     return source.specialist
+      .filter((entry) => isChosen(draft, "specialist", entry.id))
       .filter((entry) => {
         const title = String(entry.title || getSpecialistCategoryLabel(entry.category) || "").trim();
         return title.length > 0;
@@ -624,7 +732,7 @@
       }));
   }
 
-  function getHighlightLines(source) {
+  function getHighlightLines(source, draft) {
     const seen = new Set();
     const lines = [];
 
@@ -636,20 +744,31 @@
       lines.push(text);
     };
 
-    source.achievements
-      .filter((item) => item.title)
-      .slice(0, 4)
+    // v561: every milestone ticked in the CV generator (no longer "the first
+    // four"), then up to four recent ports when that switch is on.
+    uniqueAchievements(source)
+      .filter((item) => isChosen(draft, "achievements", item.id))
       .forEach((item) => addLine(item.title));
 
-    source.navigation
-      .filter((item) => item.country || item.port)
-      .slice(0, 4)
-      .forEach((item) => {
-        const label = [item.port, item.country].filter(Boolean).join(", ");
-        addLine(`Navigation: ${label}`);
-      });
+    const showPorts = draft?.sections?.showPorts !== false;
+    if (showPorts) {
+      source.navigation
+        .filter((item) => item.country || item.port)
+        .slice(0, 4)
+        .forEach((item) => {
+          const label = [item.port, item.country].filter(Boolean).join(", ");
+          addLine(`Navigation: ${label}`);
+        });
+    }
 
-    return lines.slice(0, 6);
+    return lines;
+  }
+
+  function getHobbyItems(source, draft) {
+    return (source.hobbies || [])
+      .filter((h) => String(h?.title || "").trim())
+      .filter((h) => isChosen(draft, "hobbies", h.id))
+      .map((h) => h.title.trim());
   }
 
   function buildCvDocument(source, draft) {
@@ -687,12 +806,15 @@
         : summaryText
           ? [summaryText]
           : ["Add a career overview in the CV editor."],
-      certStrip: sections.showCerts ? getCertStrip(source.certs, 100) : [],
-      specialistQualifications: sections.showEducation
-        ? getSpecialistQualificationItems(source)
+      certStrip: sections.showCerts
+        ? getCertStrip(source.certs.filter((c) => isChosen(draft, "certs", c.id)), 100)
         : [],
-      highlights: sections.showHighlights ? getHighlightLines(source) : [],
-      references: sections.showReferences ? getReferenceItems(source) : [],
+      specialistQualifications: sections.showEducation
+        ? getSpecialistQualificationItems(source, draft)
+        : [],
+      highlights: sections.showHighlights ? getHighlightLines(source, { ...draft, sections }) : [],
+      references: sections.showReferences ? getReferenceItems(source, draft) : [],
+      hobbies: sections.showHobbies ? getHobbyItems(source, draft) : [],
       vessels,
       qrUrl: sections.showQrCode ? getCvProfileQrUrl(profile) : "",
       sections
@@ -710,6 +832,7 @@
     shouldUseProfileCareerOverview, buildAutoHeadline, getDefaultSections, getCvProfileQrUrl,
     createDefaultDraft, syncDraftWithSource, loadDraft, saveDraft, resetDraftFromSource,
     getOrderedVessels, getCertStrip, getSpecialistQualificationItems, getHighlightLines,
+    getHobbyItems, getChoiceItems, isChosen, CHOICE_GROUPS,
     buildCvDocument, CV_TEMPLATE, CV_TEMPLATES, isValidTemplate, LOGO_SRC
   };
 })();

@@ -9,7 +9,16 @@
 
   let draft = null;
   let saveTimer = null;
+  let remoteTimer = null;
   let controlsBound = false;
+  // v561: the draft is saved to the crew member's account (cv_drafts) as
+  // well as this device. Edits made before the account copy has loaded win
+  // over it, so a slow fetch can never undo what was just typed.
+  let editedBeforeRemote = false;
+  let remoteLoaded = false;
+  let saveState = "idle"; // idle | saving | saved | local
+  let savedAt = null;
+  const REMOTE_SAVE_DELAY_MS = 1200;
 
   // Swatch colours for the visual template picker — one per CV_TEMPLATES id
   // (js/cv-engine-model.js), matching each colour scheme's own accent-2
@@ -40,20 +49,89 @@
   }
 
   function scheduleSave() {
+    if (!remoteLoaded) editedBeforeRemote = true;
     window.clearTimeout(saveTimer);
     saveTimer = window.setTimeout(() => {
       draft = window.SeavCvEngine.saveDraft(draft);
-      updateSaveStatus();
+      scheduleRemoteSave();
     }, 350);
+  }
+
+  function scheduleRemoteSave() {
+    if (typeof window.SeavAPI?.saveCvDraft !== "function") {
+      saveState = "local";
+      savedAt = new Date();
+      updateSaveStatus();
+      return;
+    }
+    saveState = "saving";
+    updateSaveStatus();
+    window.clearTimeout(remoteTimer);
+    remoteTimer = window.setTimeout(async () => {
+      try {
+        await window.SeavAPI.saveCvDraft(draft);
+        saveState = "saved";
+      } catch (err) {
+        console.warn("[SEA-V] CV draft account save failed:", err);
+        saveState = "local";
+      }
+      savedAt = new Date();
+      updateSaveStatus();
+    }, REMOTE_SAVE_DELAY_MS);
   }
 
   function updateSaveStatus() {
     const el = document.getElementById("cvSaveStatus");
-    if (!el || !draft?.updatedAt) return;
-    const when = new Date(draft.updatedAt);
-    el.textContent = Number.isNaN(when.getTime())
-      ? "Draft saved locally"
-      : `Draft saved · ${when.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+    if (!el) return;
+    const time = savedAt
+      ? savedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+      : "";
+    el.textContent =
+      saveState === "saving"
+        ? "Saving…"
+        : saveState === "saved"
+          ? `Saved to your account · ${time}`
+          : saveState === "local"
+            ? `Saved on this device only · ${time} — will sync on your next change`
+            : "Saves to your account automatically";
+  }
+
+  // Load the account copy once. The ACCOUNT copy wins whenever one exists
+  // (unless the crew member already edited on this page before it arrived).
+  // Timestamps are not compared: every page load re-saves the device copy,
+  // so a stale copy on another device would always look "newer". If nothing
+  // is stored yet, the current draft (this device's, or freshly built)
+  // becomes the account copy — that is how an existing device-only draft
+  // migrates.
+  async function loadDraftFromAccount() {
+    if (typeof window.SeavAPI?.fetchCvDraft !== "function") {
+      remoteLoaded = true;
+      return;
+    }
+    try {
+      const remote = await window.SeavAPI.fetchCvDraft();
+      remoteLoaded = true;
+      if (editedBeforeRemote) {
+        scheduleRemoteSave();
+        return;
+      }
+      if (remote?.draft && Object.keys(remote.draft).length) {
+        draft = window.SeavCvEngine.syncDraftWithSource(remote.draft, getSource());
+        window.SeavCvEngine.saveDraft(draft);
+        saveState = "saved";
+        const remoteTime = Date.parse(remote.updatedAt || "");
+        savedAt = Number.isNaN(remoteTime) ? new Date() : new Date(remoteTime);
+        refreshUi();
+        return;
+      }
+      scheduleRemoteSave();
+    } catch (err) {
+      remoteLoaded = true;
+      console.warn("[SEA-V] CV draft account load failed:", err);
+      saveState = "local";
+      savedAt = new Date();
+      updateSaveStatus();
+    }
   }
 
   function updateHint(source) {
@@ -184,6 +262,142 @@
         `;
       })
       .join("");
+  }
+
+  /* ---- CV choice groups (v561) ---------------------------------------- */
+
+  const GROUP_SECTION = {
+    certs: "showCerts",
+    specialist: "showEducation",
+    achievements: "showHighlights",
+    refs: "showReferences",
+    hobbies: "showHobbies"
+  };
+
+  const GROUP_EMPTY = {
+    certs: "No certificates in SEA-V yet.",
+    specialist: "No specialist qualifications in SEA-V yet.",
+    achievements: "No milestones earned yet.",
+    refs: "No references in SEA-V yet.",
+    hobbies: "No hobbies or interests in SEA-V yet."
+  };
+
+  function fillGroupIcons() {
+    const icons = window.SeavIcons || {};
+    document.querySelectorAll("#cvGroups [data-icon]").forEach((el) => {
+      // Our own SVG strings from core.js, never data.
+      if (!el.innerHTML) el.innerHTML = icons[el.getAttribute("data-icon")] || "";
+    });
+  }
+
+  function choiceFallback(item) {
+    return typeof item.fallback === "boolean" ? item.fallback : true;
+  }
+
+  function renderChoiceLists(source) {
+    const items = window.SeavCvEngine.getChoiceItems(source);
+    Object.keys(GROUP_SECTION).forEach((group) => {
+      const list = document.querySelector(`[data-choices="${group}"]`);
+      if (!list) return;
+      const entries = items[group] || [];
+      if (!entries.length) {
+        list.innerHTML = `<li class="cvgen-choice-empty">${Seav.escapeHtml(GROUP_EMPTY[group])}</li>`;
+        return;
+      }
+      list.innerHTML = entries
+        .map((item) => {
+          const checked =
+            !item.disabled &&
+            window.SeavCvEngine.isChosen(draft, group, item.id, choiceFallback(item));
+          return `
+            <li>
+              <label class="cvgen-choice${item.disabled ? " is-disabled" : ""}">
+                <input type="checkbox" class="cv-choice" data-group="${group}"
+                  data-id="${Seav.escapeHtml(item.id)}" ${checked ? "checked" : ""} ${item.disabled ? "disabled" : ""} />
+                <span class="cvgen-choice-text">
+                  <strong>${Seav.escapeHtml(item.label)}</strong>
+                  ${item.sub ? `<small>${Seav.escapeHtml(item.sub)}</small>` : ""}
+                </span>
+              </label>
+            </li>`;
+        })
+        .join("");
+    });
+    updateGroupCounts(source);
+  }
+
+  function updateGroupCounts(source) {
+    const set = (key, text, off = false) => {
+      const el = document.querySelector(`[data-count="${key}"]`);
+      if (el) el.textContent = text;
+      const body = document.querySelector(`.cvgen-group[data-group="${key}"] .cvgen-group-body`);
+      if (body) body.classList.toggle("is-off", off);
+    };
+    const sections = { ...window.SeavCvEngine.getDefaultSections(), ...(draft.sections || {}) };
+
+    const personalKeys = ["showContact", "showDob", "showNationality", "showAvailability"];
+    set("personal", `${personalKeys.filter((k) => sections[k] !== false).length} of ${personalKeys.length}`);
+
+    const vesselTotal = source.vessels.length;
+    const vesselOn = source.vessels.filter((v) => draft.vessels?.[v.id]?.included !== false).length;
+    set("yacht", vesselTotal ? `${vesselOn} of ${vesselTotal}` : "None yet");
+
+    const items = window.SeavCvEngine.getChoiceItems(source);
+    Object.entries(GROUP_SECTION).forEach(([group, sectionKey]) => {
+      const entries = items[group] || [];
+      if (sections[sectionKey] === false) {
+        set(group, "Hidden", true);
+        return;
+      }
+      if (!entries.length) {
+        set(group, "None yet");
+        return;
+      }
+      const on = entries.filter(
+        (item) => !item.disabled && window.SeavCvEngine.isChosen(draft, group, item.id, choiceFallback(item))
+      ).length;
+      set(group, `${on} of ${entries.length}`);
+    });
+
+    const extras = ["showSeavBranding", "showQrCode"].filter((k) => sections[k] !== false).length;
+    set("extras", `${extras} of 2`);
+  }
+
+  function setChoice(group, id, value) {
+    draft.choices = draft.choices || {};
+    draft.choices[group] = draft.choices[group] || {};
+    draft.choices[group][id] = value;
+  }
+
+  function bindChoiceGroups() {
+    const root = document.getElementById("cvGroups");
+    if (!root) return;
+
+    root.addEventListener("change", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || !target.classList.contains("cv-choice")) return;
+      const group = target.getAttribute("data-group");
+      const id = target.getAttribute("data-id");
+      if (!group || !id) return;
+      setChoice(group, id, target.checked);
+      scheduleSave();
+      renderPreview();
+      updateGroupCounts(getSource());
+    });
+
+    root.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-choice-all]");
+      if (!btn) return;
+      const group = btn.getAttribute("data-choice-all");
+      const value = btn.getAttribute("data-value") === "all";
+      root.querySelectorAll(`.cv-choice[data-group="${group}"]:not(:disabled)`).forEach((input) => {
+        input.checked = value;
+        setChoice(group, input.getAttribute("data-id"), value);
+      });
+      scheduleSave();
+      renderPreview();
+      updateGroupCounts(getSource());
+    });
   }
 
   // Visual, colour-swatch proxy for the hidden native <select id="cvTemplateSelect">.
@@ -434,18 +648,27 @@
         draft.sections[key] = input.checked;
         scheduleSave();
         renderPreview();
+        updateGroupCounts(getSource());
       });
     });
+
+    fillGroupIcons();
+    bindChoiceGroups();
 
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
         const ok = window.confirm(
-          "Reset the CV draft from your latest SEA-V records?\n\nYour vessel logs and profile will not change — only this CV draft."
+          "Rebuild the CV text from your latest SEA-V records?\n\nYour headline, career overview and vessel notes are refreshed. What you've chosen to show stays as it is, and your vessel logs and profile don't change."
         );
         if (!ok) return;
-        draft = window.SeavCvEngine.resetDraftFromSource(getSource(), draft?.template);
+        // v561: keeps which sections and items are on the CV; rebuilds text.
+        draft = window.SeavCvEngine.resetDraftFromSource(getSource(), draft?.template, {
+          sections: draft?.sections,
+          choices: draft?.choices
+        });
+        scheduleRemoteSave();
         refreshUi();
-        Seav.notify("success", "CV refreshed", "Draft rebuilt from your SEA-V records.");
+        Seav.notify("success", "CV refreshed", "Text rebuilt from your SEA-V records — your selections are kept.");
       });
     }
 
@@ -496,6 +719,7 @@
           draft.vessels[id].included = target.checked;
           scheduleSave();
           renderPreview();
+          updateGroupCounts(getSource());
           return;
         }
 
@@ -544,6 +768,7 @@
     updateHint(source);
     syncEditorFields();
     renderVesselEditor(source);
+    renderChoiceLists(source);
     renderPreview();
     updateSaveStatus();
   }
@@ -657,10 +882,16 @@
   function initCvGenerator() {
     ensureDraft();
     refreshUi();
+    loadDraftFromAccount();
 
+    // Records arriving in the background (state.js loads other pages' data
+    // just after load) are NOT the crew member editing: sync quietly to this
+    // device, and to the account only once the account copy has loaded —
+    // otherwise this would count as "edited first" and skip the saved draft.
     document.addEventListener("seav:data-updated", () => {
       draft = window.SeavCvEngine.syncDraftWithSource(draft, getSource());
-      scheduleSave();
+      window.SeavCvEngine.saveDraft(draft);
+      if (remoteLoaded) scheduleRemoteSave();
       refreshUi();
     });
   }

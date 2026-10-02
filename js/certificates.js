@@ -289,15 +289,9 @@
           <div class="cert-compact-summary-right">
             ${
               // Read-only indicator, not an interactive control — the row
-              // summary is itself a <button> (toggles expand/collapse), so a
-              // clickable checkbox here would be a nested-interactive-element
-              // bug. Only flag the exception (off) case; "on" is the default
-              // for every cert so showing it every time would clutter every
-              // row for no informational gain. To change it, expand the row
-              // and use Edit (js/certificates.js openEditModal).
-              cert.showOnCv === false
-                ? `<span class="cert-cv-flag">Not on CV</span>`
-                : ""
+              // v561: which certs go on the CV is decided only in the CV
+              // generator now, so this page no longer flags "Not on CV".
+              ""
             }
             <span class="cert-status-pill ${Seav.escapeHtml(status.statusClass)}">
               ${Seav.escapeHtml(status.badge)}
@@ -597,19 +591,6 @@
     };
   }
 
-  // Mandatory CoC/STCW certificates always show on the CV Generator
-  // regardless of this checkbox (enforced in js/cv-engine-model.js), so
-  // the checkbox itself is hidden for them — ticking/unticking it would
-  // have no visible effect and would just be confusing.
-  // Kept as a named no-op rather than deleted, so the call sites still read
-  // as a deliberate decision. Until 2026-09-22 this hid the "Display on CV
-  // Generator" box for mandatory certs and forced it ticked, because
-  // cv-engine-model.js force-included them anyway. Two things were wrong with
-  // that: the hide never worked (.modal-check had `display: flex !important`,
-  // which beats `[hidden]`), and force-ticking on open silently undid a real
-  // untick the person had already saved. Mandatory certs are now governed by
-  // the tickbox like every other cert, so there is nothing to hide or force.
-  function toggleShowOnCvVisibility() {}
 
   // "This certificate does not expire" — disables and clears the expiry
   // triplet so a non-expiring cert is stated, not inferred from a blank
@@ -655,10 +636,8 @@
     if (!isCustom) {
       const item = findCatalog(code);
       if (nameEl && item) nameEl.value = item.name;
-      toggleShowOnCvVisibility();
     } else if (nameEl) {
       nameEl.value = "";
-      toggleShowOnCvVisibility();
     }
     updateSourceNote(code);
   }
@@ -755,9 +734,6 @@
     if (certNumberEl) certNumberEl.value = cert.certificateNumber || "";
     document.getElementById("ct_file").value = "";
     renderCertAttachmentHint(cert.attachment || null);
-    const showOnCvEl = document.getElementById("ct_show_on_cv");
-    if (showOnCvEl) showOnCvEl.checked = cert.showOnCv !== false;
-    toggleShowOnCvVisibility();
     window.SeavModals?.openModal?.("certModal");
   }
 
@@ -804,11 +780,6 @@
       noExpiry,
       isMandatory,
       isTemplate,
-      // Governs EVERY cert since 2026-09-22, mandatory ones included — the
-      // old "mandatory certs always show regardless" rule is gone from
-      // js/cv-engine-model.js. Defaults to ticked for a cert whose modal
-      // never rendered the box.
-      showOnCv: document.getElementById("ct_show_on_cv")?.checked ?? true,
       issuingAuthority,
       trainingProvider,
       certificateNumber: document.getElementById("ct_cert_number")?.value.trim() || "",
@@ -953,7 +924,11 @@
           noExpiry: data.noExpiry,
           isMandatory: data.isMandatory,
           isTemplate: data.isTemplate,
-          showOnCv: data.showOnCv,
+          // v561: no tickbox here any more. KEEP the stored value: the CV
+          // generator reads show_on_cv=false once to carry an old untick into
+          // its own per-item choices, so resetting it to true on an edit would
+          // put the cert back on the CV.
+          showOnCv: existing ? existing.showOnCv !== false : true,
           issuingAuthority: data.issuingAuthority,
           trainingProvider: data.trainingProvider,
           certificateNumber: data.certificateNumber

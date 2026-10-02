@@ -195,8 +195,10 @@
       }
     }
 
+    // v561: date of birth, nationality and availability follow their CV
+    // generator switches (default on), matching the on-screen preview.
     const dob = formatProfileDob ? formatProfileDob(profile.dob) : profile.dob || "";
-    if (dob) {
+    if (dob && sections.showDob !== false) {
       parts.push(sidebarHeading("Date of Birth", scheme.heading));
       parts.push(paragraph(dob, { size: 18, color: scheme.text }, { spacingAfter: 30 }));
     }
@@ -212,12 +214,12 @@
     (splitProfileLines ? splitProfileLines(profile.visasHeld) : []).forEach((l) =>
       nationalityLines.push(`Visa: ${l}`)
     );
-    if (nationalityLines.length) {
+    if (nationalityLines.length && sections.showNationality !== false) {
       parts.push(sidebarHeading("Nationality & Visas", scheme.heading));
       nationalityLines.forEach((l) => parts.push(paragraph(l, { size: 18, color: scheme.text }, { spacingAfter: 20 })));
     }
 
-    if (profile.availability) {
+    if (profile.availability && sections.showAvailability !== false) {
       parts.push(sidebarHeading("Availability", scheme.heading));
       parts.push(paragraph(profile.availability, { size: 18, color: scheme.text }, { spacingAfter: 30 }));
     }
@@ -240,6 +242,13 @@
     if (sections.showHighlights && doc.highlights?.length) {
       parts.push(sidebarHeading("Milestones", scheme.heading));
       doc.highlights.forEach((h) =>
+        parts.push(bulletParagraph(h, { size: 18, color: scheme.text }, { spacingAfter: 20 }))
+      );
+    }
+
+    if (sections.showHobbies !== false && doc.hobbies?.length) {
+      parts.push(sidebarHeading("Hobbies & Interests", scheme.heading));
+      doc.hobbies.forEach((h) =>
         parts.push(bulletParagraph(h, { size: 18, color: scheme.text }, { spacingAfter: 20 }))
       );
     }

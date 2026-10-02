@@ -24,48 +24,48 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=560" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=560" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=560" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=560" />
+  <link rel="icon" href="/favicon.ico?v=561" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=561" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=561" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=561" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • CV Generator</title>
 
-  <link rel="stylesheet" href="styles.css?v=560" />
+  <link rel="stylesheet" href="styles.css?v=561" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=560"></script>
-  <script src="js/supabase.js?v=560"></script>
-  <script src="js/auth.js?v=560"></script>
-  <script src="js/feedback.js?v=560" defer></script>
-  <script src="js/core.js?v=560" defer></script>
-  <script src="js/seav-search.js?v=560" defer></script>
-  <script src="js/bug-reports.js?v=560" defer></script>
-  <script src="js/seav-upload.js?v=560" defer></script>
-  <script src="js/seav-data.js?v=560" defer></script>
-  <script src="js/seav-badges.js?v=560" defer></script>
+  <script src="js/seav-config.js?v=561"></script>
+  <script src="js/supabase.js?v=561"></script>
+  <script src="js/auth.js?v=561"></script>
+  <script src="js/feedback.js?v=561" defer></script>
+  <script src="js/core.js?v=561" defer></script>
+  <script src="js/seav-search.js?v=561" defer></script>
+  <script src="js/bug-reports.js?v=561" defer></script>
+  <script src="js/seav-upload.js?v=561" defer></script>
+  <script src="js/seav-data.js?v=561" defer></script>
+  <script src="js/seav-badges.js?v=561" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
-  <script src="js/api-core.js?v=560" defer></script>
-  <script src="js/api-mappers.js?v=560" defer></script>
-  <script src="js/api.js?v=560" defer></script>
-  <script src="js/state.js?v=560" defer></script>
-  <script src="js/seav-notifications.js?v=560" defer></script>
-  <script src="js/achievements-engine.js?v=560" defer></script>
-  <script src="js/badge-unlock.js?v=560" defer></script>
+  <script src="js/api-core.js?v=561" defer></script>
+  <script src="js/api-mappers.js?v=561" defer></script>
+  <script src="js/api.js?v=561" defer></script>
+  <script src="js/state.js?v=561" defer></script>
+  <script src="js/seav-notifications.js?v=561" defer></script>
+  <script src="js/achievements-engine.js?v=561" defer></script>
+  <script src="js/badge-unlock.js?v=561" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=560" defer></script>
+  <script src="js/seav-share.js?v=561" defer></script>
   <!-- QR code linking to the public profile, printed at the bottom of the
        CV (see cv-engine-render.js's renderSeavQrFooter) and embedded in
        the Word export (see cv-export-docx.js) -- same qrcodejs the
        dashboard's share panel uses, generated client-side so the profile
        URL never leaves the browser just to render the code. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-  <script src="js/cv-engine-model.js?v=560" defer></script>
-  <script src="js/cv-engine-render.js?v=560" defer></script>
-  <script src="js/cv-engine.js?v=560" defer></script>
-  <script src="js/cv-export-docx.js?v=560" defer></script>
-  <script src="js/cv-generator.js?v=560" defer></script>
+  <script src="js/cv-engine-model.js?v=561" defer></script>
+  <script src="js/cv-engine-render.js?v=561" defer></script>
+  <script src="js/cv-engine.js?v=561" defer></script>
+  <script src="js/cv-export-docx.js?v=561" defer></script>
+  <script src="js/cv-generator.js?v=561" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -178,39 +178,127 @@
                 </label>
               </div>
 
-              <div class="cvgen-editor-block">
-                <div class="cvgen-block-heading">
-                  <span class="cvgen-block-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path d="M7 12.5l3 3.5L17 8.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </span>
-                  <h3 class="cvgen-editor-title">Include on CV</h3>
-                </div>
-                <div class="cvgen-toggle-grid">
-                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showContact" checked /> Contact details</label>
-                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showCerts" checked /> Certificates</label>
-                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showEducation" checked /> Specialist qualifications</label>
-                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showHighlights" checked /> Milestones</label>
-                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showReferences" checked /> References</label>
-                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showSeavBranding" checked /> SEA-V logo</label>
-                  <label class="cvgen-check"><input type="checkbox" data-cv-section="showQrCode" checked /> QR code to profile</label>
-                </div>
-                <p class="cvgen-editor-note" id="cvQrHint"></p>
-              </div>
-
-              <div class="cvgen-editor-block">
-                <div class="cvgen-block-heading">
-                  <span class="cvgen-block-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path d="M6 14.5h12l-1.8-4.5H9.5L6 14.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                      <path d="M4 18c1.3-1 2.7-1 4 0s2.7 1 4 0 2.7-1 4 0 2.7 1 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                    </svg>
-                  </span>
-                  <h3 class="cvgen-editor-title">Yacht experience</h3>
-                </div>
-                <p class="cvgen-editor-note">Toggle jobs and tailor the experience description for the employer you're sending this CV to — your vessel records stay unchanged.</p>
-                <div class="cvgen-vessel-list" id="cvVesselEditor"></div>
+              <!-- v561 (Jack, 2026-10-02): the CV generator is the ONE place that
+                   decides what goes on the CV. One collapsible group per area:
+                   a switch for the whole section, then a tick per item (filled by
+                   js/cv-generator.js renderChoiceLists). New records appear ticked. -->
+              <div class="cvgen-groups" id="cvGroups">
+                <details class="cvgen-group" data-group="personal">
+                  <summary class="cvgen-group-summary">
+                    <span class="cvgen-group-icon" data-icon="profile" aria-hidden="true"></span>
+                    <strong class="cvgen-group-title">Personal info</strong>
+                    <small class="cvgen-group-count" data-count="personal"></small>
+                  </summary>
+                  <div class="cvgen-group-body">
+                    <div class="cvgen-toggle-grid">
+                      <label class="cvgen-check"><input type="checkbox" data-cv-section="showContact" checked /> Contact details</label>
+                      <label class="cvgen-check"><input type="checkbox" data-cv-section="showDob" checked /> Date of birth</label>
+                      <label class="cvgen-check"><input type="checkbox" data-cv-section="showNationality" checked /> Nationality &amp; visas</label>
+                      <label class="cvgen-check"><input type="checkbox" data-cv-section="showAvailability" checked /> Availability</label>
+                    </div>
+                  </div>
+                </details>
+                <details class="cvgen-group" data-group="yacht">
+                  <summary class="cvgen-group-summary">
+                    <span class="cvgen-group-icon" data-icon="vessels" aria-hidden="true"></span>
+                    <strong class="cvgen-group-title">Yacht experience</strong>
+                    <small class="cvgen-group-count" data-count="yacht"></small>
+                  </summary>
+                  <div class="cvgen-group-body">
+                    <p class="cvgen-editor-note">Tick the yachts to include and tailor each one's experience notes for the employer you're sending this CV to — your vessel records stay unchanged.</p>
+                    <div class="cvgen-vessel-list" id="cvVesselEditor"></div>
+                  </div>
+                </details>
+                <details class="cvgen-group" data-group="certs">
+                  <summary class="cvgen-group-summary">
+                    <span class="cvgen-group-icon" data-icon="certificates" aria-hidden="true"></span>
+                    <strong class="cvgen-group-title">Certificates</strong>
+                    <small class="cvgen-group-count" data-count="certs"></small>
+                  </summary>
+                  <div class="cvgen-group-body">
+                    <label class="cvgen-check cvgen-group-switch"><input type="checkbox" data-cv-section="showCerts" checked /> Show certificates on this CV</label>
+                    <div class="cvgen-choice-actions">
+                      <button type="button" class="cvgen-choice-action" data-choice-all="certs" data-value="all">Select all</button>
+                      <button type="button" class="cvgen-choice-action" data-choice-all="certs" data-value="none">Select none</button>
+                    </div>
+                    <ul class="cvgen-choice-list" data-choices="certs"></ul>
+                  </div>
+                </details>
+                <details class="cvgen-group" data-group="specialist">
+                  <summary class="cvgen-group-summary">
+                    <span class="cvgen-group-icon" data-icon="specialist" aria-hidden="true"></span>
+                    <strong class="cvgen-group-title">Specialist qualifications</strong>
+                    <small class="cvgen-group-count" data-count="specialist"></small>
+                  </summary>
+                  <div class="cvgen-group-body">
+                    <label class="cvgen-check cvgen-group-switch"><input type="checkbox" data-cv-section="showEducation" checked /> Show specialist qualifications on this CV</label>
+                    <div class="cvgen-choice-actions">
+                      <button type="button" class="cvgen-choice-action" data-choice-all="specialist" data-value="all">Select all</button>
+                      <button type="button" class="cvgen-choice-action" data-choice-all="specialist" data-value="none">Select none</button>
+                    </div>
+                    <ul class="cvgen-choice-list" data-choices="specialist"></ul>
+                  </div>
+                </details>
+                <details class="cvgen-group" data-group="achievements">
+                  <summary class="cvgen-group-summary">
+                    <span class="cvgen-group-icon" data-icon="achievements" aria-hidden="true"></span>
+                    <strong class="cvgen-group-title">Milestones &amp; awards</strong>
+                    <small class="cvgen-group-count" data-count="achievements"></small>
+                  </summary>
+                  <div class="cvgen-group-body">
+                    <label class="cvgen-check cvgen-group-switch"><input type="checkbox" data-cv-section="showHighlights" checked /> Show milestones on this CV</label>
+                    <label class="cvgen-check"><input type="checkbox" data-cv-section="showPorts" checked /> Add recent ports visited</label>
+                    <div class="cvgen-choice-actions">
+                      <button type="button" class="cvgen-choice-action" data-choice-all="achievements" data-value="all">Select all</button>
+                      <button type="button" class="cvgen-choice-action" data-choice-all="achievements" data-value="none">Select none</button>
+                    </div>
+                    <ul class="cvgen-choice-list" data-choices="achievements"></ul>
+                  </div>
+                </details>
+                <details class="cvgen-group" data-group="refs">
+                  <summary class="cvgen-group-summary">
+                    <span class="cvgen-group-icon" data-icon="references" aria-hidden="true"></span>
+                    <strong class="cvgen-group-title">References</strong>
+                    <small class="cvgen-group-count" data-count="refs"></small>
+                  </summary>
+                  <div class="cvgen-group-body">
+                    <label class="cvgen-check cvgen-group-switch"><input type="checkbox" data-cv-section="showReferences" checked /> Show references on this CV</label>
+                    <div class="cvgen-choice-actions">
+                      <button type="button" class="cvgen-choice-action" data-choice-all="refs" data-value="all">Select all</button>
+                      <button type="button" class="cvgen-choice-action" data-choice-all="refs" data-value="none">Select none</button>
+                    </div>
+                    <ul class="cvgen-choice-list" data-choices="refs"></ul>
+                  </div>
+                </details>
+                <details class="cvgen-group" data-group="hobbies">
+                  <summary class="cvgen-group-summary">
+                    <span class="cvgen-group-icon" data-icon="hobbies" aria-hidden="true"></span>
+                    <strong class="cvgen-group-title">Hobbies &amp; interests</strong>
+                    <small class="cvgen-group-count" data-count="hobbies"></small>
+                  </summary>
+                  <div class="cvgen-group-body">
+                    <label class="cvgen-check cvgen-group-switch"><input type="checkbox" data-cv-section="showHobbies" checked /> Show hobbies &amp; interests on this CV</label>
+                    <div class="cvgen-choice-actions">
+                      <button type="button" class="cvgen-choice-action" data-choice-all="hobbies" data-value="all">Select all</button>
+                      <button type="button" class="cvgen-choice-action" data-choice-all="hobbies" data-value="none">Select none</button>
+                    </div>
+                    <ul class="cvgen-choice-list" data-choices="hobbies"></ul>
+                  </div>
+                </details>
+                <details class="cvgen-group" data-group="extras">
+                  <summary class="cvgen-group-summary">
+                    <span class="cvgen-group-icon" data-icon="cv" aria-hidden="true"></span>
+                    <strong class="cvgen-group-title">SEA-V extras</strong>
+                    <small class="cvgen-group-count" data-count="extras"></small>
+                  </summary>
+                  <div class="cvgen-group-body">
+                    <div class="cvgen-toggle-grid">
+                      <label class="cvgen-check"><input type="checkbox" data-cv-section="showSeavBranding" checked /> SEA-V logo</label>
+                      <label class="cvgen-check"><input type="checkbox" data-cv-section="showQrCode" checked /> QR code to profile</label>
+                    </div>
+                    <p class="cvgen-editor-note" id="cvQrHint"></p>
+                  </div>
+                </details>
               </div>
 
             </aside>

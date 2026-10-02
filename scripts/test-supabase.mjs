@@ -482,6 +482,20 @@ async function testCertificateColumns(config) {
   return ok;
 }
 
+// cv_drafts (docs/schema-cv-drafts.sql, v561) is private: a crew member's CV
+// choices and draft text. anon must get NOTHING — not even an empty list.
+async function testCvDraftsPrivate(config) {
+  console.log(`\nCV drafts privacy:`);
+  const probe = await restGet(config, "cv_drafts", "select=user_id&limit=1");
+  if (probe.status === 401 || probe.status === 403) {
+    console.log(`✓ cv_drafts hidden from anon  ${probe.status}  OK`);
+    return true;
+  }
+  console.log(`✗ cv_drafts readable by anon  ${probe.status}  FAIL`);
+  console.log("→ Re-run docs/schema-cv-drafts.sql (revoke all ... from anon).");
+  return false;
+}
+
 // Row gate on public awards (docs/schema-public-read-onboard-and-self-declared.sql,
 // v543): anon sees awards that are Verified or Self-declared -- never Declined
 // or anything else. Asks for exactly the rows that must stay private; any row
@@ -770,6 +784,7 @@ async function main() {
   let certificateColumnsSafe = false;
   let columnDriftSafe = false;
   let statusGatesSafe = false;
+  let cvDraftsSafe = false;
   let storageBlocked = false;
   let ownerGuardsSafe = true;
 
@@ -787,6 +802,7 @@ async function main() {
     certificateColumnsSafe = await testCertificateColumns(config);
     columnDriftSafe = testPublicColumnDrift();
     statusGatesSafe = await testPublicStatusGates(config);
+    cvDraftsSafe = await testCvDraftsPrivate(config);
   }
 
   if (step === "all") {
@@ -823,7 +839,8 @@ async function main() {
       referenceColumnsSafe &&
       certificateColumnsSafe &&
       columnDriftSafe &&
-      statusGatesSafe;
+      statusGatesSafe &&
+      cvDraftsSafe;
     console.log(columnSafe ? "Step 1 passed." : "Step 1 not passed yet — run step1-profile-columns.sql");
     console.log(vesselColumnsSafe ? "Vessel columns safe." : "Vessel column grants wrong — see probe above.");
     console.log(referenceColumnsSafe ? "Reference columns safe." : "Reference column grants wrong — see probe above.");
@@ -854,6 +871,7 @@ async function main() {
     certificateColumnsSafe &&
     columnDriftSafe &&
     statusGatesSafe &&
+    cvDraftsSafe &&
     ownerGuardsSafe
   ) {
     passed = true;

@@ -152,18 +152,32 @@
             .join("<br />")}</p>`
         : "";
 
+    const hobbiesList =
+      sections.showHobbies !== false && doc.hobbies?.length
+        ? `<ul class="cv-seav-plain-list">${doc.hobbies
+            .map((item) => `<li>${escapeHtml(item)}</li>`)
+            .join("")}</ul>`
+        : "";
+
     const dob = formatProfileDob(profile.dob);
 
+    // v561: date of birth, nationality and availability each have their own
+    // switch in the CV generator (default on); hobbies are a new block.
     const sidebarHtml = [
       sections.showContact ? renderSeavSidebarBlock("Contact", renderSeavContact(profile)) : "",
-      dob ? renderSeavSidebarBlock("Date of Birth", `<p>${escapeHtml(dob)}</p>`) : "",
-      renderSeavSidebarBlock("Nationality & Visas", renderSeavNationality(profile)),
-      profile.availability
+      dob && sections.showDob !== false
+        ? renderSeavSidebarBlock("Date of Birth", `<p>${escapeHtml(dob)}</p>`)
+        : "",
+      sections.showNationality !== false
+        ? renderSeavSidebarBlock("Nationality & Visas", renderSeavNationality(profile))
+        : "",
+      profile.availability && sections.showAvailability !== false
         ? renderSeavSidebarBlock("Availability", `<p>${escapeHtml(profile.availability)}</p>`)
         : "",
       renderSeavSidebarBlock("Yacht Qualifications", certList),
       renderSeavSidebarBlock("Other Qualifications", specialistList),
-      renderSeavSidebarBlock("Milestones", milestonesHtml)
+      renderSeavSidebarBlock("Milestones", milestonesHtml),
+      renderSeavSidebarBlock("Hobbies & Interests", hobbiesList)
     ].join("");
 
     const photoHtml = doc.photoUrl

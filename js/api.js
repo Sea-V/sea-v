@@ -1225,6 +1225,37 @@ const SeavAPI = {
       return await this.deleteItemById(key, items[index].id);
     },
 
+    // CV generator draft, one private row per user (docs/schema-cv-drafts.sql,
+    // v561). Returns { draft, updatedAt } or null when there is no row yet;
+    // throws on a real error so the caller can fall back to the local copy
+    // instead of treating "failed" as "empty".
+    async fetchCvDraft() {
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) return null;
+      const { data, error } = await client
+        .from("cv_drafts")
+        .select("draft, updated_at")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (error) throw error;
+      return data ? { draft: data.draft || null, updatedAt: data.updated_at || "" } : null;
+    },
+
+    async saveCvDraft(draft) {
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId || !draft) return false;
+      const result = await runSupabaseWithRetry(() =>
+        client
+          .from("cv_drafts")
+          .upsert({ user_id: userId, draft, updated_at: new Date().toISOString() }, { onConflict: "user_id" })
+      );
+      // runSupabaseWithRetry returns (not throws) the retry's result.
+      if (result?.error) throw result.error;
+      return true;
+    },
+
     setBulkHydrateFiles
   };
 

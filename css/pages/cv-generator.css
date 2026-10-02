@@ -396,6 +396,195 @@
   font-weight: 650;
 }
 
+/* ---- CV choice groups (v561, Jack 2026-10-02) -------------------------
+   One collapsible group per area of the CV: icon, title, "x of y" count,
+   then (open) a whole-section switch, Select all / none and a tick per
+   item. Smoked glass (level 3), like an opened item on any other page. */
+.cvgen-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cvgen-group {
+  overflow: hidden;
+  border: 1px solid var(--seav-glass-line);
+  border-radius: 16px;
+  background: var(--seav-glass-panel-deep);
+}
+
+.cvgen-group-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.cvgen-group-summary::-webkit-details-marker {
+  display: none;
+}
+
+.cvgen-group-summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  margin-left: 2px;
+  border-right: 2px solid var(--seav-meta-desc-color);
+  border-bottom: 2px solid var(--seav-meta-desc-color);
+  transform: rotate(-45deg);
+  transition: transform 0.18s ease;
+}
+
+.cvgen-group[open] > .cvgen-group-summary::after {
+  transform: rotate(45deg);
+}
+
+.cvgen-group-summary:focus-visible {
+  outline: 2px solid var(--seav-field-label-color);
+  outline-offset: -2px;
+  border-radius: 16px;
+}
+
+.cvgen-group-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 var(--pp-snap-icon-box);
+  width: var(--pp-snap-icon-box);
+  height: var(--pp-snap-icon-box);
+  border-radius: 9px;
+  color: var(--seav-field-label-color);
+  background: color-mix(in srgb, var(--seav-field-label-color) 16%, transparent);
+}
+
+.cvgen-group-icon svg {
+  width: var(--pp-snap-icon-size);
+  height: var(--pp-snap-icon-size);
+}
+
+.cvgen-group-title {
+  flex: 1;
+  min-width: 0;
+  color: var(--seav-entity-name-color);
+  font-size: var(--font-value);
+  font-weight: var(--font-weight-title);
+}
+
+.cvgen-group-count {
+  flex: 0 0 auto;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--seav-glass-line);
+  background: var(--seav-glass-wash);
+  color: var(--seav-meta-desc-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-body);
+  white-space: nowrap;
+}
+
+.cvgen-group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 2px 14px 14px;
+}
+
+.cvgen-group-switch {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--seav-glass-line);
+}
+
+/* Section switched off: the item ticks stay usable (so a choice can be set
+   up before switching the section back on) but read as inactive. */
+.cvgen-group-body.is-off .cvgen-choice-actions,
+.cvgen-group-body.is-off .cvgen-choice-list {
+  opacity: 0.45;
+}
+
+.cvgen-choice-actions {
+  display: flex;
+  gap: 14px;
+}
+
+.cvgen-choice-action {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--seav-field-label-color);
+  font: inherit;
+  cursor: pointer;
+}
+
+.cvgen-choice-action:hover,
+.cvgen-choice-action:focus-visible {
+  text-decoration: underline;
+}
+
+.cvgen-choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 340px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.cvgen-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.cvgen-choice:hover {
+  background: var(--seav-glass-wash);
+}
+
+.cvgen-choice input {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.cvgen-choice.is-disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.cvgen-choice-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cvgen-choice-text strong {
+  color: var(--seav-field-value-color);
+  font-size: var(--font-value);
+  font-weight: var(--font-weight-body);
+}
+
+.cvgen-choice-text small,
+.cvgen-choice-empty {
+  color: var(--seav-note-color);
+  font-size: var(--font-caption);
+}
+
+.cvgen-choice-empty {
+  padding: 4px 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cvgen-group-summary::after {
+    transition: none;
+  }
+}
+
 .cvgen-vessel-list {
   display: flex;
   flex-direction: column;
