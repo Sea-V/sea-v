@@ -990,12 +990,17 @@
   /* Certificates (v563, Jack 2026-10-02: "group the certs as its too much to
      read an understand"). The site's own catalogue has 19 categories, which
      split one crew member's ~20 certs into ~10 tiny boxes; employers read a
-     yacht CV in five blocks, so the catalogue categories fold into these.
+     yacht CV in a handful of blocks, so the catalogue categories fold into these.
      Certificates of Competency opens first (what an employer looks for);
      the others stay closed with a count and a status summary, so anything
      expired or expiring is visible without opening a group. */
+  // v564 (Jack: "efficient deckhand is a module for oow 3000"): CoC holds
+  // LICENCES only; ratings (EDH...), MCA professional exam modules and the
+  // engineering steps (AEC, MEOL) are the building blocks towards one, so
+  // they get their own group straight after it.
   const PP_CERT_GROUPS = [
     { key: "coc", label: "Certificates of Competency" },
+    { key: "modules", label: "Ratings & CoC modules" },
     { key: "stcw", label: "STCW safety & medical" },
     { key: "nav", label: "Navigation & radio" },
     { key: "security", label: "Security" },
@@ -1006,9 +1011,9 @@
   const PP_CERT_GROUP_BY_CATEGORY = {
     "Certificates of Competency — Deck": "coc",
     "Certificates of Competency — Engineering": "coc",
-    "Ratings": "coc",
-    "Engineering qualifications": "coc",
-    "Professional examination modules (MCA yacht)": "coc",
+    "Ratings": "modules",
+    "Engineering qualifications": "modules",
+    "Professional examination modules (MCA yacht)": "modules",
     "Minimum mandatory (yacht crew)": "stcw",
     "Medical certification (additional)": "stcw",
     "Mandatory Basic Safety (STCW) — combined certificate": "stcw",
@@ -1020,14 +1025,26 @@
     "Security (STCW)": "security"
   };
 
+  // Single certs whose catalogue category is right for the dropdown but not
+  // for an employer reading the profile. v564 (Jack: "helm o is an oow
+  // module"): HELM Operational is an OOW (Yacht) course and HELM Management
+  // its Master-level counterpart — CoC building blocks, not nav/radio tickets.
+  const PP_CERT_GROUP_BY_CODE = {
+    "HELM-O": "modules",
+    "HELM-M": "modules"
+  };
+
   // Certs outside the catalogue (custom names) are placed by their wording.
   function ppCertGroupKey(cert) {
+    const code = String(cert?.code || "").trim().toUpperCase();
+    if (PP_CERT_GROUP_BY_CODE[code]) return PP_CERT_GROUP_BY_CODE[code];
     const category = window.SeavData?.findCertificateCatalogItem?.(cert?.code)?.group || "";
     if (PP_CERT_GROUP_BY_CATEGORY[category]) return PP_CERT_GROUP_BY_CATEGORY[category];
     if (category) return "other";
     const text = `${cert?.name || ""} ${cert?.code || ""}`;
     if (/security|\bsso\b|pdsd|isps/i.test(text)) return "security";
-    if (/gmdss|ecdis|radar|arpa|radio|\bhelm\b/i.test(text)) return "nav";
+    if (/module|\bedh\b|deck ?hand|rating|\baec\b|meol|examination|\bexam\b|\bhelm\b/i.test(text)) return "modules";
+    if (/gmdss|ecdis|radar|arpa|radio/i.test(text)) return "nav";
     if (/competency|\bcoc\b|officer of the watch|\boow\b|chief mate|master|engineer/i.test(text)) return "coc";
     if (/stcw|\beng1\b|medical|first aid|fire|survival|pssr/i.test(text)) return "stcw";
     return "other";

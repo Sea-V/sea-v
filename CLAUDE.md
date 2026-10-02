@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v563**. Jack pushes every commit himself from
+- HEAD = **v564**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -943,6 +943,19 @@ expired"); the first non-empty group (normally CoC) opens. Group = depth 2,
 rows inside depth 3. The old flat list + "Show more" are gone for certs.
 Checked locally with live anon data at 1280 and 390 (Jack: 21 public certs
 -> 3 / 6 / 4 / 3 / 5, no sideways scroll).
+**v564** — Jack: "efficient deckhand is a module for oow 3000". EDH is a
+step towards OOW, not a CoC, so the CoC group is licences only (catalogue
+"Certificates of Competency — Deck/Engineering") and a new group **Ratings
+& CoC modules** follows it: catalogue "Ratings", "Professional examination
+modules (MCA yacht)" and "Engineering qualifications" (AEC, MEOL), plus
+custom certs matching module/EDH/rating/AEC/exam wording. Six groups now;
+Jack's: CoC 2, Ratings & modules 2, STCW 6, Nav 3, Security 3, Other 5.
+Also v564 (Jack: "helm o is an oow module"): `PP_CERT_GROUP_BY_CODE` moves
+HELM-O and HELM-M (catalogue: Navigation & communications) to the modules
+group — single-cert overrides beat the category map. Custom-name fallback
+tests module wording BEFORE nav wording ("Navigation and Radar module").
+Open question for Jack: ECDIS and GMDSS GOC are also OOW (Yacht)
+requirements but stay in Navigation & radio unless he says otherwise.
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and
