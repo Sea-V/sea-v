@@ -1864,3 +1864,98 @@ body.pp-look-new #ppTrustStrip .pp-snap-unit {
   font-size: var(--font-value);
   font-weight: var(--font-weight-title);
 }
+
+/* Certificate groups (v563, Jack: "group the certs as its too much to read").
+   Five employer-shaped groups (js/public-profile-sections.js PP_CERT_GROUPS):
+   a summary row with title, count and a status pill; the certificate rows
+   inside. Group = level 2 smoked glass like the section's other boxes; rows
+   inside drop to level 3, as items do inside an opened vessel. The !important
+   matches the depth-ladder rules above, which paint .public-cv-mini-row. */
+.pp-cert-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+body.pp-look-new #ppShell .pp-cert-group {
+  overflow: hidden;
+  border: 1px solid var(--pp-glass-line);
+  border-radius: 14px;
+  background: var(--pp-depth-2) !important;
+}
+
+.pp-cert-group-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.pp-cert-group-summary::-webkit-details-marker {
+  display: none;
+}
+
+.pp-cert-group-summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  margin-left: 4px;
+  border-right: 2px solid var(--seav-meta-desc-color);
+  border-bottom: 2px solid var(--seav-meta-desc-color);
+  transform: rotate(-45deg);
+  transition: transform 0.18s ease;
+}
+
+.pp-cert-group[open] > .pp-cert-group-summary::after {
+  transform: rotate(45deg);
+}
+
+.pp-cert-group-summary:focus-visible {
+  outline: 2px solid var(--seav-field-label-color);
+  outline-offset: -2px;
+}
+
+.pp-cert-group-title {
+  flex: 1;
+  min-width: 0;
+  color: var(--seav-entity-name-color);
+  font-size: var(--font-value);
+  font-weight: var(--font-weight-title);
+}
+
+.pp-cert-group-count {
+  flex: 0 0 auto;
+  min-width: 26px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--pp-glass-line);
+  color: var(--seav-meta-desc-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-title);
+  text-align: center;
+}
+
+.pp-cert-group-summary .cert-status-pill {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.pp-cert-group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+
+body.pp-look-new #ppShell .pp-cert-group .public-cv-mini-row {
+  background: var(--pp-depth-3) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-cert-group-summary::after {
+    transition: none;
+  }
+}

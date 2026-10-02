@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v562**. Jack pushes every commit himself from
+- HEAD = **v563**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -931,6 +931,18 @@ Word). Milestones lists milestones only. Countries default to shown.
 Verified in node with the real model/render (merging "Italy"/"italy ",
 same-country passage counted once, untick, switch off, one box, no
 "Navigation:" lines).
+**v563 — public profile certificates grouped** (Jack: "too much to read").
+The catalogue's 19 categories split ~20 certs into ~10 tiny groups, so
+`renderCertificates` (public-profile-sections.js) folds them into FIVE:
+Certificates of Competency / STCW safety & medical / Navigation & radio /
+Security / Yachting & other (`PP_CERT_GROUP_BY_CATEGORY` maps each catalogue
+label via `SeavData.findCertificateCatalogItem`; custom certs placed by name
+keywords). Native <details> per group: title, count, a status pill from the
+SAME getCertExpiryInfo the rows use ("All valid" / "N expiring soon" / "N
+expired"); the first non-empty group (normally CoC) opens. Group = depth 2,
+rows inside depth 3. The old flat list + "Show more" are gone for certs.
+Checked locally with live anon data at 1280 and 390 (Jack: 21 public certs
+-> 3 / 6 / 4 / 3 / 5, no sideways scroll).
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and

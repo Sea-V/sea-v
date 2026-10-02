@@ -987,14 +987,63 @@
     section.hidden = false;
   }
 
-  /**
-   * Certificates section — kept deliberately simple to match every other
-   * public-profile section (specialist quals, hobbies): one flat list of
-   * small rows via window.SeavCards.buildCertRow, most urgent (expired /
-   * expiring soon) first since that's what an employer scans for. This
-   * replaces a much heavier expandable-accordion design that was never
-   * actually wired into public-profile.html in the first place.
-   */
+  /* Certificates (v563, Jack 2026-10-02: "group the certs as its too much to
+     read an understand"). The site's own catalogue has 19 categories, which
+     split one crew member's ~20 certs into ~10 tiny boxes; employers read a
+     yacht CV in five blocks, so the catalogue categories fold into these.
+     Certificates of Competency opens first (what an employer looks for);
+     the others stay closed with a count and a status summary, so anything
+     expired or expiring is visible without opening a group. */
+  const PP_CERT_GROUPS = [
+    { key: "coc", label: "Certificates of Competency" },
+    { key: "stcw", label: "STCW safety & medical" },
+    { key: "nav", label: "Navigation & radio" },
+    { key: "security", label: "Security" },
+    { key: "other", label: "Yachting & other" }
+  ];
+
+  // Catalogue category (js/seav-data.js getCertificateCatalogGroups) -> group.
+  const PP_CERT_GROUP_BY_CATEGORY = {
+    "Certificates of Competency — Deck": "coc",
+    "Certificates of Competency — Engineering": "coc",
+    "Ratings": "coc",
+    "Engineering qualifications": "coc",
+    "Professional examination modules (MCA yacht)": "coc",
+    "Minimum mandatory (yacht crew)": "stcw",
+    "Medical certification (additional)": "stcw",
+    "Mandatory Basic Safety (STCW) — combined certificate": "stcw",
+    "Advanced STCW": "stcw",
+    "Refresher training": "stcw",
+    "Passenger operations": "stcw",
+    "Health & compliance": "stcw",
+    "Navigation & communications": "nav",
+    "Security (STCW)": "security"
+  };
+
+  // Certs outside the catalogue (custom names) are placed by their wording.
+  function ppCertGroupKey(cert) {
+    const category = window.SeavData?.findCertificateCatalogItem?.(cert?.code)?.group || "";
+    if (PP_CERT_GROUP_BY_CATEGORY[category]) return PP_CERT_GROUP_BY_CATEGORY[category];
+    if (category) return "other";
+    const text = `${cert?.name || ""} ${cert?.code || ""}`;
+    if (/security|\bsso\b|pdsd|isps/i.test(text)) return "security";
+    if (/gmdss|ecdis|radar|arpa|radio|\bhelm\b/i.test(text)) return "nav";
+    if (/competency|\bcoc\b|officer of the watch|\boow\b|chief mate|master|engineer/i.test(text)) return "coc";
+    if (/stcw|\beng1\b|medical|first aid|fire|survival|pssr/i.test(text)) return "stcw";
+    return "other";
+  }
+
+  // "All valid" unless something is expired or expiring; uses the same
+  // getCertExpiryInfo the rows use, so the summary can never disagree.
+  function ppCertGroupStatus(certs) {
+    const badges = certs.map((cert) => getCertExpiryInfo(cert.noExpiry ? "" : cert.expiry).badge);
+    const expired = badges.filter((b) => b === "Expired").length;
+    const soon = badges.filter((b) => b === "Expires Soon").length;
+    if (expired) return { text: `${expired} expired`, pill: "pill-expired" };
+    if (soon) return { text: `${soon} expiring soon`, pill: "pill-warning" };
+    return { text: "All valid", pill: "pill-valid" };
+  }
+
   function renderCertificates(certs, isOwner) {
     const box = document.getElementById("ppCertSnippet");
     const section = document.getElementById("ppCertSection");
@@ -1017,28 +1066,39 @@
       return;
     }
 
+    // Most urgent first inside each group (expired / expiring at the top).
     const sorted = [...saved].sort((a, b) => {
       const infoA = getCertExpiryInfo(a.noExpiry ? "" : a.expiry);
       const infoB = getCertExpiryInfo(b.noExpiry ? "" : b.expiry);
       return infoA.sortValue - infoB.sortValue;
     });
 
-    const visible = sorted.slice(0, LIMITS.certificates);
-    const hidden = sorted.slice(LIMITS.certificates);
-    const moreId = "ppCertMore";
+    const byGroup = new Map(PP_CERT_GROUPS.map((g) => [g.key, []]));
+    sorted.forEach((cert) => byGroup.get(ppCertGroupKey(cert)).push(cert));
+    const groups = PP_CERT_GROUPS.filter((g) => byGroup.get(g.key).length);
+    // The first non-empty group opens (normally Certificates of Competency).
+    const openKey = groups[0]?.key;
 
     box.innerHTML = `
-      <div class="public-cv-mini-list">
-        ${visible.map((cert) => window.SeavCards.buildCertRow(cert).replace(" data-pp-more-item", "")).join("")}
-        ${
-          hidden.length
-            ? `<div class="public-cv-more-block" id="${moreId}" hidden>
-                ${hidden.map((cert) => window.SeavCards.buildCertRow(cert)).join("")}
-              </div>`
-            : ""
-        }
+      <div class="pp-cert-groups">
+        ${groups
+          .map((group) => {
+            const list = byGroup.get(group.key);
+            const status = ppCertGroupStatus(list);
+            return `
+              <details class="pp-cert-group"${group.key === openKey ? " open" : ""}>
+                <summary class="pp-cert-group-summary">
+                  <strong class="pp-cert-group-title">${Seav.escapeHtml(group.label)}</strong>
+                  <small class="pp-cert-group-count">${list.length}</small>
+                  <small class="cert-status-pill ${status.pill}">${Seav.escapeHtml(status.text)}</small>
+                </summary>
+                <div class="pp-cert-group-body">
+                  ${list.map((cert) => window.SeavCards.buildCertRow(cert).replace(" data-pp-more-item", "")).join("")}
+                </div>
+              </details>`;
+          })
+          .join("")}
       </div>
-      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "certificates") : ""}
     `;
 
     setSectionCount("ppCertCount", saved.length);
