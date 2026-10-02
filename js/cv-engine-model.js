@@ -412,11 +412,13 @@
       showReferences: true,
       showSeavBranding: true,
       showQrCode: true,
-      // v561: finer personal-info switches, ports, and the new hobbies block.
+      // v561: finer personal-info switches and the new hobbies block.
+      // v562: showNavigation = the one "Navigation: <countries>" line (it
+      // replaced the per-passage "Navigation: port, country" milestone lines).
       showDob: true,
       showNationality: true,
       showAvailability: true,
-      showPorts: true,
+      showNavigation: true,
       showHobbies: true
     };
   }
@@ -426,7 +428,7 @@
      choice uses the group default, so a NEW cert / milestone / hobby shows up
      on the CV automatically (Jack's call). References default to verified
      only, and an unverified one can never be shown (see getReferenceItems). */
-  const CHOICE_GROUPS = ["certs", "specialist", "achievements", "refs", "hobbies"];
+  const CHOICE_GROUPS = ["certs", "specialist", "achievements", "refs", "hobbies", "countries"];
 
   function isChosen(draft, group, id, fallback = true) {
     const stored = draft?.choices?.[group]?.[id];
@@ -473,6 +475,28 @@
     });
   }
 
+  // v562 (Jack, 2026-10-02): the countries from the Navigation page — both
+  // ends of every logged passage — each listed once, A–Z. Choices are keyed
+  // by the lower-cased name (countries have no record id); the label keeps
+  // the first spelling seen. `count` = passages touching that country.
+  function getNavigationCountries(source) {
+    const byKey = new Map();
+    (source.navigation || []).forEach((area) => {
+      const names = new Set(
+        [area?.fromCountry, area?.country]
+          .map((name) => String(name || "").trim())
+          .filter(Boolean)
+      );
+      names.forEach((name) => {
+        const key = name.toLowerCase();
+        const entry = byKey.get(key) || { id: key, label: name, count: 0 };
+        entry.count += 1;
+        byKey.set(key, entry);
+      });
+    });
+    return [...byKey.values()].sort((a, b) => a.label.localeCompare(b.label));
+  }
+
   // What the CV generator lists under each group, in CV order.
   function getChoiceItems(source) {
     const certs = [...(source.certs || [])]
@@ -505,7 +529,12 @@
     const hobbies = (source.hobbies || [])
       .filter((h) => h?.id && String(h.title || "").trim())
       .map((h) => ({ id: h.id, label: h.title, sub: "" }));
-    return { certs, specialist, achievements, refs, hobbies };
+    const countries = getNavigationCountries(source).map((c) => ({
+      id: c.id,
+      label: c.label,
+      sub: `${c.count} passage${c.count === 1 ? "" : "s"}`
+    }));
+    return { certs, specialist, achievements, refs, hobbies, countries };
   }
 
   // Hardcoded to the real production domain rather than window.location —
@@ -745,23 +774,20 @@
     };
 
     // v561: every milestone ticked in the CV generator (no longer "the first
-    // four"), then up to four recent ports when that switch is on.
+    // four"). v562: the "Navigation: port, country" lines that followed (one
+    // per early passage, so the word repeated) moved to their own single
+    // line of chosen countries — getNavigationLine.
     uniqueAchievements(source)
       .filter((item) => isChosen(draft, "achievements", item.id))
       .forEach((item) => addLine(item.title));
 
-    const showPorts = draft?.sections?.showPorts !== false;
-    if (showPorts) {
-      source.navigation
-        .filter((item) => item.country || item.port)
-        .slice(0, 4)
-        .forEach((item) => {
-          const label = [item.port, item.country].filter(Boolean).join(", ");
-          addLine(`Navigation: ${label}`);
-        });
-    }
-
     return lines;
+  }
+
+  function getNavigationCountryNames(source, draft) {
+    return getNavigationCountries(source)
+      .filter((c) => isChosen(draft, "countries", c.id))
+      .map((c) => c.label);
   }
 
   function getHobbyItems(source, draft) {
@@ -815,6 +841,7 @@
       highlights: sections.showHighlights ? getHighlightLines(source, { ...draft, sections }) : [],
       references: sections.showReferences ? getReferenceItems(source, draft) : [],
       hobbies: sections.showHobbies ? getHobbyItems(source, draft) : [],
+      navigationCountries: sections.showNavigation ? getNavigationCountryNames(source, draft) : [],
       vessels,
       qrUrl: sections.showQrCode ? getCvProfileQrUrl(profile) : "",
       sections
@@ -833,6 +860,7 @@
     createDefaultDraft, syncDraftWithSource, loadDraft, saveDraft, resetDraftFromSource,
     getOrderedVessels, getCertStrip, getSpecialistQualificationItems, getHighlightLines,
     getHobbyItems, getChoiceItems, isChosen, CHOICE_GROUPS,
+    getNavigationCountries, getNavigationCountryNames,
     buildCvDocument, CV_TEMPLATE, CV_TEMPLATES, isValidTemplate, LOGO_SRC
   };
 })();

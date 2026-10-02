@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v561**. Jack pushes every commit himself from
+- HEAD = **v562**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -918,6 +918,19 @@ Certificates-page tickbox, new items SHOWN by default).
   harness of the real page (counts, ticks, select none, section off,
   account save batching, account copy beats device copy). **Not yet seen
   with Jack's live data** until this lands on the live site.
+**v562 — one Navigation line** (Jack: the CV "shows navigation three
+times"; "it should be the countries from the navigation page"). The
+Milestones box used to append "Navigation: <port>, <country>" for the
+first four passages. Now `getNavigationCountries` collects both ends of
+every passage (`fromCountry` + `country`), once each (lower-cased key,
+first spelling kept), A–Z, with a passage count; a new choices group
+`countries` + section switch `showNavigation` (replaces v561's
+`showPorts`) and a new **Navigation** settings group. The CV gets ONE
+"Navigation" sidebar box: the chosen countries comma-joined (preview +
+Word). Milestones lists milestones only. Countries default to shown.
+Verified in node with the real model/render (merging "Italy"/"italy ",
+same-country passage counted once, untick, switch off, one box, no
+"Navigation:" lines).
 **Also v549 — onboard experience visible again (DB, LIVE).** The v543
 anon rule "every status except Draft" hid every entry written since
 2026-08-09: sign-off was dropped then, the form has no status control, and

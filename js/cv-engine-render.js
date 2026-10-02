@@ -177,6 +177,13 @@
       renderSeavSidebarBlock("Yacht Qualifications", certList),
       renderSeavSidebarBlock("Other Qualifications", specialistList),
       renderSeavSidebarBlock("Milestones", milestonesHtml),
+      // v562: one Navigation line of the chosen countries.
+      renderSeavSidebarBlock(
+        "Navigation",
+        sections.showNavigation !== false && doc.navigationCountries?.length
+          ? `<p class="cv-seav-extra">${escapeHtml(doc.navigationCountries.join(", "))}</p>`
+          : ""
+      ),
       renderSeavSidebarBlock("Hobbies & Interests", hobbiesList)
     ].join("");
 

@@ -271,7 +271,8 @@
     specialist: "showEducation",
     achievements: "showHighlights",
     refs: "showReferences",
-    hobbies: "showHobbies"
+    hobbies: "showHobbies",
+    countries: "showNavigation"
   };
 
   const GROUP_EMPTY = {
@@ -279,7 +280,8 @@
     specialist: "No specialist qualifications in SEA-V yet.",
     achievements: "No milestones earned yet.",
     refs: "No references in SEA-V yet.",
-    hobbies: "No hobbies or interests in SEA-V yet."
+    hobbies: "No hobbies or interests in SEA-V yet.",
+    countries: "No passages with countries on your Navigation page yet."
   };
 
   function fillGroupIcons() {

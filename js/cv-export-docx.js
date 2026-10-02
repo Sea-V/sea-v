@@ -246,6 +246,13 @@
       );
     }
 
+    if (sections.showNavigation !== false && doc.navigationCountries?.length) {
+      parts.push(sidebarHeading("Navigation", scheme.heading));
+      parts.push(
+        paragraph(doc.navigationCountries.join(", "), { size: 18, color: scheme.text }, { spacingAfter: 30 })
+      );
+    }
+
     if (sections.showHobbies !== false && doc.hobbies?.length) {
       parts.push(sidebarHeading("Hobbies & Interests", scheme.heading));
       doc.hobbies.forEach((h) =>
