@@ -263,7 +263,6 @@
   /* Topbar menus (v565): the near-solid glass a dropdown needs to stay
      readable over content (the see-through card glass was not). */
   --seav-menu-bg: rgba(20, 36, 58, 0.95);
-  --seav-menu-width: 324px;
   --seav-account-menu-width: 300px;
   --seav-menu-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   --seav-search-top: 96px;

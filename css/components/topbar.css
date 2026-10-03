@@ -599,7 +599,8 @@ body.app-page .dash {
 .app-topbar .topbar-menu {
   top: calc(100% + 10px);
   left: 12px;
-  width: var(--seav-menu-width);
+  /* As wide as its longest name ("Specialist Qualifications"), no wider. */
+  width: max-content;
 }
 
 /* layout.css still turns .dash-nav into a sideways-scrolling strip at
@@ -618,16 +619,18 @@ body.app-page .dash {
 }
 
 .app-topbar .topbar-menu .dash-nav-group + .dash-nav-group {
-  margin-top: 4px;
-  padding-top: 4px;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px solid var(--seav-glass-line);
 }
 
 .app-topbar .topbar-menu .dash-nav-group-label {
   display: block;
   margin: 0;
-  padding: 2px 10px 1px;
-  color: var(--seav-field-label-color);
+  padding: 4px 10px 2px;
+  /* Grey, as the sidebar's section names were (Jack 2026-10-03). The old
+     0.38 white failed contrast; the muted token is the passing grey. */
+  color: var(--seav-meta-muted-color);
   font-size: var(--font-label);
   font-weight: var(--font-weight-title);
 }
@@ -639,7 +642,7 @@ body.app-page .dash {
   gap: 10px;
   min-height: 0;
   margin: 0;
-  padding: 3px 10px;
+  padding: 6px 10px;
   border: 0;
   border-radius: 12px;
   background: none;
@@ -674,11 +677,12 @@ body.app-page .dash {
 
 .app-topbar .topbar-menu .dash-link--disabled {
   opacity: 0.55;
-  white-space: nowrap;
 }
 
-/* "(Coming Soon)" wrapped the row onto two lines; shorter and smaller here. */
+/* "(Coming Soon)" goes on its own small line under the name, so it does
+   not set the menu's width. */
 .app-topbar .topbar-menu .dash-link-soon {
+  display: block;
   font-size: var(--font-caption) !important;
 }
 
@@ -691,6 +695,12 @@ body.app-page .dash {
 }
 
 .app-topbar .topbar-menu-foot {
+  /* width 0 + min-width 100%: the footer wraps to the links' width instead
+     of stretching the max-content menu (on phones it pushed the page
+     sideways). */
+  width: 0;
+  min-width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
   gap: 4px 14px;
@@ -863,8 +873,7 @@ body.app-page .dash {
 
   .app-topbar .topbar-menu {
     left: 8px;
-    right: 8px;
-    width: auto;
+    max-width: calc(100vw - 16px);
   }
 
   .app-topbar .topbar-account-menu {

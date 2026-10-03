@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v566**. Jack pushes every commit himself from
+- HEAD = **v567**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -981,12 +981,15 @@ photo at top right. Picked from rendered options.
   name + "rank · current yacht" header, `#sidebarPublicProfileLink`,
   CV generator, Profile settings, `#btnLogout` — ids kept so
   wireSidebarPublicProfile / wireLogout work unchanged.
-- **Every section open, compact** (Jack: the 710px list "takes the whole
-  page up"; folding sections was tried and he preferred the full column).
-  30px rows, 24px icon badges, tighter group gaps; "(Coming Soon)" at
-  caption size on one line (`--seav-menu-width` 324px so it fits); the
-  footer drops Contact / About / Report above 1000px (they are in the
-  topbar). Opens at 603px on a 1100x820 laptop window, 624px on a phone.
+- **Every section open** (folding was tried; Jack preferred the full
+  column). Then (Jack): section names back to GREY (`--seav-meta-muted-color`
+  — the old sidebar's 0.38 white failed contrast), rows 36px ("looks
+  squashed"), and the menu is `width: max-content` so it ends just past
+  "Specialist Qualifications" (243px). "(Coming Soon)" is its own small
+  line so it never sets the width; the footer is `width: 0; min-width:
+  100%` so it wraps instead of stretching the menu (it pushed phones
+  sideways). Footer drops Contact / About / Report above 1000px (they are
+  in the topbar). ~710px tall; scrolls inside on shorter windows.
 - `wireTopbarMenus()`: one open at a time, outside click / Esc / link
   click close, Esc returns focus, keyboard open focuses the first link.
 - **The app topbar now shows on phones** (layout.css hid it <=1000px):
