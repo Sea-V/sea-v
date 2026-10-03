@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v569**. Jack pushes every commit himself from
+- HEAD = **v570**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1017,6 +1017,21 @@ unchanged. Jack's total 1,313 -> 1,197; daniel-whitfield (demo) was out by
 1,860. Data oddity left for Jack: Senses 2025-12-12 -> 2026-02-13 has 29
 watchkeeping days against 18 sea days. Admin reports are in `bug_reports`
 (join profile.user_id for the sender).
+
+### v570 — CV generator guides crew to fill empty sections
+Jack: most crew will use the (free) CV generator and need sending to
+where the information is added. Every empty settings group now shows a
+short line + a button to the page that fills it (Add a vessel /
+certificates / specialist qualifications / a reference / hobbies &
+interests, Log a passage, See your milestones), same tab — the draft is
+saved to the account. Select all / none hide on an empty list. Personal
+info lists the profile fields the CV prints that are blank (name, rank,
+photo, phone, email, location, date of birth, nationality, availability)
+with "Complete your profile". An empty group's count pill turns blue
+(`.cvgen-group.is-empty`) so the gap shows with the group closed.
+`GROUP_EMPTY` / `VESSEL_ADD` / `PERSONAL_FIELDS` in cv-generator.js.
+Verified on a harness of the real page: all 8 prompts + links on an empty
+account, and they clear (counts return) once data exists.
 
 ### v569 — "Awards" -> "Achievements" (Jack, 2026-10-03)
 Every place crew see the word: the per-vessel group on the public profile,

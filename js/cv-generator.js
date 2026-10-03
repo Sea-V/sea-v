@@ -212,7 +212,7 @@
     const map = new Map(source.vessels.map((v) => [v.id, v]));
 
     if (!source.vessels.length) {
-      list.innerHTML = `<p class="cvgen-editor-empty">Add vessels in SEA-V to build experience entries.</p>`;
+      list.innerHTML = renderAddPrompt(VESSEL_ADD, "p");
       return;
     }
 
@@ -275,14 +275,79 @@
     countries: "showNavigation"
   };
 
+  // Empty groups point to the page that fills them (Jack 2026-10-03: most
+  // crew come for the free CV generator and need guiding to where the
+  // information is added). Same tab: the draft is saved to the account, so
+  // nothing is lost by leaving.
   const GROUP_EMPTY = {
-    certs: "No certificates in SEA-V yet.",
-    specialist: "No specialist qualifications in SEA-V yet.",
-    achievements: "No milestones earned yet.",
-    refs: "No references in SEA-V yet.",
-    hobbies: "No hobbies or interests in SEA-V yet.",
-    countries: "No passages with countries on your Navigation page yet."
+    certs: { text: "No certificates yet.", href: "certificates.html", cta: "Add certificates" },
+    specialist: {
+      text: "No specialist qualifications yet.",
+      href: "specialist-qualifications.html",
+      cta: "Add specialist qualifications"
+    },
+    achievements: {
+      text: "No milestones yet. They unlock as you log vessels, sea time and certificates.",
+      href: "achievements.html",
+      cta: "See your milestones"
+    },
+    refs: { text: "No references yet.", href: "references.html", cta: "Add a reference" },
+    hobbies: { text: "No hobbies or interests yet.", href: "hobbies-interests.html", cta: "Add hobbies & interests" },
+    countries: {
+      text: "No passages yet. Countries come from where your passages start and end.",
+      href: "navigation.html",
+      cta: "Log a passage"
+    }
   };
+
+  const VESSEL_ADD = {
+    text: "No vessels yet. Each yacht you add becomes an experience entry on your CV.",
+    href: "vessels.html",
+    cta: "Add a vessel"
+  };
+
+  function renderAddPrompt(prompt, tag = "li") {
+    return `<${tag} class="cvgen-add-prompt">
+      <small>${Seav.escapeHtml(prompt.text)}</small>
+      <a class="cvgen-add-link" href="${Seav.escapeHtml(prompt.href)}">${Seav.escapeHtml(prompt.cta)} →</a>
+    </${tag}>`;
+  }
+
+  // What the CV's personal block reads from the Profile page, in the order
+  // it prints. Anything blank is listed with one link to fix it there.
+  const PERSONAL_FIELDS = [
+    ["name", "name"],
+    ["rank", "rank"],
+    ["photo", "photo"],
+    ["phone", "phone"],
+    ["email", "email"],
+    ["location", "location"],
+    ["dob", "date of birth"],
+    ["nationality", "nationality"],
+    ["availability", "availability"]
+  ];
+
+  function renderPersonalMissing(source) {
+    const box = document.getElementById("cvPersonalMissing");
+    if (!box) return;
+    const profile = source.profile || {};
+    const missing = PERSONAL_FIELDS.filter(([key]) => {
+      const value = profile[key];
+      if (key === "photo") return !value;
+      return !String(value ?? "").trim();
+    }).map(([, label]) => label);
+    box.hidden = !missing.length;
+    box.closest(".cvgen-group")?.classList.toggle("is-empty", missing.length > 0);
+    if (!missing.length) return;
+    box.innerHTML = renderAddPrompt(
+      {
+        text: `Missing from your profile: ${missing.join(", ")}.`,
+        href: "profile.html",
+        cta: "Complete your profile"
+      },
+      "div"
+    );
+  }
 
   function fillGroupIcons() {
     const icons = window.SeavIcons || {};
@@ -302,8 +367,11 @@
       const list = document.querySelector(`[data-choices="${group}"]`);
       if (!list) return;
       const entries = items[group] || [];
+      // Select all / none mean nothing on an empty list.
+      const actions = list.parentElement?.querySelector(".cvgen-choice-actions");
+      if (actions) actions.hidden = !entries.length;
       if (!entries.length) {
-        list.innerHTML = `<li class="cvgen-choice-empty">${Seav.escapeHtml(GROUP_EMPTY[group])}</li>`;
+        list.innerHTML = renderAddPrompt(GROUP_EMPTY[group]);
         return;
       }
       list.innerHTML = entries
@@ -329,9 +397,11 @@
   }
 
   function updateGroupCounts(source) {
-    const set = (key, text, off = false) => {
+    const set = (key, text, off = false, empty = false) => {
       const el = document.querySelector(`[data-count="${key}"]`);
       if (el) el.textContent = text;
+      // Flags the heading so an empty group is noticed without opening it.
+      document.querySelector(`.cvgen-group[data-group="${key}"]`)?.classList.toggle("is-empty", empty);
       const body = document.querySelector(`.cvgen-group[data-group="${key}"] .cvgen-group-body`);
       if (body) body.classList.toggle("is-off", off);
     };
@@ -342,7 +412,7 @@
 
     const vesselTotal = source.vessels.length;
     const vesselOn = source.vessels.filter((v) => draft.vessels?.[v.id]?.included !== false).length;
-    set("yacht", vesselTotal ? `${vesselOn} of ${vesselTotal}` : "None yet");
+    set("yacht", vesselTotal ? `${vesselOn} of ${vesselTotal}` : "None yet", false, !vesselTotal);
 
     const items = window.SeavCvEngine.getChoiceItems(source);
     Object.entries(GROUP_SECTION).forEach(([group, sectionKey]) => {
@@ -352,7 +422,7 @@
         return;
       }
       if (!entries.length) {
-        set(group, "None yet");
+        set(group, "None yet", false, true);
         return;
       }
       const on = entries.filter(
@@ -363,6 +433,8 @@
 
     const extras = ["showSeavBranding", "showQrCode"].filter((k) => sections[k] !== false).length;
     set("extras", `${extras} of 2`);
+
+    renderPersonalMissing(source);
   }
 
   function setChoice(group, id, value) {

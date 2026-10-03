@@ -579,6 +579,62 @@
   padding: 4px 8px;
 }
 
+/* Empty groups (v570, Jack 2026-10-03): crew who come only for the CV
+   generator are sent to the page that fills each section. */
+.cvgen-add-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--seav-glass-edge);
+  border-radius: 12px;
+  background: var(--seav-glass-wash-soft);
+  list-style: none;
+}
+
+.cvgen-add-prompt small {
+  color: var(--seav-meta-desc-color);
+  font-size: var(--font-caption);
+  line-height: 1.45;
+}
+
+.cvgen-add-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--seav-field-label-color);
+  background: color-mix(in srgb, var(--seav-field-label-color) 14%, transparent);
+  color: var(--seav-field-value-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-title);
+  text-decoration: none;
+}
+
+.cvgen-add-link:hover,
+.cvgen-add-link:focus-visible {
+  background: color-mix(in srgb, var(--seav-field-label-color) 26%, transparent);
+}
+
+.cvgen-personal-missing {
+  margin-top: 10px;
+}
+
+.cvgen-personal-missing[hidden],
+.cvgen-choice-actions[hidden] {
+  display: none !important;
+}
+
+/* The heading of an empty group: the count pill turns blue so the gap is
+   seen without opening the group. */
+.cvgen-group.is-empty .cvgen-group-count {
+  border-color: var(--seav-field-label-color);
+  color: var(--seav-field-label-color);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cvgen-group-summary::after {
     transition: none;
