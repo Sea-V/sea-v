@@ -347,7 +347,8 @@ async function testProfileColumns(config) {
 // vessels is column-scoped, so a new column is invisible to the public profile
 // until it is explicitly granted, and a careless grant is how a private field
 // leaks. This probe asserts both directions every run.
-const PUBLIC_VESSEL_SENSITIVE_COLUMNS = ["salary", "leave_package"];
+// sea_addendums (v565): SEA addendum files, private like the SEA itself.
+const PUBLIC_VESSEL_SENSITIVE_COLUMNS = ["salary", "leave_package", "sea_addendums"];
 
 async function testVesselColumns(config) {
   console.log(`\nVessel column probe:`);

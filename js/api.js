@@ -643,6 +643,17 @@ async function fetchOwnerProfileRow(userId) {
 }
 
 const SeavAPI = {
+  // v565: remove files a record no longer points at (e.g. an SEA addendum
+  // taken off a vessel). Called AFTER the row is saved, so a failed save
+  // never leaves the record pointing at deleted files.
+  async removeStoredFiles(files) {
+    await removeStoragePaths(
+      (files || [])
+        .filter((f) => f && typeof f === "object" && f.path)
+        .map((f) => ({ bucket: f.bucket, path: f.path }))
+    );
+  },
+
   async getPublicProfile(profileId) {
     const client = clientForOptions({ public: true });
     if (!client || !profileId) return null;

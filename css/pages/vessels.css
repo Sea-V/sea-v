@@ -733,6 +733,122 @@
 }
 
 /* =========================================================
+   SEA ADDENDUMS (v568, Simon Lindström's suggestion)
+   Form: a named row per file under the SEA field. Card: a short list of
+   links under "View document".
+========================================================= */
+
+.vessel-addendums {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Matches the .modal-form label caps above it (a <strong>, because
+   typography.css pins label/span to 14px). */
+.vessel-addendums-title {
+  color: var(--seav-meta-desc-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-title);
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
+}
+
+.vessel-addendums-note,
+.vessel-addendum-file {
+  color: var(--seav-note-color);
+  font-size: var(--font-caption);
+}
+
+.vessel-addendum-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vessel-addendum-list:empty {
+  display: none;
+}
+
+.vessel-addendum-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--seav-glass-line);
+  border-radius: 12px;
+  background: var(--seav-glass-wash);
+}
+
+.modal-form .vessel-addendum-row input.vessel-addendum-label {
+  margin-top: 0;
+}
+
+.vessel-addendum-file {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-form .vessel-addendum-row .vessel-addendum-remove {
+  /* modal buttons default to full width; this one sits beside the name */
+  grid-column: 2;
+  grid-row: 1;
+  width: auto;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--seav-glass-line);
+  border-radius: 999px;
+  background: none;
+  color: var(--seav-meta-desc-color);
+  cursor: pointer;
+}
+
+.modal-form .vessel-addendum-row .vessel-addendum-remove:hover,
+.modal-form .vessel-addendum-row .vessel-addendum-remove:focus-visible {
+  border-color: var(--progress-red, #ff5f6d);
+  color: var(--progress-red, #ff5f6d);
+}
+
+#vsAddendumBtn[hidden] {
+  display: none !important;
+}
+
+.vessel-addendum-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.vessel-addendum-links-title {
+  color: var(--seav-field-label-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-title);
+}
+
+.vessel-addendum-link {
+  overflow: hidden;
+  color: var(--seav-field-value-color);
+  font-size: var(--font-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vessel-addendum-link:hover,
+.vessel-addendum-link:focus-visible {
+  color: var(--seav-field-label-color);
+}
+
+/* =========================================================
    LINKED DATA BOXES
 ========================================================= */
 

@@ -129,7 +129,9 @@ const STORAGE_BUCKETS = {
 const ENTITY_FILE_FIELDS = {
   vessels: [
     { field: "photo", bucket: STORAGE_BUCKETS.VESSEL_PHOTOS },
-    { field: "sea_attachment", bucket: STORAGE_BUCKETS.VESSEL_DOCUMENTS }
+    { field: "sea_attachment", bucket: STORAGE_BUCKETS.VESSEL_DOCUMENTS },
+    // v565: SEA addendums (pay rises, extensions...), same private bucket.
+    { field: "sea_addendums", bucket: STORAGE_BUCKETS.VESSEL_DOCUMENTS, isArray: true }
   ],
   seatimes: [{ field: "attachment", bucket: STORAGE_BUCKETS.SEATIME_FILES }],
   certificates: [{ field: "attachment", bucket: STORAGE_BUCKETS.CERTIFICATE_FILES }],

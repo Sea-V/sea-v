@@ -207,6 +207,28 @@ function buildVesselCardBody(v, options = {}) {
     window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_DOCUMENTS || "vessel-documents"
   );
 
+  // v568: SEA addendums, listed under the agreement by the name given.
+  const addendumLinks = (Array.isArray(v.sea_addendums) ? v.sea_addendums : [])
+    .map((file) => ({
+      url: Seav.getFileDisplayUrl(
+        file,
+        window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_DOCUMENTS || "vessel-documents"
+      ),
+      label: file?.label || file?.filename || "Addendum"
+    }))
+    .filter((item) => item.url);
+  const addendumLinksHtml = addendumLinks.length
+    ? `<div class="vessel-addendum-links">
+        <small class="vessel-addendum-links-title">Addendums</small>
+        ${addendumLinks
+          .map(
+            (item) =>
+              `<a class="vessel-addendum-link" href="${Seav.escapeHtml(item.url)}" target="_blank" rel="noopener">${Seav.escapeHtml(item.label)}</a>`
+          )
+          .join("")}
+      </div>`
+    : "";
+
   const vesselName = Seav.escapeHtml(v.name || "Unnamed Vessel");
   const flag = v.flag ? Seav.escapeHtml(v.flag) : "—";
   const gt = v.gt ? Seav.escapeHtml(v.gt) : "—";
@@ -339,6 +361,7 @@ function buildVesselCardBody(v, options = {}) {
               ? `<a class="vessel-doc-button" href="${Seav.escapeHtml(seaUrl)}" target="_blank" rel="noopener">View document</a>`
               : `<span class="vessel-doc-button vessel-doc-button--empty">Not uploaded</span>`
           }
+          ${addendumLinksHtml}
           <p class="vessel-sea-note">Your Seafarer Employment Agreement (SEA) is the signed contract between you and the vessel's employer, covering pay, leave, and repatriation. You should have this signed before joining the vessel, or as soon as possible once onboard.</p>
         </aside>
       </div>
@@ -522,6 +545,126 @@ function buildVesselCard(v, options = {}) {
     });
   }
 
+  /* ---------------------------------------------------------------
+     SEA addendums (v568, Simon Lindström's suggestion 2026-08-29).
+     The main SEA stays one file in sea_attachment; addendums are a list
+     beside it (vessels.sea_addendums, private, max 10). Each draft row is
+     { meta } for a saved file or { file } for one picked this session,
+     plus the name the crew member gives it. New files upload on Save;
+     files taken off are deleted from storage only after the save lands.
+  --------------------------------------------------------------- */
+  const MAX_SEA_ADDENDUMS = 10;
+  let addendumDraft = [];
+  let addendumRemoved = [];
+
+  function addendumDefaultLabel(filename) {
+    return String(filename || "Addendum").replace(/\.[a-z0-9]{1,5}$/i, "").slice(0, 60);
+  }
+
+  function setVesselAddendums(files) {
+    addendumDraft = (Array.isArray(files) ? files : []).map((meta) => ({
+      meta,
+      label: meta?.label || addendumDefaultLabel(meta?.filename)
+    }));
+    addendumRemoved = [];
+    renderVesselAddendums();
+  }
+
+  function renderVesselAddendums() {
+    const list = document.getElementById("vsAddendumList");
+    const btn = document.getElementById("vsAddendumBtn");
+    if (!list) return;
+
+    list.innerHTML = addendumDraft
+      .map((item, index) => {
+        const filename = item.file?.name || item.meta?.filename || "Document";
+        const status = item.file ? "New — saved when you click Save vessel" : filename;
+        return `
+          <li class="vessel-addendum-row">
+            <input type="text" class="vessel-addendum-label" maxlength="60"
+              data-addendum-index="${index}"
+              value="${Seav.escapeHtml(item.label)}"
+              placeholder="e.g. Pay rise 2025"
+              aria-label="Name for addendum ${index + 1}" />
+            <small class="vessel-addendum-file">${Seav.escapeHtml(status)}</small>
+            <button type="button" class="vessel-addendum-remove"
+              data-addendum-remove="${index}"
+              aria-label="Remove addendum ${Seav.escapeHtml(item.label || filename)}">Remove</button>
+          </li>
+        `;
+      })
+      .join("");
+
+    if (btn) {
+      btn.hidden = addendumDraft.length >= MAX_SEA_ADDENDUMS;
+      btn.textContent = addendumDraft.length ? "Add another addendum" : "Add addendum";
+    }
+  }
+
+  function addVesselAddendumFiles(fileList) {
+    const files = Array.from(fileList || []);
+    const room = MAX_SEA_ADDENDUMS - addendumDraft.length;
+    files.slice(0, Math.max(room, 0)).forEach((file) => {
+      addendumDraft.push({ file, label: addendumDefaultLabel(file.name) });
+    });
+    if (files.length > room) {
+      Seav.notify(
+        "error",
+        "Addendum limit reached",
+        `A vessel can hold up to ${MAX_SEA_ADDENDUMS} addendums.`
+      );
+    }
+    renderVesselAddendums();
+  }
+
+  function wireVesselAddendums() {
+    const input = document.getElementById("vs_addendum");
+    const btn = document.getElementById("vsAddendumBtn");
+    const list = document.getElementById("vsAddendumList");
+
+    btn?.addEventListener("click", () => input?.click());
+    input?.addEventListener("change", () => {
+      addVesselAddendumFiles(input.files);
+      input.value = "";
+    });
+    list?.addEventListener("input", (e) => {
+      const field = e.target.closest("[data-addendum-index]");
+      if (!field) return;
+      const item = addendumDraft[Number(field.dataset.addendumIndex)];
+      if (item) item.label = field.value;
+    });
+    list?.addEventListener("click", (e) => {
+      const remove = e.target.closest("[data-addendum-remove]");
+      if (!remove) return;
+      const [item] = addendumDraft.splice(Number(remove.dataset.addendumRemove), 1);
+      if (item?.meta) addendumRemoved.push(item.meta);
+      renderVesselAddendums();
+    });
+  }
+
+  // Uploads the new files and returns the list to save. A file that fails
+  // to upload (too large, network) is dropped with the upload helper's own
+  // toast, rather than saved as a dead entry.
+  async function buildSeaAddendums(vesselId) {
+    const out = [];
+    for (const item of addendumDraft) {
+      const label = (item.label || "").trim() || addendumDefaultLabel(item.file?.name || item.meta?.filename);
+      if (item.meta) {
+        out.push({ ...item.meta, label });
+        continue;
+      }
+      const meta = await window.SeavUpload?.uploadToStorage({
+        bucket: VESSEL_DOC_BUCKET,
+        entityId: vesselId,
+        file: item.file,
+        existingMeta: null,
+        kind: "SEA addendum"
+      });
+      if (meta) out.push({ ...meta, label });
+    }
+    return out;
+  }
+
   async function hydrateVesselFiles(vessels) {
     if (!window.SeavApiCore?.hydrateItemsFileField || !vessels.length) return vessels;
     await window.SeavApiCore.hydrateItemsFileField(vessels, "photo", VESSEL_PHOTO_BUCKET);
@@ -530,6 +673,15 @@ function buildVesselCard(v, options = {}) {
       "sea_attachment",
       VESSEL_DOC_BUCKET
     );
+    // Addendums are a list; hydrateArrayFiles signs every file field of the
+    // table and returns copies, so copy the signed list back in place
+    // (callers rely on in-place mutation, as above).
+    if (window.SeavApiCore.hydrateArrayFiles && vessels.some((v) => v?.sea_addendums?.length)) {
+      const signed = await window.SeavApiCore.hydrateArrayFiles(vessels, "vessels");
+      signed.forEach((item, i) => {
+        if (vessels[i] && item) vessels[i].sea_addendums = item.sea_addendums;
+      });
+    }
     return vessels;
   }
 
@@ -667,6 +819,7 @@ function fillVesselForm(vessel) {
 
   renderVesselPhotoThumb(vessel.photo || null, { isNewSelection: false });
   renderVesselSeaHint(vessel.sea_attachment || vessel.seaAttachment || null, { isNewSelection: false });
+  setVesselAddendums(vessel.sea_addendums || []);
 
   // The "Add more details" section is collapsed by default for a brand-new
   // vessel (readVesselForm below), but always opened when editing an
@@ -718,6 +871,7 @@ function resetVesselFormState() {
 
   renderVesselPhotoThumb(null, { isNewSelection: false });
   renderVesselSeaHint(null, { isNewSelection: false });
+  setVesselAddendums([]);
 
   const moreDetails = document.getElementById("vs_more_details");
   if (moreDetails) moreDetails.open = false;
@@ -926,6 +1080,8 @@ async function saveVesselData(vesselData) {
       });
     }
 
+    wireVesselAddendums();
+
     const vsSeaInput = document.getElementById("vs_sea");
     const vsSeaBtn = document.getElementById("vsSeaBtn");
     if (vsSeaBtn && vsSeaInput) {
@@ -975,6 +1131,9 @@ async function saveVesselData(vesselData) {
   vesselId
 );
 
+    const seaAddendums = await buildSeaAddendums(vesselId);
+    const removedAddendums = addendumRemoved.slice();
+
     const vesselData = {
   id: vesselId,
   name: formData.name,
@@ -1007,10 +1166,18 @@ async function saveVesselData(vesselData) {
   from: formData.from,
   to: formData.to,
   photo: photo || existingVessel?.photo || null,
-  sea_attachment: seaAttachment || existingVessel?.sea_attachment || existingVessel?.seaAttachment || null
+  sea_attachment: seaAttachment || existingVessel?.sea_attachment || existingVessel?.seaAttachment || null,
+  // Like contract_type above: this payload is a whitelist, so the field has
+  // to be listed here or it never reaches the mapper.
+  sea_addendums: seaAddendums
 };
 
       await saveVesselData(vesselData);
+
+      // Only now that the row no longer points at them.
+      if (removedAddendums.length) {
+        await SeavAPI.removeStoredFiles(removedAddendums);
+      }
 
       resetVesselFormState();
 

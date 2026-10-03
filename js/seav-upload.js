@@ -414,7 +414,12 @@
       zone.classList.add("seav-dropzone");
       const hint = document.createElement("small");
       hint.className = "seav-drop-hint";
-      hint.textContent = input.multiple ? "or drag photos here" : "or drag a file here";
+      // "photos" only when the input takes nothing but images (v568: the
+      // SEA addendum picker takes PDFs and Word files too).
+      const imagesOnly = /^\s*image\/[^,]*$/.test(input.accept || "");
+      hint.textContent = input.multiple
+        ? imagesOnly ? "or drag photos here" : "or drag files here"
+        : "or drag a file here";
       (zone.querySelector(".profile-photo-actions") || zone).appendChild(hint);
     });
   }

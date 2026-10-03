@@ -66,7 +66,7 @@
     if (kpiWatchkeeping) kpiWatchkeeping.textContent = String(totals.watchkeeping);
     if (kpiTotalDays) kpiTotalDays.textContent = String(totals.total);
 
-    // 2026-08-05, Jack: the raw total above (sea+standby+yard+watchkeeping,
+    // 2026-08-05, Jack: the raw total above (sea+standby+yard — watchkeeping is inside sea since v565,
     // no caps) was labelled "Total Qualifying Service" but isn't actually
     // qualifying service under any MCA route — it was flagged as misleading.
     // This box adds the ALREADY-EXISTING, already-verified capped OOW

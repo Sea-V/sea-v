@@ -308,11 +308,11 @@
       group.totals.standby += toNumber(entry.standbyServiceDays);
       group.totals.yard += toNumber(entry.yardServiceDays);
       group.totals.watchkeeping += toNumber(entry.watchkeepingDays);
+      // Watchkeeping days are already inside the sea days — not added.
       group.totals.total +=
         toNumber(entry.actualSeaServiceDays) +
         toNumber(entry.standbyServiceDays) +
-        toNumber(entry.yardServiceDays) +
-        toNumber(entry.watchkeepingDays);
+        toNumber(entry.yardServiceDays);
     });
 
     return [...groups.values()].sort((a, b) => b.totals.total - a.totals.total);

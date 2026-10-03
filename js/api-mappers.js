@@ -135,6 +135,7 @@ function mapProfileToSupabase(item) {
     photo: v.photo || null,
 
     sea_attachment: v.sea_attachment || null,
+    sea_addendums: Array.isArray(v.sea_addendums) ? v.sea_addendums : [],
 
     createdAt: v.created_at || "",
     updatedAt: v.updated_at || ""
@@ -172,6 +173,11 @@ function mapVesselToSupabase(item) {
       item.sea_attachment || item.seaAttachment,
       STORAGE_BUCKETS.VESSEL_DOCUMENTS
     ),
+    // Max 10 (vessels_sea_addendums_is_array); each keeps its `label`.
+    sea_addendums: sanitizeFileArrayForStorage(
+      item.sea_addendums,
+      STORAGE_BUCKETS.VESSEL_DOCUMENTS
+    ).slice(0, 10),
     updated_at: new Date().toISOString()
   };
 }

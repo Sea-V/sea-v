@@ -1233,12 +1233,16 @@ function getEmptyTenderEntry() {
     return Number.isFinite(n) && n >= 0 ? n : 0;
   }
 
+  // Watchkeeping is NOT added: watchkeeping days are sea days spent on
+  // watch, already inside actualSeaServiceDays, so adding them counted those
+  // days twice (Simon Lindström's report, 2026-08-29; fixed v565 — Jack's
+  // total read 1,313 for 1,197 real days). Watchkeeping stays its own
+  // figure, used where MSN 1858 asks for it.
   function totalQualifyingDays(entry) {
     return (
       toNumber(entry.actualSeaServiceDays) +
       toNumber(entry.standbyServiceDays) +
-      toNumber(entry.yardServiceDays) +
-      toNumber(entry.watchkeepingDays)
+      toNumber(entry.yardServiceDays)
     );
   }
 
@@ -2103,11 +2107,9 @@ function getEmptyTenderEntry() {
       totals.watchkeeping += toNumber(entry.watchkeepingDays);
     });
 
-    totals.total =
-      totals.sea +
-      totals.standby +
-      totals.yard +
-      totals.watchkeeping;
+    // Watchkeeping is a part of sea time, not extra to it (see
+    // totalQualifyingDays).
+    totals.total = totals.sea + totals.standby + totals.yard;
 
     return totals;
   }

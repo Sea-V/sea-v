@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v567**. Jack pushes every commit himself from
+- HEAD = **v568**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1005,6 +1005,41 @@ photo at top right. Picked from rendered options.
   1100x820 and 390x844: both menus, Esc, outside click, focus, header,
   public-profile href, no sideways scroll. Not yet seen signed in on the
   live pages. Dead sidebar rules remain in layout.css (`.dash-sidebar*`).
+
+### v568 — watchkeeping no longer double-counted
+Simon Lindström's admin report (2026-08-29, still "new"): "Total logged
+days" added watchkeeping ON TOP of sea days, though watchkeeping days are
+sea days spent on watch. `getSeatimeTotals().total`, `totalQualifyingDays`
+(seav-data.js) and the per-vessel totals in public-profile-utils.js now sum
+sea + standby + yard only; watchkeeping stays its own KPI. MSN 1858 OOW /
+Master maths never used these totals (corrected 2026-08-16) and is
+unchanged. Jack's total 1,313 -> 1,197; daniel-whitfield (demo) was out by
+1,860. Data oddity left for Jack: Senses 2025-12-12 -> 2026-02-13 has 29
+watchkeeping days against 18 sea days. Admin reports are in `bug_reports`
+(join profile.user_id for the sender).
+
+### v568 — SEA addendums (Simon's other admin suggestion)
+"Allow multiple files ... so addendums to SEA can be added." The main SEA
+stays ONE file (`vessels.sea_attachment`); addendums are a new private list
+`vessels.sea_addendums` (jsonb array, check <= 10, no anon grant, not in
+PUBLIC_ARRAY_COLUMNS; `docs/schema-vessels-sea-addendums.sql`, applied +
+smoke-tested, advisors 23/23, probed by test-supabase). Each file keeps a
+`label` (default = file name). In `ENTITY_FILE_FIELDS.vessels` as an
+`isArray` field, so signing and whole-vessel delete cleanup come free.
+- Form (vessels.html, under the SEA field): a row per addendum = name input
+  + file name + Remove; "Add addendum" (multiple, drag-and-drop, PDF / Word
+  / images). New files upload on Save (`buildSeaAddendums`); removed saved
+  files are deleted from storage AFTER the row saves, via new
+  `SeavAPI.removeStoredFiles`. `sea_addendums` had to be added to the
+  hand-written vesselData whitelist in the submit handler (same trap as
+  contract_type).
+- Card: "Addendums" links under View document, by name.
+- seav-upload's drop hint now says "files" (not "photos") for a multiple
+  input that takes non-images.
+- Verified on a harness of the real vessels page (stubbed storage): card
+  links, add 2 / remove 1 / rename / save -> 2 uploads, 1 storage delete
+  after save, SEA untouched, stored shape has label and no signed url;
+  390px no sideways scroll. Not yet tried with real uploads.
 
 ### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
 Jack found the public profile "boring and bland". Design canvas (private, Jack's
