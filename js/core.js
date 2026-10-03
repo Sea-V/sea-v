@@ -540,19 +540,6 @@ const app = {
    the "Coming soon" item all carry over. Privacy / Terms (the old sidebar
    footer) and Contact / About / Report (hidden from the phone topbar) sit
    in the menu's footer. */
-// v565: the labelled sections fold, so the open menu stays short (Jack:
-// the full list "takes the whole page up"). Native <details> sharing one
-// `name` = only one section open at a time; setActiveSidebarLink opens the
-// section holding the current page.
-function renderMenuGroup(label, linksHtml) {
-  return `
-    <details class="dash-nav-group topbar-menu-group" name="seav-topbar-menu">
-      <summary class="dash-nav-group-label">${label}</summary>
-      ${linksHtml}
-    </details>
-  `;
-}
-
 function renderAppNav() {
   return `
     <nav class="dash-nav topbar-menu-nav" aria-label="Main">
@@ -563,7 +550,7 @@ function renderAppNav() {
           renderSidebarLink("profile.html", "Profile", iconProfile)
         ].join("")
       )}
-      ${renderMenuGroup(
+      ${renderSidebarGroup(
         "Career",
         [
           renderSidebarLink("vessels.html", "Vessels", iconVessels),
@@ -571,7 +558,7 @@ function renderAppNav() {
           renderSidebarLink("navigation.html", "Navigation", iconNavigation)
         ].join("")
       )}
-      ${renderMenuGroup(
+      ${renderSidebarGroup(
         "Operations &amp; training",
         [
           renderSidebarLink("tenders.html", "Tenders", iconTenders),
@@ -579,7 +566,7 @@ function renderAppNav() {
           renderSidebarLink("specialist-qualifications.html", "Specialist Qualifications", iconSpecialist)
         ].join("")
       )}
-      ${renderMenuGroup(
+      ${renderSidebarGroup(
         "Documentation",
         [
           renderSidebarLink("certificates.html", "Certificates", iconCertificates),
@@ -587,7 +574,7 @@ function renderAppNav() {
           renderSidebarLink("payslips.html", "Payslips", iconPayslips)
         ].join("")
       )}
-      ${renderMenuGroup(
+      ${renderSidebarGroup(
         "Highlights",
         [
           renderSidebarLink("#", "Land-Based Experience", iconLandExperience, { disabled: true }),
@@ -599,9 +586,9 @@ function renderAppNav() {
       )}
     </nav>
     <div class="topbar-menu-foot">
-      <a href="#" data-open="contactInfoModal">Contact</a>
-      <a href="#" data-open="aboutInfoModal">About</a>
-      <a href="#" data-open="reportIssueModal">Report an issue</a>
+      <a href="#" class="topbar-menu-foot-dup" data-open="contactInfoModal">Contact</a>
+      <a href="#" class="topbar-menu-foot-dup" data-open="aboutInfoModal">About</a>
+      <a href="#" class="topbar-menu-foot-dup" data-open="reportIssueModal">Report an issue</a>
       <a href="privacy.html">Privacy</a>
       <a href="terms.html">Terms</a>
     </div>
@@ -964,8 +951,6 @@ function renderSidebarAchievements() {
     }
 
     if (matched) matched.classList.add("active");
-    const section = matched?.closest(".topbar-menu-group");
-    if (section) section.open = true;
 
     const matchedTopbar = Array.from(topbarLinks).find(
       (a) => hrefFile(a.getAttribute("href")) === currentFile

@@ -618,15 +618,15 @@ body.app-page .dash {
 }
 
 .app-topbar .topbar-menu .dash-nav-group + .dash-nav-group {
-  margin-top: 6px;
-  padding-top: 6px;
+  margin-top: 4px;
+  padding-top: 4px;
   border-top: 1px solid var(--seav-glass-line);
 }
 
 .app-topbar .topbar-menu .dash-nav-group-label {
   display: block;
   margin: 0;
-  padding: 2px 10px 3px;
+  padding: 2px 10px 1px;
   color: var(--seav-field-label-color);
   font-size: var(--font-label);
   font-weight: var(--font-weight-title);
@@ -639,7 +639,7 @@ body.app-page .dash {
   gap: 10px;
   min-height: 0;
   margin: 0;
-  padding: 5px 10px;
+  padding: 3px 10px;
   border: 0;
   border-radius: 12px;
   background: none;
@@ -657,72 +657,45 @@ body.app-page .dash {
   box-shadow: inset 0 0 0 1px rgba(91, 188, 255, 0.6);
 }
 
-/* Folding sections (v565): each heading is a <summary> row with a chevron;
-   closed, a section is one 32px line, so the menu opens short. */
-.app-topbar .topbar-menu .topbar-menu-group > summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 32px;
-  padding: 0 10px;
-  border-radius: 12px;
-  cursor: pointer;
-  list-style: none;
-}
-
-.app-topbar .topbar-menu .topbar-menu-group > summary::-webkit-details-marker {
-  display: none;
-}
-
-.app-topbar .topbar-menu .topbar-menu-group > summary::after {
-  content: "";
-  width: 7px;
-  height: 7px;
-  margin-right: 3px;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
-  transform: translateY(-2px) rotate(45deg);
-  transition: transform 0.18s ease;
-}
-
-.app-topbar .topbar-menu .topbar-menu-group[open] > summary::after {
-  transform: translateY(2px) rotate(-135deg);
-}
-
-.app-topbar .topbar-menu .topbar-menu-group > summary:hover,
-.app-topbar .topbar-menu .topbar-menu-group > summary:focus-visible {
-  background: var(--seav-glass-wash);
-}
-
-.app-topbar .topbar-menu .topbar-menu-group[open] > summary {
-  margin-bottom: 2px;
-}
-
 /* Icon in a tinted badge, in the page's own colour (layout.css sets the
    link's colour per page). */
 .app-topbar .topbar-menu .dash-icon {
-  width: 26px;
-  min-width: 26px;
-  height: 26px;
-  border-radius: 8px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 7px;
   background: color-mix(in srgb, currentColor 16%, transparent);
 }
 
 .app-topbar .topbar-menu .dash-icon svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
 }
 
 .app-topbar .topbar-menu .dash-link--disabled {
   opacity: 0.55;
+  white-space: nowrap;
+}
+
+/* "(Coming Soon)" wrapped the row onto two lines; shorter and smaller here. */
+.app-topbar .topbar-menu .dash-link-soon {
+  font-size: var(--font-caption) !important;
+}
+
+/* Contact / About / Report sit in the topbar itself above 1000px, so the
+   footer only repeats them on phones (where the topbar hides them). */
+@media (min-width: 1001px) {
+  .app-topbar .topbar-menu-foot .topbar-menu-foot-dup {
+    display: none;
+  }
 }
 
 .app-topbar .topbar-menu-foot {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 14px;
-  margin-top: 8px;
-  padding: 10px 10px 4px;
+  margin-top: 4px;
+  padding: 8px 10px 2px;
   border-top: 1px solid var(--seav-glass-line);
 }
 

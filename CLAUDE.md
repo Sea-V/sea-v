@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v565**. Jack pushes every commit himself from
+- HEAD = **v566**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -981,13 +981,12 @@ photo at top right. Picked from rendered options.
   name + "rank · current yacht" header, `#sidebarPublicProfileLink`,
   CV generator, Profile settings, `#btnLogout` — ids kept so
   wireSidebarPublicProfile / wireLogout work unchanged.
-- **Sections fold** (Jack: the open menu "takes the whole page up" — it was
-  710px). Dashboard + Profile always show; Career / Operations & training /
-  Documentation / Highlights are native `<details name="seav-topbar-menu">`
-  (`renderMenuGroup`), one open at a time, and `setActiveSidebarLink` opens
-  the current page's section. Opens at ~450px on desktop and phone. Links
-  need `display: flex` inside — a <details> does not lay children out as
-  flex items.
+- **Every section open, compact** (Jack: the 710px list "takes the whole
+  page up"; folding sections was tried and he preferred the full column).
+  30px rows, 24px icon badges, tighter group gaps; "(Coming Soon)" at
+  caption size on one line (`--seav-menu-width` 324px so it fits); the
+  footer drops Contact / About / Report above 1000px (they are in the
+  topbar). Opens at 603px on a 1100x820 laptop window, 624px on a phone.
 - `wireTopbarMenus()`: one open at a time, outside click / Esc / link
   click close, Esc returns focus, keyboard open focuses the first link.
 - **The app topbar now shows on phones** (layout.css hid it <=1000px):
