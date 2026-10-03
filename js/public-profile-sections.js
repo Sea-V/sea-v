@@ -510,8 +510,10 @@
   function buildVesselAwardsSection(vesselAwards) {
     if (!vesselAwards.length) return "";
     const rows = vesselAwards.map((item) => buildAchievementHighlightCard(item)).join("");
+    // Jack 2026-10-03: "Achievements", not "Awards", wherever crew see it.
+    // The internal "awards" key / CSS class stays.
     return buildVesselSectionGroup(
-      "Awards",
+      "Achievements",
       `<div class="public-cv-highlight-list public-cv-award-grid">${rows}</div>`,
       vesselAwards.length,
       true,
@@ -1295,7 +1297,7 @@
         <h3><span class="public-profile-section-icon" data-pp-icon="achievements" aria-hidden="true"></span>Milestones</h3>
         <span class="public-profile-section-count" id="ppAchievementCount" hidden></span>
       </div>
-      <p class="public-profile-section-note">What this crew member is currently working toward — a badge shows progress made, not that the qualification is held. Seafarer Awards (crossings, etc.) are shown under the vessel they were earned on.</p>
+      <p class="public-profile-section-note">What this crew member is currently working toward — a badge shows progress made, not that the qualification is held. Seafarer Achievements (crossings, etc.) are shown under the vessel they were earned on.</p>
 
       <div class="public-cv-highlight-list">
         ${visibleInProgress.map((entry) => buildInProgressHighlightCard(entry)).join("")}

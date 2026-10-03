@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v568**. Jack pushes every commit himself from
+- HEAD = **v569**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1017,6 +1017,14 @@ unchanged. Jack's total 1,313 -> 1,197; daniel-whitfield (demo) was out by
 1,860. Data oddity left for Jack: Senses 2025-12-12 -> 2026-02-13 has 29
 watchkeeping days against 18 sea days. Admin reports are in `bug_reports`
 (join profile.user_id for the sender).
+
+### v569 — "Awards" -> "Achievements" (Jack, 2026-10-03)
+Every place crew see the word: the per-vessel group on the public profile,
+the public Vessels and Milestones notes, the Milestones page heading
+("Seafarer Achievements"), the empty-state text in core.js, and the CV
+generator group ("Milestones & achievements"). Internal names stay
+(`buildAwardTile`, `getAwardTreatment`, `--award-*`, the
+`vessel-linked-section-group--awards` class, `achSeafarerAwardsGrid`).
 
 ### v568 — SEA addendums (Simon's other admin suggestion)
 "Allow multiple files ... so addendums to SEA can be added." The main SEA

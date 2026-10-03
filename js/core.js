@@ -726,7 +726,7 @@ function renderSidebarAchievements() {
   const grouped = groupSidebarAchievements(window.SeavState?.achievements || []);
 
   if (!grouped.length) {
-    container.innerHTML = `<div class="sidebar-badge-empty">No Seafarer Awards logged yet</div>`;
+    container.innerHTML = `<div class="sidebar-badge-empty">No Seafarer Achievements logged yet</div>`;
     return;
   }
 
