@@ -360,9 +360,29 @@ const app = {
       <header class="topbar app-topbar">
         <div class="topbar-inner">
           <nav class="nav-left" aria-label="Quick links">
-            <a href="#" data-open="contactInfoModal">Contact</a>
-            <a href="#" data-open="aboutInfoModal">About</a>
-            <a href="#" data-open="reportIssueModal">Report an issue</a>
+            <button
+              type="button"
+              class="topbar-icon-btn topbar-menu-btn"
+              id="topbarMenuBtn"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="topbarMenuPanel"
+              aria-label="Open menu"
+              title="Menu"
+            >
+              <svg class="topbar-menu-bars" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <svg class="topbar-menu-close" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <a href="#" class="topbar-quick-link" data-open="contactInfoModal">Contact</a>
+            <a href="#" class="topbar-quick-link" data-open="aboutInfoModal">About</a>
+            <a href="#" class="topbar-quick-link" data-open="reportIssueModal">Report an issue</a>
+            <div class="topbar-menu" id="topbarMenuPanel" hidden>
+              ${renderAppNav()}
+            </div>
           </nav>
 
           <a class="brand" href="dashboard.html">
@@ -415,15 +435,23 @@ const app = {
               </div>
             </div>
 
-            <a
-              class="topbar-profile"
-              id="topbarProfileLink"
-              href="profile.html"
-              aria-label="Your profile"
-              title="Your profile"
-            >
-              <span class="topbar-profile-avatar" id="topbarProfileAvatar" aria-hidden="true"></span>
-            </a>
+            <div class="topbar-account">
+              <button
+                type="button"
+                class="topbar-profile"
+                id="topbarProfileLink"
+                aria-haspopup="true"
+                aria-expanded="false"
+                aria-controls="topbarAccountPanel"
+                aria-label="Account menu"
+                title="Account menu"
+              >
+                <span class="topbar-profile-avatar" id="topbarProfileAvatar" aria-hidden="true"></span>
+              </button>
+              <div class="topbar-account-menu" id="topbarAccountPanel" hidden>
+                ${renderAccountMenu()}
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -504,93 +532,110 @@ const app = {
     landExperience: iconLandExperience
   };
 
-function renderAppSidebar() {
+/* v565 (Jack, 2026-10-03): no sidebar. Every section drops down from the
+   topbar's three-bar button as ONE column (renderAppNav), and the account
+   items (public profile, CV generator, settings, log out) drop down from the
+   photo on the right (renderAccountMenu). The groups and links are the
+   sidebar's, unchanged, so the active-page highlight, the Milestones id and
+   the "Coming soon" item all carry over. Privacy / Terms (the old sidebar
+   footer) and Contact / About / Report (hidden from the phone topbar) sit
+   in the menu's footer. */
+// v565: the labelled sections fold, so the open menu stays short (Jack:
+// the full list "takes the whole page up"). Native <details> sharing one
+// `name` = only one section open at a time; setActiveSidebarLink opens the
+// section holding the current page.
+function renderMenuGroup(label, linksHtml) {
   return `
-    <div class="dash-side-stack">
-      <aside class="dash-sidebar" aria-label="My SEA-V">
-        <nav class="dash-nav" aria-label="Main">
-          ${renderSidebarGroup(
-            "",
-            [
-              renderSidebarLink("dashboard.html", "Dashboard", iconDashboard),
-              renderSidebarLink("profile.html", "Profile", iconProfile)
-            ].join(""),
-            // v558 (Jack): no "My SEA-V" heading; on desktop this group is the
-            // sidebar's dark top band, level with each page's title band.
-            "dash-nav-group--home"
-          )}
+    <details class="dash-nav-group topbar-menu-group" name="seav-topbar-menu">
+      <summary class="dash-nav-group-label">${label}</summary>
+      ${linksHtml}
+    </details>
+  `;
+}
 
-          ${renderSidebarGroup(
-            "Career",
-            [
-              renderSidebarLink("vessels.html", "Vessels", iconVessels),
-              renderSidebarLink("seatime.html", "Sea Time", iconSeatime),
-              renderSidebarLink("navigation.html", "Navigation", iconNavigation)
-            ].join("")
-          )}
-
-          ${renderSidebarGroup(
-            "Operations &amp; training",
-            [
-              renderSidebarLink("tenders.html", "Tenders", iconTenders),
-              renderSidebarLink("onboard-experience.html", "Onboard Experience", iconOnboard),
-              renderSidebarLink(
-                "specialist-qualifications.html",
-                "Specialist Qualifications",
-                iconSpecialist
-              )
-            ].join("")
-          )}
-
-          ${renderSidebarGroup(
-            "Documentation",
-            [
-              renderSidebarLink("certificates.html", "Certificates", iconCertificates),
-              renderSidebarLink("references.html", "References", iconReferences),
-              renderSidebarLink("payslips.html", "Payslips", iconPayslips)
-            ].join(""),
-            "dash-nav-group--documentation"
-          )}
-
-          ${renderSidebarGroup(
-            "Highlights",
-            [
-              renderSidebarLink("#", "Land-Based Experience", iconLandExperience, {
-                disabled: true
-              }),
-              renderSidebarLink("achievements.html", "Milestones", iconAchievements, {
-                id: "sidebarAchievementsLink"
-              }),
-              renderSidebarLink("hobbies-interests.html", "Hobbies &amp; Interests", iconHobbies)
-            ].join("")
-          )}
-
-          ${renderSidebarGroup(
-            "Tools",
-            [
-              renderSidebarLink("cv-generator.html", "CV Generator", iconCv),
-              renderSidebarLink("public-profile.html", "Public Profile", iconPublicProfile, {
-                id: "sidebarPublicProfileLink",
-                newTab: true
-              })
-            ].join(""),
-            "dash-nav-group--tools"
-          )}
-        </nav>
-
-        <div class="dash-sidebar-footer">
-          <a class="dash-link dash-logout" href="index.html" id="btnLogout">
-            <span class="dash-icon" aria-hidden="true">${iconLogout}</span>
-            <span>Logout</span>
-          </a>
-          <nav class="dash-sidebar-legal" aria-label="Legal">
-            <a href="privacy.html">Privacy Policy</a>
-            <span class="dash-sidebar-legal-sep" aria-hidden="true">·</span>
-            <a href="terms.html">Terms of Use</a>
-          </nav>
-        </div>
-      </aside>
+function renderAppNav() {
+  return `
+    <nav class="dash-nav topbar-menu-nav" aria-label="Main">
+      ${renderSidebarGroup(
+        "",
+        [
+          renderSidebarLink("dashboard.html", "Dashboard", iconDashboard),
+          renderSidebarLink("profile.html", "Profile", iconProfile)
+        ].join("")
+      )}
+      ${renderMenuGroup(
+        "Career",
+        [
+          renderSidebarLink("vessels.html", "Vessels", iconVessels),
+          renderSidebarLink("seatime.html", "Sea Time", iconSeatime),
+          renderSidebarLink("navigation.html", "Navigation", iconNavigation)
+        ].join("")
+      )}
+      ${renderMenuGroup(
+        "Operations &amp; training",
+        [
+          renderSidebarLink("tenders.html", "Tenders", iconTenders),
+          renderSidebarLink("onboard-experience.html", "Onboard Experience", iconOnboard),
+          renderSidebarLink("specialist-qualifications.html", "Specialist Qualifications", iconSpecialist)
+        ].join("")
+      )}
+      ${renderMenuGroup(
+        "Documentation",
+        [
+          renderSidebarLink("certificates.html", "Certificates", iconCertificates),
+          renderSidebarLink("references.html", "References", iconReferences),
+          renderSidebarLink("payslips.html", "Payslips", iconPayslips)
+        ].join("")
+      )}
+      ${renderMenuGroup(
+        "Highlights",
+        [
+          renderSidebarLink("#", "Land-Based Experience", iconLandExperience, { disabled: true }),
+          renderSidebarLink("achievements.html", "Milestones", iconAchievements, {
+            id: "sidebarAchievementsLink"
+          }),
+          renderSidebarLink("hobbies-interests.html", "Hobbies &amp; Interests", iconHobbies)
+        ].join("")
+      )}
+    </nav>
+    <div class="topbar-menu-foot">
+      <a href="#" data-open="contactInfoModal">Contact</a>
+      <a href="#" data-open="aboutInfoModal">About</a>
+      <a href="#" data-open="reportIssueModal">Report an issue</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
     </div>
+  `;
+}
+
+function renderAccountMenu() {
+  const item = (href, label, sub, icon, options = {}) => `
+    <a class="topbar-account-item${options.danger ? " is-danger" : ""}" href="${href}"${
+      options.id ? ` id="${options.id}"` : ""
+    }${options.newTab ? ' target="_blank" rel="noopener"' : ""}>
+      <span class="topbar-account-icon" aria-hidden="true">${icon}</span>
+      <span class="topbar-account-text">
+        <strong>${label}</strong>
+        ${sub ? `<small${options.subId ? ` id="${options.subId}"` : ""}>${sub}</small>` : ""}
+      </span>
+    </a>`;
+  return `
+    <div class="topbar-account-head">
+      <span class="topbar-account-avatar" id="topbarAccountAvatar" aria-hidden="true"></span>
+      <span class="topbar-account-text">
+        <strong id="topbarAccountName">Your account</strong>
+        <small id="topbarAccountRole"></small>
+      </span>
+    </div>
+    ${item("public-profile.html", "Your public profile", "See it as employers do", iconPublicProfile, {
+      id: "sidebarPublicProfileLink",
+      newTab: true,
+      subId: "topbarAccountPublicUrl"
+    })}
+    ${item("cv-generator.html", "CV generator", "Build, tailor and export your CV", iconCv)}
+    ${item("profile.html", "Profile settings", "Personal details, photo, privacy", iconProfile)}
+    <div class="topbar-account-sep" role="separator"></div>
+    ${item("index.html", "Log out", "", iconLogout, { id: "btnLogout", danger: true })}
   `;
 }
 
@@ -816,6 +861,7 @@ function renderSidebarAchievements() {
         topbarMount.innerHTML = renderAppTopbar();
         wireTopbarProfile();
         wireTopbarSearch();
+        wireTopbarMenus();
       }
     }
 
@@ -823,12 +869,14 @@ function renderSidebarAchievements() {
   const sidebarType = document.body.dataset.sidebar || "";
 
   if (sidebarType === "app") {
-    sidebarMount.innerHTML = renderAppSidebar();
+    // v565: no sidebar column — its sections live in the topbar Menu and
+    // the account items in the photo menu (both rendered with the topbar).
+    // These helpers now find their elements there.
+    sidebarMount.hidden = true;
 
     renderSidebarAchievements();
     wireLogout();
     wireSidebarPublicProfile();
-    syncSidebarHomeBand();
 
     document.addEventListener(
       "seav:state-ready",
@@ -886,8 +934,9 @@ function renderSidebarAchievements() {
   ========================================================= */
 
   function setActiveSidebarLink() {
-    const links = document.querySelectorAll(".dash-sidebar .dash-link");
-    const topbarLinks = document.querySelectorAll(".app-topbar .nav-left a[href]");
+    // v565: the section links live in the topbar Menu now.
+    const links = document.querySelectorAll(".topbar-menu .dash-link, .dash-sidebar .dash-link");
+    const topbarLinks = document.querySelectorAll(".app-topbar .nav-left > a.topbar-quick-link[href]");
     if (!links.length && !topbarLinks.length) return;
 
     const currentFile = (location.pathname.split("/").pop() || "dashboard.html").toLowerCase();
@@ -915,6 +964,8 @@ function renderSidebarAchievements() {
     }
 
     if (matched) matched.classList.add("active");
+    const section = matched?.closest(".topbar-menu-group");
+    if (section) section.open = true;
 
     const matchedTopbar = Array.from(topbarLinks).find(
       (a) => hrefFile(a.getAttribute("href")) === currentFile
@@ -1217,27 +1268,72 @@ function renderSidebarAchievements() {
     });
   }
 
-  /* v559 (Jack): the sidebar's dark home band (Dashboard + Profile) sits
-     level with the page's title band. Tops already align; the page title
-     bands vary in height (113px Dashboard to 180px Profile, measured), so
-     the band takes the current page's *-shell-head height and follows it
-     as that changes (wrapping, resizing). Desktop only, matching the CSS
-     breakpoint — below it the sidebar is a horizontal strip. */
-  function syncSidebarHomeBand() {
-    const band = document.querySelector(".dash-sidebar .dash-nav-group--home");
-    const head = document.querySelector('[class$="-shell-card"] > [class$="-shell-head"]');
-    if (!band || !head) return;
+  /* Topbar menus (v565). The three-bar button opens every section as one
+     column; the photo opens the account menu. One open at a time; closes on
+     Esc, a click outside, or choosing a link. The bars turn into a cross
+     while the section menu is open. aria-expanded/aria-label follow the
+     state for screen readers. */
+  function wireTopbarMenus() {
+    const pairs = [
+      {
+        button: document.getElementById("topbarMenuBtn"),
+        panel: document.getElementById("topbarMenuPanel"),
+        open: "Close menu",
+        closed: "Open menu"
+      },
+      {
+        button: document.getElementById("topbarProfileLink"),
+        panel: document.getElementById("topbarAccountPanel"),
+        open: "Close account menu",
+        closed: null // set by wireTopbarProfile (carries the person's name)
+      }
+    ].filter((p) => p.button && p.panel);
+    if (!pairs.length) return;
 
-    const desktop = window.matchMedia("(min-width: 1001px)");
-    const apply = () => {
-      band.style.minHeight = desktop.matches ? `${head.offsetHeight}px` : "";
+    const setOpen = (pair, open) => {
+      pair.panel.hidden = !open;
+      pair.button.setAttribute("aria-expanded", String(open));
+      pair.button.classList.toggle("is-open", open);
+      if (pair.open && open) pair.button.setAttribute("aria-label", pair.open);
+      if (pair.closed && !open) pair.button.setAttribute("aria-label", pair.closed);
+      if (!pair.closed && !open && pair.button.dataset.closedLabel) {
+        pair.button.setAttribute("aria-label", pair.button.dataset.closedLabel);
+      }
     };
+    const closeAll = (except) => pairs.forEach((p) => p !== except && setOpen(p, false));
 
-    apply();
-    if (typeof window.ResizeObserver === "function") {
-      new window.ResizeObserver(apply).observe(head);
-    }
-    desktop.addEventListener?.("change", apply);
+    pairs.forEach((pair) => {
+      pair.button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const opening = pair.panel.hidden;
+        closeAll(pair);
+        setOpen(pair, opening);
+        if (opening) {
+          const first = pair.panel.querySelector("a[href]:not([aria-disabled='true'])");
+          if (first && event.detail === 0) first.focus(); // keyboard opens move focus in
+        }
+      });
+      pair.panel.addEventListener("click", (event) => {
+        if (event.target.closest("a[href]")) setOpen(pair, false);
+      });
+    });
+
+    document.addEventListener("click", (event) => {
+      pairs.forEach((p) => {
+        if (!p.panel.hidden && !p.panel.contains(event.target) && !p.button.contains(event.target)) {
+          setOpen(p, false);
+        }
+      });
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      pairs.forEach((p) => {
+        if (!p.panel.hidden) {
+          setOpen(p, false);
+          p.button.focus();
+        }
+      });
+    });
   }
 
   function wireTopbarProfile() {
@@ -1252,26 +1348,43 @@ function renderSidebarAchievements() {
       const profile = window.SeavState?.profile || {};
 
       const name = String(profile.name || "").trim();
-      const label = name ? `${name} — your profile` : "Your profile";
+      // v565: the photo opens the account menu.
+      const label = name ? `Account menu — ${name}` : "Account menu";
       link.title = label;
-      link.setAttribute("aria-label", label);
+      link.dataset.closedLabel = label;
+      if (link.getAttribute("aria-expanded") !== "true") link.setAttribute("aria-label", label);
+
+      // Account menu header: name and "rank · current yacht".
+      const headName = document.getElementById("topbarAccountName");
+      const headRole = document.getElementById("topbarAccountRole");
+      if (headName) headName.textContent = name || "Your account";
+      if (headRole) {
+        const current = window.SeavData?.getCurrentVessel?.(window.SeavState?.vessels || []);
+        headRole.textContent = [profile.rank, current?.name].filter(Boolean).join(" · ");
+      }
 
       const photoUrl = getFileDisplayUrl(
         profile.photo,
         window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
       );
 
+      // The same face in the topbar and the account menu header.
+      const avatars = [avatar, document.getElementById("topbarAccountAvatar")].filter(Boolean);
       if (photoUrl) {
         // Same escaping as js/dashboard.js's dashAvatar — a signed URL can
         // carry characters that would otherwise break out of the url("").
         const safeUrl = String(photoUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-        avatar.style.backgroundImage = `url("${safeUrl}")`;
-        avatar.textContent = "";
-        avatar.classList.add("has-photo");
+        avatars.forEach((el) => {
+          el.style.backgroundImage = `url("${safeUrl}")`;
+          el.textContent = "";
+          el.classList.add("has-photo");
+        });
       } else {
-        avatar.style.backgroundImage = "";
-        avatar.textContent = topbarProfileInitials(name);
-        avatar.classList.remove("has-photo");
+        avatars.forEach((el) => {
+          el.style.backgroundImage = "";
+          el.textContent = topbarProfileInitials(name);
+          el.classList.remove("has-photo");
+        });
       }
     };
 

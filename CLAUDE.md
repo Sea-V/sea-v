@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v564**. Jack pushes every commit himself from
+- HEAD = **v565**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -965,6 +965,44 @@ New `docs/schema-public-read-onboard-all-statuses.sql` drops the status
 condition (owner must still be public_enabled); applied, smoke-tested,
 advisors 23/23. **Lesson: before recommending a rule on a status value,
 check the form can actually set it.**
+
+### Shipped 2026-10-03 (v565) — sidebar replaced by topbar menus
+Jack: sidebar "drop down from the topbar", one column, "just the three
+bars"; Public profile / CV generator / Profile settings / Log out on the
+photo at top right. Picked from rendered options.
+- `renderAppSidebar` + `syncSidebarHomeBand` deleted; `#sidebarMount` is
+  set `hidden`, `.dash` is one column (topbar.css). The v554 sidebar glass
+  and v558 home band CSS are removed from typography.css.
+- Left: round three-bar button `#topbarMenuBtn` (bars <-> X) opens
+  `#topbarMenuPanel` = `renderAppNav()` (same groups/links/ids as the old
+  sidebar, page-colour icons in tinted badges) + a footer with Contact /
+  About / Report / Privacy / Terms. Right: the photo is now a BUTTON
+  (`#topbarProfileLink`) opening `#topbarAccountPanel` (`renderAccountMenu`):
+  name + "rank · current yacht" header, `#sidebarPublicProfileLink`,
+  CV generator, Profile settings, `#btnLogout` — ids kept so
+  wireSidebarPublicProfile / wireLogout work unchanged.
+- **Sections fold** (Jack: the open menu "takes the whole page up" — it was
+  710px). Dashboard + Profile always show; Career / Operations & training /
+  Documentation / Highlights are native `<details name="seav-topbar-menu">`
+  (`renderMenuGroup`), one open at a time, and `setActiveSidebarLink` opens
+  the current page's section. Opens at ~450px on desktop and phone. Links
+  need `display: flex` inside — a <details> does not lay children out as
+  flex items.
+- `wireTopbarMenus()`: one open at a time, outside click / Esc / link
+  click close, Esc returns focus, keyboard open focuses the first link.
+- **The app topbar now shows on phones** (layout.css hid it <=1000px):
+  quick links hidden, Search icon-only. This is also the phone's Search.
+- Gotchas fixed on the way: `.app-topbar .nav-left a` now `> a` (it
+  stripped the menu's page colours); layout.css `.nav-right a[href]:not(...)`
+  pill rule gained `:not(.topbar-account-item)` (its :not() list outranks
+  any plain class); layout.css's <=980px `.dash-nav` sideways strip is
+  overridden inside the menu.
+- Dashboard gained a 5th quick action, "Build your CV" (the CV generator
+  is no longer in the main menu); on phones the odd one spans the row.
+- Verified on a local harness (real core.js + styles, stubbed SeavState) at
+  1100x820 and 390x844: both menus, Esc, outside click, focus, header,
+  public-profile href, no sideways scroll. Not yet seen signed in on the
+  live pages. Dead sidebar rules remain in layout.css (`.dash-sidebar*`).
 
 ### In progress 2026-09-28 — public profile redesign (design stage, NO code yet)
 Jack found the public profile "boring and bland". Design canvas (private, Jack's
