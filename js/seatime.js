@@ -307,7 +307,7 @@
               ${group.vesselColor ? `<span class="vessel-color-dot" style="background:${Seav.escapeHtml(group.vesselColor)}"></span>` : ""}
               <span class="seatime-vessel-group-title">
                 <strong>${Seav.escapeHtml(group.vesselName)}</strong>
-                <small>${totalDays} qualifying days</small>
+                <small>${totalDays} logged days</small>
               </span>
               <span class="seatime-vessel-group-count">${group.entries.length}</span>
             </summary>
@@ -440,7 +440,7 @@
     document.getElementById("st_flag").value = entry.flag || "";
     document.getElementById("st_gt").value = entry.gt || "";
     document.getElementById("st_imo").value = entry.imoOfficialNumber || "";
-    document.getElementById("st_role").value = entry.capacityServed || "";
+    fillPositionSelect(entry.capacityServed || "");
     Seav.setDateTriplet("st_date_joined", entry.dateJoined || "");
     Seav.setDateTriplet("st_date_left", entry.dateLeft || "");
 
@@ -470,8 +470,17 @@
     }
   }
 
+  // Rebuilt on every fill/reset so an old free-text value gets its own
+  // "(saved earlier)" option instead of the select blanking it.
+  function fillPositionSelect(value) {
+    const select = document.getElementById("st_role");
+    if (!select || !window.SeavData?.getPositionOptionsHtml) return;
+    select.innerHTML = window.SeavData.getPositionOptionsHtml(value);
+  }
+
   function resetSeatimeForm(form) {
     form.reset();
+    fillPositionSelect("");
 
     document.getElementById("st_edit_index").value = "";
     Seav.clearDateTriplet("st_date_joined");
@@ -497,6 +506,12 @@
     if (flagEl) flagEl.value = vessel.flag || "";
     if (gtEl) gtEl.value = vessel.gt || "";
     if (imoEl) imoEl.value = vessel.imoOfficialNumber || vessel.imo || "";
+
+    // Start the position from the vessel's role when none is chosen yet.
+    const roleEl = document.getElementById("st_role");
+    if (roleEl && !roleEl.value && (vessel.vessel_role || vessel.role)) {
+      fillPositionSelect(vessel.vessel_role || vessel.role);
+    }
   }
 
   function readSeatimeForm() {
@@ -573,6 +588,7 @@
       !document.getElementById("btnExportSeatimeCsv")
     ) return;
     seatimeInited = true;
+    fillPositionSelect("");
 
     const runRefresh = async () => {
       try {
@@ -640,6 +656,32 @@
             "error",
             "Invalid dates",
             "Date left must be on or after date joined."
+          );
+          return;
+        }
+
+        // v572, from the 2026-10-04 audit: watchkeeping days are sea days
+        // spent on watch (MSN 1858 §4.2), so they can never exceed the sea
+        // days, and the day breakdown can never add up to more days than
+        // the crew member was signed on. Both used to save silently.
+        if (formData.watchkeepingDays > formData.actualSeaServiceDays) {
+          Seav.notify(
+            "error",
+            "Check watchkeeping days",
+            `Watchkeeping days (${formData.watchkeepingDays}) are sea days spent on watch, so they can't be more than your actual sea days (${formData.actualSeaServiceDays}).`
+          );
+          return;
+        }
+
+        const signedOn =
+          Math.round((new Date(formData.dateLeft) - new Date(formData.dateJoined)) / 86400000) + 1;
+        const loggedDays =
+          formData.actualSeaServiceDays + formData.standbyServiceDays + formData.yardServiceDays;
+        if (signedOn > 0 && loggedDays > signedOn) {
+          Seav.notify(
+            "error",
+            "Too many days for these dates",
+            `Sea, standby and yard days add up to ${loggedDays}, but you were signed on for ${signedOn} days. Check the numbers or the dates.`
           );
           return;
         }

@@ -40,6 +40,8 @@
     "RYA Yachtmaster Offshore",
     "Master <200GT",
     "OOW Yachts <3000GT",
+    // v571: Ocean is a Chief Mate <3000GT prerequisite (MSN 1858 §3.4).
+    "RYA Yachtmaster Ocean",
     "Chief Mate Yachts <3000GT",
     "Master <500GT",
     "Master <3000GT",

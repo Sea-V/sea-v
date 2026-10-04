@@ -372,7 +372,7 @@ function buildVesselCardBody(v, options = {}) {
           <h3>Sea Time</h3>
           <div class="vessel-linked-summary">
             <strong>${linkedSeatimes.length}</strong>
-            <span>${linkedSeatimes.length === 1 ? "entry" : "entries"} · ${totalSeaDays} days total</span>
+            <span>${linkedSeatimes.length === 1 ? "entry" : "entries"} · ${totalSeaDays} logged days</span>
           </div>
           <a class="vessel-linked-link" href="seatime.html">View sea time →</a>
         </section>
@@ -793,7 +793,9 @@ function fillVesselForm(vessel) {
   const programEl = document.getElementById("vs_program");
   const builderEl = document.getElementById("vs_builder");
 
-  if (roleEl) roleEl.value = vessel.vessel_role || vessel.role || "";
+  if (roleEl && window.SeavData?.getPositionOptionsHtml) {
+    roleEl.innerHTML = window.SeavData.getPositionOptionsHtml(vessel.vessel_role || vessel.role || "");
+  }
   if (typeEl) typeEl.value = vessel.vessel_type || vessel.type || "";
   if (programEl) programEl.value = vessel.program || "";
   if (builderEl) builderEl.value = vessel.builder || "";
@@ -862,6 +864,11 @@ function resetVesselFormState() {
   // crew member states one, and defaulting to "Permanent" would put a claim
   // on their CV they never made.
   populateVesselContractTypeOptions("");
+
+  const roleSelect = document.getElementById("vs_role");
+  if (roleSelect && window.SeavData?.getPositionOptionsHtml) {
+    roleSelect.innerHTML = window.SeavData.getPositionOptionsHtml("");
+  }
 
   populateVesselCurrencyOptions();
   const salaryCurrencyEl = document.getElementById("vs_salary_currency");
@@ -1038,6 +1045,10 @@ async function saveVesselData(vesselData) {
 
     populateVesselCurrencyOptions();
     populateVesselContractTypeOptions();
+    const roleSelectInit = document.getElementById("vs_role");
+    if (roleSelectInit && roleSelectInit.options.length <= 1 && window.SeavData?.getPositionOptionsHtml) {
+      roleSelectInit.innerHTML = window.SeavData.getPositionOptionsHtml("");
+    }
 
     const vsPhotoInput = document.getElementById("vs_photo");
     const vsPhotoBtn = document.getElementById("vsPhotoBtn");

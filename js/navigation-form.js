@@ -871,6 +871,10 @@
     if (operationTypeInput) operationTypeInput.value = normalized.operationType || "";
     if (noteInput) noteInput.value = normalized.note || "";
     if (isTidalInput) isTidalInput.checked = !!normalized.isTidal;
+    const passageRoleInput = document.getElementById("navPassageRole");
+    if (passageRoleInput) passageRoleInput.value = normalized.passageRole || "";
+    const oceanOffshoreInput = document.getElementById("navOceanOffshore");
+    if (oceanOffshoreInput) oceanOffshoreInput.checked = !!normalized.oceanOffshore;
     Seav.setDateTriplet("navDepartureDate", normalized.departureDate || "");
     Seav.setDateTriplet("navArrivalDate", normalized.arrivalDate || "");
 

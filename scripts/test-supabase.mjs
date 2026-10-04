@@ -85,7 +85,8 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
     "id", "user_id", "country", "port", "from_country", "from_port", "from_lat",
     "from_lng", "to_country", "to_port", "to_lat", "to_lng", "vessel_id", "seatime_id",
     "operation_type", "passage_name", "visited_date", "departure_date", "arrival_date",
-    "lat", "lng", "waypoints", "note", "is_tidal", "created_at", "updated_at"
+    "lat", "lng", "waypoints", "note", "is_tidal", "passage_role", "ocean_offshore",
+    "created_at", "updated_at"
   ].join(","),
   onboard_experiences: [
     "id", "user_id", "vessel_id", "category", "title", "description", "location_onboard", "position_held",

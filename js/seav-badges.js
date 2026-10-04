@@ -51,6 +51,22 @@ yachtmaster_offshore: {
   lockedImage: LOCKED_IMAGE,
   tier: "gold"
 },
+yachtmaster_offshore_ready: {
+  key: "yachtmaster_offshore_ready",
+  label: "RYA Yachtmaster Offshore — Exam Requirements",
+  fileName: "yachtmaster-offshore-ready.svg",
+  image: "/img/badges/yachtmaster-offshore-ready.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "gold"
+},
+yachtmaster_ocean_passage: {
+  key: "yachtmaster_ocean_passage",
+  label: "RYA Yachtmaster Ocean — Qualifying Passage",
+  fileName: "yachtmaster-ocean-passage.svg",
+  image: "/img/badges/yachtmaster-ocean-passage.svg",
+  lockedImage: LOCKED_IMAGE,
+  tier: "platinum"
+},
 master_200gt_sea_service: {
   key: "master_200gt_sea_service",
   label: "Master <200GT — Sea Service",
@@ -235,9 +251,35 @@ northwest_passage_transit: {
       dashboardSection: "navigation",
       sourcePage: "navigation",
       badgeKey: "yachtmaster_offshore",
-      description: "Logged 2,500 qualifying miles, at least 1,250 of them in tidal waters — the sea-mile prerequisite for the RYA Yachtmaster Offshore exam, separate from any MCA Certificate of Competency.",
+      description: "Logged 2,500 miles on yachts up to 500GT, at least 1,250 of them in tidal waters — the sea-mile prerequisite for the RYA Yachtmaster Offshore exam. Passages on larger yachts don't count (RYA rule); passages with no vessel linked do.",
       approvalRequired: false,
       trigger: { type: "yachtmaster_offshore_miles" }
+    },
+
+    // v571 (Jack, 2026-10-04): the full RYA pre-exam list, not just miles.
+    yachtmaster_offshore_ready: {
+      code: "yachtmaster_offshore_ready",
+      title: "RYA Yachtmaster Offshore — Exam Requirements",
+      category: "Deck Progression",
+      certGroup: "RYA Yachtmaster Offshore",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "yachtmaster_offshore_ready",
+      description: "Met the RYA's pre-exam requirements for Yachtmaster Offshore: 50 days at sea in the last 10 years on yachts up to 500GT (half under 24m), 2,500 miles (half tidal), 5 passages over 60 miles including 2 overnight and 2 as skipper, 5 days as skipper on vessels under 24m, plus a VHF/SRC and a first aid certificate. Set your role on each passage on the Navigation page.",
+      approvalRequired: false,
+      trigger: { type: "yachtmaster_offshore_ready" }
+    },
+    yachtmaster_ocean_passage: {
+      code: "yachtmaster_ocean_passage",
+      title: "RYA Yachtmaster Ocean — Qualifying Passage",
+      category: "Deck Progression",
+      certGroup: "RYA Yachtmaster Ocean",
+      dashboardSection: "navigation",
+      sourcePage: "navigation",
+      badgeKey: "yachtmaster_ocean_passage",
+      description: "Logged a Yachtmaster Ocean qualifying passage within the last 10 years — non-stop, 600+ miles, 200+ of them more than 50 miles from land, at least 96 hours, as skipper or in charge of a watch — while holding Yachtmaster Offshore or OOW Yachts <3000GT. Celestial sights are assessed by the RYA, not tracked here.",
+      approvalRequired: false,
+      trigger: { type: "yachtmaster_ocean_passage" }
     },
 
     oow_250_actual_days: {
@@ -284,7 +326,7 @@ northwest_passage_transit: {
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_3000gt_sea_time",
-      description: "Met every sea-time requirement for OOW Yachts <3000GT: 250 actual sea days, 365 qualifying days on vessels 15m or over, and 36 months' total onboard yacht service (MSN 1858).",
+      description: "Met every sea-time requirement for OOW Yachts <3000GT: 250 actual sea days, 365 qualifying days on vessels 15m or over, 36 months' total onboard yacht service, and at least 6 months of that seagoing service within the last 5 years (MSN 1858 §3.3 and §9).",
       approvalRequired: false,
       trigger: { type: "oow_eligible" }
     },
@@ -327,7 +369,7 @@ northwest_passage_transit: {
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "master_500gt_sea_service",
-      description: "Logged 12 months onboard as deck officer while holding OOW Yachts <3000GT, including 120 days' watchkeeping service on vessels 15m or over — the sea-service requirement for Master (Yacht) <500GT (MSN 1858 §3.5). Onboard months count only after your OOW <3000GT issue date; watchkeeping days count across your full sea time record.",
+      description: "Logged 12 months onboard as a deck officer while holding OOW Yachts <3000GT, including 120 days' watchkeeping service, on vessels 15m or over — the sea-service requirement for Master (Yacht) <500GT (MSN 1858 §3.5). Only service after your OOW <3000GT issue date, in a deck officer role (Officer, Mate, Master or Captain), counts.",
       approvalRequired: false,
       trigger: { type: "master_500gt_gated_sea_service", gatingCertCode: "OOW YACHT" }
     },
@@ -340,7 +382,7 @@ northwest_passage_transit: {
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "master_3000gt_sea_service",
-      description: "Logged 240 watchkeeping days on vessels 15m or over, plus 12 months on 500GT+ vessels or 24 months on 24m+ vessels while holding OOW Yachts <3000GT — the sea-service requirement for Master (Yacht) <3000GT (MSN 1858 §3.6(a)). The 500GT+/24m+ months count only after your OOW <3000GT issue date; watchkeeping days count across your full sea time record.",
+      description: "Logged 24 months onboard as a deck officer on vessels 15m or over while holding OOW Yachts <3000GT, including 240 days' watchkeeping service and either 12 months on vessels 24m or over or 6 months on vessels 500GT or over — the sea-service requirement for Master (Yacht) <3000GT (MSN 1858 §3.6(a)). Only service after your OOW <3000GT issue date, in a deck officer role, counts.",
       approvalRequired: false,
       trigger: { type: "master_3000gt_gated_sea_service", gatingCertCode: "OOW YACHT" }
     },

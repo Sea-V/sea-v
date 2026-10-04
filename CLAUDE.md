@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v570**. Jack pushes every commit himself from
+- HEAD = **v571**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1017,6 +1017,140 @@ unchanged. Jack's total 1,313 -> 1,197; daniel-whitfield (demo) was out by
 1,860. Data oddity left for Jack: Senses 2025-12-12 -> 2026-02-13 has 29
 watchkeeping days against 18 sea days. Admin reports are in `bug_reports`
 (join profile.user_id for the sender).
+
+### v571 — privacy policy, terms, referee notice (compliance pass)
+Jack asked whether SEA-V is exposed to a viral "you'll be sued" list.
+Findings: no cookies at all (no `document.cookie`; Supabase auth, the
+records cache [sessionStorage], signed URLs, CV draft and small UI prefs
+are browser storage, all functional); no trackers/ads/AI; only email is
+the transactional referee verification; Sentry error monitoring on 25
+pages (EU/de, `userInfo: false`, no HTTP bodies) was NOT in the policy;
+site is on Vercel (+ Speed Insights, cookieless). The privacy policy
+(29 July) was also WRONG about the public profile: it said tenders and
+draft records are never public (both are — v549 onboard all statuses) and
+omitted certificates / self-declared achievements.
+- privacy.html rewritten in place (same layout): accurate public / never-
+  public lists, new "References and referees" section, named providers
+  (Supabase London, Vercel, Resend, Sentry EU, CDNs, CARTO/OSM), 72-hour
+  ICO breach line, self-service deletion, ICO complaint link, a precise
+  "no cookies" storage list, data location. 13 sections.
+- terms.html: "Reporting content" notice-and-takedown paragraph; sea-time /
+  milestone figures are guidance only, the MCA decides.
+- verify-reference.html: footnote telling referees what is saved and what
+  may be public (email + CoC never), linking privacy.html#referees. The
+  email itself was NOT changed (no edge-function redeploy).
+- **Jack to do (not code):** ICO data protection fee; where hero.jpg /
+  ocean.jpg / og-share-card.jpg came from; check Sentry's Loader Script
+  settings that Session Replay is OFF (the loader's config lives in the
+  Sentry dashboard, not the repo).
+- **TRADE MARK RISK (found 2026-10-04, Jack's UK IPO search).**
+  UK00003451199 word mark "SEAV", owner SEAVIO LIMITED (London), filed
+  2019-12-12, registered 2020-03-06, renews 2029. Classes 9/35/36/38/41/42/45,
+  incl. "Computer software for tracking and recording professional skills
+  and experience", career networking, recruitment, online content hosting,
+  social networking — near-identical to SEA-V. Possible angle: 5-year
+  non-use (passed 2025-03-06) if SEAVIO is not trading under it. Advised
+  Jack: check Companies House + any live SEAV product, then a trade mark
+  attorney / British Library IP clinic BEFORE further brand spend; do not
+  contact SEAVIO first; EUIPO search too. Not legal advice. Other hits:
+  UK00901421452 "seav" logo (SEAV S.R.L., Italy, class 9 hardware — low);
+  UK00911501145 dead.
+  Checked 2026-10-04: SEAVIO LIMITED (Companies House 12099916) is ACTIVE,
+  SIC 62012 software development, files micro accounts (latest to
+  2025-07-31, not dormant). seav.io is a parked GoDaddy domain; seav.com is
+  the Italian electronics firm. No live SEAV career product found. Jack's
+  "SEA-V = sea verification" reading helps aurally/conceptually, not
+  visually; services overlap closely. Still: get professional advice.
+  Jack, 2026-10-04: SEAV's only trace he found is a 2021 Facebook page
+  saying it TRACKS SEA TIME USING AIS — same niche, so confusion risk is
+  higher and "sea verification" weaker. But if use stopped in 2021, a
+  5-year non-use revocation may be available around now, or the mark may
+  be buyable (approach via attorney, not directly). Advised: screenshot
+  the Facebook page with dates as evidence, then attorney / IP clinic.
+  **Bigger, same day: "Sea-V Pages" (seavpages.com) is LIVE** — same
+  spelling incl. hyphen, "the online CV creation tool for superyacht
+  crew", CV-as-a-webpage per member + a recruiter service, footer
+  "© Sea-V Pages 2026", domain registered 2022-09-01 (sea-v.com shows
+  2025-09-09). Operator not named; registrant redacted; link to SEAVIO
+  unknown. That is a passing-off risk (earlier goodwill, same customers,
+  same product) independent of the registered mark. Jack believes owning
+  sea-v.com gives him grounds — told him plainly it does not (a domain
+  confers no trade mark/goodwill rights). Advised: priority attorney /
+  IP clinic with both findings, keep dated evidence, do not contact
+  either party, start a shortlist of alternative names in parallel
+  (sea-v.com can redirect). Not legal advice.
+  Jack, 2026-10-04: SEA-V is NOT a business and will ALWAYS be free (no
+  revenue, ads or paid features planned). Told him: shrinks money claims
+  and motive, raises a "course of trade" question for the attorney, but
+  free public services usually still count, passing off needs no money,
+  and the stop-using-the-name remedy is unchanged. Attorney brief:
+  https://claude.ai/artifact/BVKC7XWiXuMEHTJA2YrdSa (private, Jack's).
+  **Any new tracker, analytics or marketing email changes the cookie /
+  consent answer — update privacy.html section 10 first.**
+
+### Also v571 — sea-time maths checked against MSN 1858 Amendment 1
+A code audit (subagent) + live-data check, then the rules read from the MCA
+PDF itself (§3.1–3.6, §4.2 definitions, §4.3, §9). Key definitions:
+**onboard yacht service = "the time spent signed on a yacht, irrespective
+of the vessel activity"** (so signed-on DATES, not the day buckets — Jack
+confirmed; a buckets-based 36-month version was tried and reverted);
+seagoing = 4h+ working duty in 24h; standby max 14 consecutive days and
+total standby never above actual sea; yard max 90 (inside the 115, NOT on
+the 36 months); watchkeeping = actual sea service in full charge of a
+watch, 4h cumulative = 1 day; month = calendar month or 30 days; §9 = 6
+months of the qualifying seagoing service within 5 years of applying.
+Changes (seav-data.js unless noted):
+- `signedOnDays()` — inclusive (join AND leave day). Used for 36 months
+  and every Master onboard figure (apportionment keeps daysBetweenDates).
+- `servedAsDeckOfficer()` — Master <500/<3000GT count only deck officer
+  roles (capacityServed, else vessel role); trainee/cadet/engineer/bosun/
+  interior excluded. Jack's "Trainee 2nd Officer" entries do not count.
+- Master <3000GT now also requires **24 months as deck officer on 15m+**
+  (§3.6(a)) — was never checked. New progress row + label.
+- Master Unlimited actual sea days pro-rated to after the cert date.
+- `getEntryVesselGt` falls back to the entry's own GT.
+- OOW Sea Time Complete: 4 progress rows incl. "Seagoing days in the last
+  5 years"; badge text names §9. Master badge texts corrected (the <3000GT
+  one had 12m/500GT and 24m/24m+ swapped).
+- "qualifying days" -> "logged days" (seatime groups, dashboard tile,
+  vessels). Sea Time form blocks watchkeeping > sea and sea+standby+yard >
+  signed-on days.
+Verified in node: rule cases pass; old vs new on jack / daniel / simon —
+no badge flips (36mo +~1 day/contract; daniel M500 -51 bosun days; Jack
+M3000 deck-officer 17.6/24 months).
+- **Position dropdowns** (Jack: avoid misspellings). `SEAFARER_POSITIONS`
+  (5 groups, 42 roles, each with `deckOfficer` / `master` flags) drives the
+  Sea Time "Capacity served" and vessel "Role on vessel" selects via
+  `getPositionOptionsHtml` — old free text kept as "(saved earlier)",
+  "captain" normalises to "Captain". `servedAsDeckOfficer` / new
+  `servedAsMasterRole` read the flags first, regex as fallback.
+  `MASTER_CAPACITY_MATCH` now also matches "captain" — Captain entries
+  never counted for Master Unlimited before. Picking a vessel on Sea Time
+  pre-fills the position from the vessel's role.
+- **Yachtmaster (RYA, checked on rya.org.uk 2026-10-04).** DB, LIVE:
+  `navigation_areas.passage_role` ('Skipper'|'Watch leader'|'Crew'|null)
+  + `ocean_offshore` bool (`docs/schema-navigation-passage-role-ocean.sql`,
+  applied + smoke-tested, anon reads them via the table grant, advisors
+  23/23, drift list updated). Navigation form: "My role on this passage" +
+  "200+ NM more than 50 NM from land" tick; list shows both.
+  Jack's calls: **strict RYA "yachts up to 500GT"** for miles AND sea days
+  (incl. the existing Sea Miles badge), and **passages with no vessel
+  linked count**. Earned badges stay (PERMANENT_ONCE_EARNED_TRIGGERS), so
+  daniel / mia keep Sea Miles though their <=500GT miles are 0.
+  New: `computeYachtmasterOffshoreChecklist` (10 rows: 50 sea days/10y on
+  <=500GT, 25 on <24m, 2,500 NM, 1,250 tidal, 5 passages >60NM, 2
+  overnight [arrival date > departure], 2 as skipper, 5 skipper days on
+  <24m, SRC/GMDSS, first aid) and `computeYachtmasterOceanPassage` (YMO /
+  IYT YMO / OOW held + one passage: 600NM, ocean tick, 4+ nights, skipper
+  or watch leader, 10y). Badges `yachtmaster_offshore_ready` (gold) and
+  `yachtmaster_ocean_passage` (platinum), art from generate-badges.mjs
+  (the generator rewrites EVERY svg with new random gradient ids — revert
+  the untouched ones with `git checkout -- img/badges`). "RYA Yachtmaster
+  Ocean" sits before Chief Mate in DECK_CERT_GROUP_ORDER. Not tracked:
+  tidal sea DAYS, celestial sights, passage times.
+  Verified: node rule tests (positions 15/15, Yachtmaster 14/14); Sea Time
+  harness — select, vessel pre-fill, legacy value, both form blocks. The
+  Navigation form fields were not seen rendered (page needs the map).
 
 ### v570 — CV generator guides crew to fill empty sections
 Jack: most crew will use the (free) CV generator and need sending to

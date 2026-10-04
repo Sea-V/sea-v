@@ -456,6 +456,8 @@ function mapNavigationAreaFromSupabase(n) {
     waypoints: normalizeWaypoints(n.waypoints),
     note: n.note || "",
     isTidal: !!n.is_tidal,
+    passageRole: n.passage_role || "",
+    oceanOffshore: !!n.ocean_offshore,
     createdAt: n.created_at || "",
     updatedAt: n.updated_at || ""
   };
@@ -509,6 +511,8 @@ function mapNavigationAreaToSupabase(item) {
     waypoints: normalizeWaypoints(item.waypoints),
     note: item.note || "",
     is_tidal: !!item.isTidal,
+    passage_role: item.passageRole || null,
+    ocean_offshore: !!item.oceanOffshore,
     // Always sent, null when unlinked. It used to be added only when set,
     // so clearing the link sent no seatime_id at all and the row kept the
     // old one -- a passage could never be unlinked from its sea time.

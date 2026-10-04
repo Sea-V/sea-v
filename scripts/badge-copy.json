@@ -35,6 +35,20 @@
     "page": "navigation"
   },
   {
+    "file": "yachtmaster-offshore-ready",
+    "tier": "gold",
+    "hero": "OFFSHORE",
+    "sub": "EXAM READY",
+    "page": "navigation"
+  },
+  {
+    "file": "yachtmaster-ocean-passage",
+    "tier": "platinum",
+    "hero": "OCEAN",
+    "sub": "PASSAGE DONE",
+    "page": "navigation"
+  },
+  {
     "file": "master-200gt-sea-service",
     "tier": "gold",
     "hero": "MASTER 200",

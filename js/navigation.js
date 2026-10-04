@@ -236,6 +236,8 @@
       const operationType = operationTypeInput?.value || "";
       const note = noteInput?.value.trim() || "";
       const isTidal = !!isTidalInput?.checked;
+      const passageRole = document.getElementById("navPassageRole")?.value || "";
+      const oceanOffshore = !!document.getElementById("navOceanOffshore")?.checked;
       const passageName =
         document.getElementById("navPassageName")?.value.trim() || "";
 
@@ -313,6 +315,8 @@
           arrivalDate,
           note,
           isTidal,
+          passageRole,
+          oceanOffshore,
           waypoints: S.formWaypoints.map((wp) => ({
             lat: wp.lat,
             lng: wp.lng,

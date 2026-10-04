@@ -62,7 +62,7 @@
               : ""
           }
           <div class="list-sub">
-            ${Seav.escapeHtml(vesselName)} · ${Seav.escapeHtml(dateText)} · ${Seav.escapeHtml(entry.operationType || "—")}${entry.isTidal ? " · Tidal waters" : ""}
+            ${Seav.escapeHtml(vesselName)} · ${Seav.escapeHtml(dateText)} · ${Seav.escapeHtml(entry.operationType || "—")}${entry.isTidal ? " · Tidal waters" : ""}${entry.passageRole ? ` · ${Seav.escapeHtml(entry.passageRole)}` : ""}${entry.oceanOffshore ? " · Ocean (200+ NM offshore)" : ""}
           </div>
           ${
             linkedSeatime

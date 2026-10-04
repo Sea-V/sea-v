@@ -130,6 +130,8 @@
       visitedDate: entry.visitedDate || departureDate || arrivalDate || "",
       waypoints: normalizeWaypointList(entry.waypoints),
       isTidal: !!entry.isTidal,
+      passageRole: entry.passageRole || "",
+      oceanOffshore: !!entry.oceanOffshore,
       country: toCountry,
       port: toPort,
       lat: toLat,

@@ -1294,9 +1294,12 @@ function getEmptyTenderEntry() {
     return parseLengthMeters(vessel?.vessel_length || vessel?.length || entry?.vesselLength);
   }
 
+  // The vessel's GT wins; the GT typed on the Sea Time entry is the
+  // fallback when the vessel has none (v572 — the entry's own GT used to be
+  // shown in the table but ignored by every calculation).
   function getEntryVesselGt(entry, vessels) {
     const vessel = findVesselById(vessels, entry?.vesselId);
-    return parseGrossTonnage(vessel?.gt);
+    return parseGrossTonnage(vessel?.gt) || parseGrossTonnage(entry?.gt);
   }
 
   // 2026-08-05, per Jack: a future-dated Sea Time entry (a contract logged
@@ -1317,6 +1320,167 @@ function getEmptyTenderEntry() {
     if (!start || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0;
     const ms = end - start;
     return ms > 0 ? Math.round(ms / 86400000) : 0;
+  }
+
+  // Onboard yacht service, MSN 1858 §4.2: "the time spent signed on a yacht,
+  // irrespective of the vessel activity". Signed on covers BOTH the joining
+  // and the leaving day, so this is daysBetweenDates + 1 (v572; it used to
+  // drop the last day of every contract). Still clipped to today for an
+  // open or future-dated entry. Use this for onboard service only — the
+  // 0..1 window apportionment below keeps daysBetweenDates.
+  function signedOnDays(startIso, endIso) {
+    const start = startIso ? new Date(startIso) : null;
+    if (!start || Number.isNaN(start.getTime())) return 0;
+    const rawEnd = endIso ? new Date(endIso) : new Date();
+    const today = new Date();
+    const end = rawEnd > today ? today : rawEnd;
+    if (Number.isNaN(end.getTime()) || end < start) return 0;
+    return Math.round((end - start) / 86400000) + 1;
+  }
+
+  // MSN 1858 §3.5(b) / §3.6(a): Master service counts only "onboard yacht
+  // service as a deck officer" while serving as OOW. Read from the entry's
+  // "Capacity served", falling back to the vessel's role. Trainee / cadet
+  // officers are NOT counted (no certificate of their own yet), nor are
+  // engineers, bosuns or interior roles. Free text, so a best-effort match.
+  const DECK_OFFICER_ROLE_MATCH =
+    /\b(master|captain|skipper|chief officer|chief mate|first officer|first mate|second officer|second mate|2nd officer|2nd mate|third officer|third mate|3rd officer|3rd mate|officer of the watch|oow|deck officer|mate)\b/i;
+  const NOT_DECK_OFFICER_MATCH = /\b(trainee|cadet|engineer|eto|electro|bosun|boatswain|purser|steward|stewardess|chef|cook)\b/i;
+
+  // v571, Jack: "add dropdown for the position onboard ... this will avoid
+  // issues if misspelling happens and goes unnoticed". ONE list for the Sea
+  // Time "Capacity served" and the vessel "Role on vessel" selects. Each
+  // position says whether it is a deck officer role (Master <500/<3000GT
+  // service, MSN 1858 §3.5/3.6) and whether it is the Master role (Master
+  // Unlimited), so the maths reads a flag instead of guessing from
+  // spelling. Free text saved before v571 is kept as a "(saved earlier)"
+  // option and still matched by the regexes below.
+  const SEAFARER_POSITIONS = [
+    {
+      group: "Deck",
+      roles: [
+        { label: "Captain", deckOfficer: true, master: true },
+        { label: "Relief Captain", deckOfficer: true, master: true },
+        { label: "Chief Officer", deckOfficer: true },
+        { label: "First Officer", deckOfficer: true },
+        { label: "Second Officer", deckOfficer: true },
+        { label: "Third Officer", deckOfficer: true },
+        { label: "Officer of the Watch (OOW)", deckOfficer: true },
+        { label: "Mate", deckOfficer: true },
+        { label: "Trainee Officer" },
+        { label: "Bosun" },
+        { label: "Lead Deckhand" },
+        { label: "Deckhand" },
+        { label: "Junior Deckhand" },
+        { label: "Deck / Engineer" },
+        { label: "Deck / Stew" }
+      ]
+    },
+    {
+      group: "Engineering",
+      roles: [
+        { label: "Chief Engineer" },
+        { label: "Second Engineer" },
+        { label: "Third Engineer" },
+        { label: "Engineer" },
+        { label: "Junior Engineer" },
+        { label: "ETO (Electro-Technical Officer)" },
+        { label: "AV/IT Officer" }
+      ]
+    },
+    {
+      group: "Interior",
+      roles: [
+        { label: "Purser" },
+        { label: "Chief Stew" },
+        { label: "Head of Housekeeping" },
+        { label: "Second Stew" },
+        { label: "Third Stew" },
+        { label: "Stew" },
+        { label: "Junior Stew" },
+        { label: "Sole Stew" },
+        { label: "Laundry" }
+      ]
+    },
+    {
+      group: "Galley",
+      roles: [
+        { label: "Head Chef" },
+        { label: "Sous Chef" },
+        { label: "Sole Chef" },
+        { label: "Crew Chef" },
+        { label: "Cook" }
+      ]
+    },
+    {
+      group: "Other",
+      roles: [
+        { label: "Spa / Beauty Therapist" },
+        { label: "Dive Instructor" },
+        { label: "Water Sports Instructor" },
+        { label: "Nanny" },
+        { label: "Security" },
+        { label: "Other" }
+      ]
+    }
+  ];
+
+  function findSeafarerPosition(label) {
+    const key = String(label || "").trim().toLowerCase();
+    if (!key) return null;
+    for (const group of SEAFARER_POSITIONS) {
+      const hit = group.roles.find((role) => role.label.toLowerCase() === key);
+      if (hit) return hit;
+    }
+    return null;
+  }
+
+  // <option>s for a position <select>. A saved value that is not in the
+  // list (free text from before v571) is kept as its own first option so
+  // opening an old record never silently blanks it.
+  function getPositionOptionsHtml(current, { placeholder = "Select position" } = {}) {
+    const esc = (v) =>
+      String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    const value = String(current || "").trim();
+    const known = findSeafarerPosition(value);
+    const selected = known ? known.label : value;
+    const legacy =
+      value && !known
+        ? `<option value="${esc(value)}" selected>${esc(value)} (saved earlier)</option>`
+        : "";
+    const groups = SEAFARER_POSITIONS.map(
+      (group) =>
+        `<optgroup label="${esc(group.group)}">${group.roles
+          .map(
+            (role) =>
+              `<option value="${esc(role.label)}"${role.label === selected ? " selected" : ""}>${esc(role.label)}</option>`
+          )
+          .join("")}</optgroup>`
+    ).join("");
+    return `<option value=""${value ? "" : " selected"}>${esc(placeholder)}</option>${legacy}${groups}`;
+  }
+
+  function getEntryRole(entry, vessels) {
+    const own = String(entry?.capacityServed || "").trim();
+    if (own) return own;
+    const vessel = findVesselById(vessels, entry?.vesselId);
+    return String(vessel?.vessel_role || vessel?.role || "").trim();
+  }
+
+  function servedAsDeckOfficer(entry, vessels) {
+    const role = getEntryRole(entry, vessels);
+    const known = findSeafarerPosition(role);
+    if (known) return !!known.deckOfficer;
+    return DECK_OFFICER_ROLE_MATCH.test(role) && !NOT_DECK_OFFICER_MATCH.test(role);
+  }
+
+  // Master Unlimited's "served in the Master capacity". Before v571 only
+  // the word "master" matched, so an entry saved as "Captain" never counted.
+  function servedAsMasterRole(entry) {
+    const role = String(entry?.capacityServed || "").trim();
+    const known = findSeafarerPosition(role);
+    if (known) return !!known.master;
+    return MASTER_CAPACITY_MATCH.test(role) && !/\b(trainee|cadet)\b/i.test(role);
   }
 
   const OOW_QUALIFYING_TARGET = 365;
@@ -1413,7 +1577,7 @@ function getEmptyTenderEntry() {
    */
   function computeOow36MonthsOnboard(seatimes) {
     const totalDays = (seatimes || []).reduce((sum, entry) => {
-      const dated = daysBetweenDates(entry.dateJoined, entry.dateLeft);
+      const dated = signedOnDays(entry.dateJoined, entry.dateLeft);
       if (dated > 0) return sum + dated;
       return (
         sum +
@@ -1804,11 +1968,13 @@ function getEmptyTenderEntry() {
       };
     }
 
+    // "as a deck officer" (v572): deckhand / bosun time after the OOW issue
+    // date used to count here too.
     let onboardDays = 0;
     gated.gatedEntries.forEach((entry) => {
       const lengthM = getEntryVesselLengthMeters(entry, vessels);
-      if (lengthM >= 15) {
-        onboardDays += daysBetweenDates(entry.dateJoined, entry.dateLeft);
+      if (lengthM >= 15 && servedAsDeckOfficer(entry, vessels)) {
+        onboardDays += signedOnDays(entry.dateJoined, entry.dateLeft);
       }
     });
 
@@ -1879,6 +2045,11 @@ function getEmptyTenderEntry() {
   // signature/behaviour) so the already-shipped Sea Time page tracker is
   // untouched — this one backs the Milestones achievement only.
   const MASTER_3000GT_GATING_CERT_CODE = "OOW YACHT";
+  // §3.6(a) "a minimum of 24 months' onboard yacht service as a Deck
+  // Officer ... all of this service on vessels of 15 metres or over" — never
+  // checked before v572 (only the 240 watchkeeping days and the 24m/500GT
+  // special experience were).
+  const MASTER_3000GT_ONBOARD_TARGET_MONTHS = 24;
 
   function computeMaster3000SeaService(seatimes, certs, vessels) {
     const gated = seatimesGatedByCertIssueDate(seatimes, certs, MASTER_3000GT_GATING_CERT_CODE);
@@ -1897,6 +2068,10 @@ function getEmptyTenderEntry() {
         specialValue: 0,
         specialTarget: MASTER_SPECIAL_24M_TARGET_MONTHS,
         specialMet: false,
+        onboardDays: 0,
+        onboardMonths: 0,
+        onboardMet: false,
+        ONBOARD_TARGET_MONTHS: MASTER_3000GT_ONBOARD_TARGET_MONTHS,
         allMasterMet: false,
         WATCHKEEPING_TARGET: MASTER_WATCHKEEPING_TARGET,
         GATING_CERT_CODE: MASTER_3000GT_GATING_CERT_CODE
@@ -1905,15 +2080,20 @@ function getEmptyTenderEntry() {
 
     let totalOnboard24mDays = 0;
     let totalOnboard500gtDays = 0;
+    let onboardDays = 0;
 
     gated.gatedEntries.forEach((entry) => {
+      if (!servedAsDeckOfficer(entry, vessels)) return;
       const lengthM = getEntryVesselLengthMeters(entry, vessels);
       const gt = getEntryVesselGt(entry, vessels);
-      const days = daysBetweenDates(entry.dateJoined, entry.dateLeft);
+      const days = signedOnDays(entry.dateJoined, entry.dateLeft);
 
+      if (lengthM >= 15) onboardDays += days;
       if (lengthM >= 24) totalOnboard24mDays += days;
       if (gt >= 500) totalOnboard500gtDays += days;
     });
+    const onboardMonths = onboardDays / DAYS_PER_MONTH;
+    const onboardMet = onboardMonths >= MASTER_3000GT_ONBOARD_TARGET_MONTHS;
 
     // GATED as of 2026-08-16 — same reasoning as computeMaster500SeaService
     // above. MSN 1858 SS3.6(a): 240 days' watchkeeping service while holding
@@ -1953,7 +2133,11 @@ function getEmptyTenderEntry() {
       specialValue,
       specialTarget,
       specialMet,
-      allMasterMet: watchMet && specialMet,
+      onboardDays,
+      onboardMonths,
+      onboardMet,
+      ONBOARD_TARGET_MONTHS: MASTER_3000GT_ONBOARD_TARGET_MONTHS,
+      allMasterMet: onboardMet && watchMet && specialMet,
       WATCHKEEPING_TARGET: MASTER_WATCHKEEPING_TARGET,
       GATING_CERT_CODE: MASTER_3000GT_GATING_CERT_CODE
     };
@@ -2037,7 +2221,7 @@ function getEmptyTenderEntry() {
   const MASTER_UNLIMITED_ONBOARD_TARGET_MONTHS = 6;
   const MASTER_UNLIMITED_ACTUAL_SEA_TARGET_MONTHS = 3;
   const MASTER_UNLIMITED_MIN_GT = 500;
-  const MASTER_CAPACITY_MATCH = /\bmaster\b/i;
+  const MASTER_CAPACITY_MATCH = /\b(master|captain)\b/i;
 
   function computeMasterUnlimitedSeaService(seatimes, certs, vessels) {
     const gated = seatimesGatedByCertIssueDate(seatimes, certs, MASTER_UNLIMITED_GATING_CERT_CODE);
@@ -2059,16 +2243,21 @@ function getEmptyTenderEntry() {
       };
     }
 
+    // v572: a contract that started before the Master <3000GT issue date
+    // used to bring ALL its actual sea days; now only the share after it,
+    // apportioned the same way as the other "while holding" figures.
     let onboardDays = 0;
     let actualSeaDays = 0;
-    gated.gatedEntries.forEach((entry) => {
-      const gt = getEntryVesselGt(entry, vessels);
-      const servedAsMaster = MASTER_CAPACITY_MATCH.test(entry.capacityServed || "");
-      if (gt >= MASTER_UNLIMITED_MIN_GT && servedAsMaster) {
-        onboardDays += daysBetweenDates(entry.dateJoined, entry.dateLeft);
-        actualSeaDays += toNumber(entry.actualSeaServiceDays);
-      }
+    (seatimes || []).forEach((original) => {
+      const gt = getEntryVesselGt(original, vessels);
+      const servedAsMaster = servedAsMasterRole(original);
+      if (gt < MASTER_UNLIMITED_MIN_GT || !servedAsMaster) return;
+      const entry = gated.gatedEntries.find((g) => g.id === original.id);
+      if (!entry) return;
+      onboardDays += signedOnDays(entry.dateJoined, entry.dateLeft);
+      actualSeaDays += toNumber(original.actualSeaServiceDays) * apportionEntryToWindow(original, gated.issuedDate, null);
     });
+    actualSeaDays = Math.round(actualSeaDays);
 
     const onboardMonths = onboardDays / DAYS_PER_MONTH;
     const actualSeaMonths = actualSeaDays / DAYS_PER_MONTH;
@@ -2412,11 +2601,28 @@ function getSortedVesselOptions(vessels = []) {
   const YACHTMASTER_OFFSHORE_TARGET_NM = 2500;
   const YACHTMASTER_OFFSHORE_TIDAL_TARGET_NM = 1250;
 
-  function computeYachtmasterOffshoreMiles(navigationEntries) {
+  // RYA: Yachtmaster Offshore sea time and miles count only "on yachts up to
+  // 500gt". Jack, 2026-10-04: apply it strictly, and count passages with no
+  // vessel linked (a friend's boat, a sailing-school yacht — exactly the
+  // small-boat miles Yachtmaster is about). A vessel with no GT entered also
+  // counts; one over 500GT does not. Without a vessels list (old callers)
+  // nothing is filtered.
+  const YACHTMASTER_MAX_GT = 500;
+
+  function isYachtmasterEligibleVessel(vesselId, vessels, entryGt) {
+    if (!Array.isArray(vessels)) return true;
+    if (!vesselId) return true;
+    const vessel = findVesselById(vessels, vesselId);
+    const gt = parseGrossTonnage(vessel?.gt) || parseGrossTonnage(entryGt);
+    return !gt || gt <= YACHTMASTER_MAX_GT;
+  }
+
+  function computeYachtmasterOffshoreMiles(navigationEntries, vessels) {
     let totalNm = 0;
     let tidalNm = 0;
 
     (navigationEntries || []).forEach((entry) => {
+      if (!isYachtmasterEligibleVessel(entry?.vesselId, vessels)) return;
       const nm = getPassageDistanceNm(entry);
       totalNm += nm;
       if (entry?.isTidal) tidalNm += nm;
@@ -2433,6 +2639,149 @@ function getSortedVesselOptions(vessels = []) {
       allMet: totalMet && tidalMet,
       TARGET_NM: YACHTMASTER_OFFSHORE_TARGET_NM,
       TIDAL_TARGET_NM: YACHTMASTER_OFFSHORE_TIDAL_TARGET_NM
+    };
+  }
+
+  /* RYA Yachtmaster Offshore exam pre-requisites (rya.org.uk, checked
+     2026-10-04), as one checklist. Sea time from Sea Time entries, passages
+     from Navigation, certificates from Certificates:
+       - 50 days at sea in the last 10 years on yachts up to 500gt, at least
+         half on vessels under 24m (the RYA's "half in tidal waters" cannot be
+         derived from Sea Time entries and is not checked);
+       - 2,500 miles on yachts up to 500gt, half in tidal waters;
+       - 5 passages over 60 miles, incl. 2 overnight and 2 as skipper
+         ("overnight" = arrives on a later date than it left — passages have
+         dates, not times);
+       - 5 days as skipper on vessels under 24m (days of passages logged
+         with role Skipper on a vessel under 24m or with no vessel/length);
+       - a VHF / SRC (or higher GMDSS) certificate and a first aid
+         certificate. */
+  const YM_OFFSHORE_SEA_DAYS = 50;
+  const YM_OFFSHORE_WINDOW_YEARS = 10;
+  const YM_OFFSHORE_LONG_PASSAGE_NM = 60;
+  const YM_OFFSHORE_LONG_PASSAGES = 5;
+  const YM_OFFSHORE_OVERNIGHT = 2;
+  const YM_OFFSHORE_SKIPPER_PASSAGES = 2;
+  const YM_OFFSHORE_SKIPPER_DAYS = 5;
+  const YM_SMALL_VESSEL_M = 24;
+  const YM_RADIO_CODES = ["RYA SRC", "IYT SRC", "GMDSS ROC", "GMDSS GOC", "GMDSS"];
+  const YM_FIRST_AID_CODES = ["EFA", "STCW A-VI/4-1", "STCW A-VI/4-2"];
+
+  function passageDateSpan(entry) {
+    const dep = entry?.departureDate || entry?.visitedDate || "";
+    const arr = entry?.arrivalDate || "";
+    if (!dep) return { days: 0, overnight: false };
+    if (!arr) return { days: 1, overnight: false };
+    const d = Math.round((new Date(arr) - new Date(dep)) / 86400000);
+    if (Number.isNaN(d) || d < 0) return { days: 1, overnight: false };
+    return { days: d + 1, overnight: d >= 1, nights: d };
+  }
+
+  function holdsAnyCert(certs, codes) {
+    return codes.some((code) => !!findSavedCertByCode(certs, code));
+  }
+
+  function computeYachtmasterOffshoreChecklist(seatimes, vessels, navigationEntries, certs) {
+    const cutoff = new Date();
+    cutoff.setFullYear(cutoff.getFullYear() - YM_OFFSHORE_WINDOW_YEARS);
+    const cutoffIso = cutoff.toISOString().slice(0, 10);
+
+    let seaDays = 0;
+    let seaDaysSmall = 0;
+    (seatimes || []).forEach((entry) => {
+      if (!isYachtmasterEligibleVessel(entry?.vesselId, vessels, entry?.gt)) return;
+      const days = toNumber(entry.actualSeaServiceDays) * apportionEntryToWindow(entry, cutoffIso, null);
+      seaDays += days;
+      const lengthM = getEntryVesselLengthMeters(entry, vessels);
+      if (!lengthM || lengthM < YM_SMALL_VESSEL_M) seaDaysSmall += days;
+    });
+    seaDays = Math.round(seaDays);
+    seaDaysSmall = Math.round(seaDaysSmall);
+
+    const miles = computeYachtmasterOffshoreMiles(navigationEntries, vessels);
+
+    let longPassages = 0;
+    let overnight = 0;
+    let asSkipper = 0;
+    let skipperDays = 0;
+    (navigationEntries || []).forEach((entry) => {
+      if (!isYachtmasterEligibleVessel(entry?.vesselId, vessels)) return;
+      const span = passageDateSpan(entry);
+      const isSkipper = entry?.passageRole === "Skipper";
+      if (isSkipper) {
+        const vessel = findVesselById(vessels, entry?.vesselId);
+        const lengthM = parseLengthMeters(vessel?.vessel_length || vessel?.length);
+        if (!lengthM || lengthM < YM_SMALL_VESSEL_M) skipperDays += span.days;
+      }
+      if (getPassageDistanceNm(entry) <= YM_OFFSHORE_LONG_PASSAGE_NM) return;
+      longPassages += 1;
+      if (span.overnight) overnight += 1;
+      if (isSkipper) asSkipper += 1;
+    });
+
+    const radioHeld = holdsAnyCert(certs, YM_RADIO_CODES);
+    const firstAidHeld = holdsAnyCert(certs, YM_FIRST_AID_CODES);
+
+    const rows = [
+      { key: "seaDays", label: `Days at sea on yachts up to 500GT (last ${YM_OFFSHORE_WINDOW_YEARS} years)`, current: seaDays, target: YM_OFFSHORE_SEA_DAYS, unit: "days" },
+      { key: "seaDaysSmall", label: "…of which on vessels under 24m", current: seaDaysSmall, target: YM_OFFSHORE_SEA_DAYS / 2, unit: "days" },
+      { key: "miles", label: "Miles on yachts up to 500GT", current: Math.round(miles.totalNm), target: miles.TARGET_NM, unit: "NM" },
+      { key: "tidal", label: "…of which in tidal waters", current: Math.round(miles.tidalNm), target: miles.TIDAL_TARGET_NM, unit: "NM" },
+      { key: "longPassages", label: `Passages over ${YM_OFFSHORE_LONG_PASSAGE_NM} NM`, current: longPassages, target: YM_OFFSHORE_LONG_PASSAGES, unit: "" },
+      { key: "overnight", label: "…of which overnight", current: overnight, target: YM_OFFSHORE_OVERNIGHT, unit: "" },
+      { key: "asSkipper", label: "…of which as skipper", current: asSkipper, target: YM_OFFSHORE_SKIPPER_PASSAGES, unit: "" },
+      { key: "skipperDays", label: "Days as skipper on vessels under 24m", current: skipperDays, target: YM_OFFSHORE_SKIPPER_DAYS, unit: "days" },
+      { key: "radio", label: "VHF / SRC radio certificate (or GMDSS)", current: radioHeld ? 1 : 0, target: 1, unit: "" },
+      { key: "firstAid", label: "First aid certificate", current: firstAidHeld ? 1 : 0, target: 1, unit: "" }
+    ].map((row) => ({
+      ...row,
+      met: row.current >= row.target,
+      percent: row.target ? Math.min(100, Math.round((row.current / row.target) * 100)) : 0
+    }));
+
+    return { rows, met: rows.every((row) => row.met), metCount: rows.filter((row) => row.met).length };
+  }
+
+  /* RYA Yachtmaster Ocean: hold Yachtmaster Offshore or OOW Yachts <3000GT,
+     plus one qualifying ocean passage within 10 years: non-stop 600 NM+,
+     200 NM+ more than 50 NM from land (self-declared per passage), at least
+     96 hours (4+ days between departure and arrival dates — passages have
+     no times), as skipper or in charge of a watch. Celestial sights are not
+     tracked. */
+  const YM_OCEAN_MIN_NM = 600;
+  const YM_OCEAN_MIN_DAYS = 4;
+  const YM_OCEAN_PREREQ_CODES = ["RYA YMO", "IYT YMO", "OOW YACHT"];
+
+  function computeYachtmasterOceanPassage(navigationEntries, certs) {
+    const cutoff = new Date();
+    cutoff.setFullYear(cutoff.getFullYear() - YM_OFFSHORE_WINDOW_YEARS);
+    const prereqHeld = holdsAnyCert(certs, YM_OCEAN_PREREQ_CODES);
+
+    let passage = null;
+    let best = null;
+    (navigationEntries || []).forEach((entry) => {
+      const nm = getPassageDistanceNm(entry);
+      const span = passageDateSpan(entry);
+      const dep = new Date(entry?.departureDate || entry?.visitedDate || "");
+      const checks = {
+        distance: nm >= YM_OCEAN_MIN_NM,
+        offshore: !!entry?.oceanOffshore,
+        duration: (span.nights || 0) >= YM_OCEAN_MIN_DAYS,
+        role: entry?.passageRole === "Skipper" || entry?.passageRole === "Watch leader",
+        recent: !Number.isNaN(dep.getTime()) && dep >= cutoff
+      };
+      const score = Object.values(checks).filter(Boolean).length;
+      if (score === 5 && !passage) passage = { entry, nm, checks };
+      if (!best || score > best.score || (score === best.score && nm > best.nm)) best = { entry, nm, checks, score };
+    });
+
+    return {
+      prereqHeld,
+      passage,
+      closest: passage || best,
+      met: prereqHeld && !!passage,
+      MIN_NM: YM_OCEAN_MIN_NM,
+      MIN_DAYS: YM_OCEAN_MIN_DAYS
     };
   }
 
@@ -2950,11 +3299,39 @@ function getSortedVesselOptions(vessels = []) {
           current: met ? 1 : 0,
           target: 1,
           percent: met ? 100 : 0,
-          label: met ? "OOW <3000GT sea-time requirements met" : "Complete the OOW sea-time milestones above"
+          label: met
+            ? "OOW <3000GT sea-time requirements met"
+            : (() => {
+                const recent = computeOowRecentSeagoingService(seatimes, vessels);
+                return recent.met
+                  ? "Complete the OOW sea-time milestones above"
+                  : `Complete the OOW sea-time milestones above, including ${recent.target} seagoing days in the last ${recent.windowYears} years (${recent.recentDays} so far)`;
+              })()
+        };
+      }
+      case "yachtmaster_offshore_ready": {
+        const result = computeYachtmasterOffshoreChecklist(seatimes, vessels, navigationEntries, certs);
+        return {
+          current: result.metCount,
+          target: result.rows.length,
+          percent: Math.round((result.metCount / result.rows.length) * 100),
+          label: `${result.metCount} / ${result.rows.length} Yachtmaster Offshore requirements met`
+        };
+      }
+      case "yachtmaster_ocean_passage": {
+        const result = computeYachtmasterOceanPassage(navigationEntries, certs);
+        const done = (result.prereqHeld ? 1 : 0) + (result.passage ? 1 : 0);
+        return {
+          current: done,
+          target: 2,
+          percent: done * 50,
+          label: result.passage
+            ? `Qualifying passage: ${result.passage.entry.passageName || "logged passage"} (${Math.round(result.passage.nm)} NM)`
+            : "No qualifying ocean passage logged yet"
         };
       }
       case "yachtmaster_offshore_miles": {
-        const result = computeYachtmasterOffshoreMiles(navigationEntries);
+        const result = computeYachtmasterOffshoreMiles(navigationEntries, vessels);
         const totalPct = result.TARGET_NM
           ? Math.min(100, Math.round((result.totalNm / result.TARGET_NM) * 100))
           : 0;
@@ -3029,11 +3406,14 @@ function getSortedVesselOptions(vessels = []) {
           ? Math.min(100, Math.round((result.specialValue / result.specialTarget) * 100))
           : 0;
         const specialLabel = result.use500gtPath ? "months on 500GT+ vessels" : "months on 24m+ vessels";
+        const onboardPct = result.ONBOARD_TARGET_MONTHS
+          ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+          : 0;
         return {
           current: result.totalWatchkeeping15m,
           target: result.WATCHKEEPING_TARGET,
-          percent: Math.min(watchPct, specialPct),
-          label: `${result.totalWatchkeeping15m} / ${result.WATCHKEEPING_TARGET} watchkeeping days (${result.specialValue.toFixed(1)} / ${result.specialTarget} ${specialLabel}) — since holding OOW <3000GT`
+          percent: Math.min(watchPct, specialPct, onboardPct),
+          label: `${result.onboardMonths.toFixed(1)} / ${result.ONBOARD_TARGET_MONTHS} months as a deck officer, ${result.totalWatchkeeping15m} / ${result.WATCHKEEPING_TARGET} watchkeeping days (${result.specialValue.toFixed(1)} / ${result.specialTarget} ${specialLabel}) — since holding OOW <3000GT`
         };
       }
       case "chief_mate_unlimited_direct": {
@@ -3371,6 +3751,9 @@ window.SeavData = {
   computeOowSeaService,
   computeOow36MonthsOnboard,
   computeOowRecentSeagoingService,
+  SEAFARER_POSITIONS,
+  findSeafarerPosition,
+  getPositionOptionsHtml,
   isOowSeaTimeComplete,
   computeMasterSeaService,
   seatimesGatedByCertIssueDate,
@@ -3381,6 +3764,8 @@ window.SeavData = {
   computeChiefMateUnlimitedEligibility,
   computeMasterUnlimitedSeaService,
   computeYachtmasterOffshoreMiles,
+  computeYachtmasterOffshoreChecklist,
+  computeYachtmasterOceanPassage,
   computeMilestoneProgress,
   computeMilestonePrerequisites,
   computeGeoCrossing,

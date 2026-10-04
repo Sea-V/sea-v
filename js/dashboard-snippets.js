@@ -228,7 +228,7 @@
       // A just-opened or future-dated entry has no day breakdown yet, and
       // "0 qualifying days" on the newest record reads as a fault rather
       // than as an empty field. Show it only when there is something to show.
-      sub: qualifying ? `${qualifying} qualifying days` : "",
+      sub: qualifying ? `${qualifying} logged days` : "",
       // Real statuses from getSeatimeVerificationDisplay: Verified,
       // Pending Verification, Logged.
       stats: [

@@ -13,8 +13,11 @@
     totalQualifyingDays,
     computeOowSeaService,
     computeOow36MonthsOnboard,
+    computeOowRecentSeagoingService,
     isOowSeaTimeComplete: sharedIsOowSeaTimeComplete,
     computeYachtmasterOffshoreMiles,
+    computeYachtmasterOffshoreChecklist,
+    computeYachtmasterOceanPassage,
     computeGeoCrossing,
     computeMaster200SeaService,
     computeMaster500SeaService,
@@ -277,7 +280,18 @@
         return isOowSeaTimeComplete();
 
       case "yachtmaster_offshore_miles":
-        return computeYachtmasterOffshoreMiles(getNavigationEntries()).allMet;
+        return computeYachtmasterOffshoreMiles(getNavigationEntries(), getVessels()).allMet;
+
+      case "yachtmaster_offshore_ready":
+        return computeYachtmasterOffshoreChecklist(
+          getSeatimes(),
+          getVessels(),
+          getNavigationEntries(),
+          getCerts()
+        ).met;
+
+      case "yachtmaster_ocean_passage":
+        return computeYachtmasterOceanPassage(getNavigationEntries(), getCerts()).met;
 
       case "geo_crossing":
         return computeGeoCrossing(getNavigationEntries(), trigger.geo).met;
@@ -360,6 +374,8 @@
     "oow_qualifying_days",
     "oow_eligible",
     "yachtmaster_offshore_miles",
+    "yachtmaster_offshore_ready",
+    "yachtmaster_ocean_passage",
     "master_200gt_gated_sea_service",
     "master_500gt_gated_sea_service",
     "master_3000gt_gated_sea_service",
@@ -518,7 +534,7 @@
         const target = Number(trigger.minDays || 0);
         return [
           {
-            label: "Qualifying sea days",
+            label: "Days onboard (signed on to signed off)",
             current,
             target,
             unit: "days",
@@ -552,14 +568,44 @@
           }
         ];
       }
+      // v572: one row per MSN 1858 condition, so a locked badge shows WHICH
+      // one is missing. The 5-year recency row (§9) used to be invisible: a
+      // career that ended years ago met the three sea-time milestones and
+      // the badge stayed locked with nothing on screen saying why.
       case "oow_eligible": {
-        const met = isOowSeaTimeComplete();
+        const sea = computeOowSeaService(getSeatimes(), getVessels());
+        const onboard = computeOow36MonthsOnboard(getSeatimes());
+        const recent = computeOowRecentSeagoingService(getSeatimes(), getVessels());
+        const pct = (current, target) => (target ? Math.min(100, Math.round((current / target) * 100)) : 0);
         return [
           {
-            label: "OOW <3000GT sea-time requirements",
-            current: met ? 1 : 0,
-            target: 1,
-            percent: met ? 100 : 0
+            label: "Actual sea days on vessels 15m+",
+            current: sea.totalActual15m,
+            target: sea.ACTUAL_MIN,
+            unit: "days",
+            percent: pct(sea.totalActual15m, sea.ACTUAL_MIN)
+          },
+          {
+            label: "Qualifying seagoing days on vessels 15m+",
+            current: sea.totalQualifying15m,
+            target: sea.QUALIFYING_TARGET,
+            unit: "days",
+            percent: pct(sea.totalQualifying15m, sea.QUALIFYING_TARGET)
+          },
+          {
+            label: "Days onboard (36 months)",
+            current: onboard.totalDays,
+            target: onboard.target,
+            unit: "days",
+            percent: pct(onboard.totalDays, onboard.target)
+          },
+          {
+            label: `Seagoing days in the last ${recent.windowYears} years`,
+            current: recent.recentDays,
+            target: recent.target,
+            unit: "days",
+            percent: pct(recent.recentDays, recent.target),
+            note: "MSN 1858: 6 months of your qualifying sea service must be from the 5 years before you apply"
           }
         ];
       }
@@ -578,8 +624,38 @@
         ];
       }
 
+      case "yachtmaster_offshore_ready": {
+        const result = computeYachtmasterOffshoreChecklist(
+          getSeatimes(),
+          getVessels(),
+          getNavigationEntries(),
+          getCerts()
+        );
+        return result.rows.map((row) => ({
+          label: row.label,
+          current: row.current,
+          target: row.target,
+          unit: row.unit,
+          percent: row.percent
+        }));
+      }
+      case "yachtmaster_ocean_passage": {
+        const result = computeYachtmasterOceanPassage(getNavigationEntries(), getCerts());
+        const c = result.closest?.checks || {};
+        const tick = (ok) => (ok ? 1 : 0);
+        const row = (label, ok, note) => ({ label, current: tick(ok), target: 1, percent: ok ? 100 : 0, ...(note ? { note } : {}) });
+        const name = result.closest?.entry?.passageName || "";
+        return [
+          row("Hold Yachtmaster Offshore or OOW Yachts <3000GT", result.prereqHeld),
+          row(`Passage of ${result.MIN_NM}+ NM`, c.distance, name ? `Closest: ${name} (${Math.round(result.closest.nm)} NM)` : ""),
+          row("200+ NM more than 50 NM from land (ticked on the passage)", c.offshore),
+          row(`At least 96 hours (${result.MIN_DAYS}+ days between departure and arrival)`, c.duration),
+          row("As skipper or watch leader", c.role),
+          row("Within the last 10 years", c.recent)
+        ];
+      }
       case "yachtmaster_offshore_miles": {
-        const result = computeYachtmasterOffshoreMiles(getNavigationEntries());
+        const result = computeYachtmasterOffshoreMiles(getNavigationEntries(), getVessels());
         const totalPct = result.TARGET_NM
           ? Math.min(100, Math.round((result.totalNm / result.TARGET_NM) * 100))
           : 0;
@@ -588,7 +664,7 @@
           : 0;
         return [
           {
-            label: "Total qualifying miles",
+            label: "Miles on yachts up to 500GT",
             current: Math.round(result.totalNm),
             target: result.TARGET_NM,
             unit: "NM",
@@ -679,6 +755,14 @@
         if (!result.held) {
           return [
             {
+              label: "Months onboard as deck officer on vessels 15m+ (since holding OOW <3000GT)",
+              current: 0,
+              target: result.ONBOARD_TARGET_MONTHS,
+              unit: "months",
+              percent: 0,
+              note: "Hold OOW Yachts <3000GT first"
+            },
+            {
               label: "Watchkeeping days on vessels 15m+",
               current: 0,
               target: result.WATCHKEEPING_TARGET,
@@ -698,6 +782,15 @@
         }
         const specialLabel = result.use500gtPath ? "Months on 500GT+ vessels" : "Months on 24m+ vessels";
         return [
+          {
+            label: "Months onboard as deck officer on vessels 15m+ (since holding OOW <3000GT)",
+            current: Math.round(result.onboardMonths * 10) / 10,
+            target: result.ONBOARD_TARGET_MONTHS,
+            unit: "months",
+            percent: result.ONBOARD_TARGET_MONTHS
+              ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+              : 0
+          },
           {
             label: "Watchkeeping days on vessels 15m+",
             current: result.totalWatchkeeping15m,
