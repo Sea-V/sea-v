@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v572**. Jack pushes every commit himself from
+- HEAD = **v573**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1193,8 +1193,19 @@ people out; v2 (this) approved "i love it, build it".
   (renamed) as photo-led cards — up to 3 photos opening the shared viewer,
   years, highlights, qualities; specialist rows show quality tags; new
   "Land-Based Experience" section (hidden for visitors when empty).
-- NOT done: the CV (qualities/highlights not on the CV yet — ask Jack);
-  dashboard snippets unchanged.
+- **On the CV too — v573** (Jack: "yeah why not, use the current layout to be able
+  to tick to show or not"): new CV generator groups **Land-based
+  experience** (switch `showLand` + tick per role) and **Qualities**
+  (switch `showQualities` + tick per quality, from `collectCrewQualities`
+  over the CV source), plus a "Show highlights under each interest" switch
+  (`showHobbyHighlights`) in Hobbies. CHOICE_GROUPS gained "qualities" and
+  "land". `doc.hobbies` items are now {title, highlights[]} (render + docx
+  still accept plain strings). Preview: sidebar "Qualities" block after
+  Other Qualifications, highlights as italic lines under each interest,
+  main-column "Land-Based Experience" after Yachting Experience (same job
+  layout). Word export mirrors all three. Verified in node (model, render,
+  docx via a fake JSZip: 13/13) and on a harness of the real generator.
+  Dashboard snippets unchanged.
 Verified on harnesses of the real pages (stubbed data): hobbies render +
 form (highlight add/remove keeps typing, 5th quality refused, saved
 payload), land page (render, current role first, "still work here",

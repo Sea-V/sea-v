@@ -239,6 +239,11 @@
       });
     }
 
+    if (sections.showQualities !== false && doc.qualities?.length) {
+      parts.push(sidebarHeading("Qualities", scheme.heading));
+      parts.push(paragraph(doc.qualities.join(", "), { size: 18, color: scheme.text }, { spacingAfter: 30 }));
+    }
+
     if (sections.showHighlights && doc.highlights?.length) {
       parts.push(sidebarHeading("Milestones", scheme.heading));
       doc.highlights.forEach((h) =>
@@ -255,9 +260,13 @@
 
     if (sections.showHobbies !== false && doc.hobbies?.length) {
       parts.push(sidebarHeading("Hobbies & Interests", scheme.heading));
-      doc.hobbies.forEach((h) =>
-        parts.push(bulletParagraph(h, { size: 18, color: scheme.text }, { spacingAfter: 20 }))
-      );
+      doc.hobbies.forEach((h) => {
+        const title = typeof h === "string" ? h : h.title;
+        parts.push(bulletParagraph(title, { size: 18, color: scheme.text }, { spacingAfter: 20 }));
+        (typeof h === "string" ? [] : h.highlights || []).forEach((line) =>
+          parts.push(paragraph(line, { italic: true, size: 16, color: scheme.text }, { spacingAfter: 20 }))
+        );
+      });
     }
 
     if (!parts.length) parts.push(emptyParagraph());
@@ -303,6 +312,18 @@
             parts.push(paragraph(p, { size: 20 }, { spacingAfter: 70 }));
           });
         }
+      });
+    }
+
+    if (doc.landExperience?.length) {
+      parts.push(sectionHeading("Land-Based Experience"));
+      doc.landExperience.forEach((item) => {
+        const titleLine = [item.dateRange, item.role || "Role", item.employer].filter(Boolean).join("   |   ");
+        parts.push(paragraph(titleLine, { bold: true, size: 20 }, { spacingBefore: 140, spacingAfter: 20 }));
+        if (item.location) {
+          parts.push(paragraph(item.location, { italic: true, size: 18, color: MUTED }, { spacingAfter: 50 }));
+        }
+        if (item.description) parts.push(paragraph(item.description, { size: 20 }, { spacingAfter: 70 }));
       });
     }
 

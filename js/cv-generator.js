@@ -272,7 +272,9 @@
     achievements: "showHighlights",
     refs: "showReferences",
     hobbies: "showHobbies",
-    countries: "showNavigation"
+    countries: "showNavigation",
+    qualities: "showQualities",
+    land: "showLand"
   };
 
   // Empty groups point to the page that fills them (Jack 2026-10-03: most
@@ -297,6 +299,16 @@
       text: "No passages yet. Countries come from where your passages start and end.",
       href: "navigation.html",
       cta: "Log a passage"
+    },
+    qualities: {
+      text: "No qualities tagged yet. Tag them on your interests, specialist qualifications or land-based roles.",
+      href: "hobbies-interests.html",
+      cta: "Tag qualities"
+    },
+    land: {
+      text: "No land-based roles yet. Work ashore — hospitality, trades, outdoor work — shows how you work.",
+      href: "land-experience.html",
+      cta: "Add a role"
     }
   };
 

@@ -298,8 +298,15 @@
     const navigation = state?.navigationAreas || [];
     const refs = state?.refs || [];
     const hobbies = state?.hobbiesInterests || [];
+    // v572: land-based roles — current first, then most recent start.
+    const land = [...(state?.landExperiences || [])]
+      .filter((entry) => entry?.id && String(entry.role || "").trim())
+      .sort((a, b) => {
+        if (!!b.isCurrent !== !!a.isCurrent) return b.isCurrent ? 1 : -1;
+        return String(b.dateFrom || "").localeCompare(String(a.dateFrom || ""));
+      });
 
-    return { profile, vessels, certs, specialist, onboard, achievements, navigation, refs, hobbies };
+    return { profile, vessels, certs, specialist, onboard, achievements, navigation, refs, hobbies, land };
   }
 
   function getVesselExperience(vessel) {
@@ -419,7 +426,13 @@
       showNationality: true,
       showAvailability: true,
       showNavigation: true,
-      showHobbies: true
+      showHobbies: true,
+      // v572 (Jack, 2026-10-05: "use the current layout to be able to tick
+      // to show or not"): qualities block, highlights under each interest,
+      // and a land-based experience section.
+      showQualities: true,
+      showHobbyHighlights: true,
+      showLand: true
     };
   }
 
@@ -428,7 +441,7 @@
      choice uses the group default, so a NEW cert / milestone / hobby shows up
      on the CV automatically (Jack's call). References default to verified
      only, and an unverified one can never be shown (see getReferenceItems). */
-  const CHOICE_GROUPS = ["certs", "specialist", "achievements", "refs", "hobbies", "countries"];
+  const CHOICE_GROUPS = ["certs", "specialist", "achievements", "refs", "hobbies", "countries", "qualities", "land"];
 
   function isChosen(draft, group, id, fallback = true) {
     const stored = draft?.choices?.[group]?.[id];
@@ -534,7 +547,29 @@
       label: c.label,
       sub: `${c.count} passage${c.count === 1 ? "" : "s"}`
     }));
-    return { certs, specialist, achievements, refs, hobbies, countries };
+    // v572: every quality tagged on an interest, a specialist
+    // qualification or a land-based role, most-shown first.
+    const qualities = getCvQualities(source).map((q) => ({
+      id: q.value,
+      label: q.label,
+      sub: `Shown by ${q.count} ${q.count === 1 ? "item" : "items"}`
+    }));
+    const land = (source.land || []).map((entry) => ({
+      id: entry.id,
+      label: [entry.role, entry.employer].filter(Boolean).join(" · "),
+      sub: formatCvDateRange(entry.dateFrom, entry.isCurrent ? "" : entry.dateTo)
+    }));
+    return { certs, specialist, achievements, refs, hobbies, countries, qualities, land };
+  }
+
+  function getCvQualities(source) {
+    const collect = window.SeavData?.collectCrewQualities;
+    if (!collect) return [];
+    return collect({
+      hobbiesInterests: source.hobbies || [],
+      specialistQualifications: source.specialist || [],
+      landExperiences: source.land || []
+    });
   }
 
   // Hardcoded to the real production domain rather than window.location —
@@ -790,11 +825,37 @@
       .map((c) => c.label);
   }
 
-  function getHobbyItems(source, draft) {
+  // v572: each interest is {title, highlights[]}; highlights are
+  // "Completed the UTMB CCC (2024)" lines, empty when the switch is off.
+  function getHobbyItems(source, draft, { withHighlights = true } = {}) {
+    const normalize = window.SeavData?.normalizeHighlights || ((list) => list || []);
     return (source.hobbies || [])
       .filter((h) => String(h?.title || "").trim())
       .filter((h) => isChosen(draft, "hobbies", h.id))
-      .map((h) => h.title.trim());
+      .map((h) => ({
+        title: h.title.trim(),
+        highlights: withHighlights
+          ? normalize(h.highlights).map((item) => (item.year ? `${item.title} (${item.year})` : item.title))
+          : []
+      }));
+  }
+
+  function getQualityLabels(source, draft) {
+    return getCvQualities(source)
+      .filter((q) => isChosen(draft, "qualities", q.value))
+      .map((q) => q.label);
+  }
+
+  function getLandItems(source, draft) {
+    return (source.land || [])
+      .filter((entry) => isChosen(draft, "land", entry.id))
+      .map((entry) => ({
+        role: entry.role,
+        employer: entry.employer,
+        location: entry.location,
+        description: entry.description,
+        dateRange: formatCvDateRange(entry.dateFrom, entry.isCurrent ? "" : entry.dateTo)
+      }));
   }
 
   function buildCvDocument(source, draft) {
@@ -840,7 +901,11 @@
         : [],
       highlights: sections.showHighlights ? getHighlightLines(source, { ...draft, sections }) : [],
       references: sections.showReferences ? getReferenceItems(source, draft) : [],
-      hobbies: sections.showHobbies ? getHobbyItems(source, draft) : [],
+      hobbies: sections.showHobbies
+        ? getHobbyItems(source, draft, { withHighlights: sections.showHobbyHighlights !== false })
+        : [],
+      qualities: sections.showQualities !== false ? getQualityLabels(source, draft) : [],
+      landExperience: sections.showLand !== false ? getLandItems(source, draft) : [],
       navigationCountries: sections.showNavigation ? getNavigationCountryNames(source, draft) : [],
       vessels,
       qrUrl: sections.showQrCode ? getCvProfileQrUrl(profile) : "",
@@ -860,6 +925,7 @@
     createDefaultDraft, syncDraftWithSource, loadDraft, saveDraft, resetDraftFromSource,
     getOrderedVessels, getCertStrip, getSpecialistQualificationItems, getHighlightLines,
     getHobbyItems, getChoiceItems, isChosen, CHOICE_GROUPS,
+    getCvQualities, getQualityLabels, getLandItems,
     getNavigationCountries, getNavigationCountryNames,
     buildCvDocument, CV_TEMPLATE, CV_TEMPLATES, isValidTemplate, LOGO_SRC
   };

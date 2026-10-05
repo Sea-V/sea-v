@@ -1078,6 +1078,18 @@
   color: var(--cv-sidebar-text);
 }
 
+/* v572: an interest's highlights, one per line under its name. The CV is
+   sized in mm for print, so these follow the CV's own scale, not the
+   app's px tokens. */
+.cv-seav-hobby-highlight {
+  display: block;
+  margin-top: 0.6mm;
+  color: var(--cv-sidebar-text-muted);
+  font-size: 0.9em;
+  font-style: italic;
+  line-height: 1.35;
+}
+
 .cv-seav-extra {
   margin: 0;
   line-height: 1.5;
@@ -1142,6 +1154,10 @@
   --cv-sidebar-accent-2: #6f93b8;
   --cv-sidebar-accent-3: #3f5f82;
   --cv-sidebar-title: #8fb3d6;
+}
+
+.cv-seav-land {
+  margin-top: 7mm;
 }
 
 .cv-seav-references {

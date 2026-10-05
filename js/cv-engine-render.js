@@ -90,6 +90,31 @@
       .join("");
   }
 
+  // v572: work ashore, laid out like the yacht jobs above it.
+  function renderSeavLandExperience(items) {
+    if (!items?.length) return "";
+    return `
+      <section class="cv-seav-main cv-seav-land">
+        <h2 class="cv-seav-section-title">Land-Based Experience</h2>
+        ${items
+          .map(
+            (item) => `
+              <article class="cv-seav-job">
+                <h3 class="cv-seav-job-title">
+                  <span>${escapeHtml(item.dateRange)}</span>
+                  <span class="cv-seav-job-sep">|</span>
+                  <span>${escapeHtml(item.role || "Role")}</span>
+                  ${item.employer ? `<span class="cv-seav-job-sep">|</span><span>${escapeHtml(item.employer)}</span>` : ""}
+                </h3>
+                ${item.location ? `<p class="cv-seav-job-subline">${escapeHtml(item.location)}</p>` : ""}
+                ${item.description ? `<p class="cv-seav-job-desc">${escapeHtml(item.description)}</p>` : ""}
+              </article>`
+          )
+          .join("")}
+      </section>
+    `;
+  }
+
   function renderSeavReferences(references) {
     if (!references.length) return "";
 
@@ -152,11 +177,23 @@
             .join("<br />")}</p>`
         : "";
 
+    // v572: an interest may carry its highlights underneath (switchable).
     const hobbiesList =
       sections.showHobbies !== false && doc.hobbies?.length
         ? `<ul class="cv-seav-plain-list">${doc.hobbies
-            .map((item) => `<li>${escapeHtml(item)}</li>`)
+            .map((item) => {
+              const title = typeof item === "string" ? item : item.title;
+              const lines = typeof item === "string" ? [] : item.highlights || [];
+              return `<li>${escapeHtml(title)}${lines
+                .map((line) => `<span class="cv-seav-hobby-highlight">${escapeHtml(line)}</span>`)
+                .join("")}</li>`;
+            })
             .join("")}</ul>`
+        : "";
+
+    const qualitiesHtml =
+      sections.showQualities !== false && doc.qualities?.length
+        ? `<p class="cv-seav-extra">${escapeHtml(doc.qualities.join(", "))}</p>`
         : "";
 
     const dob = formatProfileDob(profile.dob);
@@ -176,6 +213,7 @@
         : "",
       renderSeavSidebarBlock("Yacht Qualifications", certList),
       renderSeavSidebarBlock("Other Qualifications", specialistList),
+      renderSeavSidebarBlock("Qualities", qualitiesHtml),
       renderSeavSidebarBlock("Milestones", milestonesHtml),
       // v562: one Navigation line of the chosen countries.
       renderSeavSidebarBlock(
@@ -216,6 +254,8 @@
               ${renderSeavExperience(doc.vessels)}
             </section>
 
+            ${renderSeavLandExperience(doc.landExperience)}
+
             ${sections.showReferences ? renderSeavReferences(doc.references) : ""}
           </div>
         </div>
@@ -237,6 +277,7 @@
     renderSeavNationality,
     renderSeavExperience,
     renderSeavReferences,
+    renderSeavLandExperience,
     renderSeav,
     renderCvHtml
   };
