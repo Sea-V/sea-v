@@ -264,8 +264,8 @@
     document.getElementById("sq_title").value = entry?.title || "";
     document.getElementById("sq_issuing_body").value = entry?.issuingBody || "";
     document.getElementById("sq_notes").value = entry?.notes || "";
-    Seav.setDateTriplet("sq_date_obtained", entry?.dateObtained || "");
-    Seav.setDateTriplet("sq_expiry", entry?.expiry || "");
+    Seav.fillDateTriplet("sq_date_obtained", entry?.dateObtained || "");
+    Seav.fillDateTriplet("sq_expiry", entry?.expiry || "");
     const fileInput = document.getElementById("sq_file");
     if (fileInput) fileInput.value = "";
     renderAttachmentHint(entry?.attachment || null);

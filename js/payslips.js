@@ -76,7 +76,7 @@
       entry?.netAmount !== "" && entry?.netAmount != null ? entry.netAmount : "";
     document.getElementById("ps_currency").value = entry?.currency || "GBP";
     document.getElementById("ps_notes").value = entry?.notes || "";
-    Seav.setDateTriplet("ps_payment_date", entry?.paymentDate || "");
+    Seav.fillDateTriplet("ps_payment_date", entry?.paymentDate || "");
     const fileInput = document.getElementById("ps_file");
     if (fileInput) fileInput.value = "";
     renderAttachmentHint(entry?.attachment || null);

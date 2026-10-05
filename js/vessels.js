@@ -779,9 +779,9 @@ function fillVesselForm(vessel) {
   document.getElementById("vs_desc").value =
     vessel.experience_onboard || vessel.desc || "";
 
-  Seav.setDateTriplet("vs_date_from", vessel.from || "");
+  Seav.fillDateTriplet("vs_date_from", vessel.from || "");
   document.getElementById("vs_current").checked = !vessel.to;
-  Seav.setDateTriplet("vs_date_to", vessel.to || "");
+  Seav.fillDateTriplet("vs_date_to", vessel.to || "");
 
   const toWrap = document.getElementById("vs_to_wrap");
   if (toWrap) {

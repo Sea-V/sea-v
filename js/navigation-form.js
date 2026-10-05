@@ -875,8 +875,8 @@
     if (passageRoleInput) passageRoleInput.value = normalized.passageRole || "";
     const oceanOffshoreInput = document.getElementById("navOceanOffshore");
     if (oceanOffshoreInput) oceanOffshoreInput.checked = !!normalized.oceanOffshore;
-    Seav.setDateTriplet("navDepartureDate", normalized.departureDate || "");
-    Seav.setDateTriplet("navArrivalDate", normalized.arrivalDate || "");
+    Seav.fillDateTriplet("navDepartureDate", normalized.departureDate || "");
+    Seav.fillDateTriplet("navArrivalDate", normalized.arrivalDate || "");
 
     S.formWaypoints = normalizeWaypointList(normalized.waypoints).map((wp) => ({
       lat: roundCoord(wp.lat),

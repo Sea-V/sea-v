@@ -188,6 +188,16 @@
     if (yearEl) yearEl.value = String(getCurrentYear());
   }
 
+  // Filling a form from a SAVED record: the saved date, or — when that date
+  // was never entered — the same current-year anchor as a fresh field
+  // (v575, Jack: editing a passage with no date "starts back at year and
+  // goes from 1950"). setDateTriplet(prefix, "") still blanks everything,
+  // which the certificate "does not expire" tickbox relies on.
+  function fillDateTriplet(prefix, isoDate) {
+    if (isoDate) setDateTriplet(prefix, isoDate);
+    else clearDateTriplet(prefix);
+  }
+
   function populateDatePartSelects(root = document) {
     root.querySelectorAll('select[data-date-part="year"]').forEach((select) => {
       if (select.dataset.datePopulated === "true") return;
@@ -1594,6 +1604,7 @@ function renderSidebarAchievements() {
     splitIsoDate,
     buildIsoDate,
     setDateTriplet,
+    fillDateTriplet,
     readDateTriplet,
     clearDateTriplet,
     populateDatePartSelects,

@@ -724,7 +724,7 @@
     }
     updateSourceNote(cert.code || "");
 
-    Seav.setDateTriplet("ct_issued", cert.issued || "");
+    Seav.fillDateTriplet("ct_issued", cert.issued || "");
     Seav.setDateTriplet("ct_expiry", cert.expiry || "");
     // An empty expiry_date IS "no expiry" everywhere else in the app, so the
     // box reflects that rather than inventing a second meaning for blank.

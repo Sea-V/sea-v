@@ -441,8 +441,8 @@
     document.getElementById("st_gt").value = entry.gt || "";
     document.getElementById("st_imo").value = entry.imoOfficialNumber || "";
     fillPositionSelect(entry.capacityServed || "");
-    Seav.setDateTriplet("st_date_joined", entry.dateJoined || "");
-    Seav.setDateTriplet("st_date_left", entry.dateLeft || "");
+    Seav.fillDateTriplet("st_date_joined", entry.dateJoined || "");
+    Seav.fillDateTriplet("st_date_left", entry.dateLeft || "");
 
     const locationJoinedEl = document.getElementById("st_location_joined");
     const locationLeftEl = document.getElementById("st_location_left");

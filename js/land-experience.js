@@ -210,8 +210,8 @@
     document.getElementById("le_location").value = entry?.location || "";
     document.getElementById("le_description").value = entry?.description || "";
     document.getElementById("le_current").checked = !!entry?.isCurrent;
-    Seav.setDateTriplet("le_date_from", entry?.dateFrom || "");
-    Seav.setDateTriplet("le_date_to", entry?.dateTo || "");
+    Seav.fillDateTriplet("le_date_from", entry?.dateFrom || "");
+    Seav.fillDateTriplet("le_date_to", entry?.dateTo || "");
     const fileInput = document.getElementById("le_file");
     if (fileInput) fileInput.value = "";
     renderAttachmentHint(entry?.attachment || null);

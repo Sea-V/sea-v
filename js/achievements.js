@@ -870,7 +870,7 @@
   function fillAchievementForm(item) {
     document.getElementById("ach_code").value = item.code || "";
     document.getElementById("ach_vessel").value = item.vesselId || "";
-    Seav.setDateTriplet("ach_date", item.date || "");
+    Seav.fillDateTriplet("ach_date", item.date || "");
     document.getElementById("ach_description").value = item.description || "";
 
     const editId = document.getElementById("ach_edit_index");

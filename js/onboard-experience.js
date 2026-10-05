@@ -550,8 +550,8 @@
     document.getElementById("oe_location").value = entry?.locationOnboard || "";
     document.getElementById("oe_hours").value =
       entry?.hours != null && entry.hours !== "" ? String(entry.hours) : "";
-    Seav.setDateTriplet("oe_date_from", entry?.dateFrom || "");
-    Seav.setDateTriplet("oe_date_to", entry?.dateTo || "");
+    Seav.fillDateTriplet("oe_date_from", entry?.dateFrom || "");
+    Seav.fillDateTriplet("oe_date_to", entry?.dateTo || "");
     const fileInput = document.getElementById("oe_file");
     if (fileInput) fileInput.value = "";
     setEditingPhotos(entry || null);

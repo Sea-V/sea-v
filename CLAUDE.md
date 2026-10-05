@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v575**. Jack pushes every commit himself from
+- HEAD = **v576**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1151,6 +1151,24 @@ M3000 deck-officer 17.6/24 months).
   Verified: node rule tests (positions 15/15, Yachtmaster 14/14); Sea Time
   harness — select, vessel pre-fill, legacy value, both form blocks. The
   Navigation form fields were not seen rendered (page needs the map).
+
+### v575–v576 — West Palm Beach port; empty dates open on this year
+v575: West Palm Beach added to the USA ports (26.713, -80.047, Lake Worth
+Lagoon by the downtown marina). v576 (Jack: editing a passage with no
+date "starts back at year and goes from 1950"): new `Seav.fillDateTriplet`
+(core.js) = the saved date, or the current-year anchor when there is none.
+17 edit forms switched from `setDateTriplet(x, value || "")` (which BLANKS
+the year, so the list opens at 1950). Deliberately NOT switched:
+certificate expiry (blank = "does not expire", its tickbox relies on
+setDateTriplet blanking) and profile date of birth. A year-only triplet
+still reads back as "" — no date is invented by the anchor.
+Also v576 (Jack: "the land based page doesnt match the other pages"):
+its shell was `class="sq-shell-card le-shell"`, and typography.css finds
+every page shell with `[class$="-shell-card"]` — an ENDS-WITH match — so
+the extra class after it silently dropped the glass card, shadow and title
+band. Now `le-shell sq-shell-card`; computed styles measured identical to
+Specialist Qualifications (shell, title band, KPI, cards, strip).
+**Rule: a page's *-shell-card class must be the LAST class on the element.**
 
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES

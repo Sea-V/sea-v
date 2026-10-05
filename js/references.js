@@ -779,8 +779,8 @@
   }
 
   document.getElementById("rf_role").value = ref.role || "";
-  Seav.setDateTriplet("rf_period_from", ref.periodFrom || "");
-  Seav.setDateTriplet("rf_period_to", ref.periodTo || "");
+  Seav.fillDateTriplet("rf_period_from", ref.periodFrom || "");
+  Seav.fillDateTriplet("rf_period_to", ref.periodTo || "");
   const messageField = document.getElementById("rf_message");
   if (messageField) messageField.value = ref.messageToReferee || "";
 
