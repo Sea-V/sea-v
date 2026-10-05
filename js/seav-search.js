@@ -41,6 +41,7 @@
     { key: "achievements", group: "Milestones", page: "achievements.html", icon: "achievements", accent: "--page-achievements" },
     { key: "specialistQualifications", group: "Specialist qualifications", page: "specialist-qualifications.html", icon: "specialist", accent: "--page-specialist-qualifications" },
     { key: "hobbiesInterests", group: "Hobbies & interests", page: "hobbies-interests.html", icon: "hobbies", accent: "--page-hobbies-interests" },
+    { key: "landExperiences", group: "Land-based experience", page: "land-experience.html", icon: "landExperience", accent: "--page-land-experience" },
     { key: "payslips", group: "Payslips", page: "payslips.html", icon: "payslips", accent: "--page-payslips" }
   ];
 
@@ -58,6 +59,7 @@
     "data-edit-oe-id",
     "data-edit-achievement-id",
     "data-edit-sq-id",
+    "data-edit-land-id",
     "data-edit-hi-id",
     "data-edit-ps-id",
     "data-ps-id"
@@ -169,7 +171,17 @@
         return {
           title: item.title,
           sub: label("getHobbyInterestCategoryLabel", item.category),
-          words: [label("getHobbyInterestCategoryLabel", item.category), item.description]
+          words: [
+            label("getHobbyInterestCategoryLabel", item.category),
+            item.description,
+            ...(item.highlights || []).map((h) => h.title)
+          ]
+        };
+      case "landExperiences":
+        return {
+          title: join(item.role, item.employer),
+          sub: join(item.location, item.isCurrent ? "Current" : ""),
+          words: [item.role, item.employer, item.location, item.description]
         };
       case "payslips":
         return {

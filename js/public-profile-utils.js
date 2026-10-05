@@ -24,6 +24,7 @@
     hobbies: 3,
     references: 3,
     specialist: 5,
+    land: 5,
     achievements: 8,
     achievementVesselGroups: 6,
     additionalCerts: 8,
@@ -38,7 +39,8 @@
     { id: "ppAchievementSection", label: "Milestones" },
     { id: "ppSpecialistSection", label: "Specialist Qualifications" },
     { id: "ppCertSection", label: "Certificates" },
-    { id: "ppHobbiesSection", label: "Hobbies & Interests" }
+    { id: "ppHobbiesSection", label: "Interests & Achievements" },
+    { id: "ppLandSection", label: "Land-Based Experience" }
   ];
 
   let sectionNavObserver = null;

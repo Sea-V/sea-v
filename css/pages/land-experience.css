@@ -1,0 +1,43 @@
+/* =========================================================
+   LAND-BASED EXPERIENCE (v572)
+   The page reuses the Specialist Qualifications structure (.sq-* classes)
+   so it inherits the glass levels typography.css assigns to those boxes;
+   this file only swaps the lavender accent for the page's own coral
+   (--page-land-experience, confirmed with Jack 2026-08-02). Accent on
+   borders and icons only — labels stay blue per field-label-typography.mdc.
+========================================================= */
+
+.le-shell.sq-shell-card {
+  border-color: color-mix(in srgb, var(--page-land-experience) 28%, transparent);
+}
+
+.le-shell .sq-shell-head {
+  border-bottom-color: color-mix(in srgb, var(--page-land-experience) 16%, transparent);
+}
+
+.le-shell .sq-shell-icon {
+  border-color: color-mix(in srgb, var(--page-land-experience) 40%, transparent);
+  color: var(--page-land-experience);
+}
+
+.le-shell .sq-compact-card {
+  border-color: color-mix(in srgb, var(--page-land-experience) 32%, transparent);
+}
+
+.le-shell .sq-compact-summary:focus-visible {
+  outline-color: color-mix(in srgb, var(--page-land-experience) 60%, transparent);
+}
+
+.le-shell .sq-compact-card.is-expanded .sq-compact-summary {
+  border-bottom-color: color-mix(in srgb, var(--page-land-experience) 14%, transparent);
+}
+
+.le-shell .sq-compact-card.is-expanded .sq-chevron {
+  color: var(--page-land-experience);
+}
+
+.le-current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

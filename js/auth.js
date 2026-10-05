@@ -300,6 +300,7 @@
     "achievement-files",
     "certificate-files",
     "hobbies-interest-photos",
+    "land-experience-files",
     "onboard-experience-files",
     "payslip-files",
     "profile-photos",

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v571**. Jack pushes every commit himself from
+- HEAD = **v572**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1151,6 +1151,55 @@ M3000 deck-officer 17.6/24 months).
   Verified: node rule tests (positions 15/15, Yachtmaster 14/14); Sea Time
   harness — select, vessel pre-fill, legacy value, both form blocks. The
   Navigation form fields were not seen rendered (page needs the map).
+
+### v572 — the "personal side": interests, qualities, land-based experience
+Jack (2026-10-05): not "new crew" framing — "something that allows them to
+show a personal side ... hobbies like pictures, achievements within the
+hobbies but self declared (ultra marathon completed, hiked Kilimanjaro)"
+and "skills and qualities that would cross over with yachting ... working
+in a team, hard labour or long hours, heavy lifting". A first mock ("What I
+bring", "New to yachting" pill, dashboard card) was REJECTED as singling
+people out; v2 (this) approved "i love it, build it".
+- **DB, LIVE** (`docs/schema-personal-side-land-experience.sql`, applied +
+  smoke-tested, advisors 23/23, test-supabase covers it):
+  hobbies_interests + `years` (0-80), `highlights` jsonb [{title,year}]
+  <=8, `qualities` jsonb <=4; specialist_qualifications + `qualities`; new
+  table `land_experiences` (role, employer, location, date_from/to,
+  is_current, description, qualities, attachment) — owner RLS, anon reads
+  public_enabled owners, `attachment` (reference letter) NOT granted; new
+  private bucket `land-experience-files` with FOLDER-ONLY policies (does
+  not copy the older buckets' path-planting branch, thread 9).
+- `CREW_QUALITIES` (16 fixed values, seav-data.js) + `normalizeQualities`,
+  `normalizeHighlights`, `collectCrewQualities`, `normalizeCategoryValue`
+  (fixes categories saved as both "sport_fitness" and "Sport & fitness" —
+  applied in the mappers on read).
+- New `js/seav-qualities.js` (picker max 4, tags, summary strip,
+  renderStateSummary) + `css/components/qualities.css`; tokens
+  `--seav-quality-*`, `--seav-highlight-*`, `--pp-interest-*`. Tags are
+  <small> (typography.css forces span to 14px).
+- Hobbies page: "Years doing it" replaced the start/end date fields (old
+  dates kept on save), highlights editor (+ Add a highlight, max 8,
+  "Self-declared"), qualities; cards show them; KPI "Highlights"; intro copy
+  no longer mentions "just starting out".
+- Specialist page: qualities in the form and on cards; Qualities strip.
+- **Land-Based Experience page built** (land-experience.html / .js / .css):
+  reuses the `.sq-*` structure so the typography.css glass levels apply;
+  `.le-shell` swaps the accent to the coral confirmed 2026-08-02
+  (`--page-land-experience` #ff7a5c — already existed). Menu item is live
+  (was "Coming soon"); search covers land roles; state/api/mappers/
+  USER_STORAGE_BUCKETS/test lists all wired (key LAND_EXPERIENCES).
+- Public profile: "Qualities" card (counts across published interests,
+  quals and land roles; hidden when empty); "Interests & Achievements"
+  (renamed) as photo-led cards — up to 3 photos opening the shared viewer,
+  years, highlights, qualities; specialist rows show quality tags; new
+  "Land-Based Experience" section (hidden for visitors when empty).
+- NOT done: the CV (qualities/highlights not on the CV yet — ask Jack);
+  dashboard snippets unchanged.
+Verified on harnesses of the real pages (stubbed data): hobbies render +
+form (highlight add/remove keeps typing, 5th quality refused, saved
+payload), land page (render, current role first, "still work here",
+save), public sections at 350px (no overflow after fixing highlight wrap
++ tag size) and 1280px (240px photo column).
 
 ### v570 — CV generator guides crew to fill empty sections
 Jack: most crew will use the (free) CV generator and need sending to

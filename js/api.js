@@ -11,6 +11,7 @@
     isVesselKey, isSeatimeKey, isCertKey, isRefKey, isProfileKey,
     isTenderKey, isAchievementKey, isNavigationAreaKey, isOnboardExperienceKey,
     isOnboardSkillKey, isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,
+    isLandExperienceKey,
     resolveStorageFileUrl, sanitizeFileForStorage, buildUploadedFileMeta,
     hydrateProfilePhoto, withUserId, findIndexById, hydrateArrayFiles
   } = Core;
@@ -28,6 +29,7 @@
     mapOnboardSkillFromSupabase, mapOnboardSkillToSupabase,
     mapHobbyInterestFromSupabase, mapHobbyInterestToSupabase,
     mapSpecialistQualificationFromSupabase, mapSpecialistQualificationToSupabase,
+    mapLandExperienceFromSupabase, mapLandExperienceToSupabase,
     mapPayslipFromSupabase, mapPayslipToSupabase
   } = M;
 
@@ -52,6 +54,7 @@
       [K.ONBOARD_SKILLS]: "onboardSkills",
       [K.HOBBIES_INTERESTS]: "hobbiesInterests",
       [K.SPECIALIST_QUALIFICATIONS]: "specialistQualifications",
+      [K.LAND_EXPERIENCES]: "landExperiences",
       [K.PAYSLIPS]: "payslips"
     };
     return map[key] || null;
@@ -176,11 +179,17 @@
     ].join(","),
     hobbies_interests: [
       "id", "user_id", "category", "title", "description", "date_from", "date_to",
-      "status", "photos", "created_at", "updated_at"
+      "status", "photos", "years", "highlights", "qualities", "created_at", "updated_at"
     ].join(","),
     specialist_qualifications: [
       "id", "user_id", "category", "title", "issuing_body", "date_obtained", "expiry",
-      "status", "notes", "attachment", "created_at", "updated_at"
+      "status", "notes", "attachment", "qualities", "created_at", "updated_at"
+    ].join(","),
+    // No "attachment" on purpose: a reference letter from an employer ashore
+    // stays private, and anon is not granted it (v572).
+    land_experiences: [
+      "id", "user_id", "role", "employer", "location", "date_from", "date_to", "is_current",
+      "description", "qualities", "created_at", "updated_at"
     ].join(","),
     tenders: [
       "id", "user_id", "name", "vessel_id", "type", "model", "length", "engine", "capacity",
@@ -262,6 +271,10 @@
 
     if (isHobbyInterestKey(key)) {
       return await fetchSupabaseArray("hobbies_interests", mapHobbyInterestFromSupabase, "date_from", userId, options);
+    }
+
+    if (isLandExperienceKey(key)) {
+      return await fetchSupabaseArray("land_experiences", mapLandExperienceFromSupabase, "date_from", userId, options);
     }
 
     if (isSpecialistQualificationKey(key)) {
@@ -958,6 +971,16 @@ const SeavAPI = {
         });
       }
 
+      if (isLandExperienceKey(key)) {
+        await upsertSupabaseItem("land_experiences", mapLandExperienceToSupabase(item));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, item.id);
+          if (index === -1) items.unshift(item);
+          else items[index] = item;
+          return items;
+        });
+      }
+
       if (isHobbyInterestKey(key)) {
         await upsertSupabaseItem("hobbies_interests", mapHobbyInterestToSupabase(item));
         return resolveArrayAfterMutation(key, (items) => {
@@ -1091,6 +1114,16 @@ const SeavAPI = {
         });
       }
 
+      if (isLandExperienceKey(key)) {
+        await updateSupabaseItem("land_experiences", id, mapLandExperienceToSupabase(merged));
+        return resolveArrayAfterMutation(key, (items) => {
+          const index = findIndexById(items, id);
+          if (index === -1) items.unshift(merged);
+          else items[index] = merged;
+          return items;
+        });
+      }
+
       if (isHobbyInterestKey(key)) {
         await updateSupabaseItem(
           "hobbies_interests",
@@ -1182,6 +1215,11 @@ const SeavAPI = {
 
         if (isOnboardSkillKey(key)) {
           await deleteSupabaseItem("onboard_skills", id);
+          return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
+        }
+
+        if (isLandExperienceKey(key)) {
+          await deleteSupabaseItem("land_experiences", id);
           return resolveArrayAfterMutation(key, (items) => items.filter((item) => item.id !== id));
         }
 

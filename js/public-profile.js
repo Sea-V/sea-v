@@ -401,6 +401,7 @@
           onboardSkills,
           hobbyEntries,
           specialistEntries,
+          landEntries,
           achievements,
           seatimes,
           certs
@@ -413,6 +414,7 @@
           loadPublicData(ownerId, KEYS.ONBOARD_SKILLS, profile),
           loadPublicData(ownerId, KEYS.HOBBIES_INTERESTS, profile),
           loadPublicData(ownerId, KEYS.SPECIALIST_QUALIFICATIONS, profile),
+          loadPublicData(ownerId, KEYS.LAND_EXPERIENCES, profile),
           loadPublicData(ownerId, KEYS.ACHIEVEMENTS, profile),
           loadPublicData(ownerId, KEYS.SEATIMES, profile),
           loadPublicData(ownerId, KEYS.CERTS, profile)
@@ -452,8 +454,14 @@
         sections.renderVessels(vessels, tenders, refs, isOwner, onboardEntries, achievements);
         await sections.renderNavigation(navigationAreas, vessels, navigationDistanceMap, isOwner);
         sections.renderOnboardSkills(onboardSkills, isOwner);
+        sections.renderQualities({
+          hobbiesInterests: hobbyEntries.filter((entry) => entry.status === "Published"),
+          specialistQualifications: specialistEntries,
+          landExperiences: landEntries
+        });
         sections.renderHobbiesInterests(hobbyEntries, isOwner);
         sections.renderSpecialistQualifications(specialistEntries, isOwner);
+        sections.renderLandExperience(landEntries, isOwner);
         sections.renderCertificates(certs, isOwner);
         sections.renderAchievements(achievements, vessels, isOwner, { seatimes, certs, navigationAreas });
 

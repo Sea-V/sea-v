@@ -104,9 +104,8 @@
   --page-onboard-experience: #ff8fab;
   --page-hobbies-interests: #e879f9;
 
-  /* Reserved for the not-yet-built Land-Based Experience page — color
-     confirmed with Jack 2026-08-02, wired into the sidebar disabled state
-     now; apply to .dash-link[href="land-experience.html"] once it ships. */
+  /* Land-Based Experience — color confirmed with Jack 2026-08-02, page
+     built v572 (2026-10-05). */
   --page-land-experience: #ff7a5c;
 
   /* =========================================================
@@ -151,6 +150,19 @@
      as rgba(255,255,255,0.60) in .seatime-section-head p and copied by hand
      into new rules; tokenised 2026-08-15 so it stops drifting. */
   --seav-note-color: rgba(255, 255, 255, 0.66);
+
+  /* Qualities + highlights (v572) -- js/seav-qualities.js,
+     css/components/qualities.css. One green family for every quality tag;
+     highlights (self-declared achievements) use the milestone gold. */
+  --seav-quality-accent: #7ee2a8;
+  --seav-quality-border: rgba(76, 255, 184, 0.45);
+  --seav-quality-bg: rgba(76, 255, 184, 0.08);
+  --seav-quality-bg-on: rgba(76, 255, 184, 0.22);
+  --seav-highlight-icon: #ffd25a;
+  --seav-highlight-icon-bg: rgba(255, 210, 90, 0.16);
+  --pp-interest-photo-col: 240px;
+  --pp-interest-photo-min: 180px;
+  --pp-interest-photo-phone: 220px;
 
   /* Captioned photo evidence -- js/seav-photo-strip.js and
      css/components/photo-strip.css (v536). Onboard experience first,

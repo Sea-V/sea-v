@@ -94,7 +94,7 @@
     const withPhotos = entries.filter((e) =>
       (e.photos || []).some((photo) => hasPhoto(photo) && getPhotoUrl(photo))
     ).length;
-    const categories = new Set(entries.map((e) => e.category).filter(Boolean)).size;
+    const highlights = entries.reduce((sum, e) => sum + (e.highlights || []).length, 0);
 
     row.innerHTML = `
       <div class="hi-kpi-box">
@@ -110,8 +110,8 @@
         <div class="kpi-label">With photos</div>
       </div>
       <div class="hi-kpi-box">
-        <div class="kpi-num">${categories}</div>
-        <div class="kpi-label">Categories</div>
+        <div class="kpi-num">${highlights}</div>
+        <div class="kpi-label">Highlights</div>
       </div>
     `;
   }
@@ -207,6 +207,11 @@
         const photoPill = photoCount
           ? `<span class="hi-photo-count-pill">${photoCount} photo${photoCount === 1 ? "" : "s"}</span>`
           : "";
+        const highlightCount = (entry.highlights || []).length;
+        const highlightPill = highlightCount
+          ? `<span class="hi-photo-count-pill">${highlightCount} highlight${highlightCount === 1 ? "" : "s"}</span>`
+          : "";
+        const yearsText = entry.years !== "" && entry.years != null ? `${entry.years} year${Number(entry.years) === 1 ? "" : "s"}` : "";
 
         return `
           <article class="hi-modern-card ui-card ui-card-hover ui-accent-fuchsia${isExpanded ? " is-expanded" : ""}" data-hi-id="${Seav.escapeHtml(entryId)}">
@@ -224,6 +229,7 @@
                   <div class="hi-modern-summary-tags">
                     <span class="hi-category-chip pill-neutral">${Seav.escapeHtml(categoryLabel)}</span>
                     ${photoPill}
+                    ${highlightPill}
                   </div>
                 </div>
               </div>
@@ -241,8 +247,10 @@
 
             <div class="hi-modern-body"${isExpanded ? "" : " hidden"}>
               <div class="hi-modern-meta">${Seav.escapeHtml(categoryLabel)}</div>
-              ${dateRange ? `<div class="hi-modern-meta">${Seav.escapeHtml(dateRange)}</div>` : ""}
+              ${yearsText ? `<div class="hi-modern-meta">${Seav.escapeHtml(yearsText)}</div>` : dateRange ? `<div class="hi-modern-meta">${Seav.escapeHtml(dateRange)}</div>` : ""}
               <div class="hi-modern-desc">${Seav.escapeHtml(entry.description || "")}</div>
+              ${highlightsHtml(entry.highlights)}
+              ${window.SeavQualities?.tagsHtml(entry.qualities) || ""}
               ${renderShowcaseGrid(photos)}
               ${Seav.seavActions(
                 `${Seav.seavAction(
@@ -261,6 +269,56 @@
         `;
       })
       .join("");
+  }
+
+  // Read-only list on the card (and the same markup on the public profile).
+  function highlightsHtml(list) {
+    const items = window.SeavData?.normalizeHighlights?.(list) || [];
+    if (!items.length) return "";
+    return `<div class="seav-highlights">${items
+      .map(
+        (item) => `
+          <div class="seav-highlight">
+            <b class="seav-highlight-icon" aria-hidden="true">★</b>
+            <strong>${Seav.escapeHtml(item.title)}</strong>
+            ${item.year ? `<small>${Seav.escapeHtml(item.year)}</small>` : ""}
+            <small class="seav-highlight-tag">Self-declared</small>
+          </div>`
+      )
+      .join("")}</div>`;
+  }
+
+  // Highlight rows in the modal. Kept in editingHighlights so a re-render
+  // (add / remove) never loses what was typed.
+  let editingHighlights = [];
+
+  function syncHighlightsFromDom() {
+    const rows = document.querySelectorAll("#hiHighlights [data-hl-row]");
+    editingHighlights = [...rows].map((row) => ({
+      title: row.querySelector("[data-hl-title]")?.value || "",
+      year: row.querySelector("[data-hl-year]")?.value || ""
+    }));
+  }
+
+  function renderHighlightEditor() {
+    const box = document.getElementById("hiHighlights");
+    const addBtn = document.getElementById("hiAddHighlight");
+    if (!box) return;
+    const max = window.SeavData?.MAX_HIGHLIGHTS || 8;
+    box.innerHTML = editingHighlights
+      .map(
+        (item, index) => `
+          <div class="hi-highlight-row" data-hl-row>
+            <input type="text" data-hl-title maxlength="120" value="${Seav.escapeHtml(item.title)}"
+              placeholder="e.g. Completed the London Marathon" aria-label="Highlight ${index + 1}" />
+            <input type="text" data-hl-year maxlength="9" inputmode="numeric" value="${Seav.escapeHtml(item.year)}"
+              placeholder="Year" aria-label="Year for highlight ${index + 1}" />
+            <button type="button" class="hi-highlight-remove" data-hl-remove="${index}"
+              aria-label="Remove highlight ${index + 1}">&times;</button>
+          </div>`
+      )
+      .join("");
+    if (addBtn) addBtn.hidden = editingHighlights.length >= max;
   }
 
   function updatePhotoCount() {
@@ -297,8 +355,11 @@
     document.getElementById("hi_status").value = entry?.status || "Published";
     document.getElementById("hi_title").value = entry?.title || "";
     document.getElementById("hi_description").value = entry?.description || "";
-    Seav.setDateTriplet("hi_date_from", entry?.dateFrom || "");
-    Seav.setDateTriplet("hi_date_to", entry?.dateTo || "");
+    const yearsInput = document.getElementById("hi_years");
+    if (yearsInput) yearsInput.value = entry?.years ?? "";
+    editingHighlights = (entry?.highlights || []).map((h) => ({ title: h.title || "", year: h.year || "" }));
+    renderHighlightEditor();
+    window.SeavQualities?.mountPicker(document.getElementById("hiQualities"), entry?.qualities || []);
 
     const fileInput = document.getElementById("hi_photos");
     if (fileInput) fileInput.value = "";
@@ -315,8 +376,9 @@
       status: document.getElementById("hi_status")?.value || "Published",
       title: document.getElementById("hi_title")?.value.trim() || "",
       description: document.getElementById("hi_description")?.value.trim() || "",
-      dateFrom: Seav.readDateTriplet("hi_date_from"),
-      dateTo: Seav.readDateTriplet("hi_date_to"),
+      years: document.getElementById("hi_years")?.value.trim() || "",
+      highlights: (syncHighlightsFromDom(), editingHighlights),
+      qualities: window.SeavQualities?.readPicker(document.getElementById("hiQualities")) || [],
       files: Array.from(document.getElementById("hi_photos")?.files || [])
     };
   }
@@ -375,6 +437,7 @@
     }
     populateCategoryOptions();
     renderKpis();
+    window.SeavQualities?.renderStateSummary(document.getElementById("hiQualitiesSummary"));
     renderList();
   }
 
@@ -391,6 +454,23 @@
     const runRefresh = () => refreshView();
 
     Seav.bindStateRefresh(runRefresh, { label: "Hobbies refresh" });
+
+    document.getElementById("hiAddHighlight")?.addEventListener("click", () => {
+      syncHighlightsFromDom();
+      if (editingHighlights.length >= (window.SeavData?.MAX_HIGHLIGHTS || 8)) return;
+      editingHighlights.push({ title: "", year: "" });
+      renderHighlightEditor();
+      const rows = document.querySelectorAll("#hiHighlights [data-hl-title]");
+      rows[rows.length - 1]?.focus();
+    });
+
+    document.getElementById("hiHighlights")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-hl-remove]");
+      if (!btn) return;
+      syncHighlightsFromDom();
+      editingHighlights.splice(Number(btn.getAttribute("data-hl-remove")), 1);
+      renderHighlightEditor();
+    });
 
     document.getElementById("hiOpenModal")?.addEventListener("click", (e) => {
       e.preventDefault();
@@ -437,8 +517,13 @@
               category: formData.category,
               title: formData.title,
               description: formData.description,
-              dateFrom: formData.dateFrom,
-              dateTo: formData.dateTo,
+              // The form no longer asks for start/end dates (v572 — "years
+              // doing it" replaced them); whatever was saved before is kept.
+              dateFrom: existing?.dateFrom || "",
+              dateTo: existing?.dateTo || "",
+              years: formData.years,
+              highlights: window.SeavData?.normalizeHighlights?.(formData.highlights) || [],
+              qualities: formData.qualities,
               status: formData.status,
               photos,
               createdAt: existing?.createdAt || now,
@@ -457,8 +542,7 @@
           editingPhotos = [];
           form.reset();
           document.getElementById("hi_edit_id").value = "";
-          Seav.clearDateTriplet("hi_date_from");
-          Seav.clearDateTriplet("hi_date_to");
+          editingHighlights = [];
           renderPhotoPreview();
           if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
 

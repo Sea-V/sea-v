@@ -19,6 +19,7 @@
     ONBOARD_SKILLS: "seav_onboard_skills",
     HOBBIES_INTERESTS: "seav_hobbies_interests",
     SPECIALIST_QUALIFICATIONS: "seav_specialist_qualifications",
+    LAND_EXPERIENCES: "seav_land_experiences",
     PAYSLIPS: "seav_payslips",
     CV_DRAFT: "seav_cv_draft"
   };
@@ -71,6 +72,31 @@
     { value: "volunteering", label: "Volunteering & community" },
     { value: "other", label: "Other interest" }
   ];
+
+  // v572 "personal side" (Jack, 2026-10-05): qualities that cross over to
+  // yachting, picked (max 4) on an interest, a specialist qualification or
+  // a land-based role, and counted into the profile's "Qualities" strip.
+  // FIXED list so the tags stay countable — add here, never free text.
+  const CREW_QUALITIES = [
+    { value: "teamwork", label: "Teamwork" },
+    { value: "long_hours", label: "Long hours" },
+    { value: "heavy_lifting", label: "Heavy lifting" },
+    { value: "outdoors", label: "Working outdoors in all weather" },
+    { value: "endurance", label: "Endurance" },
+    { value: "resilience", label: "Resilience" },
+    { value: "early_starts", label: "Early starts" },
+    { value: "water_confidence", label: "Water confidence" },
+    { value: "leadership", label: "Leadership" },
+    { value: "teaching", label: "Teaching others" },
+    { value: "calm_pressure", label: "Calm under pressure" },
+    { value: "attention_detail", label: "Attention to detail" },
+    { value: "guest_service", label: "Guest service" },
+    { value: "working_height", label: "Working at height" },
+    { value: "safety", label: "Safety-minded" },
+    { value: "discretion", label: "Discretion" }
+  ];
+  const MAX_QUALITIES = 4;
+  const MAX_HIGHLIGHTS = 8;
 
   const TENDER_PROFICIENCY_LEVELS = [
     { value: "Familiarisation", label: "Familiarisation" },
@@ -1008,6 +1034,81 @@ function getEmptyHobbyInterestEntry() {
     dateTo: "",
     status: "Published",
     photos: [],
+    createdAt: "",
+    updatedAt: ""
+  };
+}
+
+function getQualityLabel(value) {
+  return CREW_QUALITIES.find((item) => item.value === value)?.label || "";
+}
+
+// Known values only, unique, max 4 — anything else (a removed quality, a
+// hand-edited row) is dropped rather than shown as raw text.
+function normalizeQualities(list) {
+  const seen = new Set();
+  return (Array.isArray(list) ? list : [])
+    .map((value) => String(value || "").trim())
+    .filter((value) => getQualityLabel(value) && !seen.has(value) && seen.add(value))
+    .slice(0, MAX_QUALITIES);
+}
+
+// Self-declared achievements inside an interest: {title, year}, max 8.
+function normalizeHighlights(list) {
+  return (Array.isArray(list) ? list : [])
+    .map((item) => ({
+      title: String(item?.title || "").trim().slice(0, 120),
+      year: String(item?.year || "").trim().slice(0, 9)
+    }))
+    .filter((item) => item.title)
+    .slice(0, MAX_HIGHLIGHTS);
+}
+
+// Categories were saved both as the value ("sport_fitness") and as the
+// label ("Sport & fitness") — the same category could appear twice. Reads
+// map either form to the value (v572).
+function normalizeCategoryValue(list, raw) {
+  const key = String(raw || "").trim().toLowerCase();
+  if (!key) return "";
+  const hit = (list || []).find(
+    (item) => item.value.toLowerCase() === key || item.label.toLowerCase() === key
+  );
+  return hit ? hit.value : String(raw).trim();
+}
+
+// The profile's "Qualities" strip: every quality across interests,
+// specialist qualifications and land-based roles, with how many items show
+// it, most-shown first (ties keep CREW_QUALITIES order).
+function collectCrewQualities({ hobbiesInterests = [], specialistQualifications = [], landExperiences = [] } = {}) {
+  const counts = new Map();
+  const add = (items, kind) =>
+    (items || []).forEach((item) =>
+      normalizeQualities(item?.qualities).forEach((value) => {
+        const row = counts.get(value) || { value, label: getQualityLabel(value), count: 0, sources: [] };
+        row.count += 1;
+        row.sources.push({ kind, title: item.title || item.role || "" });
+        counts.set(value, row);
+      })
+    );
+  add(hobbiesInterests, "interest");
+  add(specialistQualifications, "qualification");
+  add(landExperiences, "land");
+  const order = CREW_QUALITIES.map((item) => item.value);
+  return [...counts.values()].sort((a, b) => b.count - a.count || order.indexOf(a.value) - order.indexOf(b.value));
+}
+
+function getEmptyLandExperienceEntry() {
+  return {
+    id: createId("land"),
+    role: "",
+    employer: "",
+    location: "",
+    dateFrom: "",
+    dateTo: "",
+    isCurrent: false,
+    description: "",
+    qualities: [],
+    attachment: null,
     createdAt: "",
     updatedAt: ""
   };
@@ -3723,6 +3824,15 @@ window.SeavData = {
   getOnboardSkillRatingLabel,
   getEmptyOnboardSkillEntry,
   HOBBIES_INTEREST_CATEGORIES,
+  CREW_QUALITIES,
+  MAX_QUALITIES,
+  MAX_HIGHLIGHTS,
+  getQualityLabel,
+  normalizeQualities,
+  normalizeHighlights,
+  normalizeCategoryValue,
+  collectCrewQualities,
+  getEmptyLandExperienceEntry,
   getEmptyHobbyInterestEntry,
   getHobbyInterestCategoryLabel,
   SPECIALIST_QUALIFICATION_CATEGORIES,

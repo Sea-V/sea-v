@@ -173,6 +173,8 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 .public-profile-page .dash-card-accent-references { --section-accent: var(--page-references); }
 .public-profile-page .dash-card-accent-achievements { --section-accent: var(--page-achievements); }
 .public-profile-page .dash-card-accent-hobbies { --section-accent: var(--page-hobbies-interests); }
+.public-profile-page .dash-card-accent-land { --section-accent: var(--page-land-experience); }
+.public-profile-page .dash-card-accent-qualities { --section-accent: var(--seav-quality-accent); }
 
 .public-profile-page [class*="dash-card-accent-"] {
   border-color: color-mix(in srgb, var(--section-accent, #5bbcff) 42%, rgba(255, 255, 255, 0.1));
@@ -1957,5 +1959,118 @@ body.pp-look-new #ppShell .pp-cert-group .public-cv-mini-row {
 @media (prefers-reduced-motion: reduce) {
   .pp-cert-group-summary::after {
     transition: none;
+  }
+}
+
+
+/* =========================================================
+   INTERESTS & ACHIEVEMENTS (v572, Jack 2026-10-05)
+   "A personal side ... pictures, achievements within the hobbies". Each
+   interest is a level-2 box: photos (opening the shared viewer, via the
+   data-seav-photo-group / -index attributes seav-photo-strip.js listens
+   for), then title, years, a line, self-declared highlights and qualities.
+   Photos sit beside the text on wide screens and above it on phones.
+========================================================= */
+
+.pp-interest-list {
+  display: grid;
+  gap: 12px;
+}
+
+.pp-interest {
+  display: grid;
+  grid-template-columns: var(--pp-interest-photo-col) minmax(0, 1fr);
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid var(--seav-glass-line);
+  background: var(--pp-depth-2, var(--seav-glass-panel));
+}
+
+.pp-interest--no-photo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pp-interest-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
+  gap: 3px;
+  min-height: var(--pp-interest-photo-min);
+}
+
+.pp-interest-photos--1 {
+  grid-template-columns: 1fr;
+}
+
+.pp-interest-photos--3 .pp-interest-photo:first-child {
+  grid-column: 1 / -1;
+}
+
+.pp-interest-photo {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--seav-photo-bg);
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.pp-interest-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pp-interest-body {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 14px 18px 16px;
+  min-width: 0;
+}
+
+.pp-interest-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.pp-interest-title {
+  color: var(--seav-entity-name-color);
+  font-size: var(--font-value);
+  font-weight: var(--font-weight-title);
+}
+
+.pp-interest-meta {
+  color: var(--seav-note-color);
+  font-size: var(--font-caption);
+}
+
+.public-profile-page .pp-interest-desc {
+  margin: 0;
+  color: var(--seav-meta-desc-color);
+  line-height: 1.5;
+}
+
+.pp-land-row .seav-quality-tags {
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .pp-interest {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Stacked above the text on a phone: a fixed band, not a tower. */
+  .pp-interest-photos {
+    height: var(--pp-interest-photo-phone);
+    min-height: 0;
   }
 }

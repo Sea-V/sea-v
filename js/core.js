@@ -577,7 +577,7 @@ function renderAppNav() {
       ${renderSidebarGroup(
         "Highlights",
         [
-          renderSidebarLink("#", "Land-Based Experience", iconLandExperience, { disabled: true }),
+          renderSidebarLink("land-experience.html", "Land-Based Experience", iconLandExperience),
           renderSidebarLink("achievements.html", "Milestones", iconAchievements, {
             id: "sidebarAchievementsLink"
           }),

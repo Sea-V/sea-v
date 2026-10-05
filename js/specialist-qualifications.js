@@ -116,6 +116,7 @@
             <div class="sq-compact-sub">
               ${Seav.escapeHtml(categoryLabel)} • Obtained ${Seav.escapeHtml(obtained)}
             </div>
+            ${window.SeavQualities?.tagsHtml(entry.qualities) || ""}
           </div>
           <div class="sq-compact-summary-right">
             <span class="sq-chevron" aria-hidden="true">
@@ -252,6 +253,7 @@
       dateObtained: Seav.readDateTriplet("sq_date_obtained"),
       expiry: Seav.readDateTriplet("sq_expiry"),
       notes: document.getElementById("sq_notes")?.value.trim() || "",
+      qualities: window.SeavQualities?.readPicker(document.getElementById("sqQualities")) || [],
       file: document.getElementById("sq_file")?.files?.[0] || null
     };
   }
@@ -267,6 +269,7 @@
     const fileInput = document.getElementById("sq_file");
     if (fileInput) fileInput.value = "";
     renderAttachmentHint(entry?.attachment || null);
+    window.SeavQualities?.mountPicker(document.getElementById("sqQualities"), entry?.qualities || []);
   }
 
   async function buildAttachment(file, existing, entryId) {
@@ -288,6 +291,7 @@
     }
     populateCategoryOptions();
     renderKpis();
+    window.SeavQualities?.renderStateSummary(document.getElementById("sqQualitiesSummary"));
     renderList();
   }
 
@@ -352,6 +356,7 @@
           dateObtained: formData.dateObtained,
           expiry: formData.expiry,
           notes: formData.notes,
+          qualities: formData.qualities,
           attachment,
           createdAt: existing?.createdAt || now,
           updatedAt: now

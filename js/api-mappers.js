@@ -641,16 +641,23 @@ function mapOnboardSkillToSupabase(item) {
   };
 }
 
+const SD = () => window.SeavData || {};
+
 function mapHobbyInterestFromSupabase(row) {
   return {
     id: row.id,
-    category: row.category || "",
+    category: SD().normalizeCategoryValue
+      ? SD().normalizeCategoryValue(SD().HOBBIES_INTEREST_CATEGORIES, row.category)
+      : row.category || "",
     title: row.title || "",
     description: row.description || "",
     dateFrom: row.date_from || "",
     dateTo: row.date_to || "",
     status: row.status || "Published",
     photos: Array.isArray(row.photos) ? row.photos : [],
+    years: row.years ?? "",
+    highlights: Array.isArray(row.highlights) ? row.highlights : [],
+    qualities: Array.isArray(row.qualities) ? row.qualities : [],
     createdAt: row.created_at || "",
     updatedAt: row.updated_at || ""
   };
@@ -666,6 +673,9 @@ function mapHobbyInterestToSupabase(item) {
     date_to: item.dateTo || null,
     status: item.status || "Published",
     photos: sanitizeFileArrayForStorage(item.photos, STORAGE_BUCKETS.HOBBIES_INTEREST_PHOTOS),
+    years: item.years === "" || item.years == null ? null : Math.max(0, Math.min(80, parseInt(item.years, 10) || 0)),
+    highlights: SD().normalizeHighlights ? SD().normalizeHighlights(item.highlights) : [],
+    qualities: SD().normalizeQualities ? SD().normalizeQualities(item.qualities) : [],
     updated_at: new Date().toISOString()
   };
 }
@@ -673,7 +683,9 @@ function mapHobbyInterestToSupabase(item) {
 function mapSpecialistQualificationFromSupabase(row) {
   return {
     id: row.id,
-    category: row.category || "",
+    category: SD().normalizeCategoryValue
+      ? SD().normalizeCategoryValue(SD().SPECIALIST_QUALIFICATION_CATEGORIES, row.category)
+      : row.category || "",
     title: row.title || "",
     issuingBody: row.issuing_body || "",
     dateObtained: row.date_obtained || "",
@@ -681,6 +693,7 @@ function mapSpecialistQualificationFromSupabase(row) {
     status: row.status || "Self-declared",
     notes: row.notes || "",
     attachment: row.attachment || null,
+    qualities: Array.isArray(row.qualities) ? row.qualities : [],
     createdAt: row.created_at || "",
     updatedAt: row.updated_at || ""
   };
@@ -697,6 +710,42 @@ function mapSpecialistQualificationToSupabase(item) {
     status: item.status || "Self-declared",
     notes: item.notes || "",
     attachment: sanitizeFileForStorage(item.attachment, STORAGE_BUCKETS.SPECIALIST_QUALIFICATION_FILES),
+    qualities: SD().normalizeQualities ? SD().normalizeQualities(item.qualities) : [],
+    updated_at: new Date().toISOString()
+  };
+}
+
+// v572: land-based experience (jobs ashore). attachment = an optional
+// reference letter, private (no anon grant).
+function mapLandExperienceFromSupabase(row) {
+  return {
+    id: row.id,
+    role: row.role || "",
+    employer: row.employer || "",
+    location: row.location || "",
+    dateFrom: row.date_from || "",
+    dateTo: row.date_to || "",
+    isCurrent: !!row.is_current,
+    description: row.description || "",
+    qualities: Array.isArray(row.qualities) ? row.qualities : [],
+    attachment: row.attachment || null,
+    createdAt: row.created_at || "",
+    updatedAt: row.updated_at || ""
+  };
+}
+
+function mapLandExperienceToSupabase(item) {
+  return {
+    id: item.id,
+    role: item.role || "",
+    employer: item.employer || "",
+    location: item.location || "",
+    date_from: item.dateFrom || null,
+    date_to: item.isCurrent ? null : item.dateTo || null,
+    is_current: !!item.isCurrent,
+    description: item.description || "",
+    qualities: SD().normalizeQualities ? SD().normalizeQualities(item.qualities) : [],
+    attachment: sanitizeFileForStorage(item.attachment, STORAGE_BUCKETS.LAND_EXPERIENCE_FILES),
     updated_at: new Date().toISOString()
   };
 }
@@ -756,6 +805,7 @@ function mapPayslipToSupabase(item) {
     mapOnboardSkillFromSupabase, mapOnboardSkillToSupabase,
     mapHobbyInterestFromSupabase, mapHobbyInterestToSupabase,
     mapSpecialistQualificationFromSupabase, mapSpecialistQualificationToSupabase,
+    mapLandExperienceFromSupabase, mapLandExperienceToSupabase,
     mapPayslipFromSupabase, mapPayslipToSupabase
   };
 })();

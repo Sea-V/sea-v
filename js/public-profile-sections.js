@@ -965,20 +965,13 @@
     const hidden = published.slice(LIMITS.hobbies);
     const moreId = "ppHobbiesMore";
 
-    const buildRow = (entry) =>
-      window.SeavCards.buildHobbyRow(entry, {
-        variant: "public",
-        categoryLabel: getHobbyInterestCategoryLabel,
-        photoBucket: HI_PHOTO_BUCKET
-      });
-
     box.innerHTML = `
-      <div class="public-cv-mini-list">
-        ${visible.map((entry) => buildRow(entry).replace(" data-pp-more-item", "")).join("")}
+      <div class="pp-interest-list">
+        ${visible.map(buildInterestCard).join("")}
         ${
           hidden.length
-            ? `<div class="public-cv-more-block" id="${moreId}" hidden>
-                ${hidden.map(buildRow).join("")}
+            ? `<div class="public-cv-more-block pp-interest-list" id="${moreId}" hidden>
+                ${hidden.map(buildInterestCard).join("")}
               </div>`
             : ""
         }
@@ -986,6 +979,146 @@
       ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "interests") : ""}
     `;
 
+    section.hidden = false;
+  }
+
+  /* v572 (Jack, 2026-10-05: "a personal side ... pictures, achievements
+     within the hobbies"). An interest = up to 3 photos (opening the shared
+     photo viewer), title, years, a line about it, its self-declared
+     highlights and the qualities it shows. */
+  function buildInterestCard(entry) {
+    const photos = (entry.photos || [])
+      .map((photo) => ({ photo, url: Seav.getFileDisplayUrl(photo, HI_PHOTO_BUCKET) }))
+      .filter((item) => item.url)
+      .slice(0, 3);
+    const years =
+      entry.years !== "" && entry.years != null
+        ? `${entry.years} year${Number(entry.years) === 1 ? "" : "s"}`
+        : "";
+    const meta = [getHobbyInterestCategoryLabel(entry.category), years].filter(Boolean).join(" · ");
+    const highlights = window.SeavData?.normalizeHighlights?.(entry.highlights) || [];
+    const title = entry.title || "Interest";
+
+    const photoHtml = photos.length
+      ? `<div class="pp-interest-photos pp-interest-photos--${photos.length}" data-seav-photo-group>
+          ${photos
+            .map(
+              ({ url }, index) => `
+                <button type="button" class="pp-interest-photo seav-photo-thumb" data-seav-photo-index="${index}"
+                  aria-label="Open photo ${index + 1} of ${Seav.escapeHtml(title)}">
+                  <img src="${Seav.escapeHtml(url)}" alt="${Seav.escapeHtml(title)}" loading="lazy" />
+                </button>`
+            )
+            .join("")}
+        </div>`
+      : "";
+
+    return `
+      <article class="pp-interest${photos.length ? "" : " pp-interest--no-photo"}">
+        ${photoHtml}
+        <div class="pp-interest-body">
+          <div class="pp-interest-head">
+            <strong class="pp-interest-title">${Seav.escapeHtml(title)}</strong>
+            ${meta ? `<small class="pp-interest-meta">${Seav.escapeHtml(meta)}</small>` : ""}
+          </div>
+          ${entry.description ? `<p class="pp-interest-desc">${Seav.escapeHtml(entry.description)}</p>` : ""}
+          ${
+            highlights.length
+              ? `<div class="seav-highlights">${highlights
+                  .map(
+                    (item) => `
+                      <div class="seav-highlight">
+                        <b class="seav-highlight-icon" aria-hidden="true">★</b>
+                        <strong>${Seav.escapeHtml(item.title)}</strong>
+                        ${item.year ? `<small>${Seav.escapeHtml(item.year)}</small>` : ""}
+                        <small class="seav-highlight-tag">Self-declared</small>
+                      </div>`
+                  )
+                  .join("")}</div>`
+              : ""
+          }
+          ${window.SeavQualities?.tagsHtml(entry.qualities) || ""}
+        </div>
+      </article>
+    `;
+  }
+
+  /* v572: the Qualities strip — counted across published interests,
+     specialist qualifications and land-based roles. Hidden when nothing is
+     tagged, so it never shows an empty box. */
+  function renderQualities(lists) {
+    const box = document.getElementById("ppQualitiesSnippet");
+    const section = document.getElementById("ppQualitiesSection");
+    if (!box || !section) return;
+    const html = window.SeavQualities?.summaryHtml(lists, {
+      note: "From interests, qualifications and work ashore"
+    }) || "";
+    box.innerHTML = html;
+    section.hidden = !html;
+  }
+
+  /* v572: land-based roles. The reference letter is never fetched here
+     (no anon grant on land_experiences.attachment). */
+  function renderLandExperience(entries, isOwner) {
+    const box = document.getElementById("ppLandSnippet");
+    const section = document.getElementById("ppLandSection");
+    if (!box || !section) return;
+
+    const sorted = [...(entries || [])]
+      .filter((entry) => entry.role)
+      .sort((a, b) => {
+        if (!!b.isCurrent !== !!a.isCurrent) return b.isCurrent ? 1 : -1;
+        return String(b.dateFrom || "").localeCompare(String(a.dateFrom || ""));
+      });
+
+    if (!sorted.length) {
+      if (!isOwner) {
+        section.hidden = true;
+        return;
+      }
+      box.innerHTML = buildEmptyState({
+        heading: "No land-based experience yet",
+        body: "Work ashore — hospitality, trades, outdoor work — shows how you work and the qualities you'd bring onboard.",
+        ctaLabel: "Add a role",
+        ctaHref: "/land-experience.html",
+        isOwner
+      });
+      section.hidden = false;
+      return;
+    }
+
+    const year = (iso) => (iso ? String(iso).slice(0, 4) : "");
+    const buildRow = (entry) => {
+      const range = entry.isCurrent
+        ? `${year(entry.dateFrom) || "—"} – present`
+        : [year(entry.dateFrom), year(entry.dateTo)].filter(Boolean).join(" – ");
+      const title = [entry.role, entry.employer].filter(Boolean).join(" · ");
+      const meta = [range, entry.location].filter(Boolean).join(" · ");
+      return `
+        <div class="public-cv-mini-row public-cv-mini-row--stacked pp-land-row">
+          <div class="public-cv-mini-main">
+            <span class="public-cv-mini-title">${Seav.escapeHtml(title)}</span>
+            ${meta ? `<span class="public-cv-mini-meta">${Seav.escapeHtml(meta)}</span>` : ""}
+            ${entry.description ? `<p class="pp-interest-desc">${Seav.escapeHtml(entry.description)}</p>` : ""}
+            ${window.SeavQualities?.tagsHtml(entry.qualities) || ""}
+          </div>
+        </div>`;
+    };
+
+    const visible = sorted.slice(0, LIMITS.land);
+    const hidden = sorted.slice(LIMITS.land);
+    const moreId = "ppLandMore";
+    box.innerHTML = `
+      <div class="public-cv-mini-list">
+        ${visible.map(buildRow).join("")}
+        ${
+          hidden.length
+            ? `<div class="public-cv-more-block" id="${moreId}" hidden>${hidden.map(buildRow).join("")}</div>`
+            : ""
+        }
+      </div>
+      ${hidden.length ? buildShowMoreButton(moreId, hidden.length, "roles") : ""}
+    `;
     section.hidden = false;
   }
 
@@ -1141,7 +1274,7 @@
       box.innerHTML = buildEmptyState({
         heading: "No specialist qualifications yet",
         body:
-          "Add courses like PDSD, ENG1, or tickets relevant to your role to stand out for specialist positions.",
+          "Add skills beyond maritime tickets — diving, water sports instructing, wine, massage, languages — and the qualities they show.",
         ctaLabel: "Add a qualification",
         ctaHref: "/specialist-qualifications.html",
         isOwner
@@ -1326,6 +1459,8 @@
     renderHobbiesInterests,
     renderCertificates,
     renderSpecialistQualifications,
+    renderQualities,
+    renderLandExperience,
     renderAchievements
   };
 })();

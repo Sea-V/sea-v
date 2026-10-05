@@ -122,6 +122,7 @@ const STORAGE_BUCKETS = {
   TENDER_PHOTOS: "tender-photos",
   ONBOARD_EXPERIENCE_FILES: "onboard-experience-files",
   HOBBIES_INTEREST_PHOTOS: "hobbies-interest-photos",
+  LAND_EXPERIENCE_FILES: "land-experience-files",
   SPECIALIST_QUALIFICATION_FILES: "specialist-qualification-files",
   PAYSLIP_FILES: "payslip-files"
 };
@@ -145,6 +146,7 @@ const ENTITY_FILE_FIELDS = {
   hobbies_interests: [
     { field: "photos", bucket: STORAGE_BUCKETS.HOBBIES_INTEREST_PHOTOS, isArray: true }
   ],
+  land_experiences: [{ field: "attachment", bucket: STORAGE_BUCKETS.LAND_EXPERIENCE_FILES }],
   specialist_qualifications: [
     { field: "attachment", bucket: STORAGE_BUCKETS.SPECIALIST_QUALIFICATION_FILES }
   ],
@@ -499,6 +501,14 @@ function isHobbyInterestKey(key) {
   return key === hobbyInterestKey();
 }
 
+function landExperienceKey() {
+  return window.SeavData?.KEYS?.LAND_EXPERIENCES || "seav_land_experiences";
+}
+
+function isLandExperienceKey(key) {
+  return key === landExperienceKey();
+}
+
 function specialistQualificationKey() {
   return window.SeavData?.KEYS?.SPECIALIST_QUALIFICATIONS || "seav_specialist_qualifications";
 }
@@ -523,6 +533,7 @@ function isPayslipKey(key) {
     vesselKey, seatimeKey, certKey, refKey, profileKey,
     tenderKey, achievementKey, navigationAreaKey, onboardExperienceKey,
     onboardSkillKey, hobbyInterestKey, specialistQualificationKey, payslipKey,
+    landExperienceKey, isLandExperienceKey,
     isVesselKey, isSeatimeKey, isCertKey, isRefKey, isProfileKey,
     isTenderKey, isAchievementKey, isNavigationAreaKey, isOnboardExperienceKey,
     isOnboardSkillKey, isHobbyInterestKey, isSpecialistQualificationKey, isPayslipKey,

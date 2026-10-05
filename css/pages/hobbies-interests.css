@@ -461,3 +461,69 @@
     height: 24px;
   }
 }
+
+/* =========================================================
+   HIGHLIGHTS EDITOR (v572) — self-declared achievements in the modal.
+   A row = title | year | remove. .modal-form input gives every input
+   width:100% and margin-top:8px, so the grid and the margin reset matter.
+========================================================= */
+
+.hi-highlight-editor {
+  display: grid;
+  gap: 8px;
+}
+
+.hi-highlight-editor:empty {
+  display: none;
+}
+
+.hi-highlight-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 88px 36px;
+  gap: 8px;
+  align-items: center;
+}
+
+.modal-form .hi-highlight-row input {
+  margin-top: 0;
+}
+
+.modal-form .hi-highlight-remove {
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--seav-glass-line);
+  background: none;
+  color: var(--seav-meta-desc-color);
+  font-size: var(--font-body);
+  cursor: pointer;
+}
+
+.modal-form .hi-highlight-remove:hover,
+.modal-form .hi-highlight-remove:focus-visible {
+  border-color: var(--progress-red, #ff5f6d);
+  color: var(--progress-red, #ff5f6d);
+}
+
+.modal-form .hi-add-highlight {
+  justify-self: start;
+  width: auto;
+}
+
+.hi-add-highlight[hidden] {
+  display: none !important;
+}
+
+.hi-highlight-note {
+  color: var(--seav-note-color);
+  font-size: var(--font-caption);
+  line-height: 1.45;
+}
+
+@media (max-width: 480px) {
+  .hi-highlight-row {
+    grid-template-columns: minmax(0, 1fr) 72px 36px;
+  }
+}

@@ -34,6 +34,7 @@ const TABLES = [
   "onboard_experiences",
   "hobbies_interests",
   "specialist_qualifications",
+  "land_experiences",
   "payslips"
 ];
 
@@ -95,11 +96,15 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
   ].join(","),
   hobbies_interests: [
     "id", "user_id", "category", "title", "description", "date_from", "date_to",
-    "status", "photos", "created_at", "updated_at"
+    "status", "photos", "years", "highlights", "qualities", "created_at", "updated_at"
   ].join(","),
   specialist_qualifications: [
     "id", "user_id", "category", "title", "issuing_body", "date_obtained", "expiry",
-    "status", "notes", "attachment", "created_at", "updated_at"
+    "status", "notes", "attachment", "qualities", "created_at", "updated_at"
+  ].join(","),
+  land_experiences: [
+    "id", "user_id", "role", "employer", "location", "date_from", "date_to", "is_current",
+    "description", "qualities", "created_at", "updated_at"
   ].join(","),
   tenders: [
     "id", "user_id", "name", "vessel_id", "type", "model", "length", "engine", "capacity",
@@ -383,6 +388,23 @@ async function testVesselColumns(config) {
     }
   }
 
+  return ok;
+}
+
+// v572: land_experiences.attachment is a reference letter from an employer
+// ashore — private. The public columns must stay readable for the profile.
+async function testLandExperienceColumns(config) {
+  console.log(`\nLand-based experience column probe:`);
+  const safeProbe = await restGet(config, "land_experiences", `select=${PUBLIC_TABLE_SAFE_COLUMNS.land_experiences}&limit=1`);
+  let ok = safeProbe.ok || safeProbe.status === 401;
+  console.log(`${ok ? "✓" : "✗"} public columns  ${safeProbe.status}`);
+  const probe = await restGet(config, "land_experiences", "select=attachment&limit=1");
+  if (probe.status === 401 || probe.status === 403) {
+    console.log(`✓ attachment blocked  ${probe.status}  OK — private column denied to anon`);
+  } else {
+    console.log(`✗ attachment readable  ${probe.status}  FAIL — revoke the anon grant on land_experiences.attachment`);
+    ok = false;
+  }
   return ok;
 }
 
@@ -799,7 +821,7 @@ async function main() {
   if (step === "1" || step === "all") {
     if (step === "1") console.log("(Skipping table scan — run with --step 0 or --step all for full scan)\n");
     columnSafe = await testProfileColumns(config);
-    vesselColumnsSafe = await testVesselColumns(config);
+    vesselColumnsSafe = (await testVesselColumns(config)) && (await testLandExperienceColumns(config));
     referenceColumnsSafe = await testReferenceColumns(config);
     certificateColumnsSafe = await testCertificateColumns(config);
     columnDriftSafe = testPublicColumnDrift();

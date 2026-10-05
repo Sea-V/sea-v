@@ -24,37 +24,38 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=571" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=571" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=571" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=571" />
+  <link rel="icon" href="/favicon.ico?v=572" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=572" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=572" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=572" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Hobbies & Interests</title>
 
-  <link rel="stylesheet" href="styles.css?v=571" />
+  <link rel="stylesheet" href="styles.css?v=572" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=571"></script>
-  <script src="js/supabase.js?v=571"></script>
-  <script src="js/auth.js?v=571"></script>
-  <script src="js/feedback.js?v=571" defer></script>
-  <script src="js/core.js?v=571" defer></script>
-  <script src="js/seav-search.js?v=571" defer></script>
-  <script src="js/bug-reports.js?v=571" defer></script>
-  <script src="js/seav-upload.js?v=571" defer></script>
-  <script src="js/seav-data.js?v=571" defer></script>
-  <script src="js/seav-badges.js?v=571" defer></script>
-  <script src="js/api-core.js?v=571" defer></script>
-  <script src="js/api-mappers.js?v=571" defer></script>
-  <script src="js/api.js?v=571" defer></script>
-  <script src="js/state.js?v=571" defer></script>
-  <script src="js/seav-notifications.js?v=571" defer></script>
-  <script src="js/achievements-engine.js?v=571" defer></script>
-  <script src="js/badge-unlock.js?v=571" defer></script>
+  <script src="js/seav-config.js?v=572"></script>
+  <script src="js/supabase.js?v=572"></script>
+  <script src="js/auth.js?v=572"></script>
+  <script src="js/feedback.js?v=572" defer></script>
+  <script src="js/core.js?v=572" defer></script>
+  <script src="js/seav-search.js?v=572" defer></script>
+  <script src="js/bug-reports.js?v=572" defer></script>
+  <script src="js/seav-upload.js?v=572" defer></script>
+  <script src="js/seav-data.js?v=572" defer></script>
+  <script src="js/seav-badges.js?v=572" defer></script>
+  <script src="js/api-core.js?v=572" defer></script>
+  <script src="js/api-mappers.js?v=572" defer></script>
+  <script src="js/api.js?v=572" defer></script>
+  <script src="js/state.js?v=572" defer></script>
+  <script src="js/seav-notifications.js?v=572" defer></script>
+  <script src="js/achievements-engine.js?v=572" defer></script>
+  <script src="js/badge-unlock.js?v=572" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=571" defer></script>
-  <script src="js/hobbies-interests.js?v=571" defer></script>
+  <script src="js/seav-share.js?v=572" defer></script>
+  <script src="js/seav-qualities.js?v=572" defer></script>
+  <script src="js/hobbies-interests.js?v=572" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -110,10 +111,9 @@
           <div class="hi-shell-copy">
             <h2>Hobbies & Interests</h2>
             <p>
-              Showcase what makes you a rounded person — sport, travel, music, photography,
-              volunteering, and more. If you're just starting out and don't have sea time
-              logged yet, this is often the first thing that sets your profile apart. Add
-              a few photos to bring each entry to life.
+              Show the person behind the CV — what you do, what you've achieved doing it,
+              and the qualities it proves. An ultra-marathon, a summit, a big catch, a
+              season instructing: add photos and highlights to bring each one to life.
             </p>
           </div>
 
@@ -126,6 +126,8 @@
         <section class="hi-section">
 
           <div class="hi-kpi-row" id="hiKpiRow"></div>
+
+          <div class="seav-quality-summary-panel" id="hiQualitiesSummary" hidden></div>
 
           <div class="hi-section-head">
             <div>
@@ -195,9 +197,23 @@
           <textarea id="hi_description" rows="4" required placeholder="What you do and why it matters to you"></textarea>
         </label>
 
-        <div class="modal-grid2">
-          <div data-date-field="hi_date_from" data-date-label="Started (optional)"></div>
-          <div data-date-field="hi_date_to" data-date-label="Ended (optional)"></div>
+        <label>
+          Years doing it (optional)
+          <input id="hi_years" type="number" min="0" max="80" inputmode="numeric" placeholder="e.g. 6" />
+        </label>
+
+        <!-- v572: self-declared achievements inside this interest. Rows are
+             rendered by js/hobbies-interests.js renderHighlightEditor(). -->
+        <div class="seav-form-group">
+          <strong class="seav-form-group-title">Highlights &amp; achievements (optional)</strong>
+          <div class="hi-highlight-editor" id="hiHighlights"></div>
+          <button type="button" class="btn-ghost2 hi-add-highlight" id="hiAddHighlight">+ Add a highlight</button>
+          <small class="hi-highlight-note">For example: completed an ultra-marathon, summited Kilimanjaro, tagged and released a marlin. Shown as self-declared on your profile.</small>
+        </div>
+
+        <div class="seav-form-group">
+          <strong class="seav-form-group-title">Qualities this shows (pick up to 4)</strong>
+          <div id="hiQualities"></div>
         </div>
 
         <div class="hi-modal-photos" data-seav-dropzone>

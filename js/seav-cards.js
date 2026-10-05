@@ -589,6 +589,7 @@
           <div class="public-cv-mini-main">
             <span class="public-cv-mini-title">${title}</span>
             ${meta ? `<span class="public-cv-mini-meta">${Seav.escapeHtml(meta)}</span>` : ""}
+            ${window.SeavQualities?.tagsHtml(entry.qualities) || ""}
           </div>
         </div>
       `;

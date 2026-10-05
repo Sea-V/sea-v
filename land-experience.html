@@ -30,7 +30,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=572" />
   <meta name="theme-color" content="#071019" />
 
-  <title>SEA-V • Specialist Qualifications</title>
+  <title>SEA-V • Land-Based Experience</title>
 
   <link rel="stylesheet" href="styles.css?v=572" />
 
@@ -55,7 +55,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="js/seav-share.js?v=572" defer></script>
   <script src="js/seav-qualities.js?v=572" defer></script>
-  <script src="js/specialist-qualifications.js?v=572" defer></script>
+  <script src="js/land-experience.js?v=572" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -90,59 +90,51 @@
   <div id="topbarMount"></div>
 
   <main class="dash">
-
     <div id="sidebarMount"></div>
 
     <section class="dash-content">
 
-      <article class="sq-shell-card">
+      <!-- v572: reuses the Specialist Qualifications layout (.sq-*), so the
+           glass levels in typography.css apply; css/pages/land-experience.css
+           swaps the accent to coral via .le-shell. -->
+      <article class="sq-shell-card le-shell">
 
         <div class="sq-shell-head">
-
           <div class="sq-shell-icon">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5.2L12 14.8 7.5 17l.9-5.2L4.8 8.2l5-.7L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-              <path d="M8 19.5h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="9.5" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 9.5V7.3A1.8 1.8 0 0 1 10.8 5.5h2.4A1.8 1.8 0 0 1 15 7.3v2.2" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M5 13.5h14" stroke="currentColor" stroke-width="1.8"/></svg>
           </div>
 
           <div class="sq-shell-copy">
-            <h2>Specialist Qualifications &amp; Skills</h2>
+            <h2>Land-Based Experience</h2>
             <p>
-              Wellness, water sports, hospitality, and other professional credentials
-              that strengthen your yacht CV — massage therapy, yoga, personal training,
-              kite instruction, languages, and more.
+              Work ashore that crosses over to yachting — hospitality, trades, outdoor and
+              physical work, teaching, care. Tag the qualities each role proves, like
+              long hours, teamwork or heavy lifting.
             </p>
           </div>
 
           <div class="sq-shell-actions">
-            <a class="btn-blue" href="#" data-open="sqModal">Add qualification</a>
+            <a class="btn-blue" href="#" data-open="leModal">Add a role</a>
           </div>
-
         </div>
 
         <section class="sq-section">
 
-          <div class="sq-kpi-row" id="sqKpiRow"></div>
+          <div class="sq-kpi-row" id="leKpiRow"></div>
 
-          <div class="seav-quality-summary-panel" id="sqQualitiesSummary" hidden></div>
+          <div class="seav-quality-summary-panel" id="leQualitiesSummary" hidden></div>
 
           <div class="sq-section-head">
             <div>
-              <h3>Your specialist credentials</h3>
+              <h3>Your roles ashore</h3>
               <p>
-                Log qualifications beyond maritime certificates. Upload supporting
-                documents where you have them.
-              </p>
-              <p class="page-boundary-note">
-                This page is for non-maritime credentials — wellness, water sports, hospitality,
-                languages, and more. STCW, medical, and rank certificates belong on
-                <a href="certificates.html">Certificates</a>.
+                Most recent first. A reference letter can be attached to any role — it stays
+                private to you.
               </p>
             </div>
           </div>
 
-          <div class="sq-compact-list" id="sqList"></div>
+          <div class="sq-compact-list" id="leList"></div>
 
         </section>
 
@@ -151,75 +143,74 @@
     </section>
 
     <footer class="page-quote-footer">
-      <p class="page-quote-footer-text">&ldquo;The more you sweat in peace, the less you bleed in war.&rdquo;</p>
+      <p class="page-quote-footer-text">&ldquo;Every job teaches you something you take to sea.&rdquo;</p>
     </footer>
 
   </main>
 
-  <div class="modal" id="sqModal" hidden>
-    <div class="modal-card modal-card-wide modal-card--lavender">
+  <div class="modal" id="leModal" hidden>
+    <div class="modal-card modal-card-wide">
 
       <div class="modal-head">
-        <h3>Add / edit qualification</h3>
+        <h3>Add / edit land-based role</h3>
         <button type="button" class="modal-x" data-close>&times;</button>
       </div>
 
-      <form class="modal-form" id="sqForm">
+      <form class="modal-form" id="leForm">
 
-        <input type="hidden" id="sq_edit_id" value="" />
-
-        <p class="modal-intro">
-          Record specialist skills and qualifications that make you more valuable
-          onboard — separate from STCW and rank certificates.
-        </p>
-
-        <label>
-          Category
-          <select id="sq_category" required>
-            <option value="">Pick the type of qualification</option>
-          </select>
-        </label>
-
-        <label>
-          Qualification title
-          <input id="sq_title" required placeholder="Name of the course or qualification" />
-        </label>
-
-        <label>
-          Issuing body / school (optional)
-          <input id="sq_issuing_body" placeholder="Training school, university, or governing body" />
-        </label>
+        <input type="hidden" id="le_edit_id" value="" />
 
         <div class="modal-grid2">
-          <div data-date-field="sq_date_obtained" data-date-label="Date obtained"></div>
-          <div data-date-field="sq_expiry" data-date-label="Expiry date" data-date-optional></div>
+          <label>
+            Role
+            <input id="le_role" required maxlength="120" placeholder="e.g. Sous Chef, Scaffolder, Ski instructor" />
+          </label>
+          <label>
+            Employer
+            <input id="le_employer" maxlength="120" placeholder="Company or venue" />
+          </label>
         </div>
 
         <label>
-          Notes (optional)
-          <textarea id="sq_notes" rows="3" placeholder="Extra detail for your CV or recruiters"></textarea>
+          Location (optional)
+          <input id="le_location" maxlength="120" placeholder="Town, country" />
+        </label>
+
+        <div class="modal-grid2">
+          <div data-date-field="le_date_from" data-date-label="Started"></div>
+          <div id="le_to_wrap"><div data-date-field="le_date_to" data-date-label="Finished"></div></div>
+        </div>
+
+        <label class="modal-check le-current">
+          <input type="checkbox" id="le_current" />
+          <span>I still work here</span>
+        </label>
+
+        <label>
+          What you did
+          <textarea id="le_description" rows="3" maxlength="1000" placeholder="e.g. Ran the pass on 200-cover nights and trained four commis chefs."></textarea>
         </label>
 
         <div class="seav-form-group">
           <strong class="seav-form-group-title">Qualities this shows (pick up to 4)</strong>
-          <div id="sqQualities"></div>
+          <div id="leQualities"></div>
         </div>
 
         <label>
-          Supporting file (PDF / image)
+          Reference letter (optional, private)
           <div class="profile-photo-field">
             <div class="profile-photo-actions">
-              <button type="button" class="btn-ghost2" id="sqFileBtn">Choose file</button>
-              <input type="file" id="sq_file" accept=".pdf,image/*" hidden />
-              <p class="profile-photo-hint muted" id="sqFileHint">No file uploaded yet</p>
+              <button type="button" class="btn-ghost2" id="leFileBtn">Choose file</button>
+              <input type="file" id="le_file" accept=".pdf,image/*" hidden />
+              <p class="profile-photo-hint muted" id="leFileHint">No file uploaded yet</p>
             </div>
           </div>
         </label>
 
-        <button class="btn-blue" type="submit">Save qualification</button>
+        <button class="btn-blue" type="submit">Save role</button>
 
         <p class="modal-footnote">
-          Saved to your SEA-V profile and shown on your public CV when enabled.
+          Shown on your public profile when it is enabled. Reference letters are never public.
         </p>
 
       </form>

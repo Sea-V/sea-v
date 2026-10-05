@@ -32,6 +32,7 @@
     { stateKey: "tenders", table: "tenders" },
     { stateKey: "onboardExperiences", table: "onboard_experiences" },
     { stateKey: "hobbiesInterests", table: "hobbies_interests" },
+    { stateKey: "landExperiences", table: "land_experiences" },
     { stateKey: "specialistQualifications", table: "specialist_qualifications" },
     { stateKey: "payslips", table: "payslips" }
   ];
@@ -49,6 +50,7 @@
     "onboardSkills",
     "hobbiesInterests",
     "specialistQualifications",
+    "landExperiences",
     "payslips"
   ];
 
@@ -66,6 +68,7 @@
       "onboardExperiences",
       "hobbiesInterests",
       "specialistQualifications",
+      "landExperiences",
       "payslips"
     ],
     "profile.html": [],
@@ -78,7 +81,8 @@
       "tenders",
       "onboardExperiences",
       "hobbiesInterests",
-      "specialistQualifications"
+      "specialistQualifications",
+      "landExperiences"
     ],
     "vessels.html": ["vessels", "seatimes"],
     // certs dropped 2026-08-21 with the OOW/Master eligibility trackers — the
@@ -96,8 +100,11 @@
     "tenders.html": ["tenders", "vessels"],
     "navigation.html": ["navigationAreas", "vessels", "seatimes"],
     "onboard-experience.html": ["onboardExperiences", "onboardSkills", "vessels"],
-    "hobbies-interests.html": ["hobbiesInterests"],
-    "specialist-qualifications.html": ["specialistQualifications"],
+    // v572: each of these pages also shows the profile's Qualities strip,
+    // which counts across all three.
+    "hobbies-interests.html": ["hobbiesInterests", "specialistQualifications", "landExperiences"],
+    "specialist-qualifications.html": ["specialistQualifications", "hobbiesInterests", "landExperiences"],
+    "land-experience.html": ["landExperiences", "hobbiesInterests", "specialistQualifications"],
     "payslips.html": ["payslips"]
   };
 
@@ -115,6 +122,7 @@
     "onboard-experience.html": ["onboardExperiences"],
     "hobbies-interests.html": ["hobbiesInterests"],
     "specialist-qualifications.html": ["specialistQualifications"],
+    "land-experience.html": ["landExperiences"],
     "payslips.html": ["payslips"]
   };
 
@@ -197,6 +205,8 @@
           return window.SeavAPI.getArray(KEYS.ONBOARD_SKILLS);
         case "hobbiesInterests":
           return window.SeavAPI.getArray(KEYS.HOBBIES_INTERESTS);
+        case "landExperiences":
+          return window.SeavAPI.getArray(KEYS.LAND_EXPERIENCES);
         case "specialistQualifications":
           return window.SeavAPI.getArray(KEYS.SPECIALIST_QUALIFICATIONS);
         case "payslips":
@@ -228,6 +238,8 @@
         return window.SeavAPI.getArrayForUser(KEYS.ONBOARD_SKILLS, userId);
       case "hobbiesInterests":
         return window.SeavAPI.getArrayForUser(KEYS.HOBBIES_INTERESTS, userId);
+      case "landExperiences":
+        return window.SeavAPI.getArrayForUser(KEYS.LAND_EXPERIENCES, userId);
       case "specialistQualifications":
         return window.SeavAPI.getArrayForUser(KEYS.SPECIALIST_QUALIFICATIONS, userId);
       case "payslips":
@@ -300,6 +312,7 @@
       onboardExperiences: safeArray(snapshot.onboardExperiences),
       onboardSkills: safeArray(snapshot.onboardSkills),
       hobbiesInterests: safeArray(snapshot.hobbiesInterests),
+      landExperiences: safeArray(snapshot.landExperiences),
       specialistQualifications: safeArray(snapshot.specialistQualifications),
       payslips: safeArray(snapshot.payslips)
     };
@@ -320,6 +333,7 @@
       onboardExperiences: [],
       onboardSkills: [],
       hobbiesInterests: [],
+      landExperiences: [],
       specialistQualifications: [],
       payslips: []
     },
@@ -411,6 +425,7 @@
         onboardExperiences: snapshot.onboardExperiences ?? this.data.onboardExperiences,
         onboardSkills: snapshot.onboardSkills ?? this.data.onboardSkills,
         hobbiesInterests: snapshot.hobbiesInterests ?? this.data.hobbiesInterests,
+        landExperiences: snapshot.landExperiences ?? this.data.landExperiences,
         specialistQualifications:
           snapshot.specialistQualifications ?? this.data.specialistQualifications,
         payslips: snapshot.payslips ?? this.data.payslips
@@ -555,6 +570,10 @@
 
     get onboardSkills() {
       return this.data.onboardSkills;
+    },
+
+    get landExperiences() {
+      return this.data.landExperiences;
     },
 
     get hobbiesInterests() {
