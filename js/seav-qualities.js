@@ -29,16 +29,23 @@
     const max = D.MAX_QUALITIES || 4;
     el.classList.add("seav-quality-picker");
     el.setAttribute("role", "group");
+    // v574: grouped under headings (Working style, Deck & practical...).
+    const option = (item) => `
+      <button type="button" class="seav-quality-option" data-quality="${esc(item.value)}"
+        aria-pressed="${chosen.has(item.value) ? "true" : "false"}">${esc(item.label)}</button>`;
+    const groups = D.CREW_QUALITY_GROUPS || [{ value: "", label: "" }];
     el.innerHTML = `
-      <div class="seav-quality-options">
-        ${(D.CREW_QUALITIES || [])
-          .map(
-            (item) => `
-              <button type="button" class="seav-quality-option" data-quality="${esc(item.value)}"
-                aria-pressed="${chosen.has(item.value) ? "true" : "false"}">${esc(item.label)}</button>`
-          )
-          .join("")}
-      </div>
+      ${groups
+        .map((group) => {
+          const items = (D.CREW_QUALITIES || []).filter((item) => !group.value || item.group === group.value);
+          if (!items.length) return "";
+          return `
+            <div class="seav-quality-group">
+              ${group.label ? `<small class="seav-quality-group-label">${esc(group.label)}</small>` : ""}
+              <div class="seav-quality-options">${items.map(option).join("")}</div>
+            </div>`;
+        })
+        .join("")}
       <small class="seav-quality-count" aria-live="polite"></small>
     `;
     updateCount(el, max);
@@ -89,7 +96,7 @@
   }
 
   // lists = { hobbiesInterests, specialistQualifications, landExperiences }
-  function summaryHtml(lists, { title = "Qualities", note = "" } = {}) {
+  function summaryHtml(lists, { title = "Skills & qualities", note = "" } = {}) {
     const D = data();
     const rows = D.collectCrewQualities ? D.collectCrewQualities(lists) : [];
     if (!rows.length) return "";

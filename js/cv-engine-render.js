@@ -213,7 +213,7 @@
         : "",
       renderSeavSidebarBlock("Yacht Qualifications", certList),
       renderSeavSidebarBlock("Other Qualifications", specialistList),
-      renderSeavSidebarBlock("Qualities", qualitiesHtml),
+      renderSeavSidebarBlock("Skills & Qualities", qualitiesHtml),
       renderSeavSidebarBlock("Milestones", milestonesHtml),
       // v562: one Navigation line of the chosen countries.
       renderSeavSidebarBlock(

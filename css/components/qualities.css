@@ -35,7 +35,18 @@
 
 .seav-quality-picker {
   display: grid;
-  gap: 8px;
+  gap: 12px;
+}
+
+.seav-quality-group {
+  display: grid;
+  gap: 6px;
+}
+
+.seav-quality-group-label {
+  color: var(--seav-field-label-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-title);
 }
 
 .seav-quality-options,

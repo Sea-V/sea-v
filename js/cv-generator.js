@@ -301,9 +301,9 @@
       cta: "Log a passage"
     },
     qualities: {
-      text: "No qualities tagged yet. Tag them on your interests, specialist qualifications or land-based roles.",
+      text: "No skills or qualities tagged yet. Tag them on your interests, specialist qualifications or land-based roles.",
       href: "hobbies-interests.html",
-      cta: "Tag qualities"
+      cta: "Tag skills & qualities"
     },
     land: {
       text: "No land-based roles yet. Work ashore — hospitality, trades, outdoor work — shows how you work.",

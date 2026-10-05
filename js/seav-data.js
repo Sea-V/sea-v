@@ -77,23 +77,66 @@
   // yachting, picked (max 4) on an interest, a specialist qualification or
   // a land-based role, and counted into the profile's "Qualities" strip.
   // FIXED list so the tags stay countable — add here, never free text.
+  // v574 (Jack: "add more skills that would be relevant to yachting"): 49
+  // values in five groups; the picker shows the group headings. Values are
+  // the stored keys — NEVER rename or remove one (saved rows reference
+  // them; normalizeQualities drops unknown values). Labels can change.
+  const CREW_QUALITY_GROUPS = [
+    { value: "style", label: "Working style" },
+    { value: "physical", label: "Physical & outdoors" },
+    { value: "deck", label: "Deck & practical" },
+    { value: "guest", label: "Guest & hospitality" },
+    { value: "tech", label: "Tech & admin" }
+  ];
   const CREW_QUALITIES = [
-    { value: "teamwork", label: "Teamwork" },
-    { value: "long_hours", label: "Long hours" },
-    { value: "heavy_lifting", label: "Heavy lifting" },
-    { value: "outdoors", label: "Working outdoors in all weather" },
-    { value: "endurance", label: "Endurance" },
-    { value: "resilience", label: "Resilience" },
-    { value: "early_starts", label: "Early starts" },
-    { value: "water_confidence", label: "Water confidence" },
-    { value: "leadership", label: "Leadership" },
-    { value: "teaching", label: "Teaching others" },
-    { value: "calm_pressure", label: "Calm under pressure" },
-    { value: "attention_detail", label: "Attention to detail" },
-    { value: "guest_service", label: "Guest service" },
-    { value: "working_height", label: "Working at height" },
-    { value: "safety", label: "Safety-minded" },
-    { value: "discretion", label: "Discretion" }
+    { value: "teamwork", label: "Teamwork", group: "style" },
+    { value: "long_hours", label: "Long hours", group: "style" },
+    { value: "early_starts", label: "Early starts", group: "style" },
+    { value: "endurance", label: "Endurance", group: "style" },
+    { value: "resilience", label: "Resilience", group: "style" },
+    { value: "calm_pressure", label: "Calm under pressure", group: "style" },
+    { value: "leadership", label: "Leadership", group: "style" },
+    { value: "teaching", label: "Teaching others", group: "style" },
+    { value: "attention_detail", label: "Attention to detail", group: "style" },
+    { value: "discretion", label: "Discretion", group: "style" },
+    { value: "safety", label: "Safety-minded", group: "style" },
+    { value: "adaptability", label: "Adaptability", group: "style" },
+    { value: "initiative", label: "Initiative", group: "style" },
+    { value: "reliability", label: "Reliability", group: "style" },
+    { value: "communication", label: "Communication", group: "style" },
+    { value: "problem_solving", label: "Problem solving", group: "style" },
+    { value: "positive_attitude", label: "Positive attitude", group: "style" },
+    { value: "close_quarters", label: "Living in close quarters", group: "style" },
+    { value: "heavy_lifting", label: "Heavy lifting", group: "physical" },
+    { value: "outdoors", label: "Working outdoors in all weather", group: "physical" },
+    { value: "working_height", label: "Working at height", group: "physical" },
+    { value: "water_confidence", label: "Water confidence", group: "physical" },
+    { value: "fitness", label: "Physical fitness", group: "physical" },
+    { value: "boat_handling", label: "Boat handling", group: "deck" },
+    { value: "tender_driving", label: "Tender & RIB driving", group: "deck" },
+    { value: "ropework", label: "Ropework & knots", group: "deck" },
+    { value: "mechanical", label: "Engines & mechanical", group: "deck" },
+    { value: "electrical", label: "Electrical", group: "deck" },
+    { value: "carpentry", label: "Carpentry & joinery", group: "deck" },
+    { value: "painting_varnishing", label: "Painting & varnishing", group: "deck" },
+    { value: "detailing", label: "Detailing & cleaning", group: "deck" },
+    { value: "fibreglass", label: "Fibreglass & gelcoat repair", group: "deck" },
+    { value: "diving", label: "Diving", group: "deck" },
+    { value: "water_toys", label: "Water toys & watersports", group: "deck" },
+    { value: "fishing", label: "Fishing", group: "deck" },
+    { value: "guest_service", label: "Guest service", group: "guest" },
+    { value: "silver_service", label: "Silver service", group: "guest" },
+    { value: "wine_cocktails", label: "Wine & cocktails", group: "guest" },
+    { value: "cooking", label: "Cooking", group: "guest" },
+    { value: "housekeeping", label: "Housekeeping & laundry", group: "guest" },
+    { value: "floristry", label: "Floristry & table styling", group: "guest" },
+    { value: "event_planning", label: "Event planning", group: "guest" },
+    { value: "childcare", label: "Childcare", group: "guest" },
+    { value: "wellness", label: "Wellness & massage", group: "guest" },
+    { value: "it_av", label: "IT & AV systems", group: "tech" },
+    { value: "photo_video", label: "Photography & video", group: "tech" },
+    { value: "admin_accounts", label: "Admin & accounts", group: "tech" },
+    { value: "second_language", label: "Second language", group: "tech" }
   ];
   const MAX_QUALITIES = 4;
   const MAX_HIGHLIGHTS = 8;
@@ -3825,6 +3868,7 @@ window.SeavData = {
   getEmptyOnboardSkillEntry,
   HOBBIES_INTEREST_CATEGORIES,
   CREW_QUALITIES,
+  CREW_QUALITY_GROUPS,
   MAX_QUALITIES,
   MAX_HIGHLIGHTS,
   getQualityLabel,

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v573**. Jack pushes every commit himself from
+- HEAD = **v574**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1151,6 +1151,16 @@ M3000 deck-officer 17.6/24 months).
   Verified: node rule tests (positions 15/15, Yachtmaster 14/14); Sea Time
   harness — select, vessel pre-fill, legacy value, both form blocks. The
   Navigation form fields were not seen rendered (page needs the map).
+
+### v574 — 48 skills & qualities, grouped
+Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES
+grew 16 -> 48 in five CREW_QUALITY_GROUPS (Working style, Physical &
+outdoors, Deck & practical, Guest & hospitality, Tech & admin); the picker
+shows the group headings. All 16 original keys kept (values are stored —
+never rename/remove one; labels may change). Still max 4 per item (raising
+it needs a migration: the DB checks are <= 4). Every crew-facing label is
+now "Skills & qualities" (forms, page strip, public profile, CV generator
+group, CV / Word heading "Skills & Qualities").
 
 ### v572 — the "personal side": interests, qualities, land-based experience
 Jack (2026-10-05): not "new crew" framing — "something that allows them to

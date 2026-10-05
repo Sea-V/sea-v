@@ -240,7 +240,7 @@
     }
 
     if (sections.showQualities !== false && doc.qualities?.length) {
-      parts.push(sidebarHeading("Qualities", scheme.heading));
+      parts.push(sidebarHeading("Skills & Qualities", scheme.heading));
       parts.push(paragraph(doc.qualities.join(", "), { size: 18, color: scheme.text }, { spacingAfter: 30 }));
     }
 
