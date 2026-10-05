@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v574**. Jack pushes every commit himself from
+- HEAD = **v575**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1161,6 +1161,10 @@ never rename/remove one; labels may change). Still max 4 per item (raising
 it needs a migration: the DB checks are <= 4). Every crew-facing label is
 now "Skills & qualities" (forms, page strip, public profile, CV generator
 group, CV / Word heading "Skills & Qualities").
+
+### v575 — West Palm Beach on the navigation port list
+USA port added so a passage to/from there can pick the name instead of a
+custom pin.
 
 ### v572 — the "personal side": interests, qualities, land-based experience
 Jack (2026-10-05): not "new crew" framing — "something that allows them to

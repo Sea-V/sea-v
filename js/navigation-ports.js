@@ -447,6 +447,7 @@
     { country: "USA", port: "Portland (ME)", lat: 43.6591, lng: -70.2568 },
     { country: "USA", port: "Sag Harbor", lat: 40.9998, lng: -72.2926 },
     { country: "USA", port: "St Petersburg (FL)", lat: 27.7676, lng: -82.6403 },
+    { country: "USA", port: "West Palm Beach", lat: 26.713, lng: -80.047 },
     { country: "Vanuatu", port: "Port Vila", lat: -17.7333, lng: 168.3167 },
     { country: "Vanuatu", port: "Luganville", lat: -15.5167, lng: 167.1667 },
     { country: "Venezuela", port: "Porlamar", lat: 10.957, lng: -63.8497 },
