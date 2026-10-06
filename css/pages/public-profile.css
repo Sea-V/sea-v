@@ -1374,6 +1374,30 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   margin-top: 6px;
 }
 
+/* v577: empty sections are hidden from visitors, so an empty state only
+   ever renders for the owner — the tag says so. */
+.public-cv-empty-owner {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px dashed var(--seav-glass-edge);
+  color: var(--seav-note-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-title);
+}
+
+/* v577: the one line a visitor sees on a profile with nothing in it. */
+.pp-empty-profile[hidden] {
+  display: none !important;
+}
+
+.dash-card.pp-empty-profile p {
+  margin: 0;
+  padding: 6px 4px;
+  color: var(--seav-meta-desc-color);
+  font-size: var(--font-body);
+  text-align: center;
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */

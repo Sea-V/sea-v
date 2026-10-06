@@ -301,9 +301,14 @@
   // a stranger viewing someone else's public profile has no use for a link
   // that would just dead-end at a login gate for them, and doesn't need
   // "add yours" copy directed at them.
+  // v577 (Jack, 2026-10-06): empty sections are for the OWNER only — a
+  // visitor never sees an empty box (each render function hides its section
+  // for visitors before reaching here), so this always carries the
+  // "Only you can see this" tag.
   function buildEmptyState({ heading, body, ctaLabel, ctaHref, isOwner }) {
     return `
       <div class="public-cv-empty-state">
+        ${isOwner ? `<small class="public-cv-empty-owner">Only you can see this</small>` : ""}
         <strong>${Seav.escapeHtml(heading)}</strong>
         <span>${Seav.escapeHtml(body)}</span>
         ${
@@ -562,7 +567,7 @@
   // etc.) so it reads as one more entry in the list, just without a
   // photo/stats header. Omitted entirely when there's nothing unattached
   // to show.
-  function buildUnattachedCard(orphanTenders, orphanOnboard, orphanAchievements, orphanRefs, vessels) {
+  function buildUnattachedCard(orphanTenders, orphanOnboard, orphanAchievements, orphanRefs, vessels, options = {}) {
     const hasAny =
       orphanTenders.length ||
       orphanOnboard.length ||
@@ -580,11 +585,11 @@
       .join("");
 
     return `
-      <details class="vessel-history-collapsible">
+      <details class="vessel-history-collapsible" ${options.open ? "open" : ""}>
         <summary class="vessel-history-summary">
           <span class="vessel-history-summary-title">
-            <strong>Other</strong>
-            <small>Not linked to a specific vessel</small>
+            <strong>${Seav.escapeHtml(options.title || "Other")}</strong>
+            <small>${Seav.escapeHtml(options.note || "Not linked to a specific vessel")}</small>
           </span>
         </summary>
         <div class="vessel-history-collapsible-body">
@@ -614,6 +619,36 @@
     const verifiedRefs = (refs || []).filter(isReferenceVerified);
 
     if (!vessels.length) {
+      // v577: tenders, onboard experience, references and achievements
+      // logged WITHOUT a vessel used to vanish here — the early return came
+      // before the "Other" card was built. They now show on their own.
+      const unattachedOnly = buildUnattachedCard(
+        tenders || [],
+        publicOnboard,
+        manualAchievements,
+        verifiedRefs,
+        vessels,
+        // The only entry in the list, so open, and not called "Other".
+        { open: true, title: "Yacht experience", note: "Not linked to a vessel yet" }
+      );
+      if (unattachedOnly) {
+        vesselBox.innerHTML = `
+          ${isOwner ? buildEmptyState({
+            heading: "No vessels added yet",
+            body: "Add your vessels to show your career history, roles and time onboard. The records below will sit under the right vessel once linked.",
+            ctaLabel: "Add a vessel",
+            ctaHref: "/vessels.html",
+            isOwner
+          }) : ""}
+          <div class="pp-vessel-full-list pp-vessel-unattached">${unattachedOnly}</div>`;
+        setSectionCount("ppVesselCount", 0);
+        if (section) section.hidden = false;
+        return;
+      }
+      if (!isOwner) {
+        if (section) section.hidden = true;
+        return;
+      }
       vesselBox.innerHTML = buildEmptyState({
         heading: "No vessel experience yet",
         body:
@@ -747,6 +782,10 @@
     destroyPublicNavigationChart();
 
     if (!navigationAreas.length) {
+      if (!isOwner) {
+        section.hidden = true;
+        return;
+      }
       box.innerHTML = buildEmptyState({
         heading: "No passages logged yet",
         body:
@@ -949,6 +988,10 @@
       });
 
     if (!published.length) {
+      if (!isOwner) {
+        section.hidden = true;
+        return;
+      }
       box.innerHTML = buildEmptyState({
         heading: "No hobbies or interests yet",
         body:
@@ -1206,6 +1249,10 @@
     );
 
     if (!saved.length) {
+      if (!isOwner) {
+        section.hidden = true;
+        return;
+      }
       box.innerHTML = buildEmptyState({
         heading: "No certificates recorded yet",
         body:
@@ -1271,6 +1318,10 @@
       });
 
     if (!sorted.length) {
+      if (!isOwner) {
+        section.hidden = true;
+        return;
+      }
       box.innerHTML = buildEmptyState({
         heading: "No specialist qualifications yet",
         body:
@@ -1397,6 +1448,10 @@
     // being worked toward" list — nothing here is tied to one vessel, so it
     // stays in the Credentials zone rather than moving into a vessel card.
     if (!inProgress.length) {
+      if (!isOwner) {
+        section.hidden = true;
+        return;
+      }
       // This section has no static <h3> in the HTML (unlike the others) —
       // the header is normally built inline below along with the content, so
       // the empty state has to include it too rather than relying on markup

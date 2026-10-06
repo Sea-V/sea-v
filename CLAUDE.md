@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v576**. Jack pushes every commit himself from
+- HEAD = **v577**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1169,6 +1169,22 @@ the extra class after it silently dropped the glass card, shadow and title
 band. Now `le-shell sq-shell-card`; computed styles measured identical to
 Specialist Qualifications (shell, title band, KPI, cards, strip).
 **Rule: a page's *-shell-card class must be the LAST class on the element.**
+
+### v577 — public profile: visitors only see sections with content
+Jack (2026-10-06): should categories hide when no vessel is added? Agreed:
+- **Visitors**: every empty section is `hidden` (vessels, navigation,
+  milestones, specialist, certificates, interests; land already was), so
+  the section links list only what shows.
+- **Owner**: empty sections still render with their "Add ..." button and
+  an "Only you can see this" tag (`buildEmptyState`).
+- **Bug fixed**: with NO vessels, renderVessels returned before building
+  the "Other" card, so unlinked tenders / onboard / refs / achievements
+  never showed. They now render as an open "Yacht experience — Not linked
+  to a vessel yet" card (`buildUnattachedCard(..., options)`).
+- A profile with nothing at all shows visitors one line in `#ppEmptyProfile`:
+  "<first name> is just getting started on SEA-V...".
+Verified on the local page with live anon data by calling the real render
+functions with empty / tender-only data as visitor and owner.
 
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES

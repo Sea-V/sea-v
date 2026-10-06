@@ -465,6 +465,27 @@
         sections.renderCertificates(certs, isOwner);
         sections.renderAchievements(achievements, vessels, isOwner, { seatimes, certs, navigationAreas });
 
+        // v577 (Jack, 2026-10-06): visitors never see an empty section, so
+        // a brand-new profile would be a name and nothing else. One friendly
+        // line instead. The owner sees every empty section with its "Add"
+        // button, so they never get this line.
+        const emptyNote = document.getElementById("ppEmptyProfile");
+        if (emptyNote) {
+          const contentIds = [
+            "ppVesselSection", "ppOnboardSkillsSection", "ppNavigationSection",
+            "ppAchievementSection", "ppSpecialistSection", "ppCertSection",
+            "ppHobbiesSection", "ppLandSection", "ppQualitiesSection"
+          ];
+          const anyShown = contentIds.some((id) => {
+            const el = document.getElementById(id);
+            return el && !el.hidden;
+          });
+          const firstName = String(profile.name || "").trim().split(/\s+/)[0] || "This crew member";
+          const text = document.getElementById("ppEmptyProfileText");
+          if (text) text.textContent = `${firstName} is just getting started on SEA-V. Their experience will appear here as they add it.`;
+          emptyNote.hidden = isOwner || anyShown;
+        }
+
         bindExpandToggles(document.getElementById("ppContent"));
         renderSectionNav();
         populateSectionIcons();
