@@ -750,7 +750,10 @@ function renderSidebarAchievements() {
       <div class="modal" id="contactInfoModal" hidden>
         <div class="modal-card modal-card--blue">
           <div class="modal-head">
-            <h3>Contact SEA-V</h3>
+            <div class="modal-head-titles">
+              <h3>Contact SEA-V</h3>
+              <small>Questions, feedback or partnerships</small>
+            </div>
             <button type="button" class="modal-x" data-close aria-label="Close">&times;</button>
           </div>
 
@@ -764,9 +767,13 @@ function renderSidebarAchievements() {
               <span class="modal-info-value">admin@sea-v.com</span>
             </a>
 
+            <p class="modal-note">
+              Something not working? <a href="#" data-open="reportIssueModal">Report an issue</a> — it goes straight to the SEA-V team.
+            </p>
+
             <div class="dash-actions">
-              <a class="btn-blue" href="mailto:admin@sea-v.com">Email us</a>
               <a class="btn-ghost2" href="contact.html" target="_blank" rel="noopener">Full contact page</a>
+              <a class="btn-blue" href="mailto:admin@sea-v.com">Email us</a>
             </div>
           </div>
         </div>
@@ -775,28 +782,43 @@ function renderSidebarAchievements() {
       <div class="modal" id="aboutInfoModal" hidden>
         <div class="modal-card modal-card--blue">
           <div class="modal-head">
-            <h3>About SEA-V</h3>
+            <div class="modal-head-titles">
+              <h3>About SEA-V</h3>
+              <small>Your yachting career, in one place</small>
+            </div>
             <button type="button" class="modal-x" data-close aria-label="Close">&times;</button>
           </div>
 
           <div class="modal-form">
-            <p class="modal-intro">
-              A modern digital hub for seafarers — one place to record and share your maritime career.
-            </p>
-
-            <div class="modal-info-box">
-              <span class="modal-info-label">What it does</span>
-              <span class="modal-info-value">Track sea time, manage certificates, store vessel history, collect references, and build a professional maritime profile — all in one place.</span>
+            <div class="modal-points">
+              <div class="modal-point">
+                <span class="modal-point-icon" aria-hidden="true">${iconSeatime}</span>
+                <span class="modal-point-text">
+                  <strong>Log it once</strong>
+                  <small>Sea time, certificates, vessels and passages — with MCA progress worked out for you.</small>
+                </span>
+              </div>
+              <div class="modal-point">
+                <span class="modal-point-icon" aria-hidden="true">${iconCv}</span>
+                <span class="modal-point-text">
+                  <strong>A CV in minutes</strong>
+                  <small>Built from your records. Tick what shows, then download it.</small>
+                </span>
+              </div>
+              <div class="modal-point">
+                <span class="modal-point-icon" aria-hidden="true">${iconReferences}</span>
+                <span class="modal-point-text">
+                  <strong>Verified, not just claimed</strong>
+                  <small>References confirmed by the people who wrote them, and a public profile you control.</small>
+                </span>
+              </div>
             </div>
 
-            <div class="modal-info-box">
-              <span class="modal-info-label">Vision</span>
-              <span class="modal-info-value">Built to modernise how maritime careers are recorded, presented, and shared.</span>
-            </div>
+            <p class="modal-note">Free for crew, always · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
 
             <div class="dash-actions">
-              <a class="btn-blue" href="about.html" target="_blank" rel="noopener">Read the full story</a>
               <a class="btn-ghost2" href="#" data-open="contactInfoModal">Get in touch</a>
+              <a class="btn-blue" href="about.html" target="_blank" rel="noopener">Read the full story</a>
             </div>
           </div>
         </div>
@@ -805,7 +827,10 @@ function renderSidebarAchievements() {
       <div class="modal" id="reportIssueModal" hidden>
         <div class="modal-card modal-card--blue">
           <div class="modal-head">
-            <h3>Report an issue</h3>
+            <div class="modal-head-titles">
+              <h3>Report an issue</h3>
+              <small>Goes straight to the SEA-V team</small>
+            </div>
             <button type="button" class="modal-x" data-close aria-label="Close">&times;</button>
           </div>
 
@@ -1508,8 +1533,121 @@ function renderSidebarAchievements() {
      MODALS
   ========================================================= */
 
+  /* v577 modal revamp (Jack, 2026-10-06, from the approved mockup). Every
+     .modal-card gets, once:
+     - its section's icon in the header (MODAL_ICONS, by modal id), drawn in
+       the card's accent colour;
+     - dialog semantics on the .modal (role, aria-modal, aria-labelledby);
+     - a pinned Save bar (.modal-foot) at the end of the form: Cancel + the
+       form's own Save button / actions row, MOVED, not copied, so every
+       page's submit handling and ids are untouched. Cancel clicks the
+       card's own X, so whatever that page does on close still runs.
+     Runs at load and on any .modal added later (the dashboard lifts page
+     modals in on demand). Styles: REVAMP block in css/components/modals.css. */
+  const MODAL_ICONS = {
+    vesselModal: "vessels",
+    seatimeModal: "seatime",
+    certModal: "certificates",
+    certShareModal: "certificates",
+    tenderModal: "tenders",
+    oeModal: "onboard",
+    refModal: "references",
+    achievementModal: "achievements",
+    trbModal: "achievements",
+    psModal: "payslips",
+    sqModal: "specialist",
+    hiModal: "hobbies",
+    leModal: "landExperience",
+    contactInfoModal: "mail",
+    aboutInfoModal: "info",
+    reportIssueModal: "flag"
+  };
+
+  const MODAL_EXTRA_ICONS = {
+    mail: `<svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="6" width="17" height="12" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="m4.5 7.5 7.5 6 7.5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    info: `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.6v.01M11 11h1.3v5.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+    flag: `<svg viewBox="0 0 24 24" fill="none"><path d="M6 20V4.5M6 5h10.5l-2 3.5 2 3.5H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+  };
+
+  function enhanceModalCard(card) {
+    if (!card || card.dataset.enhanced || card.classList.contains("email-confirmed-card")) return;
+    card.dataset.enhanced = "1";
+
+    const modal = card.closest(".modal");
+    const head = card.querySelector(":scope > .modal-head");
+    const title = head?.querySelector("h3");
+
+    if (head && title && !head.querySelector(".modal-head-icon")) {
+      const key = MODAL_ICONS[modal?.id];
+      const svg = key ? window.SeavIcons?.[key] || MODAL_EXTRA_ICONS[key] : "";
+      if (svg) {
+        const icon = document.createElement("span");
+        icon.className = "modal-head-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.innerHTML = svg; // our own icon set, not data
+        head.insertBefore(icon, head.firstChild);
+      }
+    }
+
+    if (modal && title && !modal.hasAttribute("role")) {
+      if (!title.id) title.id = `${modal.id || "seav"}Title`;
+      modal.setAttribute("role", "dialog");
+      modal.setAttribute("aria-modal", "true");
+      modal.setAttribute("aria-labelledby", title.id);
+    }
+
+    const form = card.querySelector(":scope > .modal-form");
+    if (!form || form.querySelector(".modal-foot")) return;
+    const actions = [...form.children]
+      .reverse()
+      .find((el) => el.matches('button[type="submit"], .dash-actions, .seav-actions'));
+    if (!actions) return;
+
+    const foot = document.createElement("div");
+    foot.className = "modal-foot";
+
+    const hasOwnSecondary = actions.matches("button")
+      ? false
+      : !!actions.querySelector('button[type="button"], .btn-ghost2');
+    if (form.tagName === "FORM" && !hasOwnSecondary) {
+      const cancel = document.createElement("button");
+      cancel.type = "button";
+      cancel.className = "btn-ghost2 modal-cancel";
+      cancel.textContent = "Cancel";
+      cancel.addEventListener("click", (event) => {
+        event.preventDefault();
+        const x = card.querySelector(".modal-x");
+        if (x) x.click();
+        else window.SeavModals?.closeAllModals?.();
+      });
+      foot.appendChild(cancel);
+    }
+
+    foot.appendChild(actions);
+    form.appendChild(foot);
+  }
+
+  function enhanceModals(root = document) {
+    root.querySelectorAll(".modal-card").forEach(enhanceModalCard);
+  }
+
+  function watchForNewModals() {
+    if (!document.body || typeof window.MutationObserver === "undefined") return;
+    new window.MutationObserver((mutations) => {
+      mutations.forEach((m) =>
+        m.addedNodes.forEach((node) => {
+          if (node.nodeType !== 1) return;
+          if (node.matches(".modal-card")) enhanceModalCard(node);
+          else if (node.querySelector?.(".modal-card")) enhanceModals(node);
+        })
+      );
+    }).observe(document.body, { childList: true });
+  }
+
   function initModals() {
     const overlay = document.getElementById("modalOverlay");
+    enhanceModals();
+    watchForNewModals();
 
     function closeAllModals() {
       if (overlay) overlay.hidden = true;

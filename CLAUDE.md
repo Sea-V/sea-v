@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v577**. Jack pushes every commit himself from
+- HEAD = **v578**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1185,6 +1185,32 @@ Jack (2026-10-06): should categories hide when no vessel is added? Agreed:
   "<first name> is just getting started on SEA-V...".
 Verified on the local page with live anon data by calling the real render
 functions with empty / tender-only data as visitor and owner.
+
+### v578 — modal revamp
+Jack approved the mockup. Report an issue stays — it feeds the admin page.
+All in the shared layer:
+- `css/components/modals.css` REVAMP block: glass card (`--seav-menu-bg`),
+  26px radius; header band pinned (sticky) with the accent as a 3px inset
+  line; blue normal-case field labels (also on the profile + navigation
+  forms, which reuse `.modal-form`); "More details" rows restyled; phones
+  <=600px get a bottom sheet. Accent per card = `--modal-accent`, default
+  on bare `.modal-card` so the `--gold`/`--coral`/... variants override it
+  (a default on the higher-specificity :not() rule made every card blue).
+  New `modal-card--land` (land page had no accent). `.email-confirmed-card`
+  (index.html) is excluded and unchanged.
+- `enhanceModalCard` (core.js, run in initModals + a body MutationObserver
+  for the dashboard's lifted modals): section icon in the head
+  (`MODAL_ICONS` by modal id), role=dialog/aria-modal/aria-labelledby, and
+  a pinned `.modal-foot` = Cancel + the form's own submit / actions row
+  MOVED into it (ids and submit handling untouched; Cancel clicks the
+  card's X). **Sticky gotcha:** offsets are measured inside the card's
+  padding, so the bar needs `bottom: -20px` (-16px on phones) to sit flush.
+- Contact / About / Report heads got a subtitle; About is three points +
+  Privacy/Terms; Contact links to Report an issue.
+Verified on the vessels harness: head and Save bar stay put while the form
+scrolls, Cancel closes, submit still belongs to the form, phone sheet at
+375px with no sideways scroll, an injected gold modal gets icon + gold
+accent + bar. Not yet seen signed in on the live pages.
 
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES

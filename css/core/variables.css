@@ -276,6 +276,13 @@
      readable over content (the see-through card glass was not). */
   --seav-menu-bg: rgba(20, 36, 58, 0.95);
   --seav-account-menu-width: 300px;
+  /* Modals (v577 revamp): the card is the menu glass; the header and the
+     pinned Save bar are a near-solid band so fields scrolling under them
+     never show through. */
+  --seav-modal-radius: 26px;
+  --seav-modal-band: rgb(14, 26, 42);
+  --seav-modal-icon-size: 40px;
+  --seav-modal-sheet-gap: 24px;
   --seav-menu-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   --seav-search-top: 96px;
   --seav-search-backdrop: rgba(3, 8, 15, 0.55);
