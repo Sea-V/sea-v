@@ -619,6 +619,19 @@
     );
   }
 
+  // v579 (GDPR, Jack 2026-10-08: "eng1 can show but no details"): a medical
+  // FITNESS certificate is health data. The public profile shows that one is
+  // held, never its dates or valid/expired status. Training courses with
+  // "medical" in the name (Medical First Aid, Medical Care) are not health
+  // data and are left alone.
+  function isMedicalFitnessCert(cert) {
+    const code = String(cert?.code || "").trim().toUpperCase();
+    if (code === "ENG1" || code === "STCW ML5") return true;
+    const text = `${cert?.name || ""} ${code}`;
+    if (/first aid|medical care/i.test(text)) return false;
+    return /\beng\s?1\b|\bml5\b|medical (fitness|certificate)|seafarer medical|\bmedical\b$/i.test(text.trim());
+  }
+
   function findCertificateCatalogItem(code) {
     const normalized = normalizeCertCode(code);
     return (
@@ -3839,6 +3852,7 @@ window.SeavData = {
   getCertificateCatalog,
   setCertificateCatalogFromDb,
   findCertificateCatalogItem,
+  isMedicalFitnessCert,
   isSavedCert,
   isCurrentQualificationCert,
   slugifyUsername,

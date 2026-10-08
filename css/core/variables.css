@@ -280,6 +280,8 @@
      pinned Save bar are a near-solid band so fields scrolling under them
      never show through. */
   --seav-modal-radius: 26px;
+  /* Two-step login QR on Profile settings (v579). */
+  --seav-mfa-qr-size: 180px;
   --seav-modal-band: rgb(14, 26, 42);
   --seav-modal-icon-size: 40px;
   --seav-modal-sheet-gap: 24px;

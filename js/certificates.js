@@ -624,6 +624,22 @@
     applyNoExpiry(checked, options);
   }
 
+  // v579: explicit consent before a medical fitness certificate FILE is
+  // stored (health data). Visible only while a new file is chosen for one.
+  function needsMedicalConsent() {
+    const data = readForm();
+    return !!data.file && !!window.SeavData?.isMedicalFitnessCert?.(data);
+  }
+
+  function syncMedicalConsent() {
+    const wrap = document.getElementById("ct_medical_consent_wrap");
+    const box = document.getElementById("ct_medical_consent");
+    if (!wrap) return;
+    const show = needsMedicalConsent();
+    wrap.hidden = !show;
+    if (!show && box) box.checked = false;
+  }
+
   function onTypeChange() {
     const code = document.getElementById("ct_type")?.value || "";
     const nameWrap = document.getElementById("ct_name_wrap");
@@ -665,6 +681,7 @@
     if (!form) return;
 
     form.reset();
+    document.getElementById("ct_medical_consent_wrap")?.setAttribute("hidden", "");
     document.getElementById("ct_edit_id").value = "";
     document.getElementById("certModalTitle").textContent = "Add certificate";
     document.getElementById("ct_type_wrap").hidden = false;
@@ -733,6 +750,7 @@
     const certNumberEl = document.getElementById("ct_cert_number");
     if (certNumberEl) certNumberEl.value = cert.certificateNumber || "";
     document.getElementById("ct_file").value = "";
+    syncMedicalConsent();
     renderCertAttachmentHint(cert.attachment || null);
     window.SeavModals?.openModal?.("certModal");
   }
@@ -854,7 +872,11 @@
     document.getElementById("ct_no_expiry")?.addEventListener("change", (e) => {
       applyNoExpiry(e.target.checked);
     });
-    document.getElementById("ct_type")?.addEventListener("change", onTypeChange);
+    document.getElementById("ct_type")?.addEventListener("change", () => {
+      onTypeChange();
+      syncMedicalConsent();
+    });
+    document.getElementById("ct_name")?.addEventListener("input", syncMedicalConsent);
     document.getElementById("ct_authority")?.addEventListener("change", () => onAuthorityChange());
     document.getElementById("ct_provider")?.addEventListener("change", () => onProviderChange());
 
@@ -869,6 +891,7 @@
         if (file) {
           renderCertAttachmentHint({ filename: file.name }, { isNewSelection: true });
         }
+        syncMedicalConsent();
       });
     }
 
@@ -898,6 +921,16 @@
         return;
       }
 
+      const medicalConsent = needsMedicalConsent();
+      if (medicalConsent && !document.getElementById("ct_medical_consent")?.checked) {
+        Seav.notify(
+          "error",
+          "Consent needed",
+          "Tick the box to let SEA-V store your medical certificate, or save without the file."
+        );
+        return;
+      }
+
       const existing = data.id ? getCerts().find((c) => c.id === data.id) : null;
 
       await Seav.withSaving(async () => {
@@ -909,6 +942,9 @@
         const certId = data.id || ghost?.id || createId("cert");
         let attachment = await uploadFile(data.file, existing?.attachment || null, certId);
         if (data.file && !attachment) return;
+        if (medicalConsent && attachment) {
+          attachment = { ...attachment, healthConsentAt: new Date().toISOString() };
+        }
         if (!data.file && existing?.attachment) {
           attachment = await hydrateAttachment(existing.attachment);
         }

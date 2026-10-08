@@ -25,40 +25,40 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=578" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=578" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=578" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=578" />
+  <link rel="icon" href="/favicon.ico?v=579" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=579" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=579" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=579" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Profile</title>
 
-  <link rel="stylesheet" href="styles.css?v=578" />
+  <link rel="stylesheet" href="styles.css?v=579" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=578"></script>
-  <script src="js/supabase.js?v=578"></script>
-  <script src="js/auth.js?v=578"></script>
-  <script src="js/feedback.js?v=578" defer></script>
-  <script src="js/core.js?v=578" defer></script>
-  <script src="js/seav-search.js?v=578" defer></script>
-  <script src="js/bug-reports.js?v=578" defer></script>
-  <script src="js/seav-upload.js?v=578" defer></script>
-  <script src="js/seav-countries.js?v=578" defer></script>
-  <script src="js/seav-visas.js?v=578" defer></script>
-  <script src="js/seav-data.js?v=578" defer></script>
-  <script src="js/seav-badges.js?v=578" defer></script>
-  <script src="js/api-core.js?v=578" defer></script>
-  <script src="js/api-mappers.js?v=578" defer></script>
-  <script src="js/api.js?v=578" defer></script>
-  <script src="js/state.js?v=578" defer></script>
-  <script src="js/seav-notifications.js?v=578" defer></script>
-  <script src="js/achievements-engine.js?v=578" defer></script>
-  <script src="js/badge-unlock.js?v=578" defer></script>
+  <script src="js/seav-config.js?v=579"></script>
+  <script src="js/supabase.js?v=579"></script>
+  <script src="js/auth.js?v=579"></script>
+  <script src="js/feedback.js?v=579" defer></script>
+  <script src="js/core.js?v=579" defer></script>
+  <script src="js/seav-search.js?v=579" defer></script>
+  <script src="js/bug-reports.js?v=579" defer></script>
+  <script src="js/seav-upload.js?v=579" defer></script>
+  <script src="js/seav-countries.js?v=579" defer></script>
+  <script src="js/seav-visas.js?v=579" defer></script>
+  <script src="js/seav-data.js?v=579" defer></script>
+  <script src="js/seav-badges.js?v=579" defer></script>
+  <script src="js/api-core.js?v=579" defer></script>
+  <script src="js/api-mappers.js?v=579" defer></script>
+  <script src="js/api.js?v=579" defer></script>
+  <script src="js/state.js?v=579" defer></script>
+  <script src="js/seav-notifications.js?v=579" defer></script>
+  <script src="js/achievements-engine.js?v=579" defer></script>
+  <script src="js/badge-unlock.js?v=579" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-  <script src="js/seav-share.js?v=578" defer></script>
-  <script src="js/profile.js?v=578" defer></script>
+  <script src="js/seav-share.js?v=579" defer></script>
+  <script src="js/profile.js?v=579" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -457,6 +457,30 @@
             <p class="modal-note">
               Saved securely to your SEA-V profile.
             </p>
+
+            <!-- v579 two-step login (js/profile.js initTwoStep). -->
+            <div class="profile-danger-zone profile-mfa-zone" id="mfaZone">
+              <p class="modal-note" id="mfaStatusText">Two-step login adds a 6-digit code from an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password…) each time you sign in.</p>
+              <button type="button" class="btn-ghost2" id="btnMfaStart">Turn on two-step login</button>
+              <button type="button" class="btn-ghost2" id="btnMfaOff" hidden>Turn off two-step login</button>
+              <div class="profile-mfa-setup" id="mfaSetup" hidden>
+                <p class="modal-note">1. Scan this with your authenticator app.</p>
+                <img id="mfaQr" class="profile-mfa-qr" alt="QR code for your authenticator app" width="180" height="180" />
+                <p class="modal-note">Can't scan? Enter this key instead: <code id="mfaSecret"></code></p>
+                <p class="modal-note">2. Type the 6-digit code it shows.</p>
+                <div class="profile-mfa-confirm">
+                  <input id="mfaSetupCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" aria-label="6-digit code from your authenticator app" />
+                  <button type="button" class="btn-blue" id="btnMfaConfirm">Confirm</button>
+                  <button type="button" class="btn-ghost2" id="btnMfaCancel">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-danger-zone profile-data-zone">
+              <p class="modal-note">Download a copy of everything in your account — your records and every file you uploaded — as a ZIP.</p>
+              <button type="button" class="btn-ghost2" id="btnExportData">Download my data</button>
+              <p class="modal-note" id="exportDataStatus" aria-live="polite" hidden></p>
+            </div>
 
             <div class="profile-danger-zone">
               <p class="modal-note">Permanently delete your account and all stored documents.</p>

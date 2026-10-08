@@ -547,6 +547,35 @@ async function testPublicStatusGates(config) {
   return ok;
 }
 
+// docs/schema-storage-folder-only-reads.sql (v579): storage reads are now
+// folder-only. That closed a hole where a row could point at another
+// member's file; the cross-member probe needs two accounts and was run live
+// in SQL when applied. What this checks is the opposite failure: rules so
+// tight that a PUBLIC vessel photo can no longer be signed for a visitor.
+async function testPublicStorageReads(config) {
+  console.log(`\nPublic photo reads (anon):`);
+  const row = await restGet(config, "vessels", "select=photo&photo=not.is.null&limit=20");
+  const path = (Array.isArray(row.body) ? row.body : [])
+    .map((r) => r?.photo?.path)
+    .find((p) => typeof p === "string" && p.includes("/"));
+  if (!path) {
+    console.log("- SKIPPED  no public vessel photo to probe");
+    return true;
+  }
+  const res = await fetch(`${config.url}/storage/v1/object/sign/vessel-photos/${path}`, {
+    method: "POST",
+    headers: { apikey: config.key, Authorization: `Bearer ${config.key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ expiresIn: 60 })
+  });
+  if (res.ok) {
+    console.log(`✓ public vessel photo signable  ${res.status}  OK`);
+    return true;
+  }
+  console.log(`✗ public vessel photo  ${res.status}  FAIL — visitors cannot load vessel photos`);
+  console.log("→ Check vessel_photos_public_read in docs/schema-storage-folder-only-reads.sql.");
+  return false;
+}
+
 // The probes above can only test the column lists THIS file declares. If those
 // drift from PUBLIC_ARRAY_COLUMNS in js/api.js -- what the app actually asks
 // anon for -- the probes pass while the real page 42501s. That is precisely the
@@ -737,6 +766,41 @@ async function testOwnerWriteGuards(config) {
     await authedRequest(config, token, "DELETE", `sea_references?id=in.(${probeId},${probeId}-v)`);
   }
 
+  // docs/schema-reference-email-rate-limit.sql (v579): the RPC behind the
+  // referee email refuses a 4th send of the same reference within 24 hours.
+  // Calls the RPC only (no edge function), so no email is sent. The tokens
+  // it creates cannot be deleted over REST (no policies on that table); on a
+  // throwaway test account that is harmless, and the 10/day member cap may
+  // trip first after a few runs in one day, which still counts as refused.
+  const rateId = `smoke-rate-${Date.now()}`;
+  try {
+    const draft = await authedRequest(config, token, "POST", "sea_references", {
+      id: rateId,
+      user_id: uid,
+      name: "Rate probe",
+      email: "rate-probe@example.invalid",
+      status: "Draft"
+    });
+    if (draft.ok) {
+      let last = null;
+      for (let i = 0; i < 4; i += 1) {
+        last = await authedRequest(config, token, "POST", "rpc/request_reference_verification", {
+          p_reference_id: rateId
+        });
+      }
+      report(
+        "4th referee email in 24h refused",
+        !last.ok,
+        last.status,
+        last.ok ? "no rate limit on verification emails" : "rate limit held"
+      );
+    } else {
+      report("rate probe set-up", false, draft.status, "could not create probe reference");
+    }
+  } finally {
+    await authedRequest(config, token, "DELETE", `sea_references?id=eq.${rateId}`);
+  }
+
   // docs/schema-vessel-seatime-link-fks.sql (v538): deleting a vessel or a
   // sea time record must KEEP the records linked to it and clear the link.
   // Before, onboard_experiences / payslips kept a dangling vessel_id and
@@ -825,7 +889,7 @@ async function main() {
     referenceColumnsSafe = await testReferenceColumns(config);
     certificateColumnsSafe = await testCertificateColumns(config);
     columnDriftSafe = testPublicColumnDrift();
-    statusGatesSafe = await testPublicStatusGates(config);
+    statusGatesSafe = (await testPublicStatusGates(config)) && (await testPublicStorageReads(config));
     cvDraftsSafe = await testCvDraftsPrivate(config);
   }
 

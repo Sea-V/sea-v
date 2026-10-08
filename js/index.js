@@ -35,7 +35,56 @@
     document.querySelector('#loginForm input[type="email"]')?.focus();
   }
 
+  // v579 two-step login: swap the password form for the code form.
+  function showCodeStep() {
+    const loginForm = document.getElementById("loginForm");
+    const mfaForm = document.getElementById("mfaForm");
+    if (!mfaForm) return;
+    if (loginForm) loginForm.hidden = true;
+    mfaForm.hidden = false;
+    setLoginMessage("", "#5bbcff");
+    document.getElementById("mfaCode")?.focus();
+  }
+
+  function initCodeStep() {
+    const mfaForm = document.getElementById("mfaForm");
+    if (!mfaForm) return;
+
+    mfaForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const code = (document.getElementById("mfaCode")?.value || "").replace(/\s+/g, "");
+      if (!/^\d{6}$/.test(code)) {
+        setLoginMessage("Enter the 6 digits shown in your authenticator app.", "#ff8fab");
+        return;
+      }
+      setLoginMessage("Checking…", "#5bbcff");
+      try {
+        await window.SeavAuth.verifyLoginCode(code);
+        setLoginMessage("Signed in. Redirecting…", "#5bbcff");
+        window.SeavAuth.redirectAfterLogin();
+      } catch (err) {
+        console.error("[SEA-V] Two-step code failed:", err);
+        setLoginMessage("That code didn't work. Codes change every 30 seconds — try the current one.", "#ff8fab");
+      }
+    });
+
+    document.getElementById("mfaCancel")?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      await window.SeavAuth.logout();
+      window.location.replace("index.html");
+    });
+
+    // Arriving signed in but still owing the code (a protected page sent
+    // us back, or the tab was refreshed mid-login).
+    window.SeavAuth.whenReady().then(async () => {
+      if (window.SeavAuth.isAuthenticated() && (await window.SeavAuth.needsSecondFactor())) {
+        showCodeStep();
+      }
+    });
+  }
+
   function initIndexAuth() {
+    initCodeStep();
     const loginForm = document.getElementById("loginForm");
     const resetLink = document.getElementById("forgotPasswordLink");
 
@@ -70,6 +119,10 @@
         try {
           await window.SeavAuth.whenReady();
           await window.SeavAuth.loginWithPassword(email, password);
+          if (await window.SeavAuth.needsSecondFactor()) {
+            showCodeStep();
+            return;
+          }
           try {
             await window.SeavAuth.ensureProfileRow(window.SeavAuth.getUser());
           } catch (profileErr) {

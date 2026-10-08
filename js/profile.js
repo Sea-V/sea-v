@@ -805,6 +805,41 @@
 
     Seav.bindStateRefresh(runRefresh, { label: "Profile refresh" });
 
+    initTwoStep();
+
+    // v579: GDPR right of access / portability — see SeavAuth.exportMyData.
+    const exportBtn = document.getElementById("btnExportData");
+    const exportStatus = document.getElementById("exportDataStatus");
+    if (exportBtn) {
+      exportBtn.addEventListener("click", async () => {
+        exportBtn.disabled = true;
+        const say = (text) => {
+          if (!exportStatus) return;
+          exportStatus.hidden = !text;
+          exportStatus.textContent = text;
+        };
+        try {
+          const { blob, fileName, problems } = await window.SeavAuth.exportMyData(say);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+          say(problems.length ? `Downloaded, but ${problems.length} item(s) could not be included — see README.txt in the ZIP.` : "");
+          Seav.notify("success", "Your data is downloading", fileName);
+        } catch (err) {
+          console.error("[SEA-V] Data export failed:", err);
+          say("");
+          Seav.notify("error", "Could not export your data", err?.message || "Try again or contact support.");
+        } finally {
+          exportBtn.disabled = false;
+        }
+      });
+    }
+
     const deleteBtn = document.getElementById("btnDeleteAccount");
     if (deleteBtn) {
       deleteBtn.addEventListener("click", async () => {
@@ -822,6 +857,107 @@
         }
       });
     }
+  }
+
+  // v579 two-step login (TOTP). The controls sit inside #profileForm, so
+  // the code box stops its input events: the form's "input" listener would
+  // otherwise mark the profile dirty (see keep()).
+  function initTwoStep() {
+    const zone = document.getElementById("mfaZone");
+    const auth = window.SeavAuth;
+    if (!zone || !auth?.listTotpFactors) return;
+
+    const statusText = document.getElementById("mfaStatusText");
+    const startBtn = document.getElementById("btnMfaStart");
+    const offBtn = document.getElementById("btnMfaOff");
+    const setup = document.getElementById("mfaSetup");
+    const qr = document.getElementById("mfaQr");
+    const secret = document.getElementById("mfaSecret");
+    const codeInput = document.getElementById("mfaSetupCode");
+    const offText = statusText?.textContent || "";
+    let pendingFactorId = "";
+
+    codeInput?.addEventListener("input", (e) => e.stopPropagation());
+    codeInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("btnMfaConfirm")?.click();
+      }
+    });
+
+    async function render() {
+      let on = false;
+      try {
+        on = (await auth.listTotpFactors()).some((f) => f.status === "verified");
+      } catch (err) {
+        console.warn("[SEA-V] Could not read two-step login status:", err);
+      }
+      if (statusText) {
+        statusText.textContent = on
+          ? "Two-step login is on. You'll be asked for a code from your authenticator app each time you sign in."
+          : offText;
+      }
+      if (startBtn) startBtn.hidden = on || !!pendingFactorId;
+      if (offBtn) offBtn.hidden = !on;
+      if (setup) setup.hidden = !pendingFactorId;
+    }
+
+    startBtn?.addEventListener("click", async () => {
+      startBtn.disabled = true;
+      try {
+        const { factorId, qrCode, secret: key } = await auth.startTotpSetup();
+        pendingFactorId = factorId;
+        if (qr) qr.src = qrCode;
+        if (secret) secret.textContent = key;
+        if (codeInput) codeInput.value = "";
+        await render();
+        codeInput?.focus();
+      } catch (err) {
+        console.error("[SEA-V] Two-step setup failed:", err);
+        Seav.notify("error", "Could not start two-step login", err?.message || "Try again or contact support.");
+      } finally {
+        startBtn.disabled = false;
+      }
+    });
+
+    document.getElementById("btnMfaConfirm")?.addEventListener("click", async () => {
+      const code = (codeInput?.value || "").replace(/\s+/g, "");
+      if (!/^\d{6}$/.test(code)) {
+        Seav.notify("error", "Enter the 6-digit code", "Type the code your authenticator app shows now.");
+        return;
+      }
+      try {
+        await auth.confirmTotpSetup(pendingFactorId, code);
+        pendingFactorId = "";
+        await render();
+        Seav.notify("success", "Two-step login is on", "Keep your authenticator app — you'll need it to sign in.");
+      } catch (err) {
+        console.error("[SEA-V] Two-step confirm failed:", err);
+        Seav.notify("error", "That code didn't work", "Codes change every 30 seconds — try the current one.");
+      }
+    });
+
+    document.getElementById("btnMfaCancel")?.addEventListener("click", async () => {
+      const id = pendingFactorId;
+      pendingFactorId = "";
+      await auth.cancelTotpSetup(id).catch(() => {});
+      await render();
+    });
+
+    offBtn?.addEventListener("click", async () => {
+      const ok = window.confirm("Turn off two-step login? Your account will only need your password to sign in.");
+      if (!ok) return;
+      try {
+        await auth.turnOffTotp();
+        await render();
+        Seav.notify("success", "Two-step login is off", "");
+      } catch (err) {
+        console.error("[SEA-V] Two-step turn-off failed:", err);
+        Seav.notify("error", "Could not turn off two-step login", err?.message || "Sign out and back in with your code, then try again.");
+      }
+    });
+
+    auth.whenReady().then(render);
   }
 
   // --- Public profile share panel (moved here from dashboard.js, 2026-08-08

@@ -24,38 +24,38 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=578" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=578" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=578" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=578" />
+  <link rel="icon" href="/favicon.ico?v=579" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=579" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=579" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=579" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Certificates</title>
-  <link rel="stylesheet" href="styles.css?v=578" />
+  <link rel="stylesheet" href="styles.css?v=579" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/seav-config.js?v=578"></script>
-  <script src="js/supabase.js?v=578"></script>
-  <script src="js/auth.js?v=578"></script>
-  <script src="js/feedback.js?v=578" defer></script>
-  <script src="js/core.js?v=578" defer></script>
-  <script src="js/seav-search.js?v=578" defer></script>
-  <script src="js/bug-reports.js?v=578" defer></script>
-  <script src="js/seav-upload.js?v=578" defer></script>
-  <script src="js/seav-data.js?v=578" defer></script>
-  <script src="js/seav-badges.js?v=578" defer></script>
-  <script src="js/seav-cert-issuers.js?v=578" defer></script>
+  <script src="js/seav-config.js?v=579"></script>
+  <script src="js/supabase.js?v=579"></script>
+  <script src="js/auth.js?v=579"></script>
+  <script src="js/feedback.js?v=579" defer></script>
+  <script src="js/core.js?v=579" defer></script>
+  <script src="js/seav-search.js?v=579" defer></script>
+  <script src="js/bug-reports.js?v=579" defer></script>
+  <script src="js/seav-upload.js?v=579" defer></script>
+  <script src="js/seav-data.js?v=579" defer></script>
+  <script src="js/seav-badges.js?v=579" defer></script>
+  <script src="js/seav-cert-issuers.js?v=579" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
-  <script src="js/api-core.js?v=578" defer></script>
-  <script src="js/api-mappers.js?v=578" defer></script>
-  <script src="js/api.js?v=578" defer></script>
-  <script src="js/state.js?v=578" defer></script>
-  <script src="js/seav-notifications.js?v=578" defer></script>
-  <script src="js/achievements-engine.js?v=578" defer></script>
-  <script src="js/badge-unlock.js?v=578" defer></script>
+  <script src="js/api-core.js?v=579" defer></script>
+  <script src="js/api-mappers.js?v=579" defer></script>
+  <script src="js/api.js?v=579" defer></script>
+  <script src="js/state.js?v=579" defer></script>
+  <script src="js/seav-notifications.js?v=579" defer></script>
+  <script src="js/achievements-engine.js?v=579" defer></script>
+  <script src="js/badge-unlock.js?v=579" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="js/seav-share.js?v=578" defer></script>
-  <script src="js/certificates.js?v=578" defer></script>
-  <script src="js/certificates-export.js?v=578" defer></script>
+  <script src="js/seav-share.js?v=579" defer></script>
+  <script src="js/certificates.js?v=579" defer></script>
+  <script src="js/certificates-export.js?v=579" defer></script>
 </head>
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
 
@@ -247,6 +247,15 @@
               <p class="profile-photo-hint muted" id="ctFileHint">No file uploaded yet</p>
             </div>
           </div>
+        </label>
+
+        <!-- v579: a medical fitness certificate file is health data, which
+             needs explicit consent (UK/EU GDPR art. 9). Shown only when a new
+             file is chosen for one; certificates.js requires it and records
+             healthConsentAt on the stored file. -->
+        <label class="modal-check" id="ct_medical_consent_wrap" hidden>
+          <input type="checkbox" id="ct_medical_consent" />
+          <span>I agree to SEA-V storing this medical certificate in my account. Only I can open the file; my public profile only shows that I hold one.</span>
         </label>
 
         <button class="btn-blue" type="submit">Save certificate</button>

@@ -151,6 +151,23 @@ body.signup-page .show-password input[type="checkbox"] {
   accent-color: #5bbcff;
 }
 
+/* v579 two-step login step. */
+body.index-page .login-form[hidden] {
+  display: none !important;
+}
+
+body.index-page .mfa-title {
+  margin: 0;
+  color: var(--seav-field-value-color);
+  text-align: center;
+  line-height: 1.5;
+}
+
+body.index-page #mfaCode {
+  text-align: center;
+  letter-spacing: 0.3em;
+}
+
 body.index-page .login-help {
   font-size: 13px;
   text-align: center;

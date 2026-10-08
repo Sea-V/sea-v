@@ -35,6 +35,9 @@
   let ready = false;
   let initPromise = null;
   let redirectingToLogin = false;
+  // True on the login page while a signed-in member still owes the
+  // two-step code (the page stays put and shows the code step).
+  let mfaPending = false;
   const profileBootstrapDone = new Set();
 
   function currentPage() {
@@ -131,6 +134,73 @@
       currentUser = data.user || null;
     }
     return data;
+  }
+
+  /* ---------------------------------------------------------
+     Two-step login (v579). Supabase TOTP factors: after the password a
+     member with a VERIFIED factor is on an aal1 session and must enter a
+     6-digit code to reach aal2. The database enforces it too
+     (docs/schema-mfa-enforcement.sql) — this is the page side.
+  --------------------------------------------------------- */
+  async function needsSecondFactor() {
+    const client = await waitForSupabase();
+    if (!client.auth.mfa) return false;
+    const { data, error } = await client.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (error || !data) return false;
+    return data.currentLevel === "aal1" && data.nextLevel === "aal2";
+  }
+
+  async function listTotpFactors() {
+    const client = await waitForSupabase();
+    const { data, error } = await client.auth.mfa.listFactors();
+    if (error) throw error;
+    return (data?.all || []).filter((f) => f.factor_type === "totp");
+  }
+
+  async function verifyLoginCode(code) {
+    const client = await waitForSupabase();
+    const factor = (await listTotpFactors()).find((f) => f.status === "verified");
+    if (!factor) throw new Error("No authenticator app is set up on this account.");
+    const { error } = await client.auth.mfa.challengeAndVerify({ factorId: factor.id, code: String(code).trim() });
+    if (error) throw error;
+    await refreshSession();
+  }
+
+  // Starts setup: clears any half-finished attempt, returns the QR code
+  // (an SVG data URL) and the text secret for typing in by hand.
+  async function startTotpSetup() {
+    const client = await waitForSupabase();
+    for (const factor of await listTotpFactors()) {
+      if (factor.status !== "verified") await client.auth.mfa.unenroll({ factorId: factor.id });
+    }
+    const { data, error } = await client.auth.mfa.enroll({
+      factorType: "totp",
+      friendlyName: `SEA-V ${new Date().toISOString().slice(0, 16)}`
+    });
+    if (error) throw error;
+    return { factorId: data.id, qrCode: data.totp?.qr_code || "", secret: data.totp?.secret || "" };
+  }
+
+  async function confirmTotpSetup(factorId, code) {
+    const client = await waitForSupabase();
+    const { error } = await client.auth.mfa.challengeAndVerify({ factorId, code: String(code).trim() });
+    if (error) throw error;
+    await refreshSession();
+  }
+
+  async function cancelTotpSetup(factorId) {
+    const client = await waitForSupabase();
+    if (factorId) await client.auth.mfa.unenroll({ factorId });
+  }
+
+  async function turnOffTotp() {
+    const client = await waitForSupabase();
+    for (const factor of await listTotpFactors()) {
+      const { error } = await client.auth.mfa.unenroll({ factorId: factor.id });
+      if (error) throw error;
+    }
+    await client.auth.refreshSession();
+    await refreshSession();
   }
 
   async function signUpWithPassword({ email, password, name }) {
@@ -361,6 +431,110 @@
     }
   }
 
+  // v579 "Download my data" (UK/EU GDPR right of access + portability).
+  // Every table that holds a member's own rows, read with their own session
+  // (RLS owner policies), plus every file in their folder of every bucket.
+  // Deliberately left out: reference_verification_tokens (only one-way
+  // hashes, no policies) and admin_users.
+  const USER_EXPORT_TABLES = [
+    "profile",
+    "vessels",
+    "seatimes",
+    "certificates",
+    "achievements",
+    "navigation_areas",
+    "onboard_experiences",
+    "onboard_skills",
+    "hobbies_interests",
+    "specialist_qualifications",
+    "land_experiences",
+    "payslips",
+    "sea_references",
+    "tenders",
+    "cv_drafts",
+    "bug_reports"
+  ];
+
+  async function loadJsZip() {
+    if (typeof window.JSZip !== "undefined") return window.JSZip;
+    await new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+      script.onload = resolve;
+      script.onerror = () => reject(new Error("Could not load the ZIP library."));
+      document.head.appendChild(script);
+    });
+    return window.JSZip;
+  }
+
+  // Returns { blob, fileName, counts }. onProgress(text) is optional.
+  async function exportMyData(onProgress = () => {}) {
+    const client = await waitForSupabase();
+    const userId = getUserId();
+    if (!userId) throw new Error("Not signed in.");
+    const JSZip = await loadJsZip();
+    const zip = new JSZip();
+
+    const data = {};
+    const counts = {};
+    const problems = [];
+    for (const table of USER_EXPORT_TABLES) {
+      onProgress(`Reading ${table.replace(/_/g, " ")}…`);
+      const { data: rows, error } = await client.from(table).select("*").eq("user_id", userId);
+      if (error) {
+        problems.push(`${table}: ${error.message}`);
+        continue;
+      }
+      data[table] = rows || [];
+      counts[table] = (rows || []).length;
+    }
+
+    const user = getUser();
+    data.account = {
+      id: userId,
+      email: user?.email || "",
+      created_at: user?.created_at || "",
+      last_sign_in_at: user?.last_sign_in_at || ""
+    };
+
+    let fileCount = 0;
+    for (const bucket of USER_STORAGE_BUCKETS) {
+      const paths = await listAllStorageFilePaths(client, bucket, userId);
+      for (const path of paths) {
+        onProgress(`Adding files (${fileCount + 1})…`);
+        const { data: blob, error } = await client.storage.from(bucket).download(path);
+        if (error || !blob) {
+          problems.push(`${bucket}/${path}: ${error?.message || "download failed"}`);
+          continue;
+        }
+        zip.file(`files/${bucket}/${path.slice(userId.length + 1)}`, await blob.arrayBuffer());
+        fileCount += 1;
+      }
+    }
+    counts.files = fileCount;
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    zip.file("sea-v-data.json", JSON.stringify(data, null, 2));
+    zip.file(
+      "README.txt",
+      [
+        `Your SEA-V data, exported ${stamp}.`,
+        "",
+        "sea-v-data.json  every record in your account, grouped by section",
+        "files/           every file you uploaded, in a folder per section",
+        "",
+        "Records: " + Object.entries(counts).map(([k, v]) => `${k} ${v}`).join(", "),
+        problems.length ? `\nCould not include:\n${problems.join("\n")}` : "",
+        "",
+        "Questions or a data protection request: admin@sea-v.com"
+      ].join("\n")
+    );
+
+    onProgress("Building the ZIP…");
+    const blob = await zip.generateAsync({ type: "blob" });
+    return { blob, fileName: `sea-v-my-data-${stamp}.zip`, counts, problems };
+  }
+
   async function deleteAccount() {
     const client = await waitForSupabase();
     const userId = getUserId();
@@ -470,10 +644,22 @@
         redirectToLogin();
         return false;
       }
+      // Signed in with the password but the two-step code is still owed:
+      // back to the login page's code step (the database would refuse
+      // every read anyway).
+      if (await needsSecondFactor()) {
+        redirectToLogin();
+        return false;
+      }
       return true;
     }
 
     if ((page === "index.html" || page === "signup.html") && isAuthenticated()) {
+      // index.js shows the code step instead of redirecting.
+      if (await needsSecondFactor()) {
+        mfaPending = true;
+        return true;
+      }
       redirectAfterLogin();
       return false;
     }
@@ -546,7 +732,7 @@
       ready = true;
       const page = currentPage();
       const redirectingFromAuthPage =
-        (page === "index.html" || page === "signup.html") && isAuthenticated();
+        (page === "index.html" || page === "signup.html") && isAuthenticated() && !mfaPending;
       if (!redirectingFromAuthPage && !redirectingToLogin) {
         document.documentElement.classList.remove("auth-pending");
       }
@@ -570,6 +756,14 @@
     logout,
     requestPasswordReset,
     deleteAccount,
+    exportMyData,
+    needsSecondFactor,
+    listTotpFactors,
+    verifyLoginCode,
+    startTotpSetup,
+    confirmTotpSetup,
+    cancelTotpSetup,
+    turnOffTotp,
     ensureProfileRow,
     redirectAfterLogin,
     buildStoragePath(entityId, fileName) {

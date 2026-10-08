@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v578**. Jack pushes every commit himself from
+- HEAD = **v579**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1212,6 +1212,118 @@ scrolls, Cancel closes, submit still belongs to the form, phone sheet at
 375px with no sideways scroll, an injected gold modal gets icon + gold
 accent + bar. Not yet seen signed in on the live pages.
 
+### v579 — GDPR pass, first batch (2026-10-08)
+Jack asked for a UK/EU GDPR check of the site, then "lets start working
+through it". The 17-item list (in the chat of 2026-10-08) in short: done
+below = 1 storage hole, 6 referee notice, 11 age check, 12 email rate
+limit, plus the complaints paragraph (2) and search-engine line (10).
+Later the same day: 3 (name), 5 (medical), 7 (export), 9 (retention) done
+too — see below. Jack: EU users YES (EU GDPR applies).
+**Still open:** postal address for privacy.html (Jack has only a home
+address — get a PO box / virtual office BEFORE the ICO fee registration,
+which publishes it) (3); ICO fee (4); processor DPAs — Supabase must be
+requested, Sentry accepted + Session Replay off (8); record of processing +
+breach plan docs (13/14 — DRAFTED, see below); **EU representative under
+art. 27** (15 — paid service, Jack to appoint, then name it in
+privacy.html); DPIA (16 — drafted, needs Jack's sign-off); leaked-password check (17); inactive-account
+deletion automation (needs a warning email; nothing can fall due before
+May 2029); API still returns ENG1 dates to anon (page hides them — a DB
+view would be the full fix).
+- **Storage hole closed, LIVE** (`docs/schema-storage-folder-only-reads.sql`).
+  12 `*_owner_select` policies were "own folder OR any path my row points
+  at" — plant another member's path in your row and read their payslip.
+  5 `*_public_read` policies trusted any PUBLIC profile's row pointing at a
+  path. Now folder-only; public reads also require the file to sit in the
+  referencing owner's folder (profile_photos already did). Checked first:
+  all 159 stored paths sit in their owner's folder, none planted. Smoke
+  test as the real roles: plant saved but file unreadable, own files
+  visible, anon 16/16 vessel + 20/20 tender photos, 0 private files;
+  advisors 23/23; `testPublicStorageReads` added (signs a real public
+  vessel photo as anon). Thread 9's path-planting item is struck.
+- **Referee email rate limit, LIVE** (`docs/schema-reference-email-rate-limit.sql`):
+  `request_reference_verification` refuses past 10/member, 3/reference,
+  5/recipient address per rolling 24h. Real use so far: 1 request ever.
+  Tested in rolled-back SQL (RPC only — no email from SQL); probe added to
+  testOwnerWriteGuards. Thread 9's rate-limit item is struck.
+- **Referee notice:** the verification email (HTML + text) now says the
+  crew member gave SEA-V the referee's name and email, used only for this
+  request, linking privacy.html#referees. Edge function **deployed as v6**
+  (was v5); deployed code checked against the repo; OPTIONS 200, unsigned
+  POST 401. A real send has NOT been tried — Jack can send one to himself.
+- **Age:** sign-up tick now "I am 16 or over, I agree to the Terms of Use,
+  and I have read the Privacy Policy" (you don't "agree" to a privacy
+  notice); terms.html eligibility says 16+.
+- **privacy.html:** complaints paragraph (`#complaints`, DUAA s.164A in
+  force 19 June 2026: acknowledge within 30 days), "we reply within one
+  month", public profiles may appear in search engines. Dated 8 Oct 2026.
+- **Controller named (3):** privacy.html "Who we are" = Jack Sorrell as
+  data controller; terms.html section 01 names him as the other party;
+  terms' deletion line now points at self-service Delete my account.
+- **Medical certificates (5)**, Jack: "eng1 can show but no details".
+  `SeavData.isMedicalFitnessCert` (ENG1, STCW ML5, "medical certificate"
+  wording — NOT Medical First Aid / Medical Care; 10/10 cases). Public
+  profile: `buildCertRow(cert, { hideDates })` = name + "Medical
+  certificate · details kept private" + neutral "Held"; excluded from the
+  group status pill and the expiry sort. Seen on Jack's live public data.
+  **The REST API still returns those dates to anon** (column grants are
+  per column, not per row). Upload: `#ct_medical_consent_wrap` tick shown
+  only while a NEW file is chosen for a medical cert; save refused without
+  it; the stored attachment gets `healthConsentAt` (api-core
+  sanitizeFileForStorage whitelists it). Harness-tested: hidden before a
+  file, blocked without tick, saved with stamp after; PST / Medical First
+  Aid never show it.
+- **Download my data (7):** `SeavAuth.exportMyData(onProgress)` in auth.js
+  (`USER_EXPORT_TABLES`, 16 tables, own rows via RLS + every file in the
+  member's folder of every bucket, JSZip lazy-loaded) -> ZIP with
+  sea-v-data.json, files/<bucket>/..., README.txt (counts + anything that
+  failed). Button `#btnExportData` on Profile settings above Delete.
+  Files go in as ArrayBuffer (JSZip cannot read Blobs outside a browser).
+  New `bug_reports_owner_select` so members can read (only) their own
+  reports (`docs/schema-bug-reports-owner-read.sql`, applied + tested).
+  Verified: node test of the real function, fake client (8/8); all 16
+  tables `select *` as the real authenticated role, no column errors.
+  NOT tried with a real signed-in session — Jack should click it once.
+- **Retention (9)**, Jack: "do what you suggest". pg_cron job
+  `seav-retention-cleanup` 03:15 UTC daily -> `run_retention_cleanup()`
+  (EXECUTE revoked from anon/authenticated; REST 42501): referee links 90
+  days after expiry, declined references 1 year after (only rows with no
+  file), bug reports after 2 years. Inactive accounts: in the policy, not
+  automated (see open list). `docs/schema-retention-cleanup.sql`; smoke
+  test removed each old row, kept each recent one. Nothing was due.
+- privacy.html also: retention list, Download my data, medical paragraph +
+  explicit-consent basis, EU users may complain to their own authority.
+- **Compliance documents** (`docs/compliance/`, never deployed —
+  .vercelignore drops docs/ and *.md): `record-of-processing.md` (art. 30),
+  `breach-and-requests-procedure.md` (72-hour plan + breach log, rights
+  requests, DUAA complaints, lost-2FA-device procedure; the 2026-10-08
+  storage hole is logged there as a vulnerability, not a breach — no
+  cross-folder path existed), `dpia.md` (screening + 9 risks; awaiting
+  Jack's signature). Keep the record current when data, providers or
+  retention change.
+- **Two-step login (TOTP 2FA), Jack's ask.** DB, LIVE
+  (`docs/schema-mfa-enforcement.sql`): `private.mfa_satisfied()` (definer,
+  in non-API schema `private` -> no advisor finding) = aal2, or no
+  VERIFIED factor; RESTRICTIVE `mfa_required` policy (to authenticated,
+  using + with check) on all 17 member tables and storage.objects;
+  `delete_own_account` and `request_reference_verification` check it too.
+  Smoke test (stand-in factor, rolled back): no 2FA 22 certs; 2FA+aal1 0
+  certs / 0 files / delete + insert refused; 2FA+aal2 22 certs / 26 files.
+  Advisors 23/23. Front end: auth.js `needsSecondFactor`,
+  `verifyLoginCode`, `startTotpSetup` / `confirmTotpSetup` /
+  `cancelTotpSetup` / `turnOffTotp`; `enforceRouteAccess` sends an aal1
+  session that owes a code back to index.html (`mfaPending` keeps it
+  there); index.html `#mfaForm` code step ("Use a different account",
+  "Lost your phone?" mailto); Profile settings `#mfaZone` (QR on white,
+  manual key, confirm/cancel, turn off; its code input stops input events
+  so it never marks the profile form dirty). Harness-tested both screens
+  with stubbed SeavAuth (wrong/right code, spaces stripped, every state).
+  **Not tried against real Supabase MFA** — Jack must check TOTP is
+  enabled (Supabase -> Authentication -> Multi-Factor) and do one real
+  enrol + sign-in. No backup codes: lost device = admin removes the factor
+  after an identity check (procedure in the breach doc).
+- Gotcha: test-site's HTTP checks all 404'd against an old
+  `http.server` whose folder had gone — start a fresh server from the repo.
+
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES
 grew 16 -> 48 in five CREW_QUALITY_GROUPS (Working style, Physical &
@@ -1480,9 +1592,8 @@ first-run setup) and the dashboard header / quick-action inconsistencies.
    dashboard-only work.
 
 9. **Rest of the 2026-09-26 audit, not yet fixed** (roughly by impact):
-   storage `*_owner_select` path-planting branch (a user can put another
-   user's file path in their own row and read it); no rate limit on the
-   verification email (any address, any number of times);
+   ~~storage path-planting~~ and ~~verification email rate limit~~ (both
+   fixed v579);
    Master Unlimited counts pre-certificate sea days (`seav-data.js` ~2027);
    payslip total mixes currencies; `dashboard.html:72-76` duplicate script tags and
    dead `navigation-routing.js` (patch script re-inserts it); CSP allows

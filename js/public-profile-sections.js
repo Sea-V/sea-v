@@ -1231,7 +1231,11 @@
   // "All valid" unless something is expired or expiring; uses the same
   // getCertExpiryInfo the rows use, so the summary can never disagree.
   function ppCertGroupStatus(certs) {
-    const badges = certs.map((cert) => getCertExpiryInfo(cert.noExpiry ? "" : cert.expiry).badge);
+    // Medical fitness certs never count: "1 expired" would reveal it.
+    const isMedical = window.SeavData?.isMedicalFitnessCert || (() => false);
+    const badges = certs
+      .filter((cert) => !isMedical(cert))
+      .map((cert) => getCertExpiryInfo(cert.noExpiry ? "" : cert.expiry).badge);
     const expired = badges.filter((b) => b === "Expired").length;
     const soon = badges.filter((b) => b === "Expires Soon").length;
     if (expired) return { text: `${expired} expired`, pill: "pill-expired" };
@@ -1266,9 +1270,11 @@
     }
 
     // Most urgent first inside each group (expired / expiring at the top).
+    const isMedical = window.SeavData?.isMedicalFitnessCert || (() => false);
+    const sortExpiry = (cert) => (isMedical(cert) || cert.noExpiry ? "" : cert.expiry);
     const sorted = [...saved].sort((a, b) => {
-      const infoA = getCertExpiryInfo(a.noExpiry ? "" : a.expiry);
-      const infoB = getCertExpiryInfo(b.noExpiry ? "" : b.expiry);
+      const infoA = getCertExpiryInfo(sortExpiry(a));
+      const infoB = getCertExpiryInfo(sortExpiry(b));
       return infoA.sortValue - infoB.sortValue;
     });
 
@@ -1292,7 +1298,7 @@
                   <small class="cert-status-pill ${status.pill}">${Seav.escapeHtml(status.text)}</small>
                 </summary>
                 <div class="pp-cert-group-body">
-                  ${list.map((cert) => window.SeavCards.buildCertRow(cert).replace(" data-pp-more-item", "")).join("")}
+                  ${list.map((cert) => window.SeavCards.buildCertRow(cert, { hideDates: isMedical(cert) }).replace(" data-pp-more-item", "")).join("")}
                 </div>
               </details>`;
           })

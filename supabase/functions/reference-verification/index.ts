@@ -95,6 +95,10 @@ function buildEmailHtml(data: Record<string, string>) {
                   request or don't recognize ${crewName}, you can safely ignore this email — no reference
                   will be recorded without your confirmation.
                 </p>
+                <p style="margin:12px 0 0; color:#94a3b8; font-size:12px; line-height:1.6;">
+                  ${crewName} gave SEA-V your name and email address. We use them only to send this request and
+                  record your answer. <a href="https://www.sea-v.com/privacy.html#referees" style="color:#94a3b8;">How we handle referee details</a>.
+                </p>
               </td>
             </tr>
 
@@ -135,6 +139,8 @@ function buildEmailText(data: Record<string, string>) {
     verifyUrl,
     "",
     `If you weren't expecting this request or don't recognize ${crewName}, you can safely ignore this email — no reference will be recorded without your confirmation.`,
+    "",
+    `${crewName} gave SEA-V your name and email address. We use them only to send this request and record your answer. How we handle referee details: https://www.sea-v.com/privacy.html#referees`,
     "",
     "SEA-V — Maritime Career Platform for Yacht Crew",
     "sea-v.com"

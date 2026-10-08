@@ -62,7 +62,7 @@
 
       const acceptLegal = document.getElementById("signupAcceptLegal");
       if (!acceptLegal?.checked) {
-        setSignupMessage(msg, "Please accept the Terms of Use and Privacy Policy.", "#ff8fab");
+        setSignupMessage(msg, "Please confirm you are 16 or over and accept the Terms of Use.", "#ff8fab");
         return;
       }
 

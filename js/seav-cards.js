@@ -682,8 +682,21 @@
    * Expiry is the lead fact since that's what an employer scans for first;
    * issue date (if recorded) is a secondary, optional detail.
    */
-  function buildCertRow(cert) {
+  // options.hideDates (v579): medical fitness certs on the public profile —
+  // name + a neutral "Held" tag only, no dates and no valid/expired status.
+  function buildCertRow(cert, options = {}) {
     const title = Seav.escapeHtml(cert?.name || cert?.code || "Certificate");
+    if (options.hideDates) {
+      return `
+      <div class="public-cv-mini-row" data-pp-more-item>
+        <div class="public-cv-mini-main">
+          <span class="public-cv-mini-title">${title}</span>
+          <span class="public-cv-mini-meta">Medical certificate · details kept private</span>
+        </div>
+        <span class="cert-status-pill pill-neutral">Held</span>
+      </div>
+    `;
+    }
     const expiry = cert?.noExpiry ? "" : cert?.expiry || "";
     const info = window.SeavData.getCertExpiryInfo(expiry);
     const formatDate = window.SeavData.formatDatePretty;

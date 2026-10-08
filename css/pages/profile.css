@@ -1161,3 +1161,44 @@
     width: 100%;
   }
 }
+/* =========================================================
+   TWO-STEP LOGIN (v579) — Profile settings
+   The QR sits on white: authenticator apps scan dark-on-light reliably.
+========================================================= */
+.profile-mfa-setup[hidden],
+.profile-mfa-zone [hidden] {
+  display: none !important;
+}
+
+.profile-mfa-setup {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.profile-mfa-qr {
+  width: var(--seav-mfa-qr-size);
+  height: var(--seav-mfa-qr-size);
+  padding: 8px;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.profile-mfa-setup code {
+  color: var(--seav-field-value-color);
+  word-break: break-all;
+}
+
+.profile-mfa-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-mfa-confirm input {
+  width: 9em !important;
+  margin-top: 0 !important;
+  text-align: center;
+  letter-spacing: 0.25em !important;
+}

@@ -227,6 +227,8 @@ function sanitizeFileForStorage(fileMeta, defaultBucket = null) {
     // anywhere else would be silently dropped on save.
     if (typeof fileMeta.label === "string") stored.label = fileMeta.label;
     if (typeof fileMeta.caption === "string") stored.caption = fileMeta.caption;
+    // v579: when the member consented to storing a medical certificate.
+    if (typeof fileMeta.healthConsentAt === "string") stored.healthConsentAt = fileMeta.healthConsentAt;
     return stored;
   }
   return fileMeta;
