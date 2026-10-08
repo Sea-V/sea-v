@@ -111,5 +111,14 @@
     "ring": ["#e05e3f", "#ff7a5c", "#ffab94"],
     "pill": "#ff7a5c",
     "note": "Color confirmed 2026-08-02. Page built v572 (2026-10-05)."
+  },
+  "schengen": {
+    "label": "Schengen Days",
+    "href": "schengen.html",
+    "sidebar": "#a3e635",
+    "fill": ["#3f6212", "#4d7c0f"],
+    "ring": ["#84cc16", "#a3e635", "#d9f99d"],
+    "pill": "#a3e635",
+    "note": "Page built v579 (2026-10-08)."
   }
 }

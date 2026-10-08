@@ -57,6 +57,8 @@ function mapProfileFromSupabase(p) {
     trbStatus: p.trb_status || "not_started",
     trbTargetQualification: p.trb_target_qualification || "",
     trbNotes: p.trb_notes || "",
+    schengenStays: Array.isArray(p.schengen_stays) ? p.schengen_stays : [],
+    expiryReminders: p.expiry_reminders !== false,
     createdAt: p.created_at || "",
     updatedAt: p.updated_at || ""
   };
@@ -199,6 +201,10 @@ function mapVesselToSupabase(item) {
       yardServiceDays: Number(s.yard_service_days || 0),
       watchkeepingDays: Number(s.watchkeeping_days || 0),
       verificationStatus: s.verification_status || "Logged",
+      // v579: the captain's online confirmation (read-only for the member;
+      // never sent back by mapSeatimeToSupabase — a DB trigger guards it).
+      testimonial: s.testimonial || null,
+      testimonialStatus: s.testimonial_status || "",
       notes: s.notes || "",
       attachment: s.attachment || null,
       createdAt: s.created_at || "",

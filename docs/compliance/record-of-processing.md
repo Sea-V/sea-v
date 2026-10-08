@@ -51,6 +51,19 @@ is kept. The ICO can ask to see it.
 | **Safeguards** | Single-use link, 14-day expiry; at most 5 requests to one address per 24 hours; email address and CoC number never public |
 | **Retention** | Links deleted 90 days after expiry; a declined reference deleted 1 year after it was declined (automatic, daily); a confirmed reference stays with the member's account |
 
+## 3a. Captains confirming sea service (testimonials)
+
+| | |
+|---|---|
+| **Purpose** | A member asks their captain to confirm one sea time entry; the confirmed testimonial is printed for PYA / Nautilus verification |
+| **Lawful basis** | Legitimate interests (the member's interest in confirmed sea service); the captain chooses whether to respond |
+| **People** | Captains / masters named by members |
+| **Data shown to the captain** | Member's name, date of birth, nationality, discharge book number; the vessel and service details |
+| **Data stored** | Captain's name, email, position, CoC grade and number, comment, typed signature, confirmed day counts — on the member's private record (`seatimes.testimonial`); never public |
+| **Notice (art. 14)** | In the request email and on the confirmation page, with a link to privacy.html#referees |
+| **Safeguards** | Single-use 14-day link; 10/member, 3/entry, 5/captain address per 24h; all steps through edge function `sea-testimonial`, service-role RPCs only |
+| **Retention** | Links deleted 90 days after expiry (automatic); the confirmation stays with the member's record |
+
 ## 4. Support, issue reports and complaints
 
 | | |
@@ -60,6 +73,17 @@ is kept. The ICO can ask to see it.
 | **People** | Members and anyone who emails |
 | **Data** | Message, the page it was sent from, app version, the account it came from, email correspondence |
 | **Retention** | Report an issue messages deleted after 2 years (automatic). Emails: keep only as long as the matter is open plus 2 years |
+
+## 4a. Certificate expiry reminders
+
+| | |
+|---|---|
+| **Purpose** | Email members when a certificate they saved expires within 90 days, and again within 30 |
+| **Lawful basis** | Legitimate interests — a service message about the member's own records, not marketing (PECR marketing rules do not apply). On by default; one-click off in Profile settings (`profile.expiry_reminders`) and linked from every email |
+| **Data** | Sign-in email, first name, certificate name and expiry date; a log of what was sent (`cert_reminder_log`) |
+| **Recipients** | Resend (processor) |
+| **Retention** | Log rows deleted with the account |
+| **Status** | Built 8 Oct 2026; the daily job is OFF until Jack switches it on |
 
 ## 5. Security and error monitoring
 

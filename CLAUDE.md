@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v579**. Jack pushes every commit himself from
+- HEAD = **v580**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1321,6 +1321,44 @@ view would be the full fix).
   enabled (Supabase -> Authentication -> Multi-Factor) and do one real
   enrol + sign-in. No backup codes: lost device = admin removes the factor
   after an identity check (procedure in the breach doc).
+
+### v580 — Schengen Days, cert expiry reminders, sea service testimonials
+Jack picked the top three "next level" ideas, 2026-10-08:
+  - **Schengen Days** (`schengen.html` / `js/schengen.js` /
+    `css/pages/schengen.css`, menu under Career, lime `--page-schengen`).
+    Rules in seav-data.js `computeSchengenDays` / `checkSchengenTrip`
+    (27/27 node cases): from passages — in a country from arrival to the
+    next departure, sea days count only Schengen->Schengen, entry and exit
+    days both count; the member's own stays override day by day
+    (`profile.schengen_stays`, private, saved by
+    `SeavAPI.saveSchengenStays`, never written by the profile form);
+    overstay warning only inside the current 180 days; blocks with 30+
+    days "assumed in port" are flagged (Jack's 2023 Greece->Italy winter
+    showed as a 409-day block). EU/EEA/CH passports exempt (a Schengen
+    VISA is not). Monaco / San Marino / Vatican counted. Harness-tested
+    with Jack's real passages.
+  - **Certificate expiry reminders** — `docs/schema-cert-expiry-reminders.sql`,
+    edge function `cert-reminders` (verify_jwt false; Vault token
+    `seav_cron_token` checked by service-role-only `verify_cron_token`),
+    digest at 90 and 30 days, logged in `cert_reminder_log`, demo
+    addresses excluded, opt-out `profile.expiry_reminders` (Profile
+    settings `#reminders`). **pg_cron job `seav-cert-reminders` is
+    INACTIVE** — switch on when Jack agrees:
+    `select cron.alter_job((select jobid from cron.job where jobname='seav-cert-reminders'), active := true);`
+    Dry run (`{"dryRun":true}` via pg_net) works; no real email sent yet.
+  - **Sea service testimonials** — `docs/schema-sea-service-testimonials.sql`,
+    edge function `sea-testimonial` (request / preview / complete, all
+    via service-role-only RPCs; member JWT + two-step login checked in the
+    function), `verify-testimonial.html` for the captain, `js/seav-testimonial.js`
+    on the Sea Time page (Get captain's signature / Send again / Print
+    testimonial; status pill). `seatimes.testimonial` + `testimonial_status`
+    are private and guarded by trigger (members cannot write them; editing
+    a confirmed entry -> "Changed"). MIN 543: the PYA/Nautilus still
+    verify for an NoE — every page and the printout say so. Tested live
+    end to end on the demo account (then reverted); no real captain email
+    sent yet.
+  - Also fixed on the way: `land-experience.html` was missing from
+    auth.js PROTECTED_PAGES (sign-in from it landed on the dashboard).
 - Gotcha: test-site's HTTP checks all 404'd against an old
   `http.server` whose folder had gone — start a fresh server from the repo.
 

@@ -989,6 +989,7 @@
 .modal-card--cyan { --modal-accent: rgb(57, 224, 196); }
 .modal-card--indigo { --modal-accent: rgb(130, 158, 255); }
 .modal-card--land { --modal-accent: var(--page-land-experience); }
+.modal-card--schengen { --modal-accent: var(--page-schengen); }
 
 /* The old 3px strip scrolled away with the content; the accent now lives
    on the pinned header band. */

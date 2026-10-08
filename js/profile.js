@@ -806,6 +806,7 @@
     Seav.bindStateRefresh(runRefresh, { label: "Profile refresh" });
 
     initTwoStep();
+    initExpiryReminders();
 
     // v579: GDPR right of access / portability — see SeavAuth.exportMyData.
     const exportBtn = document.getElementById("btnExportData");
@@ -857,6 +858,33 @@
         }
       });
     }
+  }
+
+  // v579 certificate expiry reminders. Saved on its own (not through the
+  // profile form), and its change event stops here so the form is not
+  // marked dirty (see keep()).
+  function initExpiryReminders() {
+    const box = document.getElementById("pf_expiry_reminders");
+    if (!box) return;
+    const sync = () => {
+      box.checked = window.SeavState?.profile?.expiryReminders !== false;
+    };
+    window.SeavAuth?.whenReady?.().then(sync);
+    document.addEventListener("seav:data-updated", sync);
+    document.addEventListener("seav:state-ready", sync);
+    box.addEventListener("input", (e) => e.stopPropagation());
+    box.addEventListener("change", async (e) => {
+      e.stopPropagation();
+      const on = box.checked;
+      try {
+        await window.SeavAPI.saveExpiryReminders(on);
+        Seav.notify("success", on ? "Expiry reminders on" : "Expiry reminders off", "");
+      } catch (err) {
+        box.checked = !on;
+        console.error("[SEA-V] Could not save reminder setting:", err);
+        Seav.notify("error", "Could not save", err?.message || "Try again.");
+      }
+    });
   }
 
   // v579 two-step login (TOTP). The controls sit inside #profileForm, so

@@ -30,7 +30,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=580" />
   <meta name="theme-color" content="#071019" />
 
-  <title>SEA-V • Hobbies & Interests</title>
+  <title>SEA-V • Schengen Days</title>
 
   <link rel="stylesheet" href="styles.css?v=580" />
 
@@ -54,8 +54,7 @@
   <script src="js/badge-unlock.js?v=580" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="js/seav-share.js?v=580" defer></script>
-  <script src="js/seav-qualities.js?v=580" defer></script>
-  <script src="js/hobbies-interests.js?v=580" defer></script>
+  <script src="js/schengen.js?v=580" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -90,56 +89,84 @@
   <div id="topbarMount"></div>
 
   <main class="dash">
-
     <div id="sidebarMount"></div>
 
     <section class="dash-content">
 
-      <article class="hi-shell-card">
+      <!-- v579 Schengen days. Reuses the .sq-* layout so the glass levels in
+           typography.css apply; css/pages/schengen.css swaps the accent to
+           lime via .sch-shell. "sq-shell-card" MUST stay the LAST class
+           (typography.css matches [class$="-shell-card"]). -->
+      <article class="sch-shell sq-shell-card">
 
-        <div class="hi-shell-head">
+        <div class="sq-shell-head">
+          <div class="sq-shell-icon" id="schShellIcon"></div>
 
-          <div class="hi-shell-icon">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="4" y="6.5" width="16" height="12" rx="2.2" stroke="currentColor" stroke-width="1.8"/>
-              <circle cx="12" cy="12.5" r="3.2" stroke="currentColor" stroke-width="1.8"/>
-              <path d="M9 6.5l1.1-2.2h3.8L15 6.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-              <path d="M18.5 4.5l1 1.5M19.5 8l1.8.4M5.5 4.5l-1 1.5M4.5 8l-1.8.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-          </div>
-
-          <div class="hi-shell-copy">
-            <h2>Hobbies & Interests</h2>
+          <div class="sq-shell-copy">
+            <h2>Schengen Days</h2>
             <p>
-              Show the person behind the CV — what you do, what you've achieved doing it,
-              and the skills and qualities it proves. An ultra-marathon, a summit, a big catch, a
-              season instructing: add photos and highlights to bring each one to life.
+              Short stays in the Schengen area are limited to 90 days in any 180. Worked out from
+              your passages — add flights home or trips ashore so the count matches where you really were.
             </p>
           </div>
 
-          <div class="hi-shell-actions">
-            <a class="btn-blue" href="#" id="hiOpenModal">Add interest</a>
+          <div class="sq-shell-actions">
+            <a class="btn-blue" href="#" id="btnSchAdd">Add a stay</a>
           </div>
-
         </div>
 
-        <section class="hi-section">
+        <section class="sq-section">
 
-          <div class="hi-kpi-row" id="hiKpiRow"></div>
+          <div class="sch-notice sch-notice--exempt" id="schExempt" hidden>
+            <strong>Your passport is exempt.</strong>
+            <small>EU, EEA and Swiss citizens can stay without the 90/180 limit. The count below is for reference only.</small>
+          </div>
 
-          <div class="seav-quality-summary-panel" id="hiQualitiesSummary" hidden></div>
+          <div class="sch-notice" id="schStatus" role="status"></div>
 
-          <div class="hi-section-head">
+          <div class="sq-kpi-row" id="schKpiRow"></div>
+
+          <div class="sq-section-head">
             <div>
-              <h3>Your showcase</h3>
-              <p>
-                Build a visual profile of your passions — great for captains and
-                management companies who want to know the person behind the CV.
-              </p>
+              <h3>Plan a trip</h3>
+              <p>Check whether a future stay fits, given the days already on your record.</p>
             </div>
           </div>
 
-          <div class="list" id="hiList"></div>
+          <div class="sch-planner">
+            <div class="modal-grid2">
+              <div data-date-field="sch_plan_from" data-date-label="Arriving"></div>
+              <div data-date-field="sch_plan_to" data-date-label="Leaving"></div>
+            </div>
+            <div class="sch-planner-actions">
+              <button type="button" class="btn-ghost2" id="btnSchPlan">Check this trip</button>
+              <p class="sch-plan-result" id="schPlanResult" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <div class="sq-section-head">
+            <div>
+              <h3>Your Schengen days</h3>
+              <p>Newest first. Days from your passages, plus any stays you added.</p>
+            </div>
+          </div>
+
+          <div class="sq-compact-list" id="schRuns"></div>
+
+          <div class="sq-section-head">
+            <div>
+              <h3>Stays you added</h3>
+              <p>These win over your passages, day by day — e.g. a flight home mid-season.</p>
+            </div>
+          </div>
+
+          <div class="sq-compact-list" id="schStays"></div>
+
+          <p class="modal-note sch-footnote">
+            Guidance only, worked out from what you have logged — border officials decide, and
+            the rules can change. Entry and exit days both count. A Schengen visa does not
+            change the 90/180 limit; a national long-stay visa or residence permit may.
+          </p>
 
         </section>
 
@@ -148,91 +175,44 @@
     </section>
 
     <footer class="page-quote-footer">
-      <p class="page-quote-footer-text">&ldquo;Fair winds and following seas.&rdquo;</p>
+      <p class="page-quote-footer-text">&ldquo;Know your days before the border does.&rdquo;</p>
     </footer>
 
   </main>
 
-  <div class="modal" id="hiModal" hidden>
-    <div class="modal-card modal-card-wide modal-card--fuchsia">
+  <div class="modal" id="schModal" hidden>
+    <div class="modal-card modal-card--schengen">
 
       <div class="modal-head">
-        <h3>Add / edit hobby or interest</h3>
+        <h3 id="schModalTitle">Add a stay</h3>
         <button type="button" class="modal-x" data-close>&times;</button>
       </div>
 
-      <form class="modal-form" id="hiForm">
+      <form class="modal-form" id="schForm">
 
-        <input type="hidden" id="hi_edit_id" value="" />
+        <input type="hidden" id="sch_edit_id" value="" />
 
-        <p class="modal-intro">
-          Describe an interest and add up to six showcase photos — sailing regattas,
-          ski trips, photography, volunteering, or anything that shows who you are.
-        </p>
+        <label>
+          Where were you?
+          <select id="sch_in">
+            <option value="out">Outside the Schengen area (e.g. flew home)</option>
+            <option value="in">Inside the Schengen area (e.g. a trip ashore)</option>
+          </select>
+        </label>
 
         <div class="modal-grid2">
-          <label>
-            Category
-            <select id="hi_category" required>
-              <option value="">Pick a category for this interest</option>
-            </select>
-          </label>
-
-          <label>
-            Status
-            <select id="hi_status">
-              <option value="Published">Published</option>
-              <option value="Draft">Draft</option>
-            </select>
-          </label>
+          <div data-date-field="sch_from" data-date-label="From"></div>
+          <div data-date-field="sch_to" data-date-label="To"></div>
         </div>
 
         <label>
-          Title
-          <input id="hi_title" required placeholder="Name of the hobby or interest" />
+          Note (optional)
+          <input id="sch_note" maxlength="80" placeholder="e.g. Leave in the UK" />
         </label>
 
-        <label>
-          About this interest
-          <textarea id="hi_description" rows="4" required placeholder="What you do and why it matters to you"></textarea>
-        </label>
+        <button class="btn-blue" type="submit">Save stay</button>
 
-        <label>
-          Years doing it (optional)
-          <input id="hi_years" type="number" min="0" max="80" inputmode="numeric" placeholder="e.g. 6" />
-        </label>
-
-        <!-- v572: self-declared achievements inside this interest. Rows are
-             rendered by js/hobbies-interests.js renderHighlightEditor(). -->
-        <div class="seav-form-group">
-          <strong class="seav-form-group-title">Highlights &amp; achievements (optional)</strong>
-          <div class="hi-highlight-editor" id="hiHighlights"></div>
-          <button type="button" class="btn-ghost2 hi-add-highlight" id="hiAddHighlight">+ Add a highlight</button>
-          <small class="hi-highlight-note">For example: completed an ultra-marathon, summited Kilimanjaro, tagged and released a marlin. Shown as self-declared on your profile.</small>
-        </div>
-
-        <div class="seav-form-group">
-          <strong class="seav-form-group-title">Skills &amp; qualities this shows (pick up to 4)</strong>
-          <div id="hiQualities"></div>
-        </div>
-
-        <div class="hi-modal-photos" data-seav-dropzone>
-          <div class="hi-modal-photos-head">
-            <span class="hi-modal-photos-label">Showcase photos</span>
-            <span class="hi-modal-photos-count" id="hiPhotoCount">0 / 6</span>
-          </div>
-          <div class="hi-modal-photo-grid" id="hiPhotoPreview"></div>
-          <label class="hi-modal-upload">
-            <span>Add photos (JPEG / PNG, up to 6 total, 5MB each — HEIC converts automatically)</span>
-            <input type="file" id="hi_photos" accept="image/*" multiple />
-          </label>
-        </div>
-
-        <button class="btn-blue" type="submit">Save interest</button>
-
-        <p class="modal-footnote">
-          Saved to your SEA-V profile. Published entries can appear on your public profile.
-        </p>
+        <p class="modal-footnote">Private to you — never shown on your public profile.</p>
 
       </form>
 
@@ -240,7 +220,6 @@
   </div>
 
   <div id="sharedModalsMount"></div>
-
   <script>
     window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
   </script>

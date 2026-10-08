@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 579;
+const ASSET_VERSION = 580;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
@@ -69,6 +69,7 @@ const APP_PAGES = [
   "hobbies-interests.html",
   "specialist-qualifications.html",
   "land-experience.html",
+  "schengen.html",
   "payslips.html"
 ];
 
@@ -266,6 +267,7 @@ function patchPublicProfile(html) {
 
 const PUBLIC_PAGES = [
   "verify-reference.html",
+  "verify-testimonial.html",
   "confirm-account.html",
   "reset-password.html",
   "index.html",

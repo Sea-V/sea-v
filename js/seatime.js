@@ -214,13 +214,14 @@
         <td>${getSeatimeDayValue(x, "yardServiceDays", "yard")}</td>
         <td>${getSeatimeDayValue(x, "watchkeepingDays", "watchkeeping")}</td>
         <td>${total}</td>
-        <td><span class="${Seav.escapeHtml(verificationDisplay.className)}">${Seav.escapeHtml(verificationDisplay.label)}</span></td>
+        <td><span class="${Seav.escapeHtml(verificationDisplay.className)}">${Seav.escapeHtml(verificationDisplay.label)}</span>${window.SeavTestimonial?.statusHtml(x) || ""}</td>
         <td>${attachCell}</td>
         <td class="row-actions">
           <a
             class="seav-action seav-action--secondary"
             href="navigation.html?seatime=${encodeURIComponent(seatimeId)}"
           >Add passage plan</a>
+          ${window.SeavTestimonial?.actionHtml(x) || ""}
           ${Seav.seavAction(
             "edit",
             "Edit",

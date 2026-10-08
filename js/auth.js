@@ -28,6 +28,8 @@
     "hobbies-interests.html",
     "specialist-qualifications.html",
     "payslips.html",
+    "land-experience.html",
+    "schengen.html",
     "admin.html"
   ]);
 
@@ -452,7 +454,8 @@
     "sea_references",
     "tenders",
     "cv_drafts",
-    "bug_reports"
+    "bug_reports",
+    "cert_reminder_log"
   ];
 
   async function loadJsZip() {

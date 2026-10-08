@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Sentry error monitoring — loaded first so it can catch errors from anything below.
+       window.sentryOnLoad runs once the loader's bundle is ready and lets us
+       apply extra Sentry.init() options on top of the dashboard defaults.
+       SEA-V's API traffic carries maritime crew PII (payslips, certificates,
+       references, DOB, addresses) — don't let Sentry attach reporter IP/user
+       info or capture request/response bodies to error events. See:
+       https://docs.sentry.io/platforms/javascript/configuration/options/#dataCollection -->
+  <script>
+    window.sentryOnLoad = function () {
+      Sentry.init({
+        dataCollection: {
+          userInfo: false,
+          httpBodies: []
+        }
+      });
+    };
+  </script>
+  <script
+    src="https://js-de.sentry-cdn.com/daebc8b90d74e12665f57000fe529d6a.min.js"
+    crossorigin="anonymous"
+  ></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/favicon.ico?v=580" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=580" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=580" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=580" />
+  <meta name="theme-color" content="#071019" />
+
+  <title>SEA-V • Confirm Sea Service</title>
+
+  <link rel="stylesheet" href="styles.css?v=580" />
+
+  <script src="js/seav-config.js?v=580"></script>
+  <script src="js/feedback.js?v=580" defer></script>
+  <script src="js/core.js?v=580" defer></script>
+  <script src="js/verify-testimonial.js?v=580" defer></script>
+</head>
+
+<body class="landing-page verify-reference-page verify-testimonial-page">
+
+  <div class="ocean"></div>
+  <div class="overlay"></div>
+
+  <main class="verify-reference-shell">
+
+    <article class="verify-reference-panel verify-reference-panel-card vessel-card ref-page-card">
+
+      <div class="vessel-body">
+
+        <div class="verify-reference-brand">
+          <img src="img/logo.png?v=10" class="logo verify-reference-logo seav-logo seav-logo--verify" alt="SEA-V" width="34" height="34" />
+        </div>
+
+        <div id="vtLoading" class="verify-reference-state">
+          <p class="verify-reference-loading">Loading the testimonial…</p>
+        </div>
+
+        <div id="vtError" class="verify-reference-state" hidden>
+          <h1 class="ref-card-title">Link unavailable</h1>
+          <p id="vtErrorText" class="verify-reference-subtitle ref-card-subtitle"></p>
+          <p class="verify-reference-close-hint">You can close this page now.</p>
+        </div>
+
+        <div id="vtSuccess" class="verify-reference-state" hidden>
+          <h1 id="vtSuccessTitle" class="ref-card-title"></h1>
+          <p id="vtSuccessText" class="verify-reference-subtitle ref-card-subtitle"></p>
+          <p class="verify-reference-close-hint">You can close this page now.</p>
+        </div>
+
+        <div id="vtMain" hidden>
+
+          <div class="ref-card-head">
+            <div class="ref-card-head-text">
+              <h1 class="ref-card-title">Confirm sea service</h1>
+              <p class="ref-card-subtitle" id="vtIntro"></p>
+            </div>
+          </div>
+
+          <h2 class="vt-section-title">Seafarer</h2>
+          <div class="vessel-meta-grid" id="vtCrewGrid"></div>
+
+          <h2 class="vt-section-title">Vessel</h2>
+          <div class="vessel-meta-grid" id="vtVesselGrid"></div>
+
+          <h2 class="vt-section-title">Service</h2>
+          <div class="vessel-meta-grid" id="vtServiceGrid"></div>
+
+          <div class="verify-reference-form-section">
+            <form id="vtForm" class="verify-reference-form modal-form" novalidate>
+
+              <p class="vt-help">Check the days below. Correct any that are not right — the crew member will see both their figure and yours.</p>
+
+              <div class="modal-grid2">
+                <label>
+                  Actual sea service (days)
+                  <input id="vt_actual_sea" type="number" min="0" max="1000" inputmode="numeric" />
+                </label>
+                <label>
+                  Standby service (days)
+                  <input id="vt_standby" type="number" min="0" max="1000" inputmode="numeric" />
+                </label>
+                <label>
+                  Yard service (days)
+                  <input id="vt_yard" type="number" min="0" max="1000" inputmode="numeric" />
+                </label>
+                <label>
+                  Watchkeeping (days)
+                  <input id="vt_watchkeeping" type="number" min="0" max="1000" inputmode="numeric" />
+                </label>
+              </div>
+
+              <div class="modal-grid2">
+                <label>
+                  Your full name
+                  <input id="vt_master_name" maxlength="120" required autocomplete="name" />
+                </label>
+                <label>
+                  Your position on board
+                  <input id="vt_master_rank" maxlength="60" value="Master" />
+                </label>
+                <label>
+                  Your CoC (e.g. Master &lt;3000GT)
+                  <input id="vt_coc_grade" maxlength="120" />
+                </label>
+                <label>
+                  CoC number
+                  <input id="vt_coc_number" maxlength="60" />
+                </label>
+              </div>
+
+              <label>
+                Comment (optional)
+                <textarea id="vt_comment" rows="3" maxlength="500" placeholder="Anything the crew member or an assessor should know."></textarea>
+              </label>
+
+              <label>
+                Signature (type your full name)
+                <input id="vt_signature" maxlength="120" required />
+              </label>
+
+              <label class="modal-check">
+                <input type="checkbox" id="vt_confirm" />
+                <span>I confirm that, to the best of my knowledge, this sea service is correct, and that I was master of this vessel (or am authorised to sign for it) during this period.</span>
+              </label>
+
+              <div class="verify-reference-actions">
+                <button class="btn-blue" type="submit" id="vtConfirmBtn">Confirm sea service</button>
+                <button class="btn-ghost2" type="button" id="vtDeclineBtn">Decline</button>
+              </div>
+
+              <div class="vt-decline" id="vtDeclineBox" hidden>
+                <label>
+                  Reason (optional — the crew member will see it)
+                  <textarea id="vt_decline_reason" rows="3" maxlength="500"></textarea>
+                </label>
+                <button class="btn-ghost2" type="button" id="vtDeclineSend">Send decline</button>
+              </div>
+
+              <p class="verify-reference-footnote">
+                This link is single-use. You do not need a SEA-V account. If you confirm, your name,
+                position, CoC details, comment, signature and the days you confirm are saved to this crew
+                member's private SEA-V record and printed on their testimonial. They are not shown on any
+                public profile. <a href="privacy.html#referees" target="_blank" rel="noopener">How SEA-V uses your details</a>.
+              </p>
+              <p class="verify-reference-footnote">
+                SEA-V is not the MCA. For a Notice of Eligibility, large-yacht sea service is verified by the
+                PYA or Nautilus (MCA notice MIN 543); this record helps the crew member prepare it.
+              </p>
+
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+
+    </article>
+
+  </main>
+
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

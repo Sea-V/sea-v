@@ -3841,7 +3841,264 @@ function getSortedVesselOptions(vessels = []) {
      PUBLIC API
   ========================================================= */
 
+/* =========================================================
+   SCHENGEN 90/180 (v579, Jack 2026-10-08 — "next level" idea 3)
+   Short stays in the Schengen area: at most 90 days in any rolling 180.
+   Entry and exit days both count. EU / EEA / Swiss citizens are exempt; a
+   Schengen VISA is not an exemption (it is itself limited to 90/180).
+   Days are worked out from the crew member's passages (in a country from
+   arrival until the next departure), and the member's own stays override
+   them day by day — crew fly home, and not every passage is logged.
+   Guidance only: border officials decide. Country level only (French
+   overseas territories, Gibraltar, Svalbard etc. are outside Schengen and
+   are logged under their own names in passages).
+========================================================= */
+const SCHENGEN_COUNTRIES = [
+  "Austria", "Belgium", "Bulgaria", "Croatia", "Czechia", "Denmark", "Estonia",
+  "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", "Italy",
+  "Latvia", "Liechtenstein", "Lithuania", "Luxembourg", "Malta", "Netherlands",
+  "Norway", "Poland", "Portugal", "Romania", "Slovakia", "Slovenia", "Spain",
+  "Sweden", "Switzerland",
+  // No border checks with their neighbours, so days there count in practice.
+  "Monaco", "San Marino", "Vatican City"
+];
+
+// Passports that are NOT subject to 90/180 (EU free movement + EEA + CH).
+const FREE_MOVEMENT_COUNTRIES = [
+  "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Denmark",
+  "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Ireland",
+  "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", "Netherlands",
+  "Poland", "Portugal", "Romania", "Slovakia", "Slovenia", "Spain", "Sweden",
+  "Iceland", "Liechtenstein", "Norway", "Switzerland"
+];
+
+const COUNTRY_ALIASES = {
+  "czech republic": "czechia",
+  "the netherlands": "netherlands",
+  "holland": "netherlands",
+  "holy see": "vatican city",
+  "vatican": "vatican city",
+  "republic of ireland": "ireland"
+};
+
+function normCountryName(name) {
+  const key = String(name || "").trim().toLowerCase().replace(/\s+/g, " ");
+  return COUNTRY_ALIASES[key] || key;
+}
+
+const SCHENGEN_SET = new Set(SCHENGEN_COUNTRIES.map(normCountryName));
+const FREE_MOVEMENT_SET = new Set(FREE_MOVEMENT_COUNTRIES.map(normCountryName));
+
+function isSchengenCountry(name) {
+  return SCHENGEN_SET.has(normCountryName(name));
+}
+
+// Profile passports (comma list) + nationality.
+function holdsFreeMovementPassport(profile) {
+  const names = [
+    ...String(profile?.passportsHeld || "").split(","),
+    profile?.nationality || ""
+  ];
+  return names.some((n) => n.trim() && FREE_MOVEMENT_SET.has(normCountryName(n)));
+}
+
+// Whole days as integers (UTC), so DST never shifts a count.
+function isoToDayNum(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ""));
+  if (!m) return null;
+  return Math.round(Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000);
+}
+
+function dayNumToIso(n) {
+  return new Date(n * 86400000).toISOString().slice(0, 10);
+}
+
+function localTodayIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+const SCHENGEN_LIMIT = 90;
+const SCHENGEN_WINDOW = 180;
+
+/**
+ * passages: navigation entries ({ departureDate, arrivalDate, fromCountry,
+ *   toCountry|country }); stays: [{ from, to, inSchengen, note }].
+ * Returns the day map plus today's figures.
+ */
+function computeSchengenDays(passages, stays, todayIso = localTodayIso()) {
+  const today = isoToDayNum(todayIso);
+  const days = new Map(); // dayNum -> { in, source, country }
+  const mark = (n, inS, source, country) => {
+    if (n == null || n > today) return;
+    days.set(n, { in: inS, source, country: country || "" });
+  };
+
+  const legs = (passages || [])
+    .map((p) => {
+      const dep = isoToDayNum(p.departureDate || p.visitedDate || p.arrivalDate);
+      const arr = isoToDayNum(p.arrivalDate || p.departureDate || p.visitedDate);
+      return {
+        dep,
+        arr: arr != null && dep != null && arr < dep ? dep : arr,
+        from: p.fromCountry || "",
+        to: p.toCountry || p.country || ""
+      };
+    })
+    .filter((l) => l.dep != null && l.arr != null)
+    .sort((a, b) => a.dep - b.dep || a.arr - b.arr);
+
+  let lastStayOpen = null;
+  legs.forEach((leg, i) => {
+    const fromS = isSchengenCountry(leg.from);
+    const toS = isSchengenCountry(leg.to);
+    // At sea between two Schengen ports: every day counts.
+    if (fromS && toS) {
+      for (let n = leg.dep; n <= leg.arr; n += 1) mark(n, true, "passage", leg.to);
+    } else {
+      if (fromS) mark(leg.dep, true, "passage", leg.from);
+      if (toS) mark(leg.arr, true, "passage", leg.to);
+    }
+    // In port until the next departure, if that departure is from a
+    // Schengen country too (or not recorded).
+    if (!toS) return;
+    const next = legs[i + 1];
+    if (next) {
+      if (next.from && !isSchengenCountry(next.from)) return;
+      for (let n = leg.arr; n <= next.dep; n += 1) {
+        if (!days.get(n)?.in) mark(n, true, "port", leg.to);
+      }
+    } else if (leg.arr <= today) {
+      for (let n = leg.arr; n <= today; n += 1) mark(n, true, "port", leg.to);
+      lastStayOpen = { since: dayNumToIso(leg.arr), country: leg.to };
+    }
+  });
+
+  // The member's own stays win, day by day.
+  (stays || []).forEach((stay) => {
+    const a = isoToDayNum(stay.from);
+    const b = isoToDayNum(stay.to || stay.from);
+    if (a == null || b == null) return;
+    for (let n = Math.min(a, b); n <= Math.max(a, b); n += 1) {
+      mark(n, !!stay.inSchengen, "manual", stay.note || "");
+    }
+  });
+
+  const inDays = [...days.entries()].filter(([, v]) => v.in).map(([n]) => n).sort((x, y) => x - y);
+  const inSet = new Set(inDays);
+  const usedOn = (n, extra = null) => {
+    let c = 0;
+    for (let d = n - SCHENGEN_WINDOW + 1; d <= n; d += 1) {
+      if (inSet.has(d) || (extra && extra.has(d))) c += 1;
+    }
+    return c;
+  };
+
+  const used = usedOn(today);
+  const inToday = inSet.has(today);
+
+  // Staying (or arriving) from today without a break: the last legal day.
+  const future = new Set();
+  let canStayUntil = null;
+  for (let n = today; n <= today + SCHENGEN_WINDOW; n += 1) {
+    future.add(n);
+    if (usedOn(n, future) > SCHENGEN_LIMIT) break;
+    canStayUntil = n;
+  }
+
+  // Days over the limit inside the current 180-day window — the ones that
+  // matter at a border today. Older ones are history (and are often a
+  // season logged as one long passage).
+  const overstays = inDays
+    .filter((n) => n > today - SCHENGEN_WINDOW && usedOn(n) > SCHENGEN_LIMIT)
+    .map(dayNumToIso);
+
+  // When the oldest day in the window drops out.
+  const windowStart = today - SCHENGEN_WINDOW + 1;
+  const oldest = inDays.find((n) => n >= windowStart);
+  const nextFreed = oldest != null ? dayNumToIso(oldest + SCHENGEN_WINDOW) : null;
+
+  // Consecutive runs of Schengen days, newest first, for the list.
+  const runs = [];
+  inDays.forEach((n) => {
+    const info = days.get(n);
+    const last = runs[runs.length - 1];
+    if (last && n === last.endNum + 1) {
+      last.endNum = n;
+      last.days += 1;
+      if (info.source === "manual") last.manual = true;
+      if (info.source === "port") last.portDays += 1;
+      if (info.country && !last.countries.includes(info.country)) last.countries.push(info.country);
+    } else {
+      runs.push({
+        startNum: n,
+        endNum: n,
+        days: 1,
+        manual: info.source === "manual",
+        portDays: info.source === "port" ? 1 : 0,
+        countries: info.country ? [info.country] : []
+      });
+    }
+  });
+
+  return {
+    today: todayIso,
+    used,
+    left: Math.max(0, SCHENGEN_LIMIT - used),
+    inToday,
+    canStayUntil: canStayUntil != null ? dayNumToIso(canStayUntil) : null,
+    nextFreed,
+    overstays,
+    lastStayOpen,
+    runs: runs
+      .map((r) => ({
+        from: dayNumToIso(r.startNum),
+        to: dayNumToIso(r.endNum),
+        days: r.days,
+        manual: r.manual,
+        // Days counted only because no passage left port in between — a
+        // winter lay-up often means the crew flew home.
+        portDays: r.portDays,
+        countries: r.countries
+      }))
+      .reverse()
+  };
+}
+
+// Would a planned trip [from, to] stay within 90/180? Uses the record as of
+// today (result.runs) plus the trip days; assumes no Schengen days between
+// today and the trip other than the trip itself.
+function checkSchengenTrip(result, fromIso, toIso) {
+  const a = isoToDayNum(fromIso);
+  const b = isoToDayNum(toIso);
+  if (!result || a == null || b == null || b < a) return null;
+  const inSet = new Set();
+  (result.runs || []).forEach((r) => {
+    for (let n = isoToDayNum(r.from); n <= isoToDayNum(r.to); n += 1) inSet.add(n);
+  });
+  for (let n = a; n <= b; n += 1) inSet.add(n);
+  let worst = 0;
+  let firstOver = null;
+  for (let n = a; n <= b; n += 1) {
+    let c = 0;
+    for (let d = n - SCHENGEN_WINDOW + 1; d <= n; d += 1) if (inSet.has(d)) c += 1;
+    worst = Math.max(worst, c);
+    if (c > SCHENGEN_LIMIT && firstOver == null) firstOver = n;
+  }
+  return {
+    ok: worst <= SCHENGEN_LIMIT,
+    days: b - a + 1,
+    worst,
+    lastLegalDay: firstOver != null ? dayNumToIso(firstOver - 1) : null
+  };
+}
+
 window.SeavData = {
+  SCHENGEN_COUNTRIES,
+  isSchengenCountry,
+  holdsFreeMovementPassport,
+  computeSchengenDays,
+  checkSchengenTrip,
   parseDateOnly,
   KEYS,
   MANDATORY_CERTS,

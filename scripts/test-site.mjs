@@ -31,6 +31,7 @@ const PAGES = [
   "certificates.html",
   "references.html",
   "verify-reference.html",
+  "verify-testimonial.html",
   "achievements.html",
   "tenders.html",
   "navigation.html",
@@ -38,6 +39,7 @@ const PAGES = [
   "hobbies-interests.html",
   "specialist-qualifications.html",
   "land-experience.html",
+  "schengen.html",
   "payslips.html",
   "admin.html"
 ];

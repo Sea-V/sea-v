@@ -364,3 +364,29 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   SEA SERVICE TESTIMONIAL (v579) — verify-testimonial.html
+   Same card as the reference page; section headings + the day inputs.
+========================================================= */
+
+.verify-testimonial-page .vt-section-title {
+  margin: 18px 0 8px;
+  color: var(--seav-field-label-color);
+  font-size: var(--font-section-title);
+  font-weight: var(--font-weight-title);
+}
+
+.verify-testimonial-page .vt-help {
+  margin: 0;
+  color: var(--seav-meta-desc-color);
+}
+
+.verify-testimonial-page .vt-decline {
+  display: grid;
+  gap: 10px;
+}
+
+.verify-testimonial-page .vt-decline[hidden] {
+  display: none !important;
+}
