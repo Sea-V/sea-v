@@ -20,7 +20,9 @@
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) {
   /* Bridge palette */
   --bridge-bg: #0a1726;
-  --bridge-bar: #07111d;
+  /* Topbar = the dropdown menu's navy (Jack, 2026-10-09: the bar was
+     "too dark, make it like the sidebar color"). Was #07111d. */
+  --bridge-bar: #0d1e31;
   --bridge-surface: #0f2236;
   --bridge-surface-2: #12283e;
   --bridge-surface-3: #152e47;
@@ -54,7 +56,7 @@
   --seav-topbar-line-height: 2px;
 
   /* Menus, modals and shared shapes. */
-  --seav-menu-bg: #0d1e31;
+  --seav-menu-bg: var(--bridge-bar);
   --seav-menu-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
   --seav-modal-radius: 6px;
   --seav-modal-band: #0b1b2d;
@@ -101,8 +103,11 @@
 }
 
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) {
-  background: transparent !important;
-  border-bottom: 1px solid var(--bridge-rule) !important;
+  /* A solid band in the topbar / menu navy around the icon and title, so
+     they do not float on the ocean (Jack, 2026-10-09). */
+  background: var(--bridge-bar) !important;
+  border: 1px solid var(--bridge-rule) !important;
+  border-radius: var(--bridge-radius) !important;
 }
 
 /* Page icons: plain outline in the page colour, square. */

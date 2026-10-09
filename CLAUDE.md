@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v583**. Jack pushes every commit himself from
+- HEAD = **v584**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1424,6 +1424,15 @@ page** (Jack: "put the ocean photo back, leave the new style ... just
 behind") — the rules hiding `body::before/::after` (app pages) and
 `.ocean/.overlay` (public pages) are removed; panels stay solid, so the
 photo shows only around and between them.
+
+### v584 — topbar matches the menu; title rows are a solid band
+Topbar lifted to the dropdown menu's navy (Jack:
+"too dark, make it like the sidebar color"): `--bridge-bar` #07111d ->
+#0d1e31, and `--seav-menu-bg` now reads `var(--bridge-bar)` so the two
+stay identical (also the public pages' `.legal-topbar-inner`). Page title rows
+(`*-shell-head`) are a solid `--bridge-bar` band with a hairline border and
+4px corners (Jack: "i dont like that its floating") — was transparent with
+only a bottom rule.
 
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES
