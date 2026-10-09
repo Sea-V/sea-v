@@ -26,30 +26,31 @@
     return `${Number(m[3])} ${months[Number(m[2]) - 1]} ${m[1]}`;
   }
 
+  // v588: shown as one quiet line under the status pill (a second pill
+  // made the cell look stacked and busy).
   const STATUS = {
-    Sent: { label: "Sent to captain", cls: "pill-warning" },
-    Confirmed: { label: "Captain confirmed", cls: "pill-valid" },
-    Declined: { label: "Captain declined", cls: "pill-expired" },
-    Changed: { label: "Edited since confirmed", cls: "pill-warning" }
+    Sent: { label: "Sent to captain", cls: "is-wait" },
+    Confirmed: { label: "Captain confirmed", cls: "is-ok" },
+    Declined: { label: "Captain declined", cls: "is-bad" },
+    Changed: { label: "Edited since confirmed", cls: "is-wait" }
   };
 
   function statusHtml(entry) {
     const s = STATUS[entry?.testimonialStatus];
     if (!s) return "";
     const who = entry.testimonial?.master_name ? ` — ${entry.testimonial.master_name}` : "";
-    return `<br><small class="cert-status-pill ${s.cls} seav-tst-pill" title="${esc(s.label + who)}">${esc(s.label)}</small>`;
+    return `<small class="seav-tst-line ${s.cls}" title="${esc(s.label + who)}">${esc(s.label)}</small>`;
   }
 
+  // v588: an item for the row's Actions menu (js/seav-row-menu.js).
   function actionHtml(entry) {
     const id = esc(entry?.id || "");
-    if (entry?.testimonialStatus === "Confirmed") {
-      return `<button type="button" class="seav-action seav-action--secondary" data-tst-print="${id}">Print testimonial</button>`;
-    }
-    if (entry?.testimonialStatus === "Sent") {
-      return `<button type="button" class="seav-action seav-action--secondary" data-tst-request="${id}">Send again</button>`;
-    }
+    const item = (attr, label) =>
+      `<button type="button" class="seav-row-menu-item" ${attr}="${id}">${label}</button>`;
+    if (entry?.testimonialStatus === "Confirmed") return item("data-tst-print", "Print testimonial");
+    if (entry?.testimonialStatus === "Sent") return item("data-tst-request", "Send to captain again");
     if (!entry?.dateJoined || !entry?.dateLeft) return "";
-    return `<button type="button" class="seav-action seav-action--secondary" data-tst-request="${id}">Get captain's signature</button>`;
+    return item("data-tst-request", "Get captain&#39;s signature");
   }
 
   function getEntry(id) {

@@ -50,6 +50,9 @@
     "data-edit-vessel-id",
     "data-vessel-id",
     "data-edit-seatime-id",
+    // v588: sea time edit buttons sit in the row's Actions menu (a
+    // <template>), so the row carries the id itself.
+    "data-seatime-id",
     "data-edit-cert-id",
     "data-cert-id",
     "data-edit-nav-id",

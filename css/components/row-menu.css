@@ -1,0 +1,90 @@
+/* =========================================================
+   ROW ACTION MENU (v588) — js/seav-row-menu.js
+   One "Actions" button per table row; the menu floats on <body>.
+========================================================= */
+
+.seav-row-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--seav-row-menu-gap);
+  min-height: var(--seav-row-menu-btn-height);
+  padding: 0 12px;
+  border: 1px solid var(--seav-row-menu-border);
+  border-radius: var(--seav-row-menu-radius);
+  background: transparent;
+  color: var(--seav-field-value-color);
+  font: inherit;
+  font-weight: var(--font-weight-body);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.seav-row-menu-btn::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-top: -3px;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(45deg);
+  opacity: 0.8;
+}
+
+.seav-row-menu-btn:hover,
+.seav-row-menu-btn[aria-expanded="true"] {
+  border-color: var(--seav-row-menu-border-strong);
+}
+
+.seav-row-menu-btn:focus-visible,
+.seav-row-menu-item:focus-visible {
+  outline: 2px solid var(--seav-field-label-color);
+  outline-offset: 2px;
+}
+
+.seav-row-menu {
+  position: fixed;
+  z-index: 1200;
+  min-width: var(--seav-row-menu-width);
+  padding: 6px;
+  border: 1px solid var(--seav-row-menu-border);
+  border-radius: var(--seav-row-menu-radius);
+  background: var(--seav-menu-bg);
+  box-shadow: var(--seav-row-menu-shadow);
+}
+
+.seav-row-menu[hidden] {
+  display: none;
+}
+
+.seav-row-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--seav-row-menu-item-radius);
+  background: transparent;
+  color: var(--seav-field-value-color);
+  font: inherit;
+  font-weight: var(--font-weight-body);
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.seav-row-menu-item:hover,
+.seav-row-menu-item:focus {
+  background: var(--seav-row-menu-hover);
+}
+
+.seav-row-menu-item--danger {
+  color: var(--progress-red);
+}
+
+.seav-row-menu-sep {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--seav-row-menu-border);
+}

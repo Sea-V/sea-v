@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v587**. Jack pushes every commit himself from
+- HEAD = **v588**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1487,6 +1487,27 @@ too ("less is more"): no border/background, `--bridge-head-icon` 28px box,
 - PYA / Nautilus testimonial templates are members-only (not readable
   from here); the public guidance asks for sea / standby / yard (+ watch)
   broken out, which the printout already does.
+
+### v588 — Sea Time rows: one Actions menu
+Jack's screenshot: each row had four or five buttons and two stacked pills
+("messy ... maybe a dropdown"). Now: one status pill with the captain's
+answer as a quiet dot line under it (`.seav-tst-line` is-ok / is-wait /
+is-bad, `--seav-tst-*` tokens); the SST column is "SST file" with a plain
+"View" link or "None"; ONE "Actions" button per row. New shared
+`js/seav-row-menu.js` + `css/components/row-menu.css` (tokens
+`--seav-row-menu-*`; Bridge squares the radius): a `[data-row-menu]`
+button + a sibling `<template class="seav-row-menu-items">`; the items are
+copied into one `position: fixed` panel on <body> (a panel inside the row
+is clipped by `.seatime-table-wrap`'s overflow) and keep their data-*
+attributes, so the page's own document-level handlers run unchanged.
+Arrows / Home / End / Esc (focus returns) / Tab; closes on outside click,
+scroll and resize. Items: Edit entry, Add passage plan, the testimonial
+action (`SeavTestimonial.actionHtml` now returns a menu item), Delete
+entry. The row carries `data-seatime-id` (added to seav-search
+FOCUS_ATTRS) because the edit button now lives in a <template>.
+Reusable on any other table. Verified on the Sea Time harness at 1440 and
+375: menu items per status, edit opens the right entry, print opens the
+testimonial, keyboard + Esc, menu inside the viewport on a phone.
 
 ### v586–v587 — dead code removed (Jack: "review all dead code")
 Two read-only audits (JS/HTML, CSS), then removal. Already in v586 (Jack

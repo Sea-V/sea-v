@@ -247,6 +247,20 @@
   /* Topbar menus (v565): the near-solid glass a dropdown needs to stay
      readable over content (the see-through card glass was not). */
   --seav-menu-bg: rgba(20, 36, 58, 0.95);
+  /* v588: row action menu (css/components/row-menu.css). */
+  --seav-row-menu-width: 210px;
+  --seav-row-menu-radius: 12px;
+  --seav-row-menu-item-radius: 8px;
+  --seav-row-menu-btn-height: 34px;
+  --seav-row-menu-gap: 10px;
+  --seav-row-menu-border: rgba(255, 255, 255, 0.16);
+  --seav-row-menu-border-strong: rgba(255, 255, 255, 0.36);
+  --seav-row-menu-hover: rgba(255, 255, 255, 0.07);
+  --seav-row-menu-shadow: 0 14px 32px rgba(0, 0, 0, 0.42);
+  /* v588: sea time status — the captain line under the status pill. */
+  --seav-tst-ok: var(--accent-green);
+  --seav-tst-wait: var(--progress-amber);
+  --seav-tst-bad: var(--progress-red);
   --seav-account-menu-width: 300px;
   /* Modals (v577 revamp): the card is the menu glass; the header and the
      pinned Save bar are a near-solid band so fields scrolling under them

@@ -601,15 +601,54 @@
 .seatime-no-file {
   color: var(--seav-meta-muted-color);
 
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-body);
 }
 
-.seatime-testimonial-link {
-  min-height: 28px;
-  padding: 0 10px;
+/* v588 (Jack: the row "looks messy ... maybe a dropdown"). One status
+   pill with the captain's answer as a quiet line under it, the SST file as
+   a plain link, and every action in one menu (css/components/row-menu.css). */
+.seatime-file-link {
+  color: var(--seav-field-label-color);
+  font-weight: var(--font-weight-body);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
-  font-size: 11px;
+.seatime-status-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.seav-tst-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--seav-meta-desc-color);
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-body);
+  white-space: nowrap;
+}
+
+.seav-tst-line::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.seav-tst-line.is-ok::before { background: var(--seav-tst-ok); }
+.seav-tst-line.is-wait::before { background: var(--seav-tst-wait); }
+.seav-tst-line.is-bad::before { background: var(--seav-tst-bad); }
+
+.seatime-table-wrap .seatime-actions-head,
+.seatime-table-wrap .seatime-actions-cell {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
 }
 
 /* =========================================================

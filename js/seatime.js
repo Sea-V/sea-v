@@ -174,7 +174,8 @@
         <th colspan="3">Vessel &amp; capacity</th>
         <th colspan="2">Service period</th>
         <th colspan="5">Qualifying days</th>
-        <th colspan="3">Evidence</th>
+        <th colspan="2">Evidence</th>
+        <th></th>
       </tr>
       <tr>
         <th>Vessel</th>
@@ -188,8 +189,8 @@
         <th>Watch</th>
         <th>Total</th>
         <th>Status</th>
-        <th>Testimonial</th>
-        <th>Actions</th>
+        <th>SST file</th>
+        <th class="seatime-actions-head" aria-label="Actions"></th>
       </tr>
     </thead>
   `;
@@ -214,13 +215,13 @@
     const hasAttachment = hasSeatimeAttachment(x.attachment);
 
     const attachCell = attachmentUrl
-      ? `<a class="seav-action seav-action--secondary seatime-testimonial-link" href="${Seav.escapeHtml(attachmentUrl)}" target="_blank" rel="noopener">View SST</a>`
+      ? `<a class="seatime-file-link" href="${Seav.escapeHtml(attachmentUrl)}" target="_blank" rel="noopener">View</a>`
       : hasAttachment
-        ? `<span class="seatime-no-file muted">Loading…</span>`
-        : `<span class="seatime-no-file">Not uploaded</span>`;
+        ? `<small class="seatime-no-file">Loading…</small>`
+        : `<small class="seatime-no-file" title="No sea service testimonial uploaded">None</small>`;
 
     return `
-      <tr>
+      <tr data-seatime-id="${Seav.escapeHtml(seatimeId)}">
         <td>${Seav.escapeHtml(displayVesselName)}</td>
         <td>${flagGt}</td>
         <td>${Seav.escapeHtml(x.capacityServed || "—")}</td>
@@ -231,24 +232,17 @@
         <td>${getSeatimeDayValue(x, "yardServiceDays", "yard")}</td>
         <td>${getSeatimeDayValue(x, "watchkeepingDays", "watchkeeping")}</td>
         <td>${total}${extrasLine(x)}</td>
-        <td><span class="${Seav.escapeHtml(verificationDisplay.className)}">${Seav.escapeHtml(verificationDisplay.label)}</span>${window.SeavTestimonial?.statusHtml(x) || ""}</td>
+        <td><div class="seatime-status-cell"><span class="${Seav.escapeHtml(verificationDisplay.className)}">${Seav.escapeHtml(verificationDisplay.label)}</span>${window.SeavTestimonial?.statusHtml(x) || ""}</div></td>
         <td>${attachCell}</td>
-        <td class="row-actions">
-          <a
-            class="seav-action seav-action--secondary"
-            href="navigation.html?seatime=${encodeURIComponent(seatimeId)}"
-          >Add passage plan</a>
-          ${window.SeavTestimonial?.actionHtml(x) || ""}
-          ${Seav.seavAction(
-            "edit",
-            "Edit",
-            `data-edit-seatime-id="${Seav.escapeHtml(seatimeId)}"`
-          )}
-          ${Seav.seavAction(
-            "delete",
-            "Delete",
-            `data-del-seatime-id="${Seav.escapeHtml(seatimeId)}"`
-          )}
+        <td class="seatime-actions-cell">
+          <button type="button" class="seav-row-menu-btn" id="stMenu-${Seav.escapeHtml(seatimeId)}" data-row-menu aria-haspopup="menu" aria-expanded="false" aria-label="Actions for ${Seav.escapeHtml(displayVesselName)}, ${Seav.escapeHtml(formatDatePretty(x.dateJoined))}">Actions</button>
+          <template class="seav-row-menu-items">
+            <button type="button" class="seav-row-menu-item" data-edit-seatime-id="${Seav.escapeHtml(seatimeId)}">Edit entry</button>
+            <a class="seav-row-menu-item" href="navigation.html?seatime=${encodeURIComponent(seatimeId)}">Add passage plan</a>
+            ${window.SeavTestimonial?.actionHtml(x) || ""}
+            <div class="seav-row-menu-sep" role="separator"></div>
+            <button type="button" class="seav-row-menu-item seav-row-menu-item--danger" data-del-seatime-id="${Seav.escapeHtml(seatimeId)}">Delete entry</button>
+          </template>
         </td>
       </tr>
     `;
