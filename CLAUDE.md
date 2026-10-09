@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v580**. Jack pushes every commit himself from
+- HEAD = **v581**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1361,6 +1361,27 @@ Jack picked the top three "next level" ideas, 2026-10-08:
     auth.js PROTECTED_PAGES (sign-in from it landed on the dashboard).
 - Gotcha: test-site's HTTP checks all 404'd against an old
   `http.server` whose folder had gone — start a fresh server from the repo.
+
+### v581 — Bridge theme on every signed-in page
+Jack (2026-10-09): the dashboard "looks too AI"; three looks rendered on a
+harness of the real dashboard with his public data (A Bridge — navy,
+brass, square; B Logbook — light paper; C Console — graphite). He picked
+**Bridge**. New `css/core/theme-bridge.css`, imported LAST in styles.css,
+scoped to `body.app-page` (public profile, landing and sign-in pages
+unchanged). Mostly a token swap: the v552/v553 glass levels read
+`--seav-glass-*`, so those become flat navy surfaces
+(#0f2236 / #12283e / #152e47 / #18334f, rule #1f3a56); `--seav-topbar-*`
+become a solid bar + one 2px brass (#b8954a) rule; menu / modal / select /
+pill / photo radius tokens shrink to 3-6px. Rules on top: no ocean
+(`body.app-page::before/::after` hidden), no backdrop blur anywhere, page
+shells lose card, border and accent border (title band = one rule), box
+lists squared to 4px with no shadow, buttons and status pills squared, page
+quote footers and the dashboard green tick hidden; dashboard tiles show the
+page colour as a 3px left edge, monochrome icons, small-caps labels, brass
+progress bars. Field labels keep #5bbcff. **To revert: delete the one
+@import line in styles.css.** Seen on harnesses: dashboard (Jack's data),
+Sea Time page and its form. Other pages inherit through the same tokens
+and lists — check new boxes against the list in the file.
 
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES

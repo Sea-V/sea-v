@@ -1,0 +1,269 @@
+/* =========================================================
+   BRIDGE THEME (v581, Jack 2026-10-09: the dashboard "looks too AI";
+   picked "A · Bridge" of three rendered options)
+   Signed-in pages only (body.app-page). Deep navy, flat, square, one brass
+   rule — the look of ship's instruments / an Admiralty publication.
+   Replaces: the moving ocean photo, frosted glass (backdrop blur), the
+   glowing gradient topbar line, pill buttons, rainbow icon badges and the
+   26-30px corners.
+   How: mostly a TOKEN swap — the v552/v553 glass levels in typography.css
+   all read --seav-glass-*, so redefining those here re-skins every box on
+   every page at once. The rest squares off corners and removes shadows on
+   the same box lists. Imported LAST in styles.css.
+   Not touched: the public profile, landing / sign-in pages, the CV's
+   white A4 preview, photos, and field-label colours (#5bbcff stays, per
+   field-label-typography.mdc).
+   To go back: delete this file's @import in styles.css.
+========================================================= */
+
+body.app-page {
+  /* Bridge palette */
+  --bridge-bg: #0a1726;
+  --bridge-bar: #07111d;
+  --bridge-surface: #0f2236;
+  --bridge-surface-2: #12283e;
+  --bridge-surface-3: #152e47;
+  --bridge-surface-4: #18334f;
+  --bridge-rule: #1f3a56;
+  --bridge-rule-strong: #2c4c6d;
+  --bridge-brass: #b8954a;
+  --bridge-brass-soft: rgba(184, 149, 74, 0.16);
+  --bridge-caption: #8fa7bf;
+  --bridge-radius: 4px;
+  --bridge-radius-small: 3px;
+
+  /* The glass levels (typography.css) become flat surfaces. */
+  --seav-glass-card: transparent;
+  --seav-glass-card-solid: transparent;
+  --seav-glass-panel: var(--bridge-surface);
+  --seav-glass-panel-deep: var(--bridge-surface-2);
+  --seav-glass-wash: var(--bridge-surface-3);
+  --seav-glass-wash-soft: var(--bridge-surface-4);
+  --seav-glass-active: var(--bridge-brass-soft);
+  --seav-glass-blur: none;
+  --seav-glass-edge: var(--bridge-rule);
+  --seav-glass-edge-strong: var(--bridge-rule-strong);
+  --seav-glass-line: var(--bridge-rule);
+  --seav-glass-shadow: none;
+
+  /* Topbar: solid bar, one brass rule instead of the glowing gradient. */
+  --seav-topbar-fade: var(--bridge-bar);
+  --seav-topbar-line: var(--bridge-brass);
+  --seav-topbar-line-glow: none;
+  --seav-topbar-line-height: 2px;
+
+  /* Menus, modals and shared shapes. */
+  --seav-menu-bg: #0d1e31;
+  --seav-menu-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --seav-modal-radius: 6px;
+  --seav-modal-band: #0b1b2d;
+  --seav-meta-card-radius: var(--bridge-radius);
+  --seav-meta-item-radius: var(--bridge-radius-small);
+  --seav-select-radius: var(--bridge-radius);
+  --seav-photo-radius: var(--bridge-radius-small);
+  --seav-photo-radius-small: 2px;
+  --seav-dropzone-radius: var(--bridge-radius);
+  --pill-radius: var(--bridge-radius-small);
+
+  background: var(--bridge-bg) !important;
+}
+
+/* Topbar: a square solid bar; the brass rule runs its full width. */
+body.app-page .app-topbar .topbar-inner {
+  border-radius: var(--bridge-radius) !important;
+  border: 1px solid var(--bridge-rule) !important;
+}
+
+body.app-page .app-topbar .topbar-inner::after {
+  left: 0 !important;
+  right: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* No ocean photo or overlay behind the signed-in pages. */
+body.app-page::before,
+body.app-page::after {
+  display: none !important;
+}
+
+body.app-page *,
+body.app-page *::before,
+body.app-page *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Page shell: no card at all — content sits on the navy, the title band is
+   divided from it by one rule. The per-page accent border goes. */
+body.app-page [class$="-shell-card"] {
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body.app-page [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) {
+  background: transparent !important;
+  border-bottom: 1px solid var(--bridge-rule) !important;
+}
+
+/* Page icons: plain outline in the page colour, square. */
+body.app-page [class$="-shell-icon"] {
+  border-radius: var(--bridge-radius) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Every box on the glass levels: square, flat, one hairline. */
+body.app-page :is(
+  .dash-card,
+  .ui-card,
+  .ui-mini-box,
+  [class$="-compact-card"],
+  [class$="-modern-card"],
+  .achievement-card,
+  .dash-tile,
+  .dash-vessel,
+  .dashboard-quick-action,
+  .profile-form-card,
+  .profile-public-share,
+  .vessel-history-collapsible,
+  .vessel-card,
+  .kpi-box,
+  .sq-kpi-box,
+  .ach-kpi-box,
+  .onboard-kpi-box,
+  .hi-kpi-box,
+  .ps-kpi-box,
+  .seatime-checklist-panel,
+  .seatime-vessel-group,
+  .seatime-portal-link,
+  .seatime-table-wrap,
+  .tender-vessel-group,
+  .onboard-vessel-group,
+  .onboard-skill-row,
+  .onboard-skill-add-row,
+  .ach-trophy-section,
+  .ach-trophy,
+  .ach-milestone-row,
+  .navigation-vessel-group,
+  .navigation-stat,
+  .navigation-route-block,
+  .navigation-log-row,
+  .ps-toolbar,
+  .ps-year-group,
+  .vessel-profile-card,
+  .vessel-overview-card,
+  .vessel-info-mini-card,
+  .vessel-linked-clean-card,
+  .vessel-experience-card,
+  .vessel-sea-card,
+  .vessel-main-item,
+  .profile-chapter,
+  [class$="-detail-panel"],
+  .cert-compact-empty,
+  .cvgen-editor,
+  .cvgen-preview-frame,
+  .cvgen-vessel-card,
+  .sch-notice,
+  .sch-planner,
+  .seav-quality-summary-panel,
+  .dashboard-profile-strip
+) {
+  border-radius: var(--bridge-radius) !important;
+  box-shadow: none !important;
+}
+
+/* Buttons and status tags: square, no glow. */
+body.app-page :is(
+  .btn-blue,
+  .btn-ghost2,
+  .btn-danger,
+  .seav-action,
+  .btn-attach,
+  .topbar-search-btn,
+  #topbarSearchBtn,
+  .pill,
+  .status-pill,
+  [class*="status-pill"],
+  [class$="-pill"],
+  .vessel-current-badge,
+  .seav-quality-tag,
+  .seav-quality-option,
+  .sch-run-days,
+  .sch-run-tag
+) {
+  border-radius: var(--bridge-radius-small) !important;
+  box-shadow: none !important;
+}
+
+/* Form fields and the modal header pieces. */
+body.app-page :is(.modal-form, .modal-date-field) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
+body.app-page .modal-head-icon,
+body.app-page .modal-x,
+body.app-page .modal-more-details,
+body.app-page .modal-point,
+body.app-page .modal-info-box {
+  border-radius: var(--bridge-radius-small) !important;
+}
+
+/* Decorative extras that read as "generated". */
+body.app-page .page-quote-footer,
+body.app-page .dashboard-profile-complete-badge {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------
+   Dashboard
+--------------------------------------------------------- */
+
+/* Tiles: the page colour becomes one 3px left edge; icons go monochrome. */
+body.app-page .dash-tile {
+  border: 1px solid var(--bridge-rule) !important;
+  border-left: 3px solid var(--a, var(--bridge-brass)) !important;
+}
+
+body.app-page .dash-vessel {
+  border: 1px solid var(--bridge-rule) !important;
+  border-left: 3px solid var(--bridge-brass) !important;
+}
+
+body.app-page .dash-tile-ic {
+  background: transparent !important;
+  border: 0 !important;
+  color: var(--bridge-caption) !important;
+}
+
+body.app-page .dash-tile-label {
+  color: var(--bridge-caption) !important;
+  font-size: var(--font-label) !important;
+  font-weight: var(--font-weight-title) !important;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+body.app-page .dash-tile-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Quick actions: a row of plain instrument buttons; brass on hover. */
+body.app-page .dashboard-quick-action {
+  border: 1px solid var(--bridge-rule-strong) !important;
+}
+
+body.app-page .dashboard-quick-action:hover,
+body.app-page .dashboard-quick-action:focus-visible {
+  border-color: var(--bridge-brass) !important;
+}
+
+body.app-page .dashboard-quick-action-label {
+  font-size: var(--font-label) !important;
+  font-weight: var(--font-weight-title) !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Progress meters read in brass. */
+body.app-page :is(.progress-fill, .ach-progress-bar > span) {
+  background: var(--bridge-brass) !important;
+  box-shadow: none !important;
+}
