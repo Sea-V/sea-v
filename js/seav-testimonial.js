@@ -95,65 +95,147 @@
     const vessel = t.vessel || {};
     const logged = t.logged || {};
     const conf = t.confirmed || {};
-    const row = (label, value) => (String(value ?? "").trim() ? `<tr><th>${esc(label)}</th><td>${esc(value)}</td></tr>` : "");
-    const dayRow = (label, key) => {
-      const a = Number(logged[key] ?? 0);
-      const b = Number(conf[key] ?? 0);
-      return `<tr><th>${esc(label)}</th><td>${b}</td><td class="muted">${a === b ? "" : `logged ${a}`}</td></tr>`;
+    const answered = String(t.answered_at || "").slice(0, 10);
+    const confirmedOn = prettyDate(answered);
+    const ref = `SV-${String(entry.id || "").replace(/[^a-z0-9]/gi, "").slice(-6).toUpperCase()}-${answered.replace(/-/g, "")}`;
+    const logo = `${location.origin}/img/logo.png`;
+
+    // Days signed on, join and leave day both counted (as MSN 1858 does).
+    const dayNum = (iso) => {
+      const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ""));
+      return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000 : null;
+    };
+    const a0 = dayNum(conf.date_joined);
+    const b0 = dayNum(conf.date_left);
+    const signedOn = a0 != null && b0 != null && b0 >= a0 ? b0 - a0 + 1 : null;
+
+    const item = (label, value) =>
+      String(value ?? "").trim() ? `<div class="item"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>` : "";
+    const figure = (label, key) => {
+      const mine = Number(logged[key] ?? 0);
+      const master = Number(conf[key] ?? 0);
+      const corrected = mine !== master;
+      return `<div class="fig${corrected ? " is-corrected" : ""}">
+        <b>${master}</b><span>${esc(label)}</span>
+        ${corrected ? `<em>Master's figure · logged ${mine}</em>` : ""}
+      </div>`;
     };
 
     const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Sea Service Testimonial — ${esc(crew.name || "")}</title>
+<title>Sea Service Testimonial — ${esc(crew.name || "")} — ${esc(ref)}</title>
 <style>
-  @page { size: A4; margin: 18mm; }
-  body { font: 13px/1.5 Arial, Helvetica, sans-serif; color: #0b1733; margin: 0; }
-  h1 { font-size: 22px; margin: 0 0 2px; }
-  h2 { font-size: 14px; margin: 22px 0 6px; padding-bottom: 4px; border-bottom: 2px solid #0b1c2e; text-transform: uppercase; letter-spacing: .04em; }
-  .sub { color: #475569; margin: 0 0 6px; }
-  table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; font-weight: 600; color: #334155; width: 38%; padding: 5px 0; vertical-align: top; }
-  td { padding: 5px 0; }
-  .days th { width: 50%; }
-  .muted { color: #64748b; font-size: 12px; }
-  .sig { font: italic 24px Georgia, "Times New Roman", serif; margin: 10px 0 2px; }
-  .box { border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 14px; margin-top: 8px; }
-  .foot { margin-top: 26px; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  :root { --navy: #0b1c2e; --navy-2: #12283e; --brass: #b8954a; --ink: #0b1733; --muted: #5b6b7d; --rule: #dfe5ec; --soft: #f4f6f9; }
+  body { margin: 0; font: 12.5px/1.5 -apple-system, "Segoe UI", Inter, Arial, sans-serif; color: var(--ink); background: #fff; }
+  .page { width: 210mm; min-height: 297mm; margin: 0 auto; display: flex; flex-direction: column; background: #fff; }
+  header { background: var(--navy); color: #fff; padding: 22px 28px 20px; display: flex; align-items: center; gap: 20px; border-bottom: 3px solid var(--brass); }
+  header img { height: 40px; width: auto; }
+  header .title { margin-left: auto; text-align: right; }
+  header h1 { margin: 0; font-size: 19px; letter-spacing: .14em; text-transform: uppercase; font-weight: 800; }
+  header .ref { margin-top: 4px; font-size: 11px; color: #9fb4c8; letter-spacing: .06em; }
+  header .status { display: inline-block; margin-top: 8px; padding: 3px 10px; border: 1px solid var(--brass); color: #e7cf98; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; border-radius: 2px; }
+  main { padding: 24px 28px 8px; flex: 1; }
+  .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+  .eyebrow { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .hero h2 { margin: 2px 0 2px; font-size: 26px; line-height: 1.15; font-weight: 800; }
+  .hero p { margin: 0; color: var(--muted); font-size: 13px; }
+  .onboard { text-align: right; }
+  .onboard b { display: block; font-size: 30px; font-weight: 800; line-height: 1; }
+  .figs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0 6px; }
+  .fig { background: var(--soft); border-top: 3px solid var(--navy); padding: 12px 12px 10px; border-radius: 2px; }
+  .fig.is-corrected { border-top-color: var(--brass); }
+  .fig b { display: block; font-size: 26px; line-height: 1.05; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .fig span { display: block; margin-top: 4px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .fig em { display: block; margin-top: 4px; font-style: normal; font-size: 10.5px; color: #8a6a26; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 18px; }
+  h3 { margin: 0 0 8px; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--navy); padding-bottom: 6px; border-bottom: 2px solid var(--navy); }
+  dl { margin: 0; }
+  .item { display: grid; grid-template-columns: 42% 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+  dt { color: var(--muted); }
+  dd { margin: 0; font-weight: 600; }
+  .decl { margin-top: 22px; border: 1px solid var(--rule); border-left: 4px solid var(--navy); padding: 16px 18px; display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; }
+  .decl p.statement { margin: 0 0 12px; font-size: 13px; }
+  .sig { font: italic 30px/1.1 "Snell Roundhand", "Brush Script MT", "Segoe Script", Georgia, serif; color: var(--navy); margin: 4px 0 2px; }
+  .sigline { border-top: 1px solid var(--ink); width: 70%; padding-top: 4px; font-size: 11px; color: var(--muted); }
+  .decl dl { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; }
+  .seal { width: 118px; height: 118px; }
+  .comment { margin-top: 10px; padding: 10px 12px; background: var(--soft); border-radius: 2px; }
+  footer { padding: 12px 28px 18px; border-top: 1px solid var(--rule); font-size: 10.5px; color: var(--muted); display: flex; gap: 18px; justify-content: space-between; }
+  footer p { margin: 0; max-width: 72%; }
+  footer .site { text-align: right; white-space: nowrap; }
+  @media screen { body { background: #e9edf2; padding: 20px 0; } .page { box-shadow: 0 10px 40px rgba(11,28,46,.18); } }
 </style></head>
 <body>
-  <h1>Sea Service Testimonial</h1>
-  <p class="sub">Confirmed online by the master on ${esc(prettyDate(String(t.answered_at || "").slice(0, 10)))} · prepared with SEA-V</p>
+<div class="page">
+  <header>
+    <img src="${esc(logo)}" alt="SEA-V">
+    <div class="title">
+      <h1>Sea Service Testimonial</h1>
+      <div class="ref">Ref ${esc(ref)}</div>
+      <div class="status">Confirmed by Master · ${esc(confirmedOn)}</div>
+    </div>
+  </header>
 
-  <h2>Seafarer</h2>
-  <table>${row("Name", crew.name)}${row("Date of birth", crew.dob ? prettyDate(crew.dob) : "")}${row("Nationality", crew.nationality)}${row("Discharge book", crew.discharge_book)}</table>
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">${esc(conf.capacity || "Sea service")}</div>
+        <h2>${esc(vessel.name || "Vessel")}</h2>
+        <p>${esc(prettyDate(conf.date_joined))} – ${esc(prettyDate(conf.date_left))}${vessel.flag ? ` · ${esc(vessel.flag)} flag` : ""}${vessel.gt ? ` · ${esc(vessel.gt)}` : ""}</p>
+      </div>
+      ${signedOn ? `<div class="onboard"><div class="eyebrow">Days signed on</div><b>${signedOn}</b></div>` : ""}
+    </section>
 
-  <h2>Vessel</h2>
-  <table>${row("Name", vessel.name)}${row("Type", vessel.type)}${row("Flag", vessel.flag)}${row("Official number", vessel.official_number)}${row("IMO", vessel.imo)}${row("Gross tonnage", vessel.gt)}${row("Length (m)", vessel.length)}${row("Propulsion (kW)", vessel.engine_kw)}</table>
+    <section class="figs">
+      ${figure("Actual sea service", "actual_sea")}
+      ${figure("Standby service", "standby")}
+      ${figure("Yard service", "yard")}
+      ${figure("Watchkeeping", "watchkeeping")}
+    </section>
 
-  <h2>Service</h2>
-  <table>${row("Capacity", conf.capacity)}${row("Joined", prettyDate(conf.date_joined))}${row("Left", prettyDate(conf.date_left))}</table>
-  <table class="days" style="margin-top:6px">
-    ${dayRow("Actual sea service (days)", "actual_sea")}
-    ${dayRow("Standby service (days)", "standby")}
-    ${dayRow("Yard service (days)", "yard")}
-    ${dayRow("Watchkeeping (days)", "watchkeeping")}
-  </table>
+    <section class="cols">
+      <div>
+        <h3>Seafarer</h3>
+        <dl>${item("Name", crew.name)}${item("Date of birth", crew.dob ? prettyDate(crew.dob) : "")}${item("Nationality", crew.nationality)}${item("Discharge book", crew.discharge_book)}${item("Capacity", conf.capacity)}</dl>
+      </div>
+      <div>
+        <h3>Vessel</h3>
+        <dl>${item("Name", vessel.name)}${item("Type", vessel.type)}${item("Flag", vessel.flag)}${item("Official number", vessel.official_number)}${item("IMO", vessel.imo)}${item("Gross tonnage", vessel.gt)}${item("Length (m)", vessel.length)}${item("Propulsion (kW)", vessel.engine_kw)}</dl>
+      </div>
+    </section>
 
-  <h2>Master's declaration</h2>
-  <p>I confirm that, to the best of my knowledge, this sea service is correct, and that I was master of this vessel (or am authorised to sign for it) during this period.</p>
-  <div class="box">
-    <table>${row("Name", t.master_name)}${row("Position", t.master_rank)}${row("CoC", t.coc_grade)}${row("CoC number", t.coc_number)}${row("Email", t.master_email)}${row("Comment", t.comment)}</table>
-    <p class="sig">${esc(t.signature || "")}</p>
-    <p class="muted">Signed electronically by typing their name, ${esc(prettyDate(String(t.answered_at || "").slice(0, 10)))}</p>
-  </div>
+    <section class="decl">
+      <div>
+        <h3>Master's declaration</h3>
+        <p class="statement">I confirm that, to the best of my knowledge, the sea service above is correct, and that I was master of this vessel (or am authorised to sign for it) during this period.</p>
+        <div class="sig">${esc(t.signature || "")}</div>
+        <div class="sigline">Signed electronically · ${esc(confirmedOn)}</div>
+        <dl>${item("Name", t.master_name)}${item("Position", t.master_rank)}${item("CoC", t.coc_grade)}${item("CoC number", t.coc_number)}${item("Email", t.master_email)}</dl>
+        ${t.comment ? `<div class="comment"><strong>Comment.</strong> ${esc(t.comment)}</div>` : ""}
+      </div>
+      <svg class="seal" viewBox="0 0 120 120" aria-hidden="true">
+        <defs><path id="sealArc" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/></defs>
+        <circle cx="60" cy="60" r="57" fill="none" stroke="#b8954a" stroke-width="2"/>
+        <circle cx="60" cy="60" r="35" fill="none" stroke="#b8954a" stroke-width="1"/>
+        <text font-size="9.5" font-weight="700" letter-spacing="2.6" fill="#8a6a26" font-family="Arial, sans-serif">
+          <textPath href="#sealArc">CONFIRMED BY MASTER · SEA-V ·</textPath>
+        </text>
+        <path d="M46 61 l9 9 l19 -21" fill="none" stroke="#0b1c2e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="60" y="88" text-anchor="middle" font-size="8" fill="#5b6b7d" font-family="Arial, sans-serif">${esc(answered)}</text>
+      </svg>
+    </section>
+  </main>
 
-  <p class="foot">
-    SEA-V record ${esc(entry.id)} · confirmed ${esc(String(t.answered_at || ""))}.<br>
-    This testimonial was confirmed by the named master through a single-use link sent to their email address.
-    SEA-V is not the MCA: for a Notice of Eligibility, large-yacht sea service must be verified by the PYA or
-    Nautilus (MCA notice MIN 543) — attach or transfer these details to their testimonial form.
-  </p>
-  <script>window.addEventListener("load", function () { window.print(); });</${"script"}>
+  <footer>
+    <p>Confirmed by the named master through a single-use link sent to their email address. SEA-V is not the MCA:
+      for a Notice of Eligibility, large-yacht sea service must be verified by the PYA or Nautilus (MCA notice MIN 543) —
+      attach this record or transfer its details to their testimonial form.</p>
+    <div class="site"><strong>sea-v.com</strong><br>Record ${esc(entry.id)}</div>
+  </footer>
+</div>
+<script>window.addEventListener("load", function () { setTimeout(function () { window.print(); }, 300); });</${"script"}>
 </body></html>`;
 
     const win = window.open("", "_blank");

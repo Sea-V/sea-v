@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v584**. Jack pushes every commit himself from
+- HEAD = **v585**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1432,7 +1432,38 @@ Topbar lifted to the dropdown menu's navy (Jack:
 stay identical (also the public pages' `.legal-topbar-inner`). Page title rows
 (`*-shell-head`) are a solid `--bridge-bar` band with a hairline border and
 4px corners (Jack: "i dont like that its floating") — was transparent with
-only a bottom rule.
+only a bottom rule. Then slimmed ("a little smaller so thinner"): padding
+`--bridge-head-pad-y/-x` 14px / 20px (was 28px), gaps 10/16px, icon
+`--bridge-head-icon` 44px (was 72px). Sea Time measured 107px tall at
+1280 (stacked: 277 -> 201px at ~700px). Then the square around the title icon went
+too ("less is more"): no border/background, `--bridge-head-icon` 28px box,
+26px svg in the page colour.
+
+### v585 — held certificates complete milestones; testimonial redesign
+- **Milestones** (Jack: "if you upload a cert that is in milestone it should
+  automatically complete that section"). `SeavData.certCompletingGroup`
+  + `CERT_GROUP_COMPLETED_BY` (seav-data.js): holding a CoC completes its
+  Deck Progression group and the prerequisite groups — OOW also completes
+  YM Offshore; Chief Mate <3000 also OOW + YM Ocean; higher Master tickets
+  cover the smaller-vessel Master groups. Expired certs count; matched by
+  catalogue CODE only (custom names do not). Used in
+  achievements-engine `isTriggerMet` (awards it), `computeMilestoneProgress`
+  (100%, "Certificate held — …") and `getInProgressCertGroups` (drops it
+  from "in progress"). The engine never revokes a cert-group milestone on a
+  page where certs are not loaded. Node 12/12; on Jack's data the dashboard
+  went from YMO 100% / YM Ocean 100% / Master500 94% to Master500 94% /
+  Master3000 47%.
+- **Testimonial printout redesigned** (Jack: "the logo, better layout ...
+  professional but new age"), `printTestimonial` in js/seav-testimonial.js:
+  full-bleed A4, navy header with the real logo (`location.origin/img/logo.png`
+  — the print window is about:blank, relative paths do not resolve), brass
+  rule, "Confirmed by Master" chip + reference `SV-<last 6 of id>-<yyyymmdd>`;
+  hero (capacity, vessel, dates, flag, GT, days signed on inclusive); four
+  big figures (brass top edge + "Master's figure · logged N" when the
+  captain corrected one); Seafarer | Vessel definition lists; declaration
+  with script signature, signature line, master details, comment, and an
+  SVG brass seal; footer with the MIN 543 note. print-color-adjust exact.
+  Rendered on a harness with the demo confirmation.
 
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES

@@ -34,6 +34,9 @@
   --bridge-caption: #8fa7bf;
   --bridge-radius: 4px;
   --bridge-radius-small: 3px;
+  --bridge-head-pad-y: 14px;
+  --bridge-head-pad-x: 20px;
+  --bridge-head-icon: 28px;
 
   /* The glass levels (typography.css) become flat surfaces. */
   --seav-glass-card: transparent;
@@ -108,6 +111,29 @@
   background: var(--bridge-bar) !important;
   border: 1px solid var(--bridge-rule) !important;
   border-radius: var(--bridge-radius) !important;
+}
+
+/* Slimmer band (Jack: "a little smaller so thinner"): tighter padding and
+   gaps, a 44px icon instead of 72px. */
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) {
+  padding: var(--bridge-head-pad-y) var(--bridge-head-pad-x) !important;
+  gap: 10px 16px !important;
+  min-height: 0 !important;
+}
+
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) [class$="-shell-icon"] {
+  width: var(--bridge-head-icon) !important;
+  min-width: var(--bridge-head-icon) !important;
+  height: var(--bridge-head-icon) !important;
+  /* Icon alone, no square around it (Jack: "less is more"). */
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) [class$="-shell-icon"] svg {
+  width: 26px !important;
+  height: 26px !important;
 }
 
 /* Page icons: plain outline in the page colour, square. */

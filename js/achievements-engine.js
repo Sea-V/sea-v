@@ -266,6 +266,11 @@
   function isTriggerMet(achievement) {
     const trigger = achievement.trigger || {};
 
+    // v582: holding the certificate (or a higher one) completes the group.
+    if (achievement.certGroup && window.SeavData?.certCompletingGroup?.(achievement.certGroup, getCerts())) {
+      return true;
+    }
+
     switch (trigger.type) {
       case "sea_days":
         return getTotalSeaDays() >= Number(trigger.minDays || 0);
@@ -437,7 +442,13 @@
             });
           }
         }
-      } else if (!PERMANENT_ONCE_EARNED_TRIGGERS.has(definition.trigger?.type)) {
+      } else if (
+        !PERMANENT_ONCE_EARNED_TRIGGERS.has(definition.trigger?.type) &&
+        // v582: a group can be completed by a held certificate, and certs
+        // are only loaded on some pages — with none loaded we cannot tell,
+        // so never revoke on that basis.
+        !(definition.certGroup && getCerts().length === 0)
+      ) {
         autoRecords.forEach((record) => {
           if (record.id) removeIds.push(record.id);
         });

@@ -3403,9 +3403,53 @@ function getSortedVesselOptions(vessels = []) {
     };
   }
 
+  /* v582 (Jack, 2026-10-09: "if you upload a cert that is in milestone it
+     should automatically complete that section"). Holding a CoC completes
+     its Deck Progression group AND the groups the MCA requires before it
+     (MSN 1858): e.g. OOW <3000GT also completes Yachtmaster Offshore;
+     Chief Mate <3000GT also completes OOW and Yachtmaster Ocean; a higher
+     Master ticket covers the smaller-vessel Master groups. Expired
+     certificates count — the ticket was still earned. Matched by catalogue
+     code (findSavedCertByCode), so a custom-typed certificate name does not
+     count. Groups key = the badges' certGroup (js/seav-badges.js). */
+  const CERT_GROUP_COMPLETED_BY = {
+    "RYA Yachtmaster Offshore": [
+      "RYA YMO", "IYT YMO", "RYA YMOCEAN", "IYT YMOCEAN", "OOW YACHT", "MASTER Y200",
+      "CHIEF MATE Y", "MASTER Y500", "MASTER Y3000", "CHIEF MATE Y UNLTD", "MASTER Y UNLTD"
+    ],
+    "RYA Yachtmaster Ocean": [
+      "RYA YMOCEAN", "IYT YMOCEAN", "CHIEF MATE Y", "MASTER Y3000", "CHIEF MATE Y UNLTD", "MASTER Y UNLTD"
+    ],
+    "Master <200GT": ["MASTER Y200", "MASTER Y500", "MASTER Y3000", "MASTER Y UNLTD"],
+    "OOW Yachts <3000GT": [
+      "OOW YACHT", "CHIEF MATE Y", "MASTER Y500", "MASTER Y3000", "CHIEF MATE Y UNLTD", "MASTER Y UNLTD"
+    ],
+    "Chief Mate Yachts <3000GT": ["CHIEF MATE Y", "MASTER Y3000", "CHIEF MATE Y UNLTD", "MASTER Y UNLTD"],
+    "Master <500GT": ["MASTER Y500", "MASTER Y3000", "MASTER Y UNLTD"],
+    "Master <3000GT": ["MASTER Y3000", "MASTER Y UNLTD"],
+    "Chief Mate Yachts Unlimited": ["CHIEF MATE Y UNLTD", "MASTER Y UNLTD"],
+    "Master Yachts Unlimited": ["MASTER Y UNLTD"]
+  };
+
+  // The saved certificate that completes this group, or null.
+  function certCompletingGroup(certGroup, certs) {
+    const codes = CERT_GROUP_COMPLETED_BY[certGroup];
+    if (!codes) return null;
+    for (const code of codes) {
+      const cert = findSavedCertByCode(certs, code);
+      if (cert) return cert;
+    }
+    return null;
+  }
+
   function computeMilestoneProgress(definition, context) {
     if (!definition) {
       return { current: 0, target: 1, percent: 0, label: "" };
+    }
+
+    const heldCert = certCompletingGroup(definition.certGroup, context?.certs || []);
+    if (heldCert) {
+      return { current: 1, target: 1, percent: 100, label: `Certificate held — ${heldCert.name || heldCert.code}` };
     }
 
     const seatimes = context?.seatimes || [];
@@ -3659,6 +3703,8 @@ function getSortedVesselOptions(vessels = []) {
     groups.forEach((groupDefs, key) => {
       const primary = groupDefs[groupDefs.length - 1];
       if (earned.has(primary.code)) return;
+      // v582: a held certificate completes the group — not "in progress".
+      if (certCompletingGroup(key, context?.certs || [])) return;
 
       const progresses = groupDefs.map((d) => computeMilestoneProgress(d, context));
       const percent = progresses.length ? Math.min(...progresses.map((p) => p.percent)) : 0;
@@ -3842,6 +3888,7 @@ function getSortedVesselOptions(vessels = []) {
   ========================================================= */
 
 window.SeavData = {
+  certCompletingGroup,
   parseDateOnly,
   KEYS,
   MANDATORY_CERTS,
