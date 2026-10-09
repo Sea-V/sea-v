@@ -660,19 +660,21 @@ body.app-page .dash {
   box-shadow: inset 0 0 0 1px rgba(91, 188, 255, 0.6);
 }
 
-/* Icon in a tinted badge, in the page's own colour (layout.css sets the
-   link's colour per page). */
+/* Icon alone, in the page's own colour (layout.css sets the link's colour
+   per page). v581 (Jack, 2026-10-09): the tinted badge behind each icon is
+   gone — "just leave the icon on alone, it looks better and sharper". */
 .app-topbar .topbar-menu .dash-icon {
   width: 24px;
   min-width: 24px;
   height: 24px;
-  border-radius: 7px;
-  background: color-mix(in srgb, currentColor 16%, transparent);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }
 
 .app-topbar .topbar-menu .dash-icon svg {
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
 }
 
 .app-topbar .topbar-menu .dash-link--disabled {

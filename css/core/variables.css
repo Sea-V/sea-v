@@ -107,13 +107,6 @@
   /* Land-Based Experience — color confirmed with Jack 2026-08-02, page
      built v572 (2026-10-05). */
   --page-land-experience: #ff7a5c;
-  /* Schengen days (v579): lime, the one hue no other page uses. */
-  --page-schengen: #a3e635;
-  --seav-sch-warn-border: rgba(255, 210, 90, 0.5);
-  --seav-sch-warn-bg: rgba(255, 210, 90, 0.1);
-  --seav-sch-over-border: rgba(255, 112, 112, 0.55);
-  --seav-sch-over-bg: rgba(255, 112, 112, 0.12);
-  --seav-sch-over-text: #ff9a9a;
 
   /* =========================================================
      META-GRID CARDS (tenders, references, future list pages)

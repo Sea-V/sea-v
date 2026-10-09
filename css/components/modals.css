@@ -989,7 +989,6 @@
 .modal-card--cyan { --modal-accent: rgb(57, 224, 196); }
 .modal-card--indigo { --modal-accent: rgb(130, 158, 255); }
 .modal-card--land { --modal-accent: var(--page-land-experience); }
-.modal-card--schengen { --modal-accent: var(--page-schengen); }
 
 /* The old 3px strip scrolled away with the content; the accent now lives
    on the pinned header band. */
@@ -1112,6 +1111,13 @@
 .modal-form .modal-foot .btn-blue {
   flex: 0 0 auto;
   margin: 0;
+}
+
+/* Info-box labels are field labels: blue in every modal (field-label-
+   typography.mdc). The older per-accent variants above tinted them in the
+   page colour, which the rule reserves for borders and icons. */
+.modal-card .modal-info-label {
+  color: var(--seav-field-label-color);
 }
 
 /* An actions row moved into the bar keeps its element (page scripts may

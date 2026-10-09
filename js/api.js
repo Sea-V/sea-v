@@ -599,7 +599,6 @@
 const OWNER_PROFILE_COLUMNS = [
   "id",
   // v579: private, owner-only (never in the public column list).
-  "schengen_stays",
   "expiry_reminders",
   "user_id",
   "username",
@@ -1278,12 +1277,6 @@ const SeavAPI = {
       return await this.deleteItemById(key, items[index].id);
     },
 
-    // CV generator draft, one private row per user (docs/schema-cv-drafts.sql,
-    // v561). Returns { draft, updatedAt } or null when there is no row yet;
-    // throws on a real error so the caller can fall back to the local copy
-    // instead of treating "failed" as "empty".
-    // v579 Schengen page: the member's own stays live in their own profile
-    // column, saved on their own so a profile-form save never blanks them.
     // v579: certificate expiry reminder emails on/off (own column, own save).
     async saveExpiryReminders(on) {
       const client = window.SeavSupabase;
@@ -1295,17 +1288,10 @@ const SeavAPI = {
       return !!on;
     },
 
-    async saveSchengenStays(stays) {
-      const client = window.SeavSupabase;
-      const userId = await resolveAuthUserId();
-      if (!client || !userId) throw new Error("Sign in required.");
-      const clean = (Array.isArray(stays) ? stays : []).slice(0, 300);
-      const { error } = await client.from("profile").update({ schengen_stays: clean }).eq("user_id", userId);
-      if (error) throw error;
-      window.SeavState?.updateProfile?.({ schengenStays: clean });
-      return clean;
-    },
-
+    // CV generator draft, one private row per user (docs/schema-cv-drafts.sql,
+    // v561). Returns { draft, updatedAt } or null when there is no row yet;
+    // throws on a real error so the caller can fall back to the local copy
+    // instead of treating "failed" as "empty".
     async fetchCvDraft() {
       const client = window.SeavSupabase;
       const userId = await resolveAuthUserId();

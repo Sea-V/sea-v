@@ -29,7 +29,6 @@
     "specialist-qualifications.html",
     "payslips.html",
     "land-experience.html",
-    "schengen.html",
     "admin.html"
   ]);
 

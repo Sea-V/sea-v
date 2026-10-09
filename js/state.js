@@ -105,9 +105,7 @@
     "hobbies-interests.html": ["hobbiesInterests", "specialistQualifications", "landExperiences"],
     "specialist-qualifications.html": ["specialistQualifications", "hobbiesInterests", "landExperiences"],
     "land-experience.html": ["landExperiences", "hobbiesInterests", "specialistQualifications"],
-    "payslips.html": ["payslips"],
-    // v579: Schengen days are worked out from passages (+ profile stays).
-    "schengen.html": ["navigationAreas"]
+    "payslips.html": ["payslips"]
   };
 
   const PAGE_FILE_HYDRATION_KEYS = {
@@ -125,8 +123,7 @@
     "hobbies-interests.html": ["hobbiesInterests"],
     "specialist-qualifications.html": ["specialistQualifications"],
     "land-experience.html": ["landExperiences"],
-    "payslips.html": ["payslips"],
-    "schengen.html": []
+    "payslips.html": ["payslips"]
   };
 
   // "/" is the LOGIN page, not the dashboard. This returned "dashboard.html"

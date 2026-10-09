@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v581**. Jack pushes every commit himself from
+- HEAD = **v582**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1380,8 +1380,30 @@ quote footers and the dashboard green tick hidden; dashboard tiles show the
 page colour as a 3px left edge, monochrome icons, small-caps labels, brass
 progress bars. Field labels keep #5bbcff. **To revert: delete the one
 @import line in styles.css.** Seen on harnesses: dashboard (Jack's data),
-Sea Time page and its form. Other pages inherit through the same tokens
-and lists — check new boxes against the list in the file.
+Sea Time page and its form.
+
+### v582 — square every corner; Schengen Days removed
+Jack, same day as v581: **every rounded corner**
+— `scripts/generate-bridge-corners.mjs` reads the app-page stylesheets and
+writes all 296 rounded selectors into the GENERATED block of
+theme-bridge.css (circles, avatars, toggles, badge-unlock and loaders left
+round). **Re-run it after changing any page stylesheet.** Measured 0
+rounded elements on dashboard, navigation, certificates, hobbies, land
+and in every modal there. Menu icons lost their tinted badge for good
+(topbar.css, not the theme); modal head + About point icons likewise (in
+the theme). Modal info-box labels are blue in every modal (modals.css;
+the old per-accent variants broke the label rule). Search (button + panel) was
+still see-through — it used `--seav-glass-card`, which Bridge makes
+transparent — so the theme gives it solid surfaces (`--seav-menu-bg` panel,
+`--bridge-surface` button/field), a brass outline on the selected result,
+and bare result icons. **Anything else styled with `--seav-glass-card`
+will look see-through under Bridge — give it a solid surface.**
+**Schengen Days REMOVED** (Jack: "its too much") — page, js, css, menu,
+search, engine in seav-data.js, privacy line, page lists. Data:
+0 of 15 profiles had stays. **`profile.schengen_stays` still exists** (empty,
+private): v581 still selected it, so the column was left in place. After
+v582 is live, drop it with a new migration and remove the schengen probe
+from test-supabase.mjs.
 
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES

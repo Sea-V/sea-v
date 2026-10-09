@@ -57,7 +57,6 @@ function mapProfileFromSupabase(p) {
     trbStatus: p.trb_status || "not_started",
     trbTargetQualification: p.trb_target_qualification || "",
     trbNotes: p.trb_notes || "",
-    schengenStays: Array.isArray(p.schengen_stays) ? p.schengen_stays : [],
     expiryReminders: p.expiry_reminders !== false,
     createdAt: p.created_at || "",
     updatedAt: p.updated_at || ""

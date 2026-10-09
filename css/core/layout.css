@@ -745,7 +745,6 @@ body.app-page::after {
 .dash-link[href="onboard-experience.html"] { color: var(--page-onboard-experience); }
 .dash-link[href="hobbies-interests.html"] { color: var(--page-hobbies-interests); }
 .dash-link[href="land-experience.html"] { color: var(--page-land-experience); }
-.dash-link[href="schengen.html"] { color: var(--page-schengen); }
 
 .dash-link span:last-child {
   color: rgba(255,255,255,0.78);
