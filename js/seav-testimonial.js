@@ -116,10 +116,14 @@
       const master = Number(conf[key] ?? 0);
       const corrected = mine !== master;
       return `<div class="fig${corrected ? " is-corrected" : ""}">
-        <b>${master}</b><span>${esc(label)}</span>
-        ${corrected ? `<em>Master's figure · logged ${mine}</em>` : ""}
+        <b>${master.toLocaleString("en-GB")}</b><span>${esc(label)}</span>
+        ${corrected ? `<em>Master's figure · logged ${mine.toLocaleString("en-GB")}</em>` : ""}
       </div>`;
     };
+
+    // v586: miles and owner / guest days. Testimonials confirmed before
+    // v586 have neither key, so the row only shows when there is a figure.
+    const hasExtras = ["miles", "owner_guest"].some((k) => Number(conf[k] || 0) > 0 || Number(logged[k] || 0) > 0);
 
     const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -130,12 +134,12 @@
   :root { --navy: #0b1c2e; --navy-2: #12283e; --brass: #b8954a; --ink: #0b1733; --muted: #5b6b7d; --rule: #dfe5ec; --soft: #f4f6f9; }
   body { margin: 0; font: 12.5px/1.5 -apple-system, "Segoe UI", Inter, Arial, sans-serif; color: var(--ink); background: #fff; }
   .page { width: 210mm; min-height: 297mm; margin: 0 auto; display: flex; flex-direction: column; background: #fff; }
-  header { background: var(--navy); color: #fff; padding: 22px 28px 20px; display: flex; align-items: center; gap: 20px; border-bottom: 3px solid var(--brass); }
-  header img { height: 40px; width: auto; }
-  header .title { margin-left: auto; text-align: right; }
-  header h1 { margin: 0; font-size: 19px; letter-spacing: .14em; text-transform: uppercase; font-weight: 800; }
-  header .ref { margin-top: 4px; font-size: 11px; color: #9fb4c8; letter-spacing: .06em; }
-  header .status { display: inline-block; margin-top: 8px; padding: 3px 10px; border: 1px solid var(--brass); color: #e7cf98; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; border-radius: 2px; }
+  /* v586: one slim navy bar, logo at the CV generator's size (7.5mm). */
+  header { background: var(--navy); color: #fff; padding: 9px 28px; display: flex; align-items: center; gap: 12px; }
+  header img { width: 7.5mm; height: auto; display: block; }
+  header h1 { margin: 0; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; font-weight: 700; }
+  header .meta { margin-left: auto; text-align: right; font-size: 10px; line-height: 1.4; color: #b7c6d6; letter-spacing: .04em; }
+  header .meta b { color: #fff; font-weight: 600; }
   main { padding: 24px 28px 8px; flex: 1; }
   .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
   .eyebrow { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
@@ -148,6 +152,10 @@
   .fig.is-corrected { border-top-color: var(--brass); }
   .fig b { display: block; font-size: 26px; line-height: 1.05; font-weight: 800; font-variant-numeric: tabular-nums; }
   .fig span { display: block; margin-top: 4px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .extras { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 0 6px; }
+  .extras .fig { background: #fff; border: 1px solid var(--rule); border-top-width: 1px; padding: 9px 12px 8px; }
+  .extras .fig b { font-size: 18px; }
+  .extras-note { grid-column: 3 / -1; align-self: center; font-size: 10.5px; color: var(--muted); }
   .fig em { display: block; margin-top: 4px; font-style: normal; font-size: 10.5px; color: #8a6a26; }
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 18px; }
   h3 { margin: 0 0 8px; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--navy); padding-bottom: 6px; border-bottom: 2px solid var(--navy); }
@@ -171,11 +179,8 @@
 <div class="page">
   <header>
     <img src="${esc(logo)}" alt="SEA-V">
-    <div class="title">
-      <h1>Sea Service Testimonial</h1>
-      <div class="ref">Ref ${esc(ref)}</div>
-      <div class="status">Confirmed by Master · ${esc(confirmedOn)}</div>
-    </div>
+    <h1>Sea Service Testimonial</h1>
+    <div class="meta"><b>Confirmed by Master · ${esc(confirmedOn)}</b><br>Ref ${esc(ref)}</div>
   </header>
 
   <main>
@@ -194,6 +199,11 @@
       ${figure("Yard service", "yard")}
       ${figure("Watchkeeping", "watchkeeping")}
     </section>
+    ${hasExtras ? `<section class="extras">
+      ${figure("Nautical miles", "miles")}
+      ${figure("Owner / guests onboard", "owner_guest")}
+      <p class="extras-note">Recorded for the crew member's career history. Not part of MCA sea service.</p>
+    </section>` : ""}
 
     <section class="cols">
       <div>

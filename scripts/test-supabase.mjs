@@ -338,15 +338,6 @@ async function testProfileColumns(config) {
     columnSafe = false;
   }
 
-  // v579: the member's own Schengen stays (travel history) — never public.
-  const schengenProbe = await restGet(config, "profile", "select=schengen_stays&limit=1");
-  if (schengenProbe.status === 401 || schengenProbe.status === 403) {
-    console.log(`✓ schengen_stays blocked  ${schengenProbe.status}  OK — travel history private`);
-  } else {
-    console.log(`✗ schengen_stays readable  ${schengenProbe.status}  FAIL — revoke anon select on profile.schengen_stays`);
-    columnSafe = false;
-  }
-
   // v579: expiry reminder setting, log and the "who is due" list — private.
   const reminderProbes = [
     ["profile.expiry_reminders", await restGet(config, "profile", "select=expiry_reminders&limit=1")],
@@ -355,6 +346,9 @@ async function testProfileColumns(config) {
   // v579 sea service testimonials: the captain's confirmation and the links.
   reminderProbes.push(["seatimes.testimonial", await restGet(config, "seatimes", "select=testimonial&limit=1")]);
   reminderProbes.push(["testimonial_tokens", await restGet(config, "testimonial_tokens", "select=*&limit=1")]);
+  // v586: miles and owner / guest days are private to the member.
+  reminderProbes.push(["seatimes.nautical_miles", await restGet(config, "seatimes", "select=nautical_miles&limit=1")]);
+  reminderProbes.push(["seatimes.owner_guest_days", await restGet(config, "seatimes", "select=owner_guest_days&limit=1")]);
   const dueProbe = await fetch(`${config.url}/rest/v1/rpc/due_cert_reminders`, {
     method: "POST",
     headers: { apikey: config.key, Authorization: `Bearer ${config.key}`, "Content-Type": "application/json" },

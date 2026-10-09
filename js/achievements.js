@@ -647,6 +647,16 @@
      Milestones with no prerequisites declared (geographic crossings, manual
      awards) behave exactly as before: unlocked means ready.
      --------------------------------------------------------------- */
+  // v586 (Jack: "the chief mate and the oow didnt automatically complete even
+  // though i have the cert uploaded"). The badges WERE awarded, but the row
+  // also checks every prerequisite course, so a crew member who already
+  // holds the ticket still read "Sea time met · N certificates outstanding".
+  // Holding the CoC (or a higher one — SeavData.certCompletingGroup) makes
+  // the row complete: "Certificate held", tick, no outstanding list.
+  function heldCertFor(definition) {
+    return window.SeavData?.certCompletingGroup?.(definition?.certGroup, window.SeavState?.certs || []) || null;
+  }
+
   function certRowReadiness(unlocked, prerequisites) {
     if (!unlocked) return "progress";
     if (!prerequisites || !prerequisites.total) return "ready";
@@ -672,14 +682,15 @@
 
     const unlocked = instances.length > 0;
     const tier = full.badge?.tier || "default";
-    const imagePath = window.SeavBadges.resolveBadgeImage(definition.badgeKey, unlocked);
+    const imagePath = window.SeavBadges.resolveBadgeImage(definition.badgeKey, unlocked || !!heldCertFor(definition));
     const progress = window.SeavAchievementEngine?.getProgressForDefinition?.(definition) || {
       percent: unlocked ? 100 : 0,
       label: ""
     };
     const subRequirements = window.SeavAchievementEngine?.getSubRequirements?.(definition) || [];
-    const prerequisites = window.SeavAchievementEngine?.getPrerequisites?.(definition) || null;
-    const readiness = certRowReadiness(unlocked, prerequisites);
+    const held = heldCertFor(definition);
+    const prerequisites = held ? null : window.SeavAchievementEngine?.getPrerequisites?.(definition) || null;
+    const readiness = held ? "ready" : certRowReadiness(unlocked, prerequisites);
 
     const primary = instances[0];
     const unlockedTitle = unlocked
@@ -688,10 +699,12 @@
 
     return buildMinimalCertDropdown({
       tier,
-      unlocked,
-      unlockedTitle,
+      unlocked: unlocked || !!held,
+      unlockedTitle: held ? `Certificate held · ${held.name || held.code}` : unlockedTitle,
       title: full.title || "",
-      subtitle: certRowSubtitle(unlocked, primary?.date, progress.percent, readiness, prerequisites),
+      subtitle: held
+        ? `Certificate held · ${held.name || held.code}`
+        : certRowSubtitle(unlocked, primary?.date, progress.percent, readiness, prerequisites),
       imagePath,
       description: full.description || "",
       subRequirements,
@@ -734,7 +747,7 @@
     const primaryInstances = earnedGroups.get(primary.code) || [];
     const unlocked = primaryInstances.length > 0;
     const tier = full.badge?.tier || "default";
-    const imagePath = window.SeavBadges.resolveBadgeImage(primary.badgeKey, unlocked);
+    const imagePath = window.SeavBadges.resolveBadgeImage(primary.badgeKey, unlocked || !!heldCertFor(primary));
 
     const subProgresses = breakdownDefinitions.map(
       (definition) => window.SeavAchievementEngine?.getProgressForDefinition?.(definition) || { percent: 0 }
@@ -762,8 +775,9 @@
     // Prerequisites belong to the certificate as a whole, so they come from
     // the summary definition — the one buildCertRow drops from the sea-time
     // breakdown because its row would only re-derive "are the others met".
-    const prerequisites = window.SeavAchievementEngine?.getPrerequisites?.(primary) || null;
-    const readiness = certRowReadiness(unlocked, prerequisites);
+    const heldGroup = heldCertFor(primary);
+    const prerequisites = heldGroup ? null : window.SeavAchievementEngine?.getPrerequisites?.(primary) || null;
+    const readiness = heldGroup ? "ready" : certRowReadiness(unlocked, prerequisites);
 
     const primaryRecord = primaryInstances[0];
     const unlockedTitle = unlocked
@@ -772,10 +786,12 @@
 
     return buildMinimalCertDropdown({
       tier,
-      unlocked,
-      unlockedTitle,
+      unlocked: unlocked || !!heldGroup,
+      unlockedTitle: heldGroup ? `Certificate held · ${heldGroup.name || heldGroup.code}` : unlockedTitle,
       title: certGroupKey,
-      subtitle: certRowSubtitle(unlocked, primaryRecord?.date, percent, readiness, prerequisites),
+      subtitle: heldGroup
+        ? `Certificate held · ${heldGroup.name || heldGroup.code}`
+        : certRowSubtitle(unlocked, primaryRecord?.date, percent, readiness, prerequisites),
       imagePath,
       description: full.description || "",
       subRequirements,

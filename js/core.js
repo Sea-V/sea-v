@@ -337,34 +337,6 @@ const app = {
      SHARED LAYOUT TEMPLATES
   ========================================================= */
 
-  function renderPublicTopbar(active = "") {
-    return `
-      <header class="topbar public-topbar">
-        <div class="topbar-inner">
-          <nav class="nav-left">
-            <a href="index.html" ${active === "home" ? 'class="active"' : ""}>Home</a>
-            <a href="contact.html" ${active === "contact" ? 'class="active"' : ""}>Contact</a>
-            <a href="about.html" ${active === "about" ? 'class="active"' : ""}>About</a>
-          </nav>
-
-          <a class="brand" href="index.html">
-            <img
-              src="img/logo.png?v=10"
-              class="seav-logo seav-logo--topbar"
-              alt="SEA-V"
-              width="34"
-              height="34"
-            />
-          </a>
-
-          <div class="nav-right">
-            <a class="login" href="index.html">Login</a>
-          </div>
-        </div>
-      </header>
-    `;
-  }
-
   function renderAppTopbar() {
     return `
       <header class="topbar app-topbar">
@@ -636,113 +608,6 @@ function renderAccountMenu() {
   `;
 }
 
-function groupSidebarAchievements(records) {
-  const groups = new Map();
-
-  // Cross-check against the live badge catalog, same as the private
-  // Milestones page (js/achievements.js groupEarnedByCode) and the public
-  // profile (js/public-profile-sections.js renderAchievements) — a crew
-  // member's older records can still reference a badge code that was later
-  // pruned from js/seav-badges.js (see
-  // project_seav_badges_pruned_to_real_milestones). Without this check
-  // those pruned badges rendered here as a generic "SEA-V / CREW BADGE"
-  // placeholder instead of disappearing like they do everywhere else.
-  //
-  // 2026-08-05, per Jack: this list is now Seafarer Awards ONLY (manually
-  // logged career moments — crossings etc). Earned Deck Progression badges
-  // used to show here too, but Jack wants the Milestones widget to show
-  // only what's currently in progress (see renderDashboardInProgress below)
-  // plus these — showing an already-earned Deck Progression badge here as
-  // well would just repeat what the in-progress list already summarized.
-  records.forEach((item) => {
-    if (!item || item.status === "Declined" || !item.code) return;
-    const definition = window.SeavBadges?.getAchievement?.(item.code);
-    if (!definition || definition.approvalRequired !== true) return;
-    const key = item.code;
-    groups.set(key, [...(groups.get(key) || []), item]);
-  });
-
-  return [...groups.values()].map((instances) => {
-    const sorted = [...instances].sort((a, b) => {
-      const da = a.date ? new Date(a.date) : new Date(0);
-      const db = b.date ? new Date(b.date) : new Date(0);
-      return db - da;
-    });
-    return sorted;
-  });
-}
-
-// Bigger "progress row" cards — same component the private Milestones page
-// uses for Deck Progression (css/pages/achievements.css .ach-progress-row,
-// already loaded globally via styles.css's @import) — instead of the old
-// small hex-icon grid that only showed a title on hover (useless on mobile,
-// no hover). Jack asked (2026-08-05) for badges "big enough to make a
-// statement" that also show the progress bar, so this always renders a bar:
-// 100% + an unlock summary for earned milestones, or the real in-progress
-// percent (via achievements-engine.js) for anything not yet earned.
-// 2026-08-22, per Jack: Seafarer Awards on the dashboard are the same card as
-// on Milestones now, in a grid — they were full-width rows "taking the entire
-// row up for no reason", each carrying a progress bar hardcoded to 100% that
-// could never say anything.
-//
-// The markup comes from SeavCards.buildAwardTile (js/seav-cards.js), shared
-// with the public profile, so one award looks like itself everywhere. The
-// in-progress rows above (renderDashboardInProgress) are untouched and keep
-// their bars — those are genuinely partial.
-function buildDashboardMilestoneRow(instances) {
-  return window.SeavCards?.buildAwardTile?.(instances[0], instances) || "";
-}
-
-function renderDashboardInProgress() {
-  const mount = document.getElementById("dashNextMilestone");
-  if (!mount) return;
-
-  const inProgress = window.SeavAchievementEngine?.getInProgressMilestones?.() || [];
-  if (!inProgress.length) {
-    mount.hidden = true;
-    mount.innerHTML = "";
-    return;
-  }
-
-  mount.hidden = false;
-  mount.innerHTML = inProgress
-    .map((entry) => {
-      const imagePath = window.SeavBadges.resolveBadgeImage(entry.full.badgeKey, false);
-      return `
-        <div class="ach-next-milestone">
-          <div class="ach-next-badge">
-            <img src="${window.Seav.escapeHtml(imagePath)}" alt="" />
-          </div>
-          <div class="ach-next-copy">
-            <span class="ach-next-label">In progress</span>
-            <strong>${window.Seav.escapeHtml(entry.certGroupKey)}</strong>
-            <span class="ach-next-progress-label">${window.Seav.escapeHtml(entry.label || "")}</span>
-            <div class="ach-progress-bar" role="progressbar" aria-valuenow="${entry.percent}" aria-valuemin="0" aria-valuemax="100">
-              <span style="width: ${entry.percent}%"></span>
-            </div>
-          </div>
-        </div>
-      `;
-    })
-    .join("");
-}
-
-function renderSidebarAchievements() {
-  const container = document.getElementById("sidebarAchievements");
-  if (!container) return;
-
-  renderDashboardInProgress();
-
-  const grouped = groupSidebarAchievements(window.SeavState?.achievements || []);
-
-  if (!grouped.length) {
-    container.innerHTML = `<div class="sidebar-badge-empty">No Seafarer Achievements logged yet</div>`;
-    return;
-  }
-
-  container.innerHTML = grouped.map(buildDashboardMilestoneRow).filter(Boolean).join("");
-}
-
   function renderSharedModals() {
     return `
       <div class="modal-overlay" id="modalOverlay" hidden></div>
@@ -875,11 +740,8 @@ function renderSidebarAchievements() {
 
     if (topbarMount) {
       const topbarType = document.body.dataset.topbar || "";
-      const topbarActive = document.body.dataset.topbarActive || "";
 
-      if (topbarType === "public") {
-        topbarMount.innerHTML = renderPublicTopbar(topbarActive);
-      } else if (topbarType === "app") {
+      if (topbarType === "app") {
         topbarMount.innerHTML = renderAppTopbar();
         wireTopbarProfile();
         wireTopbarSearch();
@@ -896,19 +758,8 @@ function renderSidebarAchievements() {
     // These helpers now find their elements there.
     sidebarMount.hidden = true;
 
-    renderSidebarAchievements();
     wireLogout();
     wireSidebarPublicProfile();
-
-    document.addEventListener(
-      "seav:state-ready",
-      renderSidebarAchievements
-    );
-
-    document.addEventListener(
-      "seav:data-updated",
-      renderSidebarAchievements
-    );
   }
 }
 
@@ -957,7 +808,7 @@ function renderSidebarAchievements() {
 
   function setActiveSidebarLink() {
     // v565: the section links live in the topbar Menu now.
-    const links = document.querySelectorAll(".topbar-menu .dash-link, .dash-sidebar .dash-link");
+    const links = document.querySelectorAll(".topbar-menu .dash-link");
     const topbarLinks = document.querySelectorAll(".app-topbar .nav-left > a.topbar-quick-link[href]");
     if (!links.length && !topbarLinks.length) return;
 
@@ -1067,7 +918,7 @@ function renderSidebarAchievements() {
 
     const readPages = () => {
       const seen = new Set();
-      return [...document.querySelectorAll("#sidebarMount a.dash-link[href]")]
+      return [...document.querySelectorAll("#topbarMenuPanel a.dash-link[href]")]
         .filter((a) => !a.classList.contains("dash-logout"))
         .map((a) => {
           const icon = a.querySelector(".dash-icon");
@@ -1810,18 +1661,6 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
     target.prepend(banner);
   });
-
-  function updateSidebarBadges() {
-    renderSidebarAchievements();
-  }
-
-  if (window.SeavState?.ready) {
-    updateSidebarBadges();
-  } else {
-    document.addEventListener("seav:state-ready", updateSidebarBadges, { once: true });
-  }
-
-  document.addEventListener("seav:data-updated", updateSidebarBadges);
 
   const footerYear = document.getElementById("footerYear");
   if (footerYear) {

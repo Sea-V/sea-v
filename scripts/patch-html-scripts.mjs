@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 585;
+const ASSET_VERSION = 586;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
@@ -119,10 +119,14 @@ function patchAppPage(html) {
    * page and never ported to the Dashboard/Public Profile's own separate map
    * code, so it just didn't exist on those pages until now.
    */
-  if (next.includes("js/dashboard-snippets.js") && !next.includes("js/navigation-passage.js")) {
+  // v586: keyed on navigation-helpers.js. It used to test for
+  // navigation-passage.js, which the dashboard dropped on 2026-08-22, so this
+  // rule re-inserted the whole block (topojson, ports and helpers twice) on
+  // every run. The dashboard needs ports + helpers only.
+  if (next.includes("js/dashboard-snippets.js") && !next.includes("js/navigation-helpers.js")) {
     next = next.replace(
       '<script src="js/dashboard-snippets.js',
-      '<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>\n  <script src="js/navigation-ports.js" defer></script>\n  <script src="js/navigation-helpers.js" defer></script>\n  <script src="js/navigation-passage.js" defer></script>\n  <script src="js/navigation-routing.js" defer></script>\n  <script src="js/dashboard-snippets.js'
+      '<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>\n  <script src="js/navigation-ports.js" defer></script>\n  <script src="js/navigation-helpers.js" defer></script>\n  <script src="js/dashboard-snippets.js'
     );
   }
 
@@ -251,13 +255,13 @@ function patchPublicProfile(html) {
   }
 
   // Same reasoning as the dashboard: give the public profile's navigation
-  // stats access to the routed sea-lane distance calc (not just haversine)
-  // and the shared country-highlight map overlay (needs navigation-ports.js
+  // stats access to the passage distance calc (navigation-routing.js, the
+  // sea-lane graph, was removed in v586 — great-circle legs since v530) and the shared country-highlight map overlay (needs navigation-ports.js
   // for the ISO lookup + topojson-client to parse the world-boundaries file).
   if (next.includes("js/public-profile-utils.js") && !next.includes("js/navigation-passage.js")) {
     next = next.replace(
       '<script src="js/public-profile-utils.js',
-      '<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>\n  <script src="js/navigation-ports.js" defer></script>\n  <script src="js/navigation-helpers.js" defer></script>\n  <script src="js/navigation-passage.js" defer></script>\n  <script src="js/navigation-routing.js" defer></script>\n  <script src="js/public-profile-utils.js'
+      '<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>\n  <script src="js/navigation-ports.js" defer></script>\n  <script src="js/navigation-helpers.js" defer></script>\n  <script src="js/navigation-passage.js" defer></script>\n  <script src="js/public-profile-utils.js'
     );
   }
 

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v585**. Jack pushes every commit himself from
+- HEAD = **v586**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1464,6 +1464,29 @@ too ("less is more"): no border/background, `--bridge-head-icon` 28px box,
   with script signature, signature line, master details, comment, and an
   SVG brass seal; footer with the MIN 543 note. print-color-adjust exact.
   Rendered on a harness with the demo confirmation.
+
+### v586 — held CoCs complete Milestones rows; miles + owner/guest days; slim testimonial bar
+- Jack: "the chief mate and the oow didnt automatically complete even though
+  i have the cert uploaded". The BADGES were already awarded (v585); the
+  Milestones page rows still read "Sea time met · N certificates
+  outstanding" because `certRowReadiness` checks the prerequisite courses.
+  `heldCertFor()` in achievements.js (wraps `SeavData.certCompletingGroup`):
+  a held CoC (or higher) makes the row ready, hides the prerequisites list,
+  shows "Certificate held · <name>" and the unlocked badge art.
+- **DB, LIVE:** `seatimes.nautical_miles` (0..200000) and
+  `seatimes.owner_guest_days` (0..5000), both nullable (blank = not
+  recorded), private (anon column grants not extended).
+  `docs/schema-seatimes-miles-owner-guest.sql`; testimonial preview /
+  complete carry `miles` + `owner_guest`, the guard marks a Confirmed entry
+  Changed when either is edited. Sea Time form: two new fields (owner/guest
+  days can't exceed days signed on); table shows them under the total.
+  Captain's page (verify-testimonial) can correct both. NOT MCA figures —
+  the printout shows them in a separate row saying so, and only when set.
+- Testimonial printout header: one slim navy bar (no brass rule, no chip),
+  logo 7.5mm like the CV generator's brand mark.
+- PYA / Nautilus testimonial templates are members-only (not readable
+  from here); the public guidance asks for sea / standby / yard (+ watch)
+  broken out, which the printout already does.
 
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES

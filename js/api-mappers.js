@@ -199,6 +199,9 @@ function mapVesselToSupabase(item) {
       standbyServiceDays: Number(s.standby_service_days || 0),
       yardServiceDays: Number(s.yard_service_days || 0),
       watchkeepingDays: Number(s.watchkeeping_days || 0),
+      // v586: optional extras (not MCA figures). null = not recorded.
+      ownerGuestDays: s.owner_guest_days == null ? null : Number(s.owner_guest_days),
+      nauticalMiles: s.nautical_miles == null ? null : Number(s.nautical_miles),
       verificationStatus: s.verification_status || "Logged",
       // v579: the captain's online confirmation (read-only for the member;
       // never sent back by mapSeatimeToSupabase — a DB trigger guards it).
@@ -209,6 +212,13 @@ function mapVesselToSupabase(item) {
       createdAt: s.created_at || "",
       updatedAt: s.updated_at || ""
     };
+  }
+
+  // A blank optional figure stays null ("not recorded"), not 0.
+  function optionalCount(value) {
+    if (value === "" || value == null) return null;
+    const n = Math.round(Number(value));
+    return Number.isFinite(n) && n >= 0 ? n : null;
   }
 
   function mapSeatimeToSupabase(item) {
@@ -227,6 +237,8 @@ function mapVesselToSupabase(item) {
       standby_service_days: Number(item.standbyServiceDays || 0),
       yard_service_days: Number(item.yardServiceDays || 0),
       watchkeeping_days: Number(item.watchkeepingDays || 0),
+      owner_guest_days: optionalCount(item.ownerGuestDays),
+      nautical_miles: optionalCount(item.nauticalMiles),
       verification_status: item.verificationStatus || "Logged",
       notes: item.notes || "",
       attachment: sanitizeFileForStorage(item.attachment, STORAGE_BUCKETS.SEATIME_FILES),

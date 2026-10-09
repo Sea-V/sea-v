@@ -89,6 +89,8 @@
     $("vt_standby").value = svc.standby ?? 0;
     $("vt_yard").value = svc.yard ?? 0;
     $("vt_watchkeeping").value = svc.watchkeeping ?? 0;
+    $("vt_owner_guest").value = svc.owner_guest ?? 0;
+    $("vt_miles").value = svc.miles ?? 0;
     $("vt_master_name").value = data.master_name || "";
     show("vtMain");
   }
@@ -150,7 +152,9 @@
               actual_sea: $("vt_actual_sea").value,
               standby: $("vt_standby").value,
               yard: $("vt_yard").value,
-              watchkeeping: $("vt_watchkeeping").value
+              watchkeeping: $("vt_watchkeeping").value,
+              owner_guest: $("vt_owner_guest").value,
+              miles: $("vt_miles").value
             }
           }
         });

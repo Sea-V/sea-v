@@ -111,6 +111,23 @@
     return vessel?.name || "—";
   }
 
+  // Blank stays null ("not recorded") so 0 can still be a real answer.
+  function optionalNumber(value) {
+    const text = String(value ?? "").trim();
+    if (!text) return null;
+    const n = Math.round(Number(text));
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  }
+
+  // v586: miles and owner / guest days sit under the total, so the table
+  // keeps its MCA columns.
+  function extrasLine(entry) {
+    const parts = [];
+    if (entry?.nauticalMiles != null) parts.push(`${Number(entry.nauticalMiles).toLocaleString("en-GB")} NM`);
+    if (entry?.ownerGuestDays != null) parts.push(`${entry.ownerGuestDays} owner / guest days`);
+    return parts.length ? `<br><small class="muted">${Seav.escapeHtml(parts.join(" · "))}</small>` : "";
+  }
+
   function getSeatimeDayValue(entry, longKey, shortKey) {
   return toNumber(entry?.[longKey] ?? entry?.[shortKey] ?? 0);
 }
@@ -213,7 +230,7 @@
         <td>${getSeatimeDayValue(x, "standbyServiceDays", "standby")}</td>
         <td>${getSeatimeDayValue(x, "yardServiceDays", "yard")}</td>
         <td>${getSeatimeDayValue(x, "watchkeepingDays", "watchkeeping")}</td>
-        <td>${total}</td>
+        <td>${total}${extrasLine(x)}</td>
         <td><span class="${Seav.escapeHtml(verificationDisplay.className)}">${Seav.escapeHtml(verificationDisplay.label)}</span>${window.SeavTestimonial?.statusHtml(x) || ""}</td>
         <td>${attachCell}</td>
         <td class="row-actions">
@@ -460,6 +477,10 @@
       entry.yardServiceDays > 0 ? String(entry.yardServiceDays) : "";
     document.getElementById("st_watchkeeping").value =
       entry.watchkeepingDays > 0 ? String(entry.watchkeepingDays) : "";
+    document.getElementById("st_owner_guest").value =
+      entry.ownerGuestDays == null ? "" : String(entry.ownerGuestDays);
+    document.getElementById("st_miles").value =
+      entry.nauticalMiles == null ? "" : String(entry.nauticalMiles);
     document.getElementById("st_status").value = entry.verificationStatus || "Logged";
     document.getElementById("st_notes").value = entry.notes || "";
 
@@ -490,6 +511,8 @@
     document.getElementById("st_standby").value = "";
     document.getElementById("st_yard").value = "";
     document.getElementById("st_watchkeeping").value = "";
+    document.getElementById("st_owner_guest").value = "";
+    document.getElementById("st_miles").value = "";
 
     renderSeatimeAttachmentHint(null, { isNewSelection: false });
 
@@ -533,6 +556,9 @@
       standbyServiceDays: toNumber(document.getElementById("st_standby")?.value),
       yardServiceDays: toNumber(document.getElementById("st_yard")?.value),
       watchkeepingDays: toNumber(document.getElementById("st_watchkeeping")?.value),
+      // v586: blank = not recorded (null), unlike the MCA day fields.
+      ownerGuestDays: optionalNumber(document.getElementById("st_owner_guest")?.value),
+      nauticalMiles: optionalNumber(document.getElementById("st_miles")?.value),
       verificationStatus: document.getElementById("st_status")?.value || "Logged",
       notes: document.getElementById("st_notes")?.value.trim() || "",
       file: document.getElementById("st_attachment")?.files?.[0] || null
@@ -678,6 +704,15 @@
           Math.round((new Date(formData.dateLeft) - new Date(formData.dateJoined)) / 86400000) + 1;
         const loggedDays =
           formData.actualSeaServiceDays + formData.standbyServiceDays + formData.yardServiceDays;
+        if (signedOn > 0 && formData.ownerGuestDays != null && formData.ownerGuestDays > signedOn) {
+          Seav.notify(
+            "error",
+            "Check owner / guest days",
+            `Owner / guest days (${formData.ownerGuestDays}) can't be more than the ${signedOn} days you were signed on.`
+          );
+          return;
+        }
+
         if (signedOn > 0 && loggedDays > signedOn) {
           Seav.notify(
             "error",
@@ -719,6 +754,8 @@
           standbyServiceDays: formData.standbyServiceDays,
           yardServiceDays: formData.yardServiceDays,
           watchkeepingDays: formData.watchkeepingDays,
+          ownerGuestDays: formData.ownerGuestDays,
+          nauticalMiles: formData.nauticalMiles,
           verificationStatus: formData.verificationStatus,
           notes: formData.notes,
           attachment,
