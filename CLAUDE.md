@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v582**. Jack pushes every commit himself from
+- HEAD = **v583**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1372,7 +1372,7 @@ unchanged). Mostly a token swap: the v552/v553 glass levels read
 `--seav-glass-*`, so those become flat navy surfaces
 (#0f2236 / #12283e / #152e47 / #18334f, rule #1f3a56); `--seav-topbar-*`
 become a solid bar + one 2px brass (#b8954a) rule; menu / modal / select /
-pill / photo radius tokens shrink to 3-6px. Rules on top: no ocean
+pill / photo radius tokens shrink to 3-6px. Rules on top: (ocean first hidden, later restored — see below)
 (`body.app-page::before/::after` hidden), no backdrop blur anywhere, page
 shells lose card, border and accent border (title band = one rule), box
 lists squared to 4px with no shadow, buttons and status pills squared, page
@@ -1404,6 +1404,26 @@ search, engine in seav-data.js, privacy line, page lists. Data:
 private): v581 still selected it, so the column was left in place. After
 v582 is live, drop it with a new migration and remove the schengen probe
 from test-supabase.mjs.
+
+### v583 — Bridge on public info pages; ocean photo back
+Jack: "check the public pages also". The theme's
+scope widened from `body.app-page` to
+`:is(body.app-page, body.landing-page, body.legal-page, body.index-page)` —
+About, Privacy, Terms, Contact, sign-in / sign-up, reset, confirm, referee
+and captain pages. Ocean/overlay hidden; main panels (`.info-panel`,
+`.legal-article`, the auth cards, `.verify-reference-panel`) solid
+`--bridge-surface`; inner boxes + form fields `--bridge-surface-2`;
+`.legal-callout` = brass left edge; `.legal-topbar-inner` = bar + brass
+rule. The corner generator covers those sheets too (320 selectors).
+Measured on all 10 pages: no translucent box, no blur, no rounded corner.
+**The public profile is deliberately NOT in scope** (its frosted look was
+Jack's 2026-09-30 pick) — ask before changing it. Noticed, not changed:
+privacy.html's top callout tells visitors to "have it reviewed by a
+qualified lawyer" — a drafting note left visible. **Ocean photo restored behind every themed
+page** (Jack: "put the ocean photo back, leave the new style ... just
+behind") — the rules hiding `body::before/::after` (app pages) and
+`.ocean/.overlay` (public pages) are removed; panels stay solid, so the
+photo shows only around and between them.
 
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES

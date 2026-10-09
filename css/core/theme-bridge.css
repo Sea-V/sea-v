@@ -1,9 +1,10 @@
 /* =========================================================
    BRIDGE THEME (v581, Jack 2026-10-09: the dashboard "looks too AI";
    picked "A · Bridge" of three rendered options)
-   Signed-in pages only (body.app-page). Deep navy, flat, square, one brass
+   Signed-in pages AND the public info pages (v581 follow-up): :is(body.app-page, body.landing-page, body.legal-page, body.index-page).
+   Not the public profile (its own frosted look, picked by Jack 2026-09-30). Deep navy, flat, square, one brass
    rule — the look of ship's instruments / an Admiralty publication.
-   Replaces: the moving ocean photo, frosted glass (backdrop blur), the
+   Keeps the ocean photo behind the page. Replaces: frosted glass (backdrop blur), the
    glowing gradient topbar line, pill buttons, rainbow icon badges and the
    26-30px corners.
    How: mostly a TOKEN swap — the v552/v553 glass levels in typography.css
@@ -16,7 +17,7 @@
    To go back: delete this file's @import in styles.css.
 ========================================================= */
 
-body.app-page {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) {
   /* Bridge palette */
   --bridge-bg: #0a1726;
   --bridge-bar: #07111d;
@@ -69,52 +70,50 @@ body.app-page {
 }
 
 /* Topbar: a square solid bar; the brass rule runs its full width. */
-body.app-page .app-topbar .topbar-inner {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar .topbar-inner {
   border-radius: var(--bridge-radius) !important;
   border: 1px solid var(--bridge-rule) !important;
 }
 
-body.app-page .app-topbar .topbar-inner::after {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar .topbar-inner::after {
   left: 0 !important;
   right: 0 !important;
   border-radius: 0 !important;
 }
 
-/* No ocean photo or overlay behind the signed-in pages. */
-body.app-page::before,
-body.app-page::after {
-  display: none !important;
-}
+/* The ocean photo stays BEHIND everything (Jack, 2026-10-09: "put the
+   ocean photo back, leave the new style") — only the panels in front are
+   solid. It was hidden in the first Bridge pass. */
 
-body.app-page *,
-body.app-page *::before,
-body.app-page *::after {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) *,
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) *::before,
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) *::after {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
 /* Page shell: no card at all — content sits on the navy, the title band is
    divided from it by one rule. The per-page accent border goes. */
-body.app-page [class$="-shell-card"] {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) [class$="-shell-card"] {
   border-color: transparent !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }
 
-body.app-page [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) {
   background: transparent !important;
   border-bottom: 1px solid var(--bridge-rule) !important;
 }
 
 /* Page icons: plain outline in the page colour, square. */
-body.app-page [class$="-shell-icon"] {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) [class$="-shell-icon"] {
   border-radius: var(--bridge-radius) !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
 /* Every box on the glass levels: square, flat, one hairline. */
-body.app-page :is(
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(
   .dash-card,
   .ui-card,
   .ui-mini-box,
@@ -172,7 +171,7 @@ body.app-page :is(
 }
 
 /* Buttons and status tags: square, no glow. */
-body.app-page :is(
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(
   .btn-blue,
   .btn-ghost2,
   .btn-danger,
@@ -193,24 +192,24 @@ body.app-page :is(
 }
 
 /* Form fields and the modal header pieces. */
-body.app-page :is(.modal-form, .modal-date-field) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
-body.app-page .modal-head-icon,
-body.app-page .modal-x,
-body.app-page .modal-more-details,
-body.app-page .modal-point,
-body.app-page .modal-info-box {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(.modal-form, .modal-date-field) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .modal-head-icon,
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .modal-x,
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .modal-more-details,
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .modal-point,
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .modal-info-box {
   border-radius: var(--bridge-radius-small) !important;
 }
 
 /* Icons stand alone, in their colour — no tinted square behind them
    (Jack, 2026-10-09, menu first, then "all the additional stuff"). */
-body.app-page :is(.modal-head-icon, .modal-point-icon) {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(.modal-head-icon, .modal-point-icon) {
   background: none !important;
   border: 0 !important;
   box-shadow: none !important;
 }
 
-body.app-page :is(.modal-head-icon, .modal-point-icon) svg {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(.modal-head-icon, .modal-point-icon) svg {
   width: 22px;
   height: 22px;
 }
@@ -218,60 +217,60 @@ body.app-page :is(.modal-head-icon, .modal-point-icon) svg {
 /* Search: a solid instrument panel, not glass. The glass "card" token is
    transparent in this theme, so the button and panel are given solid
    surfaces here; result icons stand alone like the menu's. */
-body.app-page .app-topbar .topbar-search {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar .topbar-search {
   background: var(--bridge-surface) !important;
   border-color: var(--bridge-rule-strong) !important;
   border-radius: var(--bridge-radius) !important;
 }
 
-body.app-page .app-topbar .topbar-search:hover,
-body.app-page .app-topbar .topbar-search:focus-visible {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar .topbar-search:hover,
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar .topbar-search:focus-visible {
   background: var(--bridge-surface-2) !important;
   border-color: var(--bridge-brass) !important;
 }
 
-body.app-page .app-topbar .topbar-icon-btn {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar .topbar-icon-btn {
   background: var(--bridge-surface) !important;
   border-color: var(--bridge-rule-strong) !important;
 }
 
 /* The three-bar menu button squares off like Search; the photo stays round. */
-body.app-page .app-topbar #topbarMenuBtn {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar #topbarMenuBtn {
   border-radius: var(--bridge-radius) !important;
 }
 
-body.app-page .seav-search-backdrop {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .seav-search-backdrop {
   background: rgba(4, 10, 18, 0.72) !important;
 }
 
-body.app-page .seav-search-panel {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .seav-search-panel {
   background: var(--seav-menu-bg) !important;
   border-color: var(--bridge-rule-strong) !important;
   border-radius: var(--bridge-radius) !important;
   box-shadow: var(--seav-menu-shadow) !important;
 }
 
-body.app-page .seav-search-field {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .seav-search-field {
   background: var(--bridge-surface) !important;
 }
 
-body.app-page :is(.seav-search-list a, .seav-search kbd, .topbar-search-kbd) {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(.seav-search-list a, .seav-search kbd, .topbar-search-kbd) {
   border-radius: var(--bridge-radius-small) !important;
 }
 
-body.app-page .seav-search-list li[aria-selected="true"] a {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .seav-search-list li[aria-selected="true"] a {
   background: var(--bridge-surface-2) !important;
   box-shadow: inset 0 0 0 1px var(--bridge-brass) !important;
 }
 
-body.app-page .seav-search-icon {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .seav-search-icon {
   background: none !important;
   border-radius: 0 !important;
 }
 
 /* Decorative extras that read as "generated". */
-body.app-page .page-quote-footer,
-body.app-page .dashboard-profile-complete-badge {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .page-quote-footer,
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-profile-complete-badge {
   display: none !important;
 }
 
@@ -280,23 +279,23 @@ body.app-page .dashboard-profile-complete-badge {
 --------------------------------------------------------- */
 
 /* Tiles: the page colour becomes one 3px left edge; icons go monochrome. */
-body.app-page .dash-tile {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dash-tile {
   border: 1px solid var(--bridge-rule) !important;
   border-left: 3px solid var(--a, var(--bridge-brass)) !important;
 }
 
-body.app-page .dash-vessel {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dash-vessel {
   border: 1px solid var(--bridge-rule) !important;
   border-left: 3px solid var(--bridge-brass) !important;
 }
 
-body.app-page .dash-tile-ic {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dash-tile-ic {
   background: transparent !important;
   border: 0 !important;
   color: var(--bridge-caption) !important;
 }
 
-body.app-page .dash-tile-label {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dash-tile-label {
   color: var(--bridge-caption) !important;
   font-size: var(--font-label) !important;
   font-weight: var(--font-weight-title) !important;
@@ -304,21 +303,21 @@ body.app-page .dash-tile-label {
   text-transform: uppercase;
 }
 
-body.app-page .dash-tile-num {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dash-tile-num {
   font-variant-numeric: tabular-nums;
 }
 
 /* Quick actions: a row of plain instrument buttons; brass on hover. */
-body.app-page .dashboard-quick-action {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-quick-action {
   border: 1px solid var(--bridge-rule-strong) !important;
 }
 
-body.app-page .dashboard-quick-action:hover,
-body.app-page .dashboard-quick-action:focus-visible {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-quick-action:hover,
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-quick-action:focus-visible {
   border-color: var(--bridge-brass) !important;
 }
 
-body.app-page .dashboard-quick-action-label {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-quick-action-label {
   font-size: var(--font-label) !important;
   font-weight: var(--font-weight-title) !important;
   letter-spacing: 0.08em;
@@ -326,15 +325,68 @@ body.app-page .dashboard-quick-action-label {
 }
 
 /* Progress meters read in brass. */
-body.app-page :is(.progress-fill, .ach-progress-bar > span) {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(.progress-fill, .ach-progress-bar > span) {
   background: var(--bridge-brass) !important;
   box-shadow: none !important;
 }
 
+/* ---------------------------------------------------------
+   Public pages: About, Privacy, Terms, Contact, sign-in / sign-up,
+   reset password, confirm account, referee + captain pages.
+   Same navy, solid panels, brass rule — ocean behind, no glass.
+--------------------------------------------------------- */
+/* Main panels. */
+:is(body.landing-page, body.legal-page, body.index-page) :is(
+  .info-panel,
+  .legal-article,
+  .confirm-account-card,
+  .reset-password-card,
+  .verify-reference-panel,
+  .demo-notice
+) {
+  background: var(--bridge-surface) !important;
+  border: 1px solid var(--bridge-rule) !important;
+  box-shadow: none !important;
+}
+
+/* Boxes inside them, and form fields. */
+:is(body.landing-page, body.legal-page, body.index-page) :is(
+  .info-card,
+  .info-link-btn,
+  .legal-toc,
+  .legal-kicker,
+  .form-input,
+  .form-textarea,
+  .login-form input:not([type="checkbox"])
+) {
+  background: var(--bridge-surface-2) !important;
+  border-color: var(--bridge-rule) !important;
+  box-shadow: none !important;
+}
+
+/* Callouts keep their meaning as a brass edge, not a tint. */
+:is(body.landing-page, body.legal-page, body.index-page) .legal-callout {
+  background: var(--bridge-surface-2) !important;
+  border-color: var(--bridge-rule) !important;
+  border-left: 3px solid var(--bridge-brass) !important;
+}
+
+/* Top bar and footer of the info pages. */
+:is(body.landing-page, body.legal-page, body.index-page) .legal-topbar-inner {
+  background: var(--bridge-bar) !important;
+  border: 1px solid var(--bridge-rule) !important;
+  box-shadow: inset 0 -2px 0 var(--bridge-brass) !important;
+}
+
+:is(body.landing-page, body.legal-page, body.index-page) .legal-footer-inner {
+  background: var(--bridge-surface) !important;
+  border-color: var(--bridge-rule) !important;
+}
+
 /* >>> GENERATED CORNERS >>> */
 /* GENERATED by scripts/generate-bridge-corners.mjs — do not edit by hand.
-   296 selectors from the app-page stylesheets that set a rounded corner. */
-body.app-page :is(
+   320 selectors from the app-page stylesheets that set a rounded corner. */
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(
   #navMap,
   #profileForm .btn-blue,
   #refsList .ref-page-card,
@@ -389,6 +441,7 @@ body.app-page :is(
   .cert-module-guide-item,
   .cert-shell-card,
   .cert-status-pill,
+  .confirm-account-card,
   .cvgen-add-link,
   .cvgen-add-prompt,
   .cvgen-choice,
@@ -436,6 +489,7 @@ body.app-page :is(
   .dashboard-shell-card .dash-card-accent-certificates .cert-attachment-link:link,
   .dashboard-shell-card .dash-card-accent-certificates .cert-attachment-link:visited,
   .dashboard-summary-box,
+  .demo-notice,
   .form-button,
   .form-input,
   .form-textarea,
@@ -449,8 +503,21 @@ body.app-page :is(
   .hi-showcase-photo,
   .hi-status-pill,
   .hi-summary-thumb,
+  .info-card,
+  .info-link-btn,
+  .info-panel,
   .kpi-box,
+  .legal-article,
+  .legal-callout,
+  .legal-footer-inner,
+  .legal-kicker,
+  .legal-toc,
+  .legal-toc a,
+  .legal-topbar-inner,
+  .legal-topnav-cta,
   .list-row,
+  .login-btn,
+  .login-form input:not([type="checkbox"]),
   .modal-card,
   .modal-card-wide:not(.email-confirmed-card),
   .modal-card:not(.email-confirmed-card),
@@ -551,6 +618,8 @@ body.app-page :is(
   .reference-sent-pill,
   .reference-shell-card,
   .reference-verified-pill,
+  .reset-password-card,
+  .reset-password-form input:not([type="checkbox"]),
   .row-actions a:not([class*="seav-action"]),
   .seatime-checklist-panel,
   .seatime-download-link,
@@ -607,6 +676,13 @@ body.app-page :is(
   .ui-mini-box,
   .ui-pill,
   .ui-shell,
+  .verify-reference-attachment-preview,
+  .verify-reference-page .modal-check,
+  .verify-reference-page .modal-form input:not([type="checkbox"]):not([type="radio"]),
+  .verify-reference-page .modal-form select,
+  .verify-reference-page .modal-form textarea,
+  .verify-reference-page .verify-reference-attachment-open,
+  .verify-reference-page a.reference-modern-attachment.verify-reference-attachment-open,
   .verify-reference-panel-card,
   .verify-reference-panel-card .vessel-meta-item,
   .vessel-addendum-row,
