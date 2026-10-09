@@ -7,20 +7,6 @@
    TABLE WRAPPER
 ========================================================= */
 
-.dash-table {
-  margin-top: 12px;
-}
-
-.table-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 12px;
-
-  margin-bottom: 10px;
-}
-
 .table-wrap {
   overflow: auto;
 
@@ -80,14 +66,3 @@ td {
    BULK ACTION NOTE
 ========================================================= */
 
-.bulk-actions-note {
-  margin-top: 10px;
-
-  color: rgba(255,255,255,0.65);
-
-  font-size: 12px;
-  line-height: 1.5;
-
-  text-transform: none;
-  letter-spacing: 0;
-}

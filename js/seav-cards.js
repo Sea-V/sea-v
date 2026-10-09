@@ -608,72 +608,6 @@
   }
 
   /**
-   * Build the shared hobbies & interests row used on the dashboard snippet
-   * and the public profile section.
-   *
-   * The public "show more" (hidden) list previously used a second, thinner
-   * copy of this template that silently dropped the description and photos
-   * — a real content bug caused by the same kind of template duplication
-   * this module exists to prevent (vessel/tender cards already render full
-   * detail for both visible and hidden items; this brings hobbies in line).
-   */
-  function buildHobbyRow(entry, options = {}) {
-    const getLabel =
-      options.categoryLabel ||
-      window.SeavData?.getHobbyInterestCategoryLabel ||
-      ((value) => value || "—");
-    const categoryLabel = getLabel(entry.category);
-    const title = Seav.escapeHtml(entry.title || "—");
-
-    if (options.variant === "public") {
-      const bucket =
-        options.photoBucket ||
-        window.SeavApiCore?.STORAGE_BUCKETS?.HOBBIES_INTEREST_PHOTOS ||
-        "hobbies-interest-photos";
-      const photos = (entry.photos || [])
-        .map((photo) => Seav.getFileDisplayUrl(photo, bucket))
-        .filter(Boolean)
-        .slice(0, 3);
-      const photoHtml = photos.length
-        ? `<div class="public-cv-hobby-photos">${photos
-            .map((url) => `<img src="${Seav.escapeHtml(url)}" alt="" class="public-cv-hobby-photo" loading="lazy" />`)
-            .join("")}</div>`
-        : "";
-
-      return `
-        <div class="public-cv-mini-row" data-pp-more-item>
-          <div class="public-cv-mini-main">
-            <span class="public-cv-mini-title">${title}</span>
-            <span class="public-cv-mini-meta">${Seav.escapeHtml(categoryLabel)}</span>
-            ${entry.description ? `<p class="public-cv-hobby-desc">${Seav.escapeHtml(entry.description)}</p>` : ""}
-            ${photoHtml}
-          </div>
-        </div>
-      `;
-    }
-
-    const photoCount = (entry.photos || []).filter(
-      (photo) =>
-        window.SeavApiCore?.hasStoredFile?.(photo) ??
-        !!(photo?.url || photo?.dataUrl || photo?.path)
-    ).length;
-    const statusInfo = window.SeavData.getHobbyInterestStatusDisplay(entry.status);
-
-    return `
-      <div class="list-row">
-        <div style="min-width:0;">
-          <div class="list-title">${title}</div>
-          <div class="list-sub">
-            ${Seav.escapeHtml(categoryLabel)}
-            ${photoCount ? ` • ${photoCount} photo${photoCount === 1 ? "" : "s"}` : ""}
-          </div>
-        </div>
-        <span class="pill ${statusInfo.className}">${Seav.escapeHtml(statusInfo.label)}</span>
-      </div>
-    `;
-  }
-
-  /**
    * Build the public-profile certificate row. Deliberately just a single
    * flat, simple row (no accordion/expand, no attachment link) to match
    * every other public-profile section (specialist quals, hobbies) — the
@@ -732,7 +666,6 @@
     buildTenderCard,
     buildOnboardRow,
     buildSpecialistRow,
-    buildHobbyRow,
     buildCertRow
   };
 })();

@@ -223,12 +223,6 @@
     return String.fromCodePoint(...points);
   }
 
-  function getCountryByName(name) {
-    const target = String(name || "").trim().toLowerCase();
-    if (!target) return null;
-    return COUNTRIES.find((c) => c.name.toLowerCase() === target) || null;
-  }
-
   // Dial codes are shared across multiple countries (NANP's "+1" alone
   // covers ~20), so this only picks the best on-load guess for the phone
   // country selector — it never affects the underlying stored E.164-ish
@@ -251,7 +245,6 @@
   window.SeavCountries = {
     COUNTRIES,
     flagEmoji,
-    getCountryByName,
     getCountryByDial
   };
 })();

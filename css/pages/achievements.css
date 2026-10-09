@@ -173,20 +173,6 @@
    in-progress cert group (not just one "next up" card), stacked here — the
    individual .ach-next-milestone cards keep their own look, this wrapper
    just stops their margins from stacking oddly. */
-.ach-next-milestone-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 22px;
-}
-
-.ach-next-milestone-list .ach-next-milestone {
-  margin-bottom: 0;
-}
-
-.ach-sidebar-awards-label {
-  margin: 0 0 10px;
-}
 
 .ach-next-badge {
   flex: 0 0 56px;
@@ -311,35 +297,11 @@
   opacity: 0.72;
 }
 
-.ach-progress-row-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.ach-progress-row-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.ach-progress-row-title {
-  color: var(--seav-entity-name-color, #fff);
-  font-size: 14px;
-  font-weight: 800;
-}
-
 .ach-progress-row-desc {
   margin: 0 0 6px;
   font-size: 12px;
   line-height: 1.45;
   color: rgba(255, 255, 255, 0.68);
-}
-
-.ach-progress-row-label {
-  margin: 0 0 6px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Unlocked indicator — same green-tick treatment as the dashboard's
@@ -1431,22 +1393,3 @@
 
 /* ---- Dashboard widget rows (js/core.js buildDashboardMilestoneRow) ---- */
 
-.ach-progress-row--award {
-  position: relative;
-  overflow: hidden;
-  border-color: var(--award-edge, rgba(255, 255, 255, 0.08));
-}
-
-.ach-progress-row-flag {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  display: flex;
-  pointer-events: none;
-}
-
-.ach-progress-row-flag i {
-  flex: 1;
-}

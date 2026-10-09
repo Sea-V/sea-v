@@ -616,55 +616,9 @@
    DOWNLOAD LINKS
 ========================================================= */
 
-.seatime-download-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 30px;
-
-  padding: 0 12px;
-
-  border-radius: 999px;
-  border: 1px solid rgba(91, 188, 255, 0.24);
-
-  background: rgba(91, 188, 255, 0.10);
-
-  color: #ffffff;
-
-  text-decoration: none;
-
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.seatime-download-link:hover {
-  background: rgba(91, 188, 255, 0.16);
-}
-
 /* =========================================================
    ACTION LINKS
 ========================================================= */
-
-.seatime-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.seatime-actions a {
-  text-decoration: none;
-
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.seatime-actions .edit-link {
-  color: var(--accent-blue);
-}
-
-.seatime-actions .delete-link {
-  color: #ff6d7d;
-}
 
 /* =========================================================
    CAREER PROGRESS LINK

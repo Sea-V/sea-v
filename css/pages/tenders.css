@@ -34,11 +34,6 @@
   border-bottom: 1px solid rgba(76,255,184,0.12);
 }
 
-.tender-shell-title {
-  flex: 1;
-  min-width: 0;
-}
-
 .tender-shell-actions {
   margin-left: auto;
 
@@ -327,16 +322,6 @@
 /* =========================================================
    ACTIONS
 ========================================================= */
-
-#tendersGrid .vessel-foot {
-  margin-top: 14px;
-}
-
-#tendersGrid .vessel-foot .seav-actions {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: 0;
-}
 
 /* =========================================================
    RESPONSIVE

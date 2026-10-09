@@ -106,10 +106,6 @@
   padding: 26px 28px 30px;
 }
 
-.vessel-shell-history {
-  border-top: 1px solid var(--vessel-accent-line-soft);
-}
-
 .vessel-shell-section-head {
   margin-bottom: 18px;
 }
@@ -141,8 +137,6 @@
     grid-template-columns: 1fr;
   }
 }
-
-
 
 /* =========================================================
    SEA-V • VESSELS PAGE V3
@@ -197,7 +191,6 @@
 
 .vessel-image-card,
 .vessel-overview-card,
-.vessel-info-mini-card,
 .vessel-linked-clean-card,
 .vessel-experience-card,
 .vessel-sea-card {
@@ -412,7 +405,6 @@
 
 .vessel-main-item span,
 .vessel-stats-grid span,
-.vessel-info-mini-card span,
 .vessel-panel-label {
   display: block;
 
@@ -913,84 +905,6 @@
   font-size: 12px;
   line-height: 1.45;
   font-weight: 500;
-}
-
-/* .vessel-linked-row / .vessel-total-row below: this page's own vessel card
-   (js/vessels.js buildVesselCardBody) no longer renders these — it shows a
-   count + link instead (.vessel-linked-summary / .vessel-linked-link,
-   further down) so a long vessel history doesn't dump 3 preview rows per
-   linked record type into every collapsed card. The public-profile version
-   of this same card (js/seav-cards.js buildVesselCardFull) still uses the
-   row/list style below, so keep these rules — they are not dead. */
-.vessel-linked-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  gap: 10px;
-
-  padding: 8px 0;
-
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-.vessel-linked-row:last-of-type {
-  border-bottom: 0;
-}
-
-.vessel-linked-row > div {
-  min-width: 0;
-}
-
-.vessel-linked-row strong {
-  display: block;
-
-  color: #ffffff;
-
-  font-size: 13px;
-  line-height: 1.3;
-  font-weight: 800;
-}
-
-.vessel-linked-row span {
-  display: block;
-
-  margin-top: 3px;
-
-  color: rgba(255,255,255,0.62);
-
-  font-size: 11px;
-  line-height: 1.35;
-  font-weight: 500;
-}
-
-.vessel-linked-row b {
-  color: var(--seav-field-label-color, #5bbcff);
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.vessel-total-row {
-  margin-top: auto;
-  padding-top: 10px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-
-  border-top: 1px solid rgba(255,255,255,0.08);
-
-  color: var(--seav-field-label-color, #5bbcff);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.vessel-total-row strong {
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 850;
 }
 
 /* Replaces the up-to-3-item preview list on this page's own vessel card —

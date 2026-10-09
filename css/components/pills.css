@@ -75,26 +75,6 @@
    PROGRESS TEXT
 ========================================================= */
 
-.progress-percent {
-  margin-top: 6px;
-
-  color: rgba(255,255,255,0.85);
-
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.progress-missing {
-  display: flex;
-  flex-wrap: wrap;
-
-  gap: 6px;
-
-  margin-top: 10px;
-
-  font-size: 13px;
-}
-
 /* =========================================================
    UNIFIED PILL BASE
 ========================================================= */
@@ -102,11 +82,9 @@
 .pill,
 .status-pill,
 .cert-status-pill,
-.sq-status-pill,
 .hi-status-pill,
 .hi-photo-count-pill,
 .hi-category-chip,
-.onboard-status-pill,
 .onboard-familiarisation-pill,
 .onboard-familiarisation-pill-compact,
 .ps-amount-pill,
@@ -152,16 +130,6 @@
 /* =========================================================
    GLASS PILL
 ========================================================= */
-
-.ui-pill {
-  border-radius: var(--pill-radius);
-  border: 1px solid var(--pill-border);
-
-  background: var(--pill-bg);
-
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
 
 /* =========================================================
    STATUS STATES
@@ -242,8 +210,6 @@
 
 .dashboard-info-box,
 .dashboard-bio-under,
-.vessel-pill-box,
-.vessel-compact-item,
 .list-row,
 .kpi-box {
   border-radius: 16px !important;

@@ -16,12 +16,10 @@
      translucent rgba(14,28,46,0.85), surface-bg rgba(24,40,62,0.85),
      -strong rgba(25,43,67,0.95), -soft rgba(29,48,73,0.69). */
   --navy-900: #1d3350;
-  --navy-800: #274061;
 
   /* Solid page shell surfaces (no gradient shading) */
   --page-shell-bg: #182c45;
   --page-shell-panel: #1f3552;
-  --page-shell-surface: var(--page-shell-panel);
 
   /* Same color as --page-shell-bg at 85% opacity (~15% transparent) — used
      for the main shell wrapper on each app page and the sidebar/Milestones
@@ -35,7 +33,6 @@
   --dash-layout-gap: 20px;
 
   --muted: rgba(255,255,255,0.82);
-  --muted2: rgba(255,255,255,0.68);
 
   /* Shared typography tokens — referenced by dashboard.css's "typography
      normalisation" block and profile.css, but were never defined here
@@ -61,29 +58,10 @@
   --logo-sky: #72e4ff;
   --logo-ocean: #4a9fd4;
   --logo-deep: #2a6eb8;
-  --logo-navy: #1a4d8c;
-
-  /* Logo display sizes (half of original artboard scale) */
-  --seav-logo-auth: 120px;
-  --seav-logo-auth-mobile: 95px;
-  --seav-logo-topbar: 34px;
-  --seav-logo-topbar-public-md: 29px;
-  --seav-logo-topbar-public-sm: 26px;
-  --seav-logo-info: 95px;
-  --seav-logo-info-mobile: 70px;
-  --seav-logo-legal: 16px;
-  --seav-logo-public: 14px;
-  --seav-logo-verify: 27px;
-  --seav-logo-cv: 7.5mm;
 
   --accent-blue: #5bbcff;
-  --accent-cyan: #72e4ff;
-  --accent-ice: #d7f4ff;
 
   --accent-green: #5ee6a8;
-  --accent-amber: #ffb86b;
-  --accent-coral: #ff8fab;
-  --accent-fuchsia: #e879f9;
 
   /* =========================================================
      PAGE IDENTITY (sidebar nav + badge section colors)
@@ -124,13 +102,10 @@
   --seav-meta-card-border-purple: rgba(209, 107, 255, 0.24);
 
   --seav-meta-item-radius: 14px;
-  --seav-meta-item-border: 1px solid rgba(255, 255, 255, 0.07);
-  --seav-meta-item-bg: rgba(255, 255, 255, 0.035);
   --seav-meta-item-padding: 10px;
   --seav-meta-grid-gap: 10px;
 
   --seav-meta-label-color: #5bbcff;
-  --seav-meta-label-size: 11px;
   --seav-meta-label-weight: 800;
 
   --seav-meta-value-color: rgba(255, 255, 255, 0.84);
@@ -234,8 +209,6 @@
   --seav-glass-wash-soft: rgba(255, 255, 255, 0.06);
   /* The one lit item in a smoked-glass list (current sidebar page). */
   --seav-glass-active: rgba(255, 255, 255, 0.14);
-  /* Matches .dash-sidebar's border-radius in layout.css. */
-  --seav-sidebar-radius: 26px;
   --seav-glass-blur: blur(14px) saturate(1.2);
   --seav-glass-edge: rgba(255, 255, 255, 0.28);
   --seav-glass-edge-strong: rgba(255, 255, 255, 0.42);
@@ -253,7 +226,6 @@
   --pp-glass-edge: var(--seav-glass-edge);
   --pp-glass-line: var(--seav-glass-line);
   --pp-glass-shadow: var(--seav-glass-shadow);
-  --seav-meta-link-color: #9ddcff;
 
   /* Topbar profile chip — the initials fallback when a crew member has no
      profile photo yet. Solid fill, not a gradient (Jack, site-wide,
@@ -349,13 +321,6 @@
   --surface-border:
     rgba(255,255,255,0.12);
 
-  --surface-border-strong:
-    rgba(114,228,255,0.18);
-
-  --surface-shadow:
-    0 18px 42px rgba(0,0,0,0.34),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-
   --surface-blur:
     blur(16px);
 
@@ -367,13 +332,8 @@
 
   --pill-bg: rgba(255, 255, 255, 0.055);
 
-  --pill-bg-hover: rgba(91, 188, 255, 0.13);
-
   --pill-border:
     rgba(255,255,255,0.10);
-
-  --pill-border-hover:
-    rgba(114,228,255,0.30);
 
   --pill-radius:
     14px;
@@ -394,22 +354,9 @@
   --pill-blue-solid-hover: #3aa8f5;
 
   /* =========================================================
-     NEUTRAL SURFACES
-     Solid flat fill, not a gradient — Jack wants solid colors site-wide
-     2026-08-03. Value is the midpoint of the old gradient.
-  ========================================================= */
-
-  --neutral-surface: rgba(255, 255, 255, 0.04);
-
-  --neutral-border:
-    rgba(255,255,255,0.075);
-
-  /* =========================================================
      PROGRESS COLORS
   ========================================================= */
 
   --progress-red: #ff5f6d;
   --progress-amber: #ffb86b;
-  --progress-green: #5ee6a8;
-  --progress-cyan: #72e4ff;
 }

@@ -67,11 +67,6 @@ body.signup-page .demo-notice {
   text-align: center;
 }
 
-body.index-page .demo-muted {
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 12px;
-}
-
 body.index-page .login-form,
 body.signup-page .login-form {
   display: flex;

@@ -453,14 +453,6 @@
   font-weight: 650;
 }
 
-.navigation-field-hint {
-  display: block;
-  margin-top: 4px;
-  color: var(--seav-meta-muted-color);
-  font-size: 11px;
-  line-height: 1.35;
-}
-
 /* Short explainer sitting between the route block's "Port of departure /
    arrival" heading and the Country + Port dropdowns just below it, now that
    those dropdowns are the primary way to set an endpoint (the free-text

@@ -24,10 +24,10 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=586" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=586" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=586" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=586" />
+  <link rel="icon" href="/favicon.ico?v=587" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=587" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=587" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=587" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Public Profile</title>
@@ -68,7 +68,7 @@
     knows to keep the leading slash on this file — don't "simplify" these
     back to relative.
   -->
-  <link rel="stylesheet" href="/styles.css?v=586" />
+  <link rel="stylesheet" href="/styles.css?v=587" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -80,27 +80,27 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
-  <script src="/js/feedback.js?v=586" defer></script>
-  <script src="/js/core.js?v=586" defer></script>
-  <script src="/js/seav-data.js?v=586" defer></script>
-  <script src="/js/seav-badges.js?v=586" defer></script>
+  <script src="/js/feedback.js?v=587" defer></script>
+  <script src="/js/core.js?v=587" defer></script>
+  <script src="/js/seav-data.js?v=587" defer></script>
+  <script src="/js/seav-badges.js?v=587" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/seav-config.js?v=586"></script>
-  <script src="/js/supabase.js?v=586" defer></script>
-  <script src="/js/auth.js?v=586"></script>
-  <script src="/js/api-core.js?v=586" defer></script>
-  <script src="/js/api-mappers.js?v=586" defer></script>
-  <script src="/js/api.js?v=586" defer></script>
+  <script src="/js/seav-config.js?v=587"></script>
+  <script src="/js/supabase.js?v=587" defer></script>
+  <script src="/js/auth.js?v=587"></script>
+  <script src="/js/api-core.js?v=587" defer></script>
+  <script src="/js/api-mappers.js?v=587" defer></script>
+  <script src="/js/api.js?v=587" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>
-  <script src="/js/navigation-ports.js?v=586" defer></script>
-  <script src="/js/navigation-helpers.js?v=586" defer></script>
-  <script src="/js/navigation-passage.js?v=586" defer></script>
-  <script src="/js/public-profile-utils.js?v=586" defer></script>
-  <script src="/js/seav-photo-strip.js?v=586" defer></script>
-  <script src="/js/seav-qualities.js?v=586" defer></script>
-  <script src="/js/seav-cards.js?v=586" defer></script>
-  <script src="/js/public-profile-sections.js?v=586" defer></script>
-  <script src="/js/public-profile.js?v=586" defer></script>
+  <script src="/js/navigation-ports.js?v=587" defer></script>
+  <script src="/js/navigation-helpers.js?v=587" defer></script>
+  <script src="/js/navigation-passage.js?v=587" defer></script>
+  <script src="/js/public-profile-utils.js?v=587" defer></script>
+  <script src="/js/seav-photo-strip.js?v=587" defer></script>
+  <script src="/js/seav-qualities.js?v=587" defer></script>
+  <script src="/js/seav-cards.js?v=587" defer></script>
+  <script src="/js/public-profile-sections.js?v=587" defer></script>
+  <script src="/js/public-profile.js?v=587" defer></script>
 </head>
 
 <body class="public-page public-profile-page pp-look-new">
@@ -146,11 +146,9 @@
   <div class="overlay" aria-hidden="true"></div>
 
   <!--
-    New top (2026-09-29, Jack's approved "Step 3" from the design canvas),
-    behind the ?look=new preview flag until he signs it off on the live site:
-    js/public-profile.js adds body.pp-look-new, which hides the topbar and
-    the old shell heading and shows these two blocks. Without the flag they
-    stay display:none and the page is exactly as before.
+    The page top (2026-09-29, Jack's approved "Step 3" from the design
+    canvas): the wave band and the hero below. pp-look-new on <body> turns
+    it on; it has been the default since v545.
   -->
   <div class="pp-wave" aria-hidden="true">
     <img src="/img/ocean.jpg?v=339" alt="" />
@@ -200,23 +198,6 @@
         </div>
 
         <div id="ppContent" hidden>
-
-          <div class="dashboard-shell-head">
-            <div class="dashboard-shell-intro">
-              <div class="dashboard-shell-icon">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/>
-                  <path d="M12 8.5l2.8 2.8-4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div class="dashboard-shell-copy">
-                <h2 id="ppShellTitle">Public profile</h2>
-                <p id="ppShellSubtitle">
-                  Verified yacht career overview — qualifications, service history, vessels, and professional records.
-                </p>
-              </div>
-            </div>
-          </div>
 
           <section class="dashboard-shell-section">
 

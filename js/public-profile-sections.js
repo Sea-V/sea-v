@@ -8,7 +8,6 @@
   }
 
   const {
-    getOnboardCategoryLabel,
     getHobbyInterestCategoryLabel,
     getSpecialistCategoryLabel,
     getReferenceStatus,
@@ -318,14 +317,6 @@
         }
       </div>
     `;
-  }
-
-  function buildVesselHighlights(vessel, onboardEntries) {
-    return onboardEntries
-      .filter((entry) => entry.vesselId === vessel.id)
-      .slice(0, 3)
-      .map((entry) => entry.title || getOnboardCategoryLabel(entry.category))
-      .filter(Boolean);
   }
 
   // Vessel card markup lives in js/seav-cards.js. Every vessel on the public
@@ -1512,7 +1503,6 @@
 
 
   window.SeavPublicProfileSections = {
-    buildVesselHighlights,
     buildVesselCard,
     renderVessels,
     renderNavigation,

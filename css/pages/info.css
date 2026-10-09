@@ -117,8 +117,7 @@ body.info-page .info-card h3 {
 
 body.info-page .info-card p,
 body.info-page .info-card li,
-body.info-page .info-card label,
-body.info-page .info-note {
+body.info-page .info-card label {
   color: rgba(255,255,255,0.82);
 
   line-height: 1.6;
@@ -127,12 +126,6 @@ body.info-page .info-note {
 body.info-page .info-list {
   margin: 0;
   padding-left: 18px;
-}
-
-body.info-page .info-note {
-  margin: 0;
-
-  font-size: 13px;
 }
 
 /* =========================================================
@@ -187,49 +180,14 @@ body.info-page .info-link-btn-primary {
    FORMS
 ========================================================= */
 
-body.info-page .info-form {
-  display: flex;
-  flex-direction: column;
-
-  gap: 12px;
-}
-
-body.info-page .info-form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 12px;
-}
-
-body.info-page .info-form label {
-  display: flex;
-  flex-direction: column;
-
-  gap: 6px;
-
-  font-size: 14px;
-}
-
 /* =========================================================
    RESPONSIVE
 ========================================================= */
 
 @media (max-width: 900px) {
-  body.info-page .info-content,
-  body.info-page .info-form-grid {
+  body.info-page .info-content {
     grid-template-columns: 1fr;
   }
-}
-
-.profile-public-notice {
-  margin: 8px 0 0;
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.72);
-}
-
-.profile-public-notice a {
-  color: #5bbcff;
 }
 
 @media (max-width: 640px) {

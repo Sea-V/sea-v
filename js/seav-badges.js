@@ -646,10 +646,6 @@ northwest_passage_transit: {
     return Object.values(ACHIEVEMENTS);
   }
 
-  function listBadges() {
-    return Object.values(BADGES);
-  }
-
   function badgeAssetVersion() {
     return Number(window.SeavConfig?.BADGE_ASSET_VERSION ?? window.SeavConfig?.ASSET_VERSION ?? 1);
   }
@@ -783,7 +779,6 @@ northwest_passage_transit: {
     getBadge,
     getAchievementWithBadge,
     listAchievements,
-    listBadges,
     normalizeBadgePath,
     withBadgeCacheBust,
     resolveBadgeImage,

@@ -338,10 +338,6 @@
   font-weight: 700;
 }
 
-.seav-verify-link-dialog {
-  z-index: 13000;
-}
-
 @media (max-width: 560px) {
   .verify-reference-page .verify-reference-shell {
     padding: 24px 14px;

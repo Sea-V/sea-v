@@ -211,28 +211,6 @@
   padding: 14px 18px 16px;
 }
 
-.sq-status-pill.pill-neutral {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.sq-status-pill.pill-valid {
-  /* Same pastel mint as the shared .pill-valid — was a more saturated
-     "Google green" (rgba(52,168,83)) that didn't match. */
-  border: 1px solid rgba(94, 230, 168, 0.4);
-  background: rgba(94, 230, 168, 0.16);
-}
-
-.sq-status-pill.pill-pending {
-  border: 1px solid rgba(91, 188, 255, 0.34);
-  background: rgba(91, 188, 255, 0.18);
-}
-
-.sq-status-pill.pill-expired {
-  border: 1px solid rgba(255, 109, 125, 0.34);
-  background: rgba(255, 109, 125, 0.22);
-}
-
 .sq-detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

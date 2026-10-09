@@ -66,28 +66,6 @@
   padding: 26px 28px 30px;
 }
 
-.cvgen-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.cvgen-template-label {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  color: #5bbcff;
-  font-size: 11px;
-  font-weight: 850;
-}
-
-.cvgen-template-label select {
-  min-width: 220px;
-}
-
 .cvgen-editor input:not([type="checkbox"]),
 .cvgen-editor select,
 .cvgen-editor textarea {
@@ -164,7 +142,6 @@
   background: var(--page-tenders);
 }
 
-
 .cvgen-workspace {
   display: grid;
   grid-template-columns: minmax(300px, 380px) 1fr;
@@ -204,8 +181,7 @@
   font-weight: 850;
 }
 
-.cvgen-editor-note,
-.cvgen-editor-empty {
+.cvgen-editor-note {
   margin: 0 0 10px;
   color: var(--seav-meta-muted-color);
   font-size: 12px;
@@ -569,14 +545,9 @@
   font-weight: var(--font-weight-body);
 }
 
-.cvgen-choice-text small,
-.cvgen-choice-empty {
+.cvgen-choice-text small {
   color: var(--seav-note-color);
   font-size: var(--font-caption);
-}
-
-.cvgen-choice-empty {
-  padding: 4px 8px;
 }
 
 /* Empty groups (v570, Jack 2026-10-03): crew who come only for the CV
@@ -865,7 +836,6 @@
   color: #64748b;
   font-style: italic;
 }
-
 
 /* =========================================================
    SEA-V CV TEMPLATE
@@ -1266,14 +1236,12 @@
   }
 
   body.cvgen-printing .topbar,
-  body.cvgen-printing .dash-sidebar,
-  body.cvgen-printing .dash-side-stack,
-  body.cvgen-printing .site-footer,
-  body.cvgen-printing #pageFade,
-  body.cvgen-printing .cvgen-shell-head,
-  body.cvgen-printing .cvgen-status,
-  body.cvgen-printing .cvgen-editor,
-  body.cvgen-printing .cvgen-footnote {
+body.cvgen-printing .site-footer,
+body.cvgen-printing #pageFade,
+body.cvgen-printing .cvgen-shell-head,
+body.cvgen-printing .cvgen-status,
+body.cvgen-printing .cvgen-editor,
+body.cvgen-printing .cvgen-footnote {
     display: none !important;
   }
 

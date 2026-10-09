@@ -64,11 +64,6 @@ body.signup-page *:not(.cv-document, .cv-document *) {
 /* Page titles — only headings that are slightly larger */
 body.app-page [class$="-shell-head"] h2,
 body.app-page .dashboard-shell-head h2,
-body.public-profile-page .public-cv-hero h1,
-body.public-page .info-shell-head h1,
-body.public-page .info-shell-head h2,
-body.landing-page .info-shell-head h1,
-body.landing-page .info-shell-head h2,
 body.landing-page .info-title {
   font-family: inherit !important;
   font-size: var(--font-page-title) !important;
@@ -101,13 +96,9 @@ body.landing-page .info-title {
   textarea,
   .dash-link,
   .dash-nav-group-label,
-  .dash-title,
-  .dash-sub,
-  .dash-h1,
   .dash-card,
   .dash-card h3,
   .dash-card p,
-  .dash-list,
   .list-title,
   .list-sub,
   .nav-left,
@@ -120,35 +111,11 @@ body.landing-page .info-title {
   .dashboard-info-label,
   .dashboard-info-value,
   .dashboard-summary-text,
-  .dashboard-kpi-label,
-  .dashboard-kpi-num,
   .navigation-route-label,
   .navigation-stat-label,
   .navigation-stat-value,
-  .modal-title,
-  .modal-sub,
   .field label,
-  .badge-label,
-  .table-head,
-  .achievement-card-title,
-  .reference-card-meta,
-  .public-cv-fact-label,
-  .public-cv-fact-value,
-  .public-cv-section-title,
-  .public-cv-vessel-label,
-  .public-cv-vessel-value,
-  .public-cv-reference-meta,
-  .public-cv-reference-text,
-  .cvgen-step-label,
-  .hi-card-title,
-  .ps-row-label,
-  .sq-card-title,
-  .onboard-card-title,
-  .tender-card-title,
-  .seatime-stat-label,
-  .seatime-stat-value,
-  .profile-field-label,
-  .profile-field-value
+  .badge-label
 ):not(.legal-topbar *, .legal-footer *, .cv-document, .cv-document *) {
   font-family: inherit !important;
   font-size: var(--font-body) !important;
@@ -165,11 +132,9 @@ body.app-page :where(
   .pill,
   .status-pill,
   .cert-status-pill,
-  .sq-status-pill,
   .hi-status-pill,
   .hi-photo-count-pill,
   .hi-category-chip,
-  .onboard-status-pill,
   .onboard-familiarisation-pill,
   .onboard-familiarisation-pill-compact,
   .ps-amount-pill,
@@ -179,8 +144,7 @@ body.app-page :where(
   .tender-proficiency-pill,
   .seav-action,
   .btn-blue,
-  .btn-ghost2,
-  .btn-attach
+  .btn-ghost2
 ) {
   font-size: var(--pill-font-size) !important;
   font-weight: var(--pill-font-weight) !important;
@@ -240,19 +204,15 @@ body.app-page [class$="-shell-card"] {
 body.app-page :where(
   .dash-card,
   .ui-card,
-  .ui-mini-box,
   [class$="-compact-card"],
   [class$="-modern-card"],
-  .achievement-card,
   #tendersGrid .vessel-card,
   .profile-form-card,
   .vessel-profile-card,
   .vessel-overview-card,
-  .vessel-info-mini-card,
   .vessel-linked-clean-card,
   .vessel-experience-card,
   .vessel-sea-card,
-  .reference-modern-card,
   .cert-modern-card,
   .ps-kpi-box,
   .navigation-stat,
@@ -260,7 +220,6 @@ body.app-page :where(
   .cert-compact-empty,
   .sq-detail-panel,
   .ps-detail-panel,
-  .hi-detail-panel,
   .onboard-detail-panel,
   .seatime-portal-link,
   .cvgen-vessel-card
@@ -383,11 +342,6 @@ body.app-page .navigation-stat--highlight {
   background: rgba(91, 188, 255, 0.09);
 }
 
-body.app-page :where(
-  .vessel-image-card,
-  .vessel-photo,
-  .achievement-card .achievement-photo,
-  #tendersGrid .vessel-photo
-) {
+body.app-page :where(.vessel-image-card, .vessel-photo, #tendersGrid .vessel-photo) {
   background: rgba(0, 0, 0, 0.24);
 }

@@ -325,26 +325,6 @@
   flex-shrink: 0;
 }
 
-.onboard-modern-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px 20px;
-  margin-bottom: 10px;
-}
-
-.onboard-modern-head-left {
-  min-width: 0;
-  flex: 1;
-}
-
-.onboard-modern-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-
 .onboard-familiarisation-pill {
   /* Same pastel mint as the shared .pill-valid — was a more saturated
      "Google green" (rgba(52,168,83)) that didn't match. */
@@ -372,7 +352,6 @@
   font-weight: 600;
   font-size: 14px;
 }
-
 
 .onboard-attachment-link {
   display: inline-flex;
@@ -406,13 +385,9 @@
   gap: 10px;
 }
 
-
-
-
 .onboard-modern-body .seav-actions {
   margin-top: 16px;
 }
-
 
 /* =========================================================
    SKILLS — self-assessed skills profile

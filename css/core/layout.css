@@ -166,8 +166,7 @@
   line-height: 0;
 }
 
-.app-topbar .icon,
-.public-topbar .icon {
+.app-topbar .icon {
   width: auto;
   height: auto;
   min-width: 0;
@@ -464,58 +463,11 @@ body.app-page::after {
    SIDEBAR
 ========================================================= */
 
-.dash-sidebar {
-  position: relative;
-  z-index: 1;
-  align-self: start;
-
-  display: flex;
-  flex-direction: column;
-
-  width: 100%;
-  box-sizing: border-box;
-
-  margin: 22px 0 0;
-  padding: 18px 14px;
-
-  border-radius: var(--seav-sidebar-radius);
-  border: 1px solid rgba(255,255,255,0.10);
-
-  background: rgba(14, 28, 46, 0.85);
-  background: var(--page-shell-bg-translucent, rgba(14, 28, 46, 0.85));
-
-  box-shadow:
-    0 16px 38px rgba(0,0,0,0.24),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-}
-
-.dash-side-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dash-layout-gap);
-
-  width: 100%;
-  min-width: 0;
-}
-
 .dashboard-stack {
   display: flex;
   flex-direction: column;
   gap: 14px;
   margin-top: 14px;
-}
-
-.dash-title {
-  margin: 4px 4px 12px;
-
-  color: rgba(255,255,255,0.92);
-
-  font-size: 14px;
-  font-weight: 800;
-
-  letter-spacing: normal;
-  text-transform: none;
-  text-align: center;
 }
 
 /* =========================================================
@@ -564,47 +516,6 @@ body.app-page::after {
  * Logout varied page to page instead of always matching the standard
  * inter-group gap below. Removed so every page gets the same fixed spacing.
  */
-
-.dash-sidebar-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  /* Matches .dash-nav-group + .dash-nav-group exactly, so the gap above
-     Logout is identical to every other divider in the sidebar. */
-  margin-top: 8px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.dash-sidebar-footer .dash-link.dash-logout {
-  margin: 0;
-}
-
-.dash-sidebar-legal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 6px 8px;
-  padding: 0 6px 4px;
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.dash-sidebar-legal a {
-  color: var(--seav-meta-muted-color);
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-
-.dash-sidebar-legal a:hover {
-  color: #5bbcff;
-}
-
-.dash-sidebar-legal-sep {
-  color: rgba(255, 255, 255, 0.22);
-  user-select: none;
-}
 
 /* =========================================================
    SIDEBAR LINKS
@@ -759,125 +670,6 @@ body.app-page::after {
    SIDEBAR BADGE PANEL
 ========================================================= */
 
-.dash-side-stack,
-.dash-side-stack .dash-sidebar,
-.sidebar-badge-panel,
-.sidebar-badge-grid,
-.sidebar-badge-item {
-  overflow: visible !important;
-}
-
-.sidebar-badge-panel {
-  position: relative;
-  z-index: 20;
-
-  margin-top: 0;
-  width: 100%;
-}
-
-.sidebar-badge-grid {
-  position: relative;
-  z-index: 21;
-
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-
-  gap: 10px;
-
-  width: 100%;
-}
-
-.sidebar-badge-item {
-  position: relative;
-  z-index: 22;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 58px;
-  height: 58px;
-
-  padding: 4px;
-
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.08);
-
-  background: var(--page-shell-panel);
-
-  transition: transform 0.18s ease;
-}
-
-.sidebar-badge-item:hover {
-  transform: scale(1.08);
-}
-
-.sidebar-badge-title {
-  margin: 0 0 16px;
-  color: rgba(255,255,255,0.92);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: normal;
-  text-transform: none;
-  text-align: center;
-
-}
-
-.sidebar-badge-item img {
-  width: 100%;
-  height: 100%;
-
-  display: block;
-
-  object-fit: contain;
-}
-
-.sidebar-badge-tooltip {
-  position: absolute;
-
-  left: 50%;
-  top: -12px;
-
-  z-index: 99999;
-
-  padding: 6px 10px;
-
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.12);
-
-  background: var(--page-shell-bg);
-  color: #ffffff;
-
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1;
-
-  white-space: nowrap;
-
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-
-  transform: translate(-50%, -100%);
-
-  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
-}
-
-.sidebar-badge-item:hover .sidebar-badge-tooltip {
-  opacity: 1;
-  visibility: visible;
-}
-
-.sidebar-badge-empty {
-  width: 100%;
-
-  color: var(--seav-meta-muted-color);
-
-  font-size: 12px;
-  text-align: center;
-}
-
 /* =========================================================
    MAIN CONTENT
 ========================================================= */
@@ -894,51 +686,9 @@ body.app-page::after {
   background: transparent;
 }
 
-.dash-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-
-  gap: 14px;
-
-  margin-bottom: 18px;
-}
-
-.dash-h1 {
-  font-family: inherit;
-
-  letter-spacing: normal;
-  text-transform: none;
-}
-
-.dash-sub {
-  margin: 8px 0 0;
-
-  color: rgba(255,255,255,0.7);
-
-  font-size: 14px;
-  font-weight: 600;
-
-  letter-spacing: normal;
-  text-transform: none;
-}
-
 /* =========================================================
    DASH GRID
 ========================================================= */
-
-.dash-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 12px;
-
-  margin-top: 12px;
-}
-
-.full-row {
-  grid-column: 1 / -1;
-}
 
 /* =========================================================
    DASH CARDS
@@ -979,18 +729,6 @@ body.app-page::after {
   font-weight: 600;
 
   line-height: 1.6;
-
-  letter-spacing: normal;
-  text-transform: none;
-}
-
-.dash-list {
-  margin: 0;
-  padding-left: 18px;
-
-  color: rgba(255,255,255,0.75);
-
-  font-size: 14px;
 
   letter-spacing: normal;
   text-transform: none;
@@ -1077,34 +815,7 @@ body.app-page::after {
     padding: 0 12px 12px;
   }
 
-  .dash-sidebar {
-    display: flex;
-    /*
-     * Column: scrollable nav gets its own full-width row, Logout + legal
-     * links sit in a second row below. Previously this was a single row
-     * (nav + Logout side by side), which forced the nav's scrollbar to
-     * render right behind the pinned Logout button — Logout visually
-     * covered it and looked "stuck" (reported again 2026-08-02). Moving
-     * Logout to its own row below, instead of hiding the scrollbar, is the
-     * real fix. See feedback_mobile_sidebar_scrollbar memory.
-     */
-    flex-direction: column;
-    align-items: stretch;
-
-    gap: 8px;
-    overflow: visible;
-
-    width: 100%;
-
-    margin: 0 0 12px;
-    padding: 12px 14px;
-
-    border-right: none;
-    border-bottom: none;
-
-    border-radius: 20px;
-  }
-
+  
   .dash-nav {
     display: flex;
     flex-direction: row;
@@ -1132,22 +843,9 @@ body.app-page::after {
     margin: 0;
   }
 
-  .dash-sidebar-footer {
-    margin-top: 0;
-    padding-top: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-    flex: 0 0 auto;
-    width: 100%;
-  }
-
-  .dash-sidebar-footer .dash-link.dash-logout {
-    margin: 0;
-  }
-
-  .dash-side-stack {
-    gap: 12px;
-  }
-
+  
+  
+  
   .dash-content {
     margin-top: 0;
     padding: 0 0 20px;
@@ -1157,10 +855,7 @@ body.app-page::after {
     flex: 0 0 auto;
   }
 
-  .dash-title {
-    display: none;
-  }
-
+  
   .dash-content {
     padding: 20px;
   }
@@ -1244,9 +939,6 @@ body.app-page::after {
   transition: opacity 0.6s ease;
 }
 
-body.page-fading #pageFade {
-  opacity: 1;
-}
 /* =========================================================
    CLS — RESERVED SPACE FOR JS-FILLED CONTAINERS
    2026-08-22. Measured, not guessed: a layout-shift observer on

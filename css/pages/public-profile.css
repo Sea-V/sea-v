@@ -103,29 +103,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
    needs its own look, styled to match .public-topbar .login.
 ========================================================= */
 
-.public-profile-topbar-cta {
-  display: inline-flex;
-  align-items: center;
-  min-height: 42px;
-  padding: 0 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(114, 228, 255, 0.3);
-  background: rgba(114, 228, 255, 0.1);
-  color: #ffffff !important;
-  font-weight: 850 !important;
-  font-size: 14px;
-  text-decoration: none;
-  transition: background 0.15s ease;
-}
-
-.public-profile-topbar-cta:hover {
-  background: rgba(114, 228, 255, 0.18);
-}
-
-.public-profile-page .dashboard-shell-head {
-  grid-template-columns: 1fr;
-}
-
 /* =========================================================
    PROFILE + STACK
 ========================================================= */
@@ -165,12 +142,10 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 .public-profile-page .dash-card-accent-profile { --section-accent: var(--page-profile); }
 .public-profile-page .dash-card-accent-seatime { --section-accent: var(--page-seatime); }
 .public-profile-page .dash-card-accent-vessels { --section-accent: var(--page-vessels); }
-.public-profile-page .dash-card-accent-tenders { --section-accent: var(--page-tenders); }
 .public-profile-page .dash-card-accent-navigation { --section-accent: var(--page-navigation); }
 .public-profile-page .dash-card-accent-onboard { --section-accent: var(--page-onboard-experience); }
 .public-profile-page .dash-card-accent-specialist { --section-accent: var(--page-specialist-qualifications); }
 .public-profile-page .dash-card-accent-certificates { --section-accent: var(--page-certificates); }
-.public-profile-page .dash-card-accent-references { --section-accent: var(--page-references); }
 .public-profile-page .dash-card-accent-achievements { --section-accent: var(--page-achievements); }
 .public-profile-page .dash-card-accent-hobbies { --section-accent: var(--page-hobbies-interests); }
 .public-profile-page .dash-card-accent-land { --section-accent: var(--page-land-experience); }
@@ -321,18 +296,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 /* Legacy alias — section renderers still use public-cv-* content classes */
-.public-cv-kicker,
-.public-cv-section-kicker,
-.public-cv-fact-label,
-.public-cv-vessel-label {
-  margin: 0;
-  color: #5bbcff;
-  font-size: 10px;
-  line-height: 1.2;
-  font-weight: 850;
-  letter-spacing: 0.2px;
-  text-transform: none;
-}
 
 .public-cv-ref-name {
   text-transform: none;
@@ -375,73 +338,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
    SECTION CARDS — single-column recruiter flow
 ========================================================= */
 
-.public-cv-section {
-  padding: 14px 15px;
-  border-radius: 16px;
-  border: 1px solid rgba(91, 188, 255, 0.14);
-  background: var(--page-shell-bg);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
-}
-
-.public-cv-section--compact {
-  padding: 12px 14px;
-}
-
-.public-cv-section--muted {
-  border-color: rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.public-cv-section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.public-cv-section-head h2 {
-  margin: 0;
-  padding-left: 10px;
-  position: relative;
-  color: #ffffff;
-  font-size: 14px;
-  line-height: 1.2;
-  font-weight: 850;
-}
-
-.public-cv-section-head h2::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 2px;
-  bottom: 2px;
-  width: 2px;
-  border-radius: 999px;
-  background: #5bbcff;
-}
-
-.public-cv-section-count {
-  flex-shrink: 0;
-  min-height: 22px;
-  padding: 0 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(91, 188, 255, 0.2);
-  background: rgba(91, 188, 255, 0.08);
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 22px;
-}
-
-.public-cv-section-note {
-  margin: -2px 0 8px;
-  color: var(--seav-meta-muted-color);
-  font-size: 10px;
-  line-height: 1.4;
-  font-weight: 550;
-}
-
 .public-cv-show-more {
   width: 100%;
   margin-top: 8px;
@@ -475,19 +371,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .pp-vessel-full-list.public-cv-more-block:not([hidden]) {
   margin-top: 16px;
-}
-
-/* Tenders grouped by vessel (.tender-vessel-group, from
-   css/pages/tenders.css) — same vertical stack as #tendersGrid on the
-   Tenders page itself, just under a class instead of that page's own id. */
-.tender-vessel-group-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.tender-vessel-group-list.public-cv-more-block:not([hidden]) {
-  margin-top: 14px;
 }
 
 /* =========================================================
@@ -600,20 +483,13 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   font-weight: 850;
 }
 
-.public-cv-highlight-desc,
-.public-cv-highlight-witness {
+.public-cv-highlight-desc {
   margin: 0;
   color: var(--seav-meta-muted-color);
   font-size: 11px;
   line-height: 1.45;
   font-weight: 650;
   word-break: break-word;
-}
-
-.public-cv-highlight-witness {
-  color: rgba(91, 188, 255, 0.72);
-  font-size: 10px;
-  font-weight: 750;
 }
 
 /* 2026-08-05, per Jack: in-progress Deck Progression cards on the public
@@ -935,27 +811,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   flex: 1;
 }
 
-.public-cv-hobby-desc {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 10px;
-  line-height: 1.45;
-}
-
-.public-cv-hobby-photos {
-  display: flex;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.public-cv-hobby-photo {
-  width: 52px;
-  height: 52px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1px solid rgba(232, 121, 249, 0.24);
-}
-
 /* =========================================================
    REFERENCES
 ========================================================= */
@@ -1078,7 +933,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   text-transform: uppercase;
 }
 
-
 .onboard-detail-attachment,
 .onboard-detail-attachment:link,
 .onboard-detail-attachment:visited {
@@ -1100,62 +954,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
    ONBOARD EXPERIENCE — vessel grouping (public profile)
 ========================================================= */
 
-.public-onboard-vessel-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.public-onboard-vessel-group {
-  border-radius: 12px;
-  border: 1px solid var(--surface-border);
-  background: rgba(255, 255, 255, 0.03);
-  overflow: hidden;
-}
-
-.public-onboard-vessel-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  width: 100%;
-  min-height: 40px;
-  padding: 8px 12px;
-  border: none;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.public-onboard-vessel-summary:hover {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.public-onboard-vessel-summary:focus-visible {
-  outline: 2px solid rgba(91, 188, 255, 0.6);
-  outline-offset: -2px;
-}
-
-.public-onboard-vessel-name {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.public-onboard-vessel-count {
-  margin-left: auto;
-  margin-right: 6px;
-  color: var(--seav-meta-muted-color);
-  font-size: 10px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
 .public-onboard-vessel-chevron {
   flex-shrink: 0;
   display: inline-flex;
@@ -1168,17 +966,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 .public-onboard-vessel-chevron svg {
   width: 100%;
   height: 100%;
-}
-
-.public-onboard-vessel-group.is-expanded .public-onboard-vessel-chevron {
-  transform: rotate(180deg);
-}
-
-.public-onboard-vessel-body {
-  padding: 0 12px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
 }
 
 /* =========================================================
@@ -1441,14 +1228,8 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
     min-height: 280px;
   }
 
-  .public-cv-highlight-row {
-    grid-template-columns: auto minmax(0, 1fr);
+  
   }
-
-  .public-cv-highlight-row-meta {
-    display: none;
-  }
-}
 
 /* =========================================================
    SEAFARER AWARD CARDS — 2026-08-22
@@ -1459,36 +1240,6 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
    and carries the family colour and flag stripe defined in js/seav-badges.js
    (AWARD_FAMILY_BY_CODE), the same source the Milestones card reads.
 ========================================================= */
-
-.public-cv-highlight-card--award {
-  position: relative;
-  overflow: hidden;
-  padding-top: 15px;
-  border-color: var(--award-edge, rgba(255, 255, 255, 0.10));
-}
-
-.public-cv-highlight-flag {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  display: flex;
-  pointer-events: none;
-}
-
-.public-cv-highlight-flag i {
-  flex: 1;
-}
-
-.public-cv-highlight-country {
-  margin: 3px 0 0;
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: var(--seav-meta-muted-color, rgba(255, 255, 255, 0.45));
-}
 
 /* Awards inside a vessel's own collapsible render as the Milestones trophy
    card now (SeavCards.buildAwardTile), so this list becomes a grid. Scoped to
@@ -1528,11 +1279,6 @@ body.pp-look-new {
      absolutely placed wave would anchor to the viewport and stay put while
      the page scrolls under it. */
   position: relative;
-}
-
-body.pp-look-new .public-profile-topbar,
-body.pp-look-new #ppContent > .dashboard-shell-head {
-  display: none;
 }
 
 body.pp-look-new .pp-wave {
@@ -1671,7 +1417,6 @@ body.pp-look-new .pp-hero {
     height: 28px;
   }
 }
-
 
 /* ---------------------------------------------------------
    Depth ladder (default since v544) — Jack, 2026-09-29: "deepest blue
@@ -1985,7 +1730,6 @@ body.pp-look-new #ppShell .pp-cert-group .public-cv-mini-row {
     transition: none;
   }
 }
-
 
 /* =========================================================
    INTERESTS & ACHIEVEMENTS (v572, Jack 2026-10-05)

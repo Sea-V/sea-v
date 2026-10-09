@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v586**. Jack pushes every commit himself from
+- HEAD = **v587**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1488,6 +1488,37 @@ too ("less is more"): no border/background, `--bridge-head-icon` 28px box,
   from here); the public guidance asks for sea / standby / yard (+ watch)
   broken out, which the printout already does.
 
+### v586–v587 — dead code removed (Jack: "review all dead code")
+Two read-only audits (JS/HTML, CSS), then removal. Already in v586 (Jack
+committed mid-way): `js/navigation-routing.js` deleted (no caller since v530)
+and its tags on navigation / public profile; dashboard's duplicate topojson /
+ports / helpers / passage / routing tags — cause was patch-html-scripts.mjs
+re-inserting the block because it tested for navigation-passage.js, now keyed
+on navigation-helpers.js; core.js `renderPublicTopbar` (no page uses
+data-topbar="public"), the sidebar-achievements / dashboard-in-progress
+renderers and their listeners (their mounts exist on no page).
+**Bug fixed on the way:** topbar Search never listed PAGES since v565 — it
+read `#sidebarMount a.dash-link`, which is empty; now `#topbarMenuPanel`.
+**DB, LIVE:** `profile.schengen_stays` dropped
+(`docs/schema-drop-profile-schengen-stays.sql`; 0/15 rows held data; owner
+read + anon public profile checked, advisors 23/23), schengen probe removed
+from test-supabase.
+v587: 20 unused JS helpers (`getEmpty*Entry` x12, `computeMasterSeaService`,
+`getVesselHistory`/`getCurrentVesselIndex`, `renderMandatoryCertDetailHtml`,
+`listBadges`, `buildHobbyRow`, `getCountryByName`, `buildVesselHighlights`);
+the always-hidden old `.dashboard-shell-head` on public-profile.html and the
+JS that filled it; 268 CSS selectors (225 whole rules, ~1,800 lines across
+24 sheets) whose class names appear in no .html / js / edge function — a
+selector is only cut when it REQUIRES such a class (`:not()` args never
+count; dead args inside `:is()/:where()` are pruned, the rest kept; names
+built at runtime like `pp-snap--${}` are protected by a prefix check);
+33 unused tokens in variables.css; corners regenerated (320 -> 296).
+Kept on purpose: `#sidebarMount` divs (they gate wireLogout /
+wireSidebarPublicProfile), `wireDragDrop`, navigation-passage.js,
+img/hero.jpg and img/logo-email.png (may be used by Supabase email
+templates — check the dashboard before deleting). Public profile checked
+locally with live data after the cut.
+
 ### v574 — 48 skills & qualities, grouped
 Jack: "add more skills that would be relevant to yachting". CREW_QUALITIES
 grew 16 -> 48 in five CREW_QUALITY_GROUPS (Working style, Physical &
@@ -1759,8 +1790,8 @@ first-run setup) and the dashboard header / quick-action inconsistencies.
    ~~storage path-planting~~ and ~~verification email rate limit~~ (both
    fixed v579);
    Master Unlimited counts pre-certificate sea days (`seav-data.js` ~2027);
-   payslip total mixes currencies; `dashboard.html:72-76` duplicate script tags and
-   dead `navigation-routing.js` (patch script re-inserts it); CSP allows
+   payslip total mixes currencies; ~~dashboard duplicate script tags and
+   dead `navigation-routing.js`~~ (removed v586); CSP allows
    unsafe-inline/eval and whole CDNs, supabase-js unpinned; `navigation_areas`
    / `tenders` have TABLE-level anon SELECT; auth-form focus outlines and
    modal dialog semantics; muted token 4.42:1 contrast. **Needs Jack's call:**

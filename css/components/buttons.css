@@ -13,13 +13,6 @@
   gap: 10px;
 }
 
-.attach-actions {
-  display: flex;
-  align-items: center;
-
-  gap: 6px;
-}
-
 /* =========================================================
    PRIMARY BUTTON
 ========================================================= */
@@ -109,16 +102,3 @@
    ATTACHMENT BUTTONS
 ========================================================= */
 
-.btn-attach {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 6px 12px;
-
-  border-radius: 999px;
-
-  font-size: var(--pill-font-size);
-
-  text-decoration: none;
-}

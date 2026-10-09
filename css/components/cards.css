@@ -6,24 +6,6 @@
    SHELLS
 ========================================================= */
 
-.ui-shell {
-  overflow: hidden;
-
-  border-radius: 30px;
-  border: 1px solid rgba(91,188,255,0.28);
-
-  /* Solid fill, not a gradient — Jack wants solid colors site-wide
-     2026-08-03. Value is the midpoint of the old gradient, no corner glow. */
-  background: rgba(15,34,56,0.92);
-
-  box-shadow:
-    0 20px 48px rgba(0,0,0,0.28);
-}
-
-.ui-shell-pad {
-  padding: 22px;
-}
-
 /* =========================================================
    CARDS
 ========================================================= */
@@ -37,10 +19,6 @@
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.06),
     0 12px 28px rgba(0,0,0,0.14);
-}
-
-.ui-card-pad {
-  padding: 18px;
 }
 
 .ui-card-hover {
@@ -64,84 +42,21 @@
    MINI BOXES
 ========================================================= */
 
-.ui-mini-box {
-  border-radius: 16px;
-  border: 1px solid rgba(91,188,255,0.14);
-
-  background: var(--page-shell-panel);
-}
-
 /* =========================================================
    TYPOGRAPHY
 ========================================================= */
-
-.ui-label {
-  color: #5bbcff;
-
-  font-size: 13px;
-  line-height: 1.25;
-  font-weight: 650;
-}
-
-.ui-value {
-  color: rgba(255,255,255,0.84);
-
-  font-size: 13px;
-  line-height: 1.35;
-  font-weight: 500;
-}
-
-.ui-muted {
-  color: rgba(255,255,255,0.64);
-
-  font-size: 13px;
-  line-height: 1.35;
-  font-weight: 600;
-}
 
 /* =========================================================
    DIVIDERS
 ========================================================= */
 
-.ui-divider {
-  border-top:
-    1px solid rgba(91,188,255,0.10);
-}
-
 /* =========================================================
    ACTION LINKS (use css/components/actions.css)
 ========================================================= */
 
-.ui-actions a:not(.seav-action) {
-  color: #5bbcff;
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.ui-actions a:not(.seav-action):hover {
-  text-decoration: underline;
-}
-
-.ui-actions .danger {
-  color: #ff6d7d;
-}
-
 /* =========================================================
    ACCENT VARIANTS
 ========================================================= */
-
-.ui-accent-blue {
-  border-color: rgba(91,188,255,0.30);
-}
-
-.ui-accent-green {
-  border-color: rgba(94,230,168,0.52);
-}
-
-.ui-accent-purple {
-  border-color: rgba(209,107,255,0.52);
-}
 
 .ui-accent-gold {
   border-color: rgba(255,184,107,0.52);
@@ -184,26 +99,7 @@
    GRID SYSTEM
 ========================================================= */
 
-.ui-grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-
-  gap: 14px;
-}
-
 /* =========================================================
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 1200px) {
-  .ui-grid-3 {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 700px) {
-  .ui-grid-3 {
-    grid-template-columns: 1fr;
-  }
-}

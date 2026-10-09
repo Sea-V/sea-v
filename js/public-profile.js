@@ -185,13 +185,11 @@
       const bioEl = document.getElementById("pp_bio");
       const overviewWrap = document.getElementById("ppCareerOverview");
       const footerNote = document.getElementById("ppFooterNote");
-      const shellTitle = document.getElementById("ppShellTitle");
 
       const displayName = profile.name || "Seafarer";
 
       if (nameEl) nameEl.textContent = displayName;
       document.title = `${displayName} · Yacht CV · SEA-V`;
-      if (shellTitle) shellTitle.textContent = `${displayName} — public profile`;
       renderHero(profile, vessels, displayName);
 
       if (qualificationEl) qualificationEl.textContent = profile.qualification || "—";

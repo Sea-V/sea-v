@@ -719,11 +719,9 @@
   }
 
   function getSectionNavOffset() {
-    const topbar = document.querySelector(".public-profile-topbar");
     const nav = document.getElementById("ppSectionNav");
-    const topbarHeight = topbar ? topbar.offsetHeight : 0;
     const navHeight = nav && !nav.hidden ? nav.offsetHeight : 0;
-    return topbarHeight + navHeight + 12;
+    return navHeight + 12;
   }
 
   function scrollToSection(sectionId) {

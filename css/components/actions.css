@@ -100,35 +100,6 @@
 }
 
 /* Legacy aliases — keep old markup styled until fully migrated */
-.ui-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.ui-actions a:not([class*="seav-action"]) {
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--pill-height);
-  padding: 0 var(--pill-padding-x);
-  border-radius: 999px;
-  border: 1px solid var(--pill-blue-border);
-  background: var(--pill-blue-bg);
-  color: #ffffff;
-  font-size: var(--pill-font-size);
-  font-weight: var(--pill-font-weight);
-  text-decoration: none;
-}
-
-.ui-actions a:not([class*="seav-action"]).reference-delete,
-.ui-actions .danger,
-.ui-actions a:not([class*="seav-action"])[class*="delete"] {
-  border-color: rgba(255, 109, 125, 0.34);
-  background: rgba(255, 109, 125, 0.14);
-}
 
 .row-actions {
   display: flex;

@@ -759,35 +759,6 @@
     return false;
   }
 
-  function renderMandatoryCertDetailHtml(code) {
-    const template = getMandatoryCertTemplate(code);
-    if (!template) return "";
-
-    const stcwLine = template.stcwRef
-      ? `<p class="cert-module-guide-intro">STCW reference: ${template.stcwRef}</p>`
-      : "";
-    const summaryLine = template.summary
-      ? `<p class="cert-module-guide-intro">${template.summary}</p>`
-      : "";
-    const topicsHtml = (template.topics || []).length
-      ? `<ul class="cert-module-guide-topics">${(template.topics || [])
-          .map((topic) => `<li>${topic}</li>`)
-          .join("")}</ul>`
-      : "";
-
-    if (!stcwLine && !summaryLine && !topicsHtml) return "";
-
-    return `
-      <div class="cert-module-guide">
-        <div class="cert-module-guide-head">
-          ${summaryLine}
-          ${stcwLine}
-        </div>
-        ${topicsHtml}
-      </div>
-    `;
-  }
-
   /* =========================================================
      ID HELPERS
   ========================================================= */
@@ -818,127 +789,6 @@ const DEFAULT_PROFILE = {
   bio: "",
   photo: null
 };
-
-function getEmptySeatimeEntry() {
-  return {
-    id: createId("seatime"),
-    vesselId: "",
-    vesselName: "",
-    flag: "",
-    gt: "",
-    imoOfficialNumber: "",
-    capacityServed: "",
-    dateJoined: "",
-    dateLeft: "",
-    actualSeaServiceDays: 0,
-    standbyServiceDays: 0,
-    yardServiceDays: 0,
-    watchkeepingDays: 0,
-    verificationStatus: "Logged",
-    notes: "",
-    attachment: null,
-    createdAt: "",
-    updatedAt: ""
-  };
-}
-
-  function getEmptyVesselEntry() {
-    return {
-      id: createId("vessel"),
-      name: "",
-      flag: "",
-      gt: "",
-      builder: "",
-      imoOfficialNumber: "",
-      type: "",
-      role: "",
-      program: "",
-      desc: "",
-      from: "",
-      to: "",
-      photo: null
-    };
-  }
-
-  function getEmptyReferenceEntry() {
-    return {
-      id: createId("ref"),
-      name: "",
-      title: "",
-      email: "",
-      vesselId: "",
-      vessel: "",
-      role: "",
-      period: "",
-      text: "",
-      date: "",
-      status: "Draft",
-      attachment: null,
-      verification: {
-        confirmed: false,
-        note: "",
-        rank: "",
-        cocNumber: "",
-        signatureName: "",
-        signedAt: ""
-      }
-    };
-  }
-
-  function getEmptyCertificateEntry() {
-    return {
-      id: createId("cert"),
-      code: "",
-      name: "",
-      issued: "",
-      expiry: "",
-      status: "Missing",
-      attachment: null,
-      isMandatory: false,
-      isTemplate: false,
-      showOnCv: true,
-      noExpiry: false
-    };
-  }
-
-  function getEmptyAchievementEntry() {
-    return {
-      id: createId("achievement"),
-      code: "",
-      title: "",
-      category: "",
-      vesselId: "",
-      vessel: "",
-      date: "",
-      status: "Draft",
-      witnessName: "",
-      witnessPosition: "",
-      witnessEmail: "",
-      witnessCocNumber: "",
-      description: "",
-      attachment: null
-    };
-  }
-
-
-function getEmptyOnboardExperienceEntry() {
-  return {
-    id: createId("onboard"),
-    vesselId: "",
-    category: "",
-    title: "",
-    description: "",
-    locationOnboard: "",
-    positionHeld: "",
-    dateFrom: "",
-    dateTo: "",
-    hours: 0,
-    isFamiliarisation: false,
-    attachment: null,
-    createdAt: "",
-    updatedAt: ""
-  };
-}
 
 function getOnboardCategoryLabel(value) {
   const match = ONBOARD_EXPERIENCE_CATEGORIES.find(
@@ -1068,33 +918,6 @@ function getOnboardSkillRatingLabel(rating) {
   return ONBOARD_SKILL_RATING_LABELS[toNumber(rating)] || "";
 }
 
-function getEmptyOnboardSkillEntry() {
-  return {
-    id: createId("skill"),
-    category: "",
-    skill: "",
-    rating: 0,
-    note: "",
-    createdAt: "",
-    updatedAt: ""
-  };
-}
-
-function getEmptyHobbyInterestEntry() {
-  return {
-    id: createId("hobby"),
-    category: "",
-    title: "",
-    description: "",
-    dateFrom: "",
-    dateTo: "",
-    status: "Published",
-    photos: [],
-    createdAt: "",
-    updatedAt: ""
-  };
-}
-
 function getQualityLabel(value) {
   return CREW_QUALITIES.find((item) => item.value === value)?.label || "";
 }
@@ -1153,23 +976,6 @@ function collectCrewQualities({ hobbiesInterests = [], specialistQualifications 
   return [...counts.values()].sort((a, b) => b.count - a.count || order.indexOf(a.value) - order.indexOf(b.value));
 }
 
-function getEmptyLandExperienceEntry() {
-  return {
-    id: createId("land"),
-    role: "",
-    employer: "",
-    location: "",
-    dateFrom: "",
-    dateTo: "",
-    isCurrent: false,
-    description: "",
-    qualities: [],
-    attachment: null,
-    createdAt: "",
-    updatedAt: ""
-  };
-}
-
 function getHobbyInterestCategoryLabel(value) {
   const match = HOBBIES_INTEREST_CATEGORIES.find((item) => item.value === value);
   return match?.label || value || "—";
@@ -1186,44 +992,11 @@ function getHobbyInterestStatusDisplay(status) {
   return map[status] || { label: status || "Published", className: "pill-neutral" };
 }
 
-function getEmptySpecialistQualificationEntry() {
-  return {
-    id: createId("specialist"),
-    category: "",
-    title: "",
-    issuingBody: "",
-    dateObtained: "",
-    expiry: "",
-    notes: "",
-    attachment: null,
-    createdAt: "",
-    updatedAt: ""
-  };
-}
-
 function getSpecialistCategoryLabel(value) {
   const match = SPECIALIST_QUALIFICATION_CATEGORIES.find(
     (item) => item.value === value
   );
   return match?.label || value || "—";
-}
-
-function getEmptyPayslipEntry() {
-  return {
-    id: createId("payslip"),
-    taxYear: "",
-    payPeriod: "",
-    paymentDate: "",
-    employer: "",
-    vesselId: "",
-    grossAmount: "",
-    netAmount: "",
-    currency: "GBP",
-    notes: "",
-    attachment: null,
-    createdAt: "",
-    updatedAt: ""
-  };
 }
 
 function getUkTaxYearOptions(count = 8) {
@@ -1358,26 +1131,6 @@ function getTenderProficiencyDisplay(level) {
   return {
     label,
     className: classNames[level] || "pill-neutral"
-  };
-}
-
-function getEmptyTenderEntry() {
-  return {
-    id: createId("tender"),
-    vesselId: "",
-    vesselName: "",
-    name: "",
-    type: "",
-    model: "",
-    length: "",
-    engine: "",
-    capacity: "",
-    reg: "",
-    proficiencyLevel: "",
-    desc: "",
-    photo: null,
-    createdAt: "",
-    updatedAt: ""
   };
 }
 
@@ -1866,82 +1619,6 @@ function getEmptyTenderEntry() {
       // MSN 1858 SS4.1 recency condition — added 2026-08-16.
       computeOowRecentSeagoingService(seatimes, vessels).met
     );
-  }
-
-  /**
-   * Master Yachts <3000GT sea-service progress — MSN 1858 (M+F) Amendment 2,
-   * section 3.6(a): while holding OOW <3000GT, 240 days watchkeeping service
-   * on vessels 15m+, including either 12 months on vessels 24m+ or 6 months
-   * on vessels 500GT+.
-   */
-  /*
-   * `certs` added 2026-08-16 and OPTIONAL for backwards compatibility. When
-   * supplied, watchkeeping is gated to service performed while holding OOW
-   * Yachts <3000GT, exactly as computeMaster3000SeaService does — so the Sea
-   * Time page tracker and the Master badge can no longer show two different
-   * watchkeeping totals for the same person. Omit `certs` and the old ungated
-   * behaviour is preserved, but the two surfaces will disagree again.
-   *
-   * Not holding the certificate at all means zero qualifying watchkeeping, not
-   * "all of it" — service before the ticket is service before the ticket.
-   */
-  function computeMasterSeaService(seatimes, vessels, certs) {
-    const gate = certs
-      ? seatimesGatedByCertIssueDate(seatimes, certs, MASTER_3000GT_GATING_CERT_CODE)
-      : null;
-
-    let totalWatchkeeping15m = 0;
-    let totalOnboard24mDays = 0;
-    let totalOnboard500gtDays = 0;
-
-    (seatimes || []).forEach((entry) => {
-      const lengthM = getEntryVesselLengthMeters(entry, vessels);
-      const gt = getEntryVesselGt(entry, vessels);
-      const days = daysBetweenDates(entry.dateJoined, entry.dateLeft);
-
-      if (lengthM >= 15) {
-        const wk = toNumber(entry.watchkeepingDays);
-        if (!gate) totalWatchkeeping15m += wk;
-        else if (gate.held) {
-          totalWatchkeeping15m += wk * apportionEntryToWindow(entry, gate.issuedDate, null);
-        }
-      }
-      if (lengthM >= 24) totalOnboard24mDays += days;
-      if (gt >= 500) totalOnboard500gtDays += days;
-    });
-
-    totalWatchkeeping15m = Math.round(totalWatchkeeping15m);
-
-    const months24m = totalOnboard24mDays / DAYS_PER_MONTH;
-    const months500gt = totalOnboard500gtDays / DAYS_PER_MONTH;
-    const watchMet = totalWatchkeeping15m >= MASTER_WATCHKEEPING_TARGET;
-    const use500gtPath =
-      months500gt / MASTER_SPECIAL_500GT_TARGET_MONTHS >
-      months24m / MASTER_SPECIAL_24M_TARGET_MONTHS;
-    const specialValue = use500gtPath ? months500gt : months24m;
-    const specialTarget = use500gtPath
-      ? MASTER_SPECIAL_500GT_TARGET_MONTHS
-      : MASTER_SPECIAL_24M_TARGET_MONTHS;
-    const specialMet =
-      months24m >= MASTER_SPECIAL_24M_TARGET_MONTHS ||
-      months500gt >= MASTER_SPECIAL_500GT_TARGET_MONTHS;
-
-    return {
-      totalWatchkeeping15m,
-      watchkeepingGated: !!gate,
-      watchkeepingGateHeld: gate ? gate.held : null,
-      totalOnboard24mDays,
-      totalOnboard500gtDays,
-      months24m,
-      months500gt,
-      watchMet,
-      use500gtPath,
-      specialValue,
-      specialTarget,
-      specialMet,
-      allMasterMet: watchMet && specialMet,
-      WATCHKEEPING_TARGET: MASTER_WATCHKEEPING_TARGET
-    };
   }
 
   /**
@@ -2594,34 +2271,6 @@ function getEmptyTenderEntry() {
   /* =========================================================
      VESSEL HELPERS
   ========================================================= */
-
-  // 2026-08-05 fix, Jack: this used to fall back to "most recent by `to`
-  // date" whenever no vessel was open-ended (e.g. a single vessel that
-  // already has a leave date set), which wrongly treated a departed vessel
-  // as current. Returns -1 — genuinely "no current vessel" — instead of
-  // guessing. Same root cause as the js/vessels.js renderVessels() fix;
-  // this pair (getCurrentVesselIndex/getVesselHistory) has no live callers
-  // today but is part of the exported public API, so it's fixed too rather
-  // than left as a landmine for whoever reaches for it next.
-  function getCurrentVesselIndex(vessels) {
-    if (!Array.isArray(vessels) || !vessels.length) return -1;
-    return vessels.findIndex((v) => !v.to || !String(v.to).trim());
-  }
-
-  function getVesselHistory(vessels) {
-    if (!Array.isArray(vessels) || !vessels.length) return [];
-
-    const currentIndex = getCurrentVesselIndex(vessels);
-
-    return vessels
-      .map((v, idx) => ({ ...v, _originalIndex: idx }))
-      .filter((_, idx) => idx !== currentIndex)
-      .sort((a, b) => {
-        const da = a.from ? new Date(a.from) : new Date(0);
-        const db = b.from ? new Date(b.from) : new Date(0);
-        return db - da;
-      });
-  }
 
 function getSortedVesselOptions(vessels = []) {
   return [...(vessels || [])]
@@ -3910,23 +3559,15 @@ window.SeavData = {
   isRankRoleCert,
   DEPRECATED_MANDATORY_CODES,
   getMandatoryCertTemplate,
-  renderMandatoryCertDetailHtml,
   isSuppressedAdditionalCert,
   createId,
   DEFAULT_PROFILE,
-  getEmptySeatimeEntry,
-  getEmptyVesselEntry,
-  getEmptyReferenceEntry,
-  getEmptyCertificateEntry,
-  getEmptyAchievementEntry,
   ONBOARD_EXPERIENCE_CATEGORIES,
-  getEmptyOnboardExperienceEntry,
   getOnboardCategoryLabel,
   ONBOARD_SKILL_CATEGORIES,
   getOnboardSkillCategoryLabel,
   getOnboardSkillsForCategory,
   getOnboardSkillRatingLabel,
-  getEmptyOnboardSkillEntry,
   HOBBIES_INTEREST_CATEGORIES,
   CREW_QUALITIES,
   CREW_QUALITY_GROUPS,
@@ -3937,16 +3578,12 @@ window.SeavData = {
   normalizeHighlights,
   normalizeCategoryValue,
   collectCrewQualities,
-  getEmptyLandExperienceEntry,
-  getEmptyHobbyInterestEntry,
   getHobbyInterestCategoryLabel,
   SPECIALIST_QUALIFICATION_CATEGORIES,
-  getEmptySpecialistQualificationEntry,
   getSpecialistCategoryLabel,
   getHobbyInterestStatusDisplay,
   PAYSLIP_CURRENCIES,
   PAYSLIP_TAX_YEAR_MONTHS,
-  getEmptyPayslipEntry,
   getUkTaxYearOptions,
   inferUkTaxYear,
   normalizePayslipMonth,
@@ -3957,7 +3594,6 @@ window.SeavData = {
   TENDER_PROFICIENCY_LEVELS,
   getTenderProficiencyLabel,
   getTenderProficiencyDisplay,
-  getEmptyTenderEntry,
   toNumber,
   totalQualifyingDays,
   getSeatimeTotals,
@@ -3970,7 +3606,6 @@ window.SeavData = {
   findSeafarerPosition,
   getPositionOptionsHtml,
   isOowSeaTimeComplete,
-  computeMasterSeaService,
   seatimesGatedByCertIssueDate,
   computeMaster200SeaService,
   computeMaster500SeaService,
@@ -3991,8 +3626,6 @@ window.SeavData = {
   getCertExpiryInfo,
   isCertNoExpiry,
   isCertExpiringOrExpired,
-  getCurrentVesselIndex,
-  getVesselHistory,
   getSortedVesselOptions,
   getVesselColor,
   getCurrentVessel,
