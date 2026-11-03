@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v592**. Jack pushes every commit himself from
+- HEAD = **v593**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1656,6 +1656,22 @@ create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
 (`::after`) stays off. Also in this commit: `docs/schema-profile-public-theme.sql`
 (applied live 2026-11-03; column + `get_public_profile` return it). The
 picker and theme CSS are not built yet.
+
+### v593 — background no longer bands dark / light while scrolling (2026-11-03)
+Jack: "when I scroll down it changes between the dark and white but only
+in the background ... it is currently broken up", and the Light wave
+"slightly darker". Cause: ocean.jpg is a bright breaking wave over a
+near-black bottom third; `cover` on the fixed layer laid that black band
+across the lower screen, so the gaps between scrolling panels flicked
+between foam and black (worst in Light). Fix (theme-bridge.css, app
+pages): photo anchored `center top`, lower part faded out with a
+`mask-image` gradient (solid to 40%, gone by 92%), filter via
+`--seav-ocean-filter`. Light: opacity 0.16 -> 0.24, filter
+`saturate(0.9) contrast(0.8)` so foam is not white patches. Public
+profile `.ocean` gets the same anchor + fade; light palettes 0.14 -> 0.22
+with the same softening. Checked on a lengthened dashboard harness at
+top / middle / bottom in both themes, 375px phone in Light, and the real
+public profile scrolled 1800px in Pearl Grey and Sea-V Original.
 
 ### v592 — public profile in the new style, with five crew palettes (2026-11-03)
 Jack: the public profile "is the old style ... match the current new style,

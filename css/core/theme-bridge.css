@@ -439,10 +439,22 @@
    (theme-light.css sets its own). */
 body.app-page {
   --seav-ocean-opacity: 0.32;
+  --seav-ocean-filter: blur(1px) saturate(1.2);
 }
 
+/* v593 (Jack: "when I scroll down it changes between the dark and white
+   ... it is currently broken up"). ocean.jpg is a bright breaking wave
+   over a near-black bottom third, and `cover` on a fixed layer put that
+   black band across the lower part of every screen — as panels scrolled
+   past, the gaps flicked between bright foam and black. The photo is now
+   anchored to its top (the wave) and its lower half fades out into the
+   page colour, so the background reads as one even wash. */
 body.app-page::before {
   opacity: var(--seav-ocean-opacity) !important;
+  filter: var(--seav-ocean-filter) !important;
+  background-position: center top, center top !important;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 92%);
 }
 
 body.app-page::after {
