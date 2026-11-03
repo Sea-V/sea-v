@@ -431,8 +431,20 @@
    Signed-in pages only — the public info pages keep their ocean.
 --------------------------------------------------------- */
 
-/* No ocean photo behind the app: one flat navy page. */
-body.app-page::before,
+/* The ocean photo stays, FAINT (Jack, 2026-11-03: "I would like the ocean
+   wave back ... even if its faint, it will create a nice contrast"). It
+   was hidden for the first Quiet navy pass. The photo layer only shows
+   around and between the solid panels; the old tint layer (::after) is
+   not needed at this strength. Strength per theme: --seav-ocean-opacity
+   (theme-light.css sets its own). */
+body.app-page {
+  --seav-ocean-opacity: 0.32;
+}
+
+body.app-page::before {
+  opacity: var(--seav-ocean-opacity) !important;
+}
+
 body.app-page::after {
   display: none !important;
 }

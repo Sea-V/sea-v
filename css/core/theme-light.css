@@ -58,6 +58,9 @@ html[data-theme="light"] body.app-page {
 
   background: var(--bridge-bg) !important;
   color: rgb(var(--seav-ink-rgb));
+
+  /* The ocean photo as a faint blue wash on the pale page. */
+  --seav-ocean-opacity: 0.16;
 }
 
 /* Cards lift off the grey page with a hairline shadow instead of colour. */

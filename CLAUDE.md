@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v590**. Jack pushes every commit himself from
+- HEAD = **v591**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1648,6 +1648,14 @@ asked for both, switchable).
   generator, admin) and anything that renders only with real data —
   check signed in. Phone dashboard: tile labels crowd under wide figures
   at 375px in BOTH themes (seen with "1,197 days"); not caused by this.
+
+### v591 — faint ocean behind signed-in pages
+Jack: "I would like the ocean wave back ... even if its faint, it will
+create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
+`--seav-ocean-opacity` is 0.32 in Dark and 0.16 in Light. The tint layer
+(`::after`) stays off. Also in this commit: `docs/schema-profile-public-theme.sql`
+(applied live 2026-11-03; column + `get_public_profile` return it). The
+picker and theme CSS are not built yet.
 
 ### v586–v587 — dead code removed (Jack: "review all dead code")
 Two read-only audits (JS/HTML, CSS), then removal. Already in v586 (Jack
