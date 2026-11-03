@@ -91,7 +91,12 @@ html[data-theme="light"] body.app-page :is(select option, .modal-form select opt
    rgba(0, 0, 0, 0.22), which on white reads as a disabled grey box.
    background-COLOR only, so select chevrons (background-image) survive. */
 html[data-theme="light"]:has(> body.app-page) {
-  --field-hint-color: rgba(15, 34, 54, 0.45);
+  --field-hint-color: rgba(15, 34, 54, 0.55);
+  /* Secondary text one step stronger than Dark's alphas, to clear 4.5:1 on
+     the pale panels (same values as the light public-profile palettes). */
+  --seav-meta-muted-color: rgb(var(--seav-ink-rgb) / 0.78);
+  --seav-note-color: rgb(var(--seav-ink-rgb) / 0.8);
+  --seav-meta-desc-color: rgb(var(--seav-ink-rgb) / 0.88);
   --seav-photo-bg: #eef2f6;
 }
 
@@ -112,4 +117,46 @@ html[data-theme="light"] body.app-page input:-webkit-autofill {
    is dark in both themes). */
 html[data-theme="light"] body.app-page :is(.btn-danger, .navigation-map, .navigation-map-hint, .dashboard-navigation-chart, .leaflet-container) {
   --seav-ink-rgb: 255 255 255;
+}
+
+/* Status and accent TEXT painted in pastels for the dark themes (mint,
+   amber, orange, coral) is ~1.4:1 on white. Darker equivalents for every
+   light look: the app's Light theme AND the light public-profile palettes
+   (css/pages/public-profile-themes.css). */
+:is(
+  html[data-theme="light"]:has(> body.app-page),
+  html:is([data-pp-theme="simple-green"], [data-pp-theme="pearl-grey"]):has(> body.public-profile-page)
+) {
+  --light-status-ok: #1d6b42;
+  --light-status-amber: #8a5a00;
+  --light-status-warn: #a14d00;
+  --light-status-bad: #b42335;
+}
+
+:is(
+  html[data-theme="light"]:has(> body.app-page),
+  html:is([data-pp-theme="simple-green"], [data-pp-theme="pearl-grey"]):has(> body.public-profile-page)
+) :is(.cert-status-pill.pill-valid, .pill-valid) {
+  color: var(--light-status-ok) !important;
+}
+
+:is(
+  html[data-theme="light"]:has(> body.app-page),
+  html:is([data-pp-theme="simple-green"], [data-pp-theme="pearl-grey"]):has(> body.public-profile-page)
+) :is(.modal-card--gold .modal-info-label, .modal-form select option:disabled, .navigation-waypoints-help strong, .navigation-waypoint-coord strong, .cert-module-guide-code, .cert-compact-card.is-expanded .cert-chevron, .cert-compact-detail-value .cert-attachment-link svg, .ach-trophy-status--unlocked) {
+  color: var(--light-status-amber) !important;
+}
+
+:is(
+  html[data-theme="light"]:has(> body.app-page),
+  html:is([data-pp-theme="simple-green"], [data-pp-theme="pearl-grey"]):has(> body.public-profile-page)
+) :is(.ach-progress-row-part, .ach-cert-ico.is-warn) {
+  color: var(--light-status-warn) !important;
+}
+
+:is(
+  html[data-theme="light"]:has(> body.app-page),
+  html:is([data-pp-theme="simple-green"], [data-pp-theme="pearl-grey"]):has(> body.public-profile-page)
+) .ach-cert-ico.is-exp {
+  color: var(--light-status-bad) !important;
 }

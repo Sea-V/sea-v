@@ -25,40 +25,40 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=591" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=591" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=591" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=591" />
+  <link rel="icon" href="/favicon.ico?v=592" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=592" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=592" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=592" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Profile</title>
 
-  <link rel="stylesheet" href="styles.css?v=591" />
+  <link rel="stylesheet" href="styles.css?v=592" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-  <script src="js/seav-config.js?v=591"></script>
-  <script src="js/supabase.js?v=591"></script>
-  <script src="js/auth.js?v=591"></script>
-  <script src="js/feedback.js?v=591" defer></script>
-  <script src="js/core.js?v=591" defer></script>
-  <script src="js/seav-search.js?v=591" defer></script>
-  <script src="js/bug-reports.js?v=591" defer></script>
-  <script src="js/seav-upload.js?v=591" defer></script>
-  <script src="js/seav-countries.js?v=591" defer></script>
-  <script src="js/seav-visas.js?v=591" defer></script>
-  <script src="js/seav-data.js?v=591" defer></script>
-  <script src="js/seav-badges.js?v=591" defer></script>
-  <script src="js/api-core.js?v=591" defer></script>
-  <script src="js/api-mappers.js?v=591" defer></script>
-  <script src="js/api.js?v=591" defer></script>
-  <script src="js/state.js?v=591" defer></script>
-  <script src="js/seav-notifications.js?v=591" defer></script>
-  <script src="js/achievements-engine.js?v=591" defer></script>
-  <script src="js/badge-unlock.js?v=591" defer></script>
+  <script src="js/seav-config.js?v=592"></script>
+  <script src="js/supabase.js?v=592"></script>
+  <script src="js/auth.js?v=592"></script>
+  <script src="js/feedback.js?v=592" defer></script>
+  <script src="js/core.js?v=592" defer></script>
+  <script src="js/seav-search.js?v=592" defer></script>
+  <script src="js/bug-reports.js?v=592" defer></script>
+  <script src="js/seav-upload.js?v=592" defer></script>
+  <script src="js/seav-countries.js?v=592" defer></script>
+  <script src="js/seav-visas.js?v=592" defer></script>
+  <script src="js/seav-data.js?v=592" defer></script>
+  <script src="js/seav-badges.js?v=592" defer></script>
+  <script src="js/api-core.js?v=592" defer></script>
+  <script src="js/api-mappers.js?v=592" defer></script>
+  <script src="js/api.js?v=592" defer></script>
+  <script src="js/state.js?v=592" defer></script>
+  <script src="js/seav-notifications.js?v=592" defer></script>
+  <script src="js/achievements-engine.js?v=592" defer></script>
+  <script src="js/badge-unlock.js?v=592" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous" defer></script>
-  <script src="js/seav-share.js?v=591" defer></script>
-  <script src="js/profile.js?v=591" defer></script>
+  <script src="js/seav-share.js?v=592" defer></script>
+  <script src="js/profile.js?v=592" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -202,6 +202,39 @@
           </div>
           <p class="profile-public-share-username-hint" id="ppSlugHint"></p>
         </div>
+
+        <!-- v590 public profile palette (js/profile.js initPublicTheme).
+             Same names as the CV generator's colour schemes. -->
+        <fieldset class="profile-theme-picker" id="ppThemePicker">
+          <legend>Colours on your public profile</legend>
+          <div class="profile-theme-options">
+            <label class="profile-theme-option" style="--swatch-bg: #0a1726; --swatch-accent: #5bbcff;">
+              <input type="radio" name="pp_theme" value="seav" />
+              <span class="profile-theme-swatch" aria-hidden="true"></span>
+              <span>Sea-V Original</span>
+            </label>
+            <label class="profile-theme-option" style="--swatch-bg: #0a1e26; --swatch-accent: #7ee8dc;">
+              <input type="radio" name="pp_theme" value="ocean-blue" />
+              <span class="profile-theme-swatch" aria-hidden="true"></span>
+              <span>Ocean Blue</span>
+            </label>
+            <label class="profile-theme-option" style="--swatch-bg: #05080d; --swatch-accent: #b7c9dd;">
+              <input type="radio" name="pp_theme" value="night-watch" />
+              <span class="profile-theme-swatch" aria-hidden="true"></span>
+              <span>Night Watch</span>
+            </label>
+            <label class="profile-theme-option" style="--swatch-bg: #eef4ea; --swatch-accent: #436636;">
+              <input type="radio" name="pp_theme" value="simple-green" />
+              <span class="profile-theme-swatch" aria-hidden="true"></span>
+              <span>Simple Green</span>
+            </label>
+            <label class="profile-theme-option" style="--swatch-bg: #eef0f1; --swatch-accent: #2f4858;">
+              <input type="radio" name="pp_theme" value="pearl-grey" />
+              <span class="profile-theme-swatch" aria-hidden="true"></span>
+              <span>Pearl Grey</span>
+            </label>
+          </div>
+        </fieldset>
 
         <p class="profile-public-share-hint" id="ppLinkHint">
           Enable visibility to activate your share link.

@@ -19,10 +19,12 @@ import { fileURLToPath } from "url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-// Pages the theme covers: signed-in (app-page) and the public info /
-// sign-in pages. The public profile keeps its own look, so its sheet is out.
-const SCOPE = ":is(body.app-page, body.landing-page, body.legal-page, body.index-page)";
-const SKIP = new Set(["public-profile.css", "ocean-background.css"]);
+// Pages the theme covers: signed-in (app-page), the public info / sign-in
+// pages and, since v590, the public profile (Jack: "match the current new
+// style"; its palettes live in css/pages/public-profile-themes.css, which
+// also defines --bridge-radius there).
+const SCOPE = ":is(body.app-page, body.landing-page, body.legal-page, body.index-page, body.public-profile-page)";
+const SKIP = new Set(["ocean-background.css", "public-profile-themes.css"]);
 
 const files = [
   ...fs.readdirSync(path.join(root, "css/pages")).map((f) => `css/pages/${f}`),

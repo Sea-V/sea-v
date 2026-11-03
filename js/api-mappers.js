@@ -58,6 +58,9 @@ function mapProfileFromSupabase(p) {
     trbTargetQualification: p.trb_target_qualification || "",
     trbNotes: p.trb_notes || "",
     expiryReminders: p.expiry_reminders !== false,
+    // Public profile palette (v590). The RPC returns it for visitors; the
+    // owner's own row read returns it too.
+    publicTheme: p.public_theme || "seav",
     createdAt: p.created_at || "",
     updatedAt: p.updated_at || ""
   };
@@ -94,7 +97,11 @@ function mapProfileToSupabase(item) {
     trb_status: item.trbStatus || "not_started",
     trb_target_qualification: item.trbTargetQualification || "",
     trb_notes: item.trbNotes || "",
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    // Only when supplied (v590): SeavAPI.save is also called with partial
+    // profiles (username, public toggle), and sending the default there
+    // would reset a crew member's chosen palette.
+    ...(item.publicTheme ? { public_theme: item.publicTheme } : {})
   };
 }
 

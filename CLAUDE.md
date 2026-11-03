@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v591**. Jack pushes every commit himself from
+- HEAD = **v592**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1656,6 +1656,54 @@ create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
 (`::after`) stays off. Also in this commit: `docs/schema-profile-public-theme.sql`
 (applied live 2026-11-03; column + `get_public_profile` return it). The
 picker and theme CSS are not built yet.
+
+### v592 — public profile in the new style, with five crew palettes (2026-11-03)
+Jack: the public profile "is the old style ... match the current new style,
+and have options for colors ... like a personalised cv". Approved from a
+live preview of all five ("Yes, build all five").
+- **Look** (`css/pages/public-profile-themes.css`, imported after
+  theme-light.css, gated on `html:has(> body.public-profile-page)`): the
+  frosted ladder (`--pp-depth-*`, `--pp-glass-*`) and the glass tokens
+  become solid palette surfaces, no blur, no card shadows, faint ocean +
+  pp-wave, accent on icons / snapshot edges / Download CV.
+  `generate-bridge-corners.mjs` now covers public-profile.css too (scope
+  gained `body.public-profile-page`; 320 selectors) — the themes file
+  defines `--bridge-radius: 4px` there. **This reverses the v551 frosted
+  glass and the "public profile deliberately NOT in scope" note in v583.**
+- **Palettes** = the CV generator's names: seav (default) / ocean-blue /
+  night-watch (dark), simple-green / pearl-grey (light — ink flips via
+  `--ppt-ink`, secondary-text alphas raised). `<html data-pp-theme>` is set
+  by `applyPublicTheme()` in public-profile.js; unknown -> seav.
+- **DB, LIVE** (`docs/schema-profile-public-theme.sql`, applied in v591):
+  `profile.public_theme` text not null default 'seav' + check of the five
+  ids; `get_public_profile` DROP + CREATE with the extra column, PUBLIC
+  execute revoked and the exact old ACL restored (anon / authenticated /
+  service_role). No direct anon column grant — the RPC is the only public
+  path. Smoke test: old RPC fields byte-identical, private fields absent,
+  anon table read 401, write -> anon sees it -> 'hot-pink' rejected by the
+  check -> reverted, 15/15 rows default, advisors 23 -> 23.
+  `testPublicThemeRpc` added to test-supabase step 1 (passes).
+- **Picker**: Profile settings -> Public profile panel (expanded) ->
+  "Colours on your public profile", five radio swatches (keyboard
+  arrows, focus ring). Saved on its own by `SeavAPI.savePublicTheme`
+  (single-column update + `SeavState.updateProfile`), outside
+  #profileForm so keep() is never involved. `mapProfileToSupabase` only
+  sends public_theme when supplied, so partial saves never reset it.
+  `public_theme` added to OWNER_PROFILE_COLUMNS. Verified: the real
+  `initPublicTheme` against stubs (sync, save, failed save reverts +
+  error toast); the picker on a profile.html harness in both themes.
+- **Contrast**: a 4.5:1 sweep of the real public profile (live anon data,
+  all details open) in every palette is clean. Found + fixed on the way:
+  `reset.css` body text was `var(--white)` (the one literal white token)
+  -> ink; pastel status text (valid-pill mint, gold labels, amber /
+  orange / coral icons) gets darker equivalents in EVERY light look —
+  app Light and the light palettes share one rule in theme-light.css
+  (`--light-status-*`); app Light secondary text raised to match.
+- Dark app pages re-diffed against the pre-conversion copy: only the new
+  switch + the ocean differ.
+- Phone: Pearl Grey at 375px, no sideways scroll (other palettes share
+  the layout). Not done: the share card (seav-share.js) does not follow
+  the palette; the Download CV button is still the v542 placeholder toast.
 
 ### v586–v587 — dead code removed (Jack: "review all dead code")
 Two read-only audits (JS/HTML, CSS), then removal. Already in v586 (Jack

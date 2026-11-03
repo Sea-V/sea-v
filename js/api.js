@@ -629,6 +629,8 @@ const OWNER_PROFILE_COLUMNS = [
   "trb_status",
   "trb_target_qualification",
   "trb_notes",
+  // v590: the public profile palette, picked in Profile settings.
+  "public_theme",
   "created_at",
   "updated_at"
 ].join(",");
@@ -1278,6 +1280,20 @@ const SeavAPI = {
     },
 
     // v579: certificate expiry reminder emails on/off (own column, own save).
+    // v590 public profile palette. Saved on its own like expiryReminders, so
+    // it never goes through the profile form (see keep() in profile.js).
+    async savePublicTheme(theme) {
+      const allowed = ["seav", "ocean-blue", "night-watch", "simple-green", "pearl-grey"];
+      if (!allowed.includes(theme)) throw new Error("Unknown colour scheme.");
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const { error } = await client.from("profile").update({ public_theme: theme }).eq("user_id", userId);
+      if (error) throw error;
+      window.SeavState?.updateProfile?.({ publicTheme: theme });
+      return theme;
+    },
+
     async saveExpiryReminders(on) {
       const client = window.SeavSupabase;
       const userId = await resolveAuthUserId();

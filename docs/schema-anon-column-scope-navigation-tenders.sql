@@ -1,5 +1,5 @@
 -- =============================================================================
--- SEA-V -- Column-scope anon's SELECT on navigation_areas and tenders (v589).
+-- SEA-V -- Column-scope anon's SELECT on navigation_areas and tenders (v590).
 -- =============================================================================
 --
 -- WHY (2026-09-26 audit, CLAUDE.md open thread 9)

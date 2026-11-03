@@ -29,7 +29,7 @@ body {
     sans-serif;
 
   background: var(--navy-900);
-  color: var(--white);
+  color: rgb(var(--seav-ink-rgb));
 }
 
 /* =========================================================

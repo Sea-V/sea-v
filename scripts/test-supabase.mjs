@@ -434,7 +434,37 @@ async function testLandExperienceColumns(config) {
   return ok;
 }
 
-// navigation_areas and tenders became COLUMN-scoped for anon in v589
+// profile.public_theme (v590, docs/schema-profile-public-theme.sql) reaches
+// the public profile ONLY through get_public_profile(). The RPC's return
+// type is fixed, so a future DROP + CREATE that forgets the column would
+// silently put every profile back on the default palette.
+const PUBLIC_THEMES = ["seav", "ocean-blue", "night-watch", "simple-green", "pearl-grey"];
+
+async function testPublicThemeRpc(config) {
+  console.log(`\nPublic profile theme (get_public_profile):`);
+  const res = await fetch(`${config.url}/rest/v1/rpc/get_public_profile`, {
+    method: "POST",
+    headers: {
+      apikey: config.key,
+      Authorization: `Bearer ${config.key}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ p_lookup: "jack-sorrell" })
+  });
+  const rows = res.ok ? await res.json() : [];
+  const row = Array.isArray(rows) ? rows[0] : null;
+  if (!row) {
+    console.log(`✓ no public profile to probe  ${res.status}  SKIPPED`);
+    return res.ok;
+  }
+  const ok = "public_theme" in row && PUBLIC_THEMES.includes(row.public_theme);
+  console.log(`${ok ? "✓" : "✗"} public_theme returned  ${row.public_theme ?? "(missing)"}${ok ? "" : "  FAIL — get_public_profile must return public_theme"}`);
+  const leaked = ["dob", "email", "phone", "discharge_book_number"].filter((k) => k in row);
+  if (leaked.length) console.log(`✗ private fields returned  ${leaked.join(", ")}  FAIL`);
+  return ok && !leaked.length;
+}
+
+// navigation_areas and tenders became COLUMN-scoped for anon in v590
 // (docs/schema-anon-column-scope-navigation-tenders.sql). The public list
 // must still read in one query: PostgREST plans the whole select list up
 // front, so a column added to js/api.js without its anon grant 42501s the
@@ -931,7 +961,8 @@ async function main() {
     vesselColumnsSafe =
       (await testVesselColumns(config)) &&
       (await testLandExperienceColumns(config)) &&
-      (await testNavigationTenderColumns(config));
+      (await testNavigationTenderColumns(config)) &&
+      (await testPublicThemeRpc(config));
     referenceColumnsSafe = await testReferenceColumns(config);
     certificateColumnsSafe = await testCertificateColumns(config);
     columnDriftSafe = testPublicColumnDrift();

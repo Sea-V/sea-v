@@ -1,0 +1,184 @@
+/* =========================================================
+   PUBLIC PROFILE — NEW STYLE + CREW PALETTES (v590)
+   Jack, 2026-11-03: the public profile "is the old style, I would like it
+   to match the current new style, and have options for colors ... like a
+   personalised cv". Picked from a live preview of all five palettes.
+   - The Quiet navy look of the signed-in pages: solid panels instead of
+     frosted glass, square corners (scripts/generate-bridge-corners.mjs
+     now covers public-profile.css too), a faint ocean behind.
+   - Five palettes with the CV generator's names (CV_TEMPLATES):
+       seav (default) | ocean-blue | night-watch   — dark
+       simple-green  | pearl-grey                  — light
+     Chosen by the crew member in Profile settings, stored in
+     profile.public_theme (docs/schema-profile-public-theme.sql), set on
+     <html data-pp-theme> by js/public-profile.js.
+   How: the frosted ladder (--pp-depth-*, --pp-glass-*) and the glass
+   tokens it aliases all become this palette's solid surfaces, and every
+   white in the stylesheets reads rgb(var(--seav-ink-rgb) / a) (v590), so
+   the light palettes flip the text by redefining that one triplet.
+   Everything is gated on :has(> body.public-profile-page): no other page
+   is touched. Imported after theme-light.css, before focus.css.
+========================================================= */
+
+/* ---------- Palettes ---------- */
+html:has(> body.public-profile-page) {
+  /* seav — Sea-V Original (default, also before the profile has loaded) */
+  --ppt-bg: #0a1726;
+  --ppt-s1: #0f2236;
+  --ppt-s2: #12283e;
+  --ppt-s3: #152e47;
+  --ppt-s4: #18334f;
+  --ppt-rule: #1f3a56;
+  --ppt-accent: #5bbcff;
+  --ppt-on-accent: #0a1726;
+  --ppt-ink: 255 255 255;
+  --ppt-ocean: 0.32;
+}
+
+html[data-pp-theme="ocean-blue"]:has(> body.public-profile-page) {
+  --ppt-bg: #0a1e26;
+  --ppt-s1: #0e2a34;
+  --ppt-s2: #11323e;
+  --ppt-s3: #153b48;
+  --ppt-s4: #194452;
+  --ppt-rule: #23505e;
+  --ppt-accent: #7ee8dc;
+  --ppt-on-accent: #0a1e26;
+}
+
+html[data-pp-theme="night-watch"]:has(> body.public-profile-page) {
+  --ppt-bg: #05080d;
+  --ppt-s1: #0c121b;
+  --ppt-s2: #111925;
+  --ppt-s3: #16202e;
+  --ppt-s4: #1b2737;
+  --ppt-rule: #263345;
+  --ppt-accent: #b7c9dd;
+  --ppt-on-accent: #05080d;
+}
+
+/* Light palettes: secondary text one step stronger, so it clears 4.5:1
+   on the pale panels (the dark-theme alphas were tuned for white on navy). */
+html:is([data-pp-theme="simple-green"], [data-pp-theme="pearl-grey"]):has(> body.public-profile-page) {
+  --seav-meta-muted-color: rgb(var(--seav-ink-rgb) / 0.78);
+  --seav-note-color: rgb(var(--seav-ink-rgb) / 0.8);
+  --seav-meta-desc-color: rgb(var(--seav-ink-rgb) / 0.88);
+  --field-hint-color: rgb(var(--seav-ink-rgb) / 0.6);
+}
+
+html[data-pp-theme="simple-green"]:has(> body.public-profile-page) {
+  --ppt-bg: #eef4ea;
+  --ppt-s1: #ffffff;
+  --ppt-s2: #f6faf3;
+  --ppt-s3: #eef5e9;
+  --ppt-s4: #e8f0e2;
+  --ppt-rule: #d3e2c9;
+  --ppt-accent: #436636;
+  --ppt-on-accent: #ffffff;
+  --ppt-ink: 20 32 18;
+  --ppt-ocean: 0.14;
+  color-scheme: light;
+}
+
+html[data-pp-theme="pearl-grey"]:has(> body.public-profile-page) {
+  --ppt-bg: #eef0f1;
+  --ppt-s1: #ffffff;
+  --ppt-s2: #f7f8f9;
+  --ppt-s3: #f0f2f3;
+  --ppt-s4: #e9ecee;
+  --ppt-rule: #d7dadd;
+  --ppt-accent: #2f4858;
+  --ppt-on-accent: #ffffff;
+  --ppt-ink: 22 30 38;
+  --ppt-ocean: 0.14;
+  color-scheme: light;
+}
+
+/* ---------- The palette drives the existing tokens ---------- */
+html:has(> body.public-profile-page) {
+  --seav-ink-rgb: var(--ppt-ink);
+
+  --pp-depth-1: var(--ppt-s1);
+  --pp-depth-2: var(--ppt-s2);
+  --pp-depth-3: var(--ppt-s3);
+  --pp-depth-4: var(--ppt-s4);
+  --pp-depth-5: var(--ppt-s4);
+  --pp-depth-1-solid: var(--ppt-s1);
+  --pp-glass-blur: none;
+  --pp-glass-edge: var(--ppt-rule);
+  --pp-glass-line: var(--ppt-rule);
+  --pp-glass-shadow: none;
+
+  --seav-glass-card: var(--ppt-s1);
+  --seav-glass-card-solid: var(--ppt-s1);
+  --seav-glass-panel: var(--ppt-s2);
+  --seav-glass-panel-deep: var(--ppt-s3);
+  --seav-glass-wash: var(--ppt-s3);
+  --seav-glass-wash-soft: var(--ppt-s4);
+  --seav-glass-edge: var(--ppt-rule);
+  --seav-glass-edge-strong: var(--ppt-rule);
+  --seav-glass-line: var(--ppt-rule);
+  --seav-glass-shadow: none;
+  --seav-glass-blur: none;
+
+  --seav-field-label-color: var(--ppt-accent);
+  --seav-meta-label-color: var(--ppt-accent);
+  --seav-accent-text: var(--ppt-accent);
+  --seav-focus-ring-color: var(--ppt-accent);
+}
+
+html:has(> body.public-profile-page) body.public-profile-page {
+  --bridge-radius: 4px;
+  background: var(--ppt-bg) !important;
+}
+
+/* ---------- Background: the ocean, faint ---------- */
+html:has(> body.public-profile-page) body.public-profile-page .ocean {
+  opacity: var(--ppt-ocean) !important;
+}
+
+html:has(> body.public-profile-page) body.public-profile-page .overlay {
+  background: transparent !important;
+}
+
+html:has(> body.public-profile-page) body.public-profile-page .pp-wave {
+  opacity: calc(var(--ppt-ocean) * 1.7);
+}
+
+/* ---------- Flat: no glass, no card shadows ---------- */
+html:has(> body.public-profile-page) body.public-profile-page * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html:has(> body.public-profile-page) body.public-profile-page #ppShell :is(section, details, [class*="card"]) {
+  box-shadow: none !important;
+}
+
+/* ---------- Accent on icons, snapshot edges and the CV button ---------- */
+html:has(> body.public-profile-page) body.public-profile-page :is([class$="-icon"], .pp-snap-icon) {
+  color: var(--ppt-accent) !important;
+}
+
+html:has(> body.public-profile-page) body.public-profile-page #ppTrustStrip .pp-snap {
+  --pp-snap-accent: var(--ppt-accent) !important;
+}
+
+html:has(> body.public-profile-page) body.public-profile-page .btn-blue {
+  background: var(--ppt-accent) !important;
+  border-color: var(--ppt-accent) !important;
+  color: var(--ppt-on-accent) !important;
+}
+
+html:has(> body.public-profile-page) body.public-profile-page .btn-blue * {
+  color: inherit !important;
+}
+
+html:has(> body.public-profile-page) body.public-profile-page .btn-ghost2 {
+  border-color: var(--ppt-rule) !important;
+}
+
+/* Over a photo the text stays white whatever the palette. */
+html:has(> body.public-profile-page) body.public-profile-page .leaflet-container {
+  --seav-ink-rgb: 255 255 255;
+}

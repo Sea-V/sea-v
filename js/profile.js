@@ -807,6 +807,7 @@
 
     initTwoStep();
     initExpiryReminders();
+    initPublicTheme();
 
     // v579: GDPR right of access / portability — see SeavAuth.exportMyData.
     const exportBtn = document.getElementById("btnExportData");
@@ -858,6 +859,36 @@
         }
       });
     }
+  }
+
+  // v590 public profile palette. Outside #profileForm and saved on its own
+  // (SeavAPI.savePublicTheme), so it never marks the profile form dirty.
+  function initPublicTheme() {
+    const picker = document.getElementById("ppThemePicker");
+    if (!picker) return;
+    const radios = [...picker.querySelectorAll('input[name="pp_theme"]')];
+    const sync = () => {
+      const current = window.SeavState?.profile?.publicTheme || "seav";
+      radios.forEach((r) => {
+        r.checked = r.value === current;
+      });
+    };
+    window.SeavAuth?.whenReady?.().then(sync);
+    document.addEventListener("seav:data-updated", sync);
+    document.addEventListener("seav:state-ready", sync);
+    picker.addEventListener("change", async (e) => {
+      const radio = e.target.closest('input[name="pp_theme"]');
+      if (!radio) return;
+      const label = radio.closest("label")?.textContent.trim() || radio.value;
+      try {
+        await window.SeavAPI.savePublicTheme(radio.value);
+        Seav.notify("success", "Public profile colours saved", label);
+      } catch (err) {
+        sync();
+        console.error("[SEA-V] Could not save public profile colours:", err);
+        Seav.notify("error", "Could not save", err?.message || "Try again.");
+      }
+    });
   }
 
   // v579 certificate expiry reminders. Saved on its own (not through the

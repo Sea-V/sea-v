@@ -280,6 +280,15 @@
       return { ...DEFAULT_PROFILE, publicEnabled: false };
     }
 
+    // The crew member's palette (v590, profile.public_theme, picked in
+    // Profile settings). css/pages/public-profile-themes.css reads it from
+    // <html data-pp-theme>; anything unknown falls back to Sea-V Original.
+    const PUBLIC_THEMES = ["seav", "ocean-blue", "night-watch", "simple-green", "pearl-grey"];
+    function applyPublicTheme(theme) {
+      const id = PUBLIC_THEMES.includes(theme) ? theme : "seav";
+      document.documentElement.setAttribute("data-pp-theme", id);
+    }
+
     function isOwnProfilePreview(ownerUserId, profile) {
       const authId = window.SeavAuth?.getUserId?.();
       if (!authId || !ownerUserId) return false;
@@ -356,6 +365,7 @@
 
         const profile = await loadProfile();
         const isPublic = isProfilePublic(profile);
+        applyPublicTheme(profile?.publicTheme);
 
         if (loading) loading.hidden = true;
         hideLoader();
