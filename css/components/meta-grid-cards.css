@@ -56,7 +56,7 @@
      2026-08-03. Value is the midpoint of the old gradient. */
   background: #a057ff;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 16px;
   font-weight: 800;
@@ -85,9 +85,9 @@
   padding: var(--seav-meta-item-padding, 10px);
 
   border-radius: var(--seav-meta-item-radius, 14px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.07);
 
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 #tendersGrid .vessel-meta-label,
@@ -107,7 +107,7 @@
 #refsList .ref-page-card .vessel-meta-value {
   display: block;
 
-  color: var(--seav-meta-value-color, rgba(255, 255, 255, 0.84));
+  color: var(--seav-meta-value-color, rgb(var(--seav-ink-rgb) / 0.84));
 
   font-size: var(--seav-meta-value-size, 14px);
   line-height: 1.45;
@@ -115,7 +115,7 @@
 }
 
 #refsList .ref-page-card .ref-meta-muted {
-  color: var(--seav-meta-muted-color, rgba(255, 255, 255, 0.45));
+  color: var(--seav-meta-muted-color, rgb(var(--seav-ink-rgb) / 0.45));
   font-weight: 500;
 }
 
@@ -188,7 +188,7 @@
      2026-08-03. Value is the midpoint of the old gradient. */
   background: #a057ff;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 16px;
   font-weight: 800;
@@ -211,7 +211,7 @@
 .verify-reference-panel-card .ref-card-title {
   margin: 0;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: clamp(1.25rem, 3.5vw, 1.5rem);
   line-height: 1.2;
@@ -221,7 +221,7 @@
 .verify-reference-panel-card .ref-card-subtitle {
   margin: 6px 0 0;
 
-  color: rgba(255, 255, 255, 0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
 
   font-size: 14px;
   line-height: 1.55;
@@ -229,7 +229,7 @@
 }
 
 .verify-reference-panel-card .ref-card-subtitle strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-weight: 800;
 }
 
@@ -243,9 +243,9 @@
   padding: var(--seav-meta-item-padding, 10px);
 
   border-radius: var(--seav-meta-item-radius, 14px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.07);
 
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .verify-reference-panel-card .ref-meta-span-full {
@@ -267,7 +267,7 @@
 .verify-reference-panel-card .vessel-meta-value {
   display: block;
 
-  color: var(--seav-meta-value-color, rgba(255, 255, 255, 0.84));
+  color: var(--seav-meta-value-color, rgb(var(--seav-ink-rgb) / 0.84));
 
   font-size: var(--seav-meta-value-size, 14px);
   line-height: 1.45;

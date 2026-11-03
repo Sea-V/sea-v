@@ -57,7 +57,7 @@
   border-radius: 50%;
   border: 1.5px solid var(--vessel-accent-border-heavy);
 
-  background: rgba(255,255,255,0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
   color: #d6e2ee;
 }
@@ -76,7 +76,7 @@
 .vessel-shell-head h2 {
   margin: 0 0 8px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: var(--font-page-title);
   line-height: 1.25;
@@ -86,7 +86,7 @@
 .vessel-shell-head p {
   margin: 0;
 
-  color: rgba(255,255,255,0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
 
   font-size: 14px;
   line-height: 1.65;
@@ -113,7 +113,7 @@
 .vessel-shell-section-head h3 {
   margin: 0 0 5px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 14px;
   font-weight: 700;
@@ -122,7 +122,7 @@
 .vessel-shell-section-head p {
   margin: 0;
 
-  color: rgba(255,255,255,0.60);
+  color: rgb(var(--seav-ink-rgb) / 0.60);
 
   font-size: 13px;
   line-height: 1.55;
@@ -196,7 +196,7 @@
 .vessel-sea-card {
   border-radius: 24px;
   border: 1.5px solid var(--vessel-accent-border-strong);
-  background: rgba(255,255,255,0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.06),
     0 12px 28px rgba(0,0,0,0.14);
@@ -292,7 +292,7 @@
 .vessel-overview-head h2 {
   margin: 0;
 
-  color: var(--seav-entity-name-color, #ffffff);
+  color: var(--seav-entity-name-color, rgb(var(--seav-ink-rgb)));
 
   font-size: clamp(22px, 2.6vw, 28px);
   line-height: 1;
@@ -304,7 +304,7 @@
 .vessel-overview-head p {
   margin: 6px 0 0;
 
-  color: rgba(255,255,255,0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
 
   font-size: 13px;
   line-height: 1.4;
@@ -325,7 +325,7 @@
 
   background: var(--vessel-accent-soft-bg);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 12px;
   font-weight: 900;
@@ -345,8 +345,8 @@
 .vessel-doc-button--empty {
   margin-top: auto;
 
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: rgb(var(--seav-ink-rgb) / 0.12);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
 
   color: var(--seav-meta-muted-color);
 
@@ -390,7 +390,7 @@
   border-radius: 18px;
   border: 1px solid var(--vessel-accent-line);
 
-  background: rgba(255,255,255,0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
   display: flex;
   flex-direction: column;
@@ -424,7 +424,7 @@
 .vessel-stats-grid strong {
   display: block;
 
-  color: var(--seav-field-value-color, #ffffff);
+  color: var(--seav-field-value-color, rgb(var(--seav-ink-rgb)));
 
   font-size: 14px;
   line-height: 1.25;
@@ -436,7 +436,7 @@
 }
 
 .vessel-main-item em {
-  color: rgba(255,255,255,0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
 
   font-size: 14px;
   line-height: 1.35;
@@ -493,7 +493,7 @@
   border-radius: 16px;
   border: 1px solid rgba(214, 226, 238, 0.16);
 
-  background: rgba(255,255,255,0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
   display: flex;
   flex-direction: column;
@@ -525,7 +525,7 @@
   border-radius: 14px;
   border: 1px solid var(--vessel-accent-line);
 
-  background: rgba(255, 255, 255, 0.02);
+  background: rgb(var(--seav-ink-rgb) / 0.02);
 
   overflow: hidden;
 }
@@ -542,7 +542,7 @@
   list-style: none;
   user-select: none;
 
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
 
   font-size: 12px;
   font-weight: 800;
@@ -585,7 +585,7 @@
   border-radius: 12px;
   border: 1px solid rgba(214, 226, 238, 0.14);
 
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .vessel-specs-grid span {
@@ -601,7 +601,7 @@
 .vessel-specs-grid strong {
   display: block;
 
-  color: rgba(255, 255, 255, 0.88);
+  color: rgb(var(--seav-ink-rgb) / 0.88);
 
   font-size: 14px;
   font-weight: 700;
@@ -626,7 +626,7 @@
 .vessel-salary-reveal .vessel-salary-masked {
   display: block;
 
-  color: var(--seav-field-value-color, #ffffff);
+  color: var(--seav-field-value-color, rgb(var(--seav-ink-rgb)));
 
   font-size: 14px;
   line-height: 1.25;
@@ -637,7 +637,7 @@
   display: block;
   margin-top: 2px;
 
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 
   font-size: 10px;
   font-weight: 800;
@@ -687,7 +687,7 @@
 .vessel-experience-text {
   margin: 0;
 
-  color: rgba(255,255,255,0.84);
+  color: rgb(var(--seav-ink-rgb) / 0.84);
 
   font-size: 13px;
   line-height: 1.55;
@@ -887,9 +887,9 @@
   margin: 0 0 10px;
   padding-bottom: 10px;
 
-  border-bottom: 1px solid rgba(255,255,255,0.10);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.10);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 14px;
   line-height: 1.2;
@@ -921,7 +921,7 @@
 }
 
 .vessel-linked-summary strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 26px;
   line-height: 1;
@@ -939,7 +939,7 @@
 .vessel-linked-link {
   margin-top: auto;
 
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 
   font-size: 12px;
   font-weight: 800;
@@ -985,7 +985,7 @@
   border-radius: 18px;
   border: 1px solid var(--vessel-accent-border, rgba(214, 226, 238, 0.24));
 
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
 
   overflow: hidden;
 }
@@ -1021,7 +1021,7 @@
   font-size: 18px;
   line-height: 1;
 
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
 
   transition: transform 0.15s ease;
 }
@@ -1039,7 +1039,7 @@
 }
 
 .vessel-history-summary-title strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 15px;
   font-weight: 850;

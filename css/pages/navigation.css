@@ -44,7 +44,7 @@
   justify-content: center;
   border-radius: 50%;
   border: 1.5px solid var(--navigation-accent-strong);
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
   color: var(--navigation-accent);
 }
 
@@ -56,7 +56,7 @@
 
 .navigation-shell-head h2 {
   margin: 0 0 8px;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: var(--font-page-title);
   line-height: 1.25;
   font-weight: var(--font-weight-title);
@@ -64,7 +64,7 @@
 
 .navigation-shell-head p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
   font-size: 14px;
   line-height: 1.65;
   font-weight: 500;
@@ -75,7 +75,7 @@
 }
 
 .navigation-section + .navigation-section {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgb(var(--seav-ink-rgb) / 0.06);
 }
 
 .navigation-section-head {
@@ -84,14 +84,14 @@
 
 .navigation-section-head h3 {
   margin: 0 0 5px;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 14px;
   font-weight: 700;
 }
 
 .navigation-section-head p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
   font-size: 13px;
   line-height: 1.55;
 }
@@ -114,7 +114,7 @@
   flex-direction: column;
   gap: 6px;
   min-width: 200px;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.5px;
@@ -136,8 +136,8 @@
   min-width: 88px;
   padding: 10px 12px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
   text-align: center;
 }
 
@@ -148,7 +148,7 @@
 
 .navigation-stat-value {
   display: block;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 18px;
   line-height: 1.1;
   font-weight: 900;
@@ -157,7 +157,7 @@
 .navigation-stat-label {
   display: block;
   margin-top: 4px;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.6px;
@@ -219,9 +219,9 @@
   z-index: 500;
   padding: 7px 11px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
   background: rgba(8, 16, 28, 0.72);
-  color: rgba(255, 255, 255, 0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
   font-size: 11px;
   font-weight: 700;
   pointer-events: none;
@@ -240,9 +240,9 @@
   gap: 8px;
   padding: 6px 12px 6px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
+  color: rgb(var(--seav-ink-rgb) / 0.82);
   font-size: 12px;
   font-weight: 700;
 }
@@ -251,7 +251,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border: 1.5px solid rgb(var(--seav-ink-rgb) / 0.85);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
   flex-shrink: 0;
 }
@@ -270,7 +270,7 @@
 
 .navigation-map .leaflet-control-zoom a:hover {
   background: rgba(91, 188, 255, 0.18);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .navigation-map .leaflet-control-attribution {
@@ -285,7 +285,7 @@
 .navigation-map .leaflet-popup-content-wrapper,
 .navigation-map .leaflet-popup-tip {
   background: rgba(10, 19, 33, 0.96);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   border: 1px solid rgba(91, 188, 255, 0.28);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
 }
@@ -295,11 +295,11 @@
 }
 
 .navigation-map .leaflet-popup-close-button {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
 }
 
 .nav-map-popup {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 12px;
   line-height: 1.5;
   font-weight: 600;
@@ -308,7 +308,7 @@
 .nav-map-popup strong {
   font-size: 13px;
   font-weight: 900;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 }
 
 /* ---- Pick-on-map mode + waypoint markers ---- */
@@ -333,10 +333,10 @@
   height: 24px;
   border-radius: 50%;
   background: #b45309;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 11px;
   font-weight: 900;
-  border: 2px solid #ffffff;
+  border: 2px solid rgb(var(--seav-ink-rgb));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
   cursor: grab;
 }
@@ -345,7 +345,7 @@
   width: 28px;
   height: 28px;
   font-size: 12px;
-  border-color: #ffffff;
+  border-color: rgb(var(--seav-ink-rgb));
 }
 
 .navigation-map .nav-start-marker span {
@@ -364,7 +364,7 @@
   padding: 22px;
   border-radius: 24px;
   border: 1.5px solid rgba(91, 188, 255, 0.22);
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     0 12px 24px rgba(0, 0, 0, 0.14);
@@ -410,7 +410,7 @@
 }
 
 #navForm select option {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   background-color: #132238;
 }
 
@@ -419,7 +419,7 @@
   padding: 16px;
   border-radius: 18px;
   border: 1px solid rgba(91, 188, 255, 0.14);
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .navigation-route-block + .navigation-route-block {
@@ -448,7 +448,7 @@
 }
 
 .navigation-field-optional {
-  color: rgba(255, 255, 255, 0.38);
+  color: rgb(var(--seav-ink-rgb) / 0.38);
   font-size: 10px;
   font-weight: 650;
 }
@@ -472,12 +472,12 @@
 .navigation-endpoint-tools .btn-ghost2.is-active {
   border-color: rgba(91, 188, 255, 0.45);
   background: rgba(91, 188, 255, 0.14);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .navigation-route-label {
   margin: 0 0 12px;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 11px;
   font-weight: 850;
   letter-spacing: 0.7px;
@@ -489,7 +489,7 @@
 #navForm input:-webkit-autofill:focus,
 #navForm input:-webkit-autofill:active {
   -webkit-text-fill-color: #ffffff !important;
-  caret-color: #ffffff;
+  caret-color: rgb(var(--seav-ink-rgb));
   -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.22) inset !important;
   box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.22) inset !important;
 }
@@ -531,7 +531,7 @@
   display: inline-block;
   font-size: 16px;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
   transition: transform 0.15s ease;
 }
 
@@ -549,7 +549,7 @@
   padding: 1px 8px;
   border-radius: 999px;
   background: rgba(180, 83, 9, 0.25);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 11px;
   font-weight: 800;
   text-align: center;
@@ -589,7 +589,7 @@
 }
 
 .navigation-waypoint-import span {
-  color: rgba(255, 255, 255, 0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
   font-size: 12px;
   font-weight: 650;
   line-height: 1.4;
@@ -627,7 +627,7 @@
 
 .navigation-waypoint-coord {
   flex: 1 1 auto;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -650,8 +650,8 @@
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.16);
+  background: rgb(var(--seav-ink-rgb) / 0.05);
   color: #d7e6f5;
   font-size: 14px;
   font-weight: 800;
@@ -663,7 +663,7 @@
 .navigation-waypoint-buttons button:hover:not(:disabled) {
   background: rgba(91, 188, 255, 0.16);
   border-color: rgba(91, 188, 255, 0.4);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .navigation-waypoint-buttons button:disabled {
@@ -727,7 +727,7 @@
   min-height: 40px;
   border-color: rgba(91, 188, 255, 0.42);
   background: rgba(91, 188, 255, 0.16);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-weight: 850;
 }
 
@@ -764,7 +764,7 @@
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border: 1.5px solid rgb(var(--seav-ink-rgb) / 0.85);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
 }
@@ -775,7 +775,7 @@
 
 .navigation-log-leg {
   margin-top: 6px;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.2px;
@@ -791,7 +791,7 @@
 .navigation-vessel-group {
   border-radius: 14px;
   border: 1px solid var(--surface-border);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
   overflow: hidden;
 }
 
@@ -814,7 +814,7 @@
   display: inline-block;
   font-size: 16px;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
   transition: transform 0.15s ease;
 }
 
@@ -830,7 +830,7 @@
 }
 
 .navigation-vessel-group-title strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 14px;
   font-weight: 800;
   overflow: hidden;
@@ -850,7 +850,7 @@
   padding: 1px 8px;
   border-radius: 999px;
   background: rgba(91, 188, 255, 0.16);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 11px;
   font-weight: 800;
   text-align: center;

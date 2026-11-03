@@ -434,6 +434,23 @@ async function testLandExperienceColumns(config) {
   return ok;
 }
 
+// navigation_areas and tenders became COLUMN-scoped for anon in v589
+// (docs/schema-anon-column-scope-navigation-tenders.sql). The public list
+// must still read in one query: PostgREST plans the whole select list up
+// front, so a column added to js/api.js without its anon grant 42501s the
+// entire Navigation / Tenders section on the public profile.
+async function testNavigationTenderColumns(config) {
+  console.log(`\nNavigation / tenders column probe:`);
+  let ok = true;
+  for (const table of ["navigation_areas", "tenders"]) {
+    const probe = await restGet(config, table, `select=${PUBLIC_TABLE_SAFE_COLUMNS[table]}&limit=1`);
+    const pass = probe.ok || probe.status === 401;
+    console.log(`${pass ? "✓" : "✗"} ${table} public columns  ${probe.status}${pass ? "" : "  FAIL — grant the missing column to anon"}`);
+    ok = ok && pass;
+  }
+  return ok;
+}
+
 // sea_references carries three columns anon must never read: email and
 // message_to_referee (the referee's contact details) and "verification" -- the
 // raw sign-off blob holding the referee's real CoC number. The public profile
@@ -911,7 +928,10 @@ async function main() {
   if (step === "1" || step === "all") {
     if (step === "1") console.log("(Skipping table scan — run with --step 0 or --step all for full scan)\n");
     columnSafe = await testProfileColumns(config);
-    vesselColumnsSafe = (await testVesselColumns(config)) && (await testLandExperienceColumns(config));
+    vesselColumnsSafe =
+      (await testVesselColumns(config)) &&
+      (await testLandExperienceColumns(config)) &&
+      (await testNavigationTenderColumns(config));
     referenceColumnsSafe = await testReferenceColumns(config);
     certificateColumnsSafe = await testCertificateColumns(config);
     columnDriftSafe = testPublicColumnDrift();

@@ -54,7 +54,7 @@
   border-radius: 50%;
   border: 1.5px solid rgba(76,255,184,0.28);
 
-  background: rgba(255,255,255,0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
   color: #4cffb8;
 }
@@ -69,7 +69,7 @@
 .tender-shell-head h2 {
   margin: 0 0 8px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: var(--font-page-title);
   line-height: 1.25;
@@ -79,7 +79,7 @@
 .tender-shell-head p {
   margin: 0;
 
-  color: rgba(255,255,255,0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
 
   font-size: 15px;
   line-height: 1.6;
@@ -101,7 +101,7 @@
 .tender-section-head h3 {
   margin: 0 0 4px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 14px;
   font-weight: 700;
@@ -110,7 +110,7 @@
 .tender-section-head p {
   margin: 0;
 
-  color: rgba(255,255,255,0.60);
+  color: rgb(var(--seav-ink-rgb) / 0.60);
 
   font-size: 13px;
   line-height: 1.5;
@@ -138,7 +138,7 @@
   border-radius: 14px;
   border: 1px solid var(--surface-border);
 
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
 
   overflow: hidden;
 }
@@ -167,7 +167,7 @@
   font-size: 16px;
   line-height: 1;
 
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
 
   transition: transform 0.15s ease;
 }
@@ -185,7 +185,7 @@
 }
 
 .tender-vessel-group-title strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 14px;
   font-weight: 800;
@@ -211,7 +211,7 @@
   border-radius: 999px;
   background: rgba(76, 255, 184, 0.16);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 11px;
   font-weight: 800;
@@ -280,7 +280,7 @@
 #tendersGrid .vessel-title {
   margin: 0 0 14px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 18px;
   line-height: 1.2;

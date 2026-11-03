@@ -247,11 +247,19 @@
     const entries = getFilteredEntries();
     const withFile = entries.filter((entry) => hasStoredAttachment(entry.attachment)).length;
     const taxYears = new Set(entries.map((entry) => entry.taxYear).filter(Boolean)).size;
-    const totalNet = entries.reduce((sum, entry) => {
+    // One total per currency (v589). It used to add every net amount
+    // together and label the sum with the first entry's currency, so
+    // £2,000 + €2,000 showed as "£4,000.00". Amounts are never converted.
+    const totalsByCurrency = new Map();
+    entries.forEach((entry) => {
       const value = Number(entry.netAmount);
-      return Number.isFinite(value) ? sum + value : sum;
-    }, 0);
-    const currency = entries.find((entry) => entry.currency)?.currency || "GBP";
+      if (!Number.isFinite(value)) return;
+      const code = entry.currency || "GBP";
+      totalsByCurrency.set(code, (totalsByCurrency.get(code) || 0) + value);
+    });
+    const netTotalText = [...totalsByCurrency.entries()]
+      .map(([code, sum]) => (code === "OTHER" ? `${sum.toFixed(2)} other` : formatMoneyAmount(sum, code)))
+      .join("<br>") || "—";
 
     const taxYear = activeTaxYearFilter || getFilteredEntries()[0]?.taxYear || "";
     const monthsLogged = taxYear
@@ -259,7 +267,7 @@
       : "—";
 
     const netTotalDisplay = entries.length
-      ? (netTotalRevealed ? formatMoneyAmount(totalNet, currency) : "••••••")
+      ? (netTotalRevealed ? netTotalText : "••••••")
       : "—";
 
     row.innerHTML = `

@@ -27,7 +27,7 @@ body.legal-page {
   margin: 0 auto;
   padding: 10px 18px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
   background: rgba(10, 24, 42, 0.72);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -42,14 +42,14 @@ body.legal-page {
 }
 
 .legal-topnav a {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
   text-decoration: none;
   font-size: 13px;
   font-weight: 600;
 }
 
 .legal-topnav a:hover {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 }
 
 .legal-topnav-cta {
@@ -58,7 +58,7 @@ body.legal-page {
   /* Solid fill, not a gradient — Jack wants solid colors site-wide
      2026-08-03. Value is the midpoint of the old gradient. */
   background: #449cff;
-  color: #fff !important;
+  color: rgb(var(--seav-ink-rgb)) !important;
 }
 
 /* --- Document shell --- */
@@ -85,8 +85,8 @@ body.legal-page {
   top: 88px;
   padding: 18px 16px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
+  background: rgb(var(--seav-ink-rgb) / 0.05);
 }
 
 .legal-toc-label {
@@ -108,7 +108,7 @@ body.legal-page {
   display: block;
   padding: 7px 10px;
   border-radius: 10px;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
   text-decoration: none;
   font-size: 12px;
   line-height: 1.4;
@@ -126,7 +126,7 @@ body.legal-page {
 .legal-article {
   padding: 32px 34px 36px;
   border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
   background: rgba(12, 28, 48, 0.58);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -136,7 +136,7 @@ body.legal-page {
 .legal-hero {
   margin-bottom: 28px;
   padding-bottom: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
 }
 
 .legal-kicker {
@@ -158,13 +158,13 @@ body.legal-page {
   font-size: clamp(28px, 4vw, 38px);
   line-height: 1.15;
   font-weight: 700;
-  color: #fff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .legal-lead {
   margin: 0 0 16px;
   max-width: 62ch;
-  color: rgba(255, 255, 255, 0.76);
+  color: rgb(var(--seav-ink-rgb) / 0.76);
   font-size: 15px;
   line-height: 1.65;
 }
@@ -179,7 +179,7 @@ body.legal-page {
 }
 
 .legal-meta-row a {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   text-decoration: none;
   font-weight: 600;
 }
@@ -194,7 +194,7 @@ body.legal-page {
   border-radius: 14px;
   border: 1px solid rgba(255, 193, 120, 0.28);
   background: rgba(255, 193, 120, 0.08);
-  color: rgba(255, 255, 255, 0.88);
+  color: rgb(var(--seav-ink-rgb) / 0.88);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -216,7 +216,7 @@ body.legal-page {
   margin: 0 0 14px;
   font-size: 20px;
   font-weight: 700;
-  color: #fff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .legal-section-num {
@@ -229,7 +229,7 @@ body.legal-page {
 
 .legal-section p,
 .legal-section li {
-  color: rgba(255, 255, 255, 0.82);
+  color: rgb(var(--seav-ink-rgb) / 0.82);
   font-size: 15px;
   line-height: 1.7;
 }
@@ -252,16 +252,16 @@ body.legal-page {
 }
 
 .legal-section a {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 }
 
 .legal-section strong {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgb(var(--seav-ink-rgb) / 0.95);
 }
 
 .legal-section code {
   font-size: 0.9em;
-  color: rgba(255, 255, 255, 0.92);
+  color: rgb(var(--seav-ink-rgb) / 0.92);
 }
 
 /* --- Contact form (contact.html) --- */
@@ -285,7 +285,7 @@ body.legal-page {
   gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
 }
 
 .legal-contact-note {
@@ -313,8 +313,8 @@ body.legal-page {
   gap: 12px 20px;
   padding: 16px 20px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
   font-size: 12px;
   color: var(--seav-meta-muted-color);
 }
@@ -322,7 +322,7 @@ body.legal-page {
 .legal-footer-brand {
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgb(var(--seav-ink-rgb) / 0.75);
 }
 
 .legal-footer-links {
@@ -332,12 +332,12 @@ body.legal-page {
 }
 
 .legal-footer-links a {
-  color: rgba(255, 255, 255, 0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
   text-decoration: none;
 }
 
 .legal-footer-links a:hover {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 }
 
 /* --- Responsive --- */

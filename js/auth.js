@@ -462,6 +462,8 @@
     await new Promise((resolve, reject) => {
       const script = document.createElement("script");
       script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+      script.integrity = "sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG";
+      script.crossOrigin = "anonymous";
       script.onload = resolve;
       script.onerror = () => reject(new Error("Could not load the ZIP library."));
       document.head.appendChild(script);

@@ -45,7 +45,7 @@
 .verify-reference-loading {
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
   font-size: 15px;
   line-height: 1.6;
   text-align: center;
@@ -72,7 +72,7 @@
 }
 
 .verify-reference-page .modal-form label:not(.modal-check) {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
 
   font-size: 11px;
   font-weight: 800;
@@ -89,12 +89,12 @@
   padding: 12px 14px;
 
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
 
   background: rgba(0, 0, 0, 0.22);
 
-  color: var(--field-value-color, rgba(255, 255, 255, 0.92));
-  caret-color: var(--field-value-color, rgba(255, 255, 255, 0.92));
+  color: var(--field-value-color, rgb(var(--seav-ink-rgb) / 0.92));
+  caret-color: var(--field-value-color, rgb(var(--seav-ink-rgb) / 0.92));
   color-scheme: dark;
   -webkit-text-fill-color: var(--field-value-color, rgba(255, 255, 255, 0.92));
 
@@ -108,7 +108,7 @@
 
 .verify-reference-page .modal-form input::placeholder,
 .verify-reference-page .modal-form textarea::placeholder {
-  color: var(--field-hint-color, rgba(255, 255, 255, 0.42));
+  color: var(--field-hint-color, rgb(var(--seav-ink-rgb) / 0.42));
   opacity: 1;
 }
 
@@ -134,11 +134,11 @@
   padding: 12px 14px;
 
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.07);
 
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
-  color: rgba(255, 255, 255, 0.86) !important;
+  color: rgb(var(--seav-ink-rgb) / 0.86) !important;
   font-size: 14px !important;
   font-weight: 600 !important;
   text-transform: none !important;
@@ -166,7 +166,7 @@
   flex: 1;
   min-width: 0;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgb(var(--seav-ink-rgb) / 0.88);
 }
 
 .verify-signature-field {
@@ -176,7 +176,7 @@
 
 .verify-signature-label {
   display: block;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.55px;
@@ -222,7 +222,7 @@
 .verify-reference-attachment-missing {
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -239,7 +239,7 @@
   overflow: hidden;
 
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 
   background: rgba(0, 0, 0, 0.22);
 
@@ -278,7 +278,7 @@
 
   background: rgba(91, 188, 255, 0.12);
 
-  color: #ffffff !important;
+  color: rgb(var(--seav-ink-rgb)) !important;
   text-decoration: none !important;
 
   font-size: 12px !important;
@@ -301,7 +301,7 @@
 .verify-reference-page a.reference-modern-attachment.verify-reference-attachment-open:hover {
   background: rgba(91, 188, 255, 0.2);
   border-color: rgba(91, 188, 255, 0.44);
-  color: #ffffff !important;
+  color: rgb(var(--seav-ink-rgb)) !important;
   text-decoration: none !important;
   transform: translateY(-1px);
 }
@@ -313,7 +313,7 @@
 }
 
 .verify-reference-panel-card .ref-meta-link:hover {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   text-decoration: underline;
 }
 
@@ -334,7 +334,7 @@
 }
 
 .verify-reference-footnote strong {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
   font-weight: 700;
 }
 

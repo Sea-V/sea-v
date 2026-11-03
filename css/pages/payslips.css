@@ -29,7 +29,7 @@
   justify-content: center;
   border-radius: 50%;
   border: 1.5px solid rgba(207, 168, 106, 0.35);
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
   color: #cfa86a;
 }
 
@@ -41,7 +41,7 @@
 
 .ps-shell-head h2 {
   margin: 0 0 8px;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: var(--font-page-title);
   line-height: 1.25;
   font-weight: var(--font-weight-title);
@@ -49,7 +49,7 @@
 
 .ps-shell-head p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
   line-height: 1.65;
   max-width: 720px;
   font-size: 14px;
@@ -93,7 +93,7 @@
 .ps-kpi-box .kpi-num {
   font-size: 22px;
   font-weight: 800;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 /* Net total — masked by default (like a password field) so it can't be
@@ -119,9 +119,9 @@
   margin-left: auto;
   padding: 0;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.14);
+  background: rgb(var(--seav-ink-rgb) / 0.05);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
@@ -133,7 +133,7 @@
 }
 
 .ps-privacy-toggle:hover {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   border-color: rgba(207, 168, 106, 0.4);
   background: rgba(207, 168, 106, 0.1);
 }
@@ -161,7 +161,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 11px;
   font-weight: 850;
 }
@@ -174,7 +174,7 @@
   min-width: 180px;
   padding: 10px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
   background: rgba(0, 0, 0, 0.22);
   color: var(--field-value-color);
   color-scheme: dark;
@@ -200,7 +200,7 @@
 .ps-month-empty {
   padding: 12px 14px;
   border-radius: 14px;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border: 1px dashed rgb(var(--seav-ink-rgb) / 0.12);
   color: var(--seav-meta-muted-color);
   font-size: 13px;
   line-height: 1.5;
@@ -209,14 +209,14 @@
 
 .ps-section-head h3 {
   margin: 0 0 5px;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 14px;
   font-weight: 700;
 }
 
 .ps-section-head p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgb(var(--seav-ink-rgb) / 0.65);
   line-height: 1.5;
   font-size: 14px;
 }
@@ -242,7 +242,7 @@
   overflow: hidden;
   border-radius: 18px;
   border: 1px solid var(--surface-border);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
 }
 
 .ps-year-group + .ps-year-group {
@@ -265,7 +265,7 @@
 }
 
 .ps-year-summary:hover {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .ps-year-summary:focus-visible {
@@ -291,7 +291,7 @@
 }
 
 .ps-year-summary-title strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 14px;
   font-weight: 800;
   overflow: hidden;
@@ -311,7 +311,7 @@
   padding: 1px 8px;
   border-radius: 999px;
   background: rgba(207, 168, 106, 0.16);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 11px;
   font-weight: 800;
   text-align: center;
@@ -336,7 +336,7 @@
   overflow: hidden;
   border-radius: 18px;
   border: 1px solid rgba(207, 168, 106, 0.2);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
 }
 
 .ps-compact-summary {
@@ -356,7 +356,7 @@
 }
 
 .ps-compact-summary:hover {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .ps-compact-summary:focus-visible {
@@ -377,7 +377,7 @@
 }
 
 .ps-compact-title {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 15px;
   font-weight: 800;
   line-height: 1.25;
@@ -388,7 +388,7 @@
 
 .ps-compact-sub {
   margin-top: 4px;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
   font-size: 12px;
   line-height: 1.45;
   font-weight: 600;
@@ -448,8 +448,8 @@
 .ps-detail-panel {
   padding: 14px 16px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .ps-detail-panel-full {
@@ -458,13 +458,13 @@
 
 .ps-detail-label {
   margin-bottom: 8px;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 11px;
   font-weight: 850;
 }
 
 .ps-detail-value {
-  color: rgba(255, 255, 255, 0.82);
+  color: rgb(var(--seav-ink-rgb) / 0.82);
   font-size: 13px;
   line-height: 1.55;
   font-weight: 600;
@@ -483,7 +483,7 @@
   border-radius: 999px;
   border: 1px solid rgba(91, 188, 255, 0.28);
   background: rgba(91, 188, 255, 0.12);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   text-decoration: none;
   font-size: 12px;
   font-weight: 800;
@@ -493,7 +493,7 @@
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 }
 
 .ps-compact-body .seav-actions {

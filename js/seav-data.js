@@ -1248,6 +1248,38 @@ function getTenderProficiencyDisplay(level) {
     return Math.round((end - start) / 86400000) + 1;
   }
 
+  // Onboard yacht service across SEVERAL entries, counting each calendar day
+  // once (v589). A person can only be signed on one yacht on any day, so two
+  // entries whose dates overlap — a relief trip logged inside a rotation, or
+  // a contract entered twice — used to add the shared days twice towards the
+  // 36 months and every Master onboard figure. Each entry's span is exactly
+  // what signedOnDays gives it (same start, same clip to today), so entries
+  // that do not overlap total exactly what they did before.
+  function uniqueSignedOnDays(entries) {
+    const spans = [];
+    (entries || []).forEach((entry) => {
+      const days = signedOnDays(entry?.dateJoined, entry?.dateLeft);
+      if (days <= 0) return;
+      const startDay = Math.round(new Date(entry.dateJoined).getTime() / 86400000);
+      spans.push([startDay, startDay + days - 1]);
+    });
+    spans.sort((a, b) => a[0] - b[0]);
+    let total = 0;
+    let curStart = null;
+    let curEnd = null;
+    spans.forEach(([start, end]) => {
+      if (curEnd !== null && start <= curEnd + 1) {
+        curEnd = Math.max(curEnd, end);
+        return;
+      }
+      if (curEnd !== null) total += curEnd - curStart + 1;
+      curStart = start;
+      curEnd = end;
+    });
+    if (curEnd !== null) total += curEnd - curStart + 1;
+    return total;
+  }
+
   // MSN 1858 §3.5(b) / §3.6(a): Master service counts only "onboard yacht
   // service as a deck officer" while serving as OOW. Read from the entry's
   // "Capacity served", falling back to the vessel's role. Trainee / cadet
@@ -1486,9 +1518,9 @@ function getTenderProficiencyDisplay(level) {
    * being a subset of actual sea service).
    */
   function computeOow36MonthsOnboard(seatimes) {
-    const totalDays = (seatimes || []).reduce((sum, entry) => {
-      const dated = signedOnDays(entry.dateJoined, entry.dateLeft);
-      if (dated > 0) return sum + dated;
+    const dated = (seatimes || []).filter((entry) => signedOnDays(entry.dateJoined, entry.dateLeft) > 0);
+    const undatedDays = (seatimes || []).reduce((sum, entry) => {
+      if (signedOnDays(entry.dateJoined, entry.dateLeft) > 0) return sum;
       return (
         sum +
         toNumber(entry.actualSeaServiceDays) +
@@ -1496,6 +1528,7 @@ function getTenderProficiencyDisplay(level) {
         toNumber(entry.yardServiceDays)
       );
     }, 0);
+    const totalDays = uniqueSignedOnDays(dated) + undatedDays;
 
     return {
       totalDays,
@@ -1804,13 +1837,11 @@ function getTenderProficiencyDisplay(level) {
 
     // "as a deck officer" (v572): deckhand / bosun time after the OOW issue
     // date used to count here too.
-    let onboardDays = 0;
-    gated.gatedEntries.forEach((entry) => {
-      const lengthM = getEntryVesselLengthMeters(entry, vessels);
-      if (lengthM >= 15 && servedAsDeckOfficer(entry, vessels)) {
-        onboardDays += signedOnDays(entry.dateJoined, entry.dateLeft);
-      }
-    });
+    const onboardDays = uniqueSignedOnDays(
+      gated.gatedEntries.filter(
+        (entry) => getEntryVesselLengthMeters(entry, vessels) >= 15 && servedAsDeckOfficer(entry, vessels)
+      )
+    );
 
     // GATED as of 2026-08-16 — reversing the 2026-08-05 decision recorded
     // above. MSN 1858 SS3.5(b) reads "12 months' onboard yacht service as a
@@ -1912,20 +1943,16 @@ function getTenderProficiencyDisplay(level) {
       };
     }
 
-    let totalOnboard24mDays = 0;
-    let totalOnboard500gtDays = 0;
-    let onboardDays = 0;
-
-    gated.gatedEntries.forEach((entry) => {
-      if (!servedAsDeckOfficer(entry, vessels)) return;
-      const lengthM = getEntryVesselLengthMeters(entry, vessels);
-      const gt = getEntryVesselGt(entry, vessels);
-      const days = signedOnDays(entry.dateJoined, entry.dateLeft);
-
-      if (lengthM >= 15) onboardDays += days;
-      if (lengthM >= 24) totalOnboard24mDays += days;
-      if (gt >= 500) totalOnboard500gtDays += days;
-    });
+    const asDeckOfficer = gated.gatedEntries.filter((entry) => servedAsDeckOfficer(entry, vessels));
+    const onboardDays = uniqueSignedOnDays(
+      asDeckOfficer.filter((entry) => getEntryVesselLengthMeters(entry, vessels) >= 15)
+    );
+    const totalOnboard24mDays = uniqueSignedOnDays(
+      asDeckOfficer.filter((entry) => getEntryVesselLengthMeters(entry, vessels) >= 24)
+    );
+    const totalOnboard500gtDays = uniqueSignedOnDays(
+      asDeckOfficer.filter((entry) => getEntryVesselGt(entry, vessels) >= 500)
+    );
     const onboardMonths = onboardDays / DAYS_PER_MONTH;
     const onboardMet = onboardMonths >= MASTER_3000GT_ONBOARD_TARGET_MONTHS;
 
@@ -2080,7 +2107,7 @@ function getTenderProficiencyDisplay(level) {
     // v572: a contract that started before the Master <3000GT issue date
     // used to bring ALL its actual sea days; now only the share after it,
     // apportioned the same way as the other "while holding" figures.
-    let onboardDays = 0;
+    const onboardEntries = [];
     let actualSeaDays = 0;
     (seatimes || []).forEach((original) => {
       const gt = getEntryVesselGt(original, vessels);
@@ -2088,10 +2115,11 @@ function getTenderProficiencyDisplay(level) {
       if (gt < MASTER_UNLIMITED_MIN_GT || !servedAsMaster) return;
       const entry = gated.gatedEntries.find((g) => g.id === original.id);
       if (!entry) return;
-      onboardDays += signedOnDays(entry.dateJoined, entry.dateLeft);
+      onboardEntries.push(entry);
       actualSeaDays += toNumber(original.actualSeaServiceDays) * apportionEntryToWindow(original, gated.issuedDate, null);
     });
     actualSeaDays = Math.round(actualSeaDays);
+    const onboardDays = uniqueSignedOnDays(onboardEntries);
 
     const onboardMonths = onboardDays / DAYS_PER_MONTH;
     const actualSeaMonths = actualSeaDays / DAYS_PER_MONTH;
@@ -3601,6 +3629,7 @@ window.SeavData = {
   daysBetweenDates,
   computeOowSeaService,
   computeOow36MonthsOnboard,
+  uniqueSignedOnDays,
   computeOowRecentSeagoingService,
   SEAFARER_POSITIONS,
   findSeafarerPosition,

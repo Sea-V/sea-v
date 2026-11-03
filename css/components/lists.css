@@ -24,7 +24,7 @@
 }
 
 .list-title {
-  color: rgba(255,255,255,0.92);
+  color: rgb(var(--seav-ink-rgb) / 0.92);
 
   font-size: 12px;
   line-height: 1.35;
@@ -37,7 +37,7 @@
 .list-sub {
   margin-top: 4px;
 
-  color: rgba(255,255,255,0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
 
   font-size: 12px;
   line-height: 1.45;
@@ -50,7 +50,7 @@
 /* Actions — plain text links only; use .seav-action pills for Edit/Delete */
 
 .row-actions a:not(.seav-action) {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 
   font-size: 11px;
   font-weight: 900;

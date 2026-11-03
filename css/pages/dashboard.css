@@ -61,7 +61,7 @@
 .dash-content .dashboard-shell-card .dash-card-accent-achievements { --section-accent: var(--page-achievements); }
 
 .dash-content .dashboard-shell-card [class*="dash-card-accent-"] {
-  border-color: color-mix(in srgb, var(--section-accent, #5bbcff) 42%, rgba(255, 255, 255, 0.1));
+  border-color: color-mix(in srgb, var(--section-accent, #5bbcff) 42%, rgb(var(--seav-ink-rgb) / 0.1));
   transition: border-color 0.2s ease;
 }
 
@@ -110,9 +110,9 @@
   border-radius: 50%;
   border: 1.5px solid rgba(91, 188, 255, 0.32);
 
-  background: rgba(255,255,255,0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 }
 
 .dashboard-shell-icon svg {
@@ -124,7 +124,7 @@
 .dashboard-shell-head h2 {
   margin: 0 0 4px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: var(--font-page-title);
   line-height: 1.1;
@@ -135,7 +135,7 @@
 .dashboard-shell-head p {
   margin: 0;
 
-  color: rgba(255,255,255,0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
 
   font-size: 13px;
   line-height: 1.5;
@@ -194,10 +194,10 @@
 
   padding: 12px 14px;
   border-radius: 16px;
-  border: 1.5px solid color-mix(in srgb, var(--qa-accent, #5bbcff) 34%, rgba(255, 255, 255, 0.1));
-  background: rgba(255, 255, 255, 0.035);
+  border: 1.5px solid color-mix(in srgb, var(--qa-accent, #5bbcff) 34%, rgb(var(--seav-ink-rgb) / 0.1));
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   text-decoration: none;
 
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
@@ -205,7 +205,7 @@
 
 .dashboard-quick-action:hover {
   background: color-mix(in srgb, var(--qa-accent, #5bbcff) 12%, transparent);
-  border-color: color-mix(in srgb, var(--qa-accent, #5bbcff) 55%, rgba(255, 255, 255, 0.1));
+  border-color: color-mix(in srgb, var(--qa-accent, #5bbcff) 55%, rgb(var(--seav-ink-rgb) / 0.1));
   transform: translateY(-1px);
 }
 
@@ -255,7 +255,7 @@
    them as dead dashboard CSS; move them to css/pages/public-profile.css if this
    file is ever tidied. */
 .dashboard-navigation-foot a {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 12px;
   font-weight: 850;
   text-decoration: none;
@@ -263,7 +263,7 @@
 
 .dashboard-card-headline a:hover,
 .dashboard-navigation-foot a:hover {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .dashboard-navigation-layout {
@@ -286,7 +286,7 @@
   overflow: hidden;
   border-radius: 18px;
   border: 1px solid rgba(91, 188, 255, 0.22);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
 }
 
 .dashboard-navigation-chart .leaflet-container {
@@ -308,7 +308,7 @@
   border: 1px solid rgba(91, 188, 255, 0.18);
   /* Solid fill, not a radial-gradient glow — Jack wants solid colors
      site-wide 2026-08-03, no corner glow. */
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .dashboard-navigation-vessel-list {
@@ -321,7 +321,7 @@
 .dashboard-navigation-stat span {
   display: block;
   margin-bottom: 1px;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 8px;
   font-weight: 850;
   letter-spacing: 0.03em;
@@ -330,7 +330,7 @@
 
 .dashboard-navigation-stat strong {
   display: block;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 13px;
   line-height: 1.1;
   font-weight: 950;
@@ -347,7 +347,7 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 4px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgb(var(--seav-ink-rgb) / 0.8);
   font-size: 9px;
   font-weight: 700;
 }
@@ -386,7 +386,7 @@
 .dashboard-navigation-chart .leaflet-popup-content-wrapper,
 .dashboard-navigation-chart .leaflet-popup-tip {
   background: rgba(10, 19, 33, 0.96);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   border: 1px solid rgba(91, 188, 255, 0.28);
 }
 
@@ -395,7 +395,7 @@
   justify-content: space-between;
   gap: 12px;
   margin-top: 10px;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
   font-size: 12px;
   font-weight: 700;
 }
@@ -478,8 +478,8 @@
   border-radius: 26px;
   overflow: hidden;
 
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.14);
+  background: rgb(var(--seav-ink-rgb) / 0.06);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.14);
 
   box-shadow: 0 8px 24px rgba(0,0,0,0.18);
 }
@@ -572,9 +572,9 @@
   padding: 16px 18px;
 
   border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.07);
 
-  background: rgba(255,255,255,0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
   /* backdrop-filter intentionally dropped — the dashboard renders 8-12+ of
      these small info tiles per page (see css/components/pills.css for the
@@ -603,7 +603,7 @@
 }
 
 .dashboard-info-label {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 
   font-size: 10px;
   line-height: 1;
@@ -618,11 +618,11 @@
      dashboard profile card AND public-profile.html (both reuse these same
      classes), so this one rule covers both surfaces at once. */
   padding-bottom: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
 }
 
 .dashboard-info-value {
-  color: rgba(255,255,255,0.94);
+  color: rgb(var(--seav-ink-rgb) / 0.94);
 
   font-size: 14px;
   line-height: 1.35;
@@ -636,7 +636,7 @@
 .dashboard-summary-text {
   margin: 0;
 
-  color: rgba(255,255,255,0.92);
+  color: rgb(var(--seav-ink-rgb) / 0.92);
 
   font-size: 13px;
   line-height: 1.55;
@@ -678,7 +678,7 @@
   display: block;
   margin-top: 2px;
 
- color: #5bbcff;
+ color: var(--seav-accent-text);
 
   font-size: 11px;
   font-weight: 700;
@@ -690,7 +690,7 @@
 .kpi-title {
   margin: 0 0 4px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: var(--font-section-title);
   font-weight: 800;
@@ -721,13 +721,13 @@
   padding: 6px 10px;
 
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
 
   background: rgba(20,34,52,0.95);
 
   box-shadow: 0 6px 16px rgba(0,0,0,0.3);
 
-  color: white;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 11px;
   line-height: 1.35;
@@ -870,9 +870,9 @@
   padding: 7px 8px 8px;
 
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.07);
 
-  background: rgba(255,255,255,0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
   min-width: 0;
 }
@@ -888,7 +888,7 @@
 .dash-mini-head h4 {
   margin: 0;
 
-  color: var(--seav-entity-name-color, #ffffff);
+  color: var(--seav-entity-name-color, rgb(var(--seav-ink-rgb)));
 
   font-size: 13px;
   line-height: 1.15;
@@ -898,7 +898,7 @@
 .dash-mini-head p {
   margin-top: 4px;
 
-  color: rgba(255,255,255,0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
 
   font-size: 10px;
   font-weight: 700;
@@ -912,7 +912,7 @@
 
   background: rgba(91,188,255,0.12);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 9px;
   font-weight: 900;
@@ -932,7 +932,7 @@
 .dash-mini-info-grid strong {
   display: block;
 
-  color: var(--seav-field-value-color, #ffffff);
+  color: var(--seav-field-value-color, rgb(var(--seav-ink-rgb)));
 
   font-size: 12px;
   line-height: 1.2;
@@ -957,7 +957,7 @@
   border-radius: 999px;
   border: 1px solid rgba(91, 188, 255, 0.38);
   background: rgba(91, 188, 255, 0.14);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   text-decoration: none;
   font-size: 12px;
   font-weight: 800;
@@ -973,13 +973,13 @@
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
 }
 
 .dashboard-shell-card .dash-card-accent-certificates .cert-attachment-link:hover {
   background: rgba(91, 188, 255, 0.22);
   border-color: rgba(91, 188, 255, 0.55);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   text-decoration: none;
 }
 
@@ -1078,7 +1078,7 @@
 .dashboard-shell-card .dashboard-card-headline h3 {
   margin: 0 0 10px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: var(--font-section-title);
   line-height: 1.2;
@@ -1088,7 +1088,7 @@
 }
 
 .dashboard-shell-card .progress-label {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
 
   font-size: 12px;
   font-weight: 800;
@@ -1122,7 +1122,7 @@
   font-size: var(--font-value);
   line-height: 1.4;
   font-weight: 700;
-  color: var(--seav-field-value-color, #ffffff);
+  color: var(--seav-field-value-color, rgb(var(--seav-ink-rgb)));
 }
 
 /* KPI numbers */
@@ -1141,7 +1141,7 @@
   font-weight: 850;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: var(--seav-entity-name-color, #ffffff);
+  color: var(--seav-entity-name-color, rgb(var(--seav-ink-rgb)));
 }
 
 /* Secondary/sub text */
@@ -1224,7 +1224,7 @@
      style anyway (2026-08-03). */
   background: var(--page-shell-panel);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   text-decoration: none;
 
   /* 1px inner top highlight: the tile reads as a lit surface rather than a
@@ -1247,7 +1247,7 @@
   gap: 9px;
 
   padding-bottom: 11px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.07);
 }
 
 .dash-tile-ic {
@@ -1275,7 +1275,7 @@
 .dash-tile-label {
   min-width: 0;
   font-weight: 800;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 /* The value sits on the header row, opposite its label, at the size the
@@ -1334,7 +1334,7 @@
 .dash-tile-foot {
   margin-top: auto;
   padding-top: 9px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgb(var(--seav-ink-rgb) / 0.06);
 
   display: flex;
   align-items: center;
@@ -1363,7 +1363,7 @@
   height: 7px;
   border-radius: 50%;
   flex: 0 0 auto;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgb(var(--seav-ink-rgb) / 0.35);
 }
 
 .dash-tile-stat--ok i {
@@ -1382,7 +1382,7 @@
    name can overflow its tile regardless of length. */
 .dash-tile-last {
   font-weight: 600;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   line-height: 1.3;
 
   display: -webkit-box;
@@ -1437,7 +1437,7 @@
 
 .dash-tile-milestone-name {
   font-weight: 800;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   white-space: nowrap;
   overflow: hidden;
@@ -1472,7 +1472,7 @@
   border: 1px solid var(--surface-border);
   background: rgba(0, 0, 0, 0.24);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   text-decoration: none;
 
   transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1), border-color 0.22s ease;
@@ -1530,7 +1530,7 @@
    hierarchy. Dimmed white keeps the eyebrow subordinate to the name. */
 .dash-vessel-eyebrow {
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
 }
 
 .dash-vessel-body h3 {
@@ -1760,7 +1760,7 @@
 
 .dashboard-profile-strip-label {
   font-weight: 800;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .dashboard-profile-strip-percent {
@@ -1800,7 +1800,7 @@
   border: 1px solid var(--pill-blue-border);
   background: var(--pill-blue-bg);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-weight: 800;
   text-decoration: none;
 

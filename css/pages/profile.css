@@ -58,7 +58,7 @@
   border-radius: 50%;
   border: 1.5px solid rgba(66,214,181,0.32);
 
-  background: rgba(255,255,255,0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
   color: #42d6b5;
 }
@@ -72,7 +72,7 @@
 .profile-shell-head h2 {
   margin: 0 0 8px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: var(--font-page-title);
   line-height: 1.1;
@@ -82,7 +82,7 @@
 .profile-shell-head p {
   margin: 0;
 
-  color: rgba(255,255,255,0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
 
   font-size: var(--font-body);
   line-height: 1.65;
@@ -225,7 +225,7 @@
   border-radius: 18px;
   border: 1px solid rgba(66, 214, 181, 0.18);
 
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
 }
 
 /* A plain heading, not a <legend> — a fieldset's rendered legend
@@ -257,7 +257,7 @@
      page, just newly used for a heading here. (v424 had this on
      var(--page-profile) / #42d6b5 instead — Profile's own teal identity
      color — which read as a mismatch against the rest of the app.) */
-  color: var(--accent-blue);
+  color: var(--seav-accent-text);
 }
 
 /* =========================================================
@@ -346,7 +346,7 @@
 .profile-lock-heading {
   margin: 0 0 8px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: var(--font-page-title);
   line-height: 1.2;
@@ -356,7 +356,7 @@
 .profile-lock-message {
   margin: 0 0 20px;
 
-  color: rgba(255, 255, 255, 0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
 
   font-size: var(--font-body);
   line-height: 1.6;
@@ -478,7 +478,7 @@
 
   background: rgba(91, 188, 255, 0.12);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 13px;
   font-weight: 700;
@@ -495,9 +495,9 @@
   border: 0;
   border-radius: 50%;
 
-  background: rgba(255, 255, 255, 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.08);
 
-  color: rgba(255, 255, 255, 0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
   font-size: 15px;
   line-height: 1;
 
@@ -507,7 +507,7 @@
 
 .profile-chip-remove:hover {
   background: rgba(220, 38, 38, 0.35);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 /* =========================================================
@@ -532,7 +532,7 @@
   border-radius: 18px;
   overflow: hidden;
 
-  background: rgba(255, 255, 255, 0.06);
+  background: rgb(var(--seav-ink-rgb) / 0.06);
   border: 1px solid rgba(66, 214, 181, 0.22);
 
   background-size: cover;
@@ -716,8 +716,8 @@
   border-radius: 10px;
   border: 1px solid rgba(91, 188, 255, 0.24);
 
-  background: rgba(255, 255, 255, 0.04);
-  color: #5bbcff;
+  background: rgb(var(--seav-ink-rgb) / 0.04);
+  color: var(--seav-accent-text);
 }
 
 .profile-public-share-icon svg {
@@ -729,7 +729,7 @@
 .profile-public-share-brand h3 {
   margin: 0 0 2px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 14px;
   line-height: 1.2;
@@ -771,9 +771,9 @@
 }
 
 .profile-public-share-status.is-private {
-  color: rgba(255, 255, 255, 0.62);
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
+  border-color: rgb(var(--seav-ink-rgb) / 0.12);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
 }
 
 .profile-public-share-status.is-live {
@@ -793,7 +793,7 @@
 }
 
 .profile-public-share-toggle-label {
-  color: rgba(255, 255, 255, 0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
 
   font-size: 11px;
   font-weight: 700;
@@ -811,9 +811,9 @@
   margin: 0;
 
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.14);
 
-  background: rgba(255, 255, 255, 0.1);
+  background: rgb(var(--seav-ink-rgb) / 0.1);
 
   cursor: pointer;
 
@@ -879,15 +879,15 @@
   border-radius: 8px;
   border: 1px solid rgba(91, 188, 255, 0.24);
 
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.72);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
 
   cursor: pointer;
 }
 
 .profile-public-share-expand:hover {
   background: rgba(91, 188, 255, 0.12);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .profile-public-share-expand svg {
@@ -914,7 +914,7 @@
 }
 
 .profile-public-share-username > label {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
 
   font-size: 11px;
   font-weight: 600;
@@ -945,10 +945,10 @@
   padding: 8px 10px;
 
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
 
   background: rgba(0, 0, 0, 0.24);
-  color: rgba(255, 255, 255, 0.88);
+  color: rgb(var(--seav-ink-rgb) / 0.88);
 
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 11px;
@@ -1080,7 +1080,7 @@
   border: 1px solid var(--pill-blue-border);
 
   background: var(--pill-blue-bg);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 11px;
   font-weight: 800;
@@ -1110,10 +1110,10 @@
   padding: 8px 10px;
 
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
 
   background: rgba(0, 0, 0, 0.24);
-  color: rgba(255, 255, 255, 0.88);
+  color: rgb(var(--seav-ink-rgb) / 0.88);
 
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 11px;

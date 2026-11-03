@@ -29,7 +29,7 @@
 
   border-radius: 999px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   text-decoration: none;
 
   font-size: var(--pill-font-size);
@@ -47,7 +47,7 @@
 }
 
 .btn-blue {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
   background: var(--pill-blue-solid);
 }
 
@@ -79,9 +79,9 @@
   justify-content: center;
   padding: 10px 16px;
   border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
   background: #dc2626;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-weight: 800;
   cursor: pointer;
 }
@@ -95,7 +95,7 @@
 .profile-danger-zone {
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 }
 
 /* =========================================================

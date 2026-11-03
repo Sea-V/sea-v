@@ -21,7 +21,7 @@ body.signup-page .legal-consent input[type="checkbox"] {
 }
 
 body.signup-page .legal-consent a {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   text-decoration: none;
 }
 
@@ -40,7 +40,7 @@ body.signup-page .signup-resend-link {
   padding: 0;
   border: none;
   background: none;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font: inherit;
   cursor: pointer;
   text-decoration: none;

@@ -11,7 +11,7 @@
   margin-top: 14px;
   padding-top: 12px;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 }
 
 .seav-actions--inline {
@@ -38,7 +38,7 @@
   border-radius: 999px;
   border: 1px solid transparent;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: var(--pill-font-size);
   font-weight: var(--pill-font-weight);
   line-height: 1;
@@ -90,8 +90,8 @@
 
 .seav-action--secondary {
   border-color: rgba(114, 228, 255, 0.22);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgb(var(--seav-ink-rgb) / 0.06);
+  color: rgb(var(--seav-ink-rgb) / 0.9);
 }
 
 .seav-action--secondary:hover {
@@ -118,7 +118,7 @@
   border-radius: 999px;
   border: 1px solid var(--pill-blue-border);
   background: var(--pill-blue-bg);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: var(--pill-font-size);
   font-weight: var(--pill-font-weight);
   text-decoration: none;

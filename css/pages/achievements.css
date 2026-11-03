@@ -40,7 +40,7 @@
 
 .ach-shell-head h2 {
   margin: 0 0 8px;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: var(--font-page-title);
   line-height: 1.25;
   font-weight: var(--font-weight-title);
@@ -48,7 +48,7 @@
 
 .ach-shell-head p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
   font-size: 14px;
   line-height: 1.65;
   font-weight: 500;
@@ -93,7 +93,7 @@
 .ach-kpi-box .kpi-num {
   font-size: 30px;
   font-weight: 800;
-  color: var(--seav-field-value-color, #fff);
+  color: var(--seav-field-value-color, rgb(var(--seav-ink-rgb)));
 }
 
 .ach-kpi-box .kpi-label {
@@ -124,7 +124,7 @@
   margin-bottom: 10px;
   background:
     radial-gradient(circle closest-side, rgba(12, 28, 48, 0.95) 78%, transparent 80%),
-    conic-gradient(#ffb347 var(--ach-progress), rgba(255, 255, 255, 0.08) 0);
+    conic-gradient(#ffb347 var(--ach-progress), rgb(var(--seav-ink-rgb) / 0.08) 0);
   /* 2026-08-05 audit fix: dropped the soft box-shadow blur around this ring
      — it read as a mild glow/halo, which Jack asked to avoid site-wide. */
 }
@@ -132,7 +132,7 @@
 .ach-kpi-ring-value {
   font-size: 26px;
   font-weight: 900;
-  color: #fff;
+  color: rgb(var(--seav-ink-rgb));
   line-height: 1;
 }
 
@@ -205,20 +205,20 @@
 }
 
 .ach-next-copy strong {
-  color: #fff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 15px;
   font-weight: 800;
 }
 
 .ach-next-progress-label {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
 }
 
 .ach-progress-bar {
   height: 6px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.08);
   overflow: hidden;
   margin-top: 4px;
 }
@@ -267,8 +267,8 @@
   gap: 14px;
   padding: 14px 16px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 /* Border only — 2026-08-16, per Jack: the amber fill made completed rows
@@ -301,7 +301,7 @@
   margin: 0 0 6px;
   font-size: 12px;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
 }
 
 /* Unlocked indicator — same green-tick treatment as the dashboard's
@@ -335,8 +335,8 @@
    pattern matches .seatime-vessel-group-summary in seatime.css. */
 .ach-milestone-row {
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 /* Border only, and keyed on READINESS rather than is-unlocked — 2026-08-16.
@@ -401,7 +401,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgb(var(--seav-ink-rgb) / 0.25);
 }
 
 .ach-milestone-row.is-unlocked .ach-milestone-dot {
@@ -417,7 +417,7 @@
 }
 
 .ach-milestone-summary-title strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 14px;
   font-weight: 800;
   overflow: hidden;
@@ -433,7 +433,7 @@
 
 .ach-milestone-detail {
   padding: 4px 16px 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
   margin: 0 16px;
 }
 
@@ -478,14 +478,14 @@
 .ach-req-label {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgb(var(--seav-ink-rgb) / 0.75);
 }
 
 .ach-req-value {
   flex: 0 0 auto;
   font-size: 12px;
   font-weight: 800;
-  color: var(--seav-field-value-color, #fff);
+  color: var(--seav-field-value-color, rgb(var(--seav-ink-rgb)));
   white-space: nowrap;
 }
 
@@ -507,8 +507,8 @@
   position: relative;
   padding: 18px 16px 16px;
   border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
@@ -580,7 +580,7 @@
 .ach-trophy-title {
   margin: 0 0 4px;
   text-align: center;
-  color: var(--seav-entity-name-color, #fff);
+  color: var(--seav-entity-name-color, rgb(var(--seav-ink-rgb)));
   font-size: 14px;
   font-weight: 900;
   line-height: 1.25;
@@ -613,7 +613,7 @@
 }
 
 .ach-trophy-vessel {
-  color: var(--seav-field-value-color, #fff);
+  color: var(--seav-field-value-color, rgb(var(--seav-ink-rgb)));
   font-size: 13px;
   font-weight: 700;
 }
@@ -649,7 +649,7 @@
   margin: 0 0 10px;
   font-size: 12px;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
   text-align: center;
 }
 
@@ -710,7 +710,7 @@
 .ach-instance-row {
   padding: 10px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
   background: rgba(0, 0, 0, 0.14);
 }
 
@@ -722,7 +722,7 @@
 }
 
 .ach-instance-vessel {
-  color: var(--seav-field-value-color, #fff);
+  color: var(--seav-field-value-color, rgb(var(--seav-ink-rgb)));
   font-size: 12px;
   font-weight: 800;
 }
@@ -737,7 +737,7 @@
   margin: 6px 0 0;
   font-size: 11px;
   line-height: 1.4;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgb(var(--seav-ink-rgb) / 0.65);
 }
 
 .ach-instance-auto {
@@ -761,7 +761,7 @@
   border-radius: 18px;
   border: 1px solid rgba(255, 179, 71, 0.18);
 
-  background: rgba(255, 255, 255, 0.02);
+  background: rgb(var(--seav-ink-rgb) / 0.02);
 }
 
 .ach-section-head {
@@ -840,7 +840,7 @@
 }
 
 .ach-department--soon .ach-department-summary h3 {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgb(var(--seav-ink-rgb) / 0.4);
 }
 
 .ach-department--soon .ach-department-summary h3::before {
@@ -848,7 +848,7 @@
 }
 
 .ach-department--soon .ach-department-summary p {
-  color: rgba(255, 255, 255, 0.34);
+  color: rgb(var(--seav-ink-rgb) / 0.34);
 }
 
 .ach-department-soon {
@@ -862,7 +862,7 @@
 
 .ach-section-head h3 {
   margin: 0 0 4px;
-  color: #fff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 14px;
   font-weight: 700;
 }
@@ -922,7 +922,7 @@
   border-radius: 12px;
   border: 1px solid var(--surface-border);
 
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
 
   overflow: hidden;
 }
@@ -972,7 +972,7 @@
 }
 
 .ach-certs-title {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgb(var(--seav-ink-rgb) / 0.8);
 
   font-size: 12px;
   font-weight: 800;
@@ -981,7 +981,7 @@
 .ach-certs-count {
   margin-left: auto;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 11.5px;
   font-weight: 800;
@@ -1003,7 +1003,7 @@
 
   border-radius: 2px;
 
-  background: rgba(255, 255, 255, 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.08);
 }
 
 .ach-certs-meter i.is-held { background: #5ee6a8; }
@@ -1039,7 +1039,7 @@
 
 .ach-cert-group-dot.is-att { background: #ff9f43; }
 .ach-cert-group-dot.is-ok { background: #5ee6a8; }
-.ach-cert-group-dot.is-no { background: rgba(255, 255, 255, 0.3); }
+.ach-cert-group-dot.is-no { background: rgb(var(--seav-ink-rgb) / 0.3); }
 
 .ach-cert-group-title {
   color: var(--seav-meta-muted-color);
@@ -1068,7 +1068,7 @@
 
   min-width: 0;
 
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
 
   font-size: 12px;
   font-weight: 700;
@@ -1127,7 +1127,7 @@
 
 .ach-cert-action:hover,
 .ach-cert-action:focus-visible {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(var(--seav-ink-rgb) / 0.05);
 }
 
 .ach-cert-action:focus-visible {
@@ -1143,7 +1143,7 @@
   border-radius: 999px;
   border: 1px solid rgba(91, 188, 255, 0.3);
 
-  color: var(--accent-blue);
+  color: var(--seav-accent-text);
 
   font-size: 10.5px;
   font-weight: 800;
@@ -1160,7 +1160,7 @@
 }
 
 .ach-cert-group.is-muted .ach-cert-note {
-  color: rgba(255, 255, 255, 0.32);
+  color: rgb(var(--seav-ink-rgb) / 0.32);
 }
 
 /* An icon as well as a colour — the accessibility audit already flags one
@@ -1202,7 +1202,7 @@
 }
 
 .ach-cert-ico.is-miss {
-  border: 1px dashed rgba(255, 255, 255, 0.26);
+  border: 1px dashed rgb(var(--seav-ink-rgb) / 0.26);
   background: transparent;
 }
 
@@ -1318,7 +1318,7 @@
 ========================================================= */
 
 .ach-trophy--award {
-  border-color: var(--award-edge, rgba(255, 255, 255, 0.08));
+  border-color: var(--award-edge, rgb(var(--seav-ink-rgb) / 0.08));
   padding-top: 20px;
 }
 
@@ -1388,7 +1388,7 @@
   font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: var(--seav-meta-muted-color, rgba(255, 255, 255, 0.45));
+  color: var(--seav-meta-muted-color, rgb(var(--seav-ink-rgb) / 0.45));
 }
 
 /* ---- Dashboard widget rows (js/core.js buildDashboardMilestoneRow) ---- */

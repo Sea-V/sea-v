@@ -9,7 +9,7 @@
   border-radius: 14px;
   border: 1px solid rgba(255, 184, 107, 0.35);
   background: rgba(40, 28, 12, 0.55);
-  color: rgba(255, 255, 255, 0.92);
+  color: rgb(var(--seav-ink-rgb) / 0.92);
   font-size: 13px;
   line-height: 1.5;
 }

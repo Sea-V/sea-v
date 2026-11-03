@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v589**. Jack pushes every commit himself from
+- HEAD = **v590**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1519,7 +1519,8 @@ only for STATE (hover, selected, progress, callout edge). Topbar line
 token transparent / 0px (also clears the same line atop the Search panel
 and the public pages' `.legal-topbar-inner` inset). Dashboard tiles and the
 current-vessel tile: one neutral border, no `--a` page-colour left edge
-(the inline `--a` styles in dashboard.html are now unused). Dashboard
+(the inline `--a` styles in dashboard.html are KEPT: dashboard.css still
+reads them, and they come back if the Bridge @import is ever removed). Dashboard
 title icon + profile-completion icon: `--bridge-caption`, no badge. Menu
 icons keep their page colours (topbar.css untouched). Seen on a static
 harness of the real dashboard markup + styles at 1280px. Still coloured
@@ -1533,6 +1534,120 @@ to origin/main. **Local history has missing objects** (`git log` fails at
 022f84d). GitHub has the full history. Fix: fresh clone outside iCloud
 (e.g. ~/Developer/sea-v). node_modules reads are very slow here for the
 same reason (eslint took minutes).
+
+### v590 — audit fixes: overlaps, payslip currencies, anon column scope (2026-11-03)
+Jack: "Code fixes, in order". Thread 9 re-checked first: end-date
+counting (inclusive since v571), Master Unlimited pre-cert days (v572),
+muted contrast (0.64 since v539) were ALREADY fixed; yard uncapped on the
+36 months is CORRECT (MSN 1858: signed-on time irrespective of activity;
+the 90-day cap is the OOW 115-day figure's). `profile.schengen_stays` was
+already dropped.
+- **Overlapping contracts.** New `SeavData.uniqueSignedOnDays(entries)`
+  merges signed-on spans so each calendar day counts once; used by the 36
+  months and every Master onboard figure (500 / 3000 x3 / Unlimited).
+  Spans come from `signedOnDays`, so non-overlapping totals are identical
+  (node 9/9 in London + LA; live anon data for 4 public profiles:
+  unchanged, none overlap). Sea Time save now refuses an entry sharing
+  2+ days with another (one changeover day allowed; open entries run to
+  today) — the day buckets cannot be de-duplicated, so stop it at source.
+- **Standby.** Deliberately NOT a flat 14-per-contract cap (would cut
+  legitimate multi-period standby). Kept the per-entry cap at actual sea
+  days; the form now states the MSN 1858 rule (14 in a row, never more
+  than the voyage before). The captain's testimonial confirms the figure.
+- **Payslip net total per currency** (`renderKpis`, payslips-core.js):
+  was one sum labelled with the first entry's currency. Never converted;
+  `OTHER` shows as "N other". Lines joined with <br>.
+- **DB, LIVE:** `docs/schema-anon-column-scope-navigation-tenders.sql` —
+  anon's TABLE-level SELECT on navigation_areas / tenders replaced by
+  column grants of exactly the current public lists (every existing
+  column was already public, so no visible change; new columns now start
+  private like every other table). Smoke test: 0 table-level grants,
+  28 / 15 columns, authenticated untouched, anon rows 58 / 23 before and
+  after, anon insert 401, advisors 23 -> 23. `testNavigationTenderColumns`
+  added to test-supabase step 1 (passes).
+- Drafting notes removed from privacy.html ("have it reviewed by a
+  qualified lawyer") and terms.html ("Have a lawyer review ...").
+- **DATA, LIVE:** the 3 hand-set demo "Verified" references (demo-r2/3/4,
+  daniel-whitfield, no verification blob) set to Draft at Jack's call
+  (`docs/data-cleanup-demo-references-draft.sql`, restore line inside).
+  Anon now reads 0 of them, so daniel-whitfield's public profile has no
+  References section (v577 hides empty ones). **SEA-V now has NO verified
+  references at all** — the first real one will come from the referee flow.
+- **CSP + pinned CDN scripts.** supabase-js `@2` (floating) pinned to
+  2.118.0's `dist/umd/supabase.js` (the file `@2` served on 2026-11-03,
+  published 2026-10-15), topojson-client 3.1.0, world-atlas 2.0.2. Every
+  CDN `<script>` (22 supabase, 15 html2canvas, 3 each topojson / jszip /
+  qrcode) and the two JS loaders (jszip in auth.js, heic2any in
+  seav-upload.js) carry sha384 `integrity` + `crossorigin`. The rules in
+  patch-html-scripts.mjs insert the pinned tags. CSP (vercel.json +
+  netlify.toml): script-src lists exact library PATHS, not whole CDNs;
+  style-src only leaflet's; connect-src only world-atlas on jsdelivr;
+  `object-src 'none'` added. **Kept:** `'unsafe-eval'` — heic2any's
+  emscripten build calls `new Function` (no other library needs it);
+  `'unsafe-inline'` — inline <script> blocks and handlers remain. Tested
+  on a local server sending the real header + a sessionStorage
+  violation recorder: public profile (data, map, tiles, atlas), 8 more
+  pages, 0 violations; jszip + heic2any load and run; a wrong hash and an
+  unlisted jsdelivr file are both refused. **To upgrade a library:**
+  version + sha384 in the HTML (or patch script) + the CSP path, together.
+- **Keyboard focus.** New `css/components/focus.css` (imported after
+  theme-bridge.css; tokens `--seav-focus-ring-*`): one 2px `--accent-blue`
+  `:focus-visible` outline on every control, `!important` because 14 page
+  rules set `outline: none` (sign-in / sign-up fields among them). Only
+  outline is set, so existing focus borders/glows stay; mouse clicks on
+  buttons draw nothing. Not ringed: aria-activedescendant listboxes and
+  the modal card itself.
+- **Modal focus** (`wireModalFocus` in core.js). role / aria-modal /
+  aria-labelledby were already applied (v577). New: a MutationObserver on
+  `.modal[hidden]` (pages open modals directly, not only via openModal)
+  moves focus to the card on open (card, not first field — no phone
+  keyboard pop), Tab / Shift+Tab cycle inside the open modal, close
+  returns focus to the opener. The "×" gets `aria-label="Close"`.
+  Verified on a harness of the real vessels.html + core.js: Enter opens,
+  focus inside, Tab -> Close, Shift+Tab wraps to Save, Tab wraps back,
+  field ring visible, Esc closes and focus returns to "Add Vessel"; ring
+  on the real sign-in page under the new CSP. Not tried with a screen
+  reader. Any future custom popup outside `.modal` needs its own trap
+  (search and badge-unlock already have theirs).
+Thread 9 is now down to the 11px label size (fold into the redesign).
+
+**Also v590 — Quiet navy + a Dark / Light switch** (Jack, 2026-11-03:
+"simplify this website"; shown A Quiet navy vs B Light side by side, he
+asked for both, switchable).
+- **Quiet navy = Dark, the default** (end of theme-bridge.css, app pages
+  only): ocean photo gone (`body.app-page::before/::after` hidden — this
+  REVERSES the v583 "ocean back" call), page title icons in
+  `--bridge-caption`, title row unboxed (heading over one rule), tile /
+  quick-action labels normal case. Public info pages keep their ocean.
+- **The ink conversion.** 627 hardcoded whites in 41 stylesheets plus 26
+  white tokens in variables.css now read `rgb(var(--seav-ink-rgb) / a)`
+  (`--seav-ink-rgb: 255 255 255`), and 44 blue TEXT colours read
+  `--seav-accent-text` (= `--accent-blue`). **Proved pixel-identical in
+  Dark:** a no-cache server compared the converted CSS against a reversed
+  copy — 0 computed-colour differences over 3,878 elements on 6 page
+  harnesses with every modal open. **New CSS: write colours as ink /
+  tokens, never a literal white,** or Light misses them.
+- **Light** = `css/core/theme-light.css` (after theme-bridge, before
+  focus.css), gated on `html[data-theme="light"]:has(> body.app-page)` —
+  the public profile measured 0 differences over 1,682 elements with the
+  attribute set. Flips ink to navy (15 34 54), Bridge surfaces to white /
+  #f3f5f8, labels + accent + focus ring to `--light-accent` #1f6fb2
+  (#5bbcff is 2.2:1 on white). White fields (the dark rgba(0,0,0,.22)
+  fill read as disabled), white select popups, autofill fixed. **Keeps
+  white ink locally** on the vessel tile WITH a photo (desktop scrim),
+  `.btn-danger`, the navigation map + hint, leaflet. A sweep of 6 pages
+  (all modals open) for dark fills and low-contrast text is clean apart
+  from those intended dark areas.
+- **Switch:** `SeavTheme` in seav-config.js (sync in <head>, so no flash;
+  localStorage `seav_theme`, per device, default dark) +
+  "Appearance: Dark | Light" in the account menu (core.js
+  `wireThemeSwitch`, aria-pressed, live, menu stays open). Verified on the
+  harness: switch, persist across pages, back.
+- Not checked in Light: pages without a harness here (achievements,
+  references, tenders, onboard, payslips, hobbies, land, specialist, CV
+  generator, admin) and anything that renders only with real data —
+  check signed in. Phone dashboard: tile labels crowd under wide figures
+  at 375px in BOTH themes (seen with "1,197 days"); not caused by this.
 
 ### v586–v587 — dead code removed (Jack: "review all dead code")
 Two read-only audits (JS/HTML, CSS), then removal. Already in v586 (Jack
@@ -1832,18 +1947,17 @@ first-run setup) and the dashboard header / quick-action inconsistencies.
    Authentication → Policies in the dashboard. Grouped with thread 1 as the
    dashboard-only work.
 
-9. **Rest of the 2026-09-26 audit, not yet fixed** (roughly by impact):
-   ~~storage path-planting~~ and ~~verification email rate limit~~ (both
-   fixed v579);
-   Master Unlimited counts pre-certificate sea days (`seav-data.js` ~2027);
-   payslip total mixes currencies; ~~dashboard duplicate script tags and
-   dead `navigation-routing.js`~~ (removed v586); CSP allows
-   unsafe-inline/eval and whole CDNs, supabase-js unpinned; `navigation_areas`
-   / `tenders` have TABLE-level anon SELECT; auth-form focus outlines and
-   modal dialog semantics; muted token 4.42:1 contrast. **Needs Jack's call:**
-   day counts exclude the end date; overlapping contracts double-count; yard
-   uncapped in the dated 36-month path; standby cap is per contract, not
-   total; typography.css forces 14px so `--font-label` 11px can never apply.
+9. **Rest of the 2026-09-26 audit — re-checked 2026-11-03 (v590).**
+   Fixed: storage path-planting + email rate limit (v579), dead routing
+   script (v586), Master Unlimited pre-cert days (v572), end-date counting
+   (v571), muted contrast (v539), payslip currencies, overlapping
+   contracts, navigation_areas / tenders anon column scope (all v590).
+   Not a bug: yard uncapped on the 36 months (MSN 1858). Standby: kept
+   per entry + form note (see v590). CSP narrowed + scripts pinned
+   with SRI (v590; unsafe-eval kept for heic2any, unsafe-inline until the
+   inline scripts move to files). Focus rings + modal focus
+   handling (v590). **Still open:** typography.css forces 14px
+   so `--font-label` 11px can never apply (fold into the redesign).
 
 10. **Public profile colours "don't match the private section"** (Jack,
    2026-09-27, parked by him). Not yet pinned down. Measured the live

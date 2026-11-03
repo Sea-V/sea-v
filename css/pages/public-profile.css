@@ -152,7 +152,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 .public-profile-page .dash-card-accent-qualities { --section-accent: var(--seav-quality-accent); }
 
 .public-profile-page [class*="dash-card-accent-"] {
-  border-color: color-mix(in srgb, var(--section-accent, #5bbcff) 42%, rgba(255, 255, 255, 0.1));
+  border-color: color-mix(in srgb, var(--section-accent, #5bbcff) 42%, rgb(var(--seav-ink-rgb) / 0.1));
   transition: border-color 0.2s ease;
 }
 
@@ -196,7 +196,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   border-radius: 999px;
   border: 1px solid rgba(91, 188, 255, 0.2);
   background: rgba(91, 188, 255, 0.08);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 10px;
   font-weight: 800;
   line-height: 22px;
@@ -249,7 +249,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   z-index: 5;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
   background: rgba(8, 16, 28, 0.82);
   font-size: 10px;
   line-height: 1.35;
@@ -285,14 +285,14 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 .public-profile-footer-cta {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 12px;
   font-weight: 850;
   text-decoration: none;
 }
 
 .public-profile-footer-cta:hover {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 /* Legacy alias — section renderers still use public-cv-* content classes */
@@ -318,20 +318,20 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
      plain gray style here with no color distinction at all. */
   border: 1px solid rgba(220, 53, 69, 0.45);
   background: rgba(220, 53, 69, 0.28);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .public-cv-verify-badge.is-pending {
   border-color: rgba(255, 159, 67, 0.45);
   background: rgba(255, 159, 67, 0.24);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .public-cv-verify-badge.is-trusted {
   /* Same pastel mint as the shared .pill-valid / .seatime-verified-pill. */
   border-color: rgba(94, 230, 168, 0.45);
   background: rgba(94, 230, 168, 0.24);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 /* =========================================================
@@ -345,7 +345,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   border-radius: 10px;
   border: 1px solid rgba(91, 188, 255, 0.18);
   background: rgba(91, 188, 255, 0.06);
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
@@ -381,7 +381,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-cv-signoff-line {
   margin: 6px 0 0;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
   font-size: 10px;
   line-height: 1.5;
   font-weight: 550;
@@ -405,9 +405,9 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   gap: 8px;
   padding: 5px 8px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.035);
-  color: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.05);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
   font-size: 10px;
   font-weight: 650;
 }
@@ -436,8 +436,8 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   align-items: start;
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.07);
+  background: rgb(var(--seav-ink-rgb) / 0.025);
 }
 
 .public-cv-highlight-badge {
@@ -461,9 +461,9 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   display: grid;
   place-items: center;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: #ffffff;
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
+  color: rgb(var(--seav-ink-rgb));
   font-size: 16px;
   font-weight: 900;
 }
@@ -477,7 +477,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-cv-highlight-title {
   margin: 0;
-  color: rgba(255, 255, 255, 0.94);
+  color: rgb(var(--seav-ink-rgb) / 0.94);
   font-size: 13px;
   line-height: 1.3;
   font-weight: 850;
@@ -573,7 +573,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 .pp-vessel-unattached .vessel-history-summary-title strong {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
 }
 
 /* At narrow widths the summary is chevron + dot + name + role/dates/duration
@@ -676,19 +676,19 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
    colored text on a colored background. */
 .vessel-linked-section-group--tenders .tender-vessel-group-count {
   background: rgba(76, 255, 184, 0.16);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 .vessel-linked-section-group--onboard .tender-vessel-group-count {
   background: rgba(255, 143, 171, 0.16);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 .vessel-linked-section-group--references .tender-vessel-group-count {
   background: rgba(209, 107, 255, 0.16);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 .vessel-linked-section-group--awards .tender-vessel-group-count {
   background: rgba(255, 179, 71, 0.16);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 /* Inner row/card borders — "the borders inside have the color also" —
@@ -781,12 +781,12 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   gap: 8px;
   padding: 6px 8px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.05);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .public-cv-mini-title {
-  color: rgba(255, 255, 255, 0.88);
+  color: rgb(var(--seav-ink-rgb) / 0.88);
   font-size: 11px;
   font-weight: 700;
   line-height: 1.35;
@@ -818,8 +818,8 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 .public-cv-ref-block {
   padding: 8px 9px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.06);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .public-cv-ref-block + .public-cv-ref-block {
@@ -835,7 +835,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-cv-ref-name {
   margin: 0;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgb(var(--seav-ink-rgb) / 0.9);
   font-size: 11px;
   font-weight: 800;
 }
@@ -850,7 +850,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 
 .public-cv-ref-quote {
   margin-top: 5px;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
   font-size: 10px;
   line-height: 1.5;
   font-weight: 500;
@@ -896,7 +896,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   border: 1px solid rgba(91, 188, 255, 0.4);
   background: rgba(91, 188, 255, 0.12);
   /* Pill stays blue — text is white, not blue-on-blue, for contrast. */
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.4px;
@@ -914,12 +914,12 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   margin-top: -2px;
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 }
 
 .onboard-detail-desc {
   margin: 0 0 10px;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgb(var(--seav-ink-rgb) / 0.82);
   font-size: 13px;
   line-height: 1.55;
   font-weight: 600;
@@ -944,7 +944,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   border-radius: 999px;
   border: 1px solid rgba(91, 188, 255, 0.4);
   background: rgba(91, 188, 255, 0.1);
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 12px;
   font-weight: 800;
   text-decoration: none;
@@ -981,7 +981,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   margin-top: 10px;
   border-radius: 12px;
   border: 1px solid var(--surface-border);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
   overflow: hidden;
 }
 
@@ -1002,7 +1002,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 .public-onboard-skills-toggle:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
 }
 
 .public-onboard-skills-toggle:focus-visible {
@@ -1011,7 +1011,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 .public-onboard-skills-toggle-label {
-  color: rgba(255, 255, 255, 0.88);
+  color: rgb(var(--seav-ink-rgb) / 0.88);
   font-size: 11px;
   font-weight: 700;
 }
@@ -1060,7 +1060,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   flex-direction: column;
   gap: 3px;
   padding: 6px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.05);
 }
 
 .public-onboard-skill-row:last-child {
@@ -1076,7 +1076,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 .public-onboard-skill-name {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgb(var(--seav-ink-rgb) / 0.85);
   font-size: 11.5px;
   font-weight: 400;
 }
@@ -1096,7 +1096,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   display: inline-flex;
   width: 13px;
   height: 13px;
-  color: rgba(255, 255, 255, 0.18);
+  color: rgb(var(--seav-ink-rgb) / 0.18);
 }
 
 .public-onboard-skill-star svg {
@@ -1142,7 +1142,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
 }
 
 .public-cv-empty-state strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 15px;
   font-weight: 800;

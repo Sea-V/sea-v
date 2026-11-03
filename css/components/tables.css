@@ -39,7 +39,7 @@ td {
 
   text-align: left;
 
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 
   font-size: 12px;
   line-height: 1.35;
@@ -47,13 +47,13 @@ td {
 
   text-transform: uppercase;
 
-  color: rgba(255,255,255,0.82);
+  color: rgb(var(--seav-ink-rgb) / 0.82);
 }
 
 th {
-  background: rgba(255,255,255,0.04);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
 
-  color: rgba(255,255,255,0.94);
+  color: rgb(var(--seav-ink-rgb) / 0.94);
 
   font-weight: 900;
 }

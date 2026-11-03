@@ -14,7 +14,7 @@ body.signup-page {
      always wins by source order — this Arial declaration never actually
      rendered. Matching it here so the source isn't misleading. 2026-08-03 */
   font-family: var(--font-app);
-  color: white;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 body.index-page {
@@ -82,15 +82,15 @@ body.signup-page .login-form input:not([type="checkbox"]) {
   padding: 0 14px;
   box-sizing: border-box;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.25);
+  background: rgb(var(--seav-ink-rgb) / 0.08);
+  color: rgb(var(--seav-ink-rgb));
   outline: none;
 }
 
 body.index-page .login-form input:not([type="checkbox"])::placeholder,
 body.signup-page .login-form input:not([type="checkbox"])::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
 }
 
 body.index-page .login-btn,
@@ -101,7 +101,7 @@ body.signup-page .login-btn {
   /* Solid fill, not a gradient — Jack wants solid colors site-wide
      2026-08-03. Value is the midpoint of the old gradient. */
   background: #449cff;
-  color: white;
+  color: rgb(var(--seav-ink-rgb));
   font-weight: 600;
   cursor: pointer;
 }
@@ -125,7 +125,7 @@ body.signup-page .create-account {
 
 body.index-page .create-account a,
 body.signup-page .create-account a {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   text-decoration: none;
 }
 
@@ -170,7 +170,7 @@ body.index-page .login-help {
 }
 
 body.index-page .login-help a {
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   text-decoration: none;
 }
 
@@ -182,7 +182,7 @@ body.index-page #loginMsg,
 body.signup-page #signupMsg {
   min-height: 20px;
   margin-top: -4px;
-  color: #5bbcff;
+  color: var(--seav-accent-text);
   font-size: 13px;
   font-weight: 600;
   text-align: center;

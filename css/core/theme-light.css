@@ -1,0 +1,112 @@
+/* =========================================================
+   LIGHT THEME (v590, Jack 2026-11-03: "can we have the option to switch
+   between both?" — Quiet navy stays the default, Light is the other).
+   Switched by <html data-theme="light">, set from localStorage by
+   js/seav-config.js before the page paints, and chosen in the account
+   menu (core.js renderAccountMenu). Signed-in pages only: every rule is
+   gated on :has(body.app-page), so the public profile and the public info
+   pages never change.
+   How it works: every hardcoded white in the stylesheets reads
+   rgb(var(--seav-ink-rgb) / <alpha>) (converted in v590, pixel-identical
+   in Dark), so flipping that one triplet to navy turns all text, washes
+   and borders dark at once. The rest below swaps the Bridge surfaces to
+   white, re-points the named text tokens, and fixes the few places that
+   paint a solid dark colour of their own.
+   Imported after theme-bridge.css and before focus.css in styles.css.
+   Field labels: #5bbcff is 2.2:1 on white, so labels and the accent use
+   --light-accent (#1f6fb2, 5.1:1) here. Entity names and values are navy.
+========================================================= */
+
+html[data-theme="light"]:has(> body.app-page) {
+  --light-ink: 15 34 54;
+  --light-accent: #1f6fb2;
+  --light-accent-soft: rgba(31, 111, 178, 0.10);
+
+  --seav-ink-rgb: var(--light-ink);
+  color-scheme: light;
+
+  --seav-field-label-color: var(--light-accent);
+  --seav-meta-label-color: var(--light-accent);
+  --seav-focus-ring-color: var(--light-accent);
+  --seav-accent-text: var(--light-accent);
+  --seav-select-arrow: var(--seav-select-arrow-on-light);
+  --seav-select-bg: #ffffff;
+
+  --page-shell-bg: #ffffff;
+  --page-shell-panel: #f7f9fb;
+  --page-shell-bg-translucent: #ffffff;
+  --surface-bg: #ffffff;
+  --surface-bg-strong: #ffffff;
+  --surface-bg-soft: #f7f9fb;
+}
+
+html[data-theme="light"] body.app-page {
+  --bridge-bg: #f3f5f8;
+  --bridge-bar: #ffffff;
+  --bridge-surface: #ffffff;
+  --bridge-surface-2: #f7f9fb;
+  --bridge-surface-3: #f1f4f7;
+  --bridge-surface-4: #eef2f6;
+  --bridge-rule: #dfe5ec;
+  --bridge-rule-strong: #c9d3de;
+  --bridge-caption: #5d6f82;
+  --bridge-accent: var(--light-accent);
+  --bridge-accent-soft: var(--light-accent-soft);
+  --seav-menu-bg: #ffffff;
+  --seav-menu-shadow: 0 16px 40px rgba(15, 34, 54, 0.16);
+  --seav-modal-band: #f7f9fb;
+
+  background: var(--bridge-bg) !important;
+  color: rgb(var(--seav-ink-rgb));
+}
+
+/* Cards lift off the grey page with a hairline shadow instead of colour. */
+html[data-theme="light"] body.app-page :is(.dash-tile, .dash-vessel, .dashboard-quick-action, .dash-card, .modal-card) {
+  box-shadow: 0 1px 2px rgba(15, 34, 54, 0.06) !important;
+}
+
+/* Solid dark fills that are not tokens: select popups. */
+html[data-theme="light"] body.app-page :is(select option, .modal-form select option) {
+  background-color: #ffffff !important;
+  color: rgb(var(--seav-ink-rgb)) !important;
+}
+
+/* Over a PHOTO the text must stay white whatever the theme: the current-
+   vessel tile on desktop draws its text on a dark scrim over the picture
+   (`.dash-vessel-empty` = no photo, so it keeps the light ink).
+   Resetting the ink locally turns everything inside back to white. */
+@media (min-width: 901px) {
+  html[data-theme="light"] body.app-page .dash-vessel:not(.dash-vessel-empty) {
+    --seav-ink-rgb: 255 255 255;
+    --seav-entity-name-color: #ffffff;
+    --seav-field-value-color: #ffffff;
+    --seav-meta-desc-color: rgba(255, 255, 255, 0.78);
+  }
+}
+
+/* Form fields: white with a visible edge. The dark theme fills them with
+   rgba(0, 0, 0, 0.22), which on white reads as a disabled grey box.
+   background-COLOR only, so select chevrons (background-image) survive. */
+html[data-theme="light"]:has(> body.app-page) {
+  --field-hint-color: rgba(15, 34, 54, 0.45);
+  --seav-photo-bg: #eef2f6;
+}
+
+html[data-theme="light"] body.app-page :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]), select, textarea) {
+  background-color: #ffffff !important;
+  border-color: rgb(var(--seav-ink-rgb) / 0.22) !important;
+}
+
+/* Autofill paints its own fill and forces white text in modals.css. */
+html[data-theme="light"] body.app-page input:-webkit-autofill {
+  -webkit-text-fill-color: rgb(var(--seav-ink-rgb)) !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+}
+
+/* Text that sits on its own solid dark or saturated fill keeps white ink:
+   the red danger button, and the map well with its overlays (the basemap
+   is dark in both themes). */
+html[data-theme="light"] body.app-page :is(.btn-danger, .navigation-map, .navigation-map-hint, .dashboard-navigation-chart, .leaflet-container) {
+  --seav-ink-rgb: 255 255 255;
+}

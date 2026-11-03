@@ -83,7 +83,7 @@
 .seatime-shell-head h2 {
   margin: 0 0 8px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: var(--font-page-title);
   line-height: 1.25;
@@ -93,7 +93,7 @@
 .seatime-shell-head p {
   margin: 0;
 
-  color: rgba(255,255,255,0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
 
   font-size: 14px;
   line-height: 1.65;
@@ -264,14 +264,14 @@
 }
 
 .seatime-portal-name {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 16px;
   font-weight: 900;
   line-height: 1.25;
 }
 
 .seatime-portal-desc {
-  color: rgba(255, 255, 255, 0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
   font-size: 12px;
   line-height: 1.45;
   font-weight: 600;
@@ -306,7 +306,7 @@
 .seatime-section-head h3 {
   margin: 0 0 5px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 14px;
   font-weight: 700;
@@ -315,7 +315,7 @@
 .seatime-section-head p {
   margin: 0;
 
-  color: rgba(255,255,255,0.60);
+  color: rgb(var(--seav-ink-rgb) / 0.60);
 
   font-size: 13px;
   line-height: 1.55;
@@ -369,17 +369,17 @@
   border-collapse: collapse;
 }
 
-/* Header text/borders now match the generic th { color: rgba(255,255,255,0.94);
-   background: rgba(255,255,255,0.04); } convention (css/components/tables.css)
+/* Header text/borders now match the generic th { color: rgb(var(--seav-ink-rgb) / 0.94);
+   background: rgb(var(--seav-ink-rgb) / 0.04); } convention (css/components/tables.css)
    exactly — near-white uppercase labels, not the page's --accent-blue, which
    read as an out-of-place light blue against the rest of the site's tables. */
 .seatime-table-wrap thead th {
   padding: 14px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.94);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
+  color: rgb(var(--seav-ink-rgb) / 0.94);
 
   font-size: 11px;
   font-weight: 900;
@@ -395,9 +395,9 @@
 .seatime-table-wrap thead tr:first-child th {
   padding-bottom: 8px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
 
   font-size: 10px;
   font-weight: 700;
@@ -411,9 +411,9 @@
 .seatime-table-wrap tbody td {
   padding: 14px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 
-  color: rgba(255,255,255,0.82);
+  color: rgb(var(--seav-ink-rgb) / 0.82);
 
   font-size: 13px;
   line-height: 1.45;
@@ -453,7 +453,7 @@
   border-radius: 18px;
   border: 1px solid var(--surface-border);
 
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
 
   overflow: hidden;
 }
@@ -482,7 +482,7 @@
   font-size: 16px;
   line-height: 1;
 
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
 
   transition: transform 0.15s ease;
 }
@@ -500,7 +500,7 @@
 }
 
 .seatime-vessel-group-title strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 14px;
   font-weight: 800;
@@ -526,7 +526,7 @@
   border-radius: 999px;
   background: rgba(76, 255, 184, 0.16);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 11px;
   font-weight: 800;
@@ -546,19 +546,19 @@
 .seatime-verified-pill {
   border: 1px solid rgba(94, 230, 168, 0.45);
   background: rgba(94, 230, 168, 0.24);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .seatime-pending-pill {
   border: 1px solid rgba(255, 159, 67, 0.45);
   background: rgba(255, 159, 67, 0.24);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .seatime-logged-pill {
   border: 1px solid rgba(220, 53, 69, 0.45);
   background: rgba(220, 53, 69, 0.28);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .seatime-vessel-group .seatime-table-wrap {
@@ -583,7 +583,7 @@
 }
 
 .seatime-empty-state strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 16px;
   font-weight: 850;
@@ -688,7 +688,7 @@
   align-items: center;
   gap: 6px;
   margin-left: 4px;
-  color: var(--accent-blue);
+  color: var(--seav-accent-text);
   text-decoration: none;
 }
 
@@ -724,7 +724,7 @@
 
   border-radius: 18px;
   border: 1px solid rgba(130, 158, 255, 0.18);
-  background: rgba(255, 255, 255, 0.025);
+  background: rgb(var(--seav-ink-rgb) / 0.025);
   overflow: hidden;
 }
 
@@ -762,7 +762,7 @@
 }
 
 .seatime-checklist-summary strong {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 15px;
   font-weight: 900;
 }
@@ -792,9 +792,9 @@
   border-radius: 16px;
   border: 1px solid rgba(130, 158, 255, 0.16);
 
-  background: rgba(255,255,255,0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 
-  color: rgba(255,255,255,0.72);
+  color: rgb(var(--seav-ink-rgb) / 0.72);
 
   font-size: 13px;
   line-height: 1.55;

@@ -2,6 +2,38 @@
 (function () {
   "use strict";
 
+  /* Dark / Light (v590). Runs here because this script loads synchronously
+     in <head> on every page, so the attribute is on <html> before the first
+     paint and Light never flashes dark. Per device (localStorage); the CSS
+     only acts on signed-in pages (css/core/theme-light.css). */
+  const THEME_KEY = "seav_theme";
+  function readTheme() {
+    try {
+      return localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark";
+    } catch {
+      return "dark";
+    }
+  }
+  function applyTheme(theme) {
+    if (theme === "light") document.documentElement.setAttribute("data-theme", "light");
+    else document.documentElement.removeAttribute("data-theme");
+  }
+  applyTheme(readTheme());
+  window.SeavTheme = {
+    get: readTheme,
+    set(theme) {
+      const next = theme === "light" ? "light" : "dark";
+      try {
+        localStorage.setItem(THEME_KEY, next);
+      } catch {
+        /* private mode: the choice lasts for this page only */
+      }
+      applyTheme(next);
+      document.dispatchEvent(new CustomEvent("seav:theme-changed", { detail: { theme: next } }));
+      return next;
+    }
+  };
+
   /* Built once here so the Navigation page and the public profile can never
      drift apart on tile URL or key. Matches CARTO's own documented form
      exactly: bare host, no {s} subdomain placeholder, key as a query param.
@@ -19,7 +51,7 @@
 
   window.SeavConfig = {
     /** Bump when deploying JS/CSS changes — keep HTML ?v= in sync (see scripts/patch-html-scripts.mjs). */
-    ASSET_VERSION: 589,
+    ASSET_VERSION: 590,
 
     /** Bump when regenerating img/badges/*.svg (cache-bust on badge image URLs). */
     BADGE_ASSET_VERSION: 30,

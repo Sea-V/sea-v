@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 589;
+const ASSET_VERSION = 590;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
@@ -72,13 +72,16 @@ const APP_PAGES = [
   "payslips.html"
 ];
 
+// CDN tags below are PINNED with subresource integrity (v590). When a
+// library is upgraded, change the version, the integrity hash (sha384 of the
+// exact file) and the matching path in the CSP in vercel.json + netlify.toml.
 function patchAppPage(html) {
   let next = html;
 
   if (!next.includes("js/seav-config.js")) {
     next = next.replace(
-      '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>',
-      `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n  <script src="js/seav-config.js"></script>`
+      '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>',
+      `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>\n  <script src="js/seav-config.js"></script>`
     );
   }
 
@@ -126,7 +129,7 @@ function patchAppPage(html) {
   if (next.includes("js/dashboard-snippets.js") && !next.includes("js/navigation-helpers.js")) {
     next = next.replace(
       '<script src="js/dashboard-snippets.js',
-      '<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>\n  <script src="js/navigation-ports.js" defer></script>\n  <script src="js/navigation-helpers.js" defer></script>\n  <script src="js/dashboard-snippets.js'
+      '<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous" defer></script>\n  <script src="js/navigation-ports.js" defer></script>\n  <script src="js/navigation-helpers.js" defer></script>\n  <script src="js/dashboard-snippets.js'
     );
   }
 
@@ -199,7 +202,7 @@ function patchAppPage(html) {
   if (next.includes("js/badge-unlock.js") && !next.includes("js/seav-share.js")) {
     next = next.replace(
       /<script src="js\/badge-unlock\.js([^"]*)" defer><\/script>/,
-      `<script src="js/badge-unlock.js$1" defer></script>\n  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>\n  <script src="js/seav-share.js$1" defer></script>`
+      `<script src="js/badge-unlock.js$1" defer></script>\n  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous" defer></script>\n  <script src="js/seav-share.js$1" defer></script>`
     );
   }
 
@@ -261,7 +264,7 @@ function patchPublicProfile(html) {
   if (next.includes("js/public-profile-utils.js") && !next.includes("js/navigation-passage.js")) {
     next = next.replace(
       '<script src="js/public-profile-utils.js',
-      '<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js" defer></script>\n  <script src="js/navigation-ports.js" defer></script>\n  <script src="js/navigation-helpers.js" defer></script>\n  <script src="js/navigation-passage.js" defer></script>\n  <script src="js/public-profile-utils.js'
+      '<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous" defer></script>\n  <script src="js/navigation-ports.js" defer></script>\n  <script src="js/navigation-helpers.js" defer></script>\n  <script src="js/navigation-passage.js" defer></script>\n  <script src="js/public-profile-utils.js'
     );
   }
 

@@ -32,7 +32,7 @@
   justify-content: center;
   border-radius: 50%;
   border: 1.5px solid rgba(255, 143, 171, 0.35);
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
   color: #ff8fab;
 }
 
@@ -44,7 +44,7 @@
 
 .onboard-shell-head h2 {
   margin: 0 0 8px;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: var(--font-page-title);
   line-height: 1.25;
   font-weight: var(--font-weight-title);
@@ -52,7 +52,7 @@
 
 .onboard-shell-head p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
   line-height: 1.65;
   max-width: 720px;
   font-size: 14px;
@@ -88,7 +88,7 @@
 .onboard-kpi-box .kpi-num {
   font-size: 22px;
   font-weight: 800;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .onboard-section-head {
@@ -97,14 +97,14 @@
 
 .onboard-section-head h3 {
   margin: 0 0 5px;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 14px;
   font-weight: 700;
 }
 
 .onboard-section-head p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgb(var(--seav-ink-rgb) / 0.65);
   line-height: 1.5;
   font-size: 14px;
 }
@@ -125,7 +125,7 @@
   overflow: hidden;
   border-radius: 20px;
   border: 1px solid rgba(255, 143, 171, 0.24);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
 }
 
 .onboard-vessel-summary {
@@ -145,7 +145,7 @@
 }
 
 .onboard-vessel-summary:hover {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .onboard-vessel-summary:focus-visible {
@@ -154,7 +154,7 @@
 }
 
 .onboard-vessel-group.is-expanded .onboard-vessel-summary {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 }
 
 .onboard-vessel-summary-left {
@@ -173,11 +173,11 @@
   gap: 8px;
   font-size: 17px;
   font-weight: 900;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .onboard-vessel-meta {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
   font-size: 13px;
   font-weight: 700;
 }
@@ -203,7 +203,7 @@
   overflow: hidden;
   border-radius: 18px;
   border: 1px solid rgba(255, 143, 171, 0.2);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
 }
 
 .onboard-modern-summary {
@@ -223,7 +223,7 @@
 }
 
 .onboard-modern-summary:hover {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .onboard-modern-summary:focus-visible {
@@ -259,7 +259,7 @@
   font-size: 15px;
   font-weight: 800;
   line-height: 1.25;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -286,7 +286,7 @@
 
 .onboard-modern-card.is-expanded .onboard-modern-summary {
   padding: 14px 18px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 }
 
 .onboard-modern-card.is-expanded .onboard-modern-name {
@@ -334,7 +334,7 @@
 
 .onboard-modern-meta {
   margin-top: 6px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgb(var(--seav-ink-rgb) / 0.7);
   font-size: 13px;
   line-height: 1.55;
 }
@@ -346,8 +346,8 @@
 .onboard-modern-desc {
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.84);
+  border-top: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
+  color: rgb(var(--seav-ink-rgb) / 0.84);
   line-height: 1.6;
   font-weight: 600;
   font-size: 14px;
@@ -362,7 +362,7 @@
   border-radius: 999px;
   border: 1px solid rgba(91, 188, 255, 0.28);
   background: rgba(91, 188, 255, 0.12);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   text-decoration: none;
   font-size: 12px;
   font-weight: 800;
@@ -376,7 +376,7 @@
 .onboard-attachment-section {
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 }
 
 .onboard-attachment-section--file {
@@ -399,7 +399,7 @@
 .onboard-skills-section {
   margin-top: 8px;
   padding-top: 26px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 }
 
 .onboard-skill-add-row {
@@ -411,12 +411,12 @@
   padding: 18px;
   border-radius: 18px;
   border: 1px solid rgba(255, 143, 171, 0.18);
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .onboard-skill-add-row label {
   display: block;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
   font-size: 13px;
   font-weight: 400;
 }
@@ -435,7 +435,7 @@
   margin-top: 8px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
   background: rgba(0, 0, 0, 0.22);
   color: var(--field-value-color);
   caret-color: var(--field-value-color);
@@ -455,7 +455,7 @@
   margin-top: 8px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
   background: rgba(0, 0, 0, 0.22);
   color: var(--field-value-color);
   caret-color: var(--field-value-color);
@@ -484,7 +484,7 @@
   margin-top: 8px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
   background: rgba(0, 0, 0, 0.22);
   color: var(--field-value-color);
   color-scheme: dark;
@@ -509,7 +509,7 @@
 }
 
 .onboard-skill-rating-field-label {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
   font-size: 13px;
   font-weight: 400;
 }
@@ -529,7 +529,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: rgba(255, 255, 255, 0.2);
+  color: rgb(var(--seav-ink-rgb) / 0.2);
   cursor: pointer;
   transition: color 0.12s ease, transform 0.12s ease;
 }
@@ -563,7 +563,7 @@
 
 .onboard-skill-group-title {
   margin: 0 0 8px;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 13px;
   font-weight: 800;
   text-transform: uppercase;
@@ -582,8 +582,8 @@
   gap: 8px;
   padding: 10px 14px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .onboard-skill-row-top {
@@ -603,7 +603,7 @@
 }
 
 .onboard-skill-row-name {
-  color: rgba(255, 255, 255, 0.88);
+  color: rgb(var(--seav-ink-rgb) / 0.88);
   font-size: 14px;
   font-weight: 600;
 }
@@ -611,8 +611,8 @@
 .onboard-skill-row-note {
   margin: 0;
   padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.62);
+  border-top: 1px solid rgb(var(--seav-ink-rgb) / 0.06);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -654,7 +654,7 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgb(var(--seav-ink-rgb) / 0.4);
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
 }

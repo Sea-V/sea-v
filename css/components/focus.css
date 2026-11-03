@@ -1,0 +1,37 @@
+/* =========================================================
+   KEYBOARD FOCUS (v590, from the 2026-09-26 audit)
+   One visible ring for every focusable control. 14 rules across the site
+   set `outline: none` on inputs, selects and textareas (the sign-in and
+   sign-up fields among them), so a keyboard user could not see where
+   they were. :focus-visible only matches keyboard focus on buttons and
+   links, so mouse clicks draw no ring; text fields always show it, which
+   is what browsers do by default.
+   Imported after theme-bridge.css in styles.css. The outline carries
+   !important for the same reason select.css does: the rules it replaces
+   are page selectors like `.modal-form input:focus` that out-specify a
+   bare :focus-visible. It sets only outline, so the borders / glows those
+   rules add are kept.
+   Not ringed: role="listbox" menus driven by aria-activedescendant (the
+   CV template picker) — focus stays on the list, and the highlighted
+   option is the indicator.
+========================================================= */
+
+:focus-visible {
+  outline: var(--seav-focus-ring-width) solid var(--seav-focus-ring-color) !important;
+  outline-offset: var(--seav-focus-ring-offset);
+}
+
+:is(input, select, textarea):focus-visible {
+  outline-offset: 0;
+}
+
+[role="listbox"][aria-activedescendant]:focus-visible {
+  outline: none !important;
+}
+
+/* A modal card takes focus when it opens (core.js wireModalFocus) so the
+   next Tab lands inside it. The card itself is not a control. */
+.modal-card:focus,
+.modal-card:focus-visible {
+  outline: none !important;
+}

@@ -716,6 +716,29 @@
           return;
         }
 
+        // v589: you can only be signed on one yacht on any day. Two entries
+        // that share more than a changeover day (leave one yacht and join
+        // the next on the same date) are a duplicate or a mistake, and the
+        // day buckets (sea / standby / yard) of both would count twice.
+        // The onboard totals already count each day once
+        // (SeavData.uniqueSignedOnDays); this stops the overlap at source.
+        const todayIso = new Date().toISOString().slice(0, 10);
+        const clash = getSeatimes().find((item) => {
+          if (item.id === formData.id || !item.dateJoined) return false;
+          const start = item.dateJoined > formData.dateJoined ? item.dateJoined : formData.dateJoined;
+          const itemLeft = item.dateLeft || todayIso;
+          const end = itemLeft < formData.dateLeft ? itemLeft : formData.dateLeft;
+          return start < end;
+        });
+        if (clash) {
+          Seav.notify(
+            "error",
+            "Dates overlap another entry",
+            `These dates overlap your ${getDisplayVesselName(clash)} entry (${formatDatePretty(clash.dateJoined)} – ${clash.dateLeft ? formatDatePretty(clash.dateLeft) : "Present"}). You can only be signed on one yacht at a time; one shared changeover day is fine.`
+          );
+          return;
+        }
+
         const existingEntry = formData.id
           ? getSeatimes().find((item) => item.id === formData.id) || null
           : null;

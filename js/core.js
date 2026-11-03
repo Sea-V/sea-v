@@ -603,6 +603,13 @@ function renderAccountMenu() {
     })}
     ${item("cv-generator.html", "CV generator", "Build, tailor and export your CV", iconCv)}
     ${item("profile.html", "Profile settings", "Personal details, photo, privacy", iconProfile)}
+    <div class="topbar-account-theme" role="group" aria-labelledby="topbarThemeLabel">
+      <strong id="topbarThemeLabel">Appearance</strong>
+      <span class="topbar-theme-switch">
+        <button type="button" data-seav-theme="dark" aria-pressed="false">Dark</button>
+        <button type="button" data-seav-theme="light" aria-pressed="false">Light</button>
+      </span>
+    </div>
     <div class="topbar-account-sep" role="separator"></div>
     ${item("index.html", "Log out", "", iconLogout, { id: "btnLogout", danger: true })}
   `;
@@ -746,6 +753,7 @@ function renderAccountMenu() {
         wireTopbarProfile();
         wireTopbarSearch();
         wireTopbarMenus();
+        wireThemeSwitch();
       }
     }
 
@@ -1207,6 +1215,24 @@ function renderAccountMenu() {
     });
   }
 
+  // Dark / Light switch in the account menu (v590). SeavTheme lives in
+  // seav-config.js, which applies the saved choice before paint.
+  function wireThemeSwitch() {
+    const sync = () => {
+      const theme = window.SeavTheme?.get?.() || "dark";
+      document.querySelectorAll("[data-seav-theme]").forEach((btn) => {
+        btn.setAttribute("aria-pressed", String(btn.dataset.seavTheme === theme));
+      });
+    };
+    document.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-seav-theme]");
+      if (!btn || !window.SeavTheme) return;
+      window.SeavTheme.set(btn.dataset.seavTheme);
+    });
+    document.addEventListener("seav:theme-changed", sync);
+    sync();
+  }
+
   function wireTopbarProfile() {
     const link = document.getElementById("topbarProfileLink");
     const avatar = document.getElementById("topbarProfileAvatar");
@@ -1441,6 +1467,10 @@ function renderAccountMenu() {
       }
     }
 
+    // The X is a bare "×", so a screen reader announced "times" (v590).
+    const closeX = head?.querySelector(".modal-x");
+    if (closeX && !closeX.hasAttribute("aria-label")) closeX.setAttribute("aria-label", "Close");
+
     if (modal && title && !modal.hasAttribute("role")) {
       if (!title.id) title.id = `${modal.id || "seav"}Title`;
       modal.setAttribute("role", "dialog");
@@ -1496,10 +1526,92 @@ function renderAccountMenu() {
     }).observe(document.body, { childList: true });
   }
 
+  /* Keyboard focus for every .modal (v590, from the 2026-09-26 audit).
+     Pages open and close modals in their own code as well as through
+     openModal (`modal.hidden = false`), so this watches the `hidden`
+     attribute itself rather than wrapping one function:
+     - open: remember what had focus (the button that opened it) and move
+       focus to the card, so the next Tab lands inside the dialog. The card,
+       not the first field, so phones do not pop the keyboard on open;
+     - Tab / Shift+Tab: cycle inside the open modal instead of walking off
+       into the page behind the overlay;
+     - close: return focus to the opener if it is still on the page. */
+  const FOCUSABLE =
+    'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const modalOpeners = new WeakMap();
+
+  function openModalEl() {
+    const open = [...document.querySelectorAll(".modal")].filter((m) => !m.hidden);
+    return open[open.length - 1] || null;
+  }
+
+  function focusableIn(root) {
+    return [...root.querySelectorAll(FOCUSABLE)].filter(
+      (el) => !el.closest("[hidden]") && el.getClientRects().length > 0
+    );
+  }
+
+  function onModalShown(modal) {
+    const active = document.activeElement;
+    if (active && active !== document.body && !modal.contains(active)) modalOpeners.set(modal, active);
+    const card = modal.querySelector(".modal-card") || modal;
+    if (!card.hasAttribute("tabindex")) card.setAttribute("tabindex", "-1");
+    requestAnimationFrame(() => {
+      if (!modal.hidden && !modal.contains(document.activeElement)) card.focus({ preventScroll: true });
+    });
+  }
+
+  function onModalHidden(modal) {
+    const opener = modalOpeners.get(modal);
+    modalOpeners.delete(modal);
+    if (!opener || !opener.isConnected || openModalEl()) return;
+    if (modal.contains(document.activeElement) || document.activeElement === document.body) {
+      opener.focus({ preventScroll: true });
+    }
+  }
+
+  function wireModalFocus() {
+    if (!document.body || typeof window.MutationObserver === "undefined") return;
+    new window.MutationObserver((mutations) => {
+      mutations.forEach((m) => {
+        const el = m.target;
+        if (!el.classList?.contains("modal")) return;
+        const wasHidden = m.oldValue !== null;
+        if (wasHidden && !el.hidden) onModalShown(el);
+        else if (!wasHidden && el.hidden) onModalHidden(el);
+      });
+    }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ["hidden"], attributeOldValue: true });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      const modal = openModalEl();
+      if (!modal) return;
+      const items = focusableIn(modal);
+      if (!items.length) {
+        e.preventDefault();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (!modal.contains(active)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      } else if (e.shiftKey && (active === first || !items.includes(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+  }
+
   function initModals() {
     const overlay = document.getElementById("modalOverlay");
     enhanceModals();
     watchForNewModals();
+    wireModalFocus();
 
     function closeAllModals() {
       if (overlay) overlay.hidden = true;

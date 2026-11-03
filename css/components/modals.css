@@ -260,7 +260,7 @@
 .modal-head h3 {
   margin: 0;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 18px;
   line-height: 1.2;
@@ -276,12 +276,12 @@
   display: grid;
   place-items: center;
 
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
   border-radius: 10px;
 
-  background: rgba(255, 255, 255, 0.04);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
 
-  color: rgba(255, 255, 255, 0.82);
+  color: rgb(var(--seav-ink-rgb) / 0.82);
 
   font-size: 22px;
   line-height: 1;
@@ -290,8 +290,8 @@
 }
 
 .modal-x:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: rgb(var(--seav-ink-rgb) / 0.08);
+  color: rgb(var(--seav-ink-rgb));
 }
 
 /* =========================================================
@@ -301,7 +301,7 @@
 .modal-intro {
   margin: 0 0 4px;
 
-  color: rgba(255, 255, 255, 0.62);
+  color: rgb(var(--seav-ink-rgb) / 0.62);
 
   font-size: 13px;
   line-height: 1.6;
@@ -334,7 +334,7 @@
 
   background: rgba(224, 182, 77, 0.12);
   border: 1px solid rgba(224, 182, 77, 0.3);
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
 
   font-size: 12.5px;
   line-height: 1.5;
@@ -359,7 +359,7 @@
 }
 
 .modal-form label {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
 
   font-size: 12px;
   font-weight: 800;
@@ -377,7 +377,7 @@
   padding: 12px 14px;
 
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
 
   background: rgba(0, 0, 0, 0.22);
 
@@ -427,7 +427,7 @@
 }
 
 .modal-form select option {
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   background-color: #132238;
 }
 
@@ -476,7 +476,7 @@
 .modal-form input:-webkit-autofill:focus,
 .modal-form input:-webkit-autofill:active {
   -webkit-text-fill-color: #ffffff !important;
-  caret-color: #ffffff;
+  caret-color: rgb(var(--seav-ink-rgb));
   -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.22) inset !important;
   box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.22) inset !important;
 }
@@ -496,7 +496,7 @@
 
   background: rgba(91, 188, 255, 0.12);
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 
   font-size: 12px;
   font-weight: 700;
@@ -533,7 +533,7 @@
 
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.82) !important;
+  color: rgb(var(--seav-ink-rgb) / 0.82) !important;
 
   font-size: 14px !important;
   font-weight: 600 !important;
@@ -559,7 +559,7 @@
   padding: 0;
   margin-bottom: 2px;
 
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
 
   font-size: 12px;
   font-weight: 800;
@@ -596,7 +596,7 @@
   border-radius: 14px;
   border: 1px solid var(--surface-border);
 
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--seav-ink-rgb) / 0.03);
 
   overflow: hidden;
 }
@@ -613,7 +613,7 @@
   list-style: none;
   user-select: none;
 
-  color: rgba(255, 255, 255, 0.86);
+  color: rgb(var(--seav-ink-rgb) / 0.86);
 
   font-size: 13px;
   font-weight: 800;
@@ -685,9 +685,9 @@
   padding: 14px 16px;
 
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
 
-  background: rgba(255, 255, 255, 0.035);
+  background: rgb(var(--seav-ink-rgb) / 0.035);
 }
 
 .modal-info-label {
@@ -700,7 +700,7 @@
 }
 
 .modal-info-value {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgb(var(--seav-ink-rgb) / 0.9);
 
   font-size: 13px;
   line-height: 1.55;
@@ -746,7 +746,7 @@
 }
 
 .modal-info-box--link .modal-info-value {
-  color: var(--accent-blue);
+  color: var(--seav-accent-text);
   font-weight: 700;
 }
 
@@ -768,7 +768,7 @@
 }
 
 .modal-date-group > .modal-date-label {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgb(var(--seav-ink-rgb) / 0.78);
 
   font-size: 12px;
   font-weight: 800;
@@ -805,7 +805,7 @@
   padding: 11px 12px;
 
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
 
   background: rgba(0, 0, 0, 0.22);
 

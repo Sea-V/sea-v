@@ -34,6 +34,9 @@
   }
 
   const HEIC2ANY_SRC = "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js";
+  // Subresource integrity (v590): the browser refuses the file if the CDN
+  // ever serves different bytes for this pinned version.
+  const HEIC2ANY_INTEGRITY = "sha384-OTofQ0MEeiSgh62havBcemCIK0gqj809wX6UA0uPISNMRnR6NZyCdGzX3SbLrgwL";
   let heic2anyLoadPromise = null;
 
   // heic2any (~320KB) used to load via a static <script> tag on every
@@ -51,6 +54,8 @@
     heic2anyLoadPromise = new Promise((resolve, reject) => {
       const script = document.createElement("script");
       script.src = HEIC2ANY_SRC;
+      script.integrity = HEIC2ANY_INTEGRITY;
+      script.crossOrigin = "anonymous";
       script.onload = () => resolve();
       script.onerror = () => {
         heic2anyLoadPromise = null; // let the next HEIC file retry the load

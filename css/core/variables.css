@@ -32,7 +32,7 @@
   --sidebar-width: 280px;
   --dash-layout-gap: 20px;
 
-  --muted: rgba(255,255,255,0.82);
+  --muted: rgb(var(--seav-ink-rgb) / 0.82);
 
   /* Shared typography tokens — referenced by dashboard.css's "typography
      normalisation" block and profile.css, but were never defined here
@@ -48,7 +48,7 @@
 
   /* Empty form fields — hint text (not filled-in values) */
   --field-hint-color: rgba(148, 163, 184, 0.55);
-  --field-value-color: #ffffff;
+  --field-value-color: rgb(var(--seav-ink-rgb));
 
   /* =========================================================
      BRAND COLORS
@@ -60,6 +60,16 @@
   --logo-deep: #2a6eb8;
 
   --accent-blue: #5bbcff;
+  /* Blue used as TEXT (links, inline accents). Same value in Dark; the
+     Light theme darkens it to stay readable on white (v590). */
+  --seav-accent-text: var(--accent-blue);
+
+  /* Foreground ink as an RGB triplet (v590). Every hardcoded white in the
+     stylesheets — text, washes, borders — reads
+     rgb(var(--seav-ink-rgb) / <alpha>), so the Light theme can flip all of
+     them at once by redefining this one value (theme-light.css). In Dark it
+     is exactly the white it replaced. */
+  --seav-ink-rgb: 255 255 255;
 
   --accent-green: #5ee6a8;
 
@@ -108,23 +118,23 @@
   --seav-meta-label-color: #5bbcff;
   --seav-meta-label-weight: 800;
 
-  --seav-meta-value-color: rgba(255, 255, 255, 0.84);
+  --seav-meta-value-color: rgb(var(--seav-ink-rgb) / 0.84);
   --seav-meta-value-size: 14px;
   --seav-meta-value-weight: 600;
 
   /* Entity names (vessel, tender, yacht) vs fill-in field labels/values */
-  --seav-entity-name-color: #ffffff;
+  --seav-entity-name-color: rgb(var(--seav-ink-rgb));
   --seav-field-label-color: var(--seav-meta-label-color);
-  --seav-field-value-color: #ffffff;
+  --seav-field-value-color: rgb(var(--seav-ink-rgb));
 
   /* Was 0.45 (4.4:1, failed AA). Also what the v539 sweep put in place of
      ~90 hardcoded rgba(255,255,255,0.42-0.58) text colours. */
-  --seav-meta-muted-color: rgba(255, 255, 255, 0.64);
-  --seav-meta-desc-color: rgba(255, 255, 255, 0.78);
+  --seav-meta-muted-color: rgb(var(--seav-ink-rgb) / 0.64);
+  --seav-meta-desc-color: rgb(var(--seav-ink-rgb) / 0.78);
   /* Supporting note/footnote copy under a section or KPI band. Was hardcoded
      as rgba(255,255,255,0.60) in .seatime-section-head p and copied by hand
      into new rules; tokenised 2026-08-15 so it stops drifting. */
-  --seav-note-color: rgba(255, 255, 255, 0.66);
+  --seav-note-color: rgb(var(--seav-ink-rgb) / 0.66);
 
   /* Qualities + highlights (v572) -- js/seav-qualities.js,
      css/components/qualities.css. One green family for every quality tag;
@@ -152,7 +162,7 @@
   --seav-photo-radius: 10px;
   --seav-photo-radius-small: 6px;
   --seav-photo-gap: 12px;
-  --seav-photo-border: rgba(255, 255, 255, 0.10);
+  --seav-photo-border: rgb(var(--seav-ink-rgb) / 0.10);
   --seav-photo-bg: rgba(0, 0, 0, 0.22);
   --seav-photo-invalid: #f87171;
   --seav-photo-viewer-backdrop: rgba(3, 10, 20, 0.88);
@@ -164,7 +174,7 @@
      The active colours are the ones .profile-photo-thumb.is-drag-over
      (css/pages/profile.css) already uses, so every drop target on the site
      lights up the same way. */
-  --seav-dropzone-border: rgba(255, 255, 255, 0.16);
+  --seav-dropzone-border: rgb(var(--seav-ink-rgb) / 0.16);
   --seav-dropzone-radius: 14px;
   --seav-dropzone-pad-y: 10px;
   --seav-dropzone-pad-x: 12px;
@@ -201,18 +211,18 @@
      pages and do the same". The private pages' shells and cards
      (typography.css UNIFIED SHELL SURFACES) and the public profile's levels
      below all read these. */
-  --seav-glass-card: rgba(255, 255, 255, 0.10);
+  --seav-glass-card: rgb(var(--seav-ink-rgb) / 0.10);
   --seav-glass-card-solid: rgba(31, 53, 82, 0.92);
   --seav-glass-panel: rgba(8, 20, 36, 0.55);
   --seav-glass-panel-deep: rgba(8, 20, 36, 0.45);
-  --seav-glass-wash: rgba(255, 255, 255, 0.07);
-  --seav-glass-wash-soft: rgba(255, 255, 255, 0.06);
+  --seav-glass-wash: rgb(var(--seav-ink-rgb) / 0.07);
+  --seav-glass-wash-soft: rgb(var(--seav-ink-rgb) / 0.06);
   /* The one lit item in a smoked-glass list (current sidebar page). */
-  --seav-glass-active: rgba(255, 255, 255, 0.14);
+  --seav-glass-active: rgb(var(--seav-ink-rgb) / 0.14);
   --seav-glass-blur: blur(14px) saturate(1.2);
-  --seav-glass-edge: rgba(255, 255, 255, 0.28);
-  --seav-glass-edge-strong: rgba(255, 255, 255, 0.42);
-  --seav-glass-line: rgba(255, 255, 255, 0.16);
+  --seav-glass-edge: rgb(var(--seav-ink-rgb) / 0.28);
+  --seav-glass-edge-strong: rgb(var(--seav-ink-rgb) / 0.42);
+  --seav-glass-line: rgb(var(--seav-ink-rgb) / 0.16);
   --seav-glass-shadow: 0 18px 44px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   --pp-depth-1: var(--seav-glass-card);
   --pp-depth-2: var(--seav-glass-panel);
@@ -253,9 +263,9 @@
   --seav-row-menu-item-radius: 8px;
   --seav-row-menu-btn-height: 34px;
   --seav-row-menu-gap: 10px;
-  --seav-row-menu-border: rgba(255, 255, 255, 0.16);
-  --seav-row-menu-border-strong: rgba(255, 255, 255, 0.36);
-  --seav-row-menu-hover: rgba(255, 255, 255, 0.07);
+  --seav-row-menu-border: rgb(var(--seav-ink-rgb) / 0.16);
+  --seav-row-menu-border-strong: rgb(var(--seav-ink-rgb) / 0.36);
+  --seav-row-menu-hover: rgb(var(--seav-ink-rgb) / 0.07);
   --seav-row-menu-shadow: 0 14px 32px rgba(0, 0, 0, 0.42);
   /* v588: sea time status — the captain line under the status pill. */
   --seav-tst-ok: var(--accent-green);
@@ -274,8 +284,8 @@
   --seav-menu-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   --seav-search-top: 96px;
   --seav-search-backdrop: rgba(3, 8, 15, 0.55);
-  --seav-kbd-bg: rgba(255, 255, 255, 0.12);
-  --seav-kbd-border: rgba(255, 255, 255, 0.2);
+  --seav-kbd-bg: rgb(var(--seav-ink-rgb) / 0.12);
+  --seav-kbd-border: rgb(var(--seav-ink-rgb) / 0.2);
 
   /* =========================================================
      SELECT CONTROLS
@@ -287,7 +297,7 @@
      inconsistent between his Mac and a Lenovo.
   ========================================================= */
   --seav-select-bg: rgba(0, 0, 0, 0.22);
-  --seav-select-border: rgba(255, 255, 255, 0.12);
+  --seav-select-border: rgb(var(--seav-ink-rgb) / 0.12);
   --seav-select-radius: 12px;
   /* Room for the arrow so a long option label never runs under it. */
   --seav-select-arrow-gap: 38px;
@@ -310,6 +320,11 @@
   --seav-cv-field-placeholder: var(--seav-meta-muted-color);
   --seav-cv-field-focus-border: rgba(91, 188, 255, 0.7);
   --seav-cv-field-focus-ring: rgba(91, 188, 255, 0.18);
+
+  /* Keyboard focus ring, every control (css/components/focus.css, v590). */
+  --seav-focus-ring-color: var(--accent-blue);
+  --seav-focus-ring-width: 2px;
+  --seav-focus-ring-offset: 2px;
   --seav-cv-picker-bg: rgba(255, 255, 255, 0.94);
   --seav-cv-picker-border: rgba(124, 156, 184, 0.32);
   --seav-cv-picker-text: #0b1733;
@@ -332,11 +347,9 @@
 
   --surface-bg-soft: rgba(36, 60, 90, 0.69);
 
-  --surface-border:
-    rgba(255,255,255,0.12);
+  --surface-border: rgb(var(--seav-ink-rgb) / 0.12);
 
-  --surface-blur:
-    blur(16px);
+  --surface-blur: blur(16px);
 
   /* =========================================================
      PILL SYSTEM
@@ -344,13 +357,11 @@
      2026-08-03. Each value is the midpoint of the old gradient.
   ========================================================= */
 
-  --pill-bg: rgba(255, 255, 255, 0.055);
+  --pill-bg: rgb(var(--seav-ink-rgb) / 0.055);
 
-  --pill-border:
-    rgba(255,255,255,0.10);
+  --pill-border: rgb(var(--seav-ink-rgb) / 0.10);
 
-  --pill-radius:
-    14px;
+  --pill-radius: 14px;
 
   --pill-height: 30px;
   --pill-padding-x: 12px;

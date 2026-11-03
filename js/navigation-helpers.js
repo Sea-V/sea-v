@@ -253,7 +253,7 @@
   // loaded on the page (see scripts/patch-html-scripts.mjs).
   // =========================================================
 
-  const WORLD_TOPOJSON_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
+  const WORLD_TOPOJSON_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json";
   const COUNTRY_HIGHLIGHT_COLOR = "#15803d";
 
   let worldGeoJsonPromise = null;

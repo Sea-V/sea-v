@@ -13,7 +13,7 @@
 .progress-label {
   margin-bottom: 6px;
 
-  color: rgba(255,255,255,0.6);
+  color: rgb(var(--seav-ink-rgb) / 0.6);
 
   font-size: 11px;
   font-weight: 800;
@@ -32,7 +32,7 @@
 
   border-radius: 999px;
 
-  background: rgba(255,255,255,0.08);
+  background: rgb(var(--seav-ink-rgb) / 0.08);
 }
 
 .progress-fill {
@@ -109,7 +109,7 @@
 
   border-radius: 999px;
 
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   white-space: nowrap;
 
   font-size: var(--pill-font-size);
@@ -124,7 +124,7 @@
 }
 
 .pill {
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.14);
 }
 
 /* =========================================================
@@ -143,7 +143,7 @@
      of dark green. */
   background: rgba(94, 230, 168, 0.16);
   border-color: rgba(94, 230, 168, 0.42);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .pill-warning {
@@ -157,8 +157,8 @@
 }
 
 .pill-neutral {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.14);
+  background: rgb(var(--seav-ink-rgb) / 0.08);
+  border-color: rgb(var(--seav-ink-rgb) / 0.14);
 }
 
 .pill-missing {
@@ -213,7 +213,7 @@
 .list-row,
 .kpi-box {
   border-radius: 16px !important;
-  border: 1px solid rgba(255,255,255,0.07) !important;
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.07) !important;
 
-  background: rgba(255,255,255,0.045) !important;
+  background: rgb(var(--seav-ink-rgb) / 0.045) !important;
 }

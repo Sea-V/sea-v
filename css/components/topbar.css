@@ -145,12 +145,12 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
   background-color: var(--seav-topbar-avatar-bg);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: var(--font-value);
   font-weight: var(--font-weight-title);
   letter-spacing: 0.02em;
@@ -165,7 +165,7 @@
 }
 
 .app-topbar .topbar-profile:hover .topbar-profile-avatar {
-  border-color: rgba(255, 255, 255, 0.28);
+  border-color: rgb(var(--seav-ink-rgb) / 0.28);
 }
 
 /* No mobile rule here on purpose: css/core/layout.css's "HIDE APP TOPBAR
@@ -863,4 +863,46 @@ body.app-page .dash {
     right: -4px;
     width: min(var(--seav-account-menu-width), calc(100vw - 24px));
   }
+}
+
+/* Dark / Light switch in the account menu (v590). A two-button segmented
+   control; the pressed one carries the accent. */
+.app-topbar .topbar-account-theme {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+}
+
+.app-topbar .topbar-account-theme > strong {
+  font-size: var(--font-body);
+}
+
+.app-topbar .topbar-theme-switch {
+  display: inline-flex;
+  border: 1px solid var(--seav-glass-edge);
+  border-radius: var(--seav-row-menu-radius, 8px);
+  overflow: hidden;
+}
+
+.app-topbar .topbar-theme-switch button {
+  min-width: 64px;
+  padding: 6px 12px;
+  border: 0;
+  background: none;
+  color: var(--seav-meta-desc-color);
+  font: inherit;
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-body);
+  cursor: pointer;
+}
+
+.app-topbar .topbar-theme-switch button + button {
+  border-left: 1px solid var(--seav-glass-edge);
+}
+
+.app-topbar .topbar-theme-switch button[aria-pressed="true"] {
+  background: var(--bridge-accent-soft, var(--seav-glass-active));
+  color: var(--seav-field-value-color);
 }

@@ -97,7 +97,7 @@ body.badge-unlock-open {
 
 .badge-unlock-heading {
   margin: 0 0 4px;
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
   font-size: 17px;
   line-height: 1.25;
   font-weight: 900;
@@ -136,9 +136,9 @@ body.badge-unlock-open {
   padding: 0 9px;
   margin-bottom: 12px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.1);
+  background: rgb(var(--seav-ink-rgb) / 0.04);
+  color: rgb(var(--seav-ink-rgb) / 0.68);
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.7px;
@@ -171,7 +171,7 @@ body.badge-unlock-open {
 
 .badge-unlock-desc {
   margin: 0 0 18px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgb(var(--seav-ink-rgb) / 0.7);
   font-size: 12.5px;
   line-height: 1.6;
   font-weight: 600;
@@ -232,7 +232,7 @@ body.badge-unlock-open {
   /* Solid fill, not a gradient — Jack wants solid colors site-wide
      2026-08-03. Value is the midpoint of the old gradient. */
   background: rgba(255, 179, 71, 0.16);
-  color: #ffffff;
+  color: rgb(var(--seav-ink-rgb));
 }
 
 .badge-unlock-cta--primary:hover {
