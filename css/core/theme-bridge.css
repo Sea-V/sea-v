@@ -2,8 +2,8 @@
    BRIDGE THEME (v581, Jack 2026-10-09: the dashboard "looks too AI";
    picked "A · Bridge" of three rendered options)
    Signed-in pages AND the public info pages (v581 follow-up): :is(body.app-page, body.landing-page, body.legal-page, body.index-page).
-   Not the public profile (its own frosted look, picked by Jack 2026-09-30). Deep navy, flat, square, one brass
-   rule — the look of ship's instruments / an Admiralty publication.
+   Not the public profile (its own frosted look, picked by Jack 2026-09-30). Deep navy, flat, square, one blue accent (brass until v589)
+   — the look of ship's instruments / an Admiralty publication.
    Keeps the ocean photo behind the page. Replaces: frosted glass (backdrop blur), the
    glowing gradient topbar line, pill buttons, rainbow icon badges and the
    26-30px corners.
@@ -29,8 +29,11 @@
   --bridge-surface-4: #18334f;
   --bridge-rule: #1f3a56;
   --bridge-rule-strong: #2c4c6d;
-  --bridge-brass: #b8954a;
-  --bridge-brass-soft: rgba(184, 149, 74, 0.16);
+  /* One accent, the SEA-V blue (v589, Jack 2026-11-03: the colours "dont
+     look professional anymore"). Replaces the v581 brass #b8954a; used
+     only for state — hover, selected, progress — never decoration. */
+  --bridge-accent: var(--accent-blue);
+  --bridge-accent-soft: var(--pill-blue-bg);
   --bridge-caption: #8fa7bf;
   --bridge-radius: 4px;
   --bridge-radius-small: 3px;
@@ -45,18 +48,19 @@
   --seav-glass-panel-deep: var(--bridge-surface-2);
   --seav-glass-wash: var(--bridge-surface-3);
   --seav-glass-wash-soft: var(--bridge-surface-4);
-  --seav-glass-active: var(--bridge-brass-soft);
+  --seav-glass-active: var(--bridge-accent-soft);
   --seav-glass-blur: none;
   --seav-glass-edge: var(--bridge-rule);
   --seav-glass-edge-strong: var(--bridge-rule-strong);
   --seav-glass-line: var(--bridge-rule);
   --seav-glass-shadow: none;
 
-  /* Topbar: solid bar, one brass rule instead of the glowing gradient. */
+  /* Topbar: solid bar, no coloured rule (v589, Jack: "the topbar yellow
+     line can go"). Also clears the same line along the Search panel top. */
   --seav-topbar-fade: var(--bridge-bar);
-  --seav-topbar-line: var(--bridge-brass);
+  --seav-topbar-line: transparent;
   --seav-topbar-line-glow: none;
-  --seav-topbar-line-height: 2px;
+  --seav-topbar-line-height: 0px;
 
   /* Menus, modals and shared shapes. */
   --seav-menu-bg: var(--bridge-bar);
@@ -76,7 +80,7 @@
   background: var(--bridge-bg) !important;
 }
 
-/* Topbar: a square solid bar; the brass rule runs its full width. */
+/* Topbar: a square solid bar; no coloured rule since v589. */
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar .topbar-inner {
   border-radius: var(--bridge-radius) !important;
   border: 1px solid var(--bridge-rule) !important;
@@ -258,7 +262,7 @@
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar .topbar-search:hover,
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar .topbar-search:focus-visible {
   background: var(--bridge-surface-2) !important;
-  border-color: var(--bridge-brass) !important;
+  border-color: var(--bridge-accent) !important;
 }
 
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .app-topbar .topbar-icon-btn {
@@ -292,7 +296,7 @@
 
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .seav-search-list li[aria-selected="true"] a {
   background: var(--bridge-surface-2) !important;
-  box-shadow: inset 0 0 0 1px var(--bridge-brass) !important;
+  box-shadow: inset 0 0 0 1px var(--bridge-accent) !important;
 }
 
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .seav-search-icon {
@@ -310,15 +314,15 @@
    Dashboard
 --------------------------------------------------------- */
 
-/* Tiles: the page colour becomes one 3px left edge; icons go monochrome. */
+/* Tiles: one neutral border, monochrome icons. The per-page colour edge
+   went in v589 (Jack: no colours on the dashboard; the menu icons keep
+   theirs). */
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dash-tile {
   border: 1px solid var(--bridge-rule) !important;
-  border-left: 3px solid var(--a, var(--bridge-brass)) !important;
 }
 
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dash-vessel {
   border: 1px solid var(--bridge-rule) !important;
-  border-left: 3px solid var(--bridge-brass) !important;
 }
 
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dash-tile-ic {
@@ -339,14 +343,14 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Quick actions: a row of plain instrument buttons; brass on hover. */
+/* Quick actions: a row of plain instrument buttons; accent on hover. */
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-quick-action {
   border: 1px solid var(--bridge-rule-strong) !important;
 }
 
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-quick-action:hover,
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-quick-action:focus-visible {
-  border-color: var(--bridge-brass) !important;
+  border-color: var(--bridge-accent) !important;
 }
 
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-quick-action-label {
@@ -356,16 +360,23 @@
   text-transform: uppercase;
 }
 
-/* Progress meters read in brass. */
+/* Dashboard title and profile-completion icons: neutral, like the tiles. */
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(.dashboard-shell-icon, .dashboard-profile-strip-icon) {
+  color: var(--bridge-caption) !important;
+  border: 0 !important;
+  background: none !important;
+}
+
+/* Progress meters read in the accent. */
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(.progress-fill, .ach-progress-bar > span) {
-  background: var(--bridge-brass) !important;
+  background: var(--bridge-accent) !important;
   box-shadow: none !important;
 }
 
 /* ---------------------------------------------------------
    Public pages: About, Privacy, Terms, Contact, sign-in / sign-up,
    reset password, confirm account, referee + captain pages.
-   Same navy, solid panels, brass rule — ocean behind, no glass.
+   Same navy, solid panels, no coloured rule — ocean behind, no glass.
 --------------------------------------------------------- */
 /* Main panels. */
 :is(body.landing-page, body.legal-page, body.index-page) :is(
@@ -396,18 +407,17 @@
   box-shadow: none !important;
 }
 
-/* Callouts keep their meaning as a brass edge, not a tint. */
+/* Callouts keep their meaning as an accent edge, not a tint. */
 :is(body.landing-page, body.legal-page, body.index-page) .legal-callout {
   background: var(--bridge-surface-2) !important;
   border-color: var(--bridge-rule) !important;
-  border-left: 3px solid var(--bridge-brass) !important;
+  border-left: 3px solid var(--bridge-accent) !important;
 }
 
 /* Top bar and footer of the info pages. */
 :is(body.landing-page, body.legal-page, body.index-page) .legal-topbar-inner {
   background: var(--bridge-bar) !important;
   border: 1px solid var(--bridge-rule) !important;
-  box-shadow: inset 0 -2px 0 var(--bridge-brass) !important;
 }
 
 :is(body.landing-page, body.legal-page, body.index-page) .legal-footer-inner {

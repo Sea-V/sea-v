@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v588**. Jack pushes every commit himself from
+- HEAD = **v589**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1508,6 +1508,31 @@ FOCUS_ATTRS) because the edit button now lives in a <template>.
 Reusable on any other table. Verified on the Sea Time harness at 1440 and
 375: menu items per status, edit opens the right entry, print opens the
 testimonial, keyboard + Esc, menu inside the viewport on a phone.
+
+### v589 — dashboard loses its colours; brass becomes one blue accent (2026-11-03)
+Jack: the dashboard colours "dont look professional anymore and wont be
+taken seriously"; keep them on the menu icons for now; "the topbar yellow
+line can go"; simplify, rebuild the look if need be. All in
+theme-bridge.css: `--bridge-brass` is gone, replaced by `--bridge-accent`
+(= `--accent-blue`) + `--bridge-accent-soft` (= `--pill-blue-bg`), used
+only for STATE (hover, selected, progress, callout edge). Topbar line
+token transparent / 0px (also clears the same line atop the Search panel
+and the public pages' `.legal-topbar-inner` inset). Dashboard tiles and the
+current-vessel tile: one neutral border, no `--a` page-colour left edge
+(the inline `--a` styles in dashboard.html are now unused). Dashboard
+title icon + profile-completion icon: `--bridge-caption`, no badge. Menu
+icons keep their page colours (topbar.css untouched). Seen on a static
+harness of the real dashboard markup + styles at 1280px. Still coloured
+elsewhere: every OTHER page's title icon is in its page colour.
+
+**Repo health, found 2026-11-03:** this folder is on iCloud Desktop sync.
+iCloud had removed `.git/index` (left a stale `index 2`), so git showed
+every file as deleted; rebuilt with `git read-tree HEAD`. The folder was
+also a stale v559 with partial v567/v586 files synced in; fast-forwarded
+to origin/main. **Local history has missing objects** (`git log` fails at
+022f84d). GitHub has the full history. Fix: fresh clone outside iCloud
+(e.g. ~/Developer/sea-v). node_modules reads are very slow here for the
+same reason (eslint took minutes).
 
 ### v586–v587 — dead code removed (Jack: "review all dead code")
 Two read-only audits (JS/HTML, CSS), then removal. Already in v586 (Jack
