@@ -1,4 +1,7 @@
 :root {
+  /* Below this the Profile photo's text drops under the photo. */
+  --profile-photo-text-min: 140px;
+
   /* v595 public profile "Modern" layout (css/pages/public-profile-modern.css). */
   --ppm-gap: 12px;
   --ppm-tile-pad: 18px;

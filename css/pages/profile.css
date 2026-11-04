@@ -154,10 +154,12 @@
    neither side can grow past its half regardless of how much text the
    hint line wants to wrap onto. align-items:start (not center) because
    the identity column now holds three stacked fields and shouldn't be
-   vertically centered against the photo. */
+   vertically centered against the photo.
+   One third / two thirds since Jack, 2026-11-05: the photo was taking half
+   the row, and the four fields can use the room. */
 .profile-banner {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   align-items: start;
 
   gap: 20px;
@@ -170,6 +172,9 @@
 .profile-photo-field.profile-banner-photo {
   margin-top: 0;
   min-width: 0;
+  /* A third of a narrower screen cannot hold the photo and its text side by
+     side, so the text drops under the photo rather than squeezing. */
+  flex-wrap: wrap;
 }
 
 /* Actions column (button + hint lines) is the flex sibling of the photo
@@ -178,7 +183,7 @@
    column's width instead of forcing the row wider. */
 .profile-banner-photo .profile-photo-actions {
   min-width: 0;
-  flex: 1 1 auto;
+  flex: 1 1 var(--profile-photo-text-min);
 }
 
 .profile-banner-photo .profile-photo-thumb {
@@ -596,8 +601,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* The 50/50 split earns its keep on a wide desktop banner, but at
-     tablet width two half-columns leaves too little room for the photo
+  /* The side-by-side split earns its keep on a wide desktop banner, but at
+     tablet width two columns leaves too little room for the photo
      block's button+hint text and four identity fields alike — stack
      photo above identity instead, each at full width. The identity
      grid is already a symmetric 2-column layout (First/Last Name on

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v596**. Jack pushes every commit himself from
+- HEAD = **v597**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1656,6 +1656,13 @@ create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
 (`::after`) stays off. Also in this commit: `docs/schema-profile-public-theme.sql`
 (applied live 2026-11-03; column + `get_public_profile` return it). The
 picker and theme CSS are not built yet.
+
+### Shipped 2026-11-05 (v597) — Profile photo row one third / two thirds
+Jack: the photo box took half the row. `.profile-banner` is now 1fr / 2fr; the four
+fields stay 2 x 2. From 1001-1100px wide the photo's text drops under the photo
+(`--profile-photo-text-min` 140px), which leaves empty room under the fields there.
+<=900px still stacks as before. Measured on the harness at 390-1440: 33% from
+1001px up, no sideways scroll. Not seen signed in.
 
 ### Shipped 2026-11-05 (v596) — same wave in Dark and Light; only boxes change
 Jack: the wave the same in both themes with no filter, titles on it white in
