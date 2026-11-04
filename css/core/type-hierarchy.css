@@ -16,8 +16,8 @@
    Record names stay ink, never blue: .cursor/rules/field-label-typography.mdc.
 
    Loads after the themes, because theme-bridge.css and typography.css both set
-   these with !important. Public profile untouched (body.app-page only).
-   New title class? Add it to a list below.
+   these with !important. New title class? Add it to a list below.
+   The public profile (v599) is at the end of this file, for both layouts.
 ========================================================= */
 
 /* 1 — Page title */
@@ -126,4 +126,75 @@ body.app-page .ach-kpi-label {
 /* A section that is switched off stays dimmed. */
 body.app-page .ach-department--soon .ach-section-head h3 {
   color: rgb(var(--seav-ink-rgb) / 0.4) !important;
+}
+
+/* =========================================================
+   PUBLIC PROFILE (v599, Jack 2026-11-05: "Yes, apply it"). Same levels, both
+   layouts. Every section here is a box, so section headings are card titles
+   and what sits inside them is inner. "Blue" is the palette's accent
+   (--seav-field-label-color) and the grey is the palette's own ink, so all
+   five palettes hold. The crew member's name keeps its larger size, which
+   Jack asked for in v548.
+========================================================= */
+body.public-profile-page .pp-hero-title {
+  font-size: var(--type-page) !important;
+  font-weight: var(--font-weight-title) !important;
+}
+
+/* 3 — Card title */
+body.public-profile-page #ppShell .dashboard-card-headline h3,
+body.public-profile-page #ppShell .kpi-title,
+body.public-profile-page #ppAchievementSnippet h3 {
+  color: rgb(var(--seav-ink-rgb) / var(--type-card-grey)) !important;
+  font-size: var(--type-card) !important;
+  font-weight: var(--type-title-weight) !important;
+}
+
+/* Record names */
+body.public-profile-page #ppShell .vessel-history-summary-title strong,
+body.public-profile-page #ppShell .list-title,
+body.public-profile-page #ppShell .dash-mini-head h4,
+body.public-profile-page #ppShell .ach-trophy-title,
+body.public-profile-page #ppShell .pp-interest-title,
+body.public-profile-page #ppShell .public-cv-mini-title,
+body.public-profile-page #ppShell .public-cv-highlight-title,
+body.public-profile-page #ppShell .ppm-role-name {
+  color: rgb(var(--seav-ink-rgb)) !important;
+  font-size: var(--type-card) !important;
+  font-weight: var(--font-weight-title) !important;
+}
+
+/* The vessel named at the head of its own opened card: one step up, not above
+   the page title (it was 21px at weight 950). */
+body.public-profile-page #ppShell .vessel-overview-head h2 {
+  color: rgb(var(--seav-ink-rgb)) !important;
+  font-size: var(--type-section) !important;
+  font-weight: var(--font-weight-title) !important;
+}
+
+/* 4 — Inner title and field label */
+body.public-profile-page #ppShell .pp-cert-group-title,
+body.public-profile-page #ppShell .tender-vessel-group-title strong,
+body.public-profile-page #ppShell .public-onboard-skill-group-title,
+body.public-profile-page #ppShell .public-onboard-skills-toggle-label,
+body.public-profile-page #ppShell .vessel-section-label,
+body.public-profile-page #ppShell .vessel-panel-label,
+body.public-profile-page #ppShell .vessel-specs-toggle-summary,
+body.public-profile-page #ppShell .vessel-main-item > span,
+body.public-profile-page #ppShell .vessel-stats-grid span,
+body.public-profile-page #ppShell .vessel-meta-label,
+body.public-profile-page #ppShell .dashboard-info-label,
+body.public-profile-page #ppShell .ppm-me-rank,
+body.public-profile-page #ppShell .ppm-fact dt {
+  color: var(--seav-field-label-color) !important;
+  font-size: var(--type-inner) !important;
+  font-weight: var(--type-title-weight) !important;
+}
+
+/* 5 — Figure caption */
+body.public-profile-page #ppShell .kpi-label,
+body.public-profile-page #ppShell .ppm-role-year {
+  color: var(--seav-field-label-color) !important;
+  font-size: var(--type-caption) !important;
+  font-weight: var(--type-title-weight) !important;
 }

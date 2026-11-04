@@ -6,6 +6,7 @@
   --type-inner: 14px;
   --type-caption: 12px;
   --type-title-weight: 700;
+  --type-card-grey: 0.66;
 
   /* Below this the Profile photo's text drops under the photo. */
   --profile-photo-text-min: 140px;

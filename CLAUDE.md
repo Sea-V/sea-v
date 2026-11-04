@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v598**. Jack pushes every commit himself from
+- HEAD = **v599**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1657,6 +1657,15 @@ create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
 (applied live 2026-11-03; column + `get_public_profile` return it). The
 picker and theme CSS are not built yet.
 
+### Shipped 2026-11-05 (v599) — the title hierarchy on the public profile
+Jack: "Yes, apply it". Second block of type-hierarchy.css, both layouts. Sections are
+boxes there, so their headings are grey card titles (ink at `--type-card-grey` 0.66, so
+it follows the palette); groups and field labels are the palette accent; hero 20/800
+(was up to 28); vessel overview name 16/800 (was 21/950). Crew name keeps its larger
+size (v548, Jack's ask). Measured on live anon data, Current and Modern, all 5 palettes:
+one size per level, lowest contrast 5.4:1. jack-sorrell's saved choice was already
+Modern + Pearl Grey, so the picker works.
+
 ### Shipped 2026-11-05 (v598) — one title hierarchy on signed-in pages
 Jack: dashboard card titles "very small and grey", titles differ page to page;
 "white for the big titles, grey for the card titles and maybe blue for the inner
@@ -1666,9 +1675,7 @@ and `--type-*` tokens: **page 20/800 white, section on the wave 16/700 white, ca
 label 14/700 blue, KPI caption 12/700 blue (was 10px).** New titles: add the class to
 a list there; do not set a title's size or colour in a page stylesheet. Record names
 stay white under the field-label rule even though they sit inside cards.
-**Not changed:** public profile (Jack said Current stays exactly as it is; ask first),
-public info pages, modals, and the existing `--font-*` tokens (public profile and
-others read them). Measured on 14 harness pages in Dark and Light: one value per level.
+**Not changed:** public info pages, modals, and the existing `--font-*` tokens (other pages read them). Measured on 14 harness pages in Dark and Light: one value per level.
 Harness has little record data, so most record rows were NOT rendered: check signed in.
 
 ### Shipped 2026-11-05 (v597) — Profile photo row one third / two thirds
