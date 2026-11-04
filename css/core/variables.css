@@ -1,4 +1,25 @@
 :root {
+  --topbar-add-ink: #0a1726;
+  --topbar-add-width: 240px;
+
+  /* v601 home page + setup (css/pages/home.css). The CV is paper in both themes. */
+  --home-cv-width: 360px;
+  --home-cv-min: 440px;
+  --home-cv-sticky-top: 90px;
+  --home-cv-paper: #ffffff;
+  --home-cv-band: #0f2236;
+  --home-cv-ink: #13202e;
+  --home-cv-mute: #5a6878;
+  --home-cv-rule: #c8d2dc;
+  --home-cv-accent: #1f6fb2;
+  --home-cv-role: #8fd0ff;
+  --home-cv-name: 17px;
+  --home-cv-small: 11px;
+  --home-meter-width: 460px;
+  --home-meter-height: 6px;
+  --home-tile-min: 130px;
+  --home-yacht-min: 190px;
+
   /* v598 type hierarchy for signed-in pages: css/core/type-hierarchy.css. */
   --type-page: 20px;
   --type-section: 16px;

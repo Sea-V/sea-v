@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 600;
+const ASSET_VERSION = 601;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
@@ -92,20 +92,6 @@ function patchAppPage(html) {
     );
   }
 
-  if (next.includes("js/dashboard.js") && !next.includes("js/dashboard-snippets.js")) {
-    next = next.replace(
-      '<script src="js/dashboard.js',
-      '<script src="js/dashboard-snippets.js" defer></script>\n  <script src="js/dashboard.js'
-    );
-  }
-
-  if (next.includes("js/dashboard-snippets.js") && !next.includes("js/seav-cards.js")) {
-    next = next.replace(
-      '<script src="js/dashboard-snippets.js',
-      '<script src="js/seav-cards.js" defer></script>\n  <script src="js/dashboard-snippets.js'
-    );
-  }
-
   /**
    * The dashboard's navigation card needs the same routed sea-lane distance
    * calculation navigation.html uses (js/navigation-passage.js's getEntryRoute),
@@ -126,13 +112,6 @@ function patchAppPage(html) {
   // navigation-passage.js, which the dashboard dropped on 2026-08-22, so this
   // rule re-inserted the whole block (topojson, ports and helpers twice) on
   // every run. The dashboard needs ports + helpers only.
-  if (next.includes("js/dashboard-snippets.js") && !next.includes("js/navigation-helpers.js")) {
-    next = next.replace(
-      '<script src="js/dashboard-snippets.js',
-      '<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous" defer></script>\n  <script src="js/navigation-ports.js" defer></script>\n  <script src="js/navigation-helpers.js" defer></script>\n  <script src="js/dashboard-snippets.js'
-    );
-  }
-
   if (next.includes('src="js/core.js"') && !next.includes("js/seav-upload.js")) {
     next = next.replace(
       '<script src="js/core.js" defer></script>',

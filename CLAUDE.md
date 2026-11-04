@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v600**. Jack pushes every commit himself from
+- HEAD = **v601**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1656,6 +1656,29 @@ create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
 (`::after`) stays off. Also in this commit: `docs/schema-profile-public-theme.sql`
 (applied live 2026-11-03; column + `get_public_profile` return it). The
 picker and theme CSS are not built yet.
+
+### Shipped 2026-11-05 (v601) — first-run setup, next-step home, a menu that grows
+Jack: "one big ecosystem ... as simple as it can be for new green crew". Mockup approved
+(`design-concepts/green-crew-home/`, never deployed). The dashboard's bento, quick actions
+and profile strip are GONE (`js/dashboard-snippets.js` deleted, patch rules removed;
+`css/pages/dashboard.css` still holds their now-dead rules).
+- `js/seav-home-logic.js` (no DOM): `computeReadiness` = 5 equal items (name + role,
+  certificate, photo, yacht or land role, bio), so 20% steps; `computeNextStep` priority:
+  expired cert, cert within 90 days, first cert, first yacht, yacht with no sea time (Add form
+  prefilled), photo, bio, unsigned testimonial, public profile, else "all up to date".
+- `js/dashboard-home.js`: title, meter, one next step, checklist, current-yacht photo, tiles
+  ONLY for what is held (sea time, miles, certs, yachts), and a CV SUMMARY card, not the real CV
+  engine. Styles `css/pages/home.css`, tokens `--home-*`.
+- **First run** when no rank AND no vessels, sea time or held certs. A failed load looks empty,
+  so a fresh read of the profile row must agree first, and the save merges onto that fresh row
+  (profile save writes every column; the 2026-08-07 data loss). No flag: a saved role ends it.
+- **Menu** (core.js `applyMenuGrowth`): Home, My CV, Vessels, Certificates always; others via
+  `MENU_SHOWN_WHEN`; links are hidden not removed, so Search still finds them. "Show all tools"
+  in localStorage `seav_menu_all`. Contact / About / Report moved to the menu foot.
+- **+ Add** on every page -> `dashboard.html?add=<key>`, opens the real form.
+Tested on the real dashboard page with stubbed data (5 account states, setup flow, phone width);
+vessel and cert inserts as the real authenticated role, rolled back. **Never run signed in, and
+no real sign-up tried:** Jack should sign up a throwaway account once this is live.
 
 ### Shipped 2026-11-05 (v600) — miles from linked passages, as an option
 Jack: linked passages gave no miles on the testimonial; "an option as it might cause

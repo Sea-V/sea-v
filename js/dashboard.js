@@ -22,21 +22,7 @@
     return;
   }
 
-  const {
-    DEFAULT_PROFILE,
-    getSeatimeTotals,
-    computeOowSeaService
-  } = window.SeavData;
-
-  function loadProfile() {
-    return {
-      ...DEFAULT_PROFILE,
-      ...(window.SeavState?.profile || {}),
-      id: window.SeavState?.profile?.id || DEFAULT_PROFILE.id
-    };
-  }
-
-  async function ensureDashboardPhotosHydrated() {
+  async function refresh() {
     if (window.SeavState?.hydrateStoredFiles) {
       try {
         await window.SeavState.hydrateStoredFiles("dashboard.html");
@@ -44,179 +30,7 @@
         console.warn("[SEA-V] Dashboard photo hydration failed:", err);
       }
     }
-  }
-
-  async function updateDayTypeKpis() {
-    const kpiSea = document.getElementById("kpiSea");
-    const kpiPort = document.getElementById("kpiPort");
-    const kpiStandby = document.getElementById("kpiStandby");
-    const kpiWatchkeeping = document.getElementById("kpiWatchkeeping");
-    const kpiTotalDays = document.getElementById("kpiTotalDays");
-    const kpiOowCapped = document.getElementById("kpiOowCapped");
-
-    if (!kpiSea && !kpiPort && !kpiStandby && !kpiWatchkeeping && !kpiTotalDays && !kpiOowCapped) return;
-
-    const seatimes = window.SeavState?.seatimes || [];
-    const vessels = window.SeavState?.vessels || [];
-    const totals = getSeatimeTotals(seatimes);
-
-    if (kpiSea) kpiSea.textContent = String(totals.sea);
-    if (kpiPort) kpiPort.textContent = String(totals.yard);
-    if (kpiStandby) kpiStandby.textContent = String(totals.standby);
-    if (kpiWatchkeeping) kpiWatchkeeping.textContent = String(totals.watchkeeping);
-    if (kpiTotalDays) kpiTotalDays.textContent = String(totals.total);
-
-    // 2026-08-05, Jack: the raw total above (sea+standby+yard — watchkeeping is inside sea since v565,
-    // no caps) was labelled "Total Qualifying Service" but isn't actually
-    // qualifying service under any MCA route — it was flagged as misleading.
-    // This box adds the ALREADY-EXISTING, already-verified capped OOW
-    // <3000GT figure (90-day yard cap, standby capped per entry, vessels
-    // <15m excluded) alongside it rather than replacing the raw total,
-    // since the raw total is still useful as "everything logged."
-    if (kpiOowCapped) {
-      const oow = computeOowSeaService(seatimes, vessels);
-      kpiOowCapped.textContent = String(oow.totalQualifying15m);
-    }
-  }
-
-  function profileHasPhoto(profile) {
-    const photo = profile?.photo;
-    if (window.SeavApiCore?.hasStoredFile?.(photo)) return true;
-    return !!Seav.getFileDisplayUrl(
-      photo,
-      window.SeavApiCore?.STORAGE_BUCKETS?.PROFILE_PHOTOS || "profile-photos"
-    );
-  }
-
-  function getProfileCompletionChecks(profile) {
-    const p = profile || {};
-    const has = (value) => value !== undefined && value !== null && String(value).trim() !== "";
-
-    return [
-      { label: "Name", done: has(p.name) },
-      { label: "Rank", done: has(p.rank) },
-      { label: "Qualification", done: has(p.qualification) },
-      { label: "Nationality", done: has(p.nationality) },
-      { label: "Date of Birth", done: has(p.dob) },
-      { label: "Location", done: has(p.location) },
-      { label: "Email", done: has(p.email) },
-      { label: "Phone", done: has(p.phone) },
-      { label: "Passports", done: has(p.passportsHeld) },
-      { label: "Visas", done: has(p.visasHeld) },
-      { label: "Career overview", done: has(p.bio) },
-      { label: "Profile Photo", done: profileHasPhoto(p) }
-    ];
-  }
-
-  function getProfileCompletion(profile) {
-    const checks = getProfileCompletionChecks(profile);
-    const completed = checks.filter((check) => check.done).length;
-    return Math.round((completed / checks.length) * 100);
-  }
-
-  function getMissingProfileFields(profile) {
-    return getProfileCompletionChecks(profile)
-      .filter((check) => !check.done)
-      .map((check) => check.label);
-  }
-
-  function getProgressClass(percent) {
-    if (percent < 30) return "progress-low";
-    if (percent < 60) return "progress-mid";
-    if (percent < 90) return "progress-good";
-    return "progress-complete";
-  }
-
-  function updateProfileCompletion(profile) {
-    const strip = document.getElementById("profileCompletionStrip");
-    const badge = document.getElementById("dashboardProfileCompleteBadge");
-    const fill = document.getElementById("profileProgressFill");
-    const percentText = document.getElementById("profileProgressPercent");
-    const missingBox = document.getElementById("profileProgressMissing");
-
-    const percent = getProfileCompletion(profile || {});
-    const missing = getMissingProfileFields(profile || {});
-    const isComplete = missing.length === 0;
-
-    // v521: a complete profile removes the strip entirely and leaves only the
-    // tick beside the page title. The strip lives above the grid now, so
-    // hiding it costs no layout — which is exactly why it moved out of the
-    // bento, where hiding a tile would have punched a hole in the grid.
-    if (strip) strip.hidden = isComplete;
-    if (badge) badge.hidden = !isComplete;
-
-    if (isComplete) return;
-
-    if (fill) {
-      fill.style.width = `${percent}%`;
-      fill.className = `progress-fill ${getProgressClass(percent)}`;
-    }
-
-    if (percentText) percentText.textContent = `${percent}%`;
-
-    if (missingBox) {
-      const checks = getProfileCompletionChecks(profile || {});
-      const done = checks.length - missing.length;
-      missingBox.textContent =
-        `${done} of ${checks.length} fields · missing ${missing.join(", ")}`;
-    }
-  }
-
-  async function renderDashboardSnippets() {
-    const S = window.SeavDashboardSnippets;
-    if (!S) return;
-
-    const snippetRenderers = [
-      S.renderVesselSnippet,
-      S.renderSeatimeSnippet,
-      S.renderNavigationSnippet,
-      S.renderTenderSnippet,
-      S.renderOnboardSnippet,
-      S.renderSpecialistSnippet,
-      S.renderCertSnippet,
-      S.renderReferenceSnippet,
-      S.renderPayslipTile,
-      S.renderMilestoneTile
-    ];
-
-    await Promise.all(
-      snippetRenderers.map(async (renderSnippet) => {
-        try {
-          await renderSnippet();
-        } catch (err) {
-          console.error(
-            "[SEA-V] Dashboard snippet render failed:",
-            renderSnippet.name || "anonymous",
-            err
-          );
-        }
-      })
-    );
-  }
-
-  async function refresh() {
-    await ensureDashboardPhotosHydrated();
-    await updateDayTypeKpis();
-    // renderDashboardProfile() was called here until 2026-09-20. v516 deleted
-    // the profile detail card, taking dashAvatar and all eleven dashProfile*
-    // elements with it, so the function early-returned on every load. Its
-    // avatar logic now lives in wireTopbarProfile() in js/core.js (the topbar
-    // profile chip), which is what its "one place profile photo display logic
-    // lives" comment was protecting. profileHasPhoto() below is NOT dead —
-    // updateProfileCompletion's checklist uses it.
-    updateProfileCompletion(loadProfile());
-    await renderDashboardSnippets();
-  }
-
-  // Same helper as js/public-profile.js's populateSectionIcons — reuses the
-  // sidebar's SVG set (window.SeavIcons, js/core.js) for each card heading's
-  // data-dash-icon span. No data dependency, safe to run immediately.
-  function populateDashboardCardIcons() {
-    document.querySelectorAll("[data-dash-icon]").forEach((el) => {
-      const key = el.getAttribute("data-dash-icon");
-      const svg = window.SeavIcons?.[key];
-      if (svg) el.innerHTML = svg;
-    });
+    await window.SeavDashboardHome?.render();
   }
 
   // --- Dashboard quick actions: open each domain's real Add modal in place
@@ -232,8 +46,6 @@
   // three quick actions once that pattern held up in real use.
   const QUICK_ACTION_MODALS = {
     vessel: {
-      linkId: "dashAddVesselAction",
-      labelId: "dashAddVesselActionLabel",
       pageUrl: "vessels.html",
       modalId: "vesselModal",
       scriptSrc: "js/vessels.js",
@@ -242,8 +54,6 @@
       openFn: "openAddVesselModal"
     },
     seatime: {
-      linkId: "dashLogSeatimeAction",
-      labelId: "dashLogSeatimeActionLabel",
       pageUrl: "seatime.html",
       modalId: "seatimeModal",
       scriptSrc: "js/seatime.js",
@@ -252,8 +62,6 @@
       openFn: "openAddSeatimeModal"
     },
     certificate: {
-      linkId: "dashUploadCertAction",
-      labelId: "dashUploadCertActionLabel",
       pageUrl: "certificates.html",
       modalId: "certModal",
       scriptSrc: "js/certificates.js",
@@ -266,8 +74,6 @@
       openFn: "openAddModal"
     },
     onboard: {
-      linkId: "dashLogOnboardAction",
-      labelId: "dashLogOnboardActionLabel",
       pageUrl: "onboard-experience.html",
       modalId: "oeModal",
       scriptSrc: "js/onboard-experience.js",
@@ -357,61 +163,57 @@
     return quickActionLoadPromises[key];
   }
 
-  function initDashboardQuickActionModal(key) {
+  // Log time fills in the yacht and its dates when the next step named one.
+  function prefillSeatime(vessel) {
+    const select = document.getElementById("st_vessel");
+    if (select && vessel?.id) {
+      select.value = vessel.id;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    if (vessel?.from) Seav.fillDateTriplet("st_date_joined", vessel.from);
+    if (vessel?.to) Seav.fillDateTriplet("st_date_left", vessel.to);
+  }
+
+  // Opens a real Add form in place; if anything fails, goes to its page instead
+  // of leaving the button dead.
+  async function openAdd(key, options = {}) {
     const config = QUICK_ACTION_MODALS[key];
-    const link = document.getElementById(config.linkId);
-    const label = document.getElementById(config.labelId);
-    if (!link) return;
+    if (!config) return;
+    try {
+      await loadQuickActionModal(key);
+      window[config.globalName][config.openFn]();
+      if (key === "seatime") prefillSeatime(options.vessel);
+    } catch (err) {
+      console.error(`[SEA-V] ${key} form failed, falling back to page navigation:`, err);
+      window.location.href = config.pageUrl;
+    }
+  }
 
-    const originalLabel = label ? label.textContent : "";
-
-    link.addEventListener("click", async (e) => {
-      e.preventDefault();
-
-      if (label) label.textContent = "Loading…";
-      link.setAttribute("aria-busy", "true");
-
-      try {
-        await loadQuickActionModal(key);
-        window[config.globalName][config.openFn]();
-      } catch (err) {
-        console.error(`[SEA-V] ${key} quick action failed, falling back to page navigation:`, err);
-        window.location.href = config.pageUrl;
-        return;
-      } finally {
-        if (label) label.textContent = originalLabel;
-        link.removeAttribute("aria-busy");
-      }
+  // The topbar's + Add links here as dashboard.html?add=<key> from any page.
+  function initAddLinks() {
+    const params = new URLSearchParams(window.location.search);
+    const wanted = params.get("add");
+    if (wanted) {
+      params.delete("add");
+      const query = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (query ? `?${query}` : ""));
+      openAdd(wanted);
+    }
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest("a[href^='dashboard.html?add=']");
+      if (!link) return;
+      event.preventDefault();
+      openAdd(new URL(link.href).searchParams.get("add"));
     });
   }
 
-  function initDashboardQuickActionModals() {
-    Object.keys(QUICK_ACTION_MODALS).forEach(initDashboardQuickActionModal);
-  }
-
   function initDashboard() {
-    // These three probes must name elements the dashboard actually renders.
-    // v516 replaced the snippet cards, the profile card and the KPI band —
-    // the old probes (dashSeatimeSnippet / dashProfileName / kpiTotalDays)
-    // all went with them, which would have left initDashboard() returning
-    // early on its own page and the tiles stuck at zero.
-    const isDashboard =
-      document.getElementById("dashSeatimeTile") ||
-      document.getElementById("dashVesselTile") ||
-      document.querySelector(".dash-bento");
-
-    if (!isDashboard) return;
-
-    const runRefresh = async () => {
-      await refresh();
-    };
-
-    populateDashboardCardIcons();
-    initDashboardQuickActionModals();
-    Seav.bindStateRefresh(runRefresh, { label: "Dashboard refresh" });
+    if (!document.getElementById("homeShell")) return;
+    initAddLinks();
+    Seav.bindStateRefresh(refresh, { label: "Home refresh" });
   }
 
   document.addEventListener("DOMContentLoaded", initDashboard);
 
-  window.SeavDashboard = { refresh };
+  window.SeavDashboard = { refresh, openAdd };
 })();

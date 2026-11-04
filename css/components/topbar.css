@@ -679,13 +679,6 @@ body.app-page .dash {
   font-size: var(--font-caption) !important;
 }
 
-/* Contact / About / Report sit in the topbar itself above 1000px, so the
-   footer only repeats them on phones (where the topbar hides them). */
-@media (min-width: 1001px) {
-  .app-topbar .topbar-menu-foot .topbar-menu-foot-dup {
-    display: none;
-  }
-}
 
 .app-topbar .topbar-menu-foot {
   /* width 0 + min-width 100%: the footer wraps to the links' width instead
@@ -916,3 +909,70 @@ body.app-page .dash {
   background: var(--bridge-accent-soft, var(--seav-glass-active));
   color: var(--seav-field-value-color);
 }
+
+/* v601: the one way to add anything, and the menu's reveal. */
+.app-topbar .topbar-add-btn {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--bridge-radius, 4px);
+  background: var(--bridge-accent);
+  color: var(--topbar-add-ink);
+  cursor: pointer;
+  font-weight: var(--font-weight-title);
+  white-space: nowrap;
+}
+
+html[data-theme="light"] .app-topbar .topbar-add-btn { --topbar-add-ink: #ffffff; }
+
+.app-topbar .topbar-add-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 60;
+  display: grid;
+  width: var(--topbar-add-width);
+  max-width: calc(100vw - 24px);
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid var(--bridge-rule);
+  border-radius: var(--bridge-radius, 4px);
+  background: var(--seav-menu-bg);
+  box-shadow: var(--seav-menu-shadow);
+}
+
+.app-topbar .topbar-add-menu[hidden] { display: none; }
+
+.app-topbar .topbar-add-head {
+  padding: 8px 10px 4px;
+  color: var(--bridge-caption);
+  font-size: var(--font-caption);
+  font-weight: var(--type-title-weight);
+}
+
+.app-topbar .nav-left .topbar-add-menu > a {
+  padding: 9px 10px;
+  border-radius: 3px;
+  color: rgb(var(--seav-ink-rgb));
+  text-decoration: none;
+}
+
+.app-topbar .nav-left .topbar-add-menu > a:hover { background: var(--bridge-surface-2); }
+
+.app-topbar .topbar-menu-all {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 0;
+  border-top: 1px solid var(--bridge-rule);
+  background: none;
+  color: var(--seav-accent-text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.app-topbar .topbar-menu-all[hidden],
+.app-topbar .topbar-menu .dash-link[hidden],
+.app-topbar .topbar-menu .dash-nav-group[hidden] { display: none; }

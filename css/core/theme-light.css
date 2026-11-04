@@ -82,6 +82,7 @@ html[data-theme="light"] body.app-page :is(
   .ps-footnote,
   .navigation-filter-label,
   .navigation-stat--highlight,
+  .home-cv-actions,
   .seav-version-badge
 ) {
   --seav-ink-rgb: 255 255 255;
