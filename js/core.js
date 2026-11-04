@@ -359,9 +359,6 @@ const app = {
                 <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </button>
-            <div class="topbar-menu" id="topbarMenuPanel" hidden>
-              ${renderAppNav()}
-            </div>
             <button
               type="button"
               class="topbar-add-btn"
@@ -378,6 +375,12 @@ const app = {
               <a href="navigation.html">A passage</a>
               <a href="references.html">A reference</a>
               <a href="dashboard.html?add=onboard">Onboard experience</a>
+            </div>
+            <a href="#" class="topbar-quick-link" data-open="contactInfoModal">Contact</a>
+            <a href="#" class="topbar-quick-link" data-open="aboutInfoModal">About</a>
+            <a href="#" class="topbar-quick-link" data-open="reportIssueModal">Report an issue</a>
+            <div class="topbar-menu" id="topbarMenuPanel" hidden>
+              ${renderAppNav()}
             </div>
           </nav>
 
@@ -542,46 +545,50 @@ function renderAppNav() {
       ${renderSidebarGroup(
         "",
         [
-          renderSidebarLink("dashboard.html", "Home", iconDashboard),
-          renderSidebarLink("cv-generator.html", "My CV", iconCv)
+          renderSidebarLink("dashboard.html", "Dashboard", iconDashboard),
+          renderSidebarLink("profile.html", "Profile", iconProfile)
         ].join("")
       )}
       ${renderSidebarGroup(
-        "Experience",
+        "Career",
         [
           renderSidebarLink("vessels.html", "Vessels", iconVessels),
           renderSidebarLink("seatime.html", "Sea Time", iconSeatime),
-          renderSidebarLink("navigation.html", "Navigation", iconNavigation),
-          renderSidebarLink("tenders.html", "Tenders", iconTenders),
-          renderSidebarLink("onboard-experience.html", "Onboard Experience", iconOnboard),
-          renderSidebarLink("land-experience.html", "Land-Based Experience", iconLandExperience)
+          renderSidebarLink("navigation.html", "Navigation", iconNavigation)
         ].join("")
       )}
       ${renderSidebarGroup(
-        "Documents",
+        "Operations &amp; training",
+        [
+          renderSidebarLink("tenders.html", "Tenders", iconTenders),
+          renderSidebarLink("onboard-experience.html", "Onboard Experience", iconOnboard),
+          renderSidebarLink("specialist-qualifications.html", "Specialist Qualifications", iconSpecialist)
+        ].join("")
+      )}
+      ${renderSidebarGroup(
+        "Documentation",
         [
           renderSidebarLink("certificates.html", "Certificates", iconCertificates),
-          renderSidebarLink("specialist-qualifications.html", "Specialist Qualifications", iconSpecialist),
           renderSidebarLink("references.html", "References", iconReferences),
           renderSidebarLink("payslips.html", "Payslips", iconPayslips)
         ].join("")
       )}
       ${renderSidebarGroup(
-        "More about you",
+        "Highlights",
         [
+          renderSidebarLink("land-experience.html", "Land-Based Experience", iconLandExperience),
           renderSidebarLink("achievements.html", "Milestones", iconAchievements, {
             id: "sidebarAchievementsLink"
           }),
-          renderSidebarLink("hobbies-interests.html", "Hobbies &amp; Interests", iconHobbies),
-          renderSidebarLink("profile.html", "Profile", iconProfile)
+          renderSidebarLink("hobbies-interests.html", "Hobbies &amp; Interests", iconHobbies)
         ].join("")
       )}
     </nav>
-    <button type="button" class="topbar-menu-all" id="topbarMenuAll" hidden>Show all tools</button>
     <div class="topbar-menu-foot">
       <a href="#" class="topbar-menu-foot-dup" data-open="contactInfoModal">Contact</a>
       <a href="#" class="topbar-menu-foot-dup" data-open="aboutInfoModal">About</a>
       <a href="#" class="topbar-menu-foot-dup" data-open="reportIssueModal">Report an issue</a>
+      <a href="dashboard.html?guide=1">New here? Start the guide</a>
       <a href="privacy.html">Privacy</a>
       <a href="terms.html">Terms</a>
     </div>
@@ -764,7 +771,6 @@ function renderAccountMenu() {
         wireTopbarProfile();
         wireTopbarSearch();
         wireTopbarMenus();
-        wireMenuGrowth();
         wireThemeSwitch();
       }
     }
@@ -1164,77 +1170,6 @@ function renderAccountMenu() {
      Esc, a click outside, or choosing a link. The bars turn into a cross
      while the section menu is open. aria-expanded/aria-label follow the
      state for screen readers. */
-  /* v601: the menu grows with the crew member (Jack, 2026-11-05: simple for
-     green crew). Home, My CV, Vessels and Certificates are always there; each other
-     page appears once it holds something, or once what leads to it exists. Links are
-     HIDDEN, never removed, so Search and the active page still see them all, and
-     "Show all tools" (remembered on this device) reveals everything. */
-  const MENU_ALWAYS = ["dashboard.html", "cv-generator.html", "vessels.html", "certificates.html"];
-  const MENU_SHOWN_WHEN = {
-    "seatime.html": ["seatimes", "vessels"],
-    "navigation.html": ["navigationAreas", "seatimes"],
-    "tenders.html": ["tenders"],
-    "onboard-experience.html": ["onboardExperiences"],
-    "land-experience.html": ["landExperiences"],
-    "specialist-qualifications.html": ["specialistQualifications"],
-    "references.html": ["refs", "seatimes"],
-    "payslips.html": ["payslips"],
-    "achievements.html": ["seatimes", "certs"],
-    "hobbies-interests.html": ["hobbiesInterests"],
-    "profile.html": []
-  };
-  const MENU_ALL_KEY = "seav_menu_all";
-
-  function readMenuAll() {
-    try {
-      return localStorage.getItem(MENU_ALL_KEY) === "1";
-    } catch {
-      return false;
-    }
-  }
-
-  function applyMenuGrowth() {
-    const panel = document.getElementById("topbarMenuPanel");
-    if (!panel) return;
-    const showAll = readMenuAll();
-    const state = window.SeavState || {};
-    const currentPage = (window.location.pathname.split("/").pop() || "dashboard.html").toLowerCase();
-    let anyHidden = false;
-
-    panel.querySelectorAll("a.dash-link").forEach((link) => {
-      const page = (link.getAttribute("href") || "").toLowerCase();
-      const keys = MENU_SHOWN_WHEN[page];
-      const earned = MENU_ALWAYS.includes(page) || page === currentPage ||
-        (keys || []).some((key) => (state[key] || []).length > 0);
-      link.hidden = !showAll && !earned;
-      if (!earned) anyHidden = true;
-    });
-    panel.querySelectorAll(".dash-nav-group").forEach((group) => {
-      group.hidden = ![...group.querySelectorAll("a.dash-link")].some((link) => !link.hidden);
-    });
-
-    const toggle = document.getElementById("topbarMenuAll");
-    if (toggle) {
-      toggle.hidden = !anyHidden;
-      toggle.textContent = showAll ? "Show fewer tools" : "Show all tools";
-    }
-  }
-
-  function wireMenuGrowth() {
-    document.getElementById("topbarMenuAll")?.addEventListener("click", (event) => {
-      event.stopPropagation();
-      try {
-        localStorage.setItem(MENU_ALL_KEY, readMenuAll() ? "0" : "1");
-      } catch {
-        // Private window: the toggle just lasts for this page.
-      }
-      applyMenuGrowth();
-    });
-    applyMenuGrowth();
-    document.addEventListener("seav:data-updated", applyMenuGrowth);
-    document.addEventListener("seav:state-ready", applyMenuGrowth);
-  }
-
   function wireTopbarMenus() {
     const pairs = [
       {

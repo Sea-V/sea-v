@@ -1,0 +1,130 @@
+/* =========================================================
+   GETTING-STARTED GUIDE (v602). Markup in dashboard.html, js/seav-guide.js.
+   Colours are the Bridge tokens, so Dark and Light both work; the CV is paper
+   and stays white in both (--guide-cv-*). Sizes follow type-hierarchy.css.
+========================================================= */
+#guideShell[hidden],
+#dashboardShell[hidden] { display: none; }
+
+.guide-head h2 { margin: 0; }
+.guide-head p { margin: 4px 0 0; }
+
+.guide-steps { display: flex; gap: 6px; margin-bottom: 14px; }
+.guide-steps i { width: 34px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.22); }
+.guide-steps i.is-on { background: var(--accent-blue); }
+
+/* The boxes share the title's left edge. */
+.dashboard-shell-card .dashboard-shell-section.guide-cols { padding-left: 0; padding-right: 0; }
+
+.guide-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--guide-cv-width);
+  gap: 16px;
+  align-items: start;
+}
+
+.guide-box {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--bridge-rule);
+  border-radius: 4px;
+  background: var(--bridge-surface);
+}
+
+.guide-card-title { display: block; }
+.guide-text { margin: 14px 0 0; color: var(--seav-meta-desc-color); line-height: 1.5; }
+.guide-stack { display: grid; gap: 12px; }
+.guide-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; }
+
+.guide-skip {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--seav-meta-desc-color);
+  font: inherit;
+  text-decoration: underline;
+}
+
+.guide-list { margin: 10px 0 0; padding: 0; list-style: none; }
+.guide-list li { padding: 10px 0; border-top: 1px solid var(--bridge-rule); }
+.guide-list li:first-child { border-top: 0; }
+.guide-list strong { display: block; color: rgb(var(--seav-ink-rgb)); font-weight: var(--font-weight-title); }
+.guide-list small { display: block; color: var(--seav-meta-muted-color); font-size: var(--type-caption); }
+
+.guide-form { display: grid; gap: 14px; }
+.guide-form label { display: grid; gap: 6px; color: var(--seav-field-label-color); font-weight: var(--type-title-weight); }
+
+.guide-form input,
+.guide-form select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--bridge-rule);
+  border-radius: 4px;
+  background-color: var(--bridge-surface-2);
+  color: rgb(var(--seav-ink-rgb));
+  font: inherit;
+  font-weight: var(--font-weight-body);
+}
+
+.guide-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.guide-note { color: var(--seav-meta-muted-color); font-size: var(--type-caption); }
+.guide-error { margin: 0; color: var(--seav-danger-text, #ff8a8a); }
+.guide-error[hidden] { display: none; }
+
+.guide-choice {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--bridge-rule);
+  border-radius: 4px;
+  background: var(--bridge-surface-2);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.guide-choice[aria-pressed="true"] { border-color: var(--bridge-accent); box-shadow: inset 0 0 0 1px var(--bridge-accent); }
+.guide-choice strong { display: block; color: rgb(var(--seav-ink-rgb)); font-weight: var(--font-weight-title); }
+.guide-choice small { display: block; color: var(--seav-meta-muted-color); font-size: var(--type-caption); }
+
+/* The CV: paper, in both themes. */
+.guide-cv-wrap { position: sticky; top: var(--guide-cv-sticky-top); min-width: 0; }
+
+.guide-cv {
+  min-height: var(--guide-cv-min);
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--guide-cv-paper);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35);
+}
+
+.guide-cv-top { display: flex; align-items: center; gap: 12px; padding: 18px; background: var(--guide-cv-band); }
+.guide-cv-photo { flex: 0 0 56px; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); }
+.guide-cv-photo small { color: rgba(255, 255, 255, 0.7); font-size: var(--guide-cv-small); line-height: 1.1; text-align: center; }
+.guide-cv-who { min-width: 0; }
+.guide-cv-name { display: block; color: #fff; font-size: var(--guide-cv-name); font-weight: var(--font-weight-title); line-height: 1.2; overflow-wrap: anywhere; }
+.guide-cv-role { display: block; color: var(--guide-cv-role); font-size: var(--font-caption); font-weight: var(--font-weight-body); }
+.guide-cv-body { padding: 14px 18px 18px; }
+.guide-cv-heading { display: block; margin: 12px 0 5px; color: var(--guide-cv-accent); font-size: var(--guide-cv-small); font-weight: var(--font-weight-title); }
+.guide-cv-heading:first-child { margin-top: 0; }
+.guide-cv-line { display: block; color: var(--guide-cv-ink); font-size: var(--font-caption); font-weight: var(--font-weight-body); line-height: 1.4; overflow-wrap: anywhere; }
+.guide-cv-line small { display: block; color: var(--guide-cv-mute); font-size: var(--guide-cv-small); font-weight: 500; }
+.guide-cv-empty { display: block; padding: 7px 9px; border: 1px dashed var(--guide-cv-rule); border-radius: 3px; color: var(--guide-cv-mute); font-size: var(--guide-cv-small); }
+
+/* The guide is a clean page: no menus until it is finished or skipped. */
+body.seav-guide-open .app-topbar :is(.nav-left, .nav-right) { visibility: hidden; }
+
+@media (max-width: 900px) {
+  .guide-cols { grid-template-columns: minmax(0, 1fr); }
+  .guide-cv-wrap { position: static; }
+  .guide-cv { min-height: 0; }
+}
+
+@media (max-width: 560px) {
+  .guide-two { grid-template-columns: 1fr; }
+  .guide-box { padding: 16px; }
+}

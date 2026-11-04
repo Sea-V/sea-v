@@ -679,6 +679,13 @@ body.app-page .dash {
   font-size: var(--font-caption) !important;
 }
 
+/* Contact / About / Report sit in the topbar itself above 1000px, so the
+   footer only repeats them on phones (where the topbar hides them). */
+@media (min-width: 1001px) {
+  .app-topbar .topbar-menu-foot .topbar-menu-foot-dup {
+    display: none;
+  }
+}
 
 .app-topbar .topbar-menu-foot {
   /* width 0 + min-width 100%: the footer wraps to the links' width instead
@@ -910,7 +917,7 @@ body.app-page .dash {
   color: var(--seav-field-value-color);
 }
 
-/* v601: the one way to add anything, and the menu's reveal. */
+/* The one way to add anything from any page (v602). */
 .app-topbar .topbar-add-btn {
   min-height: 34px;
   padding: 0 12px;
@@ -958,21 +965,3 @@ html[data-theme="light"] .app-topbar .topbar-add-btn { --topbar-add-ink: #ffffff
 }
 
 .app-topbar .nav-left .topbar-add-menu > a:hover { background: var(--bridge-surface-2); }
-
-.app-topbar .topbar-menu-all {
-  display: block;
-  width: 100%;
-  margin-top: 6px;
-  padding: 10px 12px;
-  border: 0;
-  border-top: 1px solid var(--bridge-rule);
-  background: none;
-  color: var(--seav-accent-text);
-  cursor: pointer;
-  text-align: left;
-  font: inherit;
-}
-
-.app-topbar .topbar-menu-all[hidden],
-.app-topbar .topbar-menu .dash-link[hidden],
-.app-topbar .topbar-menu .dash-nav-group[hidden] { display: none; }
