@@ -125,7 +125,7 @@
   function step3Html() {
     return `<strong class="guide-card-title">What to do next</strong>
       <ul class="guide-list">
-        <li><strong>Add your certificates and yachts</strong><small>The buttons at the top of your dashboard open each form.</small></li>
+        <li><strong>Add your certificates and yachts</strong><small>The + Add button at the top opens each form.</small></li>
         <li><strong>Log your sea time</strong><small>It is what your next certificate is built on.</small></li>
         <li><strong>Build your CV</strong><small>It fills itself in from what you add, ready to download or share.</small></li>
       </ul>

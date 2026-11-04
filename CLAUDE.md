@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v602**. Jack pushes every commit himself from
+- HEAD = **v603**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1656,6 +1656,12 @@ create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
 (`::after`) stays off. Also in this commit: `docs/schema-profile-public-theme.sql`
 (applied live 2026-11-03; column + `get_public_profile` return it). The
 picker and theme CSS are not built yet.
+
+### Shipped 2026-11-05 (v603) — quick action row gone; white + Add
+Jack: + Add replaces the dashboard's five buttons (vessel, sea time, certificate, onboard, Build
+your CV). Row, its JS and CSS removed; `.dash-bento` offset 283px -> 227px. "Build your CV" now only
+lives in the photo menu. + Add text is white in both themes at Jack's ask (2.1:1 on #5bbcff in
+Dark, same as `.btn-blue`).
 
 ### Shipped 2026-11-05 (v602) — old dashboard back, plus a skippable guide
 v601 replaced the dashboard with a next-step home, a menu that grew and a + Add button

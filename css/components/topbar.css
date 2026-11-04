@@ -930,8 +930,6 @@ body.app-page .dash {
   white-space: nowrap;
 }
 
-html[data-theme="light"] .app-topbar .topbar-add-btn { --topbar-add-ink: #ffffff; }
-
 .app-topbar .topbar-add-menu {
   position: absolute;
   top: calc(100% + 8px);

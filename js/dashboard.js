@@ -219,7 +219,7 @@
     });
   }
 
-  // --- Dashboard quick actions: open each domain's real Add modal in place
+  // --- The topbar's + Add: open each domain's real Add modal in place
   // instead of navigating to that page (Jack, 2026-08-08 -- crew onboard
   // mainly use these 4 quick actions; fewer full-page loads also suits a
   // future PWA, see project_seav_pwa_ios_app_plan). Nothing about any modal
@@ -232,8 +232,6 @@
   // three quick actions once that pattern held up in real use.
   const QUICK_ACTION_MODALS = {
     vessel: {
-      linkId: "dashAddVesselAction",
-      labelId: "dashAddVesselActionLabel",
       pageUrl: "vessels.html",
       modalId: "vesselModal",
       scriptSrc: "js/vessels.js",
@@ -242,8 +240,6 @@
       openFn: "openAddVesselModal"
     },
     seatime: {
-      linkId: "dashLogSeatimeAction",
-      labelId: "dashLogSeatimeActionLabel",
       pageUrl: "seatime.html",
       modalId: "seatimeModal",
       scriptSrc: "js/seatime.js",
@@ -252,8 +248,6 @@
       openFn: "openAddSeatimeModal"
     },
     certificate: {
-      linkId: "dashUploadCertAction",
-      labelId: "dashUploadCertActionLabel",
       pageUrl: "certificates.html",
       modalId: "certModal",
       scriptSrc: "js/certificates.js",
@@ -266,8 +260,6 @@
       openFn: "openAddModal"
     },
     onboard: {
-      linkId: "dashLogOnboardAction",
-      labelId: "dashLogOnboardActionLabel",
       pageUrl: "onboard-experience.html",
       modalId: "oeModal",
       scriptSrc: "js/onboard-experience.js",
@@ -357,38 +349,6 @@
     return quickActionLoadPromises[key];
   }
 
-  function initDashboardQuickActionModal(key) {
-    const config = QUICK_ACTION_MODALS[key];
-    const link = document.getElementById(config.linkId);
-    const label = document.getElementById(config.labelId);
-    if (!link) return;
-
-    const originalLabel = label ? label.textContent : "";
-
-    link.addEventListener("click", async (e) => {
-      e.preventDefault();
-
-      if (label) label.textContent = "Loading…";
-      link.setAttribute("aria-busy", "true");
-
-      try {
-        await loadQuickActionModal(key);
-        window[config.globalName][config.openFn]();
-      } catch (err) {
-        console.error(`[SEA-V] ${key} quick action failed, falling back to page navigation:`, err);
-        window.location.href = config.pageUrl;
-        return;
-      } finally {
-        if (label) label.textContent = originalLabel;
-        link.removeAttribute("aria-busy");
-      }
-    });
-  }
-
-  function initDashboardQuickActionModals() {
-    Object.keys(QUICK_ACTION_MODALS).forEach(initDashboardQuickActionModal);
-  }
-
   // The topbar's + Add links to dashboard.html?add=<key> from any page, and opens
   // the same real form as the quick actions. Falls back to that form's own page.
   async function openAdd(key) {
@@ -439,7 +399,6 @@
     };
 
     populateDashboardCardIcons();
-    initDashboardQuickActionModals();
     initAddLinks();
     Seav.bindStateRefresh(runRefresh, { label: "Dashboard refresh" });
   }

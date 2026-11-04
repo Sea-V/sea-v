@@ -257,7 +257,6 @@ body.app-page [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-she
 body.app-page :is(
   .dash-tile,
   .dash-vessel,
-  .dashboard-quick-action,
   .profile-form-card,
   .profile-public-share,
   .vessel-history-collapsible,
