@@ -1,0 +1,129 @@
+/* =========================================================
+   TYPE HIERARCHY — signed-in pages (v598)
+   Jack, 2026-11-05: titles were different colours and sizes page to page.
+   "white for the big titles, grey for the card titles and maybe blue for the
+   inner card titles ... make it all professional and structured."
+
+   THE ONE SCALE. Pick a level; never set a title's size or colour in a page
+   stylesheet. Tokens are --type-* in css/core/variables.css.
+     1 Page title     20 / 800  white   the heading of the page
+     2 Section title  16 / 700  white   a heading directly on the wave
+     3 Card title     14 / 700  grey    the heading of a box
+     - Record name    14 / 800  white   a vessel, certificate, person: DATA
+     4 Inner title    14 / 700  blue    a heading inside a card, a field label
+     5 Figure caption 12 / 700  blue    the small line under a KPI number
+   "White" is the ink: white on the wave and in Dark, navy in a Light box.
+   Record names stay ink, never blue: .cursor/rules/field-label-typography.mdc.
+
+   Loads after the themes, because theme-bridge.css and typography.css both set
+   these with !important. Public profile untouched (body.app-page only).
+   New title class? Add it to a list below.
+========================================================= */
+
+/* 1 — Page title */
+body.app-page [class$="-shell-card"] [class*="-shell-head"] h2,
+body.app-page [class$="-shell-card"] .reference-shell-title h2 {
+  color: rgb(var(--seav-ink-rgb)) !important;
+  font-size: var(--type-page) !important;
+  font-weight: var(--font-weight-title) !important;
+  line-height: 1.25 !important;
+}
+
+/* 2 — Section title */
+body.app-page [class$="-shell-card"] [class*="-section-head"] h3,
+body.app-page [class$="-shell-card"] .kpi-title,
+body.app-page .dashboard-profile-strip-label {
+  color: rgb(var(--seav-ink-rgb)) !important;
+  font-size: var(--type-section) !important;
+  font-weight: var(--type-title-weight) !important;
+}
+
+/* 3 — Card title */
+body.app-page .dash-tile-label,
+body.app-page .admin-card-head h3,
+body.app-page .ach-trophy-section .ach-section-head h3,
+body.app-page .profile-public-share h3,
+body.app-page .profile-lock-heading,
+body.app-page .cert-category-group-title,
+body.app-page .reference-doc-type-group-title,
+body.app-page .ps-year-summary-title,
+body.app-page .ach-cert-group-title,
+body.app-page .ach-certs-title,
+body.app-page .onboard-skill-group-title,
+body.app-page .cvgen-group-title,
+body.app-page .cvgen-editor-title {
+  color: var(--bridge-caption) !important;
+  font-size: var(--type-card) !important;
+  font-weight: var(--type-title-weight) !important;
+}
+
+/* Record names */
+body.app-page .cert-compact-title,
+body.app-page .ps-compact-title,
+body.app-page .ref-compact-title,
+body.app-page .sq-compact-title,
+body.app-page .list-title,
+body.app-page .hi-modern-name,
+body.app-page .onboard-modern-name,
+body.app-page .onboard-vessel-name,
+body.app-page .onboard-skill-row-name,
+body.app-page .seatime-vessel-group-title,
+body.app-page .tender-vessel-group-title,
+body.app-page .navigation-vessel-group-title,
+body.app-page .navigation-log-title,
+body.app-page .vessel-history-summary-title strong,
+body.app-page .vessel-title,
+body.app-page .vessel-title-strong,
+body.app-page .seatime-portal-name,
+body.app-page .ach-cert-name,
+body.app-page .ach-trophy-title,
+body.app-page .ach-milestone-summary-title,
+body.app-page .dash-tile-milestone-name,
+body.app-page .ref-signoff-name {
+  color: var(--seav-entity-name-color) !important;
+  font-size: var(--type-card) !important;
+  font-weight: var(--font-weight-title) !important;
+}
+
+/* 4 — Inner title and field label */
+body.app-page .profile-chapter-title,
+body.app-page .seav-form-group-title,
+body.app-page .seav-quality-group-label,
+body.app-page .vessel-section-label,
+body.app-page .vessel-panel-label,
+body.app-page .vessel-addendums-title,
+body.app-page .vessel-addendum-links-title,
+body.app-page .ref-section-label,
+body.app-page .oe-photo-editor-title,
+body.app-page .hi-modal-photos-label,
+body.app-page .cvgen-block-heading,
+body.app-page .cvgen-field-label,
+body.app-page .cvgen-vessel-bullets-label,
+body.app-page .vessel-meta-label,
+body.app-page .cert-compact-detail-label,
+body.app-page .ps-detail-label,
+body.app-page .sq-detail-label,
+body.app-page .ref-signoff-label,
+body.app-page .ps-filter-label,
+body.app-page .admin-filter-label,
+body.app-page .navigation-route-label,
+body.app-page .navigation-stat-label,
+body.app-page .modal-date-label,
+body.app-page .modal-info-label {
+  color: var(--seav-field-label-color) !important;
+  font-size: var(--type-inner) !important;
+  font-weight: var(--type-title-weight) !important;
+}
+
+/* 5 — Figure caption. 10px was too small to read. */
+body.app-page .kpi-label,
+body.app-page .ach-kpi-label {
+  color: var(--seav-field-label-color) !important;
+  font-size: var(--type-caption) !important;
+  font-weight: var(--type-title-weight) !important;
+}
+
+/* A section that is switched off stays dimmed. */
+body.app-page .ach-department--soon .ach-section-head h3 {
+  color: rgb(var(--seav-ink-rgb) / 0.4) !important;
+}

@@ -1857,3 +1857,16 @@
     margin-left: auto;
   }
 }
+
+/* v598: at the card-title size a wide figure ("1,197 days") left a phone tile
+   no room for its title, which shrank to a few pixels. The title takes its own
+   line above the figure instead. */
+@media (max-width: 620px) {
+  .dash-tile-head {
+    flex-wrap: wrap;
+  }
+
+  .dash-tile-label {
+    flex: 1 0 100%;
+  }
+}

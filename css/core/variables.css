@@ -1,4 +1,12 @@
 :root {
+  /* v598 type hierarchy for signed-in pages: css/core/type-hierarchy.css. */
+  --type-page: 20px;
+  --type-section: 16px;
+  --type-card: 14px;
+  --type-inner: 14px;
+  --type-caption: 12px;
+  --type-title-weight: 700;
+
   /* Below this the Profile photo's text drops under the photo. */
   --profile-photo-text-min: 140px;
 
