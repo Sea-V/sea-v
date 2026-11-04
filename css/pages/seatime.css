@@ -837,3 +837,20 @@
     padding: 16px;
   }
 }
+
+/* v600: miles from the passages linked to an entry, in the form. */
+.seatime-linked-miles[hidden] {
+  display: none;
+}
+
+.seatime-linked-miles-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.seatime-linked-miles .modal-date-hint {
+  margin: 6px 0 0;
+}

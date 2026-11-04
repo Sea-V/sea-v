@@ -391,6 +391,17 @@
     return route;
   }
 
+  // Total distance of a set of passages, the same figure navigation.html shows
+  // for each. measured < entries.length when a passage has no route to measure.
+  async function getEntriesDistance(entries) {
+    const routes = await Promise.all((entries || []).map((entry) => getEntryRoute(entry).catch(() => null)));
+    const measured = routes.filter((route) => route?.distanceNm > 0);
+    return {
+      measured: measured.length,
+      nm: measured.reduce((sum, route) => sum + route.distanceNm, 0)
+    };
+  }
+
   function clearEntryRouteCache() {
     entryRouteCache.clear();
     if (buildLegRoute._cache) buildLegRoute._cache.clear();
@@ -434,6 +445,7 @@
     buildRouteThroughAnchors,
     buildRouteForEntry,
     getEntryRoute,
+    getEntriesDistance,
     clearEntryRouteCache,
     buildPassagePaths,
     RECOMMENDED_PASSAGE_POINTS

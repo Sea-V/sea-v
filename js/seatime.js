@@ -441,6 +441,67 @@
     downloadCsv(`sea-service-export-${today}.csv`, rows);
   }
 
+  // v600: offers the total of the passages linked to this entry. Jack: an
+  // option, not automatic, as a captain signs this figure, and the links may
+  // not cover the whole contract. The button only fills the normal field, so
+  // nothing changes until Save, and a later link never changes a saved figure.
+  // A new entry has no id yet, so no passages can be linked to it.
+  let linkedMilesEntryId = "";
+  let linkedMilesFigure = null;
+
+  function syncLinkedMilesButton() {
+    const button = document.getElementById("stLinkedMilesUse");
+    if (!button) return;
+    const inUse = document.getElementById("st_miles")?.value === String(linkedMilesFigure);
+    button.disabled = inUse;
+    button.textContent = inUse ? "In use" : "Use this figure";
+  }
+
+  async function renderLinkedPassageMiles(entryId) {
+    linkedMilesEntryId = entryId || "";
+    const requestedFor = linkedMilesEntryId;
+    const box = document.getElementById("stLinkedMiles");
+    if (!box) return;
+
+    const linked = requestedFor
+      ? (window.SeavState?.navigationAreas || []).filter((area) => area.seatimeId === requestedFor)
+      : [];
+    const distance = linked.length
+      ? await window.SeavNavigationPassage?.getEntriesDistance?.(linked)
+      : null;
+    if (requestedFor !== linkedMilesEntryId) return;
+
+    if (!distance?.measured) {
+      linkedMilesFigure = null;
+      box.hidden = true;
+      return;
+    }
+
+    linkedMilesFigure = Math.min(Math.round(distance.nm), 200000);
+    const count = `${linked.length} linked passage${linked.length === 1 ? "" : "s"}`;
+    const notMeasured = linked.length - distance.measured;
+    document.getElementById("stLinkedMilesText").textContent = [
+      count,
+      notMeasured ? `${notMeasured} with no route, not counted` : "",
+      `${linkedMilesFigure.toLocaleString("en-GB")} NM`
+    ].filter(Boolean).join(" · ");
+    box.hidden = false;
+    syncLinkedMilesButton();
+  }
+
+  function initLinkedPassageMiles() {
+    const miles = document.getElementById("st_miles");
+    document.getElementById("stLinkedMilesUse")?.addEventListener("click", () => {
+      if (!miles || linkedMilesFigure == null) return;
+      miles.value = String(linkedMilesFigure);
+      miles.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    miles?.addEventListener("input", syncLinkedMilesButton);
+    document.addEventListener("seav:data-updated", () => {
+      if (linkedMilesEntryId) renderLinkedPassageMiles(linkedMilesEntryId);
+    });
+  }
+
   function fillSeatimeForm(entry) {
     populateSeattimeVesselOptions();
 
@@ -475,6 +536,7 @@
       entry.ownerGuestDays == null ? "" : String(entry.ownerGuestDays);
     document.getElementById("st_miles").value =
       entry.nauticalMiles == null ? "" : String(entry.nauticalMiles);
+    renderLinkedPassageMiles(entry.id);
     document.getElementById("st_status").value = entry.verificationStatus || "Logged";
     document.getElementById("st_notes").value = entry.notes || "";
 
@@ -507,6 +569,7 @@
     document.getElementById("st_watchkeeping").value = "";
     document.getElementById("st_owner_guest").value = "";
     document.getElementById("st_miles").value = "";
+    renderLinkedPassageMiles("");
 
     renderSeatimeAttachmentHint(null, { isNewSelection: false });
 
@@ -609,6 +672,7 @@
       !document.getElementById("btnExportSeatimeCsv")
     ) return;
     seatimeInited = true;
+    initLinkedPassageMiles();
     fillPositionSelect("");
 
     const runRefresh = async () => {

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v599**. Jack pushes every commit himself from
+- HEAD = **v600**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1656,6 +1656,16 @@ create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
 (`::after`) stays off. Also in this commit: `docs/schema-profile-public-theme.sql`
 (applied live 2026-11-03; column + `get_public_profile` return it). The
 picker and theme CSS are not built yet.
+
+### Shipped 2026-11-05 (v600) — miles from linked passages, as an option
+Jack: linked passages gave no miles on the testimonial; "an option as it might cause
+confusion". Sea Time form, editing an entry with linked passages: "3 linked passages ·
+1,430 NM [Use this figure]" (`renderLinkedPassageMiles`, js/seatime.js). The button only
+fills `st_miles`; nothing is automatic, a later link never changes a saved figure, a new
+entry shows nothing (no id to link to). Passages with no route are named as not counted.
+`SeavNavigationPassage.getEntriesDistance` gives navigation.html's same figure.
+seatime.html now loads ports / helpers / passage (68 KB) and `navigationAreas`. No
+schema change. Tested on a stubbed copy of the real form; not tried signed in.
 
 ### Shipped 2026-11-05 (v599) — the title hierarchy on the public profile
 Jack: "Yes, apply it". Second block of type-hierarchy.css, both layouts. Sections are

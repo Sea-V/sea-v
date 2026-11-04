@@ -88,7 +88,8 @@
     // certs dropped 2026-08-21 with the OOW/Master eligibility trackers — the
     // only thing on this page that needed them was the cert-issue-date gate in
     // computeMasterSeaService, which now runs on achievements.html instead.
-    "seatime.html": ["seatimes", "vessels"],
+    // navigationAreas: the form's "linked passages" miles (v600).
+    "seatime.html": ["seatimes", "vessels", "navigationAreas"],
     "certificates.html": ["certs"],
     "references.html": ["refs"],
     // navigationAreas: Yachtmaster Offshore mileage milestone (computeYacht
