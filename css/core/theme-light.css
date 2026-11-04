@@ -41,7 +41,6 @@ html[data-theme="light"]:has(> body.app-page) {
 }
 
 html[data-theme="light"] body.app-page {
-  --bridge-bg: #f3f5f8;
   --bridge-bar: #ffffff;
   --bridge-surface: #ffffff;
   --bridge-surface-2: #f7f9fb;
@@ -59,11 +58,48 @@ html[data-theme="light"] body.app-page {
   background: var(--bridge-bg) !important;
   color: rgb(var(--seav-ink-rgb));
 
-  /* The ocean photo as a faint blue wash on the pale page. 0.16 -> 0.24
-     in v593 (Jack: "the lighter page wave to be slightly darker"), with
-     its contrast softened so the foam does not read as white patches. */
-  --seav-ocean-opacity: 0.24;
-  --seav-ocean-filter: blur(1px) saturate(0.9) contrast(0.8);
+}
+
+/* v596 (Jack, 2026-11-05): the wave is the same in Dark and Light, and only
+   the boxes change colour. So the page behind the boxes stays navy here too
+   (Light no longer sets --bridge-bg), and whatever sits directly on the wave
+   keeps Dark's white text. The named tokens are redefined because they resolve
+   on <html>, where the ink is navy. Fields keep navy text on their white fill.
+   A NEW heading or note placed directly on the wave must be added to this list. */
+html[data-theme="light"] body.app-page [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) {
+  --bridge-rule: #1f3a56;
+}
+
+/* The Profile page's share panel sits in the title row and the Milestones
+   achievements in their own panel: both are white boxes, so they are left out. */
+html[data-theme="light"] body.app-page :is(
+  [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) > :not(.profile-public-share),
+  [class$="-shell-card"] :not(.ach-trophy-section) > [class*="-section-head"],
+  .dashboard-profile-strip,
+  .dash-kpis-row > .kpi-title,
+  .seatime-kpi-caveat,
+  .seatime-progress-link,
+  .ps-footnote,
+  .navigation-filter-label,
+  .navigation-stat--highlight,
+  .seav-version-badge
+) {
+  --seav-ink-rgb: 255 255 255;
+  --seav-entity-name-color: #ffffff;
+  --seav-field-value-color: #ffffff;
+  --seav-meta-desc-color: rgba(255, 255, 255, 0.78);
+  --seav-meta-muted-color: rgba(255, 255, 255, 0.64);
+  --seav-note-color: rgba(255, 255, 255, 0.66);
+  --seav-field-label-color: var(--accent-blue);
+  --seav-meta-label-color: var(--accent-blue);
+  --seav-accent-text: var(--accent-blue);
+  --bridge-caption: #8fa7bf;
+  --bridge-rule: #1f3a56;
+  color: rgb(var(--seav-ink-rgb));
+}
+
+html[data-theme="light"] body.app-page .navigation-filter-label :is(select, input) {
+  --seav-ink-rgb: var(--light-ink);
 }
 
 /* Cards lift off the grey page with a hairline shadow instead of colour. */

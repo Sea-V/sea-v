@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v595**. Jack pushes every commit himself from
+- HEAD = **v596**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1656,6 +1656,19 @@ create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
 (`::after`) stays off. Also in this commit: `docs/schema-profile-public-theme.sql`
 (applied live 2026-11-03; column + `get_public_profile` return it). The
 picker and theme CSS are not built yet.
+
+### Shipped 2026-11-05 (v596) — same wave in Dark and Light; only boxes change
+Jack: the wave the same in both themes with no filter, titles on it white in
+both, only the boxes change. Works because the page behind the boxes is now navy
+in Light too (Light no longer sets `--bridge-bg`). Ocean is opacity 0.32 in both,
+`filter: none`, and the navy tint gradient over the photo is gone (theme-bridge.css),
+so the wave is visibly stronger in Dark as well. **Reverses the v593 softened Light
+wave.** Text directly on the wave keeps white via the list in theme-light.css: a
+NEW heading or note placed on the wave must be added there. Worst case on the
+brightest photo pixel in the title zone: white 8.8:1, section notes about 4.4:1, blue
+links 3.7-4.2:1. 14 harness pages in Light, 379 text items: nothing under 3:1 caused by this
+(the white-on-blue button, the faint copyright and the dimmed Coming Soon were
+already like that). Not seen signed in.
 
 ### Shipped 2026-11-05 (v595) — optional "Modern" public profile layout
 Jack: "the current one to stay exactly like it is, but have the option to choose

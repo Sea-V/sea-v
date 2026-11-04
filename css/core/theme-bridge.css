@@ -439,7 +439,6 @@
    (theme-light.css sets its own). */
 body.app-page {
   --seav-ocean-opacity: 0.32;
-  --seav-ocean-filter: blur(1px) saturate(1.2);
 }
 
 /* v593 (Jack: "when I scroll down it changes between the dark and white
@@ -451,8 +450,11 @@ body.app-page {
    page colour, so the background reads as one even wash. */
 body.app-page::before {
   opacity: var(--seav-ocean-opacity) !important;
-  filter: var(--seav-ocean-filter) !important;
-  background-position: center top, center top !important;
+  /* The same wave in Dark and Light, no filter and no tint over the photo
+     (Jack, 2026-11-05). Opacity alone sets how strong it is. */
+  filter: none !important;
+  background-image: url("../../img/ocean.jpg?v=339") !important;
+  background-position: center top !important;
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 92%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 92%);
 }
