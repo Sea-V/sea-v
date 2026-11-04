@@ -61,6 +61,8 @@ function mapProfileFromSupabase(p) {
     // Public profile palette (v590). The RPC returns it for visitors; the
     // owner's own row read returns it too.
     publicTheme: p.public_theme || "seav",
+    // Public profile layout (v595), same path as the palette.
+    publicLayout: p.public_layout || "current",
     createdAt: p.created_at || "",
     updatedAt: p.updated_at || ""
   };
@@ -101,7 +103,8 @@ function mapProfileToSupabase(item) {
     // Only when supplied (v590): SeavAPI.save is also called with partial
     // profiles (username, public toggle), and sending the default there
     // would reset a crew member's chosen palette.
-    ...(item.publicTheme ? { public_theme: item.publicTheme } : {})
+    ...(item.publicTheme ? { public_theme: item.publicTheme } : {}),
+    ...(item.publicLayout ? { public_layout: item.publicLayout } : {})
   };
 }
 

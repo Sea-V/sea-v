@@ -1,4 +1,19 @@
 :root {
+  /* v595 public profile "Modern" layout (css/pages/public-profile-modern.css). */
+  --ppm-gap: 12px;
+  --ppm-tile-pad: 18px;
+  --ppm-photo-size: 112px;
+  --ppm-name-size: clamp(22px, 2.4vw, 28px);
+  --ppm-yacht-min: 240px;
+  --ppm-yacht-name-size: 20px;
+  --ppm-on-photo: #ffffff;
+  --ppm-photo-scrim: linear-gradient(to bottom, transparent, rgba(5, 12, 20, 0.88));
+  --ppm-role-min: 130px;
+  --ppm-rail-inset: 76px;
+  --ppm-rail-x: 56px;
+  --ppm-node-size: 11px;
+  --ppm-node-top: 19px;
+
 
   /* =========================================================
      BASE COLORS
@@ -254,6 +269,11 @@
   --seav-topbar-avatar-ring: 0 0 0 2px rgba(255, 255, 255, 0.22);
   /* Search button + panel (v556). */
   --seav-search-width: 600px;
+  /* Search box (v594, Jack: "the row is too narrow and the writing barely
+     fits"). 16px also stops iOS zooming in when the field is tapped. */
+  --seav-search-input-size: 16px;
+  --seav-search-input-height: 32px;
+  --seav-search-field-pad: 14px 20px;
   /* Topbar menus (v565): the near-solid glass a dropdown needs to stay
      readable over content (the see-through card glass was not). */
   --seav-menu-bg: rgba(20, 36, 58, 0.95);

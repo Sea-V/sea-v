@@ -278,7 +278,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px 18px;
+  padding: var(--seav-search-field-pad);
   border-bottom: 1px solid var(--seav-glass-line);
   /* v558: white glass like the topbar Search button (Jack: make the search
      bar "the color rendered") — was the darker smoked panel. */
@@ -295,13 +295,23 @@
 .seav-search-input {
   flex: 1;
   min-width: 0;
+  height: var(--seav-search-input-height);
+  padding: 0;
   border: 0;
   outline: none;
   background: none;
   color: var(--seav-field-value-color);
   font: inherit;
-  font-size: var(--font-value);
+  line-height: var(--seav-search-input-height);
   font-weight: var(--font-weight-body);
+}
+
+/* typography.css pins inputs to --font-body with !important
+   (`:is(body.app-page, ...) :where(..., input, ...):not(.legal-topbar *, ...)`
+   — the :not() lifts it to 0,2,1), so this needs !important too and three
+   classes (0,3,0) to outrank it. */
+.seav-search .seav-search-field .seav-search-input {
+  font-size: var(--seav-search-input-size) !important;
 }
 
 .seav-search-input::placeholder {

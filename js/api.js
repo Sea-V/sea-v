@@ -631,6 +631,8 @@ const OWNER_PROFILE_COLUMNS = [
   "trb_notes",
   // v590: the public profile palette, picked in Profile settings.
   "public_theme",
+  // v595: the public profile layout, same place.
+  "public_layout",
   "created_at",
   "updated_at"
 ].join(",");
@@ -1292,6 +1294,18 @@ const SeavAPI = {
       if (error) throw error;
       window.SeavState?.updateProfile?.({ publicTheme: theme });
       return theme;
+    },
+
+    // v595 public profile layout, saved on its own for the same reason.
+    async savePublicLayout(layout) {
+      if (!["current", "modern"].includes(layout)) throw new Error("Unknown layout.");
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const { error } = await client.from("profile").update({ public_layout: layout }).eq("user_id", userId);
+      if (error) throw error;
+      window.SeavState?.updateProfile?.({ publicLayout: layout });
+      return layout;
     },
 
     async saveExpiryReminders(on) {

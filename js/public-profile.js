@@ -104,6 +104,7 @@
     function shareableProfileUrl() {
       const url = new URL(window.location.href);
       url.searchParams.delete("look");
+      url.searchParams.delete("layout");
       return url.toString();
     }
 
@@ -388,6 +389,9 @@
         if (gate) gate.hidden = true;
         if (content) content.hidden = false;
 
+        // v595: before the sections render, so the map paints in its final place.
+        window.SeavPublicProfileModern?.setup(profile?.publicLayout);
+
         const ownerId = getProfileOwnerUserId(profile);
         if (!ownerId) {
           throw new Error("Public profile owner id missing.");
@@ -472,6 +476,12 @@
         sections.renderLandExperience(landEntries, isOwner);
         sections.renderCertificates(certs, isOwner);
         sections.renderAchievements(achievements, vessels, isOwner, { seatimes, certs, navigationAreas });
+        window.SeavPublicProfileModern?.render({
+          profile,
+          vessels,
+          displayName: profile.name || "Seafarer",
+          tagline: buildCareerTagline(vessels)
+        });
 
         // v577 (Jack, 2026-10-06): visitors never see an empty section, so
         // a brand-new profile would be a name and nothing else. One friendly

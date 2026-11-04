@@ -84,6 +84,7 @@ const SCRIPT_CHAINS = {
     "js/api.js",
     "js/public-profile-utils.js",
     "js/public-profile-sections.js",
+    "js/public-profile-modern.js",
     "js/public-profile.js"
   ]
 };

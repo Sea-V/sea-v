@@ -457,8 +457,12 @@ async function testPublicThemeRpc(config) {
     console.log(`✓ no public profile to probe  ${res.status}  SKIPPED`);
     return res.ok;
   }
-  const ok = "public_theme" in row && PUBLIC_THEMES.includes(row.public_theme);
-  console.log(`${ok ? "✓" : "✗"} public_theme returned  ${row.public_theme ?? "(missing)"}${ok ? "" : "  FAIL — get_public_profile must return public_theme"}`);
+  const themeOk = "public_theme" in row && PUBLIC_THEMES.includes(row.public_theme);
+  console.log(`${themeOk ? "✓" : "✗"} public_theme returned  ${row.public_theme ?? "(missing)"}${themeOk ? "" : "  FAIL — get_public_profile must return public_theme"}`);
+  // profile.public_layout (v595, docs/schema-profile-public-layout.sql), same path.
+  const layoutOk = "public_layout" in row && ["current", "modern"].includes(row.public_layout);
+  console.log(`${layoutOk ? "✓" : "✗"} public_layout returned  ${row.public_layout ?? "(missing)"}${layoutOk ? "" : "  FAIL — get_public_profile must return public_layout"}`);
+  const ok = themeOk && layoutOk;
   const leaked = ["dob", "email", "phone", "discharge_book_number"].filter((k) => k in row);
   if (leaked.length) console.log(`✗ private fields returned  ${leaked.join(", ")}  FAIL`);
   return ok && !leaked.length;

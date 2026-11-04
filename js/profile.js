@@ -808,6 +808,7 @@
     initTwoStep();
     initExpiryReminders();
     initPublicTheme();
+    initPublicLayout();
 
     // v579: GDPR right of access / portability — see SeavAuth.exportMyData.
     const exportBtn = document.getElementById("btnExportData");
@@ -886,6 +887,35 @@
       } catch (err) {
         sync();
         console.error("[SEA-V] Could not save public profile colours:", err);
+        Seav.notify("error", "Could not save", err?.message || "Try again.");
+      }
+    });
+  }
+
+  // v595 public profile layout. Same shape as initPublicTheme above.
+  function initPublicLayout() {
+    const picker = document.getElementById("ppLayoutPicker");
+    if (!picker) return;
+    const radios = [...picker.querySelectorAll('input[name="pp_layout"]')];
+    const sync = () => {
+      const current = window.SeavState?.profile?.publicLayout || "current";
+      radios.forEach((r) => {
+        r.checked = r.value === current;
+      });
+    };
+    window.SeavAuth?.whenReady?.().then(sync);
+    document.addEventListener("seav:data-updated", sync);
+    document.addEventListener("seav:state-ready", sync);
+    picker.addEventListener("change", async (e) => {
+      const radio = e.target.closest('input[name="pp_layout"]');
+      if (!radio) return;
+      const label = radio.closest("label")?.textContent.trim() || radio.value;
+      try {
+        await window.SeavAPI.savePublicLayout(radio.value);
+        Seav.notify("success", "Public profile layout saved", label);
+      } catch (err) {
+        sync();
+        console.error("[SEA-V] Could not save public profile layout:", err);
         Seav.notify("error", "Could not save", err?.message || "Try again.");
       }
     });

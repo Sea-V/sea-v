@@ -731,6 +731,9 @@
    instead of only the value text, with a subtle hover state matching the
    rest of the app's card-hover language. */
 .modal-info-box--link {
+  /* It is an <a>: without this the box text took the browser's default
+     link blue (rgb(0, 0, 238)) — found by the v594 modal audit. */
+  color: inherit;
   text-decoration: none;
   cursor: pointer;
 

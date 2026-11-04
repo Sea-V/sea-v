@@ -1,0 +1,310 @@
+/* =========================================================
+   PUBLIC PROFILE — "MODERN" LAYOUT (v595)
+   Jack, 2026-11-05: Current stays exactly as it is and stays the default;
+   crew can choose this instead. Bento tiles on top, career timeline below.
+   js/public-profile-modern.js re-arranges the existing sections, so this file
+   only places and frames them. EVERY rule is gated on
+   <html data-pp-layout="modern"> and colours come from the palette tokens
+   (--ppt-*, public-profile-themes.css), so all five palettes work.
+   Text is <strong>/<small>/<dt>/<dd>: typography.css pins span/p/button/h1 at
+   (0,2,1) !important, hence the !important on the few sizes that differ.
+========================================================= */
+
+/* ---------- What the bento replaces ---------- */
+html[data-pp-layout="modern"] body.public-profile-page :is(.pp-hero-copy, #pp-section-overview) {
+  display: none !important;
+}
+
+/* Left with nothing to show once the card and the numbers have moved out, it
+   would only add a second gap under the bento. */
+html[data-pp-layout="modern"] body.public-profile-page .dash-top:not(:has(> #ppQualitiesSection:not([hidden]), > #ppEmptyProfile:not([hidden]))) {
+  display: none;
+}
+
+/* ---------- The grid ---------- */
+html[data-pp-layout="modern"] .ppm-bento {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ppm-gap);
+  margin-bottom: var(--ppm-gap);
+}
+
+html[data-pp-layout="modern"] .ppm-bento--no-yacht .ppm-me,
+html[data-pp-layout="modern"] .ppm-bento > #ppKpiCard,
+html[data-pp-layout="modern"] .ppm-pair {
+  grid-column: 1 / -1;
+}
+
+html[data-pp-layout="modern"] .ppm-tile {
+  min-width: 0;
+  border: 1px solid var(--ppt-rule);
+  border-radius: var(--bridge-radius);
+  background: var(--ppt-s1);
+}
+
+html[data-pp-layout="modern"] .ppm-tile[hidden],
+html[data-pp-layout="modern"] .ppm-pair > [hidden] {
+  display: none !important;
+}
+
+/* ---------- Who: photo, name, facts, bio ---------- */
+html[data-pp-layout="modern"] .ppm-me {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: var(--ppm-tile-pad);
+}
+
+html[data-pp-layout="modern"] .ppm-me-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+html[data-pp-layout="modern"] .ppm-me-photo {
+  flex: 0 0 auto;
+  width: var(--ppm-photo-size);
+  height: var(--ppm-photo-size);
+  border-radius: var(--bridge-radius);
+  object-fit: cover;
+}
+
+html[data-pp-layout="modern"] .ppm-me-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+html[data-pp-layout="modern"] .ppm-me-rank {
+  color: var(--ppt-accent);
+}
+
+html[data-pp-layout="modern"] body.public-profile-page .ppm-me-name {
+  margin: 0;
+  color: var(--seav-entity-name-color);
+  font-size: var(--ppm-name-size) !important;
+  font-weight: var(--font-weight-title);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+html[data-pp-layout="modern"] .ppm-me-tagline {
+  color: var(--seav-meta-desc-color);
+}
+
+html[data-pp-layout="modern"] .ppm-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px 16px;
+  margin: 0;
+}
+
+html[data-pp-layout="modern"] .ppm-fact {
+  min-width: 0;
+}
+
+html[data-pp-layout="modern"] .ppm-fact dt {
+  color: var(--seav-field-label-color);
+  font-size: var(--font-label);
+}
+
+html[data-pp-layout="modern"] .ppm-fact dd {
+  margin: 0;
+  color: var(--seav-field-value-color);
+  overflow-wrap: anywhere;
+}
+
+html[data-pp-layout="modern"] body.public-profile-page .ppm-me-bio {
+  margin: 0;
+  color: var(--seav-meta-desc-color);
+  white-space: pre-line;
+}
+
+/* ---------- The yacht ---------- */
+html[data-pp-layout="modern"] .ppm-yacht {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: var(--ppm-yacht-min);
+  overflow: hidden;
+}
+
+html[data-pp-layout="modern"] .ppm-yacht-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+html[data-pp-layout="modern"] .ppm-yacht-caption {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--ppm-tile-pad);
+}
+
+html[data-pp-layout="modern"] .ppm-yacht--photo .ppm-yacht-caption {
+  padding-top: 56px;
+  background: var(--ppm-photo-scrim);
+}
+
+html[data-pp-layout="modern"] .ppm-yacht-label {
+  color: var(--ppt-accent);
+}
+
+html[data-pp-layout="modern"] .ppm-yacht-name {
+  color: var(--seav-entity-name-color);
+  font-size: var(--ppm-yacht-name-size);
+  font-weight: var(--font-weight-title);
+  line-height: 1.15;
+}
+
+html[data-pp-layout="modern"] .ppm-yacht-meta {
+  color: var(--seav-meta-desc-color);
+}
+
+/* Over a photo the text stays white whatever the palette. */
+html[data-pp-layout="modern"] .ppm-yacht--photo :is(.ppm-yacht-label, .ppm-yacht-name, .ppm-yacht-meta) {
+  color: var(--ppm-on-photo);
+}
+
+/* ---------- The numbers: tiles straight on the grid, no card round them ---------- */
+html[data-pp-layout="modern"] body.public-profile-page #ppShell #ppKpiCard {
+  padding: 0;
+  border: 0;
+  background: transparent !important;
+}
+
+html[data-pp-layout="modern"] body.public-profile-page #ppKpiCard > .kpi-title {
+  display: none;
+}
+
+/* ---------- Passages + certificates, side by side ---------- */
+html[data-pp-layout="modern"] .ppm-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ppm-gap);
+}
+
+html[data-pp-layout="modern"] .ppm-pair:has(> [hidden]) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+html[data-pp-layout="modern"] body.public-profile-page .ppm-pair .dashboard-navigation-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* The totals are already in the number tiles; the vessel key stays. */
+html[data-pp-layout="modern"] body.public-profile-page .ppm-pair .dashboard-navigation-stat {
+  display: none;
+}
+
+/* ---------- Career: role progression ---------- */
+html[data-pp-layout="modern"] .ppm-roles {
+  display: flex;
+  gap: 1px;
+  margin: 0 0 var(--ppm-gap);
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+  border: 1px solid var(--ppt-rule);
+  border-radius: var(--bridge-radius);
+  background: var(--ppt-rule);
+}
+
+html[data-pp-layout="modern"] .ppm-role {
+  display: flex;
+  flex: 1 0 var(--ppm-role-min);
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  background: var(--ppt-s2);
+}
+
+html[data-pp-layout="modern"] .ppm-role-name {
+  color: var(--seav-field-value-color);
+}
+
+html[data-pp-layout="modern"] .ppm-role-year {
+  color: var(--seav-field-label-color);
+}
+
+/* ---------- Career: the timeline. Single-sided, not alternating: an open
+   vessel holds its overview and linked groups, and needs the full width. ---------- */
+html[data-pp-layout="modern"] body.public-profile-page #ppVesselSnippet .pp-vessel-full-list:not(.pp-vessel-unattached) {
+  position: relative;
+  padding-left: var(--ppm-rail-inset);
+}
+
+html[data-pp-layout="modern"] body.public-profile-page #ppVesselSnippet .pp-vessel-full-list:not(.pp-vessel-unattached)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--ppm-rail-x);
+  width: 1px;
+  background: var(--ppt-rule);
+}
+
+html[data-pp-layout="modern"] body.public-profile-page #ppVesselSnippet .pp-vessel-collapsible {
+  position: relative;
+  overflow: visible;
+}
+
+/* The start year, in the gutter left of the rail. */
+html[data-pp-layout="modern"] body.public-profile-page #ppVesselSnippet .pp-vessel-collapsible[data-ppm-year]::before {
+  content: attr(data-ppm-year);
+  position: absolute;
+  top: var(--ppm-node-top);
+  left: calc(var(--ppm-rail-inset) * -1);
+  width: var(--ppm-rail-x);
+  color: var(--ppt-accent);
+  font-weight: var(--font-weight-title);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The node on the rail. */
+html[data-pp-layout="modern"] body.public-profile-page #ppVesselSnippet .pp-vessel-collapsible::after {
+  content: "";
+  position: absolute;
+  top: var(--ppm-node-top);
+  left: calc(var(--ppm-rail-x) - var(--ppm-rail-inset) - var(--ppm-node-size) / 2);
+  box-sizing: border-box;
+  width: var(--ppm-node-size);
+  height: var(--ppm-node-size);
+  border: 2px solid var(--ppt-accent);
+  border-radius: 50%;
+  background: var(--ppt-s1);
+}
+
+html[data-pp-layout="modern"] body.public-profile-page #ppVesselSnippet .pp-vessel-collapsible[data-is-current="1"]::after {
+  background: var(--ppt-accent);
+}
+
+/* ---------- Narrow ---------- */
+@media (max-width: 900px) {
+  html[data-pp-layout="modern"] .ppm-bento,
+  html[data-pp-layout="modern"] .ppm-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* On a phone the width goes to the card: the rail and node stay, and the year
+   is already in each vessel's summary line. */
+@media (max-width: 560px) {
+  html[data-pp-layout="modern"] {
+    --ppm-rail-inset: 18px;
+    --ppm-rail-x: 5px;
+    --ppm-photo-size: 84px;
+  }
+
+  html[data-pp-layout="modern"] body.public-profile-page #ppVesselSnippet .pp-vessel-collapsible[data-ppm-year]::before {
+    content: none;
+  }
+}

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v593**. Jack pushes every commit himself from
+- HEAD = **v595**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1656,6 +1656,66 @@ create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
 (`::after`) stays off. Also in this commit: `docs/schema-profile-public-theme.sql`
 (applied live 2026-11-03; column + `get_public_profile` return it). The
 picker and theme CSS are not built yet.
+
+### Shipped 2026-11-05 (v595) — optional "Modern" public profile layout
+Jack: "the current one to stay exactly like it is, but have the option to choose
+something more modern ... default is the current layout". A movable, modular page
+was raised and deferred by him as a bigger project. He picked **Bento + Timeline**
+from the four previews.
+- New column `profile.public_layout` (`current` default | `modern`), read only
+  through `get_public_profile()` like `public_theme`, no direct anon grant.
+  `docs/schema-profile-public-layout.sql`, applied and smoke-tested: all 15 rows
+  on `current`, every old column unchanged (hash match), owner write works as the
+  real `authenticated` role, another user's row 0 rows, bad value refused, RPC ACL
+  restored, security advisors 23/23. `testPublicThemeRpc` now covers it.
+- Picker under the colours in Profile settings (`initPublicLayout`,
+  `SeavAPI.savePublicLayout`). `?layout=modern` / `?layout=current` previews on any
+  profile without saving; Share strips it.
+- `js/public-profile-modern.js` MOVES the existing sections, it does not render
+  copies, so records cannot differ between layouts. It moves them BEFORE they
+  render, because Leaflet measures its container when it paints. New tile data
+  (`#ppmMe`, `#ppmYacht`, role strip) uses textContent only.
+- `css/pages/public-profile-modern.css`: every rule gated on
+  `html[data-pp-layout="modern"]`, colours from `--ppt-*`. Timeline is
+  single-sided, NOT alternating as in the preview: an open vessel needs the width.
+- Verified: Current has no attribute, no moved nodes, and 0 elements change with
+  the new sheet off (1,682 compared; the only diff is the ocean's own drift). Modern
+  on live anon data at 1280 and 500 wide (two profiles, 390 no sideways scroll),
+  all five palettes 6:1 or better on tile text. **Not seen signed in:** the picker
+  has not been clicked; the write path was tested in SQL only.
+
+### v594 — every modal matches; roomier Search box (2026-11-03)
+Jack: "make sure the modals all match", then "the search tab where you
+write is too small, the row is too narrow and the writing barely fits".
+- **Modal audit** (harnesses of the 11 pages with modals + the 3 shared
+  ones, every modal opened, computed styles compared, both themes; 17
+  distinct modals). Already identical: card, header band, title, labels,
+  fields, Save bar, Save / Cancel, close button. Fixed (theme-bridge.css,
+  Quiet navy block): header icon was in 10 page colours -> caption grey;
+  the header's 3px page-colour top stripe (`inset 0 3px 0
+  var(--modal-accent)` in modals.css) removed; three note styles
+  (.modal-intro 0.62, note / footnote 0.64 at 500, date hint 600) -> the
+  muted token at the body weight. modals.css: the contact modal's
+  `.modal-info-box--link` is an <a> and showed browser link blue
+  (rgb(0,0,238)) -> `color: inherit`. Re-measured: one value per
+  property in both themes. Deliberate differences left: the wide (660px)
+  long-form modals, the compact date-triplet selects. The
+  `modal-card--<colour>` classes are now inert under the theme (their
+  `--modal-accent` only fed the icon and stripe).
+- **Search**: the input was 19px tall in a 53px row at 14px. Now
+  `--seav-search-input-height` 32px, `--seav-search-input-size` 16px
+  (also stops iOS zooming on focus), `--seav-search-field-pad` 14px 20px.
+  Gotcha: typography.css pins input font-size with !important at 0,2,1
+  (its `:not(.legal-topbar *, ...)` adds a class), so the override is
+  `.seav-search .seav-search-field .seav-search-input` + !important.
+  Checked at 1280 and 375px.
+- **Notification panel** (Jack: "dark when opened in the light page"):
+  `.notif-bell-panel` (layout.css) was `var(--navy-900)`, which no theme
+  flips. Now `--seav-menu-bg` + `--seav-menu-shadow` like the menu,
+  account and Search panels: white in Light, the menu navy in Dark (was a
+  lighter #1d3350). The only other `--navy-*` background is the reset.css
+  body, which both themes override. Checked open with sample warning /
+  expired items in both themes.
 
 ### v593 — background no longer bands dark / light while scrolling (2026-11-03)
 Jack: "when I scroll down it changes between the dark and white but only
