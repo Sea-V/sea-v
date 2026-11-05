@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v604**. Jack pushes every commit himself from
+- HEAD = **v605**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1661,9 +1661,9 @@ picker and theme CSS are not built yet.
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
 
-### Shipped 2026-11-05 (v604, same commit) — raw ocean photo, kept
-Jack: "remove whatever glass or filter over the ocean", then, having seen it, "Keep it raw". Do not dim it again without asking.
-Signed-in pages only: opacity 1, no fade, no tint, no filter. Values to restore are in a comment in
+### Shipped 2026-11-05 (v604 raw, v605 dimmed) — ocean photo at 0.7, no tint or filter
+Jack: "remove whatever glass or filter over the ocean", then "Keep it raw", then "dim it a bit". `--seav-ocean-opacity` 0.7 in both themes; change the strength only when asked.
+Signed-in pages only: no fade, no tint, no filter. Values to restore are in a comment in
 theme-bridge.css. This brings back v593's banding risk (the photo's near-black lower third).
 
 ### Shipped 2026-11-05 (v604, same commit) — pop-ups readable in every colour scheme

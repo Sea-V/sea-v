@@ -420,7 +420,7 @@
    not needed at this strength. Strength per theme: --seav-ocean-opacity
    (theme-light.css sets its own). */
 body.app-page {
-  --seav-ocean-opacity: 1;
+  --seav-ocean-opacity: 0.7;
 }
 
 /* v593 (Jack: "when I scroll down it changes between the dark and white
@@ -438,7 +438,7 @@ body.app-page::before {
   background-image: url("../../img/ocean.jpg?v=339") !important;
   background-position: center top !important;
   /* The raw photo (Jack, 2026-11-05: "remove whatever glass or filter ... keep it
-     raw", then "Keep it raw"). This drops v591's faint 0.32 and v593's fade. If the
+     raw", then "dim it a bit": opacity 0.7, set above). No tint or filter. This drops v591's faint 0.32 and v593's fade. If the
      banding on scroll is too much, those two lines are what fixed it:
      opacity 0.32 above, and a mask-image gradient #000 40% -> transparent 92% here. */
 }
