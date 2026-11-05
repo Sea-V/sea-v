@@ -23,7 +23,7 @@ is kept. The ICO can ask to see it.
 | **Purpose** | Run the account; store and present the member's career records (vessels, sea time, certificates, passages, tenders, onboard experience, specialist qualifications, interests, land-based roles, payslips, references); calculate sea time and milestone progress; build their CV |
 | **Lawful basis** | Contract (art. 6(1)(b)) — providing the service the member signed up for |
 | **People** | Registered members (yacht crew, 16 and over) |
-| **Data** | Name, email, last dashboard visit, phone, photo, date of birth, nationality, passports and visas held (countries only), location, rank, availability, career records and the files uploaded with them, employment agreements, salary and leave package, payslips |
+| **Data** | Name, email, last dashboard visit, Crew 101 checklist progress, phone, photo, date of birth, nationality, passports and visas held (countries only), location, rank, availability, career records and the files uploaded with them, employment agreements, salary and leave package, payslips |
 | **Special category** | Medical fitness certificates (ENG1 / ML5) — health data. Basis: explicit consent (art. 9(2)(a)), ticked at upload and timestamped (`healthConsentAt`). Public profile shows only that one is held |
 | **Recipients** | Processors only (section 7) |
 | **Retention** | While the account is active. Deleted at once and in full by Profile settings → Delete my account. Inactive accounts: warning email after 3 years without a sign-in, deleted 30 days later (_policy stated; automation still to build — nothing can fall due before May 2029_) |

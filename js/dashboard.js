@@ -94,7 +94,7 @@
       S.renderTicketCard,
       S.renderRecordsCard,
       S.renderNoticesCard,
-      S.renderRegulationsCard,
+      S.renderCrew101Card,
       () => window.SeavLastVisit?.render()
     ];
 

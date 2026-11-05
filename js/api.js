@@ -1343,6 +1343,25 @@ const SeavAPI = {
       if (error) throw error;
     },
 
+    // Crew 101 checklist progress (docs/schema-profile-crew101.sql). Private, and
+    // left out of the profile form's save.
+    async fetchCrew101() {
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const { data, error } = await client.from("profile").select("crew101").eq("user_id", userId).maybeSingle();
+      if (error) throw error;
+      return data?.crew101 || null;
+    },
+
+    async saveCrew101(value) {
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const { error } = await client.from("profile").update({ crew101: value }).eq("user_id", userId);
+      if (error) throw error;
+    },
+
     // v609 shared yacht directory (docs/schema-vessel-directory.sql).
     async searchVesselDirectory(query) {
       const client = window.SeavSupabase;

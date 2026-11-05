@@ -1,0 +1,85 @@
+/* =========================================================
+   CREW 101 (v618). The dashboard's ruled cards and tables on a
+   page of their own: .dash-panel and .dash-table come from
+   dashboard.css. Two columns, one on phones.
+========================================================= */
+.crew101-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: var(--crew101-gap);
+}
+
+html body.app-page a.crew101-jump-link {
+  padding: 5px 10px;
+  border: 1px solid var(--bridge-rule);
+  border-radius: var(--bridge-radius, 3px);
+  background: var(--bridge-surface);
+  color: var(--seav-accent-text);
+  font-size: var(--type-caption) !important;
+  font-weight: var(--type-title-weight);
+  text-decoration: none;
+}
+
+a.crew101-jump-link:is(:hover, :focus-visible) {
+  background: var(--bridge-accent-soft);
+}
+
+.crew101-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--dash-layout-gap);
+  align-items: start;
+  padding: var(--crew101-gap) 0 24px;
+}
+
+.crew101-col {
+  display: grid;
+  gap: var(--dash-layout-gap);
+  min-width: 0;
+}
+
+.crew101-cards .dash-panel {
+  scroll-margin-top: var(--dash-anchor-offset);
+}
+
+.crew101-cards .dash-panel:target {
+  outline: 1px solid var(--bridge-accent);
+}
+
+.crew101-tick {
+  width: 22px;
+  padding-right: 0 !important;
+}
+
+.crew101-tick input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+}
+
+.crew101-cards label {
+  display: block;
+  color: rgb(var(--seav-ink-rgb));
+  cursor: pointer;
+}
+
+html body.app-page .crew101-more a {
+  color: var(--seav-accent-text);
+}
+
+.crew101-cards .dash-ticket {
+  border-bottom: 1px solid var(--bridge-rule);
+}
+
+/* The links are the accent colour here: the words beside them are what people read. */
+html body.app-page .crew101-cards .dash-table td.is-num > a {
+  color: var(--seav-accent-text);
+  font-weight: var(--font-weight-title);
+}
+
+@media (max-width: 860px) {
+  .crew101-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

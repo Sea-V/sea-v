@@ -342,6 +342,8 @@
   --dash-panel-bar-height: 6px;
   --dash-panel-icon-size: 20px;
   --dash-row-edge: 3px;
+  --crew101-gap: 16px;
+  --page-crew101: #5bbcff;
   --dash-since-gap: 16px;
   --dash-anchor-offset: 96px;
   --dash-panel-warn: var(--progress-amber);

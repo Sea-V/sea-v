@@ -29,6 +29,7 @@
     "specialist-qualifications.html",
     "payslips.html",
     "land-experience.html",
+    "crew-101.html",
     "admin.html"
   ]);
 

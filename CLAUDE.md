@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v617**. Jack pushes every commit himself from
+- HEAD = **v618**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,13 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-06 (v618) — Crew 101, a guide for new crew
+Jack: a basic 101 for yachties on the dashboard (knots, seamanship, etiquette, what to bring). Mockup `design-concepts/crew-101/`. "lets build it all and we can fine tune later, i dont want the colregs as its not professional". **Wording is a first draft for him to fine-tune.** Do not re-add a plain-English COLREGs summary. The official MSN 1781 link stays under Regulations: ask if he wants that gone too.
+- `crew-101.html`, `js/crew-101.js`, `css/pages/crew-101.css`, content and checklist rules in `js/seav-crew-101.js`. Menu group "Guides". Cards reuse `.dash-panel` / `.dash-table`.
+- Dashboard `#dashCrew101Card` replaces the Regulations card; regulations moved to the guide (`regulationRows`, still follows the current flag). Under 365 logged days with the checklist unfinished and not hidden: progress and next 3 steps. Otherwise the topic list. Some steps tick themselves from records (`auto`) and cannot be unticked. A private guide: never show any of this on the public profile (v572's "new to yachting" rejection).
+- DB, LIVE: `profile.crew101` jsonb (`docs/schema-profile-crew101.sql`), private, applied and smoke-tested, advisors checked, test-supabase probes it. Privacy policy and record updated.
+Tested on page copies with stubbed saves: ticks, hide, row press, Dark, Light. Not signed in. ENG1 link is the UK doctors list only.
 
 ### Shipped 2026-11-06 (v617) — fixes v616 clicks; Since your last visit
 **Bug in v616, live until this ships:** every click on the dashboard, including empty space, went to the Cayman registry. The rows stretched each link with an absolutely positioned `::after` inside a `position: relative` `tr`. Chrome honoured that, Jack's browser did not, so the ::after covered the page and the last one painted won. **Never position against a `<tr>`.** Rows are now pressed by `initRowPress` in js/dashboard.js. Jack's browser was not available here, so confirm on the live site.

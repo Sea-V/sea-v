@@ -659,6 +659,7 @@ body.app-page::after {
 .dash-link[href="onboard-experience.html"] { color: var(--page-onboard-experience); }
 .dash-link[href="hobbies-interests.html"] { color: var(--page-hobbies-interests); }
 .dash-link[href="land-experience.html"] { color: var(--page-land-experience); }
+.dash-link[href="crew-101.html"] { color: var(--page-crew101); }
 
 .dash-link span:last-child {
   color: rgb(var(--seav-ink-rgb) / 0.78);

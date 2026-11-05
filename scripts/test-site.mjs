@@ -39,6 +39,7 @@ const PAGES = [
   "hobbies-interests.html",
   "specialist-qualifications.html",
   "land-experience.html",
+  "crew-101.html",
   "payslips.html",
   "admin.html"
 ];

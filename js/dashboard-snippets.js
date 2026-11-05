@@ -87,7 +87,8 @@
     "Needs attention": line("M12 4.5 20.5 19h-17L12 4.5ZM12 10v4.2M12 16.6v.1"),
     "Your records": line("M5 6.5h14M5 12h14M5 17.5h14"),
     "Latest from the MCA": line("M6.5 16.5v-5a5.5 5.5 0 0 1 11 0v5l1.5 1.5H5l1.5-1.5ZM10.5 20.5h3"),
-    "Regulations and guidance": line("M6 5.5h11a1.5 1.5 0 0 1 1.5 1.5v12H7.5A1.5 1.5 0 0 1 6 17.5v-12ZM6 17.5A1.5 1.5 0 0 1 7.5 16h11"),
+    "Crew 101": window.SeavCrew101?.ICONS.book || "",
+    "Your first yacht": window.SeavCrew101?.ICONS.book || "",
     "Your next ticket": window.SeavIcons?.achievements || "",
     "Certificates": window.SeavIcons?.certificates || "",
     "Sea time": window.SeavIcons?.seatime || "",
@@ -587,46 +588,62 @@
   }
 
   // ---------------------------------------------------------------
-  // Regulations and guidance — all links checked 2026-11-05
+  // Crew 101 — a checklist for new crew, the guide's topics for everyone else
   // ---------------------------------------------------------------
 
-  const REGULATIONS = [
-    ["ILO", "https://www.ilo.org/international-labour-standards/maritime-labour-convention-2006", "MLC 2006: your rights at work"],
-    ["MCA", "https://www.gov.uk/government/publications/msn-1781-mf-amendment-3-the-merchant-shipping-regulations-1996-colreg", "COLREGs: MSN 1781"],
-    ["MCA", "https://www.gov.uk/government/publications/msn-1858-mf-amendment-2-uk-requirements-for-deck-officers-on-large-yachts-24m-and-over", "MSN 1858: deck officers on large yachts"],
-    ["MCA", "https://www.gov.uk/government/publications/code-of-safe-working-practices-for-merchant-seafarers-2026-edition", "Code of Safe Working Practices, 2026"],
-    ["MCA", "https://www.gov.uk/government/collections/active-marine-guidance-notes-mgns", "Marine Guidance Notes (MGNs)"],
-    ["MCA", "https://www.gov.uk/government/collections/merchant-shipping-notices-msns", "Merchant Shipping Notices (MSNs)"],
-    ["MCA", "https://www.gov.uk/government/collections/marine-information-notes-mins", "Marine Information Notes (MINs)"],
-    ["Red Ensign Group", "https://www.gov.uk/government/publications/red-ensign-group-yacht-code", "REG Yacht Code"]
-  ];
+  const CREW101_NEXT = 3;
 
-  // Lower-case flag as crew type it. A flag not listed simply adds no row.
-  const FLAG_REGISTRIES = {
-    "cayman islands": ["https://www.cishipping.com/", "Cayman Islands Shipping Registry"],
-    "isle of man": ["https://www.iomshipregistry.com/", "Isle of Man Ship Registry"],
-    "marshall islands": ["https://www.register-iri.com/", "Marshall Islands Registry"],
-    bermuda: ["https://www.bermudashipping.bm/", "Bermuda Shipping and Maritime"],
-    "united kingdom": ["https://www.gov.uk/government/organisations/maritime-and-coastguard-agency", "UK Maritime and Coastguard Agency"]
-  };
+  async function renderCrew101Card() {
+    const C = window.SeavCrew101;
+    const card = document.getElementById("dashCrew101Card");
+    if (!C || !card) return;
+    const progress = await C.load();
 
-  function renderRegulationsCard() {
-    const vessels = window.SeavState?.vessels || [];
-    const flag = vessels.length ? window.SeavData.getCurrentVessel(vessels)?.flag : "";
-    const registry = FLAG_REGISTRIES[String(flag || "").trim().toLowerCase()];
-    const rows = registry ? [...REGULATIONS, ["Your flag", registry[0], registry[1]]] : REGULATIONS;
+    if (C.showChecklist(progress)) {
+      const { total, doneCount, left } = C.summary(progress);
+      const rows = left.slice(0, CREW101_NEXT).map((step) => ({ cells: [cellLink(step.href, step.title)] }));
+      fill(
+        "dashCrew101Card",
+        "crew101",
+        ["list", doneCount, total, rows],
+        `<div class="dash-panel-head">${cardTitle("Your first yacht")}
+          <span class="dash-panel-actions">
+            <button type="button" class="dash-panel-more" data-crew101-hide><small>Hide</small></button>
+            <a class="dash-panel-more" href="crew-101.html#first">Open the checklist</a>
+          </span>
+        </div>
+        <a class="dash-ticket" href="crew-101.html#first">
+          <span class="dash-ticket-line"><strong class="dash-panel-name">Getting ready</strong><b>${doneCount} of ${total}</b></span>
+          <span class="dash-ticket-bar" role="progressbar" aria-valuenow="${doneCount}" aria-valuemin="0" aria-valuemax="${total}"><i style="width:${Math.round((doneCount / total) * 100)}%"></i></span>
+        </a>
+        ${table([{ label: "Next up" }], rows)}`
+      );
+      return;
+    }
 
     fill(
-      "dashRegulationsCard",
-      "regulations",
-      rows,
-      `${cardHead("Regulations and guidance")}
+      "dashCrew101Card",
+      "crew101",
+      ["topics"],
+      `${cardHead("Crew 101", "crew-101.html", "Open the guide")}
       ${table(
-        [{ label: "Source" }, { label: "Document" }],
-        rows.map(([source, url, name]) => ({ cells: [esc(source), cellLink(url, name, true)] }))
+        [{ label: "Topic" }, { label: "Covers", num: true }],
+        C.TOPICS.map((topic) => ({ cells: [cellLink(`crew-101.html#${topic.id}`, topic.title), esc(topic.covers)] }))
       )}`
     );
   }
+
+  document.addEventListener("click", async (event) => {
+    if (!event.target.closest?.("[data-crew101-hide]")) return;
+    const C = window.SeavCrew101;
+    try {
+      await C.save({ ...(await C.load()), hidden: true });
+    } catch (err) {
+      console.error("[SEA-V] Crew 101 save failed:", err);
+      window.SeavFeedback?.error?.("That didn't save", "Check your connection and try again.");
+    }
+    renderCrew101Card();
+  });
 
   window.SeavDashboardSnippets = {
     renderVesselCard,
@@ -634,7 +651,7 @@
     renderTicketCard,
     renderRecordsCard,
     renderNoticesCard,
-    renderRegulationsCard,
+    renderCrew101Card,
     loadNotices,
     readSeenNotices
   };

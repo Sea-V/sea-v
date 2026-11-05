@@ -159,6 +159,7 @@
       <ul class="guide-list">
         <li><strong>Add your certificates and yachts</strong><small>The + Add button at the top opens each form.</small></li>
         <li><strong>Log your sea time</strong><small>It is what your next certificate is built on. + Add opens this too.</small></li>
+        <li><strong>Read Crew 101</strong><small>What to bring, knots, etiquette and the first-week checklist. It is in the menu.</small></li>
         <li><strong>Build your CV</strong><small>It fills itself in from what you add. Find it under your photo, top right.</small></li>
       </ul>
       <p class="guide-text">Your public profile stays off until you switch it on.</p>

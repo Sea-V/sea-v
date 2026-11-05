@@ -621,13 +621,17 @@ async function testCvDraftsPrivate(config) {
 
 // Private: the dashboard's "Since your last visit" (docs/schema-profile-last-visit.sql).
 async function testLastVisitPrivate(config) {
-  const probe = await restGet(config, "profile", "select=last_visit_at&limit=1");
-  if (probe.status === 401 || probe.status === 403) {
-    console.log(`✓ profile.last_visit_at hidden from anon  ${probe.status}  OK`);
-    return true;
+  let ok = true;
+  for (const column of ["last_visit_at", "crew101"]) {
+    const probe = await restGet(config, "profile", `select=${column}&limit=1`);
+    if (probe.status === 401 || probe.status === 403) {
+      console.log(`✓ profile.${column} hidden from anon  ${probe.status}  OK`);
+    } else {
+      console.log(`✗ profile.${column} readable by anon  ${probe.status}  FAIL`);
+      ok = false;
+    }
   }
-  console.log(`✗ profile.last_visit_at readable by anon  ${probe.status}  FAIL`);
-  return false;
+  return ok;
 }
 
 // Row gate on public awards (docs/schema-public-read-onboard-and-self-declared.sql,

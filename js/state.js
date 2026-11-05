@@ -106,7 +106,8 @@
     "hobbies-interests.html": ["hobbiesInterests", "specialistQualifications", "landExperiences"],
     "specialist-qualifications.html": ["specialistQualifications", "hobbiesInterests", "landExperiences"],
     "land-experience.html": ["landExperiences", "hobbiesInterests", "specialistQualifications"],
-    "payslips.html": ["payslips"]
+    "payslips.html": ["payslips"],
+    "crew-101.html": ["certs", "vessels", "seatimes"]
   };
 
   const PAGE_FILE_HYDRATION_KEYS = {
@@ -124,7 +125,8 @@
     "hobbies-interests.html": ["hobbiesInterests"],
     "specialist-qualifications.html": ["specialistQualifications"],
     "land-experience.html": ["landExperiences"],
-    "payslips.html": ["payslips"]
+    "payslips.html": ["payslips"],
+    "crew-101.html": []
   };
 
   // "/" is the LOGIN page, not the dashboard. This returned "dashboard.html"
