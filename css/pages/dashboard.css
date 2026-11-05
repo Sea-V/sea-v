@@ -1330,8 +1330,95 @@ html body.app-page .dash-live-switch small {
   display: none;
 }
 
+/* Two columns when open (Jack, 2026-11-06): how it looks | where it lives. */
 .dash-public > .profile-public-share-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+}
+
+.dash-public-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dash-public-gap);
+  min-width: 0;
   padding: var(--dash-panel-pad);
+}
+
+.dash-public-col + .dash-public-col {
+  border-left: 1px solid var(--bridge-rule);
+}
+
+.dash-public .profile-theme-options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dash-public .profile-theme-option {
+  min-height: var(--dash-public-control);
+  background: var(--seav-select-bg);
+}
+
+.dash-public .profile-theme-picker > legend,
+.dash-public .profile-public-share-username > label,
+.dash-public .dash-public-label {
+  margin: 0 0 8px;
+  padding: 0;
+  color: var(--seav-field-label-color);
+  font-size: var(--font-value) !important;
+  font-weight: var(--type-title-weight) !important;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.dash-public .profile-public-share-username > label {
+  margin-bottom: 2px;
+}
+
+html body.app-page .dash-public .profile-public-share-username-prefix {
+  color: var(--seav-meta-muted-color);
+  font-family: inherit;
+  font-size: var(--font-value);
+}
+
+html body.app-page .dash-public :is(.profile-public-share-username-input, .profile-public-share-url) {
+  height: var(--dash-public-control);
+  padding: 0 12px;
+  background: var(--seav-select-bg);
+  color: var(--seav-field-value-color);
+  font-family: inherit;
+  font-size: var(--font-value);
+}
+
+.dash-public #ppSlugSave,
+.dash-public .profile-public-share-actions > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--dash-public-control);
+  padding: 0 14px;
+  font-size: var(--font-value);
+}
+
+.dash-public .profile-public-share-actions > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+html body.app-page .dash-public :is(#ppSlugSave, .profile-public-share-actions > *) {
+  border-color: var(--bridge-rule-strong);
+  background: var(--bridge-surface-4);
+  color: var(--seav-field-value-color);
+}
+
+@media (max-width: 760px) {
+  .dash-public > .profile-public-share-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-public-col + .dash-public-col {
+    border-left: 0;
+    border-top: 1px solid var(--bridge-rule);
+  }
 }
 
 /* Since your last visit: one line above the cards, only when there is news. */
@@ -1498,6 +1585,11 @@ html body.app-page .dash-table thead th small {
   white-space: nowrap;
 }
 
+/* Only an unusually long name in the first column may break: never a date or Clear. */
+.dash-table td:first-child {
+  overflow-wrap: anywhere;
+}
+
 html body.app-page .dash-table td a {
   color: rgb(var(--seav-ink-rgb));
   text-decoration: none;
@@ -1543,6 +1635,7 @@ html body.app-page .dash-table tbody tr:has(> td > a):is(:hover, :focus-within) 
 }
 
 html body.app-page .dash-clear small {
+  white-space: nowrap;
   color: var(--seav-meta-muted-color);
   font-size: var(--type-caption) !important;
   font-weight: var(--font-weight-body);
@@ -1750,10 +1843,42 @@ html body.app-page .dash-vessel-numbers {
   }
 }
 
-@media (max-width: 820px) {
+/* One column up to here. Narrower two-column cards ran Your records over itself and
+   cropped the vessel photo down to under half its width. */
+@media (max-width: 1100px) {
   .dash-cards {
     grid-template-columns: minmax(0, 1fr);
     padding: var(--dash-cards-pad-phone);
+  }
+}
+
+@media (max-width: 560px) {
+  /* Too narrow for two tables side by side: their rows would not line up. */
+  .dash-table-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-table-pair > .dash-table + .dash-table {
+    border-top: 1px solid var(--bridge-rule);
+    border-left: 0;
+  }
+
+  .dash-table-pair > .dash-table + .dash-table thead {
+    display: none;
+  }
+
+  .dash-vessel-id {
+    flex-wrap: wrap;
+  }
+
+  html body.app-page .dash-vessel-numbers {
+    text-align: left;
+  }
+}
+
+@media (max-width: 360px) {
+  #dashNoticesCard .dash-table td.is-num {
+    white-space: normal !important;
   }
 }
 
@@ -1779,22 +1904,9 @@ html body.app-page .dash-vessel-numbers {
     --dash-cell-pad: var(--dash-cell-pad-phone);
   }
 
-  .dash-table td {
-    overflow-wrap: anywhere;
-  }
-
-  /* Too narrow for two tables side by side: their rows would not line up. */
-  .dash-table-pair {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .dash-table-pair > .dash-table + .dash-table {
-    border-top: 1px solid var(--bridge-rule);
-    border-left: 0;
-  }
-
-  .dash-table-pair > .dash-table + .dash-table thead {
-    display: none;
+  /* A date stays whole, unless the screen is too narrow to allow it (below). */
+  #dashNoticesCard .dash-table td.is-num {
+    white-space: nowrap;
   }
 }
 
@@ -1802,21 +1914,6 @@ html body.app-page .dash-vessel-numbers {
   display: flex;
   align-items: center;
   gap: 9px;
-}
-
-.dashboard-profile-complete-badge {
-  display: inline-flex;
-  align-items: center;
-  color: var(--accent-green);
-}
-
-.dashboard-profile-complete-badge[hidden] {
-  display: none;
-}
-
-.dashboard-profile-complete-badge svg {
-  width: 19px;
-  height: 19px;
 }
 
 @media (max-width: 760px) {

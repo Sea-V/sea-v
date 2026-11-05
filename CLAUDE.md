@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v622**. Jack pushes every commit himself from
+- HEAD = **v623**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,17 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-06 (v623) — review fixes, first batch
+A two-reviewer deep review of the dashboard (2026-11-06). Fixed here:
+- **Profile wipe risk.** The link name saved the WHOLE row, and its readiness check passed on the stand-in profile a failed load leaves (`DEFAULT_PROFILE`, id "default-profile"; `SeavState.ready` is still true). Now `SeavAPI.saveUsername`, one column, 23505 -> USERNAME_TAKEN. Checks compare against DEFAULT_PROFILE.id. Saves here throw if no row matched. **`ready && profile.id` does not prove the profile loaded.**
+- Layout: `.dash-cards` one column up to 1100px (was 820), two record tables stack at <=560, Clear and notice dates never break mid-word, Crew 101 Covers wraps, cards line up with the title row on phones, the version badge flows on signed-in pages at every width. A press in the Clear cell no longer opens the row.
+**Logic list, same version:** Needs attention caps certificates at 3 so other kinds always show, with "N more / Show all"; a cleared count follows the real number down (`lowerClearedCounts`), and Clear refuses to save after a failed read. Since last visit uses calendar days and treats a certificate as valid through its expiry day; the visit and guide-skip keys are per account; a tab open past 12 hours starts a new visit; the yacht chip ignores crew-sourced changes and is keyed by yacht. A future end date counts as current and time onboard is capped at today. Crew 101 accepts BST as its four modules and STCW ML5. Yacht search cannot stick open; the vessel form copies the type. QR retry has a limit. Notice and guide keys no longer reload other tabs. Attention and Crew 101 saves report no matching row. Row press respects text selection and Ctrl/Cmd.
+**Topbar, same version (Jack's picture):** Storm Slate like the card title bands, Dark and Light; edge to edge, 68px, same layout. It had never actually stayed pinned: `.topbar`'s sticky had no room in `#topbarMount`, and `body` is `height: 100%` (reset.css). Now `#topbarMount` is sticky and app-page body is `height: auto`; `scroll-padding-top` keeps jumps clear of it. Only the bar's own controls get white ink, as the menus inside are white in Light. Public info pages keep their own bar.
+**Public profile panel, same version (Jack's picture):** two columns when open, colours + layout | link name + link, one column at <=760px. Colour swatches are little rectangles.
+**Checklist removed, same version.** Jack: remove it and "really think about it" later. "Your first yacht" and its code are gone from the dashboard and guide; last in git at v622. `profile.crew101` stays, empty on all 15 rows (checked), and test-supabase still probes it; privacy policy and record no longer list it. To rebuild it, start from what it should be for, not the old code.
+**Jack said "do what you think is best" on the rest:** the title tick is deleted. Left as they are: the vessel photo crop, and Senses' builder (Lürssen, Wikidata). COLREGs stays a link under Regulations.
+**Still open from the review:** accessibility (no card headings, unnamed progress bars, focus ring 1.64:1 on slate in Light [topbar controls fixed], Light switch 1.2:1, tap targets, guide pips and errors in Light), clean-up (24 dead rules, 568 lines of public-profile CSS in dashboard.css, unused scripts, dead helpers).
 
 ### Shipped 2026-11-06 (v621) — Storm Slate card title bands
 Jack picked swatch "5 · Storm Slate #3A4D63". `--dash-panel-head-bg`, 16px titles (`--dash-panel-title-size` = `--type-section`; Jack found 18px too big), on every `.dash-panel-head`: dashboard, public profile card and Crew 101. The band is dark in Dark AND Light, so it sets its own white ink and `--dash-panel-head-accent` #8fd0ff (5.2:1; #5bbcff is 4.2:1 on it). The vessel card is excluded at Jack's ask: it keeps its fade, 16px title and own band. Corners stay 4px, the site standard, not the swatch's rounder ones.

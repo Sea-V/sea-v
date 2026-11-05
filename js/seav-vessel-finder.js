@@ -9,6 +9,7 @@
   const FIELD_INPUTS = {
     name: "vs_name",
     flag: "vs_flag",
+    vessel_type: "vs_type",
     gt: "vs_gt",
     vessel_length: "vs_length",
     builder: "vs_builder",
@@ -122,7 +123,12 @@
       }
     });
 
-    input.addEventListener("blur", () => window.setTimeout(close, 120));
+    input.addEventListener("blur", () => {
+      // Cancel what is still on its way, or the list opens after they have moved on.
+      searchToken += 1;
+      window.clearTimeout(debounce);
+      window.setTimeout(close, 120);
+    });
 
     return { close };
   }

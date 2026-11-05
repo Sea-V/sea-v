@@ -332,12 +332,25 @@
   /* v588: sea time status — the captain line under the status pill. */
   /* Dashboard cards */
   --dash-cards-pad: 16px 0 24px;
-  --dash-cards-pad-phone: 14px;
+  --dash-cards-pad-phone: 14px 0;
   --dash-panel-pad: 16px;
   --dash-panel-head-pad: 13px 14px;
   --dash-panel-head-bg: #3a4d63;
   --dash-panel-head-rule: #4c6079;
   --dash-panel-head-accent: #8fd0ff;
+  /* Storm Slate topbar, the same in Dark and Light */
+  --seav-topbar-ink: #ffffff;
+  --seav-topbar-edge: rgb(255 255 255 / 0.3);
+  --seav-topbar-hover: rgb(255 255 255 / 0.1);
+  --seav-topbar-kbd-bg: rgb(255 255 255 / 0.14);
+  --seav-topbar-pad: 10px 24px;
+  --seav-topbar-pad-phone: 10px 14px;
+  --seav-topbar-offset: 84px;
+  /* Public profile panel on the dashboard */
+  --dash-public-control: 40px;
+  --dash-public-gap: 14px;
+  --dash-public-swatch-w: 30px;
+  --dash-public-swatch-h: 18px;
   --dash-panel-title-size: var(--type-section);
   --dash-cell-pad: 9px 14px;
   --dash-cell-pad-phone: 8px;

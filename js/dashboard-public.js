@@ -1,8 +1,8 @@
 // /js/dashboard-public.js
 // Public profile settings on the dashboard (v620, Jack 2026-11-06: "the entire thing
 // moved to the dashboard page"). Username, colours, layout, link, QR and sharing.
-// Opened from the title row, beside the switch in js/dashboard.js. The username saves
-// the whole profile row, so it stays behind isPublicShareProfileReady().
+// Opened from the title row, beside the switch in js/dashboard.js. Every setting saves
+// on its own column, so nothing here can write the rest of the profile row.
 (function () {
   "use strict";
 
@@ -11,9 +11,10 @@
     return;
   }
 
+  const QR_RETRY_LIMIT = 50;
   const Seav = window.Seav;
   const SeavAPI = window.SeavAPI;
-  const { KEYS, DEFAULT_PROFILE, slugifyUsername, isValidUsername } = window.SeavData;
+  const { DEFAULT_PROFILE, slugifyUsername, isValidUsername } = window.SeavData;
 
   function loadPublicShareProfile() {
     return {
@@ -23,14 +24,12 @@
     };
   }
 
-  // Same safety net as js/dashboard.js originally had (root cause: 2026-08-07
-  // Mia Bailey data-loss incident). Both controls below save the ENTIRE
-  // profile row (spread loadPublicShareProfile() + override one field) -- if
-  // SeavState hasn't actually finished loading the real profile yet, that
-  // silently returns DEFAULT_PROFILE, and saving would wipe every other
-  // field back to blank. Block the save rather than risk it.
+  // A failed profile load leaves SeavState ready, holding DEFAULT_PROFILE, so a truthy
+  // id proves nothing. Saves here are one column each, so this now only stops a change
+  // being made against a profile the page could not read.
   function isPublicShareProfileReady() {
-    return !!(window.SeavState?.ready && window.SeavState?.profile?.id);
+    const id = window.SeavState?.profile?.id;
+    return !!(window.SeavState?.ready && id && id !== DEFAULT_PROFILE.id);
   }
 
   function resolvePublicShareUrl() {
@@ -153,19 +152,10 @@
         return;
       }
 
-      const updated = { ...profile, username: cleaned };
-
       try {
-        await Seav.withSaving(async () => {
-          await SeavAPI.save(KEYS.PROFILE, updated);
-          if (window.SeavState?.refresh) {
-            await window.SeavState.refresh();
-          } else if (window.SeavState?.data) {
-            window.SeavState.data.profile = updated;
-          }
-        }, { sub: "Updating your public link", rethrow: true });
+        await Seav.withSaving(() => SeavAPI.saveUsername(cleaned), { sub: "Updating your public link", rethrow: true });
 
-        syncPublicSharePanel(updated);
+        syncPublicSharePanel({ ...profile, username: cleaned });
         setPublicShareUsernameHint("Saved — your link is updated.", false);
         Seav.notify("success", "Username saved", `Your public link is now /u/${cleaned}.`);
       } catch (err) {
@@ -187,14 +177,19 @@
   // third-party "QR image API" is called, so the profile URL is never sent
   // anywhere just to render the code. Regenerated on every open (not
   // cached) so it always reflects the current username/slug.
+  let qrRetryTimer = null;
+  let qrRetries = 0;
+
   function renderProfilePublicQr(url) {
     const canvasHost = document.getElementById("ppQrCanvas");
     if (!canvasHost || !url) return;
 
     if (typeof window.QRCode !== "function") {
-      // Library still loading (it's deferred) -- try again shortly rather
-      // than silently leaving the panel blank.
-      window.setTimeout(() => renderProfilePublicQr(url), 200);
+      // Library still loading (it's deferred), so try again shortly. One timer, with
+      // a limit, as it may be blocked altogether.
+      window.clearTimeout(qrRetryTimer);
+      qrRetries += 1;
+      if (qrRetries <= QR_RETRY_LIMIT) qrRetryTimer = window.setTimeout(() => renderProfilePublicQr(url), 200);
       return;
     }
 

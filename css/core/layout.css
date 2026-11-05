@@ -455,11 +455,19 @@ body.app-page::after {
    shoved the login form against the left edge (Jack's screenshot). Those
    pages keep the fixed corner badge, which never overlapped their content. */
 @media (max-width: 760px) {
-  :is(body.app-page, body.public-profile-page) .seav-version-badge {
+  body.public-profile-page .seav-version-badge {
     position: static;
     align-items: center;
     margin: 4px auto max(12px, env(safe-area-inset-bottom));
   }
+}
+
+/* Signed-in pages at every width: fixed in the corner it sat over the right-hand
+   values on each card (2026-11-06 review). */
+body.app-page .seav-version-badge {
+  position: static;
+  align-items: center;
+  margin: 4px auto max(12px, env(safe-area-inset-bottom));
 }
 
 /* =========================================================

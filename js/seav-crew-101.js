@@ -1,6 +1,6 @@
 // /js/seav-crew-101.js
-// Crew 101 (v618, Jack 2026-11-06): the basics for a first yacht. The content and
-// the checklist rules live here, for js/crew-101.js (the guide page) and the
+// Crew 101 (v618, Jack 2026-11-06): the basics for a first yacht. The content lives
+// here, for js/crew-101.js (the guide page) and the
 // dashboard card. Wording is a first draft for Jack to fine-tune. Links checked
 // 2026-11-06. There is deliberately no plain-English COLREGs summary: Jack did not
 // want one, as "not professional". The official text stays under Regulations.
@@ -22,7 +22,6 @@
 
   // Every topic is a card on the guide page, and a row on the dashboard card.
   const TOPICS = [
-    { id: "first", title: "Your first yacht", covers: "A checklist, step by step", icon: ICONS.book },
     {
       id: "bring",
       title: "What to bring",
@@ -134,67 +133,5 @@
     return registry ? [...REGULATIONS, ["Your flag", registry[0], registry[1]]] : REGULATIONS;
   }
 
-  const holds = (code) => () =>
-    !!window.SeavData.findSavedCertByCode?.(window.SeavState?.certs || [], code);
-
-  // `auto` ticks itself from what the member has logged, and cannot be unticked.
-  const STEPS = [
-    { id: "stcw", title: "Get your STCW Basic Safety", why: "Most yachts will not take you on without it.", href: "crew-101.html#certs", auto: holds("STCW BST") },
-    { id: "eng1", title: "Book your ENG1 medical", why: "The seafarer medical. Allow time to find a doctor.", href: "crew-101.html#certs", auto: holds("ENG1") },
-    { id: "cv", title: "Build your CV", why: "One page, a clear photo, honest experience.", href: "cv-generator.html" },
-    { id: "knots", title: "Practise a bowline and a cleat hitch", why: "These two will be asked for first.", href: "crew-101.html#knots" },
-    { id: "pack", title: "Pack a soft, folding bag", why: "With your original certificates and copies.", href: "crew-101.html#bring" },
-    { id: "yacht", title: "Add your first yacht", why: "It starts your career record.", href: "dashboard.html?add=vessel", auto: () => (window.SeavState?.vessels || []).length > 0 },
-    { id: "muster", title: "On day one, find your muster station", why: "Learn the emergency signals before anything else.", href: "crew-101.html#deck" },
-    { id: "report", title: "Ask who you report to, and listen", why: "Your head of department will show you how this yacht does things.", href: "crew-101.html#etiquette" },
-    { id: "seatime", title: "Log your sea time from the start", why: "It counts towards every ticket after this one.", href: "dashboard.html?add=seatime", auto: () => (window.SeavState?.seatimes || []).length > 0 }
-  ];
-
-  // The checklist is for people still finding their feet. Others get the plain list.
-  const NEW_CREW_DAYS = 365;
-
-  let current = null;
-  let request = null;
-
-  function load() {
-    if (current) return Promise.resolve(current);
-    request = request || window.SeavAPI.fetchCrew101()
-      .then((value) => {
-        current = { done: Array.isArray(value?.done) ? value.done : [], hidden: !!value?.hidden };
-        return current;
-      })
-      .catch((err) => {
-        request = null;
-        console.warn("[SEA-V] Crew 101 progress could not be read:", err);
-        return { done: [], hidden: true };
-      });
-    return request;
-  }
-
-  async function save(next) {
-    const previous = current;
-    current = next;
-    try {
-      await window.SeavAPI.saveCrew101(next);
-    } catch (err) {
-      current = previous;
-      throw err;
-    }
-  }
-
-  function isDone(step, progress) {
-    return !!step.auto?.() || progress.done.includes(step.id);
-  }
-
-  function summary(progress) {
-    const left = STEPS.filter((step) => !isDone(step, progress));
-    return { total: STEPS.length, doneCount: STEPS.length - left.length, left };
-  }
-
-  function showChecklist(progress) {
-    const days = window.SeavData.getSeatimeTotals(window.SeavState?.seatimes || []).total;
-    return !progress.hidden && days < NEW_CREW_DAYS && summary(progress).left.length > 0;
-  }
-
-  window.SeavCrew101 = { ICONS, TOPICS, STEPS, regulationRows, load, save, isDone, summary, showChecklist };
+  window.SeavCrew101 = { ICONS, TOPICS, regulationRows };
 })();

@@ -1349,9 +1349,29 @@ const SeavAPI = {
       const client = window.SeavSupabase;
       const userId = await resolveAuthUserId();
       if (!client || !userId) throw new Error("Sign in required.");
-      const { error } = await client.from("profile").update({ public_enabled: !!enabled }).eq("user_id", userId);
+      const { data, error } = await client.from("profile").update({ public_enabled: !!enabled }).eq("user_id", userId).select("id");
       if (error) throw error;
+      if (!data?.length) throw new Error("Your profile could not be found. Refresh and try again.");
       window.SeavState?.updateProfile?.({ publicEnabled: !!enabled });
+    },
+
+    // The public link name, one column for the same reason. It used to save the whole
+    // row from page state, so a failed profile load could blank the profile.
+    async saveUsername(username) {
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const { data, error } = await client.from("profile").update({ username }).eq("user_id", userId).select("id");
+      if (error) {
+        if (error.code === "23505") {
+          const friendly = new Error("That username is already taken. Try another.");
+          friendly.code = "USERNAME_TAKEN";
+          throw friendly;
+        }
+        throw error;
+      }
+      if (!data?.length) throw new Error("Your profile could not be found. Refresh and try again.");
+      window.SeavState?.updateProfile?.({ username });
     },
 
     // Needs attention rows the member cleared (docs/schema-profile-attention-cleared.sql).
@@ -1369,27 +1389,9 @@ const SeavAPI = {
       const client = window.SeavSupabase;
       const userId = await resolveAuthUserId();
       if (!client || !userId) throw new Error("Sign in required.");
-      const { error } = await client.from("profile").update({ attention_cleared: value }).eq("user_id", userId);
+      const { data, error } = await client.from("profile").update({ attention_cleared: value }).eq("user_id", userId).select("id");
       if (error) throw error;
-    },
-
-    // Crew 101 checklist progress (docs/schema-profile-crew101.sql). Private, and
-    // left out of the profile form's save.
-    async fetchCrew101() {
-      const client = window.SeavSupabase;
-      const userId = await resolveAuthUserId();
-      if (!client || !userId) throw new Error("Sign in required.");
-      const { data, error } = await client.from("profile").select("crew101").eq("user_id", userId).maybeSingle();
-      if (error) throw error;
-      return data?.crew101 || null;
-    },
-
-    async saveCrew101(value) {
-      const client = window.SeavSupabase;
-      const userId = await resolveAuthUserId();
-      if (!client || !userId) throw new Error("Sign in required.");
-      const { error } = await client.from("profile").update({ crew101: value }).eq("user_id", userId);
-      if (error) throw error;
+      if (!data?.length) throw new Error("Your profile could not be found.");
     },
 
     // v609 shared yacht directory (docs/schema-vessel-directory.sql).

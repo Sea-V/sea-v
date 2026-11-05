@@ -5,7 +5,8 @@
 (function () {
   "use strict";
 
-  const SESSION_KEY = "seav_last_visit";
+  // Per account: two people can use one browser.
+  const sessionKey = () => `seav_last_visit:${window.SeavAuth?.getUserId?.() || "unknown"}`;
   // A tab left open this long counts as a new visit next time it refreshes.
   const VISIT_HOURS = 12;
   const EXPIRY_WARNING_DAYS = 90;
@@ -18,7 +19,7 @@
 
   function readVisit() {
     try {
-      const visit = JSON.parse(sessionStorage.getItem(SESSION_KEY) || "null");
+      const visit = JSON.parse(sessionStorage.getItem(sessionKey()) || "null");
       return visit && Date.now() - visit.at < VISIT_HOURS * 3600000 ? visit : null;
     } catch {
       return null;
@@ -27,7 +28,7 @@
 
   function writeVisit(visit) {
     try {
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(visit));
+      sessionStorage.setItem(sessionKey(), JSON.stringify(visit));
     } catch {
       // Blocked storage: this page load still shows the line.
     }
@@ -35,11 +36,14 @@
   }
 
   let visitRequest = null;
+  let visitLoadedAt = 0;
 
   // Read the previous visit once, then record this one. Keeping the old value for
   // the session means the line survives moving between pages and coming back.
   function loadVisit() {
-    if (visitRequest) return visitRequest;
+    // A tab left open past the limit starts a new visit too, not only a reload.
+    if (visitRequest && Date.now() - visitLoadedAt < VISIT_HOURS * 3600000) return visitRequest;
+    visitLoadedAt = Date.now();
     const saved = readVisit();
     if (saved) {
       visitRequest = Promise.resolve(saved);
@@ -71,6 +75,12 @@
   function certChanges(since, today) {
     const { isSavedCert, isCertNoExpiry, parseDateOnly } = window.SeavData;
     const start = new Date(since).getTime();
+    // Calendar days, so a clock change between the dates cannot shift the answer.
+    const shiftDays = (time, days) => {
+      const date = new Date(time);
+      date.setDate(date.getDate() + days);
+      return date.getTime();
+    };
     const certs = (window.SeavState?.certs || []).filter(
       (cert) => isSavedCert(cert) && !isCertNoExpiry?.(cert) && String(cert.expiry || "").trim()
     );
@@ -79,8 +89,11 @@
     certs.forEach((cert) => {
       const expiry = parseDateOnly(cert.expiry).getTime();
       if (Number.isNaN(expiry)) return;
-      if (expiry < today && expiry >= start) expired += 1;
-      else if (expiry >= today && expiry - EXPIRY_WARNING_DAYS * MS_PER_DAY <= today && expiry - EXPIRY_WARNING_DAYS * MS_PER_DAY > start) soon += 1;
+      // A certificate is still valid on its expiry day: it expires as the next day starts.
+      const expiredFrom = shiftDays(expiry, 1);
+      const soonFrom = shiftDays(expiry, -EXPIRY_WARNING_DAYS);
+      if (expiredFrom <= today && expiredFrom > start) expired += 1;
+      else if (expiry >= today && soonFrom <= today && soonFrom > start) soon += 1;
     });
     return [
       expired ? { label: counted(expired, "Certificate expired", "certificates expired"), href: "certificates.html" } : null,
@@ -88,15 +101,18 @@
     ];
   }
 
-  let yachtRequest = null;
+  const yachtRequests = new Map();
 
   async function yachtChange(since) {
     const vessels = window.SeavState?.vessels || [];
     const vessel = vessels.length ? window.SeavData.getCurrentVessel(vessels) : null;
     if (!vessel?.directory_id) return null;
-    yachtRequest = yachtRequest || window.SeavAPI.fetchVesselDirectoryHistory(vessel.directory_id).catch(() => []);
-    const rows = await yachtRequest;
-    return rows.some((row) => row.field !== "added" && after(row.created_at, since))
+    if (!yachtRequests.has(vessel.directory_id)) {
+      yachtRequests.set(vessel.directory_id, window.SeavAPI.fetchVesselDirectoryHistory(vessel.directory_id).catch(() => []));
+    }
+    const rows = await yachtRequests.get(vessel.directory_id);
+    // Not crew-sourced: that can be the blank their own save just filled in.
+    return rows.some((row) => row.field !== "added" && row.source !== "crew" && after(row.created_at, since))
       ? { label: `${vessel.name || "Yacht"} details updated`, href: "vessels.html" }
       : null;
   }

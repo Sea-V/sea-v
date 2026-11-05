@@ -77,13 +77,6 @@
       .map((check) => check.label);
   }
 
-  // A finished profile earns the tick beside the page title. What is missing
-  // otherwise is a row in Needs attention.
-  function updateProfileCompletion(profile) {
-    const badge = document.getElementById("dashboardProfileCompleteBadge");
-    if (badge) badge.hidden = getMissingProfileFields(profile || {}).length > 0;
-  }
-
   async function renderDashboardSnippets() {
     const S = window.SeavDashboardSnippets;
     if (!S) return;
@@ -121,8 +114,7 @@
     // avatar logic now lives in wireTopbarProfile() in js/core.js (the topbar
     // profile chip), which is what its "one place profile photo display logic
     // lives" comment was protecting. profileHasPhoto() below is NOT dead —
-    // updateProfileCompletion's checklist uses it.
-    updateProfileCompletion(loadProfile());
+    // the Needs attention row for missing profile fields uses it.
     syncPublicSwitch();
     await renderDashboardSnippets();
   }
@@ -305,7 +297,8 @@
     const input = document.getElementById("dashLiveSwitch");
     const status = document.getElementById("dashLiveStatus");
     const profile = window.SeavState?.profile;
-    if (!input || !status || !window.SeavState?.ready || !profile?.id) return;
+    // A failed load leaves a stand-in profile, which would show a Live member as Private.
+    if (!input || !status || !window.SeavState?.ready || !profile?.id || profile.id === DEFAULT_PROFILE.id) return;
 
     const enabled = !!profile.publicEnabled;
     input.checked = enabled;
@@ -344,9 +337,14 @@
   // link, so the keyboard and opening in a new tab still work on it directly.
   function initRowPress() {
     document.querySelector(".dash-cards")?.addEventListener("click", (event) => {
-      if (event.target.closest("a, button")) return;
-      const row = event.target.closest(".dash-table tbody tr");
-      row?.querySelector(":scope > td > a")?.click();
+      // The Clear cell is left out, so a near miss on Clear never leaves the page.
+      if (event.target.closest("a, button, td:has(> .dash-clear)")) return;
+      // Dragging across a row to copy text ends in a click: that is not a press.
+      if (window.getSelection?.().toString()) return;
+      const link = event.target.closest(".dash-table tbody tr")?.querySelector(":scope > td > a");
+      if (!link) return;
+      if (event.ctrlKey || event.metaKey) window.open(link.href, "_blank", "noopener");
+      else link.click();
     });
   }
 

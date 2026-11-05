@@ -1058,11 +1058,12 @@
 
 .profile-theme-swatch {
   flex: 0 0 auto;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  /* A little rectangle, not a circle (Jack, 2026-11-06). */
+  width: var(--dash-public-swatch-w);
+  height: var(--dash-public-swatch-h);
+  border-radius: var(--bridge-radius, 4px);
   border: 1px solid rgb(var(--seav-ink-rgb) / 0.25);
-  background: linear-gradient(135deg, var(--swatch-bg) 50%, var(--swatch-accent) 50%);
+  background: linear-gradient(90deg, var(--swatch-bg) 50%, var(--swatch-accent) 50%);
 }
 
 .profile-theme-option:has(input:checked) {

@@ -301,8 +301,7 @@
 }
 
 /* Decorative extras that read as "generated". */
-:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .page-quote-footer,
-:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-profile-complete-badge {
+:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .page-quote-footer {
   display: none !important;
 }
 
@@ -310,7 +309,7 @@
    Dashboard
 --------------------------------------------------------- */
 
-/* Dashboard title and profile-completion icons: neutral, like the tiles. */
+/* Dashboard title icon: neutral, like the tiles. */
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) .dashboard-shell-icon {
   color: var(--bridge-caption) !important;
   border: 0 !important;
@@ -479,6 +478,73 @@ body.app-page .modal-card > .modal-head {
 body.app-page :is(.modal-intro, .modal-note, .modal-footnote, .modal-date-hint) {
   color: var(--seav-meta-muted-color) !important;
   font-weight: var(--font-weight-body) !important;
+}
+
+/* ---------------------------------------------------------
+   Topbar in Storm Slate (Jack, 2026-11-06): the same band as the card titles, so the
+   same in Dark and Light. Edge to edge, pinned to the top of the screen, same layout.
+   Only the bar's own controls get white ink: the menus inside it are white in Light.
+--------------------------------------------------------- */
+html body.app-page .app-topbar {
+  padding: 0 !important;
+}
+
+/* Pinned: .topbar's own sticky never held, as #topbarMount is exactly its height, and a
+   body fixed at the window's height would end the pin after one screen. */
+html body.app-page {
+  height: auto !important;
+  min-height: 100vh;
+}
+
+html body.app-page #topbarMount {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Jumps to a card or a found record stop clear of the pinned bar. */
+html:has(> body.app-page) {
+  scroll-padding-top: var(--seav-topbar-offset);
+}
+
+html body.app-page .app-topbar .topbar-inner {
+  padding: var(--seav-topbar-pad) !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--dash-panel-head-rule) !important;
+  border-radius: 0 !important;
+  background: var(--dash-panel-head-bg) !important;
+}
+
+html body.app-page .app-topbar :is(.nav-left > a, .topbar-search, .topbar-search-label, .topbar-search-kbd, .topbar-icon-btn, .notif-bell-btn) {
+  --seav-ink-rgb: 255 255 255;
+  --seav-focus-ring-color: var(--dash-panel-head-accent);
+  color: var(--seav-topbar-ink) !important;
+}
+
+html body.app-page .app-topbar .topbar-add-btn,
+html body.app-page .app-topbar .topbar-profile {
+  --seav-focus-ring-color: var(--dash-panel-head-accent);
+}
+
+html body.app-page .app-topbar :is(.topbar-search, .topbar-icon-btn) {
+  border-color: var(--seav-topbar-edge) !important;
+  background: transparent !important;
+}
+
+html body.app-page .app-topbar :is(.topbar-search, .topbar-icon-btn):is(:hover, :focus-visible, .is-open) {
+  border-color: var(--seav-topbar-ink) !important;
+  background: var(--seav-topbar-hover) !important;
+}
+
+html body.app-page .app-topbar .topbar-search-kbd {
+  border-color: transparent;
+  background: var(--seav-topbar-kbd-bg);
+}
+
+@media (max-width: 560px) {
+  html body.app-page .app-topbar .topbar-inner {
+    padding: var(--seav-topbar-pad-phone) !important;
+  }
 }
 
 /* >>> GENERATED CORNERS >>> */

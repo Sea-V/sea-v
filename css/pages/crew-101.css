@@ -47,29 +47,8 @@ a.crew101-jump-link:is(:hover, :focus-visible) {
   outline: 1px solid var(--bridge-accent);
 }
 
-.crew101-tick {
-  width: 22px;
-  padding-right: 0 !important;
-}
-
-.crew101-tick input {
-  width: 16px;
-  height: 16px;
-  margin: 2px 0 0;
-}
-
-.crew101-cards label {
-  display: block;
-  color: rgb(var(--seav-ink-rgb));
-  cursor: pointer;
-}
-
 html body.app-page .crew101-more a {
   color: var(--seav-accent-text);
-}
-
-.crew101-cards .dash-ticket {
-  border-bottom: 1px solid var(--bridge-rule);
 }
 
 /* The links are the accent colour here: the words beside them are what people read. */

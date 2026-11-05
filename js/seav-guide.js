@@ -7,7 +7,8 @@
 (function () {
   "use strict";
 
-  const SKIPPED_KEY = "seav_guide_skipped";
+  // Per account: a second person on this device should still be offered the guide.
+  const skippedKey = () => `seav_guide_skipped:${window.SeavAuth?.getUserId?.() || "unknown"}`;
   const CERT_CODES = ["STCW BST", "ENG1"];
   const esc = (value) => window.Seav.escapeHtml(String(value ?? ""));
   const el = (id) => document.getElementById(id);
@@ -25,7 +26,7 @@
 
   function readSkipped() {
     try {
-      return localStorage.getItem(SKIPPED_KEY) === "1";
+      return localStorage.getItem(skippedKey()) === "1";
     } catch {
       return false;
     }
@@ -33,7 +34,7 @@
 
   function rememberSkipped() {
     try {
-      localStorage.setItem(SKIPPED_KEY, "1");
+      localStorage.setItem(skippedKey(), "1");
     } catch {
       // Private window: the guide may offer itself again next time.
     }
@@ -159,7 +160,7 @@
       <ul class="guide-list">
         <li><strong>Add your certificates and yachts</strong><small>The + Add button at the top opens each form.</small></li>
         <li><strong>Log your sea time</strong><small>It is what your next certificate is built on. + Add opens this too.</small></li>
-        <li><strong>Read Crew 101</strong><small>What to bring, knots, etiquette and the first-week checklist. It is in the menu.</small></li>
+        <li><strong>Read Crew 101</strong><small>What to bring, knots, etiquette and the rules. It is in the menu.</small></li>
         <li><strong>Build your CV</strong><small>It fills itself in from what you add. Find it under your photo, top right.</small></li>
       </ul>
       <p class="guide-text">Your public profile stays off until you switch it on.</p>

@@ -47,7 +47,9 @@
     // Local calendar days -- see parseDateOnly in js/seav-data.js.
     const parseDay = window.SeavData?.parseDateOnly || ((value) => new Date(value));
     const start = parseDay(from);
-    const end = to ? parseDay(to) : new Date();
+    // Capped at today: a contract ending next year has not been served yet.
+    const planned = to ? parseDay(to) : new Date();
+    const end = planned > new Date() ? new Date() : planned;
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return "";
     if (end < start) return "";
 
@@ -69,6 +71,12 @@
     return parts.join(" ");
   }
 
+  // Today as the crew member's calendar shows it, for comparing with stored dates.
+  function localToday() {
+    const now = new Date();
+    return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+  }
+
   function dateRange(from, to, openLabel) {
     return [from ? formatDatePretty(from) : "", to ? formatDatePretty(to) : openLabel || ""]
       .filter(Boolean)
@@ -88,7 +96,6 @@
     "Your records": line("M5 6.5h14M5 12h14M5 17.5h14"),
     "Latest from the MCA": line("M6.5 16.5v-5a5.5 5.5 0 0 1 11 0v5l1.5 1.5H5l1.5-1.5ZM10.5 20.5h3"),
     "Crew 101": window.SeavCrew101?.ICONS.book || "",
-    "Your first yacht": window.SeavCrew101?.ICONS.book || "",
     "Your next ticket": window.SeavIcons?.achievements || "",
     "Certificates": window.SeavIcons?.certificates || "",
     "Sea time": window.SeavIcons?.seatime || "",
@@ -154,7 +161,10 @@
   // Current vessel — the whole photo, with the details over it
   // ---------------------------------------------------------------
 
+  let vesselRenderToken = 0;
+
   async function renderVesselCard() {
+    const renderToken = ++vesselRenderToken;
     const vessels = window.SeavState?.vessels || [];
     const vessel = vessels.length ? window.SeavData.getCurrentVessel(vessels) : null;
     const card = document.getElementById("dashVesselCard");
@@ -180,8 +190,11 @@
       await window.SeavApiCore.hydrateItemsFileField([vessel], "photo", bucket);
       window.SeavState?.syncCache?.();
     }
+    // A newer refresh started while the photo link was being signed: it draws instead.
+    if (renderToken !== vesselRenderToken) return;
 
-    const isCurrent = window.SeavData.isVesselOpenEnded(vessel);
+    // A contract with an end date still to come is the yacht they are on now.
+    const isCurrent = window.SeavData.isVesselOpenEnded(vessel) || String(vessel.to) > localToday();
     const photoUrl =
       Seav.getFileDisplayUrl?.(vessel.photo, bucket) || vessel.photo?.url || vessel.photo?.dataUrl || "";
     const role = vessel.vessel_role || vessel.role;
@@ -248,8 +261,12 @@
   // ---------------------------------------------------------------
 
   const ATTENTION_LIMIT = 6;
+  // So a long list of certificates can never push every other kind of row out.
+  const ATTENTION_CERT_LIMIT = 3;
+  const COUNTED_ROWS = ["testimonial-declined", "testimonial-changed", "reference-declined", "profile-missing", "testimonial-unsigned"];
 
   let attentionCleared = null;
+  let attentionShowAll = false;
   let attentionRequest = null;
   let attentionMissing = [];
 
@@ -308,7 +325,7 @@
     const state = window.SeavState || {};
     const seatimes = state.seatimes || [];
     const refs = state.refs || [];
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localToday();
 
     const withTestimonial = (status) => seatimes.filter((entry) => entry.testimonialStatus === status).length;
     const refused = withTestimonial("Declined");
@@ -336,9 +353,13 @@
     if (profileMissing) attentionMissing = profileMissing;
     const cleared = await loadAttentionCleared();
     const all = allAttentionRows(attentionMissing);
+    lowerClearedCounts(all, cleared);
     const open = all.filter((row) => !isCleared(row, cleared));
     const hidden = all.length - open.length;
-    const shown = open.slice(0, ATTENTION_LIMIT);
+    const certs = open.filter((row) => row.key.startsWith("cert:"));
+    const others = open.filter((row) => !row.key.startsWith("cert:"));
+    const shown = attentionShowAll ? open : [...certs.slice(0, ATTENTION_CERT_LIMIT), ...others].slice(0, ATTENTION_LIMIT);
+    const more = open.length - shown.length;
 
     const rows = shown.map((row) => ({
       tone: row.tone,
@@ -348,14 +369,19 @@
         `<button type="button" class="dash-clear" data-attention-clear="${esc(row.key)}" aria-label="${esc(`Clear: ${row.label}`)}"><small>Clear</small></button>`
       ]
     }));
-    const foot = hidden
-      ? `<div class="dash-panel-note dash-attention-foot"><small>${hidden} cleared</small><button type="button" class="dash-panel-more" data-attention-restore><small>Show again</small></button></div>`
-      : "";
+    const foot = [
+      more
+        ? `<div class="dash-panel-note dash-attention-foot"><small>${more} more</small><button type="button" class="dash-panel-more" data-attention-all><small>Show all</small></button></div>`
+        : "",
+      hidden
+        ? `<div class="dash-panel-note dash-attention-foot"><small>${hidden} cleared</small><button type="button" class="dash-panel-more" data-attention-restore><small>Show again</small></button></div>`
+        : ""
+    ].join("");
 
     fill(
       "dashAttentionCard",
       "attention",
-      [rows, hidden],
+      [rows, hidden, more],
       `${cardHead("Needs attention")}
       ${
         rows.length
@@ -364,6 +390,37 @@
       }
       ${foot}`
     );
+  }
+
+  // A cleared count follows the real number down. Otherwise clearing 15, getting one
+  // signed and adding a new entry reads 15 again, and the new entry stays hidden.
+  function lowerClearedCounts(all, cleared) {
+    if (cleared !== attentionCleared) return;
+    // Zero only counts once the records behind it are here: a failed or late load
+    // also reads as zero, and that must not undo what was cleared.
+    const state = window.SeavState || {};
+    const recordsHere = {
+      "testimonial-declined": (state.seatimes || []).length,
+      "testimonial-changed": (state.seatimes || []).length,
+      "testimonial-unsigned": (state.seatimes || []).length,
+      "reference-declined": (state.refs || []).length,
+      "profile-missing": 1
+    };
+    let changed = false;
+    const next = { ...cleared };
+    COUNTED_ROWS.forEach((key) => {
+      if (!(key in next)) return;
+      const current = all.find((row) => row.key === key)?.mark || 0;
+      if (current >= Number(next[key]) || (!current && !recordsHere[key])) return;
+      if (current) next[key] = current;
+      else delete next[key];
+      changed = true;
+    });
+    if (!changed) return;
+    attentionCleared = next;
+    window.SeavAPI.saveAttentionCleared(next).catch((err) => {
+      console.warn("[SEA-V] Cleared counts did not update:", err);
+    });
   }
 
   async function saveAttentionCleared(next) {
@@ -385,6 +442,11 @@
     if (clear) {
       const key = clear.getAttribute("data-attention-clear");
       const cleared = await loadAttentionCleared();
+      // Saving after a failed read would overwrite everything cleared before.
+      if (!attentionCleared) {
+        window.SeavFeedback?.error?.("That didn't save", "Check your connection and try again.");
+        return;
+      }
       const all = allAttentionRows(attentionMissing);
       const row = all.find((item) => item.key === key);
       if (!row) return;
@@ -393,6 +455,9 @@
       saveAttentionCleared({ ...kept, [key]: row.mark });
     } else if (event.target.closest?.("[data-attention-restore]")) {
       saveAttentionCleared({});
+    } else if (event.target.closest?.("[data-attention-all]")) {
+      attentionShowAll = true;
+      renderAttentionCard();
     }
   });
 
@@ -597,6 +662,7 @@
       // Private window or full storage: the marker just stays on.
     }
     renderNoticesCard();
+    window.SeavLastVisit?.render();
   }
 
   function wireNoticesCard(card, items) {
@@ -661,62 +727,23 @@
   }
 
   // ---------------------------------------------------------------
-  // Crew 101 — a checklist for new crew, the guide's topics for everyone else
+  // Crew 101 — the guide's topics
   // ---------------------------------------------------------------
 
-  const CREW101_NEXT = 3;
-
-  async function renderCrew101Card() {
+  function renderCrew101Card() {
     const C = window.SeavCrew101;
-    const card = document.getElementById("dashCrew101Card");
-    if (!C || !card) return;
-    const progress = await C.load();
-
-    if (C.showChecklist(progress)) {
-      const { total, doneCount, left } = C.summary(progress);
-      const rows = left.slice(0, CREW101_NEXT).map((step) => ({ cells: [cellLink(step.href, step.title)] }));
-      fill(
-        "dashCrew101Card",
-        "crew101",
-        ["list", doneCount, total, rows],
-        `<div class="dash-panel-head">${cardTitle("Your first yacht")}
-          <span class="dash-panel-actions">
-            <button type="button" class="dash-panel-more" data-crew101-hide><small>Hide</small></button>
-            <a class="dash-panel-more" href="crew-101.html#first">Open the checklist</a>
-          </span>
-        </div>
-        <a class="dash-ticket" href="crew-101.html#first">
-          <span class="dash-ticket-line"><strong class="dash-panel-name">Getting ready</strong><b>${doneCount} of ${total}</b></span>
-          <span class="dash-ticket-bar" role="progressbar" aria-valuenow="${doneCount}" aria-valuemin="0" aria-valuemax="${total}"><i style="width:${Math.round((doneCount / total) * 100)}%"></i></span>
-        </a>
-        ${table([{ label: "Next up" }], rows)}`
-      );
-      return;
-    }
-
+    if (!C || !document.getElementById("dashCrew101Card")) return;
     fill(
       "dashCrew101Card",
       "crew101",
       ["topics"],
       `${cardHead("Crew 101", "crew-101.html", "Open the guide")}
       ${table(
-        [{ label: "Topic" }, { label: "Covers", num: true }],
+        [{ label: "Topic" }, { label: "Covers" }],
         C.TOPICS.map((topic) => ({ cells: [cellLink(`crew-101.html#${topic.id}`, topic.title), esc(topic.covers)] }))
       )}`
     );
   }
-
-  document.addEventListener("click", async (event) => {
-    if (!event.target.closest?.("[data-crew101-hide]")) return;
-    const C = window.SeavCrew101;
-    try {
-      await C.save({ ...(await C.load()), hidden: true });
-    } catch (err) {
-      console.error("[SEA-V] Crew 101 save failed:", err);
-      window.SeavFeedback?.error?.("That didn't save", "Check your connection and try again.");
-    }
-    renderCrew101Card();
-  });
 
   window.SeavDashboardSnippets = {
     renderVesselCard,

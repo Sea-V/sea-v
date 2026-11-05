@@ -986,6 +986,8 @@
     if (!ev.key || !ev.key.startsWith("seav_")) return;
     if (ev.key.startsWith("seav_signed_url_v1:")) return;
     if (ev.key.startsWith("seav_celebrated_badge_codes")) return;
+    // Device notes, not records: no reason to reload every table in other tabs.
+    if (ev.key.startsWith("seav_mca_notices") || ev.key.startsWith("seav_guide_skipped")) return;
     if (ev.key === KEYS.CV_DRAFT) return;
     await state.refresh();
   });
