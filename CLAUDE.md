@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v607**. Jack pushes every commit himself from
+- HEAD = **v608**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1672,7 +1672,7 @@ should line up. `animation: none` on `body.app-page::before`. **img/ocean.jpg is
 at 2048 (Lanczos + unsharp, 342 KB, was 113) so it is crisper, but no real detail was added; a truly
 sharp wave needs a larger original (none found on this Mac). Public info pages: same untinted 0.7
 photo, overlay off, drift kept; titles on the --type-* scale (legal h1 38 -> 20, h2 20 -> 16); login
-blue #449cff -> --accent-blue; referee + captain logo 27 -> 120px; sign-in and sign-up get the solid card. Public profile NOT changed.
+blue #449cff -> --accent-blue; referee + captain logo 27 -> 120px. **Sign-in and sign-up float on the wave with no card: Jack's deliberate exception** (a card was tried and rejected). Public profile NOT changed.
 
 ### Shipped 2026-11-05 (v606)
 Profile share panel: "Share a read-only career view with employers" removed (Jack: it made the title row too large).

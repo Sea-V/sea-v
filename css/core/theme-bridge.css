@@ -438,14 +438,11 @@ body.app-page {
   display: none;
 }
 
-/* Sign-in and sign-up sat straight on the photo, where the blue links were lost
-   against the foam. The same solid card as the other public pages. */
-body.index-page .container {
-  box-sizing: border-box;
-  padding: 28px 24px;
-  border: 1px solid var(--bridge-rule);
-  border-radius: 4px;
-  background: var(--bridge-surface);
+/* Sign-in and sign-up float on the wave, with no box (Jack, 2026-11-05: "no box on
+   sign in pages ... floating and minimalistic"), the one exception among public pages. */
+body.index-page .demo-notice {
+  border: 0 !important;
+  background: transparent !important;
 }
 
 /* v593 (Jack: "when I scroll down it changes between the dark and white
