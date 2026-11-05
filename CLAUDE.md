@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v615**. Jack pushes every commit himself from
+- HEAD = **v616**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,13 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-06 (v616) — dashboard card icons, whole rows clickable
+Jack: titles need to stand out, "maybe an icon", and "the entire row to light up when hovering if pressing the row is an option". He sees this page as the key to keeping crew engaged and wants to keep working on it.
+- `.dash-panel-title` moves to the SECTION level of type-hierarchy.css (16/700 in full ink), a deliberate exception to grey card titles, with one blue icon per card (`CARD_ICONS`, `.dash-panel-icon`).
+- Any `.dash-table` row with a link directly in a cell is one button: the link's ::after stretches over the `tr`, so it stays a real link. Hover, focus and press show `--bridge-accent-soft` plus a `--dash-row-edge` blue edge. Crew support is deliberately excluded: its rows hold several links.
+- Your next ticket rows are links to Milestones. The whole vessel card opens Vessels via `.dash-vessel-cover`; the Open link stays for the keyboard. Your records is now two tables, so each page is its own row.
+Tested on the page copy: where a click lands on each card, hover, Dark, Light. Safari not tried, and `position: relative` on a `tr` is the thing to check there. Not seen signed in.
 
 ### Shipped 2026-11-06 (v615) — Yachtmaster Ocean no longer half-scored for a certificate
 Jack's admin account (one YMO cert, no passages) read 50% on RYA Yachtmaster Ocean beside a green tick on Offshore: two separate milestones. Ocean scored 1 of 2 for holding the prerequisite. Now 0% or 100% (`computeMilestoneProgress`), and the certificate is a condition. At 0% it leaves Your next ticket, as that list needs percent > 0. The Milestones page keeps its six rows.

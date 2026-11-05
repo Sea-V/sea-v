@@ -340,6 +340,8 @@
   --dash-vessel-fade: 56px;
   --dash-vessel-scrim: linear-gradient(to top, rgba(6, 15, 27, 0.94) 0%, rgba(6, 15, 27, 0.86) 62%, rgba(6, 15, 27, 0) 100%);
   --dash-panel-bar-height: 6px;
+  --dash-panel-icon-size: 20px;
+  --dash-row-edge: 3px;
   --dash-panel-warn: var(--progress-amber);
   --dash-panel-bad: var(--progress-red);
   --seav-tst-ok: var(--accent-green);

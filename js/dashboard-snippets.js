@@ -81,11 +81,30 @@
   // they pass in.
   // ---------------------------------------------------------------
 
+  // One icon per card, in the same line weight as the menu's (window.SeavIcons).
+  const line = (d) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="${d}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const CARD_ICONS = {
+    "Needs attention": line("M12 4.5 20.5 19h-17L12 4.5ZM12 10v4.2M12 16.6v.1"),
+    "Your records": line("M5 6.5h14M5 12h14M5 17.5h14"),
+    "Latest from the MCA": line("M6.5 16.5v-5a5.5 5.5 0 0 1 11 0v5l1.5 1.5H5l1.5-1.5ZM10.5 20.5h3"),
+    "Regulations and guidance": line("M6 5.5h11a1.5 1.5 0 0 1 1.5 1.5v12H7.5A1.5 1.5 0 0 1 6 17.5v-12ZM6 17.5A1.5 1.5 0 0 1 7.5 16h11"),
+    "Your next ticket": window.SeavIcons?.achievements || "",
+    "Certificates": window.SeavIcons?.certificates || "",
+    "Sea time": window.SeavIcons?.seatime || "",
+    "Navigation": window.SeavIcons?.navigation || "",
+    "Current vessel": window.SeavIcons?.vessels || "",
+    "Most recent vessel": window.SeavIcons?.vessels || ""
+  };
+
+  function cardTitle(title) {
+    return `<span class="dash-panel-heading"><span class="dash-panel-icon" aria-hidden="true">${CARD_ICONS[title] || ""}</span><strong class="dash-panel-title">${esc(title)}</strong></span>`;
+  }
+
   function cardHead(title, moreHref, moreLabel) {
     const more = moreHref
       ? `<a class="dash-panel-more" href="${esc(moreHref)}">${esc(moreLabel)}</a>`
       : "";
-    return `<div class="dash-panel-head"><strong class="dash-panel-title">${esc(title)}</strong>${more}</div>`;
+    return `<div class="dash-panel-head">${cardTitle(title)}${more}</div>`;
   }
 
   function emptyCard(title, line, href, linkLabel) {
@@ -183,9 +202,10 @@
       "vessel",
       vessel,
       `${photoUrl ? `<img class="dash-vessel-photo" src="${esc(photoUrl)}" alt="${esc(vessel.name || "Vessel")}">` : ""}
+      <a class="dash-vessel-cover" href="vessels.html" tabindex="-1" aria-hidden="true"></a>
       <div class="dash-vessel-info">
         <div class="dash-vessel-top">
-          <strong class="dash-panel-title">${isCurrent ? "Current vessel" : "Most recent vessel"}</strong>
+          ${cardTitle(isCurrent ? "Current vessel" : "Most recent vessel")}
           <a class="dash-panel-more" href="vessels.html">Open</a>
         </div>
         <div class="dash-vessel-id">
@@ -342,11 +362,11 @@
 
     const rows = entries.map((entry) => {
       const percent = Math.max(0, Math.min(100, Number(entry.percent) || 0));
-      return `<div class="dash-ticket">
+      return `<a class="dash-ticket" href="achievements.html">
         <span class="dash-ticket-line"><strong class="dash-panel-name">${esc(entry.certGroupKey)}</strong><b>${percent}%</b></span>
         <span class="dash-ticket-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"><i style="width:${percent}%"></i></span>
         <small class="dash-panel-sub dash-ticket-left">${esc(ticketLeft(entry))}</small>
-      </div>`;
+      </a>`;
     });
 
     fill(
@@ -386,24 +406,23 @@
       [(isPublic && Seav.buildPublicProfileUrl?.(profile)) || "profile.html", "Public profile", isPublic ? "Live" : "Off"]
     ];
 
-    const cells = ([href, label, value]) => {
-      const empty = value === "0" ? " is-empty" : "";
-      return `<td class="${empty.trim()}">${cellLink(href, label)}</td><td class="is-num${empty}">${esc(value)}</td>`;
-    };
-    const rows = [];
-    for (let i = 0; i < records.length; i += 2) {
-      rows.push(`<tr>${cells(records[i])}${records[i + 1] ? cells(records[i + 1]) : "<td></td><td></td>"}</tr>`);
-    }
+    // Two tables side by side, so each page is its own row to press.
+    const half = Math.ceil(records.length / 2);
+    const recordTable = (part) =>
+      table(
+        [{ label: "Page" }, { label: "Total", num: true }],
+        part.map(([href, label, value]) => ({
+          cells: [cellLink(href, label), esc(value)],
+          tone: value === "0" ? "empty" : ""
+        }))
+      );
 
     fill(
       "dashRecordsCard",
       "records",
       records,
       `${cardHead("Your records")}
-      ${table(
-        [{ label: "Page" }, { label: "Total", num: true }, { label: "Page" }, { label: "Total", num: true }],
-        rows
-      )}`
+      <div class="dash-table-pair">${recordTable(records.slice(0, half))}${recordTable(records.slice(half))}</div>`
     );
   }
 
@@ -531,7 +550,7 @@
         "dashNoticesCard",
         "notices",
         [],
-        `<div class="dash-panel-head"><strong class="dash-panel-title">Latest from the MCA</strong>${allLink}</div>
+        `<div class="dash-panel-head">${cardTitle("Latest from the MCA")}${allLink}</div>
         <div class="dash-panel-body"><small class="dash-panel-empty">The latest notices could not be loaded. They are always on GOV.UK.</small></div>`
       );
       return;
@@ -548,7 +567,7 @@
       "notices",
       items.map((item) => [item.url, item.name, item.subject, item.date, seen.has(item.url)]),
       `<div class="dash-panel-head">
-        <strong class="dash-panel-title">Latest from the MCA</strong>
+        ${cardTitle("Latest from the MCA")}
         <span class="dash-panel-actions">
           ${anyNew ? `<button type="button" class="dash-panel-more" data-notices-read><small>Mark all as read</small></button>` : ""}
           ${allLink}

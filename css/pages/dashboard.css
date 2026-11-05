@@ -1127,12 +1127,32 @@
 
 .dash-panel-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: var(--dash-panel-head-pad);
   border-bottom: 1px solid var(--bridge-rule);
   background: var(--bridge-surface-2);
+}
+
+/* Card titles: section size in full white, beside one blue icon. */
+.dash-panel-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.dash-panel-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--seav-accent-text);
+}
+
+.dash-panel-icon svg {
+  display: block;
+  width: var(--dash-panel-icon-size);
+  height: var(--dash-panel-icon-size);
 }
 
 html body.app-page a.dash-panel-more {
@@ -1304,11 +1324,40 @@ html body.app-page .dash-table td a:hover {
   color: var(--seav-accent-text);
 }
 
-html body.app-page .dash-table td.is-empty,
-html body.app-page .dash-table td.is-empty a { color: var(--seav-meta-muted-color); }
+html body.app-page .dash-table .is-empty td,
+html body.app-page .dash-table .is-empty td a { color: var(--seav-meta-muted-color); }
 
-/* Your records: two page and total pairs per row, a rule between them. */
-#dashRecordsCard .dash-table :is(th, td):nth-child(3) {
+/* Any row with a link is one big button: the link's ::after stretches over the
+   row, so it stays a real link (keyboard, new tab, screen reader). Crew support's
+   rows hold several links in a span, so they do not match. */
+.dash-table tbody tr:has(> td > a) {
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.dash-table td > a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+:is(.dash-table tbody tr:has(> td > a), a.dash-ticket):is(:hover, :focus-within, :focus-visible, :active) {
+  background-color: var(--bridge-accent-soft);
+  box-shadow: inset var(--dash-row-edge) 0 0 var(--bridge-accent);
+}
+
+html body.app-page .dash-table tbody tr:has(> td > a):is(:hover, :focus-within) td > a {
+  color: var(--seav-accent-text);
+}
+
+/* Your records: two tables side by side, a rule between them. */
+.dash-table-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dash-table-pair > .dash-table + .dash-table {
   border-left: 1px solid var(--bridge-rule);
 }
 html body.app-page .dash-table .is-todo .is-num { color: var(--seav-accent-text); font-weight: var(--font-weight-title); }
@@ -1322,7 +1371,10 @@ html body.app-page .dash-table .is-bad .is-num { color: var(--dash-panel-bad); f
 
 /* Your next ticket: name, percent and bar, a rule between tickets. */
 .dash-ticket {
+  display: block;
   padding: var(--dash-cell-pad);
+  text-decoration: none;
+  transition: background-color 0.12s ease;
   border-bottom: 1px solid var(--bridge-rule);
 }
 
@@ -1382,6 +1434,37 @@ html body.app-page a.dash-help-link {
 
 a.dash-help-link:hover {
   border-color: var(--bridge-accent);
+}
+
+/* The whole vessel card opens the vessel. The cover sits over everything except
+   the Open link, which keeps it reachable by keyboard. */
+.dash-panel--vessel {
+  position: relative;
+  transition: box-shadow 0.12s ease;
+}
+
+.dash-vessel-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.dash-vessel-info {
+  pointer-events: none;
+}
+
+.dash-vessel-info a {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.dash-panel--vessel:has(.dash-vessel-cover):hover {
+  box-shadow: 0 0 0 1px var(--bridge-accent) !important;
+}
+
+.dash-panel--vessel:hover .dash-vessel-photo {
+  filter: brightness(1.06);
 }
 
 /* Current vessel. With a photo the card takes the photo's own shape (the ratio
@@ -1485,6 +1568,20 @@ html body.app-page .dash-vessel-numbers {
 
   .dash-table td {
     overflow-wrap: anywhere;
+  }
+
+  /* Too narrow for two tables side by side: their rows would not line up. */
+  .dash-table-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-table-pair > .dash-table + .dash-table {
+    border-top: 1px solid var(--bridge-rule);
+    border-left: 0;
+  }
+
+  .dash-table-pair > .dash-table + .dash-table thead {
+    display: none;
   }
 }
 
