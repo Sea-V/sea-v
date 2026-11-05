@@ -1055,7 +1055,7 @@
   // info. This is a standalone block, not folded into initProfile() above,
   // deliberately: initProfile() carries the hardened formDirty/keep()
   // data-loss safeguards from the 2026-08-07 Mia Bailey incident, and this
-  // panel has its own independent save calls (username, publicEnabled) that
+  // panel has its own independent save call (the username) that
   // have no reason to share that function's state machine. Rendered as a
   // sibling <article> outside #profileEditView/#profileLockOverlay in
   // profile.html, so it stays interactive even while the profile form
@@ -1108,7 +1108,6 @@
 
   function syncPublicSharePanel(profile) {
     const currentProfile = profile || loadPublicShareProfile();
-    const checkbox = document.getElementById("ppEnabled");
     const sharePanel = document.getElementById("ppShare");
     const statusEl = document.getElementById("ppStatus");
     const hintEl = document.getElementById("ppLinkHint");
@@ -1116,10 +1115,6 @@
     const urlEl = document.getElementById("ppLinkUrl");
     const openEl = document.getElementById("ppLinkOpen");
     const usernameInput = document.getElementById("ppSlug");
-
-    if (checkbox) {
-      checkbox.checked = !!currentProfile.publicEnabled;
-    }
 
     const enabled = !!currentProfile.publicEnabled;
     const url = resolvePublicShareUrl();
@@ -1298,19 +1293,8 @@
     });
   }
 
-  // Collapsed by default (see profile.html comment) — a plain
-  // expand/collapse chevron, not tied to saved state, since this is just
-  // reducing header clutter, not a preference worth persisting.
-  function expandPublicShareDetails() {
-    const toggleBtn = document.getElementById("ppShareToggle");
-    const details = document.getElementById("ppShareDetails");
-    if (!toggleBtn || !details) return;
-
-    toggleBtn.setAttribute("aria-expanded", "true");
-    toggleBtn.setAttribute("aria-label", "Hide your public link");
-    details.hidden = false;
-  }
-
+  // Collapsed by default (see profile.html comment): a plain expand/collapse
+  // chevron, not tied to saved state.
   function initPublicShareDetailsToggle() {
     const toggleBtn = document.getElementById("ppShareToggle");
     const details = document.getElementById("ppShareDetails");
@@ -1326,10 +1310,8 @@
   }
 
   function initPublicShareToggle() {
-    const checkbox = document.getElementById("ppEnabled");
     const copyBtn = document.getElementById("ppLinkCopy");
     const shareImageBtn = document.getElementById("ppShareImage");
-    if (!checkbox) return;
 
     syncPublicSharePanel();
     initPublicShareUsername();
@@ -1349,60 +1331,10 @@
         shareImageBtn.disabled = false;
       }
     });
-
-    checkbox.addEventListener("change", async () => {
-      if (!isPublicShareProfileReady()) {
-        checkbox.checked = !checkbox.checked;
-        Seav.notify(
-          "error",
-          "Still loading",
-          "Your profile hasn't finished loading yet — try again in a moment."
-        );
-        return;
-      }
-
-      const previous = !checkbox.checked;
-      const profile = loadPublicShareProfile();
-      const updated = { ...profile, publicEnabled: checkbox.checked };
-
-      try {
-        await Seav.withSaving(async () => {
-          await SeavAPI.save(KEYS.PROFILE, updated);
-          if (window.SeavState?.refresh) {
-            await window.SeavState.refresh();
-          } else if (window.SeavState?.data) {
-            window.SeavState.data.profile = updated;
-          }
-        }, { sub: "Updating public profile", rethrow: true });
-
-        syncPublicSharePanel(updated);
-
-        // Turning visibility on is exactly the moment someone wants their
-        // link — auto-expand so it's not hidden behind the chevron right
-        // when it becomes useful. Turning it off doesn't collapse it back;
-        // no need to yank the panel shut if they're actively looking at it.
-        if (updated.publicEnabled) {
-          expandPublicShareDetails();
-        }
-
-        Seav.notify(
-          "success",
-          "Public profile updated",
-          updated.publicEnabled
-            ? "Your public profile is visible to anyone with your link."
-            : "Your public profile is hidden."
-        );
-      } catch (err) {
-        checkbox.checked = previous;
-        syncPublicSharePanel(profile);
-        console.error("[SEA-V] Public profile toggle failed:", err);
-        Seav.notify("error", "Could not update public profile", err?.message || "Try again.");
-      }
-    });
   }
 
   function initProfilePublicShare() {
-    if (!document.getElementById("ppEnabled")) return;
+    if (!document.getElementById("ppShare")) return;
     initPublicShareToggle();
     Seav.bindStateRefresh(() => syncPublicSharePanel(), { label: "Public share refresh" });
   }

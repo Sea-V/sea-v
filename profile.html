@@ -25,40 +25,40 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=618" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=618" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=618" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=618" />
+  <link rel="icon" href="/favicon.ico?v=619" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=619" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=619" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=619" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Profile</title>
 
-  <link rel="stylesheet" href="styles.css?v=618" />
+  <link rel="stylesheet" href="styles.css?v=619" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-  <script src="js/seav-config.js?v=618"></script>
-  <script src="js/supabase.js?v=618"></script>
-  <script src="js/auth.js?v=618"></script>
-  <script src="js/feedback.js?v=618" defer></script>
-  <script src="js/core.js?v=618" defer></script>
-  <script src="js/seav-search.js?v=618" defer></script>
-  <script src="js/bug-reports.js?v=618" defer></script>
-  <script src="js/seav-upload.js?v=618" defer></script>
-  <script src="js/seav-countries.js?v=618" defer></script>
-  <script src="js/seav-visas.js?v=618" defer></script>
-  <script src="js/seav-data.js?v=618" defer></script>
-  <script src="js/seav-badges.js?v=618" defer></script>
-  <script src="js/api-core.js?v=618" defer></script>
-  <script src="js/api-mappers.js?v=618" defer></script>
-  <script src="js/api.js?v=618" defer></script>
-  <script src="js/state.js?v=618" defer></script>
-  <script src="js/seav-notifications.js?v=618" defer></script>
-  <script src="js/achievements-engine.js?v=618" defer></script>
-  <script src="js/badge-unlock.js?v=618" defer></script>
+  <script src="js/seav-config.js?v=619"></script>
+  <script src="js/supabase.js?v=619"></script>
+  <script src="js/auth.js?v=619"></script>
+  <script src="js/feedback.js?v=619" defer></script>
+  <script src="js/core.js?v=619" defer></script>
+  <script src="js/seav-search.js?v=619" defer></script>
+  <script src="js/bug-reports.js?v=619" defer></script>
+  <script src="js/seav-upload.js?v=619" defer></script>
+  <script src="js/seav-countries.js?v=619" defer></script>
+  <script src="js/seav-visas.js?v=619" defer></script>
+  <script src="js/seav-data.js?v=619" defer></script>
+  <script src="js/seav-badges.js?v=619" defer></script>
+  <script src="js/api-core.js?v=619" defer></script>
+  <script src="js/api-mappers.js?v=619" defer></script>
+  <script src="js/api.js?v=619" defer></script>
+  <script src="js/state.js?v=619" defer></script>
+  <script src="js/seav-notifications.js?v=619" defer></script>
+  <script src="js/achievements-engine.js?v=619" defer></script>
+  <script src="js/badge-unlock.js?v=619" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous" defer></script>
-  <script src="js/seav-share.js?v=618" defer></script>
-  <script src="js/profile.js?v=618" defer></script>
+  <script src="js/seav-share.js?v=619" defer></script>
+  <script src="js/profile.js?v=619" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -154,10 +154,6 @@
 
         <div class="profile-public-share-controls">
           <span class="profile-public-share-status is-private" id="ppStatus">Private</span>
-          <label class="profile-public-share-toggle" for="ppEnabled">
-            <span class="profile-public-share-toggle-label">Visible</span>
-            <input type="checkbox" id="ppEnabled" class="profile-public-share-switch" />
-          </label>
           <button
             type="button"
             class="profile-public-share-expand"
@@ -173,8 +169,8 @@
         </div>
       </div>
 
-      <!-- Collapsed by default so the panel is just the title/Live/
-           Visible row until you actually want the link. -->
+      <!-- Collapsed by default so the panel is just the title and status
+           row until you actually want the link. -->
       <div class="profile-public-share-details" id="ppShareDetails" hidden>
 
         <div class="profile-public-share-username">
@@ -251,7 +247,7 @@
         </fieldset>
 
         <p class="profile-public-share-hint" id="ppLinkHint">
-          Enable visibility to activate your share link.
+          Turn your public profile on from the <a href="dashboard.html">dashboard</a> to activate your share link.
         </p>
 
         <!-- Link + QR grouped into one compact unit — the QR is small

@@ -123,6 +123,7 @@
     // lives" comment was protecting. profileHasPhoto() below is NOT dead —
     // updateProfileCompletion's checklist uses it.
     updateProfileCompletion(loadProfile());
+    syncPublicSwitch();
     await renderDashboardSnippets();
   }
 
@@ -298,6 +299,45 @@
     });
   }
 
+  // The public profile switch beside the page title. Off until the real profile
+  // has loaded, so it can never show or send a guess.
+  function syncPublicSwitch() {
+    const input = document.getElementById("dashLiveSwitch");
+    const status = document.getElementById("dashLiveStatus");
+    const profile = window.SeavState?.profile;
+    if (!input || !status || !window.SeavState?.ready || !profile?.id) return;
+
+    const enabled = !!profile.publicEnabled;
+    input.checked = enabled;
+    input.disabled = false;
+    status.classList.toggle("is-live", enabled);
+    status.querySelector("small").textContent = enabled ? "Live" : "Private";
+    status.href = enabled ? Seav.buildPublicProfileUrl?.(profile) || "profile.html" : "profile.html";
+    status.title = enabled ? "Open your public profile" : "Your link and colours are on Profile";
+  }
+
+  function initPublicSwitch() {
+    const input = document.getElementById("dashLiveSwitch");
+    input?.addEventListener("change", async () => {
+      const enabled = input.checked;
+      input.disabled = true;
+      try {
+        await window.SeavAPI.savePublicEnabled(enabled);
+        Seav.notify(
+          "success",
+          enabled ? "You are live" : "Your profile is private",
+          enabled ? "Anyone with your link can see your public profile." : "Your public profile is hidden."
+        );
+      } catch (err) {
+        console.error("[SEA-V] Public profile switch failed:", err);
+        input.checked = !enabled;
+        Seav.notify("error", "That didn't save", "Check your connection and try again.");
+      }
+      input.disabled = false;
+      syncPublicSwitch();
+    });
+  }
+
   // Pressing anywhere on a table row presses the row's link. The link stays a real
   // link, so the keyboard and opening in a new tab still work on it directly.
   function initRowPress() {
@@ -321,6 +361,7 @@
     populateDashboardCardIcons();
     initAddLinks();
     initRowPress();
+    initPublicSwitch();
     Seav.bindStateRefresh(runRefresh, { label: "Dashboard refresh" });
   }
 

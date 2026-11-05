@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v618**. Jack pushes every commit himself from
+- HEAD = **v619**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,12 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-06 (v619) — public profile switch moved to the dashboard
+Jack: move it opposite the Dashboard title, "a more live feel". `#dashLive` in the title row: a Live / Private status with a pulsing dot (off under reduced motion) that opens the public profile, and the switch. Off until the real profile has loaded.
+`SeavAPI.savePublicEnabled` updates one column and `SeavState.updateProfile`. The old toggle saved the WHOLE profile row. Profile keeps the status, username, link, QR, colours and layout, and points to the dashboard for the switch. No schema change.
+Tested on the page copy with stubbed saves. Not seen signed in.
+**Also v619 — Needs attention rows can be cleared.** Jack: "so that if things are not applicable they do not just sit there". Clear per row, "N cleared / Show again" at the foot. DB, LIVE: `profile.attention_cleared` jsonb (`docs/schema-profile-attention-cleared.sql`), private, smoke-tested, advisors 23/23, probed by test-supabase. `isCleared`: a count returns if it grows (a 16th unsigned entry after clearing 15); a certificate returns when its state or date changes (expiring cleared, then expired, comes back). No guided confirmation.
 
 ### Shipped 2026-11-06 (v618) — Crew 101, a guide for new crew
 Jack: a basic 101 for yachties on the dashboard (knots, seamanship, etiquette, what to bring). Mockup `design-concepts/crew-101/`. "lets build it all and we can fine tune later, i dont want the colregs as its not professional". **Wording is a first draft for him to fine-tune.** Do not re-add a plain-English COLREGs summary. The official MSN 1781 link stays under Regulations: ask if he wants that gone too.

@@ -342,6 +342,9 @@
   --dash-panel-bar-height: 6px;
   --dash-panel-icon-size: 20px;
   --dash-row-edge: 3px;
+  --dash-live-color: #72ffd2;
+  --dash-live-glow: rgba(114, 255, 210, 0.5);
+  --dash-live-dot: 8px;
   --crew101-gap: 16px;
   --page-crew101: #5bbcff;
   --dash-since-gap: 16px;

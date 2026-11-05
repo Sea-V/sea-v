@@ -1343,6 +1343,36 @@ const SeavAPI = {
       if (error) throw error;
     },
 
+    // The dashboard's public profile switch. One column, so a half-loaded page can
+    // never write the rest of the row back blank (the 2026-08-07 data loss).
+    async savePublicEnabled(enabled) {
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const { error } = await client.from("profile").update({ public_enabled: !!enabled }).eq("user_id", userId);
+      if (error) throw error;
+      window.SeavState?.updateProfile?.({ publicEnabled: !!enabled });
+    },
+
+    // Needs attention rows the member cleared (docs/schema-profile-attention-cleared.sql).
+    // Private, and left out of the profile form's save.
+    async fetchAttentionCleared() {
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const { data, error } = await client.from("profile").select("attention_cleared").eq("user_id", userId).maybeSingle();
+      if (error) throw error;
+      return data?.attention_cleared || null;
+    },
+
+    async saveAttentionCleared(value) {
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const { error } = await client.from("profile").update({ attention_cleared: value }).eq("user_id", userId);
+      if (error) throw error;
+    },
+
     // Crew 101 checklist progress (docs/schema-profile-crew101.sql). Private, and
     // left out of the profile form's save.
     async fetchCrew101() {

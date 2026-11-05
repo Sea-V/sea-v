@@ -622,7 +622,7 @@ async function testCvDraftsPrivate(config) {
 // Private: the dashboard's "Since your last visit" (docs/schema-profile-last-visit.sql).
 async function testLastVisitPrivate(config) {
   let ok = true;
-  for (const column of ["last_visit_at", "crew101"]) {
+  for (const column of ["last_visit_at", "crew101", "attention_cleared"]) {
     const probe = await restGet(config, "profile", `select=${column}&limit=1`);
     if (probe.status === 401 || probe.status === 403) {
       console.log(`✓ profile.${column} hidden from anon  ${probe.status}  OK`);

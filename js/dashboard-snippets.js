@@ -240,12 +240,41 @@
   // ---------------------------------------------------------------
   // Needs attention — only what the crew member can act on, most urgent first.
   // One line per kind of gap, so it never becomes a list people stop reading.
+  //
+  // Any row can be cleared if it does not apply (Jack, 2026-11-06). A row carries a
+  // key and a `mark`. A number returns if it grows: a new entry without a testimonial
+  // brings that row back. Anything else returns when it changes: a renewed or newly
+  // expired certificate is a new situation, not the one they cleared.
   // ---------------------------------------------------------------
 
   const ATTENTION_LIMIT = 6;
 
-  function attentionRow(href, label, status, tone) {
-    return { cells: [cellLink(href, label), esc(status)], tone };
+  let attentionCleared = null;
+  let attentionRequest = null;
+  let attentionMissing = [];
+
+  function loadAttentionCleared() {
+    if (attentionCleared) return Promise.resolve(attentionCleared);
+    attentionRequest = attentionRequest || window.SeavAPI.fetchAttentionCleared()
+      .then((value) => {
+        attentionCleared = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+        return attentionCleared;
+      })
+      .catch((err) => {
+        attentionRequest = null;
+        console.warn("[SEA-V] Cleared items could not be read:", err);
+        return {};
+      });
+    return attentionRequest;
+  }
+
+  function isCleared(row, cleared) {
+    if (!(row.key in cleared)) return false;
+    return typeof row.mark === "number" ? row.mark <= Number(cleared[row.key]) : row.mark === cleared[row.key];
+  }
+
+  function attentionRow(href, label, status, tone, key, mark) {
+    return { href, label, status, tone, key, mark };
   }
 
   function certAttentionRows() {
@@ -265,7 +294,9 @@
         `certificates.html?focus=${encodeURIComponent(cert.id || "")}`,
         cert.name || "Certificate",
         `${word} ${formatDatePretty(cert.expiry)}`,
-        tone
+        tone,
+        `cert:${cert.id}`,
+        `${word}:${cert.expiry}`
       );
     return [
       ...withBadge("expired").map((cert) => row(cert, "Expired", "bad")),
@@ -273,13 +304,15 @@
     ];
   }
 
-  function renderAttentionCard(profileMissing) {
+  function allAttentionRows(profileMissing) {
     const state = window.SeavState || {};
     const seatimes = state.seatimes || [];
     const refs = state.refs || [];
     const today = new Date().toISOString().slice(0, 10);
 
     const withTestimonial = (status) => seatimes.filter((entry) => entry.testimonialStatus === status).length;
+    const refused = withTestimonial("Declined");
+    const changed = withTestimonial("Changed");
     const unsigned = seatimes.filter(
       (entry) => !entry.testimonialStatus && entry.dateLeft && String(entry.dateLeft) <= today
     ).length;
@@ -288,40 +321,80 @@
     const missing = (profileMissing || []).length;
     const entries = (n) => `${n} sea time ${n === 1 ? "entry" : "entries"}`;
 
-    const rows = [
+    return [
       ...certAttentionRows(),
-      ...(withTestimonial("Declined")
-        ? [attentionRow("seatime.html", `${entries(withTestimonial("Declined"))} declined by the captain`, "Review", "bad")]
-        : []),
-      ...(withTestimonial("Changed")
-        ? [attentionRow("seatime.html", `${entries(withTestimonial("Changed"))} edited since the captain signed`, "Send again", "warn")]
-        : []),
-      ...(declinedRefs
-        ? [attentionRow("references.html", `${declinedRefs} ${declinedRefs === 1 ? "reference" : "references"} declined`, "Review", "bad")]
-        : []),
-      ...(missing
-        ? [attentionRow("profile.html", `${missing} profile ${missing === 1 ? "field" : "fields"} missing`, "Complete", "todo")]
-        : []),
-      ...(unsigned
-        ? [attentionRow("seatime.html", `${entries(unsigned)} without a captain's testimonial`, "Request", "todo")]
-        : []),
-      ...(!verifiedRefs && (state.vessels || []).length
-        ? [attentionRow("references.html", "No verified references yet", "Ask a referee", "todo")]
-        : [])
-    ].slice(0, ATTENTION_LIMIT);
+      ...(refused ? [attentionRow("seatime.html", `${entries(refused)} declined by the captain`, "Review", "bad", "testimonial-declined", refused)] : []),
+      ...(changed ? [attentionRow("seatime.html", `${entries(changed)} edited since the captain signed`, "Send again", "warn", "testimonial-changed", changed)] : []),
+      ...(declinedRefs ? [attentionRow("references.html", `${declinedRefs} ${declinedRefs === 1 ? "reference" : "references"} declined`, "Review", "bad", "reference-declined", declinedRefs)] : []),
+      ...(missing ? [attentionRow("profile.html", `${missing} profile ${missing === 1 ? "field" : "fields"} missing`, "Complete", "todo", "profile-missing", missing)] : []),
+      ...(unsigned ? [attentionRow("seatime.html", `${entries(unsigned)} without a captain's testimonial`, "Request", "todo", "testimonial-unsigned", unsigned)] : []),
+      ...(!verifiedRefs && (state.vessels || []).length ? [attentionRow("references.html", "No verified references yet", "Ask a referee", "todo", "no-references", 1)] : [])
+    ];
+  }
+
+  async function renderAttentionCard(profileMissing) {
+    if (profileMissing) attentionMissing = profileMissing;
+    const cleared = await loadAttentionCleared();
+    const all = allAttentionRows(attentionMissing);
+    const open = all.filter((row) => !isCleared(row, cleared));
+    const hidden = all.length - open.length;
+    const shown = open.slice(0, ATTENTION_LIMIT);
+
+    const rows = shown.map((row) => ({
+      tone: row.tone,
+      cells: [
+        cellLink(row.href, row.label),
+        esc(row.status),
+        `<button type="button" class="dash-clear" data-attention-clear="${esc(row.key)}" aria-label="${esc(`Clear: ${row.label}`)}"><small>Clear</small></button>`
+      ]
+    }));
+    const foot = hidden
+      ? `<div class="dash-panel-note dash-attention-foot"><small>${hidden} cleared</small><button type="button" class="dash-panel-more" data-attention-restore><small>Show again</small></button></div>`
+      : "";
 
     fill(
       "dashAttentionCard",
       "attention",
-      rows,
+      [rows, hidden],
       `${cardHead("Needs attention")}
       ${
         rows.length
-          ? table([{ label: "Item" }, { label: "Action", num: true }], rows)
+          ? table([{ label: "Item" }, { label: "Action", num: true }, { label: "", num: true }], rows)
           : `<div class="dash-panel-body"><small class="dash-panel-empty">Nothing needs attention.</small></div>`
-      }`
+      }
+      ${foot}`
     );
   }
+
+  async function saveAttentionCleared(next) {
+    const previous = attentionCleared;
+    attentionCleared = next;
+    renderAttentionCard();
+    try {
+      await window.SeavAPI.saveAttentionCleared(next);
+    } catch (err) {
+      console.error("[SEA-V] Cleared items did not save:", err);
+      attentionCleared = previous;
+      renderAttentionCard();
+      window.SeavFeedback?.error?.("That didn't save", "Check your connection and try again.");
+    }
+  }
+
+  document.addEventListener("click", async (event) => {
+    const clear = event.target.closest?.("[data-attention-clear]");
+    if (clear) {
+      const key = clear.getAttribute("data-attention-clear");
+      const cleared = await loadAttentionCleared();
+      const all = allAttentionRows(attentionMissing);
+      const row = all.find((item) => item.key === key);
+      if (!row) return;
+      // Only what is still on the list is kept, so the record stays small.
+      const kept = Object.fromEntries(Object.entries(cleared).filter(([k]) => all.some((item) => item.key === k)));
+      saveAttentionCleared({ ...kept, [key]: row.mark });
+    } else if (event.target.closest?.("[data-attention-restore]")) {
+      saveAttentionCleared({});
+    }
+  });
 
   // ---------------------------------------------------------------
   // Your next ticket — the Milestones page keeps the detail

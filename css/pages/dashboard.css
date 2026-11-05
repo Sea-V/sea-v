@@ -1201,6 +1201,92 @@ html body.app-page .dash-panel-empty {
   color: var(--seav-meta-desc-color);
 }
 
+/* Public profile switch, opposite the page title. On its own small box, so it reads
+   the same over the wave in Dark and Light. */
+#dashboardShell > .dashboard-shell-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+
+.dash-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--bridge-rule);
+  border-radius: var(--bridge-radius, 4px);
+  background: var(--bridge-surface);
+}
+
+.dash-live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+html body.app-page .dash-live-status small {
+  color: var(--seav-meta-desc-color);
+  font-size: var(--type-caption) !important;
+  font-weight: var(--font-weight-title);
+}
+
+html body.app-page .dash-live-status.is-live small {
+  color: var(--dash-live-color);
+}
+
+.dash-live-status:hover small {
+  text-decoration: underline;
+}
+
+.dash-live-status i {
+  width: var(--dash-live-dot);
+  height: var(--dash-live-dot);
+  border-radius: 50%;
+  background: rgb(var(--seav-ink-rgb) / 0.35);
+}
+
+.dash-live-status.is-live i {
+  background: var(--dash-live-color);
+  animation: dash-live-pulse 2.4s ease-out infinite;
+}
+
+@keyframes dash-live-pulse {
+  0% { box-shadow: 0 0 0 0 var(--dash-live-glow); }
+  70%, 100% { box-shadow: 0 0 0 7px transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-live-status.is-live i {
+    animation: none;
+  }
+}
+
+.dash-live-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding-left: 12px;
+  border-left: 1px solid var(--bridge-rule);
+  cursor: pointer;
+}
+
+html body.app-page .dash-live-switch small {
+  color: rgb(var(--seav-ink-rgb));
+  font-size: var(--type-caption) !important;
+  font-weight: var(--type-title-weight);
+  white-space: nowrap;
+}
+
+.dash-live-switch input:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
 /* Since your last visit: one line above the cards, only when there is news. */
 .dash-since {
   display: flex;
@@ -1394,6 +1480,37 @@ html body.app-page .dash-table .is-empty td a { color: var(--seav-meta-muted-col
 
 html body.app-page .dash-table tbody tr:has(> td > a):is(:hover, :focus-within) td > a {
   color: var(--seav-accent-text);
+}
+
+/* Needs attention: a quiet Clear at the end of each row, and a way back. */
+#dashAttentionCard .dash-table :is(th, td):last-child {
+  width: 1%;
+  padding-left: 0;
+}
+
+.dash-clear {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+html body.app-page .dash-clear small {
+  color: var(--seav-meta-muted-color);
+  font-size: var(--type-caption) !important;
+  font-weight: var(--font-weight-body);
+  text-decoration: underline;
+}
+
+html body.app-page .dash-clear:is(:hover, :focus-visible) small {
+  color: rgb(var(--seav-ink-rgb));
+}
+
+.dash-attention-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 /* Your records: two tables side by side, a rule between them. */
