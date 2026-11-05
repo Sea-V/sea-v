@@ -619,6 +619,17 @@ async function testCvDraftsPrivate(config) {
   return false;
 }
 
+// Private: the dashboard's "Since your last visit" (docs/schema-profile-last-visit.sql).
+async function testLastVisitPrivate(config) {
+  const probe = await restGet(config, "profile", "select=last_visit_at&limit=1");
+  if (probe.status === 401 || probe.status === 403) {
+    console.log(`✓ profile.last_visit_at hidden from anon  ${probe.status}  OK`);
+    return true;
+  }
+  console.log(`✗ profile.last_visit_at readable by anon  ${probe.status}  FAIL`);
+  return false;
+}
+
 // Row gate on public awards (docs/schema-public-read-onboard-and-self-declared.sql,
 // v543): anon sees awards that are Verified or Self-declared -- never Declined
 // or anything else. Asks for exactly the rows that must stay private; any row
@@ -994,7 +1005,7 @@ async function main() {
     certificateColumnsSafe = await testCertificateColumns(config);
     columnDriftSafe = testPublicColumnDrift();
     statusGatesSafe = (await testPublicStatusGates(config)) && (await testPublicStorageReads(config));
-    cvDraftsSafe = await testCvDraftsPrivate(config);
+    cvDraftsSafe = (await testCvDraftsPrivate(config)) && (await testLastVisitPrivate(config));
   }
 
   if (step === "all") {

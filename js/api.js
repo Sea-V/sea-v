@@ -1324,6 +1324,25 @@ const SeavAPI = {
       return theme;
     },
 
+    // When this member last opened the dashboard (docs/schema-profile-last-visit.sql).
+    // Private, and deliberately not part of the profile form's save.
+    async fetchLastVisit() {
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const { data, error } = await client.from("profile").select("last_visit_at").eq("user_id", userId).maybeSingle();
+      if (error) throw error;
+      return data?.last_visit_at || "";
+    },
+
+    async saveLastVisit(iso) {
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const { error } = await client.from("profile").update({ last_visit_at: iso }).eq("user_id", userId);
+      if (error) throw error;
+    },
+
     // v609 shared yacht directory (docs/schema-vessel-directory.sql).
     async searchVesselDirectory(query) {
       const client = window.SeavSupabase;

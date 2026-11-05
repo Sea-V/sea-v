@@ -342,6 +342,8 @@
   --dash-panel-bar-height: 6px;
   --dash-panel-icon-size: 20px;
   --dash-row-edge: 3px;
+  --dash-since-gap: 16px;
+  --dash-anchor-offset: 96px;
   --dash-panel-warn: var(--progress-amber);
   --dash-panel-bad: var(--progress-red);
   --seav-tst-ok: var(--accent-green);

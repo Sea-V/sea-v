@@ -94,7 +94,8 @@
       S.renderTicketCard,
       S.renderRecordsCard,
       S.renderNoticesCard,
-      S.renderRegulationsCard
+      S.renderRegulationsCard,
+      () => window.SeavLastVisit?.render()
     ];
 
     await Promise.all(
@@ -297,6 +298,16 @@
     });
   }
 
+  // Pressing anywhere on a table row presses the row's link. The link stays a real
+  // link, so the keyboard and opening in a new tab still work on it directly.
+  function initRowPress() {
+    document.querySelector(".dash-cards")?.addEventListener("click", (event) => {
+      if (event.target.closest("a, button")) return;
+      const row = event.target.closest(".dash-table tbody tr");
+      row?.querySelector(":scope > td > a")?.click();
+    });
+  }
+
   function initDashboard() {
     const isDashboard = document.querySelector(".dash-cards");
 
@@ -309,6 +320,7 @@
 
     populateDashboardCardIcons();
     initAddLinks();
+    initRowPress();
     Seav.bindStateRefresh(runRefresh, { label: "Dashboard refresh" });
   }
 

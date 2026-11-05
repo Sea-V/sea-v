@@ -634,6 +634,8 @@
     renderTicketCard,
     renderRecordsCard,
     renderNoticesCard,
-    renderRegulationsCard
+    renderRegulationsCard,
+    loadNotices,
+    readSeenNotices
   };
 })();

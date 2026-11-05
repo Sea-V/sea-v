@@ -1201,6 +1201,56 @@ html body.app-page .dash-panel-empty {
   color: var(--seav-meta-desc-color);
 }
 
+/* Since your last visit: one line above the cards, only when there is news. */
+.dash-since {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: var(--dash-since-gap);
+  padding: var(--dash-panel-head-pad);
+  border: 1px solid var(--bridge-accent);
+  border-radius: var(--bridge-radius, 4px);
+  background: var(--bridge-surface);
+}
+
+.dash-since[hidden] {
+  display: none;
+}
+
+html body.app-page .dash-since-ago {
+  color: var(--seav-meta-muted-color);
+  font-size: var(--type-caption) !important;
+  font-weight: var(--font-weight-body);
+  white-space: nowrap;
+}
+
+.dash-since-chips {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+html body.app-page a.dash-since-chip {
+  padding: 5px 10px;
+  border: 1px solid var(--bridge-accent);
+  border-radius: var(--bridge-radius, 3px);
+  color: var(--seav-accent-text);
+  font-size: var(--type-caption) !important;
+  font-weight: var(--type-title-weight);
+  text-decoration: none;
+  transition: background-color 0.12s ease;
+}
+
+a.dash-since-chip:is(:hover, :focus-visible) {
+  background-color: var(--bridge-accent-soft);
+}
+
+#dashNoticesCard {
+  scroll-margin-top: var(--dash-anchor-offset);
+}
+
 /* The right of the top row: two cards sharing the vessel card's height. */
 .dash-stack {
   display: flex;
@@ -1327,19 +1377,14 @@ html body.app-page .dash-table td a:hover {
 html body.app-page .dash-table .is-empty td,
 html body.app-page .dash-table .is-empty td a { color: var(--seav-meta-muted-color); }
 
-/* Any row with a link is one big button: the link's ::after stretches over the
-   row, so it stays a real link (keyboard, new tab, screen reader). Crew support's
+/* Any row with a link is one big button. The press is handled in js/dashboard.js.
+   Never stretch the link over the row with an absolutely positioned ::after: not
+   every browser positions against a <tr>, and v616's escaped the row and covered
+   the whole page, so every click went to the last link painted. Crew support's
    rows hold several links in a span, so they do not match. */
 .dash-table tbody tr:has(> td > a) {
-  position: relative;
   cursor: pointer;
   transition: background-color 0.12s ease;
-}
-
-.dash-table td > a::after {
-  content: "";
-  position: absolute;
-  inset: 0;
 }
 
 :is(.dash-table tbody tr:has(> td > a), a.dash-ticket):is(:hover, :focus-within, :focus-visible, :active) {
