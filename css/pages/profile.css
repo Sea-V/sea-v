@@ -741,16 +741,6 @@
   font-weight: 850;
 }
 
-.profile-public-share-brand p {
-  margin: 0;
-
-  color: var(--seav-meta-muted-color);
-
-  font-size: 11px;
-  line-height: 1.35;
-  font-weight: 500;
-}
-
 .profile-public-share-controls {
   display: flex;
   align-items: center;
