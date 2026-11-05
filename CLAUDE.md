@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v613**. Jack pushes every commit himself from
+- HEAD = **v614**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,16 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-06 (v614) — guide uses the site's date fields and the yacht directory
+Jack tried "New here?": the calendar did not work and the directory was missing. Review of js/seav-guide.js found more:
+- Dates are the site's year / month / day selects (`mountDateFields`), kept across redraws. A half-finished or impossible date now errors; it used to save as nothing or as written.
+- **Bug:** a yacht added here always saved with no end date, so it became the crew member's CURRENT vessel. Now "I still work on this yacht" (ticked by default) or When you left. Start date required.
+- **Bug:** "Your role" was free text, which the v571 position list exists to avoid and which the Master rules read. Now the same select.
+- **Bug:** certificates had no issue date, which "while holding" rules need, so the Master tiers could never open from one. Date issued added. All catalogue certificates are offered, most common first.
+- Directory: `SeavVesselFinder.attachYachtSearch` is now shared by the vessel form and the guide. Picking a yacht copies its facts and `directory_id` once, as the form does; changing the name unlinks it. dashboard.html loads the finder statically.
+- Reopening the guide starts clean. Step 3 says where things are.
+Tested on a page copy with a stubbed directory and stubbed saves: every error, redraws, saved payload. **Not tried with a real account or a real save.**
 
 ### Shipped 2026-11-06 (v613) — dashboard refocused: needs attention, one totals card
 Jack reviewed Y.CO's home page for ideas ("layout, clarity, purpose"), not its vessel data sheet: "the pages totals etc in one card and less info". Keeps the v612 ruled look; replaces its Certificates, Sea time, Ready and Navigation cards.

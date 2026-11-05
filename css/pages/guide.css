@@ -54,7 +54,7 @@
 .guide-list small { display: block; color: var(--seav-meta-muted-color); font-size: var(--type-caption); }
 
 .guide-form { display: grid; gap: 14px; }
-.guide-form label { display: grid; gap: 6px; color: var(--seav-field-label-color); font-weight: var(--type-title-weight); }
+.guide-form label:not(.guide-check) { display: grid; gap: 6px; color: var(--seav-field-label-color); font-weight: var(--type-title-weight); }
 
 .guide-form input,
 .guide-form select {
@@ -68,6 +68,20 @@
   color: rgb(var(--seav-ink-rgb));
   font: inherit;
   font-weight: var(--font-weight-body);
+}
+
+.guide-form .guide-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgb(var(--seav-ink-rgb));
+  font-weight: var(--font-weight-body);
+}
+
+.guide-form .guide-check input {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 0;
 }
 
 .guide-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
