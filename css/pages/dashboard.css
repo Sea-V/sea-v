@@ -1181,6 +1181,53 @@ html body.app-page .dash-panel-empty {
   color: var(--seav-meta-desc-color);
 }
 
+/* The right of the top row: two cards sharing the vessel card's height. */
+.dash-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dash-layout-gap);
+  min-width: 0;
+}
+
+.dash-stack > .dash-panel {
+  flex: 1 1 auto;
+}
+
+.dash-panel-actions {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+button.dash-panel-more {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+html body.app-page button.dash-panel-more small {
+  color: var(--seav-accent-text);
+  font-size: var(--type-caption) !important;
+  font-weight: var(--type-title-weight);
+}
+
+button.dash-panel-more:hover small {
+  text-decoration: underline;
+}
+
+html body.app-page .dash-new {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 6px;
+  border: 1px solid var(--bridge-accent);
+  border-radius: var(--bridge-radius, 3px);
+  color: var(--seav-accent-text);
+  font-size: var(--type-caption) !important;
+  font-weight: var(--type-title-weight);
+  white-space: nowrap;
+}
+
 /* Figures: a strip of cells, a label over its number, a rule between each. */
 .dash-figures {
   display: grid;
@@ -1214,8 +1261,6 @@ html body.app-page .dash-figures dd {
   overflow-wrap: anywhere;
 }
 
-html body.app-page .dash-figures .is-warn dd { color: var(--dash-panel-warn); }
-html body.app-page .dash-figures .is-bad dd { color: var(--dash-panel-bad); }
 
 /* Tables */
 /* tables.css gives every table a 720px minimum, for the wide pages. */
@@ -1262,7 +1307,7 @@ html body.app-page .dash-table td a:hover {
 html body.app-page .dash-table td.is-empty,
 html body.app-page .dash-table td.is-empty a { color: var(--seav-meta-muted-color); }
 
-/* Your other records: two record and count pairs per row, a rule between them. */
+/* Your records: two page and total pairs per row, a rule between them. */
 #dashRecordsCard .dash-table :is(th, td):nth-child(3) {
   border-left: 1px solid var(--bridge-rule);
 }
@@ -1272,12 +1317,17 @@ html body.app-page .dash-table .is-bad .is-num { color: var(--dash-panel-bad); f
 
 /* A subject inside a table wraps; only figures stay on one line. */
 #dashNoticesCard .dash-table td:nth-child(1) {
-  width: 34%;
+  width: 38%;
 }
 
-/* Your next ticket: a heading row with its bar, then its requirements. */
-.dash-table-group th {
-  background: rgb(var(--seav-ink-rgb) / 0.03);
+/* Your next ticket: name, percent and bar, a rule between tickets. */
+.dash-ticket {
+  padding: var(--dash-cell-pad);
+  border-bottom: 1px solid var(--bridge-rule);
+}
+
+.dash-ticket:last-of-type {
+  border-bottom: 0;
 }
 
 .dash-ticket-line {
@@ -1434,114 +1484,6 @@ html body.app-page .dash-vessel-numbers {
   }
 }
 
-/* =========================================================
-   DASHBOARD • PROFILE COMPLETION STRIP (v521)
-   Was a grid tile. It is a prompt rather than a record, so it
-   sits above the grid as a full-width strip and removes itself
-   once the profile is complete — at which point the tick beside
-   the page title is the whole story.
-========================================================= */
-
-.dashboard-profile-strip {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  padding: 12px 24px 14px;
-  border-bottom: 1px solid rgba(91, 188, 255, 0.14);
-}
-
-.dashboard-profile-strip[hidden] {
-  display: none;
-}
-
-.dashboard-profile-strip-icon {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-
-  color: var(--page-profile);
-  border: 1px solid color-mix(in srgb, var(--page-profile) 42%, transparent);
-  background: color-mix(in srgb, var(--page-profile) 14%, transparent);
-}
-
-.dashboard-profile-strip-icon svg {
-  width: 15px;
-  height: 15px;
-}
-
-.dashboard-profile-strip-body {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.dashboard-profile-strip-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
-}
-
-.dashboard-profile-strip-label {
-  font-weight: 800;
-  color: rgb(var(--seav-ink-rgb));
-}
-
-.dashboard-profile-strip-percent {
-  font-weight: 800;
-  color: var(--seav-meta-muted-color);
-  font-variant-numeric: tabular-nums;
-}
-
-.dashboard-profile-strip .progress-bar {
-  height: 8px;
-}
-
-/* Missing fields, clamped to one line — the strip is a nudge, and the
-   Profile page is where the full list belongs. */
-.dashboard-profile-strip-missing {
-  flex: 0 1 auto;
-  min-width: 0;
-  max-width: 40%;
-
-  font-weight: 600;
-  color: var(--seav-note-color);
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dashboard-profile-strip-link {
-  flex: 0 0 auto;
-
-  display: inline-flex;
-  align-items: center;
-
-  height: var(--pill-height);
-  padding: 0 var(--pill-padding-x);
-  border-radius: var(--pill-radius);
-  border: 1px solid var(--pill-blue-border);
-  background: var(--pill-blue-bg);
-
-  color: rgb(var(--seav-ink-rgb));
-  font-weight: 800;
-  text-decoration: none;
-
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.dashboard-profile-strip-link:hover {
-  background: var(--pill-blue-bg-hover);
-  border-color: var(--pill-blue-border-hover);
-}
-
-/* The tick that replaces the whole strip once nothing is missing. */
 .dashboard-shell-copy h2 {
   display: flex;
   align-items: center;

@@ -31,8 +31,7 @@ body.app-page [class$="-shell-card"] .reference-shell-title h2 {
 
 /* 2 — Section title */
 body.app-page [class$="-shell-card"] [class*="-section-head"] h3,
-body.app-page [class$="-shell-card"] .kpi-title,
-body.app-page .dashboard-profile-strip-label {
+body.app-page [class$="-shell-card"] .kpi-title {
   color: rgb(var(--seav-ink-rgb)) !important;
   font-size: var(--type-section) !important;
   font-weight: var(--type-title-weight) !important;

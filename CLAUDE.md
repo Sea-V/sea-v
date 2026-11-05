@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v612**. Jack pushes every commit himself from
+- HEAD = **v613**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,14 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-06 (v613) — dashboard refocused: needs attention, one totals card
+Jack reviewed Y.CO's home page for ideas ("layout, clarity, purpose"), not its vessel data sheet: "the pages totals etc in one card and less info". Keeps the v612 ruled look; replaces its Certificates, Sea time, Ready and Navigation cards.
+- Layout: Current vessel | Needs attention + Your next ticket (`.dash-stack`); Your records | Crew support; Latest from the MCA | Regulations and guidance.
+- **Needs attention** (`renderAttentionCard`): only what crew can act on, at most 6 rows, one line per kind of gap: expired then expiring certs (each its own row), testimonials declined or edited since signing, declined references, missing profile fields, finished entries with no testimonial, no verified reference. Awaiting someone else is not listed. The profile completion strip is gone (the row replaces it; the title tick stays).
+- **Your records:** every page's total plus CV and public profile. Next ticket is name, % and bar; the requirements stay on Milestones. `navigation-passage.js` removed from the dashboard again (no miles here).
+- **MCA notices:** five, "New" per device until opened or Mark all as read (localStorage `seav_mca_notices_seen`). Regulations gain a Source column and COSWP 2026. Crew support gains SeafarerHelp.
+**Not built:** "last updated" dates on records, left out to keep it lighter. Tested on the page copy with live public data plus empty and expired accounts. Not seen signed in.
 
 ### Shipped 2026-11-05 (v612) — dashboard cards as ruled tables; vessel details over the whole photo
 Jack: the cards need to look more professional, the photo uncut with the writing over it as before, "lines and tables that separate number from titles", "too much loose information floating". Reverses the big-number look of v610.

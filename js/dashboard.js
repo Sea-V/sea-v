@@ -71,58 +71,17 @@
     ];
   }
 
-  function getProfileCompletion(profile) {
-    const checks = getProfileCompletionChecks(profile);
-    const completed = checks.filter((check) => check.done).length;
-    return Math.round((completed / checks.length) * 100);
-  }
-
   function getMissingProfileFields(profile) {
     return getProfileCompletionChecks(profile)
       .filter((check) => !check.done)
       .map((check) => check.label);
   }
 
-  function getProgressClass(percent) {
-    if (percent < 30) return "progress-low";
-    if (percent < 60) return "progress-mid";
-    if (percent < 90) return "progress-good";
-    return "progress-complete";
-  }
-
+  // A finished profile earns the tick beside the page title. What is missing
+  // otherwise is a row in Needs attention.
   function updateProfileCompletion(profile) {
-    const strip = document.getElementById("profileCompletionStrip");
     const badge = document.getElementById("dashboardProfileCompleteBadge");
-    const fill = document.getElementById("profileProgressFill");
-    const percentText = document.getElementById("profileProgressPercent");
-    const missingBox = document.getElementById("profileProgressMissing");
-
-    const percent = getProfileCompletion(profile || {});
-    const missing = getMissingProfileFields(profile || {});
-    const isComplete = missing.length === 0;
-
-    // v521: a complete profile removes the strip entirely and leaves only the
-    // tick beside the page title. The strip lives above the grid now, so
-    // hiding it costs no layout — which is exactly why it moved out of the
-    // bento, where hiding a tile would have punched a hole in the grid.
-    if (strip) strip.hidden = isComplete;
-    if (badge) badge.hidden = !isComplete;
-
-    if (isComplete) return;
-
-    if (fill) {
-      fill.style.width = `${percent}%`;
-      fill.className = `progress-fill ${getProgressClass(percent)}`;
-    }
-
-    if (percentText) percentText.textContent = `${percent}%`;
-
-    if (missingBox) {
-      const checks = getProfileCompletionChecks(profile || {});
-      const done = checks.length - missing.length;
-      missingBox.textContent =
-        `${done} of ${checks.length} fields · missing ${missing.join(", ")}`;
-    }
+    if (badge) badge.hidden = getMissingProfileFields(profile || {}).length > 0;
   }
 
   async function renderDashboardSnippets() {
@@ -131,12 +90,9 @@
 
     const snippetRenderers = [
       S.renderVesselCard,
+      () => S.renderAttentionCard(getMissingProfileFields(loadProfile())),
       S.renderTicketCard,
-      S.renderCertCard,
-      S.renderSeatimeCard,
-      S.renderReadyCard,
       S.renderRecordsCard,
-      S.renderNavigationCard,
       S.renderNoticesCard,
       S.renderRegulationsCard
     ];

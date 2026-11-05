@@ -75,7 +75,6 @@ html[data-theme="light"] body.app-page [class$="-shell-card"] > :is([class$="-sh
 html[data-theme="light"] body.app-page :is(
   [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) > :not(.profile-public-share),
   [class$="-shell-card"] :not(.ach-trophy-section) > [class*="-section-head"],
-  .dashboard-profile-strip,
   .dash-kpis-row > .kpi-title,
   .seatime-kpi-caveat,
   .seatime-progress-link,
