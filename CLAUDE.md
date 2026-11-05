@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v619**. Jack pushes every commit himself from
+- HEAD = **v620**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,11 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-06 (v620) — all public profile settings moved to the dashboard
+Jack: "the public profile removed from the profile page and the entire thing moved to the dashboard page". Reverses the 2026-08-08 move the other way. Profile has none of it now. A chevron beside the switch opens `#ppShare`: username, colours, layout, link, QR, share. Closed by default, so it does not push the page down on phones; turning the switch on opens it. The Private status and the Your records row link to `#ppShare`.
+`js/dashboard-public.js` holds the code moved from js/profile.js. The username still saves the whole profile row, behind `isPublicShareProfileReady`, as before; the colours, layout and switch save one column.
+Tested on the page copy with stubbed saves. Not seen signed in.
 
 ### Shipped 2026-11-06 (v619) — public profile switch moved to the dashboard
 Jack: move it opposite the Dashboard title, "a more live feel". `#dashLive` in the title row: a Live / Private status with a pulsing dot (off under reduced motion) that opens the public profile, and the switch. Off until the real profile has loaded.

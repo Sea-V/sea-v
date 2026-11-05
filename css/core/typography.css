@@ -257,7 +257,6 @@ body.app-page [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-she
 body.app-page :is(
   .dash-panel,
   .profile-form-card,
-  .profile-public-share,
   .vessel-history-collapsible,
   .kpi-box,
   .sq-kpi-box,

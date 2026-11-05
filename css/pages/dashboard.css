@@ -1287,6 +1287,44 @@ html body.app-page .dash-live-switch small {
   opacity: 0.6;
 }
 
+.dash-live-more {
+  display: inline-flex;
+  padding: 2px;
+  border: 0;
+  border-radius: var(--bridge-radius, 3px);
+  background: none;
+  color: var(--seav-accent-text);
+  cursor: pointer;
+}
+
+.dash-live-more svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.15s ease;
+}
+
+.dash-live-more[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.dash-live-more:hover {
+  background: var(--bridge-accent-soft);
+}
+
+/* Username, colours, layout, link and QR, opened from the chevron. */
+.dash-public {
+  margin-top: var(--dash-since-gap);
+}
+
+.dash-public[hidden] {
+  display: none;
+}
+
+.dash-public > .profile-public-share-details {
+  padding: var(--dash-panel-pad);
+}
+
 /* Since your last visit: one line above the cards, only when there is news. */
 .dash-since {
   display: flex;

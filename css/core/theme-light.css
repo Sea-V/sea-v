@@ -70,16 +70,14 @@ html[data-theme="light"] body.app-page [class$="-shell-card"] > :is([class$="-sh
   --bridge-rule: #1f3a56;
 }
 
-/* The dashboard's public profile switch is a white box in the title row, like the
-   Profile page's share panel, so it keeps the navy ink and its own rule colour. */
+/* The dashboard's public profile switch is a white box in the title row, so it keeps the navy ink and its own rule colour. */
 html[data-theme="light"] body.app-page .dash-live {
   --bridge-rule: #dfe5ec;
 }
 
-/* The Profile page's share panel sits in the title row and the Milestones
-   achievements in their own panel: both are white boxes, so they are left out. */
+/* The Milestones achievements sit in their own panel, a white box, so they are left out. */
 html[data-theme="light"] body.app-page :is(
-  [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) > :not(.profile-public-share, .dash-live),
+  [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) > :not(.dash-live),
   [class$="-shell-card"] :not(.ach-trophy-section) > [class*="-section-head"],
   .dash-kpis-row > .kpi-title,
   .seatime-kpi-caveat,

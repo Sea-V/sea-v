@@ -312,8 +312,8 @@
     input.disabled = false;
     status.classList.toggle("is-live", enabled);
     status.querySelector("small").textContent = enabled ? "Live" : "Private";
-    status.href = enabled ? Seav.buildPublicProfileUrl?.(profile) || "profile.html" : "profile.html";
-    status.title = enabled ? "Open your public profile" : "Your link and colours are on Profile";
+    status.href = enabled ? Seav.buildPublicProfileUrl?.(profile) || "#ppShare" : "#ppShare";
+    status.title = enabled ? "Open your public profile" : "Your link, colours and layout";
   }
 
   function initPublicSwitch() {
@@ -323,6 +323,8 @@
       input.disabled = true;
       try {
         await window.SeavAPI.savePublicEnabled(enabled);
+        // Turning it on is the moment someone wants their link.
+        if (enabled) window.SeavPublicPanel?.open();
         Seav.notify(
           "success",
           enabled ? "You are live" : "Your profile is private",

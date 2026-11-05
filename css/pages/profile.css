@@ -589,14 +589,6 @@
     grid-template-columns: 1fr;
   }
 
-  /* Header collapses to a single stacked column at this width, so the
-     share panel's 320px desktop cap (set above, for sitting neatly
-     beside the title on a wide row) would leave it stranded and
-     narrow — let it fill the stacked row like everything else here. */
-  .profile-public-share {
-    max-width: none;
-  }
-
   .profile-chapters-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -637,146 +629,14 @@
 }
 
 /* =========================================================
-   PUBLIC PROFILE SHARE — moved here from dashboard.html
-   2026-08-08, per Jack. Ported class-for-class from the old
-   .dashboard-public-share* rules (css/pages/dashboard.css), renamed
-   .profile-public-share*. Deliberately outside .profile-form-card
-   / #profileLockOverlay so it stays interactive even while the profile
-   form itself is locked.
-
-   2026-08-09, per Jack: moved again, this time in the DOM — it's now
-   a third grid item inside .profile-shell-head (see HEADER section
-   above), right side of the page next to the icon/title, instead of
-   its own standalone card lower down the page. margin-top dropped
-   (that was for the standalone-card spacing, not needed as a header
-   item) and a max-width added so it doesn't crowd out the title on
-   wide screens; on narrow screens .profile-shell-head's own
-   max-width:900px breakpoint collapses this back to a full-width
-   stacked row below the title, same as it always has at that width.
-
-   2026-08-09 (later same day), per Jack: the first pass at 320px max
-   was too narrow — brand text (title+subtitle) got squeezed down to
-   a sliver and wrapped onto 4-5 lines while the status/toggle/chevron
-   controls crowded the rest, so it read as broken/overlapping rather
-   than two neat halves. Widened to 460px and the row below is now an
-   explicit 50/50 grid (brand | controls) instead of flex
-   space-between, so each side gets a fixed, predictable half of the
-   row no matter how long the copy or how many controls are showing.
+   PUBLIC PROFILE SETTINGS — these rules style #ppShare, which moved to the
+   dashboard on 2026-11-06 (v620, js/dashboard-public.js).
 ========================================================= */
-
-.profile-public-share {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  width: 100%;
-  max-width: 460px;
-  align-self: start;
-
-  padding: 14px 16px;
-
-  border-radius: 18px;
-  border: 1px solid rgba(91, 188, 255, 0.2);
-
-  background: rgba(173, 222, 255, 0.05);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 10px 28px rgba(0, 0, 0, 0.16);
-}
-
-.profile-public-share.is-live {
-  border-color: rgba(94, 230, 168, 0.28);
-  background: rgba(93, 209, 212, 0.06);
-}
 
 /* 50/50 split, per Jack — brand (icon+title+subtitle) and controls
    (status pill/Visible toggle/expand chevron) each get an equal-width
    column instead of brand shrinking to whatever space controls don't
    claim. Controls right-align within their half via justify-self. */
-.profile-public-share-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 12px;
-}
-
-.profile-public-share-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.profile-public-share-icon {
-  flex: 0 0 auto;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 36px;
-  height: 36px;
-
-  border-radius: 10px;
-  border: 1px solid rgba(91, 188, 255, 0.24);
-
-  background: rgb(var(--seav-ink-rgb) / 0.04);
-  color: var(--seav-accent-text);
-}
-
-.profile-public-share-icon svg {
-  width: 18px;
-  height: 18px;
-  display: block;
-}
-
-.profile-public-share-brand h3 {
-  margin: 0 0 2px;
-
-  color: rgb(var(--seav-ink-rgb));
-
-  font-size: 14px;
-  line-height: 1.2;
-  font-weight: 850;
-}
-
-.profile-public-share-controls {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  justify-self: end;
-  flex-wrap: nowrap;
-  gap: 10px;
-}
-
-.profile-public-share-status {
-  flex: 0 0 auto;
-
-  padding: 4px 9px;
-
-  border-radius: 999px;
-  border: 1px solid transparent;
-
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.45px;
-  text-transform: uppercase;
-  line-height: 1;
-}
-
-.profile-public-share-status.is-private {
-  color: rgb(var(--seav-ink-rgb) / 0.62);
-  border-color: rgb(var(--seav-ink-rgb) / 0.12);
-  background: rgb(var(--seav-ink-rgb) / 0.04);
-}
-
-.profile-public-share-status.is-live {
-  color: #72ffd2;
-  border-color: rgba(94, 230, 168, 0.32);
-  background: rgba(94, 230, 168, 0.12);
-}
-
 .profile-public-share-switch {
   flex: 0 0 auto;
 
@@ -842,40 +702,11 @@
   font-weight: 500;
 }
 
-.profile-public-share-expand {
-  flex: 0 0 auto;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 28px;
-  height: 28px;
-  padding: 0;
-
-  border-radius: 8px;
-  border: 1px solid rgba(91, 188, 255, 0.24);
-
-  background: rgb(var(--seav-ink-rgb) / 0.04);
-  color: rgb(var(--seav-ink-rgb) / 0.72);
-
-  cursor: pointer;
-}
-
-.profile-public-share-expand:hover {
-  background: rgba(91, 188, 255, 0.12);
-  color: rgb(var(--seav-ink-rgb));
-}
-
 .profile-public-share-expand svg {
   width: 16px;
   height: 16px;
   display: block;
   transition: transform 0.18s ease;
-}
-
-.profile-public-share-expand[aria-expanded="true"] svg {
-  transform: rotate(180deg);
 }
 
 .profile-public-share-details {

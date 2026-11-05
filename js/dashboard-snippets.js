@@ -477,7 +477,7 @@
       ["hobbies-interests.html", "Interests", number((state.hobbiesInterests || []).length)],
       ["payslips.html", "Payslips", number((state.payslips || []).length)],
       ["cv-generator.html", "Your CV", "Open"],
-      [(isPublic && Seav.buildPublicProfileUrl?.(profile)) || "profile.html", "Public profile", isPublic ? "Live" : "Off"]
+      [(isPublic && Seav.buildPublicProfileUrl?.(profile)) || "#ppShare", "Public profile", isPublic ? "Live" : "Off"]
     ];
 
     // Two tables side by side, so each page is its own row to press.
