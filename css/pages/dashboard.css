@@ -1125,14 +1125,23 @@
   overflow: hidden;
 }
 
+/* Storm Slate title bands (Jack, 2026-11-06), the same in Dark and Light. The band
+   is dark in both, so it sets its own white ink and a lighter blue: the usual
+   accent is under 4.5:1 on this slate. The vessel card keeps its own look (Jack). */
 .dash-panel-head {
+  --seav-ink-rgb: 255 255 255;
+  --seav-accent-text: var(--dash-panel-head-accent);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: var(--dash-panel-head-pad);
-  border-bottom: 1px solid var(--bridge-rule);
-  background: var(--bridge-surface-2);
+  border-bottom: 1px solid var(--dash-panel-head-rule);
+  background: var(--dash-panel-head-bg);
+}
+
+html body.app-page .dash-panel-title {
+  font-size: var(--dash-panel-title-size) !important;
 }
 
 /* Card titles: section size in full white, beside one blue icon. */
@@ -1687,6 +1696,10 @@ a.dash-help-link:hover {
   padding: var(--dash-panel-head-pad);
   border-bottom: 1px solid var(--bridge-rule);
   background: var(--bridge-surface-2);
+}
+
+html body.app-page .dash-vessel-top .dash-panel-title {
+  font-size: var(--type-section) !important;
 }
 
 .dash-vessel-id {
