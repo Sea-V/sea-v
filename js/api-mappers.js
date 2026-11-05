@@ -146,6 +146,8 @@ function mapProfileToSupabase(item) {
     photo: v.photo || null,
 
     sea_attachment: v.sea_attachment || null,
+    // v609: link to the shared yacht directory. Private, no anon grant.
+    directory_id: v.directory_id || "",
     sea_addendums: Array.isArray(v.sea_addendums) ? v.sea_addendums : [],
 
     createdAt: v.created_at || "",
@@ -189,6 +191,8 @@ function mapVesselToSupabase(item) {
       item.sea_addendums,
       STORAGE_BUCKETS.VESSEL_DOCUMENTS
     ).slice(0, 10),
+    // Only when supplied, so a save that does not know the link cannot clear it.
+    ...("directory_id" in item ? { directory_id: item.directory_id || null } : {}),
     updated_at: new Date().toISOString()
   };
 }

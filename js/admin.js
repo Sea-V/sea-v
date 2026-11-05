@@ -255,6 +255,79 @@
     }
   }
 
+  /* ---------- v609 yacht directory review ---------- */
+  const DIRECTORY_FIELD_LABELS = {
+    name: "Name",
+    imo: "IMO",
+    mmsi: "MMSI",
+    official_number: "Official number",
+    flag: "Flag",
+    gt: "Gross tonnage",
+    vessel_length: "Length"
+  };
+
+  async function loadDirectoryFlags() {
+    const client = getClient();
+    const section = document.getElementById("adminDirectory");
+    const list = document.getElementById("adminDirectoryList");
+    if (!client || !section || !list) return;
+
+    const { data, error } = await client
+      .from("vessel_directory_flags")
+      .select("id, directory_id, user_id, field, directory_value, submitted_value, created_at, vessel_directory(name, imo)")
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("[SEA-V Admin] Loading directory flags failed:", error);
+      section.hidden = true;
+      return;
+    }
+
+    const flags = data || [];
+    section.hidden = !flags.length;
+    const people = await fetchProfiles(client, [...new Set(flags.map((f) => f.user_id).filter(Boolean))]);
+    list.innerHTML = flags.map((flag) => `
+      <article class="admin-report-row" data-flag-id="${esc(flag.id)}">
+        <div class="admin-report-top">
+          <strong>${esc(flag.vessel_directory?.name || "Yacht")}</strong>
+          <small>${flag.vessel_directory?.imo ? `IMO ${esc(flag.vessel_directory.imo)} · ` : ""}${esc(DIRECTORY_FIELD_LABELS[flag.field] || flag.field)}</small>
+        </div>
+        <p class="admin-directory-values">Directory: <strong>${esc(flag.directory_value || "—")}</strong> · ${esc(people.get(flag.user_id)?.name || "A crew member")}: <strong>${esc(flag.submitted_value || "—")}</strong></p>
+        <div class="admin-directory-actions">
+          <button type="button" class="btn-ghost2" data-flag-use="${esc(flag.id)}">Use their value</button>
+          <button type="button" class="btn-ghost2" data-flag-dismiss="${esc(flag.id)}">Keep the directory</button>
+        </div>
+      </article>`).join("");
+    list.__flags = flags;
+  }
+
+  async function handleDirectoryAction(event) {
+    const useId = event.target.closest("[data-flag-use]")?.getAttribute("data-flag-use");
+    const dismissId = event.target.closest("[data-flag-dismiss]")?.getAttribute("data-flag-dismiss");
+    const flagId = useId || dismissId;
+    if (!flagId) return;
+    const client = getClient();
+    const list = document.getElementById("adminDirectoryList");
+    const flag = (list.__flags || []).find((f) => f.id === flagId);
+    if (!client || !flag) return;
+
+    try {
+      if (useId) {
+        const { error } = await client
+          .from("vessel_directory")
+          .update({ [flag.field]: flag.submitted_value, updated_at: new Date().toISOString() })
+          .eq("id", flag.directory_id);
+        if (error) throw error;
+      }
+      const { error } = await client.from("vessel_directory_flags").delete().eq("id", flagId);
+      if (error) throw error;
+      window.SeavFeedback?.success?.("Updated", useId ? "The directory now uses that value." : "The directory stays as it is.");
+      await loadDirectoryFlags();
+    } catch (err) {
+      console.error("[SEA-V Admin] Directory review failed:", err);
+      window.SeavFeedback?.error?.("Couldn't update", err?.message || "That value may not be valid for this field.");
+    }
+  }
+
   function wireLogout() {
     const btn = document.getElementById("adminLogoutBtn");
     if (!btn) return;
@@ -302,6 +375,8 @@
 
     showContent();
     await loadReports();
+    await loadDirectoryFlags();
+    document.getElementById("adminDirectoryList")?.addEventListener("click", handleDirectoryAction);
   }
 
   document.addEventListener("DOMContentLoaded", () => {

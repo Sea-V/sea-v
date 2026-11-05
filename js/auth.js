@@ -440,6 +440,7 @@
   const USER_EXPORT_TABLES = [
     "profile",
     "vessels",
+    "vessel_directory_flags",
     "seatimes",
     "certificates",
     "achievements",

@@ -131,3 +131,10 @@ changes this — update the policy first.**
 - HTTPS everywhere; Supabase encrypts data at rest.
 - Automatic daily clean-up of expired data (section 3, 4).
 - Security advisor checked after every database change.
+
+## Note: shared yacht directory (added 2026-11-05)
+
+`vessel_directory` holds facts about yachts, not people, and signed-in members can search it. `created_by` links a row
+to the member who added it, for rate limiting; members cannot read it and it is cleared when the account is deleted.
+`vessel_directory_flags` records a member's differing value for the admin to review; it is included in Download my data
+and deleted with the account.

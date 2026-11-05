@@ -1,0 +1,48 @@
+/* "Find your yacht" on the vessel form (v609, js/seav-vessel-finder.js). In the form's
+   flow rather than floating, because the modal scrolls and would clip a floating list. */
+.vessel-finder { display: grid; gap: 6px; }
+.vessel-finder [hidden] { display: none; }
+
+.vessel-finder-list {
+  display: grid;
+  gap: 2px;
+  max-height: var(--vessel-finder-list-max);
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--bridge-rule);
+  border-radius: 4px;
+  background: var(--bridge-surface-2);
+}
+
+.vessel-finder-option { display: grid; gap: 1px; padding: 8px 10px; border-radius: 3px; cursor: pointer; }
+.vessel-finder-option:hover,
+.vessel-finder-option[aria-selected="true"] { background: var(--bridge-accent-soft); }
+.vessel-finder-option strong { color: var(--seav-entity-name-color); font-weight: var(--font-weight-title); }
+.vessel-finder-option small,
+.vessel-finder-empty { color: var(--seav-meta-muted-color); font-size: var(--font-caption); }
+.vessel-finder-empty { padding: 8px 10px; }
+
+.vessel-finder-linked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--bridge-rule);
+  border-radius: 4px;
+  background: var(--bridge-accent-soft);
+}
+
+.vessel-finder-linked small { flex: 1 1 200px; color: var(--seav-meta-desc-color); font-size: var(--font-caption); }
+
+.vessel-finder-unlink {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--seav-accent-text);
+  font: inherit;
+}

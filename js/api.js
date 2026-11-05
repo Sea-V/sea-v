@@ -595,6 +595,34 @@
 // docs/schema-public-profile-age-and-coc-redaction.sql) rather than a direct
 // table select. This column list is now only used by the OWNER path.
 
+const VESSEL_DIRECTORY_COLUMNS =
+  "id,name,imo,mmsi,official_number,flag,call_sign,gt,vessel_length,builder,vessel_type,year_built";
+
+function isValidImo(value) {
+  if (!/^\d{7}$/.test(value)) return false;
+  const sum = [7, 6, 5, 4, 3, 2].reduce((total, weight, index) => total + Number(value[index]) * weight, 0);
+  return sum % 10 === Number(value[6]);
+}
+
+const normaliseDirectoryText = (value) => String(value).toLowerCase().replace(/\s+/g, " ").trim();
+const normaliseDirectoryName = (value) =>
+  normaliseDirectoryText(value).replace(/^(m\/?y|s\/?y|mv|sy)\s+/, "");
+const normaliseDirectoryNumber = (value) => {
+  const number = parseFloat(String(value).replace(/,/g, "").replace(/[^\d.]/g, ""));
+  return Number.isNaN(number) ? normaliseDirectoryText(value) : String(number);
+};
+
+// What is compared when a linked record is saved. Disagreements go to the admin list.
+const VESSEL_DIRECTORY_COMPARED = [
+  ["name", normaliseDirectoryName],
+  ["imo", normaliseDirectoryText],
+  ["mmsi", normaliseDirectoryText],
+  ["official_number", normaliseDirectoryText],
+  ["flag", normaliseDirectoryText],
+  ["gt", normaliseDirectoryNumber],
+  ["vessel_length", normaliseDirectoryNumber]
+];
+
 /** Owner read — includes private fields; never use select("*") (blocked after column hardening). */
 const OWNER_PROFILE_COLUMNS = [
   "id",
@@ -1294,6 +1322,92 @@ const SeavAPI = {
       if (error) throw error;
       window.SeavState?.updateProfile?.({ publicTheme: theme });
       return theme;
+    },
+
+    // v609 shared yacht directory (docs/schema-vessel-directory.sql).
+    async searchVesselDirectory(query) {
+      const client = window.SeavSupabase;
+      const safe = String(query || "").replace(/[^\p{L}\p{N} /'.-]/gu, " ").trim();
+      if (!client || safe.length < 2) return [];
+      const { data, error } = await client
+        .from("vessel_directory")
+        .select(VESSEL_DIRECTORY_COLUMNS)
+        .or(`name.ilike."*${safe}*",imo.eq."${safe}",mmsi.eq."${safe}",official_number.ilike."${safe}"`)
+        .order("name")
+        .limit(8);
+      if (error) throw error;
+      return data || [];
+    },
+
+    // Finds or adds this vessel's directory row and returns its id, or "" when it has
+    // no usable number: a name alone is never identity. Any disagreement goes to the
+    // admin review list; the crew member's own values are saved regardless.
+    async resolveVesselDirectory(vessel) {
+      const client = window.SeavSupabase;
+      if (!client) return vessel?.directory_id || "";
+      const clean = (value) => String(value ?? "").trim();
+      const imo = isValidImo(clean(vessel.imo)) ? clean(vessel.imo) : "";
+      const mmsi = /^\d{9}$/.test(clean(vessel.mmsi)) ? clean(vessel.mmsi) : "";
+      const official = clean(vessel.official_number);
+      const flag = clean(vessel.flag);
+
+      const findOne = async (apply) => {
+        const { data, error } = await apply(
+          client.from("vessel_directory").select(VESSEL_DIRECTORY_COLUMNS)
+        ).limit(1);
+        if (error) throw error;
+        return data?.[0] || null;
+      };
+      const lookup = async () =>
+        (imo && await findOne((q) => q.eq("imo", imo))) ||
+        (mmsi && await findOne((q) => q.eq("mmsi", mmsi))) ||
+        (official && flag && await findOne((q) => q.ilike("official_number", official).ilike("flag", flag))) ||
+        null;
+
+      let entry = vessel.directory_id ? await findOne((q) => q.eq("id", vessel.directory_id)) : null;
+      if (!entry) entry = await lookup();
+      if (!entry) {
+        if (!imo && !mmsi && !(official && flag)) return "";
+        const { data, error } = await client
+          .from("vessel_directory")
+          .insert([{
+            name: clean(vessel.name),
+            imo: imo || null,
+            mmsi: mmsi || null,
+            official_number: official || null,
+            flag: flag || null,
+            call_sign: clean(vessel.call_sign) || null,
+            gt: clean(vessel.gt) || null,
+            vessel_length: clean(vessel.vessel_length) || null,
+            builder: clean(vessel.builder) || null,
+            vessel_type: clean(vessel.vessel_type) || null,
+            year_built: clean(vessel.year_built) || null
+          }])
+          .select(VESSEL_DIRECTORY_COLUMNS)
+          .single();
+        if (error?.code === "23505") {
+          // Someone added it a moment ago.
+          entry = await lookup();
+          if (!entry) return "";
+        } else if (error) {
+          throw error;
+        } else {
+          return data.id;
+        }
+      }
+
+      const flags = VESSEL_DIRECTORY_COMPARED.flatMap(([field, normalise]) => {
+        const submitted = clean(vessel[field]);
+        const held = clean(entry[field]);
+        return submitted && held && normalise(submitted) !== normalise(held)
+          ? [{ directory_id: entry.id, field, directory_value: held, submitted_value: submitted.slice(0, 120) }]
+          : [];
+      });
+      for (const flagRow of flags) {
+        const { error } = await client.from("vessel_directory_flags").insert([flagRow]);
+        if (error && error.code !== "23505") console.warn("[SEA-V] Directory flag failed:", error);
+      }
+      return entry.id;
     },
 
     // v595 public profile layout, saved on its own for the same reason.

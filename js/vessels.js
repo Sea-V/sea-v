@@ -749,6 +749,7 @@ async function renderVessels(options = {}) {
 }
 
 function fillVesselForm(vessel) {
+  window.SeavVesselFinder?.setLink(vessel.directory_id || "");
   document.getElementById("vs_name").value = vessel.name || "";
   document.getElementById("vs_flag").value = vessel.flag || "";
   document.getElementById("vs_gt").value = vessel.gt || "";
@@ -845,6 +846,7 @@ function fillVesselForm(vessel) {
 function resetVesselFormState() {
   const form = document.getElementById("vesselForm");
   if (form) form.reset();
+  window.SeavVesselFinder?.setLink("");
 
   const editId = document.getElementById("vs_edit_index");
   if (editId) editId.value = "";
@@ -988,6 +990,7 @@ async function saveVesselData(vesselData) {
       !document.getElementById("vesselForm")
     ) return;
     vesselsInited = true;
+    window.SeavVesselFinder?.init();
 
     const runRefresh = () => {
       renderVessels();
@@ -1180,8 +1183,16 @@ async function saveVesselData(vesselData) {
   sea_attachment: seaAttachment || existingVessel?.sea_attachment || existingVessel?.seaAttachment || null,
   // Like contract_type above: this payload is a whitelist, so the field has
   // to be listed here or it never reaches the mapper.
-  sea_addendums: seaAddendums
+  sea_addendums: seaAddendums,
+  directory_id: document.getElementById("vs_directory_id")?.value || ""
 };
+
+      // The directory is a help, never a gate: if it fails, the vessel still saves.
+      try {
+        vesselData.directory_id = await SeavAPI.resolveVesselDirectory(vesselData);
+      } catch (err) {
+        console.warn("[SEA-V] Yacht directory link failed:", err);
+      }
 
       await saveVesselData(vesselData);
 

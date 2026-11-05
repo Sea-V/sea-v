@@ -1,4 +1,6 @@
 :root {
+  --vessel-finder-list-max: 220px;
+
   /* The logo on the small public cards: referee, captain (v607; it was 27px). */
   --seav-public-logo-width: 120px;
 

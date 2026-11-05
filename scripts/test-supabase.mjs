@@ -468,6 +468,28 @@ async function testPublicThemeRpc(config) {
   return ok && !leaked.length;
 }
 
+// The yacht directory is for signed-in members only (v609,
+// docs/schema-vessel-directory.sql), and vessels.directory_id stays private.
+async function testVesselDirectoryPrivate(config) {
+  console.log(`\nYacht directory (anon must have no access):`);
+  const headers = { apikey: config.key, Authorization: `Bearer ${config.key}`, "Content-Type": "application/json" };
+  let ok = true;
+  for (const path of ["vessel_directory?select=name&limit=1", "vessel_directory_flags?select=id&limit=1", "vessels?select=directory_id&limit=1"]) {
+    const res = await fetch(`${config.url}/rest/v1/${path}`, { headers });
+    const blocked = res.status === 401 || res.status === 403;
+    console.log(`${blocked ? "✓" : "✗"} ${path}  ${res.status}${blocked ? "" : "  FAIL — anon must not read this"}`);
+    ok = ok && blocked;
+  }
+  const write = await fetch(`${config.url}/rest/v1/vessel_directory`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ name: "Probe", mmsi: "123456789" })
+  });
+  const writeBlocked = write.status === 401 || write.status === 403;
+  console.log(`${writeBlocked ? "✓" : "✗"} anon insert  ${write.status}${writeBlocked ? "" : "  FAIL"}`);
+  return ok && writeBlocked;
+}
+
 // navigation_areas and tenders became COLUMN-scoped for anon in v590
 // (docs/schema-anon-column-scope-navigation-tenders.sql). The public list
 // must still read in one query: PostgREST plans the whole select list up
@@ -966,7 +988,8 @@ async function main() {
       (await testVesselColumns(config)) &&
       (await testLandExperienceColumns(config)) &&
       (await testNavigationTenderColumns(config)) &&
-      (await testPublicThemeRpc(config));
+      (await testPublicThemeRpc(config)) &&
+      (await testVesselDirectoryPrivate(config));
     referenceColumnsSafe = await testReferenceColumns(config);
     certificateColumnsSafe = await testCertificateColumns(config);
     columnDriftSafe = testPublicColumnDrift();

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v608**. Jack pushes every commit himself from
+- HEAD = **v609**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,19 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-05 (v609) — shared yacht directory
+Jack: a vessel should save to a shared database, keyed by number. `vessel_directory` = facts, one row per hull;
+`vessels` stays each crew member's record and gains `directory_id`. Identity: IMO (check digit), then MMSI, then
+official number + flag; **name alone never links or creates**. `docs/schema-vessel-directory.sql`, applied and
+smoke-tested as the real role: 26 vessels, hash of every old column unchanged, 7 entries from valid IMOs, 9 records
+linked, demo account's fake IMOs excluded by the check digit, one flag (Senses MMSI 12345678). Anon 401, advisors 23/23.
+- Signed-in members read and add; only admin edits. `created_by` not readable; 20 additions a day (trigger in `private`).
+- Form: "Find your yacht" (`js/seav-vessel-finder.js`) copies facts into EMPTY fields once. Later directory edits never
+  touch a crew record, so a testimonial keeps the yacht as it was. `SeavAPI.resolveVesselDirectory` on save links or adds,
+  and writes differences to `vessel_directory_flags`; failure never blocks the vessel save.
+- Admin page: "Yacht directory to review", use their value or keep the directory. Privacy policy and record updated.
+- Not linked: records with no number, including 3 name-only Senses. They link when the crew member adds a number or picks it.
 
 ### Ocean strength settled 2026-11-05 — faint everywhere
 Jack tried raw (v604), 0.7 (v605, v607), then: "more faint ... it doesnt look very good". Signed-in and

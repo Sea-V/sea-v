@@ -222,3 +222,12 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* v609 yacht directory review. */
+.admin-directory { display: grid; gap: 10px; margin-top: 24px; }
+.admin-directory[hidden] { display: none; }
+.admin-directory h3 { margin: 0; }
+.admin-directory-note,
+.admin-directory-values { margin: 0; color: var(--seav-meta-desc-color); }
+.admin-directory-values strong { color: var(--seav-field-value-color); }
+.admin-directory-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }

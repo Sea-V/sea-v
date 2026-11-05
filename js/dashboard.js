@@ -235,6 +235,7 @@
       pageUrl: "vessels.html",
       modalId: "vesselModal",
       scriptSrc: "js/vessels.js",
+      deps: ["js/seav-vessel-finder.js"],
       globalName: "SeavVessels",
       initFn: "initVessels",
       openFn: "openAddVesselModal"
