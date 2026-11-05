@@ -1098,11 +1098,11 @@
 /* =========================================================
    DASHBOARD • CARDS (Jack, 2026-11-05)
    Two columns, two cards per row, replacing the v516 bento.
-   Rows share a height because the grid stretches; each card's
-   .dash-panel-foot sits at its bottom so the pairs line up.
-   Fill and hairline come from the box lists in typography.css
-   and theme-bridge.css. Sizes are pinned with `html body.app-page`
-   and !important because typography.css forces span/small to 14px.
+   Every card is a ruled header band, then figures and tables, so a
+   title, a label and a number each sit in their own cell. Fill and
+   outer hairline come from the box lists in typography.css and
+   theme-bridge.css. Sizes are pinned with `html body.app-page` and
+   !important because typography.css forces td, span and small to 14px.
 ========================================================= */
 
 .dash-cards {
@@ -1122,7 +1122,7 @@
   flex-direction: column;
   min-width: 0;
   box-sizing: border-box;
-  padding: var(--dash-panel-pad);
+  overflow: hidden;
 }
 
 .dash-panel-head {
@@ -1130,7 +1130,9 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  padding: var(--dash-panel-head-pad);
+  border-bottom: 1px solid var(--bridge-rule);
+  background: var(--bridge-surface-2);
 }
 
 html body.app-page a.dash-panel-more {
@@ -1145,23 +1147,9 @@ a.dash-panel-more:hover {
   text-decoration: underline;
 }
 
-html body.app-page .dash-panel-big {
-  display: block;
-  color: rgb(var(--seav-ink-rgb));
-  font-size: var(--font-kpi) !important;
-  font-weight: var(--font-weight-title);
-  line-height: 1.15;
-  font-variant-numeric: tabular-nums;
+.dash-panel-body {
+  padding: var(--dash-panel-pad);
 }
-
-html body.app-page .dash-panel-big small {
-  color: var(--seav-meta-desc-color);
-  font-size: var(--font-body) !important;
-  font-weight: var(--font-weight-body);
-}
-
-html body.app-page .dash-panel-big.is-warn { color: var(--dash-panel-warn); }
-html body.app-page .dash-panel-big.is-bad { color: var(--dash-panel-bad); }
 
 html body.app-page .dash-panel-name {
   display: block;
@@ -1173,66 +1161,142 @@ html body.app-page .dash-panel-sub {
   margin-top: 2px;
   color: var(--seav-meta-desc-color);
   font-size: var(--type-caption) !important;
+  font-weight: var(--font-weight-body);
   line-height: 1.45;
 }
 
-.dash-panel-foot {
-  margin-top: auto;
-  padding-top: 12px;
-}
-
-/* Current vessel: the photo runs to the card's edges. */
-.dash-panel--vessel {
-  padding: 0;
-  overflow: hidden;
-}
-
-.dash-panel-photo {
+html body.app-page .dash-panel-note {
   display: block;
-  width: 100%;
-  height: var(--dash-panel-photo-height);
-  object-fit: cover;
-  object-position: center 68%;
+  margin-top: auto;
+  padding: var(--dash-panel-head-pad);
+  border-top: 1px solid var(--bridge-rule);
+  color: var(--seav-meta-muted-color);
+  font-size: var(--type-caption) !important;
+  line-height: 1.45;
 }
 
-.dash-panel-body {
-  padding: var(--dash-panel-body-pad);
+html body.app-page .dash-panel-empty {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--seav-meta-desc-color);
 }
 
-.dash-panel-facts {
+/* Figures: a strip of cells, a label over its number, a rule between each. */
+.dash-figures {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px 14px;
-  margin: 12px 0 0;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  margin: 0;
+  border-bottom: 1px solid var(--bridge-rule);
 }
 
-html body.app-page .dash-panel-facts dt {
+.dash-figures > div {
+  min-width: 0;
+  padding: var(--dash-cell-pad);
+  border-left: 1px solid var(--bridge-rule);
+}
+
+.dash-figures > div:first-child {
+  border-left: 0;
+}
+
+html body.app-page .dash-figures dt {
   color: var(--seav-field-label-color);
   font-size: var(--type-caption) !important;
   font-weight: var(--type-title-weight);
 }
 
-html body.app-page .dash-panel-facts dd {
-  margin: 1px 0 0;
-  color: var(--seav-field-value-color);
+html body.app-page .dash-figures dd {
+  margin: 2px 0 0;
+  color: rgb(var(--seav-ink-rgb));
+  font-weight: var(--font-weight-title);
+  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 
-/* Your next ticket */
-.dash-ticket {
-  padding: 12px 0;
-  border-top: 1px solid var(--bridge-rule);
+html body.app-page .dash-figures .is-warn dd { color: var(--dash-panel-warn); }
+html body.app-page .dash-figures .is-bad dd { color: var(--dash-panel-bad); }
+
+/* Tables */
+/* tables.css gives every table a 720px minimum, for the wide pages. */
+.dash-table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
 }
 
-.dash-ticket:first-of-type {
-  padding-top: 0;
-  border-top: 0;
+.dash-table th,
+.dash-table td {
+  padding: var(--dash-cell-pad);
+  border-bottom: 1px solid var(--bridge-rule);
+  color: rgb(var(--seav-ink-rgb));
+  text-align: left;
+  vertical-align: top;
+}
+
+.dash-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+html body.app-page .dash-table thead th small {
+  color: var(--seav-field-label-color);
+  font-size: var(--type-caption) !important;
+  font-weight: var(--type-title-weight);
+}
+
+.dash-table .is-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+html body.app-page .dash-table td a {
+  color: rgb(var(--seav-ink-rgb));
+  text-decoration: none;
+}
+
+html body.app-page .dash-table td a:hover {
+  color: var(--seav-accent-text);
+}
+
+html body.app-page .dash-table td.is-empty,
+html body.app-page .dash-table td.is-empty a { color: var(--seav-meta-muted-color); }
+
+/* Your other records: two record and count pairs per row, a rule between them. */
+#dashRecordsCard .dash-table :is(th, td):nth-child(3) {
+  border-left: 1px solid var(--bridge-rule);
+}
+html body.app-page .dash-table .is-todo .is-num { color: var(--seav-accent-text); font-weight: var(--font-weight-title); }
+html body.app-page .dash-table .is-warn .is-num { color: var(--dash-panel-warn); font-weight: var(--font-weight-title); }
+html body.app-page .dash-table .is-bad .is-num { color: var(--dash-panel-bad); font-weight: var(--font-weight-title); }
+
+/* A subject inside a table wraps; only figures stay on one line. */
+#dashNoticesCard .dash-table td:nth-child(1) {
+  width: 34%;
+}
+
+/* Your next ticket: a heading row with its bar, then its requirements. */
+.dash-table-group th {
+  background: rgb(var(--seav-ink-rgb) / 0.03);
+}
+
+.dash-ticket-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+html body.app-page .dash-ticket-line b {
+  color: rgb(var(--seav-ink-rgb));
+  font-weight: var(--font-weight-title);
+  font-variant-numeric: tabular-nums;
 }
 
 .dash-ticket-bar {
   display: block;
   height: var(--dash-panel-bar-height);
-  margin: 10px 0 6px;
+  margin-top: 8px;
   border-radius: 3px;
   background: rgb(var(--seav-ink-rgb) / 0.12);
   overflow: hidden;
@@ -1244,124 +1308,12 @@ html body.app-page .dash-panel-facts dd {
   background: var(--bridge-accent);
 }
 
-/* Rows: label left, value right. */
-.dash-rows {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.dash-rows.dash-panel-foot {
-  padding-top: 12px;
-}
-
-.dash-rows > li {
-  padding: 9px 0;
-  border-top: 1px solid var(--bridge-rule);
-}
-
-.dash-rows > li:first-child {
-  padding-top: 0;
-  border-top: 0;
-}
-
-.dash-rows > li,
-.dash-rows > li > a {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.dash-rows > li > a {
-  flex: 1;
-  min-width: 0;
-  text-decoration: none;
-}
-
-html body.app-page .dash-rows a {
-  color: rgb(var(--seav-ink-rgb));
-}
-
-.dash-rows a:hover .dash-row-label {
-  color: var(--seav-accent-text);
-}
-
-html body.app-page .dash-rows b {
-  flex-shrink: 0;
-  color: rgb(var(--seav-ink-rgb));
-  font-weight: var(--font-weight-title);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-html body.app-page .dash-rows .is-empty :is(b, .dash-row-label) { color: var(--seav-meta-muted-color); }
-html body.app-page .dash-rows .is-todo b { color: var(--seav-accent-text); }
-html body.app-page .dash-rows .is-warn b { color: var(--dash-panel-warn); }
-html body.app-page .dash-rows .is-bad b { color: var(--dash-panel-bad); }
-
-.dash-rows--split {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 24px;
-}
-
-.dash-rows--split > li:nth-child(2) {
-  padding-top: 0;
-  border-top: 0;
-}
-
-/* Sea time split */
-.dash-daytypes {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 14px;
-}
-
-html body.app-page .dash-daytypes small {
-  display: block;
-  color: var(--seav-field-label-color);
-  font-size: var(--type-caption) !important;
-  font-weight: var(--type-title-weight);
-}
-
-html body.app-page .dash-daytypes strong {
-  display: block;
-  color: rgb(var(--seav-ink-rgb));
-  font-weight: var(--font-weight-title);
-  font-variant-numeric: tabular-nums;
-}
-
-/* An empty card: one line and the way to fill it. */
-html body.app-page .dash-panel-empty {
-  display: block;
-  margin-bottom: 10px;
-  color: var(--seav-meta-desc-color);
-}
-
 /* Crew support */
-.dash-help {
-  padding: 10px 0;
-  border-top: 1px solid var(--bridge-rule);
-}
-
-.dash-help:first-of-type {
-  padding-top: 0;
-  border-top: 0;
-}
-
-html body.app-page .dash-help-name {
-  display: block;
-  color: rgb(var(--seav-ink-rgb));
-  font-weight: var(--font-weight-title);
-}
-
 .dash-help-links {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 6px;
-  margin-top: 7px;
 }
 
 html body.app-page a.dash-help-link {
@@ -1378,34 +1330,74 @@ a.dash-help-link:hover {
   border-color: var(--bridge-accent);
 }
 
-/* Notices and regulations: a name with a line under it. */
-.dash-links {
-  display: grid;
-  gap: 2px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.dash-links--split {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 24px;
-}
-
-.dash-links a {
+/* Current vessel. With a photo the card takes the photo's own shape (the ratio
+   is set from the image), so none of it is cut off, and the details sit over
+   the foot of the picture on a dark fade. */
+.dash-vessel-photo {
   display: block;
-  padding: 6px 0;
-  text-decoration: none;
+  width: 100%;
 }
 
-html body.app-page .dash-link-name {
-  display: block;
-  color: rgb(var(--seav-ink-rgb));
-  font-weight: var(--font-weight-title);
+.dash-vessel-top,
+.dash-vessel-id {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.dash-links a:hover .dash-link-name {
-  color: var(--seav-accent-text);
+.dash-vessel-top {
+  padding: var(--dash-panel-head-pad);
+  border-bottom: 1px solid var(--bridge-rule);
+  background: var(--bridge-surface-2);
+}
+
+.dash-vessel-id {
+  align-items: flex-end;
+  padding: var(--dash-cell-pad);
+  border-bottom: 1px solid var(--bridge-rule);
+}
+
+html body.app-page .dash-vessel-numbers {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.dash-vessel-info .dash-figures {
+  border-bottom: 0;
+}
+
+@media (min-width: 561px) {
+  .dash-panel--vessel.is-photo {
+    position: relative;
+  }
+
+  .dash-panel--vessel.is-photo::before {
+    content: "";
+    display: block;
+    padding-top: calc(100% / var(--dash-vessel-ratio, 1.5));
+  }
+
+  .dash-panel--vessel.is-photo .dash-vessel-photo {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .dash-panel--vessel.is-photo .dash-vessel-info {
+    position: absolute;
+    inset: auto 0 0;
+    padding-top: var(--dash-vessel-fade);
+    background: var(--dash-vessel-scrim);
+    --bridge-rule: rgb(255 255 255 / 0.24);
+    --bridge-surface-2: transparent;
+  }
+
+  .dash-panel--vessel.is-photo .dash-vessel-top {
+    padding-block: 0 6px;
+    border-bottom: 0;
+  }
 }
 
 @media (max-width: 820px) {
@@ -1413,12 +1405,34 @@ html body.app-page .dash-link-name {
     grid-template-columns: minmax(0, 1fr);
     padding: var(--dash-cards-pad-phone);
   }
-
-  .dash-daytypes {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
+@media (max-width: 480px) {
+  .dash-figures {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dash-figures > div:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .dash-figures > div:nth-child(n + 3) {
+    border-top: 1px solid var(--bridge-rule);
+  }
+
+  .dash-table .is-num {
+    white-space: normal;
+  }
+
+  .dash-table {
+    --dash-cell-pad: var(--dash-cell-pad-phone);
+  }
+
+  .dash-table td {
+    overflow-wrap: anywhere;
+  }
+}
 
 /* =========================================================
    DASHBOARD • PROFILE COMPLETION STRIP (v521)

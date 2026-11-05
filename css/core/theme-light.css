@@ -118,6 +118,20 @@ html[data-theme="light"] body.app-page :is(select option, .modal-form select opt
   color: rgb(var(--seav-ink-rgb)) !important;
 }
 
+/* Over a PHOTO the text stays white whatever the theme: the vessel card's details
+   sit on a dark fade. Named tokens resolve on <html>, so the ink reset alone misses
+   them. Phones stack the details under the photo, on the card's own fill. */
+@media (min-width: 561px) {
+  html[data-theme="light"] body.app-page .dash-panel--vessel.is-photo .dash-vessel-info {
+    --seav-ink-rgb: 255 255 255;
+    --seav-entity-name-color: #ffffff;
+    --seav-field-label-color: #5bbcff;
+    --seav-accent-text: #5bbcff;
+    --seav-meta-desc-color: rgba(255, 255, 255, 0.82);
+    --bridge-caption: rgba(255, 255, 255, 0.82);
+  }
+}
+
 /* Form fields: white with a visible edge. The dark theme fills them with
    rgba(0, 0, 0, 0.22), which on white reads as a disabled grey box.
    background-COLOR only, so select chevrons (background-image) survive. */

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v611**. Jack pushes every commit himself from
+- HEAD = **v612**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,13 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-05 (v612) — dashboard cards as ruled tables; vessel details over the whole photo
+Jack: the cards need to look more professional, the photo uncut with the writing over it as before, "lines and tables that separate number from titles", "too much loose information floating". Reverses the big-number look of v610.
+- Every card: a ruled header band, then `figures()` (`.dash-figures`, a strip of label-over-number cells with rules) and `table()` (`.dash-table`, real tables with labelled columns), in js/dashboard-snippets.js. tables.css gives every table a 720px minimum, so `.dash-table` resets it.
+- Vessel: `.is-photo` card takes the image's own shape via `--dash-vessel-ratio` (set from naturalWidth / naturalHeight), so the photo is whole unless the card beside it is taller. Details over the foot on `--dash-vessel-scrim`, white in Light too (theme-light.css resets the tokens locally). At <=560px the details sit under the photo.
+- Your next ticket now tables `getSubRequirements()`: Requirement / Done / Needed under each ticket with its bar, replacing the long engine sentence. Six MCA notices, up from three.
+Tested on the page copy with live public data, Dark, Light, phone. Not seen signed in.
 
 ### Shipped 2026-11-05 (v611) — sea-time rules against MSN 1858 Amendment 2
 Compared with the PDF sentence by sentence (published 18 May 2026; §4 is new, so old §4.x are now §5.x), then all nine differences fixed at Jack's word ("sort it out"), `js/seav-data.js`:

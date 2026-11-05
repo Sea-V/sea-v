@@ -29,23 +29,6 @@
     card.innerHTML = html;
   }
 
-  function cardHead(title, moreHref, moreLabel) {
-    const more = moreHref
-      ? `<a class="dash-panel-more" href="${esc(moreHref)}">${esc(moreLabel)}</a>`
-      : "";
-    return `<div class="dash-panel-head"><strong class="dash-panel-title">${esc(title)}</strong>${more}</div>`;
-  }
-
-  function emptyCard(title, line, href, linkLabel) {
-    return `${cardHead(title)}
-      <small class="dash-panel-empty">${esc(line)}</small>
-      <div class="dash-panel-foot"><a class="dash-panel-more" href="${esc(href)}">${esc(linkLabel)}</a></div>`;
-  }
-
-  function plural(n, one, many) {
-    return `${n.toLocaleString("en-GB")} ${n === 1 ? one : many}`;
-  }
-
   /**
    * Append a unit only when the stored value does not already carry one.
    * Vessel length is stored bare ("59") by some records and with text by others.
@@ -93,24 +76,81 @@
   }
 
   // ---------------------------------------------------------------
-  // Current vessel
+  // Card parts. Every card is a ruled header, then figures and tables, so a
+  // title, a label and a number each have their own cell. Callers escape what
+  // they pass in.
+  // ---------------------------------------------------------------
+
+  function cardHead(title, moreHref, moreLabel) {
+    const more = moreHref
+      ? `<a class="dash-panel-more" href="${esc(moreHref)}">${esc(moreLabel)}</a>`
+      : "";
+    return `<div class="dash-panel-head"><strong class="dash-panel-title">${esc(title)}</strong>${more}</div>`;
+  }
+
+  function emptyCard(title, line, href, linkLabel) {
+    return `${cardHead(title)}
+      <div class="dash-panel-body">
+        <small class="dash-panel-empty">${esc(line)}</small>
+        <a class="dash-panel-more" href="${esc(href)}">${esc(linkLabel)}</a>
+      </div>`;
+  }
+
+  function figures(items) {
+    return `<dl class="dash-figures">${items
+      .map(
+        ({ label, value, tone }) =>
+          `<div${tone ? ` class="is-${tone}"` : ""}><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`
+      )
+      .join("")}</dl>`;
+  }
+
+  // columns: [{ label, num }]; rows: [{ cells: [html], tone }] or a raw <tr>.
+  function table(columns, rows) {
+    const head = columns
+      .map((col) => `<th scope="col"${col.num ? ' class="is-num"' : ""}><small>${esc(col.label)}</small></th>`)
+      .join("");
+    const body = rows
+      .map((row) => {
+        if (typeof row === "string") return row;
+        const cells = row.cells
+          .map((cell, i) => `<td${columns[i]?.num ? ' class="is-num"' : ""}>${cell}</td>`)
+          .join("");
+        return `<tr${row.tone ? ` class="is-${row.tone}"` : ""}>${cells}</tr>`;
+      })
+      .join("");
+    return `<table class="dash-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+  }
+
+  function cellLink(href, label, external) {
+    return `<a href="${esc(href)}"${external ? ' target="_blank" rel="noopener"' : ""}>${esc(label)}</a>`;
+  }
+
+  function number(value) {
+    return Number(value || 0).toLocaleString("en-GB");
+  }
+
+  // ---------------------------------------------------------------
+  // Current vessel — the whole photo, with the details over it
   // ---------------------------------------------------------------
 
   async function renderVesselCard() {
     const vessels = window.SeavState?.vessels || [];
     const vessel = vessels.length ? window.SeavData.getCurrentVessel(vessels) : null;
+    const card = document.getElementById("dashVesselCard");
 
     if (!vessel) {
+      card?.classList.remove("is-photo");
       fill(
         "dashVesselCard",
         "vessel",
         null,
-        `<div class="dash-panel-body">${emptyCard(
+        emptyCard(
           "Current vessel",
           "Add your yacht to start your career record.",
           "dashboard.html?add=vessel",
           "Add a vessel"
-        )}</div>`
+        )
       );
       return;
     }
@@ -128,28 +168,52 @@
     const since = isCurrent ? (vessel.from ? `since ${formatDatePretty(vessel.from)}` : "") : dateRange(vessel.from, vessel.to);
 
     const facts = [
-      ["Time onboard", formatTimeOnboard(vessel.from, vessel.to)],
-      ["Length", withUnit(vessel.vessel_length || vessel.length, "m")],
-      ["Gross tonnage", vessel.gt],
-      ["Flag", vessel.flag],
-      ["IMO", vessel.imo],
-      ["MMSI", vessel.mmsi]
-    ].filter(([, value]) => String(value ?? "").trim());
+      { label: "Time onboard", value: formatTimeOnboard(vessel.from, vessel.to) },
+      { label: "Length", value: withUnit(vessel.vessel_length || vessel.length, "m") },
+      { label: "Gross tonnage", value: vessel.gt },
+      { label: "Flag", value: vessel.flag }
+    ].filter((fact) => String(fact.value ?? "").trim());
+    const numbers = [vessel.imo ? `IMO ${vessel.imo}` : "", vessel.mmsi ? `MMSI ${vessel.mmsi}` : ""]
+      .filter(Boolean)
+      .join(" · ");
 
+    const before = card?.innerHTML;
     fill(
       "dashVesselCard",
       "vessel",
       vessel,
-      `${photoUrl ? `<img class="dash-panel-photo" src="${esc(photoUrl)}" alt="${esc(vessel.name || "Vessel")}">` : ""}
-      <div class="dash-panel-body">
-        ${cardHead(isCurrent ? "Current vessel" : "Most recent vessel", "vessels.html", "Open")}
-        <strong class="dash-panel-name">${esc(vessel.name || "Unnamed vessel")}</strong>
-        <small class="dash-panel-sub">${esc([role, since].filter(Boolean).join(" · "))}</small>
-        <dl class="dash-panel-facts">
-          ${facts.map(([label, value]) => `<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("")}
-        </dl>
+      `${photoUrl ? `<img class="dash-vessel-photo" src="${esc(photoUrl)}" alt="${esc(vessel.name || "Vessel")}">` : ""}
+      <div class="dash-vessel-info">
+        <div class="dash-vessel-top">
+          <strong class="dash-panel-title">${isCurrent ? "Current vessel" : "Most recent vessel"}</strong>
+          <a class="dash-panel-more" href="vessels.html">Open</a>
+        </div>
+        <div class="dash-vessel-id">
+          <div>
+            <strong class="dash-panel-name">${esc(vessel.name || "Unnamed vessel")}</strong>
+            <small class="dash-panel-sub">${esc([role, since].filter(Boolean).join(" · "))}</small>
+          </div>
+          ${numbers ? `<small class="dash-panel-sub dash-vessel-numbers">${esc(numbers)}</small>` : ""}
+        </div>
+        ${facts.length ? figures(facts) : ""}
       </div>`
     );
+    if (!card || card.innerHTML === before) return;
+
+    // The card takes the photo's own shape, so none of the picture is cut off.
+    card.classList.toggle("is-photo", !!photoUrl);
+    const img = card.querySelector(".dash-vessel-photo");
+    if (!img) return;
+    const applyShape = () => {
+      if (!img.naturalWidth || !img.naturalHeight) return;
+      card.style.setProperty("--dash-vessel-ratio", String(img.naturalWidth / img.naturalHeight));
+    };
+    img.addEventListener("error", () => {
+      img.remove();
+      card.classList.remove("is-photo");
+    });
+    if (img.complete) applyShape();
+    else img.addEventListener("load", applyShape);
   }
 
   // ---------------------------------------------------------------
@@ -157,6 +221,24 @@
   // ---------------------------------------------------------------
 
   const TICKET_LIMIT = 2;
+
+  function ticketRows(entry) {
+    const percent = Math.max(0, Math.min(100, Number(entry.percent) || 0));
+    const group = `<tr class="dash-table-group"><th colspan="3" scope="colgroup">
+      <span class="dash-ticket-line"><strong class="dash-panel-name">${esc(entry.certGroupKey)}</strong><b>${percent}%</b></span>
+      <span class="dash-ticket-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"><i style="width:${percent}%"></i></span>
+    </th></tr>`;
+    const needs = window.SeavAchievementEngine?.getSubRequirements?.(entry.full) || [];
+    if (!needs.length) {
+      return [group, `<tr><td colspan="3">${esc(entry.label || "")}</td></tr>`];
+    }
+    return [
+      group,
+      ...needs.map((need) => ({
+        cells: [esc(need.label), esc(number(need.current)), esc(`${number(need.target)} ${need.unit || ""}`.trim())]
+      }))
+    ];
+  }
 
   function renderTicketCard() {
     const entries = (window.SeavAchievementEngine?.getInProgressMilestones?.() || []).slice(0, TICKET_LIMIT);
@@ -176,22 +258,15 @@
       return;
     }
 
-    const rows = entries.map((entry) => {
-      const percent = Math.max(0, Math.min(100, Number(entry.percent) || 0));
-      return `<div class="dash-ticket">
-        <strong class="dash-panel-name">${esc(entry.certGroupKey)}</strong>
-        <span class="dash-ticket-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"><i style="width:${percent}%"></i></span>
-        <small class="dash-panel-sub">${percent}%${entry.label ? ` · ${esc(entry.label)}` : ""}</small>
-      </div>`;
-    });
+    const rows = entries.flatMap(ticketRows);
 
     fill(
       "dashTicketCard",
       "ticket",
-      entries.map((entry) => [entry.certGroupKey, entry.percent, entry.label]),
+      rows,
       `${cardHead("Your next ticket", "achievements.html", "All milestones")}
-      ${rows.join("")}
-      <div class="dash-panel-foot"><small class="dash-panel-sub">Worked out from what you have logged. Guidance only: the MCA decides.</small></div>`
+      ${table([{ label: "Requirement" }, { label: "Done", num: true }, { label: "Needed", num: true }], rows)}
+      <small class="dash-panel-note">Worked out from what you have logged. Guidance only: the MCA decides.</small>`
     );
   }
 
@@ -199,7 +274,12 @@
   // Certificates
   // ---------------------------------------------------------------
 
-  const CERT_ROW_LIMIT = 3;
+  const CERT_ROW_LIMIT = 4;
+  const CERT_STATES = {
+    bad: "Expired",
+    warn: "Expires soon",
+    "": "Valid"
+  };
 
   function renderCertCard() {
     const certs = (window.SeavState?.certs || []).filter(
@@ -235,24 +315,30 @@
     const expired = dated.filter((cert) => stateOf(cert) === "bad").length;
     const soon = dated.filter((cert) => stateOf(cert) === "warn").length;
 
-    let headline = `<strong class="dash-panel-big">All in date</strong>`;
-    if (expired) headline = `<strong class="dash-panel-big is-bad">${esc(plural(expired, "expired", "expired"))}</strong>`;
-    else if (soon) headline = `<strong class="dash-panel-big is-warn">${soon} expiring soon</strong>`;
-    if (!dated.length) headline = `<strong class="dash-panel-big">No expiry dates</strong>`;
-
     const rows = dated.slice(0, CERT_ROW_LIMIT).map((cert) => {
       const state = stateOf(cert);
-      return `<li${state ? ` class="is-${state}"` : ""}><a href="certificates.html?focus=${encodeURIComponent(cert.id || "")}">
-        <span class="dash-row-label">${esc(cert.name || "Certificate")}</span><b>${esc(formatDatePretty(cert.expiry))}</b></a></li>`;
+      return {
+        tone: state,
+        cells: [
+          cellLink(`certificates.html?focus=${encodeURIComponent(cert.id || "")}`, cert.name || "Certificate"),
+          esc(formatDatePretty(cert.expiry)),
+          esc(CERT_STATES[state])
+        ]
+      };
     });
 
     fill(
       "dashCertCard",
       "certs",
-      dated.map((cert) => [cert.id, cert.name, cert.expiry]).concat(certs.length),
-      `${cardHead("Certificates", "certificates.html", `All ${certs.length}`)}
-      ${headline}
-      ${rows.length ? `<small class="dash-panel-sub dash-cert-caption">Next to expire</small><ul class="dash-rows dash-panel-foot">${rows.join("")}</ul>` : ""}`
+      rows.concat(certs.length),
+      `${cardHead("Certificates", "certificates.html", "All certificates")}
+      ${figures([
+        { label: "Held", value: number(certs.length) },
+        { label: "Valid", value: number(dated.length - expired - soon) },
+        { label: "Expiring soon", value: number(soon), tone: soon ? "warn" : "" },
+        { label: "Expired", value: number(expired), tone: expired ? "bad" : "" }
+      ])}
+      ${rows.length ? table([{ label: "Next to expire" }, { label: "Expires", num: true }, { label: "Status", num: true }], rows) : ""}`
     );
   }
 
@@ -282,35 +368,36 @@
     const latest = [...seatimes].sort((a, b) =>
       String(b.dateJoined || "").localeCompare(String(a.dateJoined || ""))
     )[0];
-    const pending = seatimes.filter((entry) => entry.verificationStatus === "Pending Verification").length;
+    const countStatus = (status) =>
+      seatimes.filter((entry) => (entry.verificationStatus || "Logged") === status).length;
     const range = dateRange(latest.dateJoined, latest.dateLeft, "present");
+
+    const rows = [
+      { cells: ["Entries logged", esc(number(seatimes.length))] },
+      { cells: ["Verified", esc(number(countStatus("Verified")))] },
+      { cells: ["Awaiting verification", esc(number(countStatus("Pending Verification")))] },
+      ...(range ? [{ cells: ["Latest entry", esc(range)] }] : [])
+    ];
 
     fill(
       "dashSeatimeCard",
       "seatime",
-      [totals, range, pending, seatimes.length],
-      `${cardHead("Sea time", "seatime.html", plural(seatimes.length, "entry", "entries"))}
-      <strong class="dash-panel-big">${Number(totals.total).toLocaleString("en-GB")} <small>logged days</small></strong>
-      <div class="dash-daytypes">
-        <div><small>At sea</small><strong>${Number(totals.sea).toLocaleString("en-GB")}</strong></div>
-        <div><small>Standby</small><strong>${Number(totals.standby).toLocaleString("en-GB")}</strong></div>
-        <div><small>Yard</small><strong>${Number(totals.yard).toLocaleString("en-GB")}</strong></div>
-        <div><small>On watch</small><strong>${Number(totals.watchkeeping).toLocaleString("en-GB")}</strong></div>
-      </div>
-      <ul class="dash-rows dash-panel-foot">
-        ${range ? `<li><span class="dash-row-label">Latest entry</span><b>${esc(range)}</b></li>` : ""}
-        ${pending ? `<li class="is-todo"><a href="seatime.html"><span class="dash-row-label">Awaiting verification</span><b>${pending}</b></a></li>` : ""}
-      </ul>`
+      [totals, rows],
+      `${cardHead("Sea time", "seatime.html", "All entries")}
+      ${figures([
+        { label: "Logged days", value: number(totals.total) },
+        { label: "At sea", value: number(totals.sea) },
+        { label: "Standby", value: number(totals.standby) },
+        { label: "Yard", value: number(totals.yard) },
+        { label: "On watch", value: number(totals.watchkeeping) }
+      ])}
+      ${table([{ label: "Record" }, { label: "Detail", num: true }], rows)}`
     );
   }
 
   // ---------------------------------------------------------------
   // Ready for your next job
   // ---------------------------------------------------------------
-
-  function readyRow(href, label, value, todo) {
-    return `<li${todo ? ' class="is-todo"' : ""}><a href="${esc(href)}"><span class="dash-row-label">${esc(label)}</span><b>${esc(value)}</b></a></li>`;
-  }
 
   function renderReadyCard() {
     const profile = window.SeavState?.profile || {};
@@ -322,17 +409,23 @@
     const isPublic = !!profile.publicEnabled;
     const publicUrl = isPublic ? Seav.buildPublicProfileUrl?.(profile) : "";
 
+    const row = (href, label, status, action) => ({
+      cells: [cellLink(href, label), esc(status)],
+      tone: action ? "todo" : ""
+    });
+    const rows = [
+      row("cv-generator.html", "Your CV", "Open", false),
+      row(publicUrl || "profile.html", "Public profile", isPublic ? "Live" : "Turn on", !isPublic),
+      row("references.html", "Verified references", verified ? String(verified) : "Ask a referee", !verified),
+      row("seatime.html", "Captain's testimonials", signed ? `${signed} signed` : "Request", !signed)
+    ];
+
     fill(
       "dashReadyCard",
       "ready",
-      [verified, signed, isPublic, publicUrl],
+      rows,
       `${cardHead("Ready for your next job")}
-      <ul class="dash-rows">
-        ${readyRow("cv-generator.html", "Your CV", "Open", false)}
-        ${readyRow(publicUrl || "profile.html", "Public profile", isPublic ? "Live" : "Turn on", !isPublic)}
-        ${readyRow("references.html", "Verified references", verified ? String(verified) : "Ask a referee", !verified)}
-        ${readyRow("seatime.html", "Captain's testimonials", signed ? `${signed} signed` : "Request", !signed)}
-      </ul>`
+      ${table([{ label: "Item" }, { label: "Status", num: true }], rows)}`
     );
   }
 
@@ -343,7 +436,7 @@
   function renderRecordsCard() {
     const state = window.SeavState || {};
     const earned = window.SeavAchievementEngine?.getEarnedAchievementCodes?.();
-    const rows = [
+    const records = [
       ["vessels.html", "Vessels", (state.vessels || []).length],
       ["tenders.html", "Tenders", (state.tenders || []).length],
       ["onboard-experience.html", "Onboard experience", (state.onboardExperiences || []).length],
@@ -355,19 +448,24 @@
       ["payslips.html", "Payslips", (state.payslips || []).length]
     ];
 
+    const cells = ([href, label, count]) => {
+      const empty = count ? "" : " is-empty";
+      return `<td class="${empty.trim()}">${cellLink(href, label)}</td><td class="is-num${empty}">${esc(number(count))}</td>`;
+    };
+    const rows = [];
+    for (let i = 0; i < records.length; i += 2) {
+      rows.push(`<tr>${cells(records[i])}${records[i + 1] ? cells(records[i + 1]) : "<td></td><td></td>"}</tr>`);
+    }
+
     fill(
       "dashRecordsCard",
       "records",
-      rows,
+      records,
       `${cardHead("Your other records")}
-      <ul class="dash-rows dash-rows--split">
-        ${rows
-          .map(
-            ([href, label, count]) =>
-              `<li${count ? "" : ' class="is-empty"'}><a href="${esc(href)}"><span class="dash-row-label">${esc(label)}</span><b>${count}</b></a></li>`
-          )
-          .join("")}
-      </ul>`
+      ${table(
+        [{ label: "Record" }, { label: "Count", num: true }, { label: "Record" }, { label: "Count", num: true }],
+        rows
+      )}`
     );
   }
 
@@ -416,22 +514,23 @@
 
     const route = H?.formatRouteLabel ? H.formatRouteLabel(latest) : "";
     const when = dateRange(latest.departureDate || latest.visitedDate, latest.arrivalDate);
-    const countryLine = plural(countries.size, "country", "countries");
-    const headline = nm
-      ? `${Math.round(nm).toLocaleString("en-GB")} <small>NM across ${esc(countryLine)}</small>`
-      : `${entries.length.toLocaleString("en-GB")} <small>${entries.length === 1 ? "passage" : "passages"} across ${esc(countryLine)}</small>`;
+    const rows = [
+      { cells: ["Last passage", esc(latest.passageName || route || "Passage")] },
+      ...(route && route !== latest.passageName ? [{ cells: ["Route", esc(route)] }] : []),
+      ...(when ? [{ cells: ["Dates", esc(when)] }] : [])
+    ];
 
     fill(
       "dashNavigationCard",
       "navigation",
-      [latest.id, latest.passageName, route, when, Math.round(nm), countries.size, entries.length],
-      `${cardHead("Navigation", "navigation.html", `All ${plural(entries.length, "passage", "passages")}`)}
-      <strong class="dash-panel-big">${headline}</strong>
-      <div class="dash-panel-foot">
-        <small class="dash-panel-sub">Last passage</small>
-        <strong class="dash-panel-name">${esc(latest.passageName || route || "Passage")}</strong>
-        <small class="dash-panel-sub">${esc(when)}</small>
-      </div>`
+      [Math.round(nm), entries.length, countries.size, rows],
+      `${cardHead("Navigation", "navigation.html", "All passages")}
+      ${figures([
+        { label: "Distance", value: nm ? `${number(Math.round(nm))} NM` : "–" },
+        { label: "Passages", value: number(entries.length) },
+        { label: "Countries", value: number(countries.size) }
+      ])}
+      ${table([{ label: "Record" }, { label: "Detail", num: true }], rows)}`
     );
   }
 
@@ -445,7 +544,7 @@
   const NOTICES_ALL_URL = "https://www.gov.uk/government/collections/active-marine-guidance-notes-mgns";
   const NOTICES_CACHE_KEY = "seav_mca_notices";
   const NOTICES_MAX_AGE_MS = 24 * 60 * 60 * 1000;
-  const NOTICE_LIMIT = 3;
+  const NOTICE_LIMIT = 6;
   // "MGN 199 (M) Amendment 1 Danger of interaction" -> name + subject.
   const NOTICE_TITLE = /^((?:MGN|MSN|MIN)\s*\d+\s*\(([^)]*)\)(?:\s*[-–]?\s*Amendment\s*\d+)?)\s*[:\-–]*\s*(.*)$/i;
 
@@ -523,7 +622,7 @@
         "dashNoticesCard",
         "notices",
         [],
-        `${head}<small class="dash-panel-empty">The latest notices could not be loaded. They are always on GOV.UK.</small>`
+        `${head}<div class="dash-panel-body"><small class="dash-panel-empty">The latest notices could not be loaded. They are always on GOV.UK.</small></div>`
       );
       return;
     }
@@ -533,14 +632,12 @@
       "notices",
       items,
       `${head}
-      <ul class="dash-links">
-        ${items
-          .map((item) => {
-            const sub = [item.subject, item.date ? formatDatePretty(item.date) : ""].filter(Boolean).join(" · ");
-            return linkRow(item.url, item.name, sub);
-          })
-          .join("")}
-      </ul>`
+      ${table(
+        [{ label: "Notice" }, { label: "Subject" }, { label: "Date", num: true }],
+        items.map((item) => ({
+          cells: [cellLink(item.url, item.name, true), esc(item.subject), esc(item.date ? formatDatePretty(item.date) : "")]
+        }))
+      )}`
     );
   }
 
@@ -567,12 +664,6 @@
     "united kingdom": ["https://www.gov.uk/government/organisations/maritime-and-coastguard-agency", "UK Maritime and Coastguard Agency"]
   };
 
-  function linkRow(url, name, sub) {
-    return `<li><a href="${esc(url)}" target="_blank" rel="noopener">
-      <strong class="dash-link-name">${esc(name)}</strong>
-      <small class="dash-panel-sub">${esc(sub)}</small></a></li>`;
-  }
-
   function renderRegulationsCard() {
     const vessels = window.SeavState?.vessels || [];
     const flag = vessels.length ? window.SeavData.getCurrentVessel(vessels)?.flag : "";
@@ -584,9 +675,10 @@
       "regulations",
       rows.length + String(registry?.[0]),
       `${cardHead("Regulations and guidance")}
-      <ul class="dash-links dash-links--split">
-        ${rows.map(([url, name, sub]) => linkRow(url, name, sub)).join("")}
-      </ul>`
+      ${table(
+        [{ label: "Reference" }, { label: "Covers" }],
+        rows.map(([url, name, sub]) => ({ cells: [cellLink(url, name, true), esc(sub)] }))
+      )}`
     );
   }
 

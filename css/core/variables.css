@@ -333,9 +333,12 @@
   /* Dashboard cards */
   --dash-cards-pad: 16px 0 24px;
   --dash-cards-pad-phone: 14px;
-  --dash-panel-pad: 18px;
-  --dash-panel-body-pad: 14px 18px 18px;
-  --dash-panel-photo-height: 190px;
+  --dash-panel-pad: 16px;
+  --dash-panel-head-pad: 11px 14px;
+  --dash-cell-pad: 9px 14px;
+  --dash-cell-pad-phone: 8px;
+  --dash-vessel-fade: 56px;
+  --dash-vessel-scrim: linear-gradient(to top, rgba(6, 15, 27, 0.94) 0%, rgba(6, 15, 27, 0.86) 62%, rgba(6, 15, 27, 0) 100%);
   --dash-panel-bar-height: 6px;
   --dash-panel-warn: var(--progress-amber);
   --dash-panel-bad: var(--progress-red);
