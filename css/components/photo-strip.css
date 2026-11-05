@@ -76,7 +76,13 @@
 
 /* ---------- viewer (<dialog>) ---------- */
 
+/* Always on the dark backdrop, so always white text, whatever the theme. */
 .seav-photo-viewer {
+  --seav-ink-rgb: 255 255 255;
+  --seav-field-value-color: #ffffff;
+  --seav-field-label-color: var(--accent-blue);
+  --seav-meta-desc-color: rgba(255, 255, 255, 0.78);
+  --seav-note-color: rgba(255, 255, 255, 0.66);
   max-width: min(var(--seav-photo-viewer-max-w), calc(100vw - 32px));
   max-height: calc(100vh - 32px);
   padding: 0;

@@ -102,6 +102,11 @@ html[data-theme="light"] body.app-page .navigation-filter-label :is(select, inpu
   --seav-ink-rgb: var(--light-ink);
 }
 
+/* The badge-unlock card is white here, so its pastel tier pill needs the dark status colour. */
+html[data-theme="light"] body.app-page .badge-unlock-card .badge-unlock-tier-pill {
+  color: var(--light-status-amber);
+}
+
 /* Cards lift off the grey page with a hairline shadow instead of colour. */
 html[data-theme="light"] body.app-page :is(.dash-tile, .dash-vessel, .dash-card, .modal-card) {
   box-shadow: 0 1px 2px rgba(15, 34, 54, 0.06) !important;
@@ -123,6 +128,11 @@ html[data-theme="light"] body.app-page :is(select option, .modal-form select opt
     --seav-entity-name-color: #ffffff;
     --seav-field-value-color: #ffffff;
     --seav-meta-desc-color: rgba(255, 255, 255, 0.78);
+    /* Named tokens resolve on <html>, where the ink is navy, so the ink reset
+       alone misses them: the meta line read dark on the scrim (v604). */
+    --muted: rgba(255, 255, 255, 0.78);
+    --pill-bg: rgba(255, 255, 255, 0.12);
+    --pill-border: rgba(255, 255, 255, 0.28);
   }
 }
 
@@ -137,6 +147,9 @@ html[data-theme="light"]:has(> body.app-page) {
   --seav-note-color: rgb(var(--seav-ink-rgb) / 0.8);
   --seav-meta-desc-color: rgb(var(--seav-ink-rgb) / 0.88);
   --seav-photo-bg: #eef2f6;
+  --seav-popup-bg: #ffffff;
+  --seav-popup-ok: var(--light-status-ok);
+  --seav-popup-info: var(--light-accent);
 }
 
 html[data-theme="light"] body.app-page :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]), select, textarea) {
@@ -170,6 +183,7 @@ html[data-theme="light"] body.app-page :is(.btn-danger, .navigation-map, .naviga
   --light-status-amber: #8a5a00;
   --light-status-warn: #a14d00;
   --light-status-bad: #b42335;
+  --badge-unlock-kicker: var(--light-status-amber);
 }
 
 :is(

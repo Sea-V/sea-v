@@ -64,6 +64,8 @@ html:is([data-pp-theme="simple-green"], [data-pp-theme="pearl-grey"]):has(> body
   --seav-note-color: rgb(var(--seav-ink-rgb) / 0.8);
   --seav-meta-desc-color: rgb(var(--seav-ink-rgb) / 0.88);
   --field-hint-color: rgb(var(--seav-ink-rgb) / 0.6);
+  --seav-popup-ok: var(--light-status-ok);
+  --seav-popup-info: var(--ppt-accent);
 }
 
 html[data-pp-theme="simple-green"]:has(> body.public-profile-page) {
@@ -109,6 +111,7 @@ html:has(> body.public-profile-page) {
   --pp-glass-line: var(--ppt-rule);
   --pp-glass-shadow: none;
 
+  --seav-popup-bg: var(--ppt-s1);
   --seav-glass-card: var(--ppt-s1);
   --seav-glass-card-solid: var(--ppt-s1);
   --seav-glass-panel: var(--ppt-s2);

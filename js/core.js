@@ -359,23 +359,6 @@ const app = {
                 <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </button>
-            <button
-              type="button"
-              class="topbar-add-btn"
-              id="topbarAddBtn"
-              aria-haspopup="true"
-              aria-expanded="false"
-              aria-controls="topbarAddPanel"
-            >+ Add</button>
-            <div class="topbar-add-menu" id="topbarAddPanel" hidden>
-              <small class="topbar-add-head">What do you want to add?</small>
-              <a href="dashboard.html?add=vessel">A yacht</a>
-              <a href="dashboard.html?add=seatime">Time on a yacht</a>
-              <a href="dashboard.html?add=certificate">A certificate</a>
-              <a href="navigation.html">A passage</a>
-              <a href="references.html">A reference</a>
-              <a href="dashboard.html?add=onboard">Onboard experience</a>
-            </div>
             <a href="#" class="topbar-quick-link" data-open="contactInfoModal">Contact</a>
             <a href="#" class="topbar-quick-link" data-open="aboutInfoModal">About</a>
             <a href="#" class="topbar-quick-link" data-open="reportIssueModal">Report an issue</a>
@@ -395,6 +378,27 @@ const app = {
           </a>
 
           <div class="nav-right">
+            <div class="topbar-add">
+              <button
+                type="button"
+                class="topbar-add-btn"
+                id="topbarAddBtn"
+                aria-haspopup="true"
+                aria-expanded="false"
+                aria-controls="topbarAddPanel"
+                aria-label="Add"
+              >+<small class="topbar-add-label"> Add</small></button>
+              <div class="topbar-add-menu" id="topbarAddPanel" hidden>
+                <small class="topbar-add-head">What do you want to add?</small>
+                <a class="topbar-add-item" href="dashboard.html?add=vessel">A yacht</a>
+                <a class="topbar-add-item" href="dashboard.html?add=seatime">Time on a yacht</a>
+                <a class="topbar-add-item" href="dashboard.html?add=certificate">A certificate</a>
+                <a class="topbar-add-item" href="navigation.html">A passage</a>
+                <a class="topbar-add-item" href="references.html">A reference</a>
+                <a class="topbar-add-item" href="dashboard.html?add=onboard">Onboard experience</a>
+              </div>
+            </div>
+
             <button
               type="button"
               class="topbar-search"

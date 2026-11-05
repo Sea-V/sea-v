@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v603**. Jack pushes every commit himself from
+- HEAD = **v604**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1656,6 +1656,30 @@ create a nice contrast". Quiet navy no longer hides `body.app-page::before`;
 (`::after`) stays off. Also in this commit: `docs/schema-profile-public-theme.sql`
 (applied live 2026-11-03; column + `get_public_profile` return it). The
 picker and theme CSS are not built yet.
+
+### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
+Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
+reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-05 (v604, same commit) — raw ocean photo, kept
+Jack: "remove whatever glass or filter over the ocean", then, having seen it, "Keep it raw". Do not dim it again without asking.
+Signed-in pages only: opacity 1, no fade, no tint, no filter. Values to restore are in a comment in
+theme-bridge.css. This brings back v593's banding risk (the photo's near-black lower third).
+
+### Shipped 2026-11-05 (v604, same commit) — pop-ups readable in every colour scheme
+Jack: the Download CV "coming soon" box was unreadable on his public profile (Pearl Grey). Toasts
+had a fixed navy fill while their text is the ink, which flips dark in the light palettes AND in app
+Light (1.2:1), so every save message in Light was unreadable too. New `--seav-popup-bg` (+ `-ok`,
+`-info`) on toast, page loader, badge tooltip, badge-unlock card and the map note. Photo viewer: white
+text always, as its backdrop is dark. **Rule: a pop-up never gets a fixed dark fill with ink text.**
+
+### Shipped 2026-11-05 (v604) — + Add moved next to Search
+Jack's ask. Now first in `.nav-right`, wrapped in `.topbar-add`; its links carry `.topbar-add-item`
+because layout.css's `.nav-right a[href]` pill rule catches any link there. At <=560px it is a
+34px "+" (aria-label Add) and its menu anchors to the bar, or the logo shrinks to nothing at 360px.
+
+### Parked 2026-11-05 — upload a CV and create records from it
+Jack: "leave this to a later date". Plan in `docs/product/cv-upload-plan-2026-11-05.md`. Nothing built.
 
 ### Shipped 2026-11-05 (v603) — quick action row gone; white + Add
 Jack: + Add replaces the dashboard's five buttons (vessel, sea time, certificate, onboard, Build

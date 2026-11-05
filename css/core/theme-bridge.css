@@ -420,7 +420,7 @@
    not needed at this strength. Strength per theme: --seav-ocean-opacity
    (theme-light.css sets its own). */
 body.app-page {
-  --seav-ocean-opacity: 0.32;
+  --seav-ocean-opacity: 1;
 }
 
 /* v593 (Jack: "when I scroll down it changes between the dark and white
@@ -437,8 +437,10 @@ body.app-page::before {
   filter: none !important;
   background-image: url("../../img/ocean.jpg?v=339") !important;
   background-position: center top !important;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 92%);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 92%);
+  /* The raw photo (Jack, 2026-11-05: "remove whatever glass or filter ... keep it
+     raw", then "Keep it raw"). This drops v591's faint 0.32 and v593's fade. If the
+     banding on scroll is too much, those two lines are what fixed it:
+     opacity 0.32 above, and a mask-image gradient #000 40% -> transparent 92% here. */
 }
 
 body.app-page::after {
@@ -638,7 +640,7 @@ body.app-page .dash-tile-label {
   .modal-point-icon,
   .modal-x,
   .nav-left a,
-  .nav-right a[href]:not(.icon):not(.topbar-profile):not(.notif-item):not(.topbar-account-item),
+  .nav-right a[href]:not(.icon):not(.topbar-profile):not(.notif-item):not(.topbar-account-item):not(.topbar-add-item),
   .navigation-form-section .modal-form,
   .navigation-map,
   .navigation-map-hint,

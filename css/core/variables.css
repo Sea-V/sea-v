@@ -1,4 +1,11 @@
 :root {
+  /* A box that pops up over the page: its text is the ink, which flips in Light and
+     the light public palettes, so its fill must flip with it. Never give a pop-up a
+     fixed dark fill. Overridden in theme-light.css and public-profile-themes.css. */
+  --seav-popup-bg: rgba(14, 33, 55, 0.94);
+  --seav-popup-ok: #5ee6a8;
+  --seav-popup-info: #72e4ff;
+
   /* v602 the topbar's + Add (css/components/topbar.css). */
   --topbar-add-ink: #ffffff;
   --topbar-add-width: 240px;

@@ -250,7 +250,7 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid rgb(var(--seav-ink-rgb) / 0.08);
-  background: rgba(8, 16, 28, 0.82);
+  background: var(--seav-popup-bg);
   font-size: 10px;
   line-height: 1.35;
   pointer-events: none;
