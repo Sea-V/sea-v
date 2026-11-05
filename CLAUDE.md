@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v606**. Jack pushes every commit himself from
+- HEAD = **v607**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,19 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Ocean strength settled 2026-11-05 — faint everywhere
+Jack tried raw (v604), 0.7 (v605, v607), then: "more faint ... it doesnt look very good". Signed-in and
+public info pages are now 0.32, the same as the public profile's dark palettes, with v593's fade back.
+No tint or filter. Change the strength only when asked; the raw look was tried and rejected.
+
+### Shipped 2026-11-05 (v607) — still wave inside; public pages line up
+Jack: the wave should not move in the signed-in area, needs better quality, and all public pages
+should line up. `animation: none` on `body.app-page::before`. **img/ocean.jpg is only 1024px**: remade
+at 2048 (Lanczos + unsharp, 342 KB, was 113) so it is crisper, but no real detail was added; a truly
+sharp wave needs a larger original (none found on this Mac). Public info pages: same untinted 0.7
+photo, overlay off, drift kept; titles on the --type-* scale (legal h1 38 -> 20, h2 20 -> 16); login
+blue #449cff -> --accent-blue; referee + captain logo 27 -> 120px; sign-in and sign-up get the solid card. Public profile NOT changed.
 
 ### Shipped 2026-11-05 (v606)
 Profile share panel: "Share a read-only career view with employers" removed (Jack: it made the title row too large).

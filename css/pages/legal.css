@@ -57,7 +57,7 @@ body.legal-page {
   border-radius: 999px;
   /* Solid fill, not a gradient — Jack wants solid colors site-wide
      2026-08-03. Value is the midpoint of the old gradient. */
-  background: #449cff;
+  background: var(--accent-blue);
   color: rgb(var(--seav-ink-rgb)) !important;
 }
 

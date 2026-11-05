@@ -1,4 +1,7 @@
 :root {
+  /* The logo on the small public cards: referee, captain (v607; it was 27px). */
+  --seav-public-logo-width: 120px;
+
   /* A box that pops up over the page: its text is the ink, which flips in Light and
      the light public palettes, so its fill must flip with it. Never give a pop-up a
      fixed dark fill. Overridden in theme-light.css and public-profile-themes.css. */

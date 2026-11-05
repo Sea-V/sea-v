@@ -420,7 +420,32 @@
    not needed at this strength. Strength per theme: --seav-ocean-opacity
    (theme-light.css sets its own). */
 body.app-page {
-  --seav-ocean-opacity: 0.7;
+  --seav-ocean-opacity: 0.32;
+}
+
+/* The public info pages line up (v607): the same untinted photo at the same strength,
+   but they keep their drift (Jack: the wave moves "only [on] the public pages"). The
+   public profile sets its own in public-profile-themes.css. */
+:is(body.landing-page, body.legal-page, body.index-page) .ocean {
+  background-image: url("../../img/ocean.jpg?v=340") !important;
+  background-position: center top !important;
+  opacity: 0.32;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 92%);
+}
+
+:is(body.landing-page, body.legal-page, body.index-page) .overlay {
+  display: none;
+}
+
+/* Sign-in and sign-up sat straight on the photo, where the blue links were lost
+   against the foam. The same solid card as the other public pages. */
+body.index-page .container {
+  box-sizing: border-box;
+  padding: 28px 24px;
+  border: 1px solid var(--bridge-rule);
+  border-radius: 4px;
+  background: var(--bridge-surface);
 }
 
 /* v593 (Jack: "when I scroll down it changes between the dark and white
@@ -432,15 +457,20 @@ body.app-page {
    page colour, so the background reads as one even wash. */
 body.app-page::before {
   opacity: var(--seav-ocean-opacity) !important;
+  /* Still inside the signed-in area (Jack, 2026-11-05: "the wave should not move ...
+     only the public pages"). The drift also scaled a small photo up to 12% more. */
+  animation: none !important;
+  transform: none !important;
   /* The same wave in Dark and Light, no filter and no tint over the photo
      (Jack, 2026-11-05). Opacity alone sets how strong it is. */
   filter: none !important;
-  background-image: url("../../img/ocean.jpg?v=339") !important;
+  background-image: url("../../img/ocean.jpg?v=340") !important;
   background-position: center top !important;
-  /* The raw photo (Jack, 2026-11-05: "remove whatever glass or filter ... keep it
-     raw", then "dim it a bit": opacity 0.7, set above). No tint or filter. This drops v591's faint 0.32 and v593's fade. If the
-     banding on scroll is too much, those two lines are what fixed it:
-     opacity 0.32 above, and a mask-image gradient #000 40% -> transparent 92% here. */
+  /* Faint, the same strength as the public profile (Jack, 2026-11-05: raw, then 0.7,
+     then "more faint ... it doesnt look very good"). No tint or filter. The fade stops the
+     photo's near-black lower third banding on scroll (v593). */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 92%);
 }
 
 body.app-page::after {

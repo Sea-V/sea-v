@@ -199,3 +199,32 @@ body.public-profile-page #ppShell .ppm-role-year {
   font-size: var(--type-caption) !important;
   font-weight: var(--type-title-weight) !important;
 }
+
+/* =========================================================
+   PUBLIC INFO PAGES (v607, Jack 2026-11-05: "ensure they all line up"). The same
+   levels: sign-in, sign-up, About, Contact, Privacy, Terms, reset, confirm, and the
+   referee and captain pages. Long documents keep their reading text; only the titles.
+========================================================= */
+:is(body.landing-page, body.legal-page, body.index-page) :is(
+  .legal-hero h1,
+  .info-title,
+  .reset-password-title,
+  .confirm-account-title,
+  .verify-reference-page h1
+) {
+  color: rgb(var(--seav-ink-rgb)) !important;
+  font-size: var(--type-page) !important;
+  font-weight: var(--font-weight-title) !important;
+  line-height: 1.25 !important;
+}
+
+:is(body.landing-page, body.legal-page, body.index-page) .legal-section h2 {
+  font-size: var(--type-section) !important;
+  font-weight: var(--type-title-weight) !important;
+}
+
+:is(body.landing-page, body.legal-page, body.index-page) :is(.info-panel h3, .vt-section-title) {
+  color: var(--bridge-caption) !important;
+  font-size: var(--type-card) !important;
+  font-weight: var(--type-title-weight) !important;
+}
