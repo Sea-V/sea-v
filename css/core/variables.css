@@ -338,7 +338,7 @@
   --dash-panel-head-bg: #3a4d63;
   --dash-panel-head-rule: #4c6079;
   --dash-panel-head-accent: #8fd0ff;
-  --dash-panel-title-size: 18px;
+  --dash-panel-title-size: var(--type-section);
   --dash-cell-pad: 9px 14px;
   --dash-cell-pad-phone: 8px;
   --dash-vessel-fade: 56px;

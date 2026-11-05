@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v621**. Jack pushes every commit himself from
+- HEAD = **v622**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1662,7 +1662,7 @@ Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so t
 reset missed them. Set locally in theme-light.css.
 
 ### Shipped 2026-11-06 (v621) — Storm Slate card title bands
-Jack picked swatch "5 · Storm Slate #3A4D63". `--dash-panel-head-bg`, 18px titles (`--dash-panel-title-size`), on every `.dash-panel-head`: dashboard, public profile card and Crew 101. The band is dark in Dark AND Light, so it sets its own white ink and `--dash-panel-head-accent` #8fd0ff (5.2:1; #5bbcff is 4.2:1 on it). The vessel card is excluded at Jack's ask: it keeps its fade, 16px title and own band. Corners stay 4px, the site standard, not the swatch's rounder ones.
+Jack picked swatch "5 · Storm Slate #3A4D63". `--dash-panel-head-bg`, 16px titles (`--dash-panel-title-size` = `--type-section`; Jack found 18px too big), on every `.dash-panel-head`: dashboard, public profile card and Crew 101. The band is dark in Dark AND Light, so it sets its own white ink and `--dash-panel-head-accent` #8fd0ff (5.2:1; #5bbcff is 4.2:1 on it). The vessel card is excluded at Jack's ask: it keeps its fade, 16px title and own band. Corners stay 4px, the site standard, not the swatch's rounder ones.
 
 ### Shipped 2026-11-06 (v620) — all public profile settings moved to the dashboard
 Jack: "the public profile removed from the profile page and the entire thing moved to the dashboard page". Reverses the 2026-08-08 move the other way. Profile has none of it now. A chevron beside the switch opens `#ppShare`: username, colours, layout, link, QR, share. Closed by default, so it does not push the page down on phones; turning the switch on opens it. The Private status and the Your records row link to `#ppShare`.
