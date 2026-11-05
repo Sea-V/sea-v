@@ -314,7 +314,7 @@ northwest_passage_transit: {
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_36_months_onboard",
-      description: "Logged 36 months' total onboard yacht service since starting your sea career — the overall time requirement for OOW Yachts <3000GT (MSN 1858).",
+      description: "Logged 36 months' total onboard yacht service in the deck department since the age of 16 — the overall time requirement for OOW Yachts <3000GT (MSN 1858 §3.3).",
       approvalRequired: false,
       trigger: { type: "sea_days", minDays: 1095 }
     },
@@ -326,7 +326,7 @@ northwest_passage_transit: {
       dashboardSection: "seatime",
       sourcePage: "seatime",
       badgeKey: "oow_3000gt_sea_time",
-      description: "Met every sea-time requirement for OOW Yachts <3000GT: 250 actual sea days, 365 qualifying days on vessels 15m or over, 36 months' total onboard yacht service, and at least 6 months of that seagoing service within the last 5 years (MSN 1858 §3.3 and §9).",
+      description: "Met every sea-time requirement for OOW Yachts <3000GT: 250 actual sea days, 365 qualifying days on vessels 15m or over, 36 months' total onboard yacht service, and at least 6 months of that seagoing service within the last 5 years (MSN 1858 §3.3 and §5.1).",
       approvalRequired: false,
       trigger: { type: "oow_eligible" }
     },
@@ -410,32 +410,9 @@ northwest_passage_transit: {
       badgeKey: "chief_mate_yachts_unlimited",
       description: "Holding Master Yachts <3000GT meets the Certificate of Competency prerequisite for Chief Mate Yachts Unlimited (MSN 1858 §4.3(a)) — the new pathway letting yacht deck officers progress beyond 3000GT on yacht sea time alone, no Merchant Navy tickets required. Ancillary courses, 9 academic modules at an MCA-approved college, an MCA practical assessment, ENG1 and the oral exam are still required for the actual CoC.",
       approvalRequired: false,
-      // SCOPE NOTE (2026-08-16): MSN 1858 Amendment 2 SS4.3 gives TWO routes to
-      // Chief Mate Yachts Unlimited. Only Route A is implemented — holding
-      // Master Yachts <3000GT, which is a pure certificate check. Route B
-      // (OOW Unlimited plus 12 months' onboard yacht service as OOW including
-      // 6 months' seagoing service, all on vessels 500GT+) is NOT implemented,
-      // so Route B crew will not see this badge. Deliberate scope limit, not a
-      // bug — recorded here so it is not mistaken for one.
-      trigger: { type: "chief_mate_unlimited_direct" }
-    },
-    master_yachts_unlimited: {
-      code: "master_yachts_unlimited",
-      title: "Master Yachts Unlimited — Sea Service",
-      category: "Deck Progression",
-      certGroup: "Master Yachts Unlimited",
-      dashboardSection: "seatime",
-      sourcePage: "seatime",
-      badgeKey: "master_yachts_unlimited",
-      description: "Logged 6 months served in the Master capacity, including 3 months actual sea service, on vessels 500GT or over, while holding Master Yachts <3000GT — one of three routes to Master Yachts Unlimited (MSN 1858 Amendment 2, 2026); the other two need a Merchant Navy ticket not tracked here. Counted from your Sea Time entries' capacity-served field, so keep that accurate for entries where you served as Master.",
-      approvalRequired: false,
-      // SCOPE NOTE (2026-08-16): MSN 1858 Amendment 2 SS4.4 gives THREE routes to
-      // Master Yachts Unlimited. Only route (ii) is implemented — while holding
-      // Master Yachts <3000GT, 6 months' onboard service as Master including
-      // 3 months' seagoing, on vessels 500GT+. Not implemented: (i) via Chief
-      // Mate Yachts Unlimited (12 months incl. 6 seagoing), and (iii) via OOW
-      // Unlimited (36 months total incl. 15 months seagoing). Deliberate scope
-      // limit — recorded so it is not mistaken for a bug.
+      // SCOPE NOTE: §4.4(b) has three routes. Two are implemented (via Master Yachts
+      // <3000GT and via Chief Mate Yachts Unlimited). The third needs OOW Unlimited,
+      // which SEA-V does not track. Recorded so it is not mistaken for a bug.
       trigger: { type: "master_unlimited_master3000_route", gatingCertCode: "MASTER Y3000" }
     },
 

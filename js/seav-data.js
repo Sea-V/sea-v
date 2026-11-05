@@ -1232,7 +1232,7 @@ function getTenderProficiencyDisplay(level) {
     return ms > 0 ? Math.round(ms / 86400000) : 0;
   }
 
-  // Onboard yacht service, MSN 1858 §4.2: "the time spent signed on a yacht,
+  // Onboard yacht service, MSN 1858 §5.2: "the time spent signed on a yacht,
   // irrespective of the vessel activity". Signed on covers BOTH the joining
   // and the leaving day, so this is daysBetweenDates + 1 (v572; it used to
   // drop the last day of every contract). Still clipped to today for an
@@ -1255,7 +1255,7 @@ function getTenderProficiencyDisplay(level) {
   // 36 months and every Master onboard figure. Each entry's span is exactly
   // what signedOnDays gives it (same start, same clip to today), so entries
   // that do not overlap total exactly what they did before.
-  function uniqueSignedOnDays(entries) {
+  function mergedSignedOnSpans(entries) {
     const spans = [];
     (entries || []).forEach((entry) => {
       const days = signedOnDays(entry?.dateJoined, entry?.dateLeft);
@@ -1263,21 +1263,43 @@ function getTenderProficiencyDisplay(level) {
       const startDay = Math.round(new Date(entry.dateJoined).getTime() / 86400000);
       spans.push([startDay, startDay + days - 1]);
     });
-    spans.sort((a, b) => a[0] - b[0]);
-    let total = 0;
-    let curStart = null;
-    let curEnd = null;
+    spans.sort((x, y) => x[0] - y[0]);
+    const merged = [];
     spans.forEach(([start, end]) => {
-      if (curEnd !== null && start <= curEnd + 1) {
-        curEnd = Math.max(curEnd, end);
-        return;
-      }
-      if (curEnd !== null) total += curEnd - curStart + 1;
-      curStart = start;
-      curEnd = end;
+      const last = merged[merged.length - 1];
+      if (last && start <= last[1] + 1) last[1] = Math.max(last[1], end);
+      else merged.push([start, end]);
     });
-    if (curEnd !== null) total += curEnd - curStart + 1;
-    return total;
+    return merged;
+  }
+
+  function uniqueSignedOnDays(entries) {
+    return mergedSignedOnSpans(entries).reduce((sum, [start, end]) => sum + end - start + 1, 0);
+  }
+
+  // Day number of the date n calendar months after a day number; 31 Jan + 1
+  // month lands on the last day of February.
+  function addCalendarMonths(dayNumber, n) {
+    const date = new Date(dayNumber * 86400000);
+    const monthIndex = date.getUTCMonth() + n;
+    const lastDay = new Date(Date.UTC(date.getUTCFullYear(), monthIndex + 1, 0)).getUTCDate();
+    return Date.UTC(date.getUTCFullYear(), monthIndex, Math.min(date.getUTCDate(), lastDay)) / 86400000;
+  }
+
+  // MSN 1858 §5.3: "A month is defined as a calendar month or 30 days if made
+  // up of periods less than 1 month." Whole calendar months count from each
+  // span's start; the odd days left over from all spans add up at 30 to the
+  // month. A flat 30.44 made a full 1 Jan - 31 Dec read 11.99 of 12 months.
+  function serviceMonths(entries) {
+    let wholeMonths = 0;
+    let oddDays = 0;
+    mergedSignedOnSpans(entries).forEach(([start, end]) => {
+      let n = 0;
+      while (addCalendarMonths(start, n + 1) - 1 <= end) n += 1;
+      wholeMonths += n;
+      oddDays += end - (addCalendarMonths(start, n) - 1);
+    });
+    return wholeMonths + oddDays / DAYS_PER_MONTH;
   }
 
   // MSN 1858 §3.5(b) / §3.6(a): Master service counts only "onboard yacht
@@ -1287,6 +1309,8 @@ function getTenderProficiencyDisplay(level) {
   // engineers, bosuns or interior roles. Free text, so a best-effort match.
   const DECK_OFFICER_ROLE_MATCH =
     /\b(master|captain|skipper|chief officer|chief mate|first officer|first mate|second officer|second mate|2nd officer|2nd mate|third officer|third mate|3rd officer|3rd mate|officer of the watch|oow|deck officer|mate)\b/i;
+  const NON_DECK_ROLE_MATCH =
+    /\b(engineer|eto|electro|purser|stew|steward|stewardess|housekeep\w*|laundry|chef|cook|spa|beauty|nanny|security)\b/i;
   const NOT_DECK_OFFICER_MATCH = /\b(trainee|cadet|engineer|eto|electro|bosun|boatswain|purser|steward|stewardess|chef|cook)\b/i;
 
   // v571, Jack: "add dropdown for the position onboard ... this will avoid
@@ -1425,14 +1449,54 @@ function getTenderProficiencyDisplay(level) {
     return MASTER_CAPACITY_MATCH.test(role) && !/\b(trainee|cadet)\b/i.test(role);
   }
 
+  // MSN 1858 §5.1: "Service should be in the deck department" and "Candidates
+  // who are serving in a dual engine and deck capacity will have their service
+  // counted at the rate of 50%." Returns how much of an entry counts: 1, 0.5 or
+  // 0. A blank role counts in full, as we cannot tell. "Deck / Stew" also counts
+  // in full: the notice halves only engine and deck.
+  function deckServiceFactor(entry, vessels) {
+    const role = getEntryRole(entry, vessels);
+    if (!role) return 1;
+    if (/\bdeck\b.*\bengineer|\bengineer.*\bdeck\b/i.test(role)) return 0.5;
+    const known = findSeafarerPosition(role);
+    if (known) {
+      if (known.label === "Other") return 1;
+      return SEAFARER_POSITIONS.find((group) => group.roles.includes(known))?.group === "Deck" ? 1 : 0;
+    }
+    if (/\bdeck\b/i.test(role)) return 1;
+    return NON_DECK_ROLE_MATCH.test(role) ? 0 : 1;
+  }
+
+  // §4.4(b): "onboard yacht service as Chief Mate".
+  function servedAsChiefMateRole(entry) {
+    return /\bchief (officer|mate)\b/i.test(String(entry?.capacityServed || ""));
+  }
+
+  // §3.3(c): "Since the age of 16". Drops or clips what came earlier. Without a
+  // date of birth (the public profile never has one) entries are left alone.
+  function entriesSinceAge16(entries, dob) {
+    const birth = dob ? new Date(dob) : null;
+    if (!birth || Number.isNaN(birth.getTime())) return entries || [];
+    const from = new Date(Date.UTC(birth.getUTCFullYear() + 16, birth.getUTCMonth(), birth.getUTCDate()));
+    const fromIso = from.toISOString().slice(0, 10);
+    return (entries || []).flatMap((entry) => {
+      const joined = entry?.dateJoined ? new Date(entry.dateJoined) : null;
+      if (!joined || Number.isNaN(joined.getTime()) || joined >= from) return [entry];
+      if (entry.dateLeft && new Date(entry.dateLeft) < from) return [];
+      return [{ ...entry, dateJoined: fromIso }];
+    });
+  }
+
   const OOW_QUALIFYING_TARGET = 365;
   const OOW_ACTUAL_MIN = 250;
   const OOW_YARD_TOTAL_CAP = 90;
   const OOW_36_MONTHS_TARGET_DAYS = 1095;
+  const OOW_36_MONTHS_TARGET_MONTHS = 36;
   const MASTER_WATCHKEEPING_TARGET = 240;
   const MASTER_SPECIAL_24M_TARGET_MONTHS = 12;
   const MASTER_SPECIAL_500GT_TARGET_MONTHS = 6;
-  const DAYS_PER_MONTH = 30.44;
+  // §5.3, for figures only held as day counts. Dated service uses serviceMonths().
+  const DAYS_PER_MONTH = 30;
 
   /**
    * OOW Yachts <3000GT sea-service progress — MSN 1858 (M+F) Amendment 2,
@@ -1463,15 +1527,20 @@ function getTenderProficiencyDisplay(level) {
 
     (seatimes || []).forEach((entry) => {
       if (getEntryVesselLengthMeters(entry, vessels) < 15) return;
+      const factor = deckServiceFactor(entry, vessels);
 
       const actual = toNumber(entry.actualSeaServiceDays);
       const standby = toNumber(entry.standbyServiceDays);
       const yard = toNumber(entry.yardServiceDays);
 
-      totalActual15m += actual;
-      totalStandby15mCounted += Math.min(standby, actual);
-      totalYard15mRaw += yard;
+      totalActual15m += actual * factor;
+      totalStandby15mCounted += Math.min(standby, actual) * factor;
+      totalYard15mRaw += yard * factor;
     });
+
+    totalActual15m = Math.round(totalActual15m);
+    totalStandby15mCounted = Math.round(totalStandby15mCounted);
+    totalYard15mRaw = Math.round(totalYard15mRaw);
 
     const totalYard15mCounted = Math.min(totalYard15mRaw, OOW_YARD_TOTAL_CAP);
     const totalQualifying15m = totalActual15m + totalStandby15mCounted + totalYard15mCounted;
@@ -1517,38 +1586,46 @@ function getTenderProficiencyDisplay(level) {
    * fall back to actual + standby + yard (watchkeeping deliberately excluded,
    * being a subset of actual sea service).
    */
-  function computeOow36MonthsOnboard(seatimes) {
-    const dated = (seatimes || []).filter((entry) => signedOnDays(entry.dateJoined, entry.dateLeft) > 0);
-    const undatedDays = (seatimes || []).reduce((sum, entry) => {
+  function computeOow36MonthsOnboard(seatimes, vessels, dob) {
+    const entries = entriesSinceAge16(seatimes, dob).filter((entry) => deckServiceFactor(entry, vessels) > 0);
+    const dated = entries.filter((entry) => signedOnDays(entry.dateJoined, entry.dateLeft) > 0);
+    const full = dated.filter((entry) => deckServiceFactor(entry, vessels) === 1);
+    const dual = dated.filter((entry) => deckServiceFactor(entry, vessels) < 1);
+    const undatedDays = entries.reduce((sum, entry) => {
       if (signedOnDays(entry.dateJoined, entry.dateLeft) > 0) return sum;
       return (
         sum +
-        toNumber(entry.actualSeaServiceDays) +
-        toNumber(entry.standbyServiceDays) +
-        toNumber(entry.yardServiceDays)
+        (toNumber(entry.actualSeaServiceDays) +
+          toNumber(entry.standbyServiceDays) +
+          toNumber(entry.yardServiceDays)) *
+          deckServiceFactor(entry, vessels)
       );
     }, 0);
-    const totalDays = uniqueSignedOnDays(dated) + undatedDays;
+    const totalDays = Math.round(uniqueSignedOnDays(full) + uniqueSignedOnDays(dual) * 0.5 + undatedDays);
+    const months = serviceMonths(full) + serviceMonths(dual) * 0.5 + undatedDays / DAYS_PER_MONTH;
 
     return {
       totalDays,
+      months,
       target: OOW_36_MONTHS_TARGET_DAYS,
-      met: totalDays >= OOW_36_MONTHS_TARGET_DAYS
+      targetMonths: OOW_36_MONTHS_TARGET_MONTHS,
+      met: months >= OOW_36_MONTHS_TARGET_MONTHS
     };
   }
 
   /**
-   * MSN 1858 SS4.1: "At least 6 months of the qualifying seagoing service must
-   * have been performed within the 5 years immediately preceding the MCA's
-   * receipt of your application."
+   * MSN 1858 §5.1 and §12.1: "At least 6 months of the qualifying seagoing service
+   * must have been performed within the 5 years immediately preceding the MCA's
+   * receipt of your application." §5.1 applies it to whichever certificate is
+   * being applied for, so every sea service function below checks it. Badges
+   * already earned stay earned (PERMANENT_ONCE_EARNED_TRIGGERS).
    *
    * Added 2026-08-16 — nothing implemented this before, so a crew member whose
    * entire career ended a decade ago still showed as having met the OOW sea
    * time requirement.
    *
-   * "Seagoing service" follows SS4.2 and this file's existing reading of it
-   * (see computeMaster200SeaService below): actual + standby + yard, with
-   * standby capped at that entry's own actual sea days per SS5.2. Entries that
+   * "Qualifying" follows §3.3(c): actual + standby + yard, with standby capped at
+   * that entry's own actual sea days (§5.2) and yard at 90 days. Entries that
    * straddle the 5-year boundary are pro-rated by the fraction of the contract
    * that falls inside the window — SEA-V stores one row per signed-on/off
    * period, not per voyage, so a proportional split is the most accurate
@@ -1607,7 +1684,7 @@ function getTenderProficiencyDisplay(level) {
   }
 
   const OOW_RECENCY_WINDOW_YEARS = 5;
-  const OOW_RECENCY_MIN_DAYS = 183;
+  const OOW_RECENCY_MIN_DAYS = 6 * DAYS_PER_MONTH;
 
   function computeOowRecentSeagoingService(seatimes, vessels, now) {
     const today = now instanceof Date && !Number.isNaN(now.getTime()) ? now : new Date();
@@ -1615,9 +1692,12 @@ function getTenderProficiencyDisplay(level) {
     cutoff.setFullYear(cutoff.getFullYear() - OOW_RECENCY_WINDOW_YEARS);
 
     let recentDays = 0;
+    let recentYard = 0;
 
     (seatimes || []).forEach((entry) => {
       if (getEntryVesselLengthMeters(entry, vessels) < 15) return;
+      const deckFactor = deckServiceFactor(entry, vessels);
+      if (deckFactor <= 0) return;
 
       const joined = entry.dateJoined ? new Date(entry.dateJoined) : null;
       const rawLeft = entry.dateLeft ? new Date(entry.dateLeft) : today;
@@ -1627,14 +1707,12 @@ function getTenderProficiencyDisplay(level) {
       if (left < cutoff) return;
 
       const actual = toNumber(entry.actualSeaServiceDays);
-      const seagoing =
-        actual + Math.min(toNumber(entry.standbyServiceDays), actual) + toNumber(entry.yardServiceDays);
-      if (seagoing <= 0) return;
-
-      recentDays += seagoing * apportionEntryToWindow(entry, cutoff.toISOString(), null);
+      const share = apportionEntryToWindow(entry, cutoff.toISOString(), null) * deckFactor;
+      recentDays += (actual + Math.min(toNumber(entry.standbyServiceDays), actual)) * share;
+      recentYard += toNumber(entry.yardServiceDays) * share;
     });
 
-    recentDays = Math.round(recentDays);
+    recentDays = Math.round(recentDays + Math.min(recentYard, OOW_YARD_TOTAL_CAP));
 
     return {
       recentDays,
@@ -1645,11 +1723,11 @@ function getTenderProficiencyDisplay(level) {
     };
   }
 
-  function isOowSeaTimeComplete(seatimes, vessels) {
+  function isOowSeaTimeComplete(seatimes, vessels, dob) {
     return (
       computeOowSeaService(seatimes, vessels).allMet &&
-      computeOow36MonthsOnboard(seatimes).met &&
-      // MSN 1858 SS4.1 recency condition — added 2026-08-16.
+      computeOow36MonthsOnboard(seatimes, vessels, dob).met &&
+      // MSN 1858 §5.1 recency condition — added 2026-08-16.
       computeOowRecentSeagoingService(seatimes, vessels).met
     );
   }
@@ -1722,15 +1800,11 @@ function getTenderProficiencyDisplay(level) {
 
   // MSN 1858 3.1(b): Master (Code Vessel) <200GT / OOW Yachts <500GT
   // (150nm-from-safe-haven variant) requires 6 months' SEAGOING service
-  // while holding RYA Yachtmaster Offshore. "Seagoing service" (3.1's own
-  // term, defined generally in 4.2) is actual + stand-by + yard service —
-  // deliberately NOT the same figure as "onboard yacht service" (which also
-  // counts watchkeeping/other time) used elsewhere in this file. Standby
-  // is still capped at that entry's own actual sea days (MSN 1858 5.2) but,
-  // same as computeOowSeaService above, NOT at 14 days per entry (2026-08-05,
-  // per Jack — see that function's comment for the full reasoning). Yard has
-  // no cap here (the 90-day yard cap is specific to OOW <3000GT's own
-  // 115-day sub-clause, not a general rule).
+  // while holding RYA Yachtmaster Offshore. §5.2 defines seagoing service as
+  // "the time spent at sea" and lists stand-by and yard separately, so this now
+  // counts actual sea days only. It used to add stand-by and uncapped yard, so
+  // 200 yard days with no time at sea met it. §3.3(c) spells out its own wider
+  // mix of 365 days; §3.1(b) does not.
   const MASTER_200GT_TARGET_MONTHS = 6;
   const MASTER_200GT_GATING_CERT_CODE = "RYA YMO";
   // MSN 1858 SS3.1(b) accepts "RYA Yachtmaster Offshore OR IYT Master of Yachts
@@ -1740,7 +1814,7 @@ function getTenderProficiencyDisplay(level) {
   // v466 Chief Mate fix; swept for here on 2026-08-16.
   const MASTER_200GT_GATING_CERT_CODES = [MASTER_200GT_GATING_CERT_CODE, "IYT MOY LTD"];
 
-  function computeMaster200SeaService(seatimes, certs) {
+  function computeMaster200SeaService(seatimes, certs, vessels) {
     const gated = seatimesGatedByCertIssueDate(seatimes, certs, MASTER_200GT_GATING_CERT_CODES);
 
     if (!gated.held) {
@@ -1760,28 +1834,24 @@ function getTenderProficiencyDisplay(level) {
     // date, so apportioning them against the same date would always return a
     // factor of 1. apportionEntryToWindow() returns 0 for contracts that ended
     // before the certificate, which reproduces the gate's own exclusion.
-    // Standby is capped at that entry's own actual sea days per SS5.2, applied
-    // AFTER apportionment so the cap tracks the qualifying portion.
     let totalDays = 0;
     (seatimes || []).forEach((entry) => {
-      const factor = apportionEntryToWindow(entry, gated.issuedDate, null);
+      const factor = apportionEntryToWindow(entry, gated.issuedDate, null) * deckServiceFactor(entry, vessels);
       if (factor <= 0) return;
-
-      const actual = toNumber(entry.actualSeaServiceDays) * factor;
-      const standby = Math.min(toNumber(entry.standbyServiceDays) * factor, actual);
-      const yard = toNumber(entry.yardServiceDays) * factor;
-      totalDays += actual + standby + yard;
+      totalDays += toNumber(entry.actualSeaServiceDays) * factor;
     });
     totalDays = Math.round(totalDays);
 
     const months = totalDays / DAYS_PER_MONTH;
+    const recent = computeOowRecentSeagoingService(seatimes, vessels);
 
     return {
       held: true,
       issuedDate: gated.issuedDate,
       totalDays,
       months,
-      met: months >= MASTER_200GT_TARGET_MONTHS,
+      recent,
+      met: months >= MASTER_200GT_TARGET_MONTHS && recent.met,
       TARGET_MONTHS: MASTER_200GT_TARGET_MONTHS,
       GATING_CERT_CODE: MASTER_200GT_GATING_CERT_CODE
     };
@@ -1837,11 +1907,10 @@ function getTenderProficiencyDisplay(level) {
 
     // "as a deck officer" (v572): deckhand / bosun time after the OOW issue
     // date used to count here too.
-    const onboardDays = uniqueSignedOnDays(
-      gated.gatedEntries.filter(
-        (entry) => getEntryVesselLengthMeters(entry, vessels) >= 15 && servedAsDeckOfficer(entry, vessels)
-      )
+    const onboardEntries = gated.gatedEntries.filter(
+      (entry) => getEntryVesselLengthMeters(entry, vessels) >= 15 && servedAsDeckOfficer(entry, vessels)
     );
+    const onboardDays = uniqueSignedOnDays(onboardEntries);
 
     // GATED as of 2026-08-16 — reversing the 2026-08-05 decision recorded
     // above. MSN 1858 SS3.5(b) reads "12 months' onboard yacht service as a
@@ -1856,17 +1925,19 @@ function getTenderProficiencyDisplay(level) {
     // same thing eroded trust. That is now fixed the other way round —
     // computeMasterSeaService() takes certs and gates the tracker identically,
     // so both surfaces show one number and it is the one the MCA would count.
+    // §3.5(b): the watchkeeping is part of the service "as a deck officer".
     let watchkeepingDays = 0;
     (seatimes || []).forEach((entry) => {
-      if (getEntryVesselLengthMeters(entry, vessels) < 15) return;
+      if (getEntryVesselLengthMeters(entry, vessels) < 15 || !servedAsDeckOfficer(entry, vessels)) return;
       watchkeepingDays +=
         toNumber(entry.watchkeepingDays) * apportionEntryToWindow(entry, gated.issuedDate, null);
     });
     watchkeepingDays = Math.round(watchkeepingDays);
 
-    const onboardMonths = onboardDays / DAYS_PER_MONTH;
+    const onboardMonths = serviceMonths(onboardEntries);
     const onboardMet = onboardMonths >= MASTER_500GT_ONBOARD_TARGET_MONTHS;
     const watchkeepingMet = watchkeepingDays >= MASTER_500GT_WATCHKEEPING_TARGET;
+    const recent = computeOowRecentSeagoingService(seatimes, vessels);
 
     return {
       held: true,
@@ -1876,7 +1947,8 @@ function getTenderProficiencyDisplay(level) {
       onboardMet,
       watchkeepingDays,
       watchkeepingMet,
-      met: onboardMet && watchkeepingMet,
+      recent,
+      met: onboardMet && watchkeepingMet && recent.met,
       ONBOARD_TARGET_MONTHS: MASTER_500GT_ONBOARD_TARGET_MONTHS,
       WATCHKEEPING_TARGET: MASTER_500GT_WATCHKEEPING_TARGET,
       GATING_CERT_CODE: MASTER_500GT_GATING_CERT_CODE
@@ -1944,32 +2016,31 @@ function getTenderProficiencyDisplay(level) {
     }
 
     const asDeckOfficer = gated.gatedEntries.filter((entry) => servedAsDeckOfficer(entry, vessels));
-    const onboardDays = uniqueSignedOnDays(
-      asDeckOfficer.filter((entry) => getEntryVesselLengthMeters(entry, vessels) >= 15)
-    );
-    const totalOnboard24mDays = uniqueSignedOnDays(
-      asDeckOfficer.filter((entry) => getEntryVesselLengthMeters(entry, vessels) >= 24)
-    );
-    const totalOnboard500gtDays = uniqueSignedOnDays(
-      asDeckOfficer.filter((entry) => getEntryVesselGt(entry, vessels) >= 500)
-    );
-    const onboardMonths = onboardDays / DAYS_PER_MONTH;
+    const onboard15m = asDeckOfficer.filter((entry) => getEntryVesselLengthMeters(entry, vessels) >= 15);
+    const onboard24m = asDeckOfficer.filter((entry) => getEntryVesselLengthMeters(entry, vessels) >= 24);
+    const onboard500gt = asDeckOfficer.filter((entry) => getEntryVesselGt(entry, vessels) >= 500);
+    const onboardDays = uniqueSignedOnDays(onboard15m);
+    const totalOnboard24mDays = uniqueSignedOnDays(onboard24m);
+    const totalOnboard500gtDays = uniqueSignedOnDays(onboard500gt);
+    const onboardMonths = serviceMonths(onboard15m);
     const onboardMet = onboardMonths >= MASTER_3000GT_ONBOARD_TARGET_MONTHS;
 
     // GATED as of 2026-08-16 — same reasoning as computeMaster500SeaService
     // above. MSN 1858 SS3.6(a): 240 days' watchkeeping service while holding
     // OOW yachts <3000GT.
+    // §3.6(a): the watchkeeping is part of the service "as a Deck Officer".
     let totalWatchkeeping15m = 0;
     (seatimes || []).forEach((entry) => {
-      if (getEntryVesselLengthMeters(entry, vessels) < 15) return;
+      if (getEntryVesselLengthMeters(entry, vessels) < 15 || !servedAsDeckOfficer(entry, vessels)) return;
       totalWatchkeeping15m +=
         toNumber(entry.watchkeepingDays) * apportionEntryToWindow(entry, gated.issuedDate, null);
     });
     totalWatchkeeping15m = Math.round(totalWatchkeeping15m);
     const watchMet = totalWatchkeeping15m >= MASTER_WATCHKEEPING_TARGET;
 
-    const months24m = totalOnboard24mDays / DAYS_PER_MONTH;
-    const months500gt = totalOnboard500gtDays / DAYS_PER_MONTH;
+    const months24m = serviceMonths(onboard24m);
+    const months500gt = serviceMonths(onboard500gt);
+    const recent = computeOowRecentSeagoingService(seatimes, vessels);
     const use500gtPath =
       months500gt / MASTER_SPECIAL_500GT_TARGET_MONTHS >
       months24m / MASTER_SPECIAL_24M_TARGET_MONTHS;
@@ -1998,7 +2069,8 @@ function getTenderProficiencyDisplay(level) {
       onboardMonths,
       onboardMet,
       ONBOARD_TARGET_MONTHS: MASTER_3000GT_ONBOARD_TARGET_MONTHS,
-      allMasterMet: onboardMet && watchMet && specialMet,
+      recent,
+      allMasterMet: onboardMet && watchMet && specialMet && recent.met,
       WATCHKEEPING_TARGET: MASTER_WATCHKEEPING_TARGET,
       GATING_CERT_CODE: MASTER_3000GT_GATING_CERT_CODE
     };
@@ -2022,8 +2094,8 @@ function getTenderProficiencyDisplay(level) {
   const CHIEF_MATE_3000_YACHTMASTER_OCEAN_ALT_CODE = "IYT MOY UNLTD";
   const CHIEF_MATE_3000_OOW_CERT_CODE = "OOW YACHT";
 
-  function computeChiefMate3000Eligibility(seatimes, vessels, certs) {
-    const oowSeaTimeMet = isOowSeaTimeComplete(seatimes, vessels);
+  function computeChiefMate3000Eligibility(seatimes, vessels, certs, dob) {
+    const oowSeaTimeMet = isOowSeaTimeComplete(seatimes, vessels, dob);
     const oowCertHeld = !!findSavedCertByCode(certs, CHIEF_MATE_3000_OOW_CERT_CODE);
     const yachtmasterOceanCert =
       findSavedCertByCode(certs, CHIEF_MATE_3000_YACHTMASTER_OCEAN_CODE) ||
@@ -2068,27 +2140,49 @@ function getTenderProficiencyDisplay(level) {
     };
   }
 
-  // Master Yachts Unlimited, via-Master-<3000GT route: while holding Master
-  // Yachts <3000GT, 6 months served in the MASTER capacity (incl. 3 months
-  // actual sea) on vessels 500GT or over. "Served in the Master capacity"
-  // is read from each Sea Time entry's free-text `capacityServed` field
-  // (case-insensitive whole-word match on "master") — Sea Time has no
-  // structured rank field, so this is best-effort text matching against
-  // whatever the crew member typed, not a guaranteed-accurate rank record.
-  // Two other Master Yachts Unlimited routes exist (via Chief Mate Yachts
-  // Unlimited or OOW Unlimited) but both need a Merchant Navy ticket SEA-V
-  // doesn't track — not represented here.
-  const MASTER_UNLIMITED_GATING_CERT_CODE = "MASTER Y3000";
-  const MASTER_UNLIMITED_ONBOARD_TARGET_MONTHS = 6;
-  const MASTER_UNLIMITED_ACTUAL_SEA_TARGET_MONTHS = 3;
+  // Master Yachts Unlimited, MSN 1858 Amendment 2 §4.4(b), the two routes a yacht
+  // ticket can take, all on vessels 500GT or over:
+  //   while holding Master Yachts <3000GT: 6 months as Master, 3 of them at sea;
+  //   while holding Chief Mate Yachts Unlimited: 12 months as Chief Mate, 6 at sea.
+  // Roles come from each Sea Time entry's capacityServed. The third route needs
+  // an OOW Unlimited ticket, which SEA-V does not track, and so does the merchant
+  // Chief Mate Unlimited ticket on the second route.
+  const MASTER_UNLIMITED_ROUTES = [
+    {
+      key: "master",
+      certCode: "MASTER Y3000",
+      certName: "Master <3000GT",
+      roleName: "Master",
+      served: (entry) => servedAsMasterRole(entry),
+      onboardTarget: 6,
+      seaTarget: 3
+    },
+    {
+      key: "chief-mate",
+      certCode: "CHIEF MATE Y UNLTD",
+      certName: "Chief Mate Unlimited",
+      roleName: "Chief Mate",
+      served: (entry) => servedAsChiefMateRole(entry),
+      onboardTarget: 12,
+      seaTarget: 6
+    }
+  ];
   const MASTER_UNLIMITED_MIN_GT = 500;
   const MASTER_CAPACITY_MATCH = /\b(master|captain)\b/i;
 
-  function computeMasterUnlimitedSeaService(seatimes, certs, vessels) {
-    const gated = seatimesGatedByCertIssueDate(seatimes, certs, MASTER_UNLIMITED_GATING_CERT_CODE);
-
+  function computeMasterUnlimitedRoute(route, seatimes, certs, vessels) {
+    const gated = seatimesGatedByCertIssueDate(seatimes, certs, route.certCode);
+    const base = {
+      route: route.key,
+      roleName: route.roleName,
+      certName: route.certName,
+      ONBOARD_TARGET_MONTHS: route.onboardTarget,
+      ACTUAL_SEA_TARGET_MONTHS: route.seaTarget,
+      GATING_CERT_CODE: route.certCode
+    };
     if (!gated.held) {
       return {
+        ...base,
         held: false,
         issuedDate: null,
         onboardDays: 0,
@@ -2097,49 +2191,57 @@ function getTenderProficiencyDisplay(level) {
         actualSeaMonths: 0,
         onboardMet: false,
         actualSeaMet: false,
-        met: false,
-        ONBOARD_TARGET_MONTHS: MASTER_UNLIMITED_ONBOARD_TARGET_MONTHS,
-        ACTUAL_SEA_TARGET_MONTHS: MASTER_UNLIMITED_ACTUAL_SEA_TARGET_MONTHS,
-        GATING_CERT_CODE: MASTER_UNLIMITED_GATING_CERT_CODE
+        met: false
       };
     }
 
-    // v572: a contract that started before the Master <3000GT issue date
-    // used to bring ALL its actual sea days; now only the share after it,
-    // apportioned the same way as the other "while holding" figures.
+    // v572: a contract that started before the certificate's issue date used to
+    // bring ALL its actual sea days; now only the share after it.
     const onboardEntries = [];
     let actualSeaDays = 0;
     (seatimes || []).forEach((original) => {
-      const gt = getEntryVesselGt(original, vessels);
-      const servedAsMaster = servedAsMasterRole(original);
-      if (gt < MASTER_UNLIMITED_MIN_GT || !servedAsMaster) return;
+      if (getEntryVesselGt(original, vessels) < MASTER_UNLIMITED_MIN_GT || !route.served(original)) return;
       const entry = gated.gatedEntries.find((g) => g.id === original.id);
       if (!entry) return;
       onboardEntries.push(entry);
       actualSeaDays += toNumber(original.actualSeaServiceDays) * apportionEntryToWindow(original, gated.issuedDate, null);
     });
     actualSeaDays = Math.round(actualSeaDays);
-    const onboardDays = uniqueSignedOnDays(onboardEntries);
 
-    const onboardMonths = onboardDays / DAYS_PER_MONTH;
+    const onboardMonths = serviceMonths(onboardEntries);
     const actualSeaMonths = actualSeaDays / DAYS_PER_MONTH;
-    const onboardMet = onboardMonths >= MASTER_UNLIMITED_ONBOARD_TARGET_MONTHS;
-    const actualSeaMet = actualSeaMonths >= MASTER_UNLIMITED_ACTUAL_SEA_TARGET_MONTHS;
+    const onboardMet = onboardMonths >= route.onboardTarget;
+    const actualSeaMet = actualSeaMonths >= route.seaTarget;
+    const recent = computeOowRecentSeagoingService(seatimes, vessels);
 
     return {
+      ...base,
       held: true,
       issuedDate: gated.issuedDate,
-      onboardDays,
+      onboardDays: uniqueSignedOnDays(onboardEntries),
       onboardMonths,
       actualSeaDays,
       actualSeaMonths,
       onboardMet,
       actualSeaMet,
-      met: onboardMet && actualSeaMet,
-      ONBOARD_TARGET_MONTHS: MASTER_UNLIMITED_ONBOARD_TARGET_MONTHS,
-      ACTUAL_SEA_TARGET_MONTHS: MASTER_UNLIMITED_ACTUAL_SEA_TARGET_MONTHS,
-      GATING_CERT_CODE: MASTER_UNLIMITED_GATING_CERT_CODE
+      recent,
+      met: onboardMet && actualSeaMet && recent.met
     };
+  }
+
+  // The route that has got furthest. With no certificate held, the Master route.
+  function computeMasterUnlimitedSeaService(seatimes, certs, vessels) {
+    const progress = (r) =>
+      Math.min(r.onboardMonths / r.ONBOARD_TARGET_MONTHS, r.actualSeaMonths / r.ACTUAL_SEA_TARGET_MONTHS);
+    const results = MASTER_UNLIMITED_ROUTES.map((route) =>
+      computeMasterUnlimitedRoute(route, seatimes, certs, vessels)
+    );
+    const held = results.filter((r) => r.held);
+    if (!held.length) return results[0];
+    return held.reduce((best, r) => {
+      if (r.met !== best.met) return r.met ? r : best;
+      return progress(r) > progress(best) ? r : best;
+    });
   }
 
   function getSeatimeTotals(entries) {
@@ -2767,6 +2869,7 @@ function getSortedVesselOptions(vessels = []) {
      Entry shape:
        code            single catalog code that satisfies it
        anyOf           array — any ONE of these satisfies it (e.g. RYA or IYT)
+       allOfAlt        array — holding ALL of these also satisfies an anyOf row
        label           crew-facing wording
        heldForMonths   must have been ISSUED at least N months ago
        optional        listed as 'Opt' in the matrix — shown, never counted
@@ -2822,7 +2925,12 @@ function getSortedVesselOptions(vessels = []) {
     // MSN 1858 3.3. EDH's 18-month rule is the only relative-timing rule in
     // the ladder; in force since 01/01/2017.
     oow_3000gt_sea_time: [
-      { anyOf: ["RYA YMO", "IYT MOY LTD"], label: "Yachtmaster Offshore or IYT MoY Limited" },
+      // §3.3(b). Yachtmaster Coastal counts only with the Coastal Skipper course.
+      {
+        anyOf: ["RYA YMO", "IYT MOY LTD", "IYT MOY COASTAL"],
+        allOfAlt: ["RYA YMC", "RYA COASTAL"],
+        label: "Yachtmaster Offshore, Yachtmaster Coastal with Coastal Skipper, or IYT MoY Limited / Coastal"
+      },
       { code: "EDH", label: "Efficient Deck Hand", heldForMonths: 18 },
       ...STCW_BASIC_FOUR,
       PSCRB,
@@ -2935,7 +3043,7 @@ function getSortedVesselOptions(vessels = []) {
     // MSN 1858 Am.2 4.4 — no separate academic modules; inherits Chief Mate
     // Unlimited's, so holding that certificate covers them.
     master_yachts_unlimited: [
-      { code: "MASTER Y3000", label: "Master Yachts <3000GT" },
+      { anyOf: ["MASTER Y3000", "CHIEF MATE Y UNLTD"], label: "Master Yachts <3000GT or Chief Mate Yachts Unlimited" },
       ...STCW_BASIC_FOUR,
       PSCRB,
       AFF,
@@ -3009,8 +3117,10 @@ function getSortedVesselOptions(vessels = []) {
       }
 
       const codes = req.anyOf || [req.code];
+      const altHeld = (req.allOfAlt || []).map((c) => findSavedCertByCode(certs, c));
       const held = codes
         .map((c) => findSavedCertByCode(certs, c))
+        .concat(altHeld.every(Boolean) ? altHeld : [])
         .filter(Boolean)
         .sort((a, b) => new Date(a.issued || 0) - new Date(b.issued || 0))[0] || null;
 
@@ -3133,7 +3243,17 @@ function getSortedVesselOptions(vessels = []) {
     const vessels = context?.vessels || [];
     const certs = context?.certs || [];
     const navigationEntries = context?.navigationAreas || [];
+    const dob = context?.dob || "";
     const trigger = definition.trigger || { type: "manual" };
+    // §5.1: a tier's bar cannot read full while the recent service is missing.
+    const recentCap = (result, percent) =>
+      result.recent && !result.recent.met
+        ? Math.min(percent, Math.round((result.recent.recentDays / result.recent.target) * 100))
+        : percent;
+    const recentNote = (result) =>
+      result.recent && !result.recent.met
+        ? ` · ${result.recent.recentDays} / ${result.recent.target} seagoing days in the last ${result.recent.windowYears} years`
+        : "";
 
     switch (trigger.type) {
       case "sea_days": {
@@ -3142,13 +3262,13 @@ function getSortedVesselOptions(vessels = []) {
         // pre-v481 formula that double-counts watchkeeping and ignores the yard
         // cap -- so it could read "1200 / 1095, 100%" on a locked badge.
         // Fixed 2026-09-26 audit.
-        const current = computeOow36MonthsOnboard(seatimes).totalDays;
-        const target = Number(trigger.minDays || 0);
+        const result = computeOow36MonthsOnboard(seatimes, vessels, dob);
+        const current = Math.round(result.months * 10) / 10;
         return {
           current,
-          target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
-          label: `${current} / ${target} qualifying days`
+          target: result.targetMonths,
+          percent: Math.min(100, Math.round((result.months / result.targetMonths) * 100)),
+          label: `${current} / ${result.targetMonths} months onboard, deck department`
         };
       }
       case "oow_actual_sea_days": {
@@ -3172,7 +3292,7 @@ function getSortedVesselOptions(vessels = []) {
         };
       }
       case "oow_eligible": {
-        const met = isOowSeaTimeComplete(seatimes, vessels);
+        const met = isOowSeaTimeComplete(seatimes, vessels, dob);
         return {
           current: met ? 1 : 0,
           target: 1,
@@ -3224,7 +3344,7 @@ function getSortedVesselOptions(vessels = []) {
         };
       }
       case "master_200gt_gated_sea_service": {
-        const result = computeMaster200SeaService(seatimes, certs);
+        const result = computeMaster200SeaService(seatimes, certs, vessels);
         if (!result.held) {
           return {
             current: 0,
@@ -3237,10 +3357,10 @@ function getSortedVesselOptions(vessels = []) {
         return {
           current: monthsRounded,
           target: result.TARGET_MONTHS,
-          percent: result.TARGET_MONTHS
+          percent: recentCap(result, result.TARGET_MONTHS
             ? Math.min(100, Math.round((result.months / result.TARGET_MONTHS) * 100))
-            : 0,
-          label: `${monthsRounded} / ${result.TARGET_MONTHS} months' seagoing service (since holding Yachtmaster Offshore)`
+            : 0),
+          label: `${monthsRounded} / ${result.TARGET_MONTHS} months' seagoing service (since holding Yachtmaster Offshore)${recentNote(result)}`
         };
       }
       case "master_500gt_gated_sea_service": {
@@ -3263,8 +3383,8 @@ function getSortedVesselOptions(vessels = []) {
         return {
           current: onboardMonthsRounded,
           target: result.ONBOARD_TARGET_MONTHS,
-          percent: Math.min(onboardPct, watchPct),
-          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months onboard (${result.watchkeepingDays} / ${result.WATCHKEEPING_TARGET} watchkeeping days) — since holding OOW <3000GT`
+          percent: recentCap(result, Math.min(onboardPct, watchPct)),
+          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months onboard (${result.watchkeepingDays} / ${result.WATCHKEEPING_TARGET} watchkeeping days) — since holding OOW <3000GT${recentNote(result)}`
         };
       }
       case "master_3000gt_gated_sea_service": {
@@ -3290,8 +3410,8 @@ function getSortedVesselOptions(vessels = []) {
         return {
           current: result.totalWatchkeeping15m,
           target: result.WATCHKEEPING_TARGET,
-          percent: Math.min(watchPct, specialPct, onboardPct),
-          label: `${result.onboardMonths.toFixed(1)} / ${result.ONBOARD_TARGET_MONTHS} months as a deck officer, ${result.totalWatchkeeping15m} / ${result.WATCHKEEPING_TARGET} watchkeeping days (${result.specialValue.toFixed(1)} / ${result.specialTarget} ${specialLabel}) — since holding OOW <3000GT`
+          percent: recentCap(result, Math.min(watchPct, specialPct, onboardPct)),
+          label: `${result.onboardMonths.toFixed(1)} / ${result.ONBOARD_TARGET_MONTHS} months as a deck officer, ${result.totalWatchkeeping15m} / ${result.WATCHKEEPING_TARGET} watchkeeping days (${result.specialValue.toFixed(1)} / ${result.specialTarget} ${specialLabel}) — since holding OOW <3000GT${recentNote(result)}`
         };
       }
       case "chief_mate_unlimited_direct": {
@@ -3306,7 +3426,7 @@ function getSortedVesselOptions(vessels = []) {
         };
       }
       case "chief_mate_3000_eligible": {
-        const result = computeChiefMate3000Eligibility(seatimes, vessels, certs);
+        const result = computeChiefMate3000Eligibility(seatimes, vessels, certs, dob);
         const missing = [];
         if (!result.oowMet) missing.push("OOW <3000GT eligibility");
         if (!result.yachtmasterOceanHeld) missing.push("RYA Yachtmaster Ocean (or IYT Master of Yachts Unlimited)");
@@ -3326,7 +3446,7 @@ function getSortedVesselOptions(vessels = []) {
             current: 0,
             target: result.ONBOARD_TARGET_MONTHS,
             percent: 0,
-            label: "Hold Master Yachts <3000GT first"
+            label: "Hold Master Yachts <3000GT or Chief Mate Yachts Unlimited first"
           };
         }
         const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
@@ -3340,8 +3460,8 @@ function getSortedVesselOptions(vessels = []) {
         return {
           current: onboardMonthsRounded,
           target: result.ONBOARD_TARGET_MONTHS,
-          percent: Math.min(onboardPct, actualSeaPct),
-          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months as Master on 500GT+ vessels (${actualSeaMonthsRounded} / ${result.ACTUAL_SEA_TARGET_MONTHS} months actual sea) — since holding Master <3000GT`
+          percent: recentCap(result, Math.min(onboardPct, actualSeaPct)),
+          label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months as ${result.roleName} on 500GT+ vessels (${actualSeaMonthsRounded} / ${result.ACTUAL_SEA_TARGET_MONTHS} months actual sea) — since holding ${result.certName}${recentNote(result)}`
         };
       }
       case "manual":
@@ -3630,6 +3750,8 @@ window.SeavData = {
   computeOowSeaService,
   computeOow36MonthsOnboard,
   uniqueSignedOnDays,
+  serviceMonths,
+  deckServiceFactor,
   computeOowRecentSeagoingService,
   SEAFARER_POSITIONS,
   findSeafarerPosition,

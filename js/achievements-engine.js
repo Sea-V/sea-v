@@ -59,8 +59,12 @@
   // re-summing day buckets here (2026-08-16). The local sum double-counted
   // watchkeeping and ignored the 90-day yard cap, so the "36 Months Onboard"
   // badge unlocked before the requirement was actually met.
+  function getDob() {
+    return window.SeavState?.profile?.dob || "";
+  }
+
   function getTotalSeaDays() {
-    return computeOow36MonthsOnboard(getSeatimes()).totalDays;
+    return computeOow36MonthsOnboard(getSeatimes(), getVessels(), getDob()).totalDays;
   }
 
   function parseMeters(value) {
@@ -110,7 +114,7 @@
   }
 
   function isOowSeaTimeComplete() {
-    return sharedIsOowSeaTimeComplete(getSeatimes(), getVessels());
+    return sharedIsOowSeaTimeComplete(getSeatimes(), getVessels(), getDob());
   }
 
   function seatimeEntryForFilteredThreshold(entries, targetDays, valueFn) {
@@ -273,7 +277,7 @@
 
     switch (trigger.type) {
       case "sea_days":
-        return getTotalSeaDays() >= Number(trigger.minDays || 0);
+        return computeOow36MonthsOnboard(getSeatimes(), getVessels(), getDob()).met;
 
       case "oow_actual_sea_days":
         return getActualSeaDaysOnVessels() >= Number(trigger.minDays || 0);
@@ -302,7 +306,7 @@
         return computeGeoCrossing(getNavigationEntries(), trigger.geo).met;
 
       case "master_200gt_gated_sea_service":
-        return computeMaster200SeaService(getSeatimes(), getCerts()).met;
+        return computeMaster200SeaService(getSeatimes(), getCerts(), getVessels()).met;
 
       case "master_500gt_gated_sea_service":
         return computeMaster500SeaService(getSeatimes(), getCerts(), getVessels()).met;
@@ -314,7 +318,7 @@
         return computeChiefMateUnlimitedEligibility(getCerts()).met;
 
       case "chief_mate_3000_eligible":
-        return computeChiefMate3000Eligibility(getSeatimes(), getVessels(), getCerts()).met;
+        return computeChiefMate3000Eligibility(getSeatimes(), getVessels(), getCerts(), getDob()).met;
 
       case "master_unlimited_master3000_route":
         return computeMasterUnlimitedSeaService(getSeatimes(), getCerts(), getVessels()).met;
@@ -510,7 +514,20 @@
       seatimes: getSeatimes(),
       vessels: getVessels(),
       certs: getCerts(),
-      navigationAreas: getNavigationEntries()
+      navigationAreas: getNavigationEntries(),
+      dob: getDob()
+    };
+  }
+
+  // §5.1: every tier's service needs 6 months in the last 5 years.
+  function recencyRow(recent) {
+    return {
+      label: `Seagoing days in the last ${recent.windowYears} years`,
+      current: recent.recentDays,
+      target: recent.target,
+      unit: "days",
+      percent: Math.min(100, Math.round((recent.recentDays / recent.target) * 100)),
+      note: "MSN 1858: 6 months of your qualifying sea service must be from the 5 years before you apply."
     };
   }
 
@@ -580,12 +597,12 @@
         ];
       }
       // v572: one row per MSN 1858 condition, so a locked badge shows WHICH
-      // one is missing. The 5-year recency row (§9) used to be invisible: a
+      // one is missing. The 5-year recency row (§5.1) used to be invisible: a
       // career that ended years ago met the three sea-time milestones and
       // the badge stayed locked with nothing on screen saying why.
       case "oow_eligible": {
         const sea = computeOowSeaService(getSeatimes(), getVessels());
-        const onboard = computeOow36MonthsOnboard(getSeatimes());
+        const onboard = computeOow36MonthsOnboard(getSeatimes(), getVessels(), getDob());
         const recent = computeOowRecentSeagoingService(getSeatimes(), getVessels());
         const pct = (current, target) => (target ? Math.min(100, Math.round((current / target) * 100)) : 0);
         return [
@@ -604,11 +621,11 @@
             percent: pct(sea.totalQualifying15m, sea.QUALIFYING_TARGET)
           },
           {
-            label: "Days onboard (36 months)",
-            current: onboard.totalDays,
-            target: onboard.target,
-            unit: "days",
-            percent: pct(onboard.totalDays, onboard.target)
+            label: "Months onboard, deck department",
+            current: Math.round(onboard.months * 10) / 10,
+            target: onboard.targetMonths,
+            unit: "months",
+            percent: pct(onboard.months, onboard.targetMonths)
           },
           {
             label: `Seagoing days in the last ${recent.windowYears} years`,
@@ -691,7 +708,7 @@
         ];
       }
       case "master_200gt_gated_sea_service": {
-        const result = computeMaster200SeaService(getSeatimes(), getCerts());
+        const result = computeMaster200SeaService(getSeatimes(), getCerts(), getVessels());
         if (!result.held) {
           return [
             {
@@ -714,7 +731,8 @@
             percent: result.TARGET_MONTHS
               ? Math.min(100, Math.round((result.months / result.TARGET_MONTHS) * 100))
               : 0
-          }
+          },
+          recencyRow(result.recent)
         ];
       }
       case "master_500gt_gated_sea_service": {
@@ -758,7 +776,8 @@
             percent: result.WATCHKEEPING_TARGET
               ? Math.min(100, Math.round((result.watchkeepingDays / result.WATCHKEEPING_TARGET) * 100))
               : 0
-          }
+          },
+          recencyRow(result.recent)
         ];
       }
       case "master_3000gt_gated_sea_service": {
@@ -819,7 +838,8 @@
             percent: result.specialTarget
               ? Math.min(100, Math.round((result.specialValue / result.specialTarget) * 100))
               : 0
-          }
+          },
+          recencyRow(result.recent)
         ];
       }
       case "chief_mate_unlimited_direct": {
@@ -834,7 +854,7 @@
         ];
       }
       case "chief_mate_3000_eligible": {
-        const result = computeChiefMate3000Eligibility(getSeatimes(), getVessels(), getCerts());
+        const result = computeChiefMate3000Eligibility(getSeatimes(), getVessels(), getCerts(), getDob());
         return [
           {
             label: "OOW <3000GT eligibility (sea time met or cert held)",
@@ -860,7 +880,7 @@
               target: result.ONBOARD_TARGET_MONTHS,
               unit: "months",
               percent: 0,
-              note: "Hold Master Yachts <3000GT first"
+              note: "Hold Master Yachts <3000GT or Chief Mate Yachts Unlimited first"
             },
             {
               label: "Actual sea months",
@@ -868,7 +888,7 @@
               target: result.ACTUAL_SEA_TARGET_MONTHS,
               unit: "months",
               percent: 0,
-              note: "Hold Master Yachts <3000GT first"
+              note: "Hold Master Yachts <3000GT or Chief Mate Yachts Unlimited first"
             }
           ];
         }
@@ -876,7 +896,7 @@
         const actualSeaMonthsRounded = Math.round(result.actualSeaMonths * 10) / 10;
         return [
           {
-            label: "Months as Master on 500GT+ vessels (since holding Master <3000GT)",
+            label: `Months as ${result.roleName} on 500GT+ vessels (since holding ${result.certName})`,
             current: onboardMonthsRounded,
             target: result.ONBOARD_TARGET_MONTHS,
             unit: "months",
@@ -892,7 +912,8 @@
             percent: result.ACTUAL_SEA_TARGET_MONTHS
               ? Math.min(100, Math.round((result.actualSeaMonths / result.ACTUAL_SEA_TARGET_MONTHS) * 100))
               : 0
-          }
+          },
+          recencyRow(result.recent)
         ];
       }
       case "manual":

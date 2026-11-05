@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v610**. Jack pushes every commit himself from
+- HEAD = **v611**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,17 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-05 (v611) — sea-time rules against MSN 1858 Amendment 2
+Compared with the PDF sentence by sentence (published 18 May 2026; §4 is new, so old §4.x are now §5.x), then all nine differences fixed at Jack's word ("sort it out"), `js/seav-data.js`:
+- `serviceMonths()` is §5.3: whole calendar months from each span, odd days at 30. `DAYS_PER_MONTH` is 30, only for figures held as day counts. A full 1 Jan - 31 Dec used to read 11.99.
+- `deckServiceFactor()` is §5.1: non-deck roles 0, Deck / Engineer 0.5, blank 1. Used by the OOW figures, the 36 months, recency and Master <200GT. **Deck / Stew counts in full: the notice halves only engine and deck, a reading not confirmed with the MCA.** Deck / Engineer stays 0 for Master, as it is not a deck officer role.
+- 36 months: "since the age of 16", `entriesSinceAge16()` with `context.dob`. The public profile has no date of birth, so nothing is clipped there. It now reads in months (`met` = months >= 36), not 1095 days.
+- §5.1 / §12.1 recency applies to every tier. 180 days now (was 183), yard capped at 90. Earned badges stay earned (PERMANENT_ONCE_EARNED_TRIGGERS). A progress bar is capped until it is met, with its own row.
+- **Master <200GT counts actual sea days only** (§3.1(b) + §5.2). It used to add stand-by and uncapped yard. §3.3(c) is the one place that spells out a wider mix. **Our reading, not confirmed with the MCA.**
+- Master <500GT / <3000GT watchkeeping only from deck officer entries. Master Unlimited gains the Chief Mate Yachts Unlimited route (`MASTER_UNLIMITED_ROUTES`). OOW entry row accepts Coastal + Coastal Skipper or IYT Coastal (`allOfAlt`). Badge text and section numbers corrected.
+Node: 37 rule cases pass. Old vs new on 4 public profiles: no badge flips. Jack: Master <200GT 39.3 -> 26.7 months (still met), <500GT 18.4 -> 18.3 months, watchkeeping 113. Daniel (demo) watchkeeping 1590 -> 1560. Their dates of birth are private, so age 16 was not run on them.
+**Not done:** §4.4(a) Master Unlimited prerequisite list has no Chief Mate Unlimited modules; §5.4 service as Master must be signed by the owner or yacht manager (the testimonial flow asks a captain); the OOW Unlimited route; load line length (the code reads the vessel's length field). Thread 5: §3.6 confirms 3-year validity for Master <500GT module passes (Celestial Navigation 1 year); footnote 7 anchors the EDH 18 months to CoC issue; "while holding" from issue or exam pass is still unstated.
 
 ### Shipped 2026-11-05 (v610, same commit) — dashboard as two columns of paired cards
 Jack rejected a links-first mockup ("no direction"), asked for research first, then approved eight cards, two per row.
