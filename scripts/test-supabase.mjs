@@ -474,7 +474,7 @@ async function testVesselDirectoryPrivate(config) {
   console.log(`\nYacht directory (anon must have no access):`);
   const headers = { apikey: config.key, Authorization: `Bearer ${config.key}`, "Content-Type": "application/json" };
   let ok = true;
-  for (const path of ["vessel_directory?select=name&limit=1", "vessel_directory_flags?select=id&limit=1", "vessels?select=directory_id&limit=1"]) {
+  for (const path of ["vessel_directory?select=name&limit=1", "vessel_directory_flags?select=id&limit=1", "vessel_directory_history?select=id&limit=1", "vessels?select=directory_id&limit=1"]) {
     const res = await fetch(`${config.url}/rest/v1/${path}`, { headers });
     const blocked = res.status === 401 || res.status === 403;
     console.log(`${blocked ? "✓" : "✗"} ${path}  ${res.status}${blocked ? "" : "  FAIL — anon must not read this"}`);

@@ -348,6 +348,12 @@ function buildVesselCardBody(v, options = {}) {
               <div><span>Onboard duties</span><strong>${additionalDuties}</strong></div>
             </div>
           </details>
+
+          ${v.directory_id ? `
+          <details class="vessel-specs-toggle" data-yacht-history="${Seav.escapeHtml(v.directory_id)}">
+            <summary class="vessel-specs-toggle-summary">Yacht history</summary>
+            <div class="vessel-yacht-history-body">Loading…</div>
+          </details>` : ""}
         </div>
       </div>
 

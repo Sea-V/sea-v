@@ -108,7 +108,7 @@ html[data-theme="light"] body.app-page .badge-unlock-card .badge-unlock-tier-pil
 }
 
 /* Cards lift off the grey page with a hairline shadow instead of colour. */
-html[data-theme="light"] body.app-page :is(.dash-tile, .dash-vessel, .dash-card, .modal-card) {
+html[data-theme="light"] body.app-page :is(.dash-panel, .dash-card, .modal-card) {
   box-shadow: 0 1px 2px rgba(15, 34, 54, 0.06) !important;
 }
 
@@ -116,24 +116,6 @@ html[data-theme="light"] body.app-page :is(.dash-tile, .dash-vessel, .dash-card,
 html[data-theme="light"] body.app-page :is(select option, .modal-form select option) {
   background-color: #ffffff !important;
   color: rgb(var(--seav-ink-rgb)) !important;
-}
-
-/* Over a PHOTO the text must stay white whatever the theme: the current-
-   vessel tile on desktop draws its text on a dark scrim over the picture
-   (`.dash-vessel-empty` = no photo, so it keeps the light ink).
-   Resetting the ink locally turns everything inside back to white. */
-@media (min-width: 901px) {
-  html[data-theme="light"] body.app-page .dash-vessel:not(.dash-vessel-empty) {
-    --seav-ink-rgb: 255 255 255;
-    --seav-entity-name-color: #ffffff;
-    --seav-field-value-color: #ffffff;
-    --seav-meta-desc-color: rgba(255, 255, 255, 0.78);
-    /* Named tokens resolve on <html>, where the ink is navy, so the ink reset
-       alone misses them: the meta line read dark on the scrim (v604). */
-    --muted: rgba(255, 255, 255, 0.78);
-    --pill-bg: rgba(255, 255, 255, 0.12);
-    --pill-border: rgba(255, 255, 255, 0.28);
-  }
 }
 
 /* Form fields: white with a visible edge. The dark theme fills them with
@@ -150,6 +132,8 @@ html[data-theme="light"]:has(> body.app-page) {
   --seav-popup-bg: #ffffff;
   --seav-popup-ok: var(--light-status-ok);
   --seav-popup-info: var(--light-accent);
+  --dash-panel-warn: var(--light-status-amber);
+  --dash-panel-bad: var(--light-status-bad);
 }
 
 html[data-theme="light"] body.app-page :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]), select, textarea) {

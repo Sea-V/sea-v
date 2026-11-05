@@ -46,3 +46,9 @@
   color: var(--seav-accent-text);
   font: inherit;
 }
+
+/* A yacht's history on its card (v610). */
+.vessel-yacht-history-body { display: grid; gap: 8px; padding: 10px 12px; color: var(--seav-meta-desc-color); }
+.vessel-yacht-history-row { display: grid; gap: 1px; }
+.vessel-yacht-history-row strong { color: var(--seav-field-value-color); font-weight: var(--font-weight-body); overflow-wrap: anywhere; }
+.vessel-yacht-history-row small { color: var(--seav-meta-muted-color); font-size: var(--font-caption); }

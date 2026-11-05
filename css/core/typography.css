@@ -255,8 +255,7 @@ body.app-page [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-she
 
 /* 2 — boxes sitting directly in the page shell */
 body.app-page :is(
-  .dash-tile,
-  .dash-vessel,
+  .dash-panel,
   .profile-form-card,
   .profile-public-share,
   .vessel-history-collapsible,

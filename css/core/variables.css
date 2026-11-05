@@ -330,6 +330,15 @@
   --seav-row-menu-hover: rgb(var(--seav-ink-rgb) / 0.07);
   --seav-row-menu-shadow: 0 14px 32px rgba(0, 0, 0, 0.42);
   /* v588: sea time status — the captain line under the status pill. */
+  /* Dashboard cards */
+  --dash-cards-pad: 16px 0 24px;
+  --dash-cards-pad-phone: 14px;
+  --dash-panel-pad: 18px;
+  --dash-panel-body-pad: 14px 18px 18px;
+  --dash-panel-photo-height: 190px;
+  --dash-panel-bar-height: 6px;
+  --dash-panel-warn: var(--progress-amber);
+  --dash-panel-bad: var(--progress-red);
   --seav-tst-ok: var(--accent-green);
   --seav-tst-wait: var(--progress-amber);
   --seav-tst-bad: var(--progress-red);

@@ -1018,6 +1018,7 @@
     getSubRequirements,
     getPrerequisites,
     getNextMilestone,
+    getEarnedAchievementCodes,
     getInProgressMilestones
   };
 

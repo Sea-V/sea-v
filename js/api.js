@@ -1339,6 +1339,20 @@ const SeavAPI = {
       return data || [];
     },
 
+    // Facts only: the history holds no user ids.
+    async fetchVesselDirectoryHistory(directoryId) {
+      const client = window.SeavSupabase;
+      if (!client || !directoryId) return [];
+      const { data, error } = await client
+        .from("vessel_directory_history")
+        .select("id,field,old_value,new_value,source,created_at")
+        .eq("directory_id", directoryId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data || [];
+    },
+
     // Finds or adds this vessel's directory row and returns its id, or "" when it has
     // no usable number: a name alone is never identity. Any disagreement goes to the
     // admin review list; the crew member's own values are saved regardless.

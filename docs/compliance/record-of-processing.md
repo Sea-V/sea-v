@@ -114,6 +114,7 @@ changes this — update the policy first.**
 | Sentry | Error monitoring | Error details, browser info | Germany (EU) | None needed (UK adequacy for EU) | _To accept in Sentry settings; check Session Replay is off_ |
 | cdnjs (Cloudflare), jsDelivr, unpkg | Serve open-source code libraries | IP address of the visitor's browser | Global | Independent providers | n/a |
 | CARTO / OpenStreetMap | Map tiles for passages | IP address | Global | Independent providers | n/a |
+| GOV.UK search API | Latest MCA notices on the dashboard (at most daily per device, no cookies or referrer sent) | IP address | UK | Independent public body | n/a |
 
 ## 8. Security measures (art. 32)
 

@@ -167,5 +167,62 @@
     el("vsFinderUnlink")?.addEventListener("click", () => setLink(""));
   }
 
+  /* ---------- A yacht's history (v610), opened from its card on the Vessels page ---------- */
+  const HISTORY_LABELS = {
+    name: "Name",
+    imo: "IMO",
+    mmsi: "MMSI",
+    official_number: "Official number",
+    flag: "Flag",
+    call_sign: "Call sign",
+    gt: "Gross tonnage",
+    vessel_length: "Length",
+    builder: "Builder",
+    vessel_type: "Type",
+    year_built: "Year built"
+  };
+  const HISTORY_SOURCES = { wikidata: "from Wikidata", crew: "from a crew record", admin: "reviewed by SEA-V" };
+
+  function historyLine(row) {
+    if (row.field === "added") return "Added to the directory";
+    if (row.field === "former_name") return `Formerly named ${row.old_value}`;
+    const label = HISTORY_LABELS[row.field] || row.field;
+    return row.old_value ? `${label}: ${row.old_value} → ${row.new_value || "removed"}` : `${label} added: ${row.new_value}`;
+  }
+
+  async function fillHistory(details) {
+    const body = details.querySelector(".vessel-yacht-history-body");
+    if (!body || details.dataset.loaded) return;
+    details.dataset.loaded = "1";
+    let rows;
+    try {
+      rows = await window.SeavAPI.fetchVesselDirectoryHistory(details.getAttribute("data-yacht-history"));
+    } catch (err) {
+      console.warn("[SEA-V] Yacht history failed:", err);
+      delete details.dataset.loaded;
+      body.textContent = "Couldn't load the history. Close this and try again.";
+      return;
+    }
+    body.textContent = "";
+    rows.forEach((row) => {
+      const line = document.createElement("div");
+      line.className = "vessel-yacht-history-row";
+      const what = document.createElement("strong");
+      what.textContent = historyLine(row);
+      const meta = document.createElement("small");
+      const date = new Date(row.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+      meta.textContent = `${date} · ${HISTORY_SOURCES[row.source] || row.source}`;
+      line.append(what, meta);
+      body.appendChild(line);
+    });
+    if (!rows.length) body.textContent = "Nothing recorded yet.";
+  }
+
+  // 'toggle' does not bubble, hence capture. Cards are rendered lazily, so this is delegated.
+  document.addEventListener("toggle", (event) => {
+    const details = event.target;
+    if (details?.matches?.("[data-yacht-history]") && details.open) fillHistory(details);
+  }, true);
+
   window.SeavVesselFinder = { init, setLink };
 })();

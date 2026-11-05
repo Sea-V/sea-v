@@ -1,40 +1,20 @@
-// /js/dashboard-snippets.js — dashboard bento tile renderers
+// /js/dashboard-snippets.js — the dashboard's cards
 (function () {
   "use strict";
 
-  if (!window.Seav || !window.SeavState || !window.SeavData || !window.SeavCards) {
-    console.warn("[SEA-V] Dashboard snippets dependencies missing.");
+  if (!window.Seav || !window.SeavState || !window.SeavData) {
+    console.warn("[SEA-V] Dashboard card dependencies missing.");
     return;
   }
 
   const Seav = window.Seav;
-  const {
-    getCertExpiryInfo,
-    getReferenceStatus,
-    getSeatimeTotals,
-    totalQualifyingDays,
-    formatDatePretty
-  } = window.SeavData;
+  const { getCertExpiryInfo, getReferenceStatus, getSeatimeTotals, formatDatePretty } = window.SeavData;
+  const esc = (value) => Seav.escapeHtml(String(value ?? ""));
 
-  // v516: the dashboard is one screen of count tiles instead of eleven
-  // stacked snippet cards. Each renderer below now writes a number and a
-  // single "latest" line into its tile; the owning page keeps the full
-  // history. Removed with the card stack: the three-row list builders, the
-  // KPI band feeders, the Seafarer Awards grid and the Hobbies & interests
-  // card (sidebar-only now — sixteen cells, career evidence first).
-  //
-  // Export names are unchanged so js/dashboard.js's renderer array keeps
-  // working; only renderHobbiesSnippet was dropped and renderPayslipTile /
-  // renderMilestoneTile added.
-
-  // js/core.js's bindStateRefresh reruns the dashboard's full refresh() on
-  // EVERY "seav:data-updated" event app-wide — not just changes to a given
-  // tile's own data (background signed-URL re-hydration, a save on a
-  // completely different page in another tab, etc.). renderFingerprints
-  // tracks the last-rendered input per tile so a renderer can skip its
-  // rebuild when nothing it actually depends on changed. This still matters
-  // for the vessel tile, whose <img> would otherwise be torn down and
-  // recreated on every unrelated refresh — a visible flash, worst on Safari.
+  // js/core.js's bindStateRefresh reruns refresh() on EVERY "seav:data-updated"
+  // app-wide. Fingerprints let a card skip a rebuild when nothing it reads
+  // changed; without this the vessel <img> is recreated and flashes, worst on
+  // Safari.
   const renderFingerprints = new Map();
 
   function skipUnchangedRender(key, fingerprint) {
@@ -43,106 +23,32 @@
     return false;
   }
 
-  /**
-   * Write a count tile's number and supporting line.
-   *
-   * `last` is set with textContent, never innerHTML — every one of these
-   * strings is user data (vessel names, referee names, port pairs), so the
-   * escaping question is removed rather than answered per call site.
-   */
-  function setTile(tileId, { count, unit, last, sub, foot, stats }) {
-    const tile = document.getElementById(tileId);
-    if (!tile) return null;
-
-    const numEl = tile.querySelector(".dash-tile-num");
-    if (numEl) {
-      // Thousands separator: sea time runs past 1,000 days quickly and
-      // "1015 days" reads as a serial number.
-      numEl.textContent =
-        typeof count === "number" && Number.isFinite(count)
-          ? count.toLocaleString("en-GB")
-          : String(count);
-      if (unit) {
-        const unitEl = document.createElement("span");
-        unitEl.className = "dash-tile-unit";
-        unitEl.textContent = ` ${unit}`;
-        numEl.appendChild(unitEl);
-      }
-    }
-
-    const lastEl = tile.querySelector(".dash-tile-last");
-    if (lastEl && typeof last === "string") lastEl.textContent = last;
-
-    // The second detail line is optional: a tile hides it rather than
-    // showing an empty row, so tiles with one fact do not look broken
-    // next to tiles with two.
-    const subEl = tile.querySelector(".dash-tile-sub");
-    if (subEl) {
-      const text = typeof sub === "string" ? sub : "";
-      subEl.textContent = text;
-      subEl.hidden = !text;
-    }
-
-    const footEl = tile.querySelector(".dash-tile-foot");
-    if (footEl) {
-      if (Array.isArray(stats)) {
-        setStats(footEl, stats);
-      } else if (typeof foot === "string") {
-        footEl.textContent = foot;
-      }
-    }
-
-    return tile;
+  function fill(cardId, key, data, html) {
+    const card = document.getElementById(cardId);
+    if (!card || skipUnchangedRender(key, JSON.stringify(data))) return;
+    card.innerHTML = html;
   }
 
-  /**
-   * Render the footer's status breakdown.
-   *
-   * Each entry is { n, label, tone }. Zero-count entries are dropped rather
-   * than printed, so a section with nothing to report leaves the row empty
-   * and .dash-tile-foot:empty hides it — a new user sees a clean tile, not
-   * "0 verified · 0 logged".
-   *
-   * Tones map to colours the app already uses for these states: ok = green,
-   * warn = amber, bad = red, anything else neutral.
-   */
-  function setStats(footEl, stats) {
-    footEl.textContent = "";
-
-    const shown = stats.filter((stat) => stat && stat.n > 0).slice(0, DASH_STAT_LIMIT);
-    if (!shown.length) return;
-
-    shown.forEach((stat) => {
-      const el = document.createElement("span");
-      el.className = "dash-tile-stat" + (stat.tone ? ` dash-tile-stat--${stat.tone}` : "");
-      const dot = document.createElement("i");
-      el.appendChild(dot);
-      el.appendChild(document.createTextNode(`${stat.n} ${stat.label}`));
-      footEl.appendChild(el);
-    });
+  function cardHead(title, moreHref, moreLabel) {
+    const more = moreHref
+      ? `<a class="dash-panel-more" href="${esc(moreHref)}">${esc(moreLabel)}</a>`
+      : "";
+    return `<div class="dash-panel-head"><strong class="dash-panel-title">${esc(title)}</strong>${more}</div>`;
   }
 
-  // Two fit a half-width tile on one line; a third wraps and pushes the
-  // footer into the body. Buckets are ordered most-urgent-first by each
-  // renderer, so the two that survive are the two worth seeing.
-  const DASH_STAT_LIMIT = 2;
+  function emptyCard(title, line, href, linkLabel) {
+    return `${cardHead(title)}
+      <small class="dash-panel-empty">${esc(line)}</small>
+      <div class="dash-panel-foot"><a class="dash-panel-more" href="${esc(href)}">${esc(linkLabel)}</a></div>`;
+  }
 
-  function countBy(list, fn) {
-    const out = new Map();
-    list.forEach((item) => {
-      const key = fn(item);
-      if (!key) return;
-      out.set(key, (out.get(key) || 0) + 1);
-    });
-    return out;
+  function plural(n, one, many) {
+    return `${n.toLocaleString("en-GB")} ${n === 1 ? one : many}`;
   }
 
   /**
    * Append a unit only when the stored value does not already carry one.
-   *
-   * Vessel length is stored bare ("59") but tender length is stored with its
-   * unit ("28 ft"), so a blanket append produced "59" on one tile and
-   * "28 ft m" on the other. Both were visible in production.
+   * Vessel length is stored bare ("59") by some records and with text by others.
    */
   function withUnit(value, unit) {
     const text = String(value ?? "").trim();
@@ -150,20 +56,8 @@
     return /[a-z]/i.test(text) ? text : `${text} ${unit}`;
   }
 
-  function vesselNameFor(vesselId) {
-    if (!vesselId) return "Unassigned";
-    return (
-      (window.SeavState?.vessels || []).find((v) => v.id === vesselId)?.name ||
-      "Unnamed vessel"
-    );
-  }
-
   /**
    * "3 yrs 7 mos" / "8 mos" / "3 wks" for a vessel's service span.
-   *
-   * Written here rather than imported because the codebase has no shared
-   * duration formatter — checked before adding this one. If a second caller
-   * ever needs it, it should move to js/seav-data.js rather than be copied.
    */
   function formatTimeOnboard(from, to) {
     if (!from) return "";
@@ -192,302 +86,289 @@
     return parts.join(" ");
   }
 
+  function dateRange(from, to, openLabel) {
+    return [from ? formatDatePretty(from) : "", to ? formatDatePretty(to) : openLabel || ""]
+      .filter(Boolean)
+      .join(" to ");
+  }
+
   // ---------------------------------------------------------------
-  // Sea time
+  // Current vessel
   // ---------------------------------------------------------------
 
-  async function renderSeatimeSnippet() {
-    const seatimes = window.SeavState?.seatimes || [];
-    const totals = getSeatimeTotals(seatimes);
+  async function renderVesselCard() {
+    const vessels = window.SeavState?.vessels || [];
+    const vessel = vessels.length ? window.SeavData.getCurrentVessel(vessels) : null;
 
-    if (!seatimes.length) {
-      setTile("dashSeatimeTile", { count: 0, unit: "days", last: "No sea service yet." });
+    if (!vessel) {
+      fill(
+        "dashVesselCard",
+        "vessel",
+        null,
+        `<div class="dash-panel-body">${emptyCard(
+          "Current vessel",
+          "Add your yacht to start your career record.",
+          "dashboard.html?add=vessel",
+          "Add a vessel"
+        )}</div>`
+      );
       return;
     }
 
-    const latest = [...seatimes].sort((a, b) => {
-      const da = a.dateJoined ? new Date(a.dateJoined) : new Date(0);
-      const db = b.dateJoined ? new Date(b.dateJoined) : new Date(0);
-      return db - da;
-    })[0];
+    const bucket = window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos";
+    if (window.SeavApiCore?.hydrateItemsFileField) {
+      await window.SeavApiCore.hydrateItemsFileField([vessel], "photo", bucket);
+      window.SeavState?.syncCache?.();
+    }
 
-    const range = [
-      latest.dateJoined ? formatDatePretty(latest.dateJoined) : "",
-      latest.dateLeft ? formatDatePretty(latest.dateLeft) : "Present"
-    ]
-      .filter(Boolean)
-      .join(" → ");
+    const isCurrent = window.SeavData.isVesselOpenEnded(vessel);
+    const photoUrl =
+      Seav.getFileDisplayUrl?.(vessel.photo, bucket) || vessel.photo?.url || vessel.photo?.dataUrl || "";
+    const role = vessel.vessel_role || vessel.role;
+    const since = isCurrent ? (vessel.from ? `since ${formatDatePretty(vessel.from)}` : "") : dateRange(vessel.from, vessel.to);
 
-    const qualifying = totalQualifyingDays ? totalQualifyingDays(latest) : null;
-    const byStatus = countBy(seatimes, (e) => e.verificationStatus || "Logged");
+    const facts = [
+      ["Time onboard", formatTimeOnboard(vessel.from, vessel.to)],
+      ["Length", withUnit(vessel.vessel_length || vessel.length, "m")],
+      ["Gross tonnage", vessel.gt],
+      ["Flag", vessel.flag],
+      ["IMO", vessel.imo],
+      ["MMSI", vessel.mmsi]
+    ].filter(([, value]) => String(value ?? "").trim());
 
-    setTile("dashSeatimeTile", {
-      count: totals.total,
-      unit: "days",
-      last: [vesselNameFor(latest.vesselId), range].filter(Boolean).join(" · "),
-      // A just-opened or future-dated entry has no day breakdown yet, and
-      // "0 qualifying days" on the newest record reads as a fault rather
-      // than as an empty field. Show it only when there is something to show.
-      sub: qualifying ? `${qualifying} logged days` : "",
-      // Real statuses from getSeatimeVerificationDisplay: Verified,
-      // Pending Verification, Logged.
-      stats: [
-        { n: byStatus.get("Verified") || 0, label: "verified", tone: "ok" },
-        { n: byStatus.get("Pending Verification") || 0, label: "pending", tone: "warn" },
-        { n: byStatus.get("Logged") || 0, label: "logged" }
-      ]
-      // Footer ("Total logged days") is static in the markup — it names what
-      // the number counts, which "Sea time" alone does not say.
+    fill(
+      "dashVesselCard",
+      "vessel",
+      vessel,
+      `${photoUrl ? `<img class="dash-panel-photo" src="${esc(photoUrl)}" alt="${esc(vessel.name || "Vessel")}">` : ""}
+      <div class="dash-panel-body">
+        ${cardHead(isCurrent ? "Current vessel" : "Most recent vessel", "vessels.html", "Open")}
+        <strong class="dash-panel-name">${esc(vessel.name || "Unnamed vessel")}</strong>
+        <small class="dash-panel-sub">${esc([role, since].filter(Boolean).join(" · "))}</small>
+        <dl class="dash-panel-facts">
+          ${facts.map(([label, value]) => `<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("")}
+        </dl>
+      </div>`
+    );
+  }
+
+  // ---------------------------------------------------------------
+  // Your next ticket
+  // ---------------------------------------------------------------
+
+  const TICKET_LIMIT = 2;
+
+  function renderTicketCard() {
+    const entries = (window.SeavAchievementEngine?.getInProgressMilestones?.() || []).slice(0, TICKET_LIMIT);
+
+    if (!entries.length) {
+      fill(
+        "dashTicketCard",
+        "ticket",
+        [],
+        emptyCard(
+          "Your next ticket",
+          "Log your sea time and certificates to see how close you are.",
+          "achievements.html",
+          "See your milestones"
+        )
+      );
+      return;
+    }
+
+    const rows = entries.map((entry) => {
+      const percent = Math.max(0, Math.min(100, Number(entry.percent) || 0));
+      return `<div class="dash-ticket">
+        <strong class="dash-panel-name">${esc(entry.certGroupKey)}</strong>
+        <span class="dash-ticket-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"><i style="width:${percent}%"></i></span>
+        <small class="dash-panel-sub">${percent}%${entry.label ? ` · ${esc(entry.label)}` : ""}</small>
+      </div>`;
     });
+
+    fill(
+      "dashTicketCard",
+      "ticket",
+      entries.map((entry) => [entry.certGroupKey, entry.percent, entry.label]),
+      `${cardHead("Your next ticket", "achievements.html", "All milestones")}
+      ${rows.join("")}
+      <div class="dash-panel-foot"><small class="dash-panel-sub">Worked out from what you have logged. Guidance only: the MCA decides.</small></div>`
+    );
   }
 
   // ---------------------------------------------------------------
   // Certificates
   // ---------------------------------------------------------------
 
-  async function renderCertSnippet() {
+  const CERT_ROW_LIMIT = 3;
+
+  function renderCertCard() {
     const certs = (window.SeavState?.certs || []).filter(
       (cert) => window.SeavData?.isSavedCert?.(cert) ?? !!cert?.name
     );
 
     if (!certs.length) {
-      setTile("dashCertTile", { count: 0, last: "No certificates yet." });
+      fill(
+        "dashCertCard",
+        "certs",
+        [],
+        emptyCard(
+          "Certificates",
+          "Add your certificates and we will show what expires next.",
+          "dashboard.html?add=certificate",
+          "Add a certificate"
+        )
+      );
       return;
     }
 
     const isNoExpiry = window.SeavData?.isCertNoExpiry;
-    const expiryCerts = certs.filter((cert) => {
-      if (isNoExpiry?.(cert)) return false;
-      return !!String(cert.expiry || "").trim();
-    });
-
-    if (!expiryCerts.length) {
-      setTile("dashCertTile", {
-        count: certs.length,
-        last: "No expiry dates recorded",
-        sub: "Add them on the certificates page to track renewals"
-      });
-      return;
-    }
-
-    // Most urgent first, using the same badge vocabulary the certificates
-    // page shows ("expired" / "expires soon") rather than a second wording
-    // invented for the dashboard.
-    const score = (cert) => {
+    const stateOf = (cert) => {
       const badge = String(getCertExpiryInfo(cert.expiry).badge || "").toLowerCase();
-      if (badge === "expired") return 0;
-      if (badge === "expires soon") return 1;
-      return 2;
+      if (badge === "expired") return "bad";
+      if (badge === "expires soon") return "warn";
+      return "";
     };
 
-    const mostUrgent = [...expiryCerts].sort((a, b) => {
-      const byScore = score(a) - score(b);
-      if (byScore !== 0) return byScore;
-      const da = a.expiry ? new Date(a.expiry) : new Date("9999-12-31");
-      const db = b.expiry ? new Date(b.expiry) : new Date("9999-12-31");
-      return da - db;
-    })[0];
+    const dated = certs
+      .filter((cert) => !isNoExpiry?.(cert) && String(cert.expiry || "").trim())
+      .sort((a, b) => String(a.expiry).localeCompare(String(b.expiry)));
+    const expired = dated.filter((cert) => stateOf(cert) === "bad").length;
+    const soon = dated.filter((cert) => stateOf(cert) === "warn").length;
 
-    const info = getCertExpiryInfo(mostUrgent.expiry);
-    const name = mostUrgent.name || "Certificate";
-    const badge = String(info.badge || "").trim();
+    let headline = `<strong class="dash-panel-big">All in date</strong>`;
+    if (expired) headline = `<strong class="dash-panel-big is-bad">${esc(plural(expired, "expired", "expired"))}</strong>`;
+    else if (soon) headline = `<strong class="dash-panel-big is-warn">${soon} expiring soon</strong>`;
+    if (!dated.length) headline = `<strong class="dash-panel-big">No expiry dates</strong>`;
 
-    // getCertExpiryInfo returns Title Case badges ("Expires Soon"), which
-    // read as part of the certificate's name mid-sentence: "ENG1 Medical
-    // Certificate Expires Soon". Use the verb form instead.
-    const verb = badge.toLowerCase() === "expired" ? "expired" : "expires";
-
-    // Badges from getCertExpiryInfo: "Expired", "Expires Soon", "No Expiry",
-    // anything else is current. Ordered most urgent first so the two that
-    // survive DASH_STAT_LIMIT are the two that matter.
-    const buckets = countBy(certs, (cert) => {
-      if (isNoExpiry?.(cert)) return "none";
-      if (!String(cert.expiry || "").trim()) return "none";
-      const badge = String(getCertExpiryInfo(cert.expiry).badge || "").toLowerCase();
-      if (badge === "expired") return "expired";
-      if (badge === "expires soon") return "soon";
-      return "valid";
+    const rows = dated.slice(0, CERT_ROW_LIMIT).map((cert) => {
+      const state = stateOf(cert);
+      return `<li${state ? ` class="is-${state}"` : ""}><a href="certificates.html?focus=${encodeURIComponent(cert.id || "")}">
+        <span class="dash-row-label">${esc(cert.name || "Certificate")}</span><b>${esc(formatDatePretty(cert.expiry))}</b></a></li>`;
     });
 
-    setTile("dashCertTile", {
-      count: certs.length,
-      last: name,
-      sub: `${verb === "expired" ? "Expired" : "Expires"} ${formatDatePretty(mostUrgent.expiry)}`,
-      stats: [
-        { n: buckets.get("expired") || 0, label: "expired", tone: "bad" },
-        { n: buckets.get("soon") || 0, label: "expiring", tone: "warn" },
-        { n: buckets.get("valid") || 0, label: "valid", tone: "ok" },
-        { n: buckets.get("none") || 0, label: "no expiry" }
-      ]
-    });
+    fill(
+      "dashCertCard",
+      "certs",
+      dated.map((cert) => [cert.id, cert.name, cert.expiry]).concat(certs.length),
+      `${cardHead("Certificates", "certificates.html", `All ${certs.length}`)}
+      ${headline}
+      ${rows.length ? `<small class="dash-panel-sub dash-cert-caption">Next to expire</small><ul class="dash-rows dash-panel-foot">${rows.join("")}</ul>` : ""}`
+    );
   }
 
   // ---------------------------------------------------------------
-  // Vessels — the 2x2 photo tile, plus the count tile
+  // Sea time
   // ---------------------------------------------------------------
 
-  async function renderVesselSnippet() {
-    const tile = document.getElementById("dashVesselTile");
-    const vessels = window.SeavState?.vessels || [];
+  function renderSeatimeCard() {
+    const seatimes = window.SeavState?.seatimes || [];
 
-    setTile("dashVesselCountTile", {
-      count: vessels.length,
-      last: vessels.length ? "" : "No vessels yet."
-    });
-
-    if (!tile) return;
-
-    if (!vessels.length) {
-      tile.className = "dash-vessel dash-vessel-empty";
-      tile.innerHTML = `
-        <div class="dash-vessel-body">
-          <span class="dash-vessel-eyebrow">Current vessel</span>
-          <h3>No vessels yet</h3>
-          <p>Add your first vessel to anchor your career record.</p>
-        </div>
-      `;
+    if (!seatimes.length) {
+      fill(
+        "dashSeatimeCard",
+        "seatime",
+        [],
+        emptyCard(
+          "Sea time",
+          "Log your time on a yacht to count towards your next ticket.",
+          "dashboard.html?add=seatime",
+          "Log sea time"
+        )
+      );
       return;
     }
 
-    // Shared with the Public Profile's default-open dropdown and the Vessels
-    // page — see getCurrentVessel() in js/seav-data.js. Written out separately
-    // in each place before 2026-08-21, which is how three pages drift apart.
-    const vessel = window.SeavData.getCurrentVessel(vessels);
-    if (!vessel) return;
+    const totals = getSeatimeTotals(seatimes);
+    const latest = [...seatimes].sort((a, b) =>
+      String(b.dateJoined || "").localeCompare(String(a.dateJoined || ""))
+    )[0];
+    const pending = seatimes.filter((entry) => entry.verificationStatus === "Pending Verification").length;
+    const range = dateRange(latest.dateJoined, latest.dateLeft, "present");
 
-    const latestJoined = [...vessels].sort((a, b) => {
-      const da = a.from ? new Date(a.from) : new Date(0);
-      const db = b.from ? new Date(b.from) : new Date(0);
-      return db - da;
-    })[0];
-
-    if (latestJoined) {
-      const joined = latestJoined.from ? formatDatePretty(latestJoined.from) : "";
-      const current = vessels.filter((v) => window.SeavData.isVesselOpenEnded(v)).length;
-
-      setTile("dashVesselCountTile", {
-        count: vessels.length,
-        last: latestJoined.name || "Unnamed vessel",
-        sub: joined ? `Joined ${joined}` : "",
-        stats: [
-          { n: current, label: "current", tone: "ok" },
-          { n: vessels.length - current, label: "previous" }
-        ]
-      });
-    }
-
-    const vesselPhotoBucket =
-      window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos";
-    if (window.SeavApiCore?.hydrateItemsFileField) {
-      await window.SeavApiCore.hydrateItemsFileField([vessel], "photo", vesselPhotoBucket);
-      window.SeavState?.syncCache?.();
-    }
-
-    // Fingerprint taken after hydration so an already-cached signed URL
-    // (unchanged) still compares equal and skips the rebuild — this is what
-    // stops the vessel photo from flashing on every unrelated data refresh.
-    if (skipUnchangedRender("vessel", JSON.stringify(vessel))) return;
-
-    const isCurrent = window.SeavData.isVesselOpenEnded(vessel);
-    const photoUrl =
-      Seav.getFileDisplayUrl?.(vessel.photo, vesselPhotoBucket) ||
-      vessel.photo?.url ||
-      vessel.photo?.dataUrl ||
-      "";
-
-    const onboard = formatTimeOnboard(vessel.from, vessel.to);
-    const meta = [
-      vessel.vessel_role || vessel.role,
-      withUnit(vessel.vessel_length || vessel.length, "m"),
-      vessel.gt ? `${vessel.gt} GT` : "",
-      vessel.flag,
-      onboard ? `${onboard} aboard` : ""
-    ]
-      .filter(Boolean)
-      .map((part) => Seav.escapeHtml(String(part)))
-      .join(" · ");
-
-    const contractType = window.SeavData?.getVesselContractType?.(vessel) || "";
-    const seatimeCount = (window.SeavState?.seatimes || []).filter(
-      (entry) => entry.vesselId === vessel.id
-    ).length;
-
-    const chips = [
-      isCurrent ? `<span class="pill pill-current">Current</span>` : "",
-      contractType ? `<span class="pill">${Seav.escapeHtml(contractType)}</span>` : "",
-      seatimeCount
-        ? `<span class="pill">${seatimeCount} sea time ${seatimeCount === 1 ? "entry" : "entries"}</span>`
-        : ""
-    ]
-      .filter(Boolean)
-      .join("");
-
-    // No photo on file keeps the full 2x2 footprint: the ocean background
-    // shows through a dashed edge instead of a grey box. The tile is the
-    // composition's anchor — a text fallback in that slot reads as broken.
-    tile.className = photoUrl ? "dash-vessel" : "dash-vessel dash-vessel-empty";
-
-    const photoHtml = photoUrl
-      ? `
-        <img src="${Seav.escapeHtml(photoUrl)}" alt="${Seav.escapeHtml(vessel.name || "Vessel")}"
-          onerror="this.remove();" />
-        <div class="dash-vessel-scrim-bottom"></div>
-      `
-      : `<span class="dash-vessel-addphoto">Add a photo</span>`;
-
-    tile.innerHTML = `
-      ${photoHtml}
-      <div class="dash-vessel-body">
-        <span class="dash-vessel-eyebrow">${isCurrent ? "Current vessel" : "Most recent vessel"}</span>
-        <h3>${Seav.escapeHtml(vessel.name || "Unnamed Vessel")}</h3>
-        <p>${meta}</p>
-        ${chips ? `<div class="dash-vessel-chips">${chips}</div>` : ""}
+    fill(
+      "dashSeatimeCard",
+      "seatime",
+      [totals, range, pending, seatimes.length],
+      `${cardHead("Sea time", "seatime.html", plural(seatimes.length, "entry", "entries"))}
+      <strong class="dash-panel-big">${Number(totals.total).toLocaleString("en-GB")} <small>logged days</small></strong>
+      <div class="dash-daytypes">
+        <div><small>At sea</small><strong>${Number(totals.sea).toLocaleString("en-GB")}</strong></div>
+        <div><small>Standby</small><strong>${Number(totals.standby).toLocaleString("en-GB")}</strong></div>
+        <div><small>Yard</small><strong>${Number(totals.yard).toLocaleString("en-GB")}</strong></div>
+        <div><small>On watch</small><strong>${Number(totals.watchkeeping).toLocaleString("en-GB")}</strong></div>
       </div>
-    `;
+      <ul class="dash-rows dash-panel-foot">
+        ${range ? `<li><span class="dash-row-label">Latest entry</span><b>${esc(range)}</b></li>` : ""}
+        ${pending ? `<li class="is-todo"><a href="seatime.html"><span class="dash-row-label">Awaiting verification</span><b>${pending}</b></a></li>` : ""}
+      </ul>`
+    );
   }
 
   // ---------------------------------------------------------------
-  // Tenders
+  // Ready for your next job
   // ---------------------------------------------------------------
 
-  async function renderTenderSnippet() {
-    const tenders = window.SeavState?.tenders || [];
+  function readyRow(href, label, value, todo) {
+    return `<li${todo ? ' class="is-todo"' : ""}><a href="${esc(href)}"><span class="dash-row-label">${esc(label)}</span><b>${esc(value)}</b></a></li>`;
+  }
 
-    if (!tenders.length) {
-      setTile("dashTenderTile", { count: 0, last: "No tenders yet." });
-      return;
-    }
+  function renderReadyCard() {
+    const profile = window.SeavState?.profile || {};
+    const refs = window.SeavState?.refs || [];
+    const seatimes = window.SeavState?.seatimes || [];
 
-    // Tenders carry no date of their own, so "latest" means most recently
-    // added. createdAt is the only ordering the record actually has —
-    // .reverse() on the state array was assuming an order nothing guarantees.
-    const latest = [...tenders].sort((a, b) => {
-      const da = a.createdAt ? new Date(a.createdAt) : new Date(0);
-      const db = b.createdAt ? new Date(b.createdAt) : new Date(0);
-      return db - da;
-    })[0];
+    const verified = refs.filter((ref) => getReferenceStatus(ref) === "Verified").length;
+    const signed = seatimes.filter((entry) => entry.testimonialStatus === "Confirmed").length;
+    const isPublic = !!profile.publicEnabled;
+    const publicUrl = isPublic ? Seav.buildPublicProfileUrl?.(profile) : "";
 
-    // The record's fields are name / type / model / length — there is no
-    // "make". Reading one produced undefined and pushed the model into the
-    // headline, which is why an Axopar showed as "Cabin 28".
-    // TENDER_PROFICIENCY_LEVELS: Familiarisation, Competent, Advanced,
-    // Coxswain (displayed as "Proficient"). Anything at Coxswain or Advanced
-    // counts as signed off; the rest is still working up.
-    const byLevel = countBy(tenders, (t) => t.proficiencyLevel || "");
-    const signedOff =
-      (byLevel.get("Coxswain") || 0) + (byLevel.get("Advanced") || 0);
-    const working =
-      (byLevel.get("Competent") || 0) + (byLevel.get("Familiarisation") || 0);
+    fill(
+      "dashReadyCard",
+      "ready",
+      [verified, signed, isPublic, publicUrl],
+      `${cardHead("Ready for your next job")}
+      <ul class="dash-rows">
+        ${readyRow("cv-generator.html", "Your CV", "Open", false)}
+        ${readyRow(publicUrl || "profile.html", "Public profile", isPublic ? "Live" : "Turn on", !isPublic)}
+        ${readyRow("references.html", "Verified references", verified ? String(verified) : "Ask a referee", !verified)}
+        ${readyRow("seatime.html", "Captain's testimonials", signed ? `${signed} signed` : "Request", !signed)}
+      </ul>`
+    );
+  }
 
-    setTile("dashTenderTile", {
-      count: tenders.length,
-      last: latest.name || latest.model || "Tender",
-      sub: [latest.model, withUnit(latest.length, "m")].filter(Boolean).join(" · "),
-      stats: [
-        { n: signedOff, label: "advanced", tone: "ok" },
-        { n: working, label: "in training" }
-      ]
-    });
+  // ---------------------------------------------------------------
+  // Your other records — pages without a card of their own
+  // ---------------------------------------------------------------
+
+  function renderRecordsCard() {
+    const state = window.SeavState || {};
+    const earned = window.SeavAchievementEngine?.getEarnedAchievementCodes?.();
+    const rows = [
+      ["vessels.html", "Vessels", (state.vessels || []).length],
+      ["tenders.html", "Tenders", (state.tenders || []).length],
+      ["onboard-experience.html", "Onboard experience", (state.onboardExperiences || []).length],
+      ["achievements.html", "Milestones", earned ? earned.size : 0],
+      ["hobbies-interests.html", "Interests", (state.hobbiesInterests || []).length],
+      ["specialist-qualifications.html", "Specialist quals", (state.specialistQualifications || []).length],
+      ["references.html", "References", (state.refs || []).length],
+      ["land-experience.html", "Land-based", (state.landExperiences || []).length],
+      ["payslips.html", "Payslips", (state.payslips || []).length]
+    ];
+
+    fill(
+      "dashRecordsCard",
+      "records",
+      rows,
+      `${cardHead("Your other records")}
+      <ul class="dash-rows dash-rows--split">
+        ${rows
+          .map(
+            ([href, label, count]) =>
+              `<li${count ? "" : ' class="is-empty"'}><a href="${esc(href)}"><span class="dash-row-label">${esc(label)}</span><b>${count}</b></a></li>`
+          )
+          .join("")}
+      </ul>`
+    );
   }
 
   // ---------------------------------------------------------------
@@ -498,11 +379,16 @@
     return entry.departureDate || entry.visitedDate || entry.arrivalDate || "";
   }
 
-  function renderNavigationSnippet() {
+  async function renderNavigationCard() {
     const entries = window.SeavState?.navigationAreas || [];
 
     if (!entries.length) {
-      setTile("dashNavigationTile", { count: 0, unit: "passages", last: "No passages logged yet." });
+      fill(
+        "dashNavigationCard",
+        "navigation",
+        [],
+        emptyCard("Navigation", "Log a passage to build your track record.", "navigation.html", "Log a passage")
+      );
       return;
     }
 
@@ -510,250 +396,209 @@
 
     // normalizeNavEntry resolves a port named in free text back to its record,
     // which is what makes formatRouteLabel produce "Palma, Spain → Gibraltar"
-    // rather than a bare country. Skipping it is the same bug already fixed
-    // once on the Navigation page, where legacy entries lost their country
-    // names.
-    const latest = (H?.normalizeNavEntry ? entries.map(H.normalizeNavEntry) : entries)
-      .slice()
-      .sort((a, b) =>
-        String(passageSortDate(b)).localeCompare(String(passageSortDate(a)))
-      )[0];
-
-    const route = H?.formatRouteLabel ? H.formatRouteLabel(latest) : "";
-    const title = latest.passageName || route || "Passage";
-
-    const when = passageSortDate(latest);
+    // rather than a bare country.
+    const normalized = H?.normalizeNavEntry ? entries.map(H.normalizeNavEntry) : entries;
+    const latest = [...normalized].sort((a, b) =>
+      String(passageSortDate(b)).localeCompare(String(passageSortDate(a)))
+    )[0];
 
     const countries = new Set();
-    const ports = new Set();
-    entries.forEach((e) => {
-      [e.toCountry || e.country, e.fromCountry].forEach((c) => c && countries.add(c));
-      [e.toPort || e.port, e.fromPort].forEach((pt) => pt && ports.add(pt));
+    entries.forEach((entry) => {
+      [entry.toCountry || entry.country, entry.fromCountry].forEach((c) => c && countries.add(c));
     });
 
-    setTile("dashNavigationTile", {
-      count: entries.length,
-      last: title,
-      sub: when ? formatDatePretty(when) : "",
-      // Neutral, not a status: these are coverage figures, and colouring them
-      // green would imply a pass/fail that does not exist.
-      stats: [
-        { n: countries.size, label: countries.size === 1 ? "country" : "countries" },
-        { n: ports.size, label: ports.size === 1 ? "port" : "ports" }
-      ]
-    });
-  }
-
-  // ---------------------------------------------------------------
-  // References
-  // ---------------------------------------------------------------
-
-  async function renderReferenceSnippet() {
-    const refs = window.SeavState?.refs || [];
-
-    if (!refs.length) {
-      setTile("dashRefTile", { count: 0, last: "No references yet." });
-      return;
+    let nm = 0;
+    try {
+      nm = (await window.SeavNavigationPassage?.getEntriesDistance?.(normalized))?.nm || 0;
+    } catch (err) {
+      console.warn("[SEA-V] Dashboard passage distance failed:", err);
     }
 
-    const latest = [...refs].sort((a, b) => {
-      const da = a.date ? new Date(a.date) : new Date(0);
-      const db = b.date ? new Date(b.date) : new Date(0);
-      return db - da;
-    })[0];
+    const route = H?.formatRouteLabel ? H.formatRouteLabel(latest) : "";
+    const when = dateRange(latest.departureDate || latest.visitedDate, latest.arrivalDate);
+    const countryLine = plural(countries.size, "country", "countries");
+    const headline = nm
+      ? `${Math.round(nm).toLocaleString("en-GB")} <small>NM across ${esc(countryLine)}</small>`
+      : `${entries.length.toLocaleString("en-GB")} <small>${entries.length === 1 ? "passage" : "passages"} across ${esc(countryLine)}</small>`;
 
-    const status = getReferenceStatus(latest);
-    const statusLabel = window.SeavData.getReferenceStatusDisplay?.(status)?.label || "";
-
-    // getReferenceStatus returns Verified / Declined / Sent for Verification
-    // / Draft.
-    const byRefStatus = countBy(refs, (ref) => getReferenceStatus(ref));
-
-    setTile("dashRefTile", {
-      count: refs.length,
-      last: [latest.name || "—", latest.title || ""].filter(Boolean).join(", "),
-      sub: statusLabel,
-      stats: [
-        { n: byRefStatus.get("Declined") || 0, label: "declined", tone: "bad" },
-        { n: byRefStatus.get("Sent for Verification") || 0, label: "awaiting", tone: "warn" },
-        { n: byRefStatus.get("Verified") || 0, label: "verified", tone: "ok" },
-        { n: byRefStatus.get("Draft") || 0, label: "draft" }
-      ]
-    });
+    fill(
+      "dashNavigationCard",
+      "navigation",
+      [latest.id, latest.passageName, route, when, Math.round(nm), countries.size, entries.length],
+      `${cardHead("Navigation", "navigation.html", `All ${plural(entries.length, "passage", "passages")}`)}
+      <strong class="dash-panel-big">${headline}</strong>
+      <div class="dash-panel-foot">
+        <small class="dash-panel-sub">Last passage</small>
+        <strong class="dash-panel-name">${esc(latest.passageName || route || "Passage")}</strong>
+        <small class="dash-panel-sub">${esc(when)}</small>
+      </div>`
+    );
   }
 
   // ---------------------------------------------------------------
-  // Specialist qualifications
+  // Latest from the MCA — live from GOV.UK's public search API
   // ---------------------------------------------------------------
 
-  async function renderSpecialistSnippet() {
-    const entries = window.SeavState?.specialistQualifications || [];
+  const NOTICES_URL =
+    "https://www.gov.uk/api/search.json?filter_organisations=maritime-and-coastguard-agency" +
+    "&q=MGN+MSN+MIN&order=-public_timestamp&count=40&fields=title,link,public_timestamp";
+  const NOTICES_ALL_URL = "https://www.gov.uk/government/collections/active-marine-guidance-notes-mgns";
+  const NOTICES_CACHE_KEY = "seav_mca_notices";
+  const NOTICES_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+  const NOTICE_LIMIT = 3;
+  // "MGN 199 (M) Amendment 1 Danger of interaction" -> name + subject.
+  const NOTICE_TITLE = /^((?:MGN|MSN|MIN)\s*\d+\s*\(([^)]*)\)(?:\s*[-–]?\s*Amendment\s*\d+)?)\s*[:\-–]*\s*(.*)$/i;
 
-    if (!entries.length) {
-      setTile("dashSpecialistTile", {
-        count: 0,
-        last: "No specialist qualifications logged yet."
+  function readNoticesCache() {
+    try {
+      return JSON.parse(localStorage.getItem(NOTICES_CACHE_KEY) || "null");
+    } catch {
+      return null;
+    }
+  }
+
+  // GOV.UK's reply is outside data: only numbered merchant notices on a
+  // gov.uk path survive this, and everything is escaped when it is drawn.
+  // "(F)" alone is fishing only, so it is no use to yacht crew.
+  function parseNotices(results) {
+    return (results || [])
+      .map((item) => {
+        const match = NOTICE_TITLE.exec(String(item?.title || "").trim());
+        const link = String(item?.link || "");
+        if (!match || !/m/i.test(match[2]) || !/^\/[a-z0-9/_-]+$/i.test(link)) return null;
+        return {
+          name: match[1].trim(),
+          subject: match[3].trim(),
+          url: `https://www.gov.uk${link}`,
+          date: String(item.public_timestamp || "").slice(0, 10)
+        };
+      })
+      .filter(Boolean)
+      .slice(0, NOTICE_LIMIT);
+  }
+
+  let noticesRequest = null;
+
+  // Asked once per page load and at most daily per device, because refresh()
+  // reruns on every data update. A failed fetch falls back to the last good copy.
+  function loadNotices() {
+    if (noticesRequest) return noticesRequest;
+    const cached = readNoticesCache();
+    if (cached?.items?.length && Date.now() - cached.at < NOTICES_MAX_AGE_MS) {
+      noticesRequest = Promise.resolve(cached.items);
+      return noticesRequest;
+    }
+    noticesRequest = fetch(NOTICES_URL, {
+      credentials: "omit",
+      referrerPolicy: "no-referrer",
+      signal: window.AbortSignal?.timeout?.(8000)
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`GOV.UK search ${res.status}`);
+        return res.json();
+      })
+      .then((body) => {
+        const items = parseNotices(body.results);
+        if (!items.length) throw new Error("GOV.UK search returned no notices");
+        try {
+          localStorage.setItem(NOTICES_CACHE_KEY, JSON.stringify({ at: Date.now(), items }));
+        } catch {
+          // Private window or full storage: it just asks again next load.
+        }
+        return items;
+      })
+      .catch((err) => {
+        console.warn("[SEA-V] MCA notices unavailable:", err);
+        return cached?.items || [];
       });
+    return noticesRequest;
+  }
+
+  async function renderNoticesCard() {
+    const head = cardHead("Latest from the MCA", NOTICES_ALL_URL, "All MGNs");
+    const items = await loadNotices();
+
+    if (!items.length) {
+      fill(
+        "dashNoticesCard",
+        "notices",
+        [],
+        `${head}<small class="dash-panel-empty">The latest notices could not be loaded. They are always on GOV.UK.</small>`
+      );
       return;
     }
 
-    const latest = [...entries].sort((a, b) => {
-      const da = a.dateObtained ? new Date(a.dateObtained) : new Date(0);
-      const db = b.dateObtained ? new Date(b.dateObtained) : new Date(0);
-      return db - da;
-    })[0];
-
-    const sqCats = new Set(entries.map((e) => e.category).filter(Boolean));
-
-    setTile("dashSpecialistTile", {
-      count: entries.length,
-      last: latest.name || latest.title || "Qualification",
-      sub: latest.dateObtained ? formatDatePretty(latest.dateObtained) : "",
-      stats: [{ n: sqCats.size, label: sqCats.size === 1 ? "category" : "categories" }]
-    });
+    fill(
+      "dashNoticesCard",
+      "notices",
+      items,
+      `${head}
+      <ul class="dash-links">
+        ${items
+          .map((item) => {
+            const sub = [item.subject, item.date ? formatDatePretty(item.date) : ""].filter(Boolean).join(" · ");
+            return linkRow(item.url, item.name, sub);
+          })
+          .join("")}
+      </ul>`
+    );
   }
 
   // ---------------------------------------------------------------
-  // Onboard experience
+  // Regulations and guidance — all links checked 2026-11-05
   // ---------------------------------------------------------------
 
-  async function renderOnboardSnippet() {
-    const entries = window.SeavState?.onboardExperiences || [];
+  const REGULATIONS = [
+    ["https://www.ilo.org/international-labour-standards/maritime-labour-convention-2006", "MLC 2006", "Your rights at work, ILO"],
+    ["https://www.gov.uk/government/publications/msn-1781-mf-amendment-3-the-merchant-shipping-regulations-1996-colreg", "COLREGs", "MSN 1781, Amendment 3"],
+    ["https://www.gov.uk/government/publications/msn-1858-mf-amendment-2-uk-requirements-for-deck-officers-on-large-yachts-24m-and-over", "MSN 1858", "Deck officers on large yachts"],
+    ["https://www.gov.uk/government/publications/red-ensign-group-yacht-code", "REG Yacht Code", "Red Ensign Group"],
+    ["https://www.gov.uk/government/collections/active-marine-guidance-notes-mgns", "MGNs", "Marine Guidance Notes, MCA"],
+    ["https://www.gov.uk/government/collections/merchant-shipping-notices-msns", "MSNs", "Merchant Shipping Notices, MCA"],
+    ["https://www.gov.uk/government/collections/marine-information-notes-mins", "MINs", "Marine Information Notes, MCA"]
+  ];
 
-    if (!entries.length) {
-      setTile("dashOnboardTile", {
-        count: 0,
-        last: "No onboard experience logged yet."
-      });
-      return;
-    }
+  // Lower-case flag as crew type it. A flag not listed simply adds no row.
+  const FLAG_REGISTRIES = {
+    "cayman islands": ["https://www.cishipping.com/", "Cayman Islands Shipping Registry"],
+    "isle of man": ["https://www.iomshipregistry.com/", "Isle of Man Ship Registry"],
+    "marshall islands": ["https://www.register-iri.com/", "Marshall Islands Registry"],
+    bermuda: ["https://www.bermudashipping.bm/", "Bermuda Shipping and Maritime"],
+    "united kingdom": ["https://www.gov.uk/government/organisations/maritime-and-coastguard-agency", "UK Maritime and Coastguard Agency"]
+  };
 
-    const latest = [...entries].sort((a, b) => {
-      const da = a.dateFrom ? new Date(a.dateFrom) : new Date(0);
-      const db = b.dateFrom ? new Date(b.dateFrom) : new Date(0);
-      return db - da;
-    })[0];
-
-    const cats = new Set(entries.map((e) => e.category).filter(Boolean));
-
-    setTile("dashOnboardTile", {
-      count: entries.length,
-      last: latest.title || latest.name || "Experience",
-      sub: latest.dateFrom ? formatDatePretty(latest.dateFrom) : "",
-      stats: [{ n: cats.size, label: cats.size === 1 ? "category" : "categories" }]
-    });
+  function linkRow(url, name, sub) {
+    return `<li><a href="${esc(url)}" target="_blank" rel="noopener">
+      <strong class="dash-link-name">${esc(name)}</strong>
+      <small class="dash-panel-sub">${esc(sub)}</small></a></li>`;
   }
 
-  // ---------------------------------------------------------------
-  // Payslips — no card on the old dashboard; new tile in v516
-  // ---------------------------------------------------------------
+  function renderRegulationsCard() {
+    const vessels = window.SeavState?.vessels || [];
+    const flag = vessels.length ? window.SeavData.getCurrentVessel(vessels)?.flag : "";
+    const registry = FLAG_REGISTRIES[String(flag || "").trim().toLowerCase()];
+    const rows = registry ? [...REGULATIONS, [registry[0], registry[1], "Your yacht's flag"]] : REGULATIONS;
 
-  async function renderPayslipTile() {
-    const payslips = window.SeavState?.payslips || [];
-
-    if (!payslips.length) {
-      setTile("dashPayslipTile", { count: 0, last: "No payslips yet." });
-      return;
-    }
-
-    // The payslip record's date field is paymentDate — periodEnd and date do
-    // not exist on it, so the old sort key was undefined on every row
-    // (new Date(undefined) is NaN, which sorts nothing) and the date line
-    // always fell through to a placeholder.
-    const latest = [...payslips].sort((a, b) => {
-      const da = a.paymentDate ? new Date(a.paymentDate) : new Date(0);
-      const db = b.paymentDate ? new Date(b.paymentDate) : new Date(0);
-      return db - da;
-    })[0];
-
-    const period = [latest.payPeriod, latest.taxYear].filter(Boolean).join(" · ");
-
-    const withDoc = payslips.filter((ps) => !!ps.attachment).length;
-
-    setTile("dashPayslipTile", {
-      count: payslips.length,
-      last: period || (latest.employer || "Latest payslip"),
-      sub: latest.paymentDate ? `Paid ${formatDatePretty(latest.paymentDate)}` : "",
-      stats: [
-        { n: withDoc, label: "with document", tone: "ok" },
-        { n: payslips.length - withDoc, label: "without", tone: "warn" }
-      ]
-    });
-  }
-
-  // ---------------------------------------------------------------
-  // Milestones — progress toward the next certificates
-  // ---------------------------------------------------------------
-
-  const DASH_MILESTONE_LIMIT = 3;
-
-  function renderMilestoneTile() {
-    const rows = document.getElementById("dashMilestoneRows");
-    const countEl = document.getElementById("dashMilestoneCount");
-    if (!rows) return;
-
-    const all = window.SeavAchievementEngine?.getInProgressMilestones?.() || [];
-    const inProgress = all.slice(0, DASH_MILESTONE_LIMIT);
-
-    // Counts how many are in progress, not how many are "earned".
-    //
-    // The earned/total fraction this used to show was wrong in production —
-    // it read "38 / 26 earned". The numerator counted achievement RECORDS
-    // (Seafarer Awards log one row per instance, so a crossing sailed three
-    // times is three rows) while the denominator counted DEFINITIONS, and
-    // progression milestones are computed by the engine rather than stored
-    // as rows at all. The two numbers were never measuring the same thing,
-    // so the fraction could and did exceed 1.
-    //
-    // There is no public API for a true earned count — getEarnedAchievementCodes
-    // is private to js/achievements-engine.js. Rather than reconstruct it here
-    // and risk a second wrong number, this reports what the tile actually
-    // shows. If the fraction is wanted back, export that function first.
-    if (countEl) {
-      countEl.textContent = all.length
-        ? `${all.length} in progress`
-        : "";
-    }
-
-    if (!inProgress.length) {
-      rows.innerHTML = `<div class="dash-tile-last">Nothing in progress right now.</div>`;
-      return;
-    }
-
-    if (skipUnchangedRender("milestones", JSON.stringify(inProgress.map((e) => [e.certGroupKey, e.percent])))) {
-      return;
-    }
-
-    // .ach-progress-bar is achievements.css's own component, so this tile and
-    // the Milestones page it links to cannot render the same progress two
-    // different ways. Only three rows fit a tile's 130px content box, and a
-    // per-row caption does not — the detail stays on that page.
-    rows.innerHTML = inProgress
-      .map(
-        (entry) => `
-        <div class="dash-tile-milestone-row">
-          <span class="dash-tile-milestone-name">${Seav.escapeHtml(entry.certGroupKey || "")}</span>
-          <span class="dash-tile-milestone-percent">${Number(entry.percent) || 0}%</span>
-          <span class="ach-progress-bar" role="progressbar"
-            aria-valuenow="${Number(entry.percent) || 0}" aria-valuemin="0" aria-valuemax="100">
-            <span style="width: ${Number(entry.percent) || 0}%"></span>
-          </span>
-        </div>
-      `
-      )
-      .join("");
+    fill(
+      "dashRegulationsCard",
+      "regulations",
+      rows.length + String(registry?.[0]),
+      `${cardHead("Regulations and guidance")}
+      <ul class="dash-links dash-links--split">
+        ${rows.map(([url, name, sub]) => linkRow(url, name, sub)).join("")}
+      </ul>`
+    );
   }
 
   window.SeavDashboardSnippets = {
-    renderVesselSnippet,
-    renderSeatimeSnippet,
-    renderNavigationSnippet,
-    renderTenderSnippet,
-    renderOnboardSnippet,
-    renderSpecialistSnippet,
-    renderCertSnippet,
-    renderReferenceSnippet,
-    renderPayslipTile,
-    renderMilestoneTile
+    renderVesselCard,
+    renderTicketCard,
+    renderCertCard,
+    renderSeatimeCard,
+    renderReadyCard,
+    renderRecordsCard,
+    renderNavigationCard,
+    renderNoticesCard,
+    renderRegulationsCard
   };
 })();

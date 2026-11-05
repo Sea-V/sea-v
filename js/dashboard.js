@@ -22,11 +22,7 @@
     return;
   }
 
-  const {
-    DEFAULT_PROFILE,
-    getSeatimeTotals,
-    computeOowSeaService
-  } = window.SeavData;
+  const { DEFAULT_PROFILE } = window.SeavData;
 
   function loadProfile() {
     return {
@@ -43,39 +39,6 @@
       } catch (err) {
         console.warn("[SEA-V] Dashboard photo hydration failed:", err);
       }
-    }
-  }
-
-  async function updateDayTypeKpis() {
-    const kpiSea = document.getElementById("kpiSea");
-    const kpiPort = document.getElementById("kpiPort");
-    const kpiStandby = document.getElementById("kpiStandby");
-    const kpiWatchkeeping = document.getElementById("kpiWatchkeeping");
-    const kpiTotalDays = document.getElementById("kpiTotalDays");
-    const kpiOowCapped = document.getElementById("kpiOowCapped");
-
-    if (!kpiSea && !kpiPort && !kpiStandby && !kpiWatchkeeping && !kpiTotalDays && !kpiOowCapped) return;
-
-    const seatimes = window.SeavState?.seatimes || [];
-    const vessels = window.SeavState?.vessels || [];
-    const totals = getSeatimeTotals(seatimes);
-
-    if (kpiSea) kpiSea.textContent = String(totals.sea);
-    if (kpiPort) kpiPort.textContent = String(totals.yard);
-    if (kpiStandby) kpiStandby.textContent = String(totals.standby);
-    if (kpiWatchkeeping) kpiWatchkeeping.textContent = String(totals.watchkeeping);
-    if (kpiTotalDays) kpiTotalDays.textContent = String(totals.total);
-
-    // 2026-08-05, Jack: the raw total above (sea+standby+yard — watchkeeping is inside sea since v565,
-    // no caps) was labelled "Total Qualifying Service" but isn't actually
-    // qualifying service under any MCA route — it was flagged as misleading.
-    // This box adds the ALREADY-EXISTING, already-verified capped OOW
-    // <3000GT figure (90-day yard cap, standby capped per entry, vessels
-    // <15m excluded) alongside it rather than replacing the raw total,
-    // since the raw total is still useful as "everything logged."
-    if (kpiOowCapped) {
-      const oow = computeOowSeaService(seatimes, vessels);
-      kpiOowCapped.textContent = String(oow.totalQualifying15m);
     }
   }
 
@@ -167,16 +130,15 @@
     if (!S) return;
 
     const snippetRenderers = [
-      S.renderVesselSnippet,
-      S.renderSeatimeSnippet,
-      S.renderNavigationSnippet,
-      S.renderTenderSnippet,
-      S.renderOnboardSnippet,
-      S.renderSpecialistSnippet,
-      S.renderCertSnippet,
-      S.renderReferenceSnippet,
-      S.renderPayslipTile,
-      S.renderMilestoneTile
+      S.renderVesselCard,
+      S.renderTicketCard,
+      S.renderCertCard,
+      S.renderSeatimeCard,
+      S.renderReadyCard,
+      S.renderRecordsCard,
+      S.renderNavigationCard,
+      S.renderNoticesCard,
+      S.renderRegulationsCard
     ];
 
     await Promise.all(
@@ -196,7 +158,6 @@
 
   async function refresh() {
     await ensureDashboardPhotosHydrated();
-    await updateDayTypeKpis();
     // renderDashboardProfile() was called here until 2026-09-20. v516 deleted
     // the profile detail card, taking dashAvatar and all eleven dashProfile*
     // elements with it, so the function early-returned on every load. Its
@@ -382,15 +343,7 @@
   }
 
   function initDashboard() {
-    // These three probes must name elements the dashboard actually renders.
-    // v516 replaced the snippet cards, the profile card and the KPI band —
-    // the old probes (dashSeatimeSnippet / dashProfileName / kpiTotalDays)
-    // all went with them, which would have left initDashboard() returning
-    // early on its own page and the tiles stuck at zero.
-    const isDashboard =
-      document.getElementById("dashSeatimeTile") ||
-      document.getElementById("dashVesselTile") ||
-      document.querySelector(".dash-bento");
+    const isDashboard = document.querySelector(".dash-cards");
 
     if (!isDashboard) return;
 

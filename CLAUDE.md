@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v609**. Jack pushes every commit himself from
+- HEAD = **v610**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1661,6 +1661,28 @@ picker and theme CSS are not built yet.
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
 
+### Shipped 2026-11-05 (v610, same commit) — dashboard as two columns of paired cards
+Jack rejected a links-first mockup ("no direction"), asked for research first, then approved eight cards, two per row.
+Most important top left: Current vessel + Your next ticket; Certificates + Sea time; Ready for your next job + Your other
+records; Navigation + Crew support; Latest from the MCA + Regulations and guidance (added in the same commit). Mockup: `design-concepts/dashboard-cards/`. Replaces the v516 bento (its CSS, JS and theme rules are gone).
+- `js/dashboard-snippets.js` rewritten (`render*Card`, all text escaped, fingerprinted so the photo does not flash).
+  `css/pages/dashboard.css` DASHBOARD CARDS, tokens `--dash-panel-*`, `--dash-cards-*`. `.dash-panel` is in the box lists in
+  typography.css and theme-bridge.css, which give it its fill and hairline. Title classes in type-hierarchy.css.
+- dashboard.html loads `navigation-passage.js` again for total NM (removed 2026-08-22). The engine now exports
+  `getEarnedAchievementCodes`; the Milestones count is distinct codes.
+- Your next ticket shows the engine's own weakest-progress label, so the wording is long and technical. Review it signed in.
+- Crew support is static HTML, numbers checked on 2026-11-05. Re-check them now and then. Links only, no Instagram embed.
+Tested on a copy of the real page with Jack's live public data plus empty and expired-cert accounts: Dark, Light, phone.
+**Not seen signed in.** Payslips, testimonials and public-profile status are private, so only stubs exercised those rows.
+Jack's own current Senses record has MMSI 12345678 (v609 flag), and the card shows it until he corrects it.
+**Latest from the MCA is live:** the browser asks GOV.UK's public search API at most daily per device (localStorage `seav_mca_notices`,
+no cookies or referrer), keeps numbered MGN / MSN / MIN titles with M in the code (fishing-only "(F)" dropped), allows only gov.uk paths, escapes all
+of it, and on failure uses the last good copy or a line linking to GOV.UK. CSP `connect-src` allows exactly `https://www.gov.uk/api/search.json`
+(vercel.json + netlify.toml). Privacy policy (dated 5 Nov 2026) and record of processing name GOV.UK. Tested live under that policy, plus failure and
+hostile replies. Regulations are constants in js/dashboard-snippets.js, links checked 2026-11-05; `FLAG_REGISTRIES` adds the current yacht's registry
+for 5 checked flags, others add no row. Malta, Gibraltar and BVI were left out because their sites did not answer the check.
+MSN 1858 now links Amendment 2; the sea-time maths was checked against Amendment 1, so it still needs comparing.
+
 ### Shipped 2026-11-05 (v609) — shared yacht directory
 Jack: a vessel should save to a shared database, keyed by number. `vessel_directory` = facts, one row per hull;
 `vessels` stays each crew member's record and gains `directory_id`. Identity: IMO (check digit), then MMSI, then
@@ -1673,6 +1695,26 @@ linked, demo account's fake IMOs excluded by the check digit, one flag (Senses M
   and writes differences to `vessel_directory_flags`; failure never blocks the vessel save.
 - Admin page: "Yacht directory to review", use their value or keep the directory. Privacy policy and record updated.
 - Not linked: records with no number, including 3 name-only Senses. They link when the crew member adds a number or picks it.
+
+### Idea, needs a serious plan first 2026-11-05 — shared passages per yacht (NOTHING BUILT)
+Jack: passages logged against each yacht, so a crew member on the same passage can be added by a shipmate, or find it by searching
+e.g. Senses. `vessels.directory_id` (v609) is what makes this possible. Yacht history from today only is fine; how history items get
+used is not decided. Do not start building without a plan: yacht movements and who was aboard are sensitive, and tagging needs consent.
+
+### Shipped 2026-11-05 (v610) — a history for every yacht
+Jack: update from online data, and "a history for each vessel with more and more information". `vessel_directory_history`
+(`docs/schema-vessel-directory-history.sql`, applied + smoke-tested): triggers log every addition and change with old value, new
+value and source (crew / admin / wikidata); members read, nobody writes directly, no user ids. **Linked crew records fill BLANK
+directory fields** (sanity-checked, demo ignored, cannot block a save); they never overwrite. Direction is one way: directory changes
+never reach crew records. Wikidata updates applied to Senses, Grace, Kahalani, Stella Maris, Northern Star (list in the .sql). Crew
+records still say 59 m on Senses, so their next save raises a review flag. "Yacht history" on the Vessels card, owner only, not on
+the public profile. Advisors 23/23. A next step would be yacht pages and more sources.
+
+### Directory seeded 2026-11-05 (DB only, no site change)
+Jack asked for a list of superyachts. `docs/data-vessel-directory-seed-wikidata.sql`: Wikidata (CC0), yacht types with a valid
+IMO, 24 m and over. New column `vessel_directory.source` ('wikidata', null = from crew). See the header for filters and undo.
+Existing entries untouched, so Senses keeps 59 m where Wikidata says 57, Grace 2083 GT where it says 2306. Community data,
+details can be stale; the form already asks crew to check. Not used: commercial lists and vessel-tracking sites.
 
 ### Ocean strength settled 2026-11-05 — faint everywhere
 Jack tried raw (v604), 0.7 (v605, v607), then: "more faint ... it doesnt look very good". Signed-in and

@@ -39,7 +39,7 @@ body.app-page .dashboard-profile-strip-label {
 }
 
 /* 3 — Card title */
-body.app-page .dash-tile-label,
+body.app-page .dash-panel-title,
 body.app-page .guide-card-title,
 body.app-page .admin-card-head h3,
 body.app-page .ach-trophy-section .ach-section-head h3,
@@ -79,7 +79,7 @@ body.app-page .seatime-portal-name,
 body.app-page .ach-cert-name,
 body.app-page .ach-trophy-title,
 body.app-page .ach-milestone-summary-title,
-body.app-page .dash-tile-milestone-name,
+body.app-page .dash-panel-name,
 body.app-page .ref-signoff-name {
   color: var(--seav-entity-name-color) !important;
   font-size: var(--type-card) !important;
