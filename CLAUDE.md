@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v614**. Jack pushes every commit himself from
+- HEAD = **v615**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1660,6 +1660,11 @@ picker and theme CSS are not built yet.
 ### Shipped 2026-11-05 (v604, same commit) — vessel tile readable in Light
 Its meta line (`--muted`) and chip (`--pill-*`) resolved on <html> as navy, so the tile's local ink
 reset missed them. Set locally in theme-light.css.
+
+### Shipped 2026-11-06 (v615) — Yachtmaster Ocean no longer half-scored for a certificate
+Jack's admin account (one YMO cert, no passages) read 50% on RYA Yachtmaster Ocean beside a green tick on Offshore: two separate milestones. Ocean scored 1 of 2 for holding the prerequisite. Now 0% or 100% (`computeMilestoneProgress`), and the certificate is a condition. At 0% it leaves Your next ticket, as that list needs percent > 0. The Milestones page keeps its six rows.
+Your next ticket gains one line, "Left to do", the unmet requirement furthest from done (`ticketLeft`).
+Tested on the page copy with that account's certificate details and Jack's public data; rule tests still pass. Not seen signed in.
 
 ### Shipped 2026-11-06 (v614) — guide uses the site's date fields and the yacht directory
 Jack tried "New here?": the calendar did not work and the directory was missing. Review of js/seav-guide.js found more:

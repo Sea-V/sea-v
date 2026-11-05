@@ -1352,6 +1352,10 @@ html body.app-page .dash-ticket-line b {
   overflow: hidden;
 }
 
+html body.app-page .dash-ticket-left {
+  margin-top: 6px;
+}
+
 .dash-ticket-bar > i {
   display: block;
   height: 100%;

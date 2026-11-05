@@ -308,6 +308,20 @@
 
   const TICKET_LIMIT = 2;
 
+  // One short line on what is holding a ticket back: the requirement furthest
+  // from done. The Milestones page keeps the full list.
+  function ticketLeft(entry) {
+    const needs = (window.SeavAchievementEngine?.getSubRequirements?.(entry.full) || []).filter(
+      (need) => Number(need.current) < Number(need.target)
+    );
+    if (!needs.length) return entry.label || "";
+    const need = needs.reduce((worst, row) =>
+      Number(row.current) / Number(row.target) < Number(worst.current) / Number(worst.target) ? row : worst
+    );
+    const label = String(need.label).replace(/\s*\(since holding[^)]*\)/i, "");
+    return need.unit ? `Left to do: ${label}, ${number(need.current)} of ${number(need.target)} ${need.unit}` : `Left to do: ${label}`;
+  }
+
   function renderTicketCard() {
     const entries = (window.SeavAchievementEngine?.getInProgressMilestones?.() || []).slice(0, TICKET_LIMIT);
 
@@ -331,13 +345,14 @@
       return `<div class="dash-ticket">
         <span class="dash-ticket-line"><strong class="dash-panel-name">${esc(entry.certGroupKey)}</strong><b>${percent}%</b></span>
         <span class="dash-ticket-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"><i style="width:${percent}%"></i></span>
+        <small class="dash-panel-sub dash-ticket-left">${esc(ticketLeft(entry))}</small>
       </div>`;
     });
 
     fill(
       "dashTicketCard",
       "ticket",
-      entries.map((entry) => [entry.certGroupKey, entry.percent]),
+      entries.map((entry) => [entry.certGroupKey, entry.percent, ticketLeft(entry)]),
       `${cardHead("Your next ticket", "achievements.html", "All milestones")}
       ${rows.join("")}
       <small class="dash-panel-note">Guidance only: the MCA decides.</small>`

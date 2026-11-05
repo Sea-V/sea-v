@@ -3317,15 +3317,18 @@ function getSortedVesselOptions(vessels = []) {
         };
       }
       case "yachtmaster_ocean_passage": {
+        // Holding the certificate only lets you start, and the passage is the
+        // actual work, so it is a condition rather than half the score. It used
+        // to read 50% with no passage at all (Jack, 2026-11-06).
         const result = computeYachtmasterOceanPassage(navigationEntries, certs);
-        const done = (result.prereqHeld ? 1 : 0) + (result.passage ? 1 : 0);
+        const logged = result.passage
+          ? `Qualifying passage: ${result.passage.entry.passageName || "logged passage"} (${Math.round(result.passage.nm).toLocaleString("en-GB")} NM)`
+          : "No qualifying ocean passage logged yet";
         return {
-          current: done,
-          target: 2,
-          percent: done * 50,
-          label: result.passage
-            ? `Qualifying passage: ${result.passage.entry.passageName || "logged passage"} (${Math.round(result.passage.nm)} NM)`
-            : "No qualifying ocean passage logged yet"
+          current: result.met ? 1 : 0,
+          target: 1,
+          percent: result.met ? 100 : 0,
+          label: result.prereqHeld ? logged : "Hold Yachtmaster Offshore or OOW Yachts <3000GT first"
         };
       }
       case "yachtmaster_offshore_miles": {
