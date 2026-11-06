@@ -259,7 +259,7 @@
         <span class="ach-next-label">Next up</span>
         <strong>${Seav.escapeHtml(full?.title || next.definition.title || "Milestone")}</strong>
         <span class="ach-next-progress-label">${Seav.escapeHtml(next.progress.label || "")}</span>
-        <div class="ach-progress-bar" role="progressbar" aria-valuenow="${next.progress.percent}" aria-valuemin="0" aria-valuemax="100">
+        <div class="ach-progress-bar" role="progressbar" aria-label="${Seav.escapeHtml(`${full?.title || next.definition.title || "Milestone"} progress`)}" aria-valuenow="${next.progress.percent}" aria-valuemin="0" aria-valuemax="100">
           <span style="width: ${next.progress.percent}%"></span>
         </div>
       </div>
@@ -393,7 +393,7 @@
                 definition.approvalRequired
                   ? `<p class="ach-trophy-log-hint">Log manually when you earn this on a vessel.</p>`
                   : `
-                    <div class="ach-progress-bar ach-progress-bar--compact" role="progressbar" aria-valuenow="${progress.percent}" aria-valuemin="0" aria-valuemax="100">
+                    <div class="ach-progress-bar ach-progress-bar--compact" role="progressbar" aria-label="${Seav.escapeHtml(`${full.title || "Milestone"} progress`)}" aria-valuenow="${progress.percent}" aria-valuemin="0" aria-valuemax="100">
                       <span style="width: ${progress.percent}%"></span>
                     </div>
                     <span class="ach-trophy-progress-label">${Seav.escapeHtml(progress.label || "")}</span>
@@ -551,7 +551,7 @@
           <span class="ach-req-label">${Seav.escapeHtml(req.label || "")}</span>
           <span class="ach-req-value">${Seav.escapeHtml(formatReqValue(req))}</span>
         </div>
-        <div class="ach-progress-bar ach-progress-bar--compact" role="progressbar" aria-valuenow="${req.percent}" aria-valuemin="0" aria-valuemax="100">
+        <div class="ach-progress-bar ach-progress-bar--compact" role="progressbar" aria-label="${Seav.escapeHtml(req.label || "Requirement")}" aria-valuenow="${req.percent}" aria-valuemin="0" aria-valuemax="100">
           <span style="width: ${req.percent}%"></span>
         </div>
         ${req.note ? `<p class="ach-req-note">${Seav.escapeHtml(req.note)}</p>` : ""}

@@ -10,7 +10,7 @@
 .guide-head p { margin: 4px 0 0; }
 
 .guide-steps { display: flex; gap: 6px; margin-bottom: 14px; }
-.guide-steps i { width: 34px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.22); }
+.guide-steps i { width: 34px; height: 4px; border-radius: 2px; background: rgb(var(--seav-ink-rgb) / 0.5); }
 .guide-steps i.is-on { background: var(--accent-blue); }
 
 /* The boxes share the title's left edge. */
@@ -86,7 +86,7 @@
 
 .guide-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .guide-note { color: var(--seav-meta-muted-color); font-size: var(--type-caption); }
-.guide-error { margin: 0; color: var(--seav-danger-text, #ff8a8a); }
+.guide-error { margin: 0; color: var(--seav-danger-text); }
 .guide-error[hidden] { display: none; }
 
 .guide-choice {

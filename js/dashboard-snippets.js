@@ -105,7 +105,7 @@
   };
 
   function cardTitle(title) {
-    return `<span class="dash-panel-heading"><span class="dash-panel-icon" aria-hidden="true">${CARD_ICONS[title] || ""}</span><strong class="dash-panel-title">${esc(title)}</strong></span>`;
+    return `<span class="dash-panel-heading"><span class="dash-panel-icon" aria-hidden="true">${CARD_ICONS[title] || ""}</span><h3 class="dash-panel-title">${esc(title)}</h3></span>`;
   }
 
   function cardHead(title, moreHref, moreLabel) {
@@ -132,10 +132,10 @@
       .join("")}</dl>`;
   }
 
-  // columns: [{ label, num }]; rows: [{ cells: [html], tone }] or a raw <tr>.
+  // columns: [{ label, num, hidden }]; hidden = for screen readers only. rows: [{ cells: [html], tone }] or a raw <tr>.
   function table(columns, rows) {
     const head = columns
-      .map((col) => `<th scope="col"${col.num ? ' class="is-num"' : ""}><small>${esc(col.label)}</small></th>`)
+      .map((col) => `<th scope="col"${col.num ? ' class="is-num"' : ""}><small${col.hidden ? ' class="dash-sr-only"' : ""}>${esc(col.label)}</small></th>`)
       .join("");
     const body = rows
       .map((row) => {
@@ -385,7 +385,7 @@
       `${cardHead("Needs attention")}
       ${
         rows.length
-          ? table([{ label: "Item" }, { label: "Action", num: true }, { label: "", num: true }], rows)
+          ? table([{ label: "Item" }, { label: "Action", num: true }, { label: "Clear", num: true, hidden: true }], rows)
           : `<div class="dash-panel-body"><small class="dash-panel-empty">Nothing needs attention.</small></div>`
       }
       ${foot}`
@@ -503,7 +503,7 @@
       const percent = Math.max(0, Math.min(100, Number(entry.percent) || 0));
       return `<a class="dash-ticket" href="achievements.html">
         <span class="dash-ticket-line"><strong class="dash-panel-name">${esc(entry.certGroupKey)}</strong><b>${percent}%</b></span>
-        <span class="dash-ticket-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"><i style="width:${percent}%"></i></span>
+        <span class="dash-ticket-bar" role="progressbar" aria-label="${esc(entry.certGroupKey)} progress" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"><i style="width:${percent}%"></i></span>
         <small class="dash-panel-sub dash-ticket-left">${esc(ticketLeft(entry))}</small>
       </a>`;
     });

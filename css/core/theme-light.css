@@ -186,6 +186,7 @@ html[data-theme="light"] body.app-page :is(.btn-danger, .navigation-map, .naviga
   --light-status-amber: #8a5a00;
   --light-status-warn: #a14d00;
   --light-status-bad: #b42335;
+  --seav-danger-text: var(--light-status-bad);
   --badge-unlock-kicker: var(--light-status-amber);
 }
 
@@ -215,4 +216,15 @@ html[data-theme="light"] body.app-page :is(.btn-danger, .navigation-map, .naviga
   html:is([data-pp-theme="simple-green"], [data-pp-theme="pearl-grey"]):has(> body.public-profile-page)
 ) .ach-cert-ico.is-exp {
   color: var(--light-status-bad) !important;
+}
+
+/* The off switch was 1.2:1 on white, so it could not be seen (2026-11-06 review). */
+html[data-theme="light"] body.app-page .profile-public-share-switch:not(:checked) {
+  border-color: transparent;
+  background: rgb(var(--seav-ink-rgb) / 0.55);
+}
+
+/* Over the vessel photo the details are white, so the focus ring is light too. */
+html[data-theme="light"] body.app-page .dash-panel--vessel.is-photo {
+  --seav-focus-ring-color: var(--dash-panel-head-accent);
 }

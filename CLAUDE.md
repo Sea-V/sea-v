@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v623**. Jack pushes every commit himself from
+- HEAD = **v624**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1670,7 +1670,16 @@ A two-reviewer deep review of the dashboard (2026-11-06). Fixed here:
 **Public profile panel, same version (Jack's picture):** two columns when open, colours + layout | link name + link, one column at <=760px. Colour swatches are little rectangles.
 **Checklist removed, same version.** Jack: remove it and "really think about it" later. "Your first yacht" and its code are gone from the dashboard and guide; last in git at v622. `profile.crew101` stays, empty on all 15 rows (checked), and test-supabase still probes it; privacy policy and record no longer list it. To rebuild it, start from what it should be for, not the old code.
 **Jack said "do what you think is best" on the rest:** the title tick is deleted. Left as they are: the vessel photo crop, and Senses' builder (Lürssen, Wikidata). COLREGs stays a link under Regulations.
-**Still open from the review:** accessibility (no card headings, unnamed progress bars, focus ring 1.64:1 on slate in Light [topbar controls fixed], Light switch 1.2:1, tap targets, guide pips and errors in Light), clean-up (24 dead rules, 568 lines of public-profile CSS in dashboard.css, unused scripts, dead helpers).
+
+### Shipped 2026-11-06 (v624) — accessibility and clean-up, the end of the review
+**Accessibility:** card titles are real `<h3>`s, sized as before. Progress bars have names (dashboard, Milestones, public profile). Needs attention's blank column header is named Clear for screen readers; the hidden second "Page / Total" header on phones stays readable by them (`.dash-sr-only`). Focus ring is light on slate bands and over the vessel photo. Off switch in Light was 1.2:1, now 3.7:1. On touch or <=760px small dashboard controls get a 44px invisible press area (`--dash-tap-size`), the chevron is really 44px. Guide pips stronger; errors use new `--seav-danger-text`, dark red in Light. Measured on the page copy, no screen reader or real phone tried.
+**Clean-up, nothing visible should change:**
+- 24 dead rules gone from dashboard.css and 5 selector lists trimmed: classes in no source, plus rules needing a combination no page has (`.dash-content` with `.dash-card-accent-*`, which only the public page has, and it has no `.dash-content`).
+- New `css/pages/public-profile-base.css`: every selector only the public profile uses, 702 lines. **It imports straight after dashboard.css and keeps the original order.** Moving them to public-profile.css changed the page, as sheets between override them.
+- Dashboard no longer loads seav-cards, topojson, navigation-ports or navigation-helpers, and the patch-script rules that re-inserted them are gone. seav-share reads the helpers with `?.` and only needs them for the passage card, on navigation.html.
+- `SeavAPI.updateItem` / `deleteItem` removed; no callers (`updateItemById` / `deleteItemById` stay).
+- **Tones are built at runtime (`is-${row.tone}`), so `.is-todo` / `.is-warn` look dead to a text search and are not.** Check for this before deleting.
+Compared computed styles for every element before and after, including ::before / ::after: dashboard, certificates, profile, tenders 0 differences. Public profile (Current, Modern, live anon data): all sizes equal; the only differences left were the drifting ocean and arrows mid-turn, which a follow-up probe of those elements confirmed. Only pages with a harness were compared, with harness data.
 
 ### Shipped 2026-11-06 (v621) — Storm Slate card title bands
 Jack picked swatch "5 · Storm Slate #3A4D63". `--dash-panel-head-bg`, 16px titles (`--dash-panel-title-size` = `--type-section`; Jack found 18px too big), on every `.dash-panel-head`: dashboard, public profile card and Crew 101. The band is dark in Dark AND Light, so it sets its own white ink and `--dash-panel-head-accent` #8fd0ff (5.2:1; #5bbcff is 4.2:1 on it). The vessel card is excluded at Jack's ask: it keeps its fade, 16px title and own band. Corners stay 4px, the site standard, not the swatch's rounder ones.

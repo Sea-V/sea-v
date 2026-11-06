@@ -1288,27 +1288,6 @@ const SeavAPI = {
       return await this.upsertItemById(key, item);
     },
 
-    async updateItem(key, index, item) {
-      const items = await this.getArray(key);
-
-      if (!Array.isArray(items) || index < 0 || index >= items.length) {
-        return items;
-      }
-
-      const existing = items[index];
-      return await this.updateItemById(key, existing.id, { ...existing, ...item });
-    },
-
-    async deleteItem(key, index) {
-      const items = await this.getArray(key);
-
-      if (!Array.isArray(items) || index < 0 || index >= items.length) {
-        return items;
-      }
-
-      return await this.deleteItemById(key, items[index].id);
-    },
-
     // v579: certificate expiry reminder emails on/off (own column, own save).
     // v590 public profile palette. Saved on its own like expiryReminders, so
     // it never goes through the profile form (see keep() in profile.js).

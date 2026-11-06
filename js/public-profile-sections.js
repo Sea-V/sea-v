@@ -1380,7 +1380,7 @@
         <div class="public-cv-highlight-body">
           <p class="public-cv-highlight-title">${Seav.escapeHtml(title)}</p>
           <p class="public-cv-highlight-desc">${Seav.escapeHtml(entry.label || "")}</p>
-          <div class="ach-progress-bar" role="progressbar" aria-valuenow="${entry.percent}" aria-valuemin="0" aria-valuemax="100">
+          <div class="ach-progress-bar" role="progressbar" aria-label="${Seav.escapeHtml(`${title} progress`)}" aria-valuenow="${entry.percent}" aria-valuemin="0" aria-valuemax="100">
             <span style="width: ${entry.percent}%"></span>
           </div>
         </div>

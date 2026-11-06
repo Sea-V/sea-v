@@ -176,7 +176,7 @@
     const html = `
       <span class="dash-panel-heading">
         <span class="dash-panel-icon" aria-hidden="true">${CLOCK}</span>
-        <strong class="dash-panel-title">Since your last visit</strong>
+        <h3 class="dash-panel-title">Since your last visit</h3>
         <small class="dash-since-ago">${esc(agoText(visit.since))}</small>
       </span>
       <span class="dash-since-chips">

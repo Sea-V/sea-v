@@ -33,42 +33,9 @@
     0 20px 48px rgba(0,0,0,0.22);
 }
 
-/* =========================================================
-   PER-SECTION COLOR ACCENTS + HEADING ICONS
-   Same pattern as public-profile.css: the dash-card-accent-* classes
-   already existed in this page's markup (a few one-off rules already keyed
-   off them for cert links / mini-cards), but every card still rendered with
-   the same flat blue border — this ties each one to the same --page-*
-   identity color already used in the sidebar nav and on the public profile,
-   so the two pages read consistently instead of the dashboard looking flat
-   next to the profile.
-
-   Scoped via ".dash-content .dashboard-shell-card" rather than just
-   ".dashboard-shell-card" — public-profile.html's shell reuses that same
-   "dashboard-shell-card" wrapper class (that's why public-profile.css needs
-   its own ".public-profile-page" scoping prefix), and ".dash-content" only
-   wraps the real dashboard, so this can't bleed onto the public profile.
-========================================================= */
-
-.dash-content .dashboard-shell-card .dash-card-accent-profile { --section-accent: var(--page-profile); }
-.dash-content .dashboard-shell-card .dash-card-accent-seatime { --section-accent: var(--page-seatime); }
-.dash-content .dashboard-shell-card .dash-card-accent-vessels { --section-accent: var(--page-vessels); }
-.dash-content .dashboard-shell-card .dash-card-accent-navigation { --section-accent: var(--page-navigation); }
-.dash-content .dashboard-shell-card .dash-card-accent-onboard { --section-accent: var(--page-onboard-experience); }
-.dash-content .dashboard-shell-card .dash-card-accent-specialist { --section-accent: var(--page-specialist-qualifications); }
-.dash-content .dashboard-shell-card .dash-card-accent-certificates { --section-accent: var(--page-certificates); }
-.dash-content .dashboard-shell-card .dash-card-accent-hobbies { --section-accent: var(--page-hobbies-interests); }
-.dash-content .dashboard-shell-card .dash-card-accent-achievements { --section-accent: var(--page-achievements); }
-
-.dash-content .dashboard-shell-card [class*="dash-card-accent-"] {
-  border-color: color-mix(in srgb, var(--section-accent, #5bbcff) 42%, rgb(var(--seav-ink-rgb) / 0.1));
-  transition: border-color 0.2s ease;
-}
-
 /* Section heading icon — reuses the same SVG set as the sidebar nav
    (window.SeavIcons, js/core.js) and the public profile's section icons,
    tinted to the section's accent color. */
-.dash-content .dashboard-shell-card .dashboard-card-headline h3,
 .dash-content .dashboard-shell-card .dash-kpis-row h3.kpi-title {
   display: flex;
   align-items: center;
@@ -158,351 +125,9 @@
 }
 
 /* =========================================================
-   QUICK ACTIONS
-   Same --page-* / color-mix accent pattern as the dash-card-accent-*
-   rules above — colored by href so it reuses the exact identity color
-   each page already has in the sidebar, nothing invented. Added
-   2026-08-07.
-========================================================= */
-
-/* v565: the CV generator left the menu for the account dropdown, so the
-   dashboard carries a direct way in. Blue = the CV generator's own accent. */
-
-/* =========================================================
-   DASHBOARD LAYOUT
-========================================================= */
-
-.dash-top {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.dashboard-card-headline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.dashboard-card-headline a,
-/* NOTE 2026-08-22: the .dashboard-navigation-* rules below are no longer used by
-   the dashboard — its Navigation card became a three-row passage list and the
-   mini-map went. They are kept because the PUBLIC PROFILE still renders a chart
-   with exactly these class names (js/public-profile-sections.js
-   renderNavigation, public-profile.html #ppNavigationSection). Do not delete
-   them as dead dashboard CSS; move them to css/pages/public-profile.css if this
-   file is ever tidied. */
-.dashboard-navigation-foot a {
-  color: var(--seav-accent-text);
-  font-size: 12px;
-  font-weight: 850;
-  text-decoration: none;
-}
-
-.dashboard-card-headline a:hover,
-.dashboard-navigation-foot a:hover {
-  color: rgb(var(--seav-ink-rgb));
-}
-
-.dashboard-navigation-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(168px, 210px);
-  gap: 12px;
-  align-items: stretch;
-  min-height: 380px;
-}
-
-.dashboard-navigation-chart-shell {
-  min-height: 380px;
-  height: 100%;
-}
-
-.dashboard-navigation-chart {
-  width: 100%;
-  height: 100%;
-  min-height: 380px;
-  overflow: hidden;
-  border-radius: 18px;
-  border: 1px solid rgba(91, 188, 255, 0.22);
-  background: rgb(var(--seav-ink-rgb) / 0.04);
-}
-
-.dashboard-navigation-chart .leaflet-container {
-  cursor: default;
-}
-
-.dashboard-navigation-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.dashboard-navigation-stat,
-.dashboard-navigation-vessel-list {
-  min-width: 0;
-  padding: 5px 7px;
-  border-radius: 10px;
-  border: 1px solid rgba(91, 188, 255, 0.18);
-  /* Solid fill, not a radial-gradient glow — Jack wants solid colors
-     site-wide 2026-08-03, no corner glow. */
-  background: rgb(var(--seav-ink-rgb) / 0.035);
-}
-
-.dashboard-navigation-vessel-list {
-  flex: 1;
-  min-height: 0;
-  max-height: 140px;
-  overflow: auto;
-}
-
-.dashboard-navigation-stat span {
-  display: block;
-  margin-bottom: 1px;
-  color: var(--seav-accent-text);
-  font-size: 8px;
-  font-weight: 850;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.dashboard-navigation-stat strong {
-  display: block;
-  color: rgb(var(--seav-ink-rgb));
-  font-size: 13px;
-  line-height: 1.1;
-  font-weight: 950;
-}
-
-.dashboard-navigation-vessel-list {
-  display: grid;
-  gap: 3px;
-  align-content: start;
-}
-
-.dashboard-navigation-vessel-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 4px;
-  color: rgb(var(--seav-ink-rgb) / 0.8);
-  font-size: 9px;
-  font-weight: 700;
-}
-
-.dashboard-navigation-vessel-row i {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
-}
-
-.dashboard-navigation-vessel-row span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dashboard-navigation-vessel-row b {
-  color: var(--seav-meta-muted-color);
-  font-size: 8px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.dashboard-navigation-chart .leaflet-control-attribution {
-  background: rgba(8, 16, 28, 0.72);
-  color: var(--seav-meta-muted-color);
-  font-size: 9px;
-}
-
-.dashboard-navigation-chart .leaflet-control-attribution a {
-  color: rgba(91, 188, 255, 0.85);
-}
-
-.dashboard-navigation-chart .leaflet-popup-content-wrapper,
-.dashboard-navigation-chart .leaflet-popup-tip {
-  background: rgba(10, 19, 33, 0.96);
-  color: rgb(var(--seav-ink-rgb));
-  border: 1px solid rgba(91, 188, 255, 0.28);
-}
-
-.dashboard-navigation-foot {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 10px;
-  color: rgb(var(--seav-ink-rgb) / 0.62);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-@media (max-width: 820px) {
-  .dashboard-navigation-layout {
-    grid-template-columns: 1fr;
-    min-height: 0;
-  }
-
-  .dashboard-navigation-chart-shell,
-  .dashboard-navigation-chart {
-    min-height: 280px;
-  }
-
-  .dashboard-navigation-stats {
-    flex-direction: column;
-  }
-
-  .dashboard-navigation-vessel-list {
-    max-height: 110px;
-  }
-}
-
-.dash-profile {
-  position: relative;
-  padding: 22px;
-  min-height: auto;
-}
-
-/* The pre-v516 badge rules lived here: position:absolute, top/right 16px, a
-   30px circle, plus a .dash-profile:has() border tint. They pinned the tick to
-   the corner of the profile CARD, which v516 deleted — so from v521 the tick
-   escaped its heading and parked itself in the top-right of the shell instead.
-   .dash-profile no longer exists anywhere in the markup. Removed in v522; the
-   tick is styled with the rest of the strip at the end of this file, and the
-   circle is drawn by the SVG itself. */
-
-.dash-kpis {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* =========================================================
-   DASHBOARD PROFILE
-========================================================= */
-
-.dashboard-profile-wrap {
-  width: 100%;
-}
-
-.dashboard-profile-top {
-  display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  column-gap: 20px;
-  align-items: start;
-  width: 100%;
-}
-
-.dashboard-profile-left {
-  display: flex;
-  flex-direction: column;
-  width: 200px;
-  min-width: 200px;
-  align-items: stretch;
-}
-
-.dashboard-profile-left .avatar-large,
-.dashboard-profile-left .dashboard-avatar-modern {
-  flex-shrink: 0;
-}
-
-.avatar-large,
-.dashboard-avatar-modern {
-  width: 200px;
-  height: 200px;
-  min-width: 200px;
-
-  border-radius: 26px;
-  overflow: hidden;
-
-  background: rgb(var(--seav-ink-rgb) / 0.06);
-  border: 1px solid rgb(var(--seav-ink-rgb) / 0.14);
-
-  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-}
-
-.dashboard-avatar-modern {
-  display: block;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-}
-
-.dashboard-profile-heading {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-height: 200px;
-  width: 100%;
-  min-width: 0;
-}
-
-.dashboard-profile-name {
-  margin: 0;
-  flex-shrink: 0;
-}
-
-.dashboard-profile-fields {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  flex: 1;
-  width: 100%;
-  min-width: 0;
-  min-height: 0;
-}
-
-.dashboard-profile-top .dashboard-info-box {
-  gap: 3px;
-  padding: 6px 8px;
-  min-height: 0;
-  border-radius: 10px;
-}
-
-.dashboard-profile-top .dashboard-info-label {
-  font-size: 8px;
-  letter-spacing: 0.5px;
-  line-height: 1.1;
-  padding-bottom: 3px;
-}
-
-.dashboard-profile-top .dashboard-info-value {
-  font-size: 11px;
-  line-height: 1.2;
-  font-weight: 700;
-}
-
-.dashboard-profile-bio {
-  width: 100%;
-  min-width: 0;
-  min-height: auto;
-  margin-top: 14px;
-  padding: 14px 16px;
-  justify-content: flex-start;
-  align-self: stretch;
-}
-
-.dashboard-profile-bio .dashboard-info-label,
-.dashboard-profile-bio .dashboard-summary-text {
-  text-align: left;
-}
-
-.dashboard-profile-bio .dashboard-summary-text {
-  white-space: pre-line;
-  overflow: visible;
-}
-
-/* =========================================================
    DASHBOARD INFO BOXES
 ========================================================= */
 
-.dashboard-bio-under,
-.dashboard-info-box,
 .kpi-box {
   display: flex;
   flex-direction: column;
@@ -525,69 +150,6 @@
   min-width: 0;
 }
 
-.dashboard-info-box,
-.dashboard-bio-under {
-  min-height: 60px;
-}
-
-.dashboard-bio-under:not(.dashboard-profile-bio) {
-  flex: 1 1 auto;
-  width: 200px;
-  min-width: 200px;
-  min-height: 0;
-  justify-content: flex-start;
-  align-self: stretch;
-}
-
-.dashboard-bio-under .dashboard-info-label {
-  flex-shrink: 0;
-}
-
-.dashboard-info-label {
-  color: var(--seav-accent-text);
-
-  font-size: 10px;
-  line-height: 1;
-  font-weight: 800;
-
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-
-  text-align: center;
-
-  /* Separator between the title and its value below — shared by the
-     dashboard profile card AND public-profile.html (both reuse these same
-     classes), so this one rule covers both surfaces at once. */
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
-}
-
-.dashboard-info-value {
-  color: rgb(var(--seav-ink-rgb) / 0.94);
-
-  font-size: 14px;
-  line-height: 1.35;
-  font-weight: 700;
-
-  text-align: center;
-
-  word-break: break-word;
-}
-
-.dashboard-summary-text {
-  margin: 0;
-
-  color: rgb(var(--seav-ink-rgb) / 0.92);
-
-  font-size: 13px;
-  line-height: 1.55;
-  font-weight: 600;
-
-  text-align: center;
-
-  overflow-wrap: anywhere;
-}
-
 /* =========================================================
    KPI GRID
 ========================================================= */
@@ -597,10 +159,6 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 
   gap: 10px;
-}
-
-.kpi-row-grid-5 {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .kpi-row-grid-6 {
@@ -640,372 +198,17 @@
   letter-spacing: 0.2px;
 }
 
-/* =========================================================
-   DASHBOARD BADGES
-========================================================= */
-
-/* =========================================================
-   BADGE TOOLTIP
-========================================================= */
-
-.badge-tooltip {
-  position: absolute;
-
-  bottom: -40px;
-  left: 50%;
-
-  transform: translateX(-50%) translateY(6px);
-
-  min-width: 180px;
-  max-width: 240px;
-
-  padding: 6px 10px;
-
-  border-radius: 8px;
-  border: 1px solid rgb(var(--seav-ink-rgb) / 0.12);
-
-  background: rgba(20,34,52,0.95);
-
-  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-
-  color: rgb(var(--seav-ink-rgb));
-
-  font-size: 11px;
-  line-height: 1.35;
-  font-weight: 700;
-
-  text-align: center;
-
-  opacity: 0;
-  pointer-events: none;
-
-  transition: all 0.18s ease;
-
-  z-index: 50;
-}
-
-.badge-tooltip strong {
-  display: block;
-  margin-bottom: 4px;
-}
-
-.badge-tooltip span {
-  display: block;
-  font-size: 12px;
-  opacity: 0.85;
-}
-
-/* =========================================================
-   DASHBOARD MINI CARDS
-========================================================= */
-
-.dash-mini-card-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-
-  gap: 10px;
-}
-
-/* =========================================================
-   DASHBOARD SNIPPET ROWS — Sea Time / Certificates / References
-   Scoped to these preview cards only (not the shared .list/.list-row
-   component in css/components/lists.css, which 9 other files still use).
-   Reuses the same solid color tokens and 18px card radius the redesigned
-   Seatime/Certificates/References pages already use, so these previews
-   read as current SEA-V style. No gradients (2026-08-03 site-wide
-   solid-color policy). Restyle only — the render logic in
-   js/dashboard-snippets.js that builds these rows (sorting, verification
-   status, expiry status, quote text) is untouched.
-========================================================= */
-
-.dash-mini-card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-
-  /* No overflow:hidden here anymore — it was clipping the info-grid's
-     bottom padding whenever a cell's text wrapped to two lines (e.g. a
-     long Build/shipyard name or a long Dates range), leaving no visible
-     gap under Length/GT/Build. The photo's own border-radius (below)
-     handles corner rounding instead, so nothing needs to be clipped at
-     the card level. */
-
-  padding: 0;
-
-  border-radius: 16px;
-  border: 1px solid rgba(91, 188, 255, 0.18);
-
-  /* Solid fill, not a gradient — Jack wants solid colors site-wide
-     2026-08-03. Value is the midpoint of the old gradient. */
-  background: rgba(16, 33, 55, 0.79);
-
-  box-shadow: 0 8px 18px rgba(0,0,0,0.16);
-}
-
-.dash-mini-photo {
-  position: relative;
-
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  flex-shrink: 0;
-
-  margin: 0;
-  padding: 0;
-
-  overflow: hidden;
-  border-radius: 16px 16px 0 0;
-
-  border: 0;
-  background: rgba(0, 0, 0, 0.22);
-}
-
-.dash-mini-photo img {
-  width: 100%;
-  height: 100%;
-
-  display: block;
-
-  border: 0;
-  /* cover — contain was tried here but left real (non-16:10) photos looking
-     small with big dark letterbox gaps on the sides, which read as more
-     "broken" than a modest crop. The container's 16:10 aspect ratio keeps
-     the crop reasonable for typical landscape vessel photos. */
-  object-fit: cover;
-  object-position: center;
-}
-
-.dash-mini-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-
-  color: var(--seav-meta-muted-color);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-}
-
-.dash-mini-body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-
-  padding: 10px 11px 11px;
-}
-
-.dash-mini-info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 6px;
-
-  margin-top: auto;
-  padding: 10px 0 4px;
-}
-
-.dash-mini-info-grid div {
-  padding: 7px 8px 8px;
-
-  border-radius: 10px;
-  border: 1px solid rgb(var(--seav-ink-rgb) / 0.07);
-
-  background: rgb(var(--seav-ink-rgb) / 0.035);
-
-  min-width: 0;
-}
-
-.dash-mini-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-
-  gap: 10px;
-}
-
-.dash-mini-head h4 {
-  margin: 0;
-
-  color: var(--seav-entity-name-color, rgb(var(--seav-ink-rgb)));
-
-  font-size: 13px;
-  line-height: 1.15;
-  font-weight: 900;
-}
-
-.dash-mini-head p {
-  margin-top: 4px;
-
-  color: rgb(var(--seav-ink-rgb) / 0.62);
-
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.dash-mini-status {
-  padding: 3px 8px;
-
-  border-radius: 999px;
-  border: 1px solid rgba(91, 188, 255, 0.32);
-
-  background: rgba(91,188,255,0.12);
-
-  color: rgb(var(--seav-ink-rgb));
-
-  font-size: 9px;
-  font-weight: 900;
-}
-
-.dash-mini-info-grid span:not(.tender-proficiency-pill) {
-  display: block;
-
-  margin-bottom: 4px;
-
-  color: var(--seav-field-label-color, #5bbcff);
-
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.dash-mini-info-grid strong {
-  display: block;
-
-  color: var(--seav-field-value-color, rgb(var(--seav-ink-rgb)));
-
-  font-size: 12px;
-  line-height: 1.2;
-  font-weight: 850;
-
-  word-break: break-word;
-}
-
-/* =========================================================
-   DASHBOARD SNIPPET ACCENTS (unified card borders)
-========================================================= */
-
-.dashboard-shell-card .dash-card-accent-certificates .cert-attachment-link,
-.dashboard-shell-card .dash-card-accent-certificates .cert-attachment-link:link,
-.dashboard-shell-card .dash-card-accent-certificates .cert-attachment-link:visited {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 32px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(91, 188, 255, 0.38);
-  background: rgba(91, 188, 255, 0.14);
-  color: rgb(var(--seav-ink-rgb));
-  text-decoration: none;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.1px;
-  line-height: 1;
-  white-space: nowrap;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 4px 10px rgba(0, 0, 0, 0.12);
-}
-
-.dashboard-shell-card .dash-card-accent-certificates .cert-attachment-link svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  color: var(--seav-accent-text);
-}
-
-.dashboard-shell-card .dash-card-accent-certificates .cert-attachment-link:hover {
-  background: rgba(91, 188, 255, 0.22);
-  border-color: rgba(91, 188, 255, 0.55);
-  color: rgb(var(--seav-ink-rgb));
-  text-decoration: none;
-}
-
-/* Mini cards inside vessel / tender snippets */
-.dashboard-shell-card .dash-card-accent-vessels .dash-mini-card {
-  border-color: rgba(214, 226, 238, 0.22);
-}
-
-/* =========================================================
-   TABLE FIXES
-========================================================= */
-
-/* =========================================================
-   EMPTY STATES
-========================================================= */
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 900px) {
-  .dash-mini-card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 768px) {
-  .dashboard-profile-top {
-    grid-template-columns: 1fr;
-
-    gap: 16px;
-  }
-
-  .dashboard-profile-left {
-    width: 100%;
-    min-width: 0;
-    min-height: 0;
-    height: auto !important;
-
-    align-items: center;
-  }
-
-  .dashboard-profile-heading {
-    min-height: 0;
-  }
-
-  .dashboard-profile-fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: none;
-  }
-
-  .dashboard-profile-bio {
-    margin-top: 12px;
-  }
-
-  .dashboard-bio-under:not(.dashboard-profile-bio) {
-    flex: none;
-    width: 100%;
-    min-width: 0;
-  }
 
   
   .kpi-row-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .avatar-large,
-  .dashboard-avatar-modern {
-    width: 140px;
-    height: 140px;
-    min-width: 140px;
-  }
 }
 
 @media (max-width: 560px) {
-  .dash-mini-card-grid,
-.kpi-row-grid {
+  .kpi-row-grid {
     grid-template-columns: 1fr;
-  }
-
-  .avatar-large,
-  .dashboard-avatar-modern {
-    width: 120px;
-    height: 120px;
-    min-width: 120px;
   }
 }
 
@@ -1015,8 +218,7 @@
 
 /* Main dashboard section/card headings */
 .dashboard-shell-card .dash-card > h3,
-.dashboard-shell-card .dash-card h3.kpi-title,
-.dashboard-shell-card .dashboard-card-headline h3 {
+.dashboard-shell-card .dash-card h3.kpi-title {
   margin: 0 0 10px;
 
   color: rgb(var(--seav-ink-rgb));
@@ -1028,22 +230,9 @@
   text-transform: none;
 }
 
-.dashboard-shell-card .progress-label {
-  color: rgb(var(--seav-ink-rgb) / 0.72);
-
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-  text-transform: none;
-}
-
 /* All small labels / metadata labels */
-.dashboard-shell-card .dashboard-info-label,
 .dashboard-shell-card .kpi-label,
-.dashboard-shell-card .dash-mini-info-grid span:not(.tender-proficiency-pill),
-.dashboard-shell-card th,
-.dashboard-shell-card .cert-stat-label,
-.dashboard-shell-card .cert-mini-label {
+.dashboard-shell-card th {
   color: var(--seav-field-label-color, #5bbcff);
 
   font-size: var(--font-label);
@@ -1055,11 +244,7 @@
 }
 
 /* Standard values */
-.dashboard-shell-card .dashboard-info-value,
-.dashboard-shell-card .dash-mini-info-grid strong,
-.dashboard-shell-card td,
-.dashboard-shell-card .cert-stat-value,
-.dashboard-shell-card .cert-mini-value {
+.dashboard-shell-card td {
   font-size: var(--font-value);
   line-height: 1.4;
   font-weight: 700;
@@ -1074,9 +259,7 @@
 }
 
 /* List row titles, certificate names, table strong text */
-.dashboard-shell-card .list-title,
-.dashboard-shell-card .cert-title,
-.dashboard-shell-card .dash-mini-head h4 {
+.dashboard-shell-card .list-title {
   font-size: 15px;
   line-height: 1.25;
   font-weight: 850;
@@ -1086,9 +269,7 @@
 }
 
 /* Secondary/sub text */
-.dashboard-shell-card .list-sub,
-.dashboard-shell-card .cert-sub,
-.dashboard-shell-card .dash-mini-head p {
+.dashboard-shell-card .list-sub {
   font-size: 13px;
   line-height: 1.45;
   font-weight: 650;
@@ -1131,6 +312,7 @@
 .dash-panel-head {
   --seav-ink-rgb: 255 255 255;
   --seav-accent-text: var(--dash-panel-head-accent);
+  --seav-focus-ring-color: var(--dash-panel-head-accent);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1141,6 +323,8 @@
 }
 
 html body.app-page .dash-panel-title {
+  margin: 0;
+  line-height: normal !important;
   font-size: var(--dash-panel-title-size) !important;
 }
 
@@ -1319,6 +503,56 @@ html body.app-page .dash-live-switch small {
 
 .dash-live-more:hover {
   background: var(--bridge-accent-soft);
+}
+
+/* For screen readers only. */
+html body.app-page .dash-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Fingers: small text controls keep their look with a 44px invisible press area.
+   The chevron has neighbours, so it grows for real (2026-11-06 review). */
+@media (pointer: coarse), (max-width: 760px) {
+  .dash-live-status,
+  .dash-live-switch,
+  .dash-panel-more,
+  .dash-clear,
+  .dash-help-link,
+  .dash-since-chip {
+    position: relative;
+  }
+
+  .dash-live-status::after,
+  .dash-live-switch::after,
+  .dash-panel-more::after,
+  .dash-clear::after,
+  .dash-help-link::after,
+  .dash-since-chip::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    min-width: var(--dash-tap-size);
+    height: var(--dash-tap-size);
+    transform: translate(-50%, -50%);
+  }
+
+  .dash-live-more {
+    justify-content: center;
+    align-items: center;
+    width: var(--dash-tap-size);
+    height: var(--dash-tap-size);
+  }
+
+  .dash-public {
+    --dash-public-control: var(--dash-tap-size);
+  }
 }
 
 /* Username, colours, layout, link and QR, opened from the chevron. */
@@ -1551,7 +785,6 @@ html body.app-page .dash-figures dd {
   overflow-wrap: anywhere;
 }
 
-
 /* Tables */
 /* tables.css gives every table a 720px minimum, for the wide pages. */
 .dash-table {
@@ -1662,6 +895,7 @@ html body.app-page .dash-clear:is(:hover, :focus-visible) small {
 .dash-table-pair > .dash-table + .dash-table {
   border-left: 1px solid var(--bridge-rule);
 }
+
 html body.app-page .dash-table .is-todo .is-num { color: var(--seav-accent-text); font-weight: var(--font-weight-title); }
 html body.app-page .dash-table .is-warn .is-num { color: var(--dash-panel-warn); font-weight: var(--font-weight-title); }
 html body.app-page .dash-table .is-bad .is-num { color: var(--dash-panel-bad); font-weight: var(--font-weight-title); }
@@ -1863,8 +1097,20 @@ html body.app-page .dash-vessel-numbers {
     border-left: 0;
   }
 
-  .dash-table-pair > .dash-table + .dash-table thead {
-    display: none;
+  /* Out of sight, but screen readers still get the column names. */
+  .dash-table-pair > .dash-table + .dash-table thead th {
+    height: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .dash-table-pair > .dash-table + .dash-table thead small {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .dash-vessel-id {
@@ -1914,29 +1160,5 @@ html body.app-page .dash-vessel-numbers {
   display: flex;
   align-items: center;
   gap: 9px;
-}
-
-@media (max-width: 760px) {
-  .dashboard-profile-strip {
-    flex-wrap: wrap;
-    padding: 12px 14px 14px;
-  }
-
-  .dashboard-profile-strip-body {
-    flex: 1 1 100%;
-    order: 2;
-  }
-
-  .dashboard-profile-strip-missing {
-    max-width: 100%;
-    flex: 1 1 100%;
-    order: 3;
-    white-space: normal;
-  }
-
-  .dashboard-profile-strip-link {
-    order: 1;
-    margin-left: auto;
-  }
 }
 

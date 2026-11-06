@@ -12,7 +12,7 @@
   const LINK_LABELS = { knots: "Watch", certs: "Find" };
 
   const head = (topic, extra = "") => `<div class="dash-panel-head">
-      <span class="dash-panel-heading"><span class="dash-panel-icon" aria-hidden="true">${topic.icon}</span><strong class="dash-panel-title">${esc(topic.title)}</strong></span>
+      <span class="dash-panel-heading"><span class="dash-panel-icon" aria-hidden="true">${topic.icon}</span><h3 class="dash-panel-title">${esc(topic.title)}</h3></span>
       ${extra}
     </div>`;
 
