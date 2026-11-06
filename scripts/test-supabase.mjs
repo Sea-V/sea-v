@@ -607,6 +607,17 @@ async function testCertificateColumns(config) {
 
 // cv_drafts (docs/schema-cv-drafts.sql, v561) is private: a crew member's CV
 // choices and draft text. anon must get NOTHING — not even an empty list.
+async function testCvReadLogPrivate(config) {
+  const probe = await restGet(config, "cv_read_log", "select=id&limit=1");
+  if (probe.status === 401 || probe.status === 403) {
+    console.log(`✓ cv_read_log hidden from anon  ${probe.status}  OK`);
+    return true;
+  }
+  console.log(`✗ cv_read_log readable by anon  ${probe.status}  FAIL`);
+  console.log("→ Re-run docs/schema-cv-read-log.sql.");
+  return false;
+}
+
 async function testCvDraftsPrivate(config) {
   console.log(`\nCV drafts privacy:`);
   const probe = await restGet(config, "cv_drafts", "select=user_id&limit=1");
@@ -1009,7 +1020,7 @@ async function main() {
     certificateColumnsSafe = await testCertificateColumns(config);
     columnDriftSafe = testPublicColumnDrift();
     statusGatesSafe = (await testPublicStatusGates(config)) && (await testPublicStorageReads(config));
-    cvDraftsSafe = (await testCvDraftsPrivate(config)) && (await testLastVisitPrivate(config));
+    cvDraftsSafe = (await testCvDraftsPrivate(config)) && (await testLastVisitPrivate(config)) && (await testCvReadLogPrivate(config));
   }
 
   if (step === "all") {

@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Keep in sync with SeavConfig.ASSET_VERSION in js/seav-config.js */
-const ASSET_VERSION = 624;
+const ASSET_VERSION = 625;
 
 function bumpAssetVersions(html) {
   // "\/?" before styles.css|js/ handles public-profile.html, which uses
@@ -70,6 +70,7 @@ const APP_PAGES = [
   "specialist-qualifications.html",
   "land-experience.html",
   "crew-101.html",
+  "cv-upload.html",
   "payslips.html"
 ];
 

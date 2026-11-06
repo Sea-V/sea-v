@@ -1,0 +1,93 @@
+/* =========================================================
+   UPLOAD MY CV (v625). Markup in cv-upload.html, js/cv-upload.js.
+   Cards reuse .dash-panel / .dash-table. Text uses small and strong, as
+   typography.css forces 14px on span, label and p.
+========================================================= */
+.cvu-main { padding: var(--dash-panel-pad) var(--cvu-gutter) var(--cvu-gutter); }
+.cvu-stack { display: grid; gap: 14px; }
+.cvu-stack .dash-panel { overflow: visible; }
+.cvu-body { padding: var(--dash-panel-pad); }
+
+html body.app-page .cvu-note { display: block; color: var(--seav-meta-desc-color); font-size: var(--type-caption) !important; font-weight: var(--font-weight-body); line-height: 1.45; }
+html body.app-page .cvu-label { display: block; margin-bottom: 4px; color: var(--seav-field-label-color); font-size: var(--type-caption) !important; font-weight: var(--type-title-weight); }
+.cvu-alert { padding: 12px 14px; border: 1px solid var(--dash-panel-bad); border-radius: var(--bridge-radius, 4px); background: var(--bridge-surface); color: rgb(var(--seav-ink-rgb)); }
+
+/* Upload */
+.cvu-drop { display: grid; justify-items: center; gap: 8px; padding: var(--cvu-drop-pad); border: 2px dashed var(--bridge-rule-strong); border-radius: var(--bridge-radius, 4px); background: var(--seav-select-bg); text-align: center; }
+.cvu-drop svg { width: 34px; height: 34px; color: var(--seav-accent-text); }
+html body.app-page .cvu-drop label strong { color: rgb(var(--seav-ink-rgb)); font-size: var(--type-section) !important; }
+.cvu-drop input[type="file"] { max-width: 100%; color: var(--seav-field-value-color); }
+.cvu-points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+html body.app-page .cvu-points strong { display: block; color: rgb(var(--seav-ink-rgb)); font-weight: var(--font-weight-title); }
+
+/* Busy */
+.cvu-busy { display: grid; gap: 10px; padding: 34px 20px; text-align: center; }
+html body.app-page .cvu-busy strong { color: rgb(var(--seav-ink-rgb)); font-weight: var(--font-weight-title); overflow-wrap: anywhere; }
+.cvu-bar { height: 6px; overflow: hidden; border-radius: 3px; background: var(--bridge-surface-4); }
+.cvu-bar i { display: block; width: 40%; height: 100%; background: var(--bridge-accent); animation: cvu-slide 1.4s ease-in-out infinite alternate; }
+@keyframes cvu-slide { from { transform: translateX(0); } to { transform: translateX(150%); } }
+@media (prefers-reduced-motion: reduce) { .cvu-bar i { width: 100%; animation: none; } }
+
+/* Days */
+.cvu-days { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 14px; border-bottom: 1px solid var(--bridge-rule); background: var(--bridge-accent-soft); }
+.cvu-days.is-done { background: none; }
+.cvu-days.is-need { box-shadow: inset 0 0 0 2px var(--bridge-accent); }
+
+/* A yacht */
+.cvu-yacht { padding: 12px 14px; border-top: 1px solid var(--bridge-rule); }
+.dash-panel-head + .cvu-yacht, .cvu-days + .cvu-yacht { border-top: 0; }
+.cvu-yacht.is-off .cvu-yacht-top { opacity: 0.6; }
+.cvu-yacht-top { display: flex; align-items: center; gap: 10px; }
+.cvu-yacht-top input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0; }
+.cvu-yacht-name { flex: 1 1 auto; min-width: 0; }
+html body.app-page .cvu-yacht-name strong { display: block; color: var(--seav-entity-name-color); font-weight: var(--font-weight-title); }
+html body.app-page .cvu-yacht-name small { display: block; color: var(--seav-meta-desc-color); font-size: var(--type-caption) !important; }
+html body.app-page .cvu-flag { flex: 0 0 auto; padding: 2px 7px; border-radius: var(--bridge-radius, 3px); background: var(--bridge-accent); color: var(--cvu-on-accent); font-size: var(--type-caption) !important; font-weight: var(--font-weight-title); white-space: nowrap; }
+html body.app-page .cvu-pill { display: inline-block; padding: 1px 6px; border-radius: var(--bridge-radius, 3px); background: var(--bridge-surface-4); color: rgb(var(--seav-ink-rgb)); font-size: var(--type-caption) !important; font-weight: var(--font-weight-title); }
+html body.app-page .cvu-pill.is-bad { background: var(--dash-panel-bad); color: var(--cvu-on-accent); }
+.cvu-yacht-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; margin: 6px 0 0 var(--cvu-indent); }
+html body.app-page .cvu-yacht-line strong, html body.app-page .cvu-month { color: var(--seav-field-value-color); font-weight: var(--font-weight-body); }
+.cvu-roles { display: grid; gap: 10px; margin: 10px 0 0 var(--cvu-indent); }
+.cvu-role { display: grid; grid-template-columns: minmax(170px, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 10px; }
+.cvu-stack :is(select, textarea, input[type="text"]) { box-sizing: border-box; width: 100%; min-width: 0; padding: 8px 10px; border: 1px solid var(--bridge-rule-strong); border-radius: var(--bridge-radius, 4px); background-color: var(--seav-select-bg); color: var(--seav-field-value-color); font: inherit; }
+.cvu-stack select.is-need { border-color: var(--bridge-accent); box-shadow: inset 0 0 0 1px var(--bridge-accent); }
+.cvu-stack textarea { min-height: 92px; margin-top: 6px; resize: vertical; }
+.cvu-date { display: grid; grid-template-columns: 74px minmax(0, 1fr); align-items: center; gap: 6px; }
+.cvu-info { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin: 10px 0 0 var(--cvu-indent); padding: 9px 11px; border: 1px solid var(--bridge-rule); border-radius: var(--bridge-radius, 4px); background: var(--bridge-surface-2); }
+.cvu-info.is-need { border-color: var(--bridge-accent); }
+.cvu-info > div:first-child { flex: 1 1 260px; min-width: 0; }
+html body.app-page .cvu-info strong { color: rgb(var(--seav-ink-rgb)); font-weight: var(--font-weight-title); }
+.cvu-find { position: relative; }
+.cvu-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.cvu-btn { min-height: var(--cvu-control); padding: 0 12px; border: 1px solid var(--bridge-rule-strong); border-radius: var(--bridge-radius, 4px); background: var(--bridge-surface-4); color: var(--seav-field-value-color); font: inherit; font-weight: var(--font-weight-title); white-space: nowrap; cursor: pointer; }
+.cvu-btn:hover { border-color: var(--bridge-accent); }
+.cvu-btn.is-main { border-color: var(--bridge-accent); background: var(--bridge-accent); color: var(--cvu-on-accent); }
+.cvu-duties { margin: 10px 0 0 var(--cvu-indent); }
+.cvu-duties summary { color: var(--seav-accent-text); font-weight: var(--font-weight-title); cursor: pointer; }
+
+/* Tables and the rest */
+.cvu-stack .dash-table td { vertical-align: top; }
+.cvu-tick { width: 22px; padding-right: 0 !important; }
+.cvu-tick input { width: 18px; height: 18px; margin: 1px 0 0; }
+html body.app-page .cvu-stack .dash-table td small:not(.cvu-pill) { display: block; color: var(--seav-meta-desc-color); font-size: var(--type-caption) !important; font-weight: var(--font-weight-body); }
+.cvu-stack tr.is-off td:not(.cvu-tick) { opacity: 0.6; }
+.cvu-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.cvu-chip { display: inline-flex; align-items: center; gap: 7px; min-height: var(--cvu-control); padding: 0 10px; border: 1px solid var(--bridge-rule-strong); border-radius: var(--bridge-radius, 4px); background: var(--seav-select-bg); color: var(--seav-field-value-color); cursor: pointer; }
+.cvu-chip input { margin: 0; }
+.cvu-out { margin: 0; padding: 0; list-style: none; }
+.cvu-out li { padding: 9px 14px; border-top: 1px solid var(--bridge-rule); }
+.cvu-out li:first-child { border-top: 0; }
+html body.app-page .cvu-out strong { display: block; color: rgb(var(--seav-ink-rgb)); font-weight: var(--font-weight-title); }
+.cvu-go { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; }
+
+/* Save bar: Storm Slate in both themes, so its ink is its own. */
+.cvu-save { position: sticky; bottom: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 14px; border: 1px solid var(--dash-panel-head-rule); border-radius: var(--bridge-radius, 4px); background: var(--dash-panel-head-bg); box-shadow: var(--cvu-save-shadow); --seav-focus-ring-color: var(--dash-panel-head-accent); }
+html body.app-page .cvu-save strong { display: block; color: var(--seav-topbar-ink); font-weight: var(--font-weight-title); }
+html body.app-page .cvu-save small { display: block; color: var(--seav-topbar-ink); font-size: var(--type-caption) !important; }
+.cvu-save .cvu-btn { min-height: 40px; border-color: var(--seav-topbar-ink); background: var(--seav-topbar-ink); color: var(--dash-panel-head-bg); }
+
+@media (max-width: 760px) {
+  .cvu-main { padding-right: var(--cvu-gutter-phone); padding-left: var(--cvu-gutter-phone); }
+  .cvu-points, .cvu-role { grid-template-columns: minmax(0, 1fr); }
+  .cvu-roles, .cvu-info, .cvu-duties, .cvu-yacht-line { margin-left: 0; }
+}

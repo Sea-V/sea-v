@@ -17,6 +17,7 @@
     "dashboard.html",
     "profile.html",
     "cv-generator.html",
+    "cv-upload.html",
     "vessels.html",
     "seatime.html",
     "certificates.html",
@@ -455,6 +456,7 @@
     "sea_references",
     "tenders",
     "cv_drafts",
+    "cv_read_log",
     "bug_reports",
     "cert_reminder_log"
   ];
@@ -763,6 +765,7 @@
     requestPasswordReset,
     deleteAccount,
     exportMyData,
+    loadJsZip,
     needsSecondFactor,
     listTotpFactors,
     verifyLoginCode,

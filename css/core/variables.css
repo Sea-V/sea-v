@@ -348,6 +348,14 @@
   --seav-topbar-pad-phone: 10px 14px;
   --seav-topbar-offset: 84px;
   /* Public profile panel on the dashboard */
+  /* Upload my CV */
+  --cvu-gutter: 20px;
+  --cvu-gutter-phone: 12px;
+  --cvu-indent: 28px;
+  --cvu-control: 34px;
+  --cvu-drop-pad: 34px 20px;
+  --cvu-on-accent: #ffffff;
+  --cvu-save-shadow: 0 -8px 24px rgba(0, 0, 0, 0.3);
   --dash-public-control: 40px;
   --dash-tap-size: 44px;
   --dash-public-gap: 14px;

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v624**. Jack pushes every commit himself from
+- HEAD = **v625**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1670,6 +1670,14 @@ A two-reviewer deep review of the dashboard (2026-11-06). Fixed here:
 **Public profile panel, same version (Jack's picture):** two columns when open, colours + layout | link name + link, one column at <=760px. Colour swatches are little rectangles.
 **Checklist removed, same version.** Jack: remove it and "really think about it" later. "Your first yacht" and its code are gone from the dashboard and guide; last in git at v622. `profile.crew101` stays, empty on all 15 rows (checked), and test-supabase still probes it; privacy policy and record no longer list it. To rebuild it, start from what it should be for, not the old code.
 **Jack said "do what you think is best" on the rest:** the title tick is deleted. Left as they are: the vessel photo crop, and Senses' builder (Lürssen, Wikidata). COLREGs stays a link under Regulations.
+
+### Shipped 2026-11-06 (v625) — Upload my CV, first version, Jack's account only
+Jack: "good to start with ... we can always fine tune later", after a two-CV test and the mockup (`design-concepts/cv-upload/`, holds a real captain's details: **do not commit it**). Plan, test results and what must happen before crew get it: `docs/product/cv-upload-plan-2026-11-05.md`.
+- `cv-upload.html`, `js/cv-upload.js`, `css/pages/cv-upload.css`, tokens `--cvu-*`. Reached by URL only; not in the menu. Non-admins see "Coming soon".
+- Edge function `cv-read` (deployed, v1, verify_jwt false, checks sign-in and two-step login itself, admins only until secret `CV_READ_OPEN` = true). PDF goes as a document, because a two-column PDF's text is scrambled; Word goes as text pulled in the browser. Stores nothing and logs no CV content. Its JSON format has no place for date of birth, referees or health notes. **Needs secret `ANTHROPIC_API_KEY` in Edge Functions -> Secrets, not Vault; until then it answers `not_set_up`. No real read has been run.** Default model `claude-opus-5-5`, override with `CV_READ_MODEL`; 3 reads a day, 30 for admins.
+- DB, LIVE: `cv_read_log` (`docs/schema-cv-read-log.sql`): who, when, model, tokens, so the real cost can be read from it. Owner read only, written by the service role. Smoke test: own row 1, other's row 0, member insert refused, anon 401, advisors 23/23. `testCvReadLogPrivate`; added to Download my data.
+- Rules: a promotion with no gap is one vessel record, a return after working elsewhere is another; a job with no dates can't be ticked, as no end date means current yacht; roles and codes checked against SEA-V's lists; existing yachts and certificates start unticked; `SeavAPI.saveProfileBlanks` writes only blank columns after a fresh read; a yacht links to the directory only on a Yes or a search. Saving waits until days are chosen or "Use the 1st for now" is pressed.
+Tested on a stubbed copy of the page: reads, hostile text in every field (nothing ran), made-up codes and roles refused, saved payloads, errors, closed state, real Word text from Jack's CV. **Not tried: a real read, or a real save signed in.**
 
 ### Shipped 2026-11-06 (v624) — accessibility and clean-up, the end of the review
 **Accessibility:** card titles are real `<h3>`s, sized as before. Progress bars have names (dashboard, Milestones, public profile). Needs attention's blank column header is named Clear for screen readers; the hidden second "Page / Total" header on phones stays readable by them (`.dash-sr-only`). Focus ring is light on slate bands and over the vessel photo. Off switch in Light was 1.2:1, now 3.7:1. On touch or <=760px small dashboard controls get a 44px invisible press area (`--dash-tap-size`), the chevron is really 44px. Guide pips stronger; errors use new `--seav-danger-text`, dark red in Light. Measured on the page copy, no screen reader or real phone tried.

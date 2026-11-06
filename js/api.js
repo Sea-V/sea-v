@@ -118,6 +118,8 @@
       : window.SeavSupabase;
   }
 
+  const CV_READ_URL = "https://bnjtrwmwyulvmsautssd.supabase.co/functions/v1/cv-read";
+
   const PUBLIC_ARRAY_COLUMNS = {
     vessels: [
       "id", "user_id", "name", "flag", "gt", "vessel_length", "builder", "vessel_role",
@@ -1371,6 +1373,59 @@ const SeavAPI = {
       const { data, error } = await client.from("profile").update({ attention_cleared: value }).eq("user_id", userId).select("id");
       if (error) throw error;
       if (!data?.length) throw new Error("Your profile could not be found.");
+    },
+
+    // v625 Upload my CV. The function refuses everyone but admins until it is opened.
+    async canReadCv() {
+      const client = window.SeavSupabase;
+      if (!client) return false;
+      const { data, error } = await client.rpc("is_admin");
+      if (error) throw error;
+      return !!data;
+    },
+
+    async readCv(payload) {
+      const client = window.SeavSupabase;
+      const session = (await client?.auth.getSession())?.data?.session;
+      const fail = (code) => Object.assign(new Error(code), { code });
+      if (!session?.access_token) throw fail("signin");
+      const res = await fetch(CV_READ_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify(payload)
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body.result) throw fail(body.error || "cannot_read");
+      return body.result;
+    },
+
+    // Fills blanks only, in those columns only, and re-reads first: it can never
+    // overwrite what a crew member already has (the 2026-08-07 data loss).
+    async saveProfileBlanks(values) {
+      const COLUMNS = { rank: "rank", location: "location", nationality: "nationality", passportsHeld: "passports_held", visasHeld: "visas_held", bio: "bio" };
+      const client = window.SeavSupabase;
+      const userId = await resolveAuthUserId();
+      if (!client || !userId) throw new Error("Sign in required.");
+      const columns = Object.values(COLUMNS).join(",");
+      const { data: row, error: readError } = await client.from("profile").select(columns).eq("user_id", userId).maybeSingle();
+      if (readError) throw readError;
+      if (!row) throw new Error("Your profile could not be found.");
+      const update = {};
+      const local = {};
+      Object.entries(values).forEach(([key, value]) => {
+        const column = COLUMNS[key];
+        if (column && !String(row[column] ?? "").trim() && String(value ?? "").trim()) {
+          update[column] = value;
+          local[key] = value;
+        }
+      });
+      const count = Object.keys(update).length;
+      if (!count) return 0;
+      const { data, error } = await client.from("profile").update(update).eq("user_id", userId).select("id");
+      if (error) throw error;
+      if (!data?.length) throw new Error("Your profile could not be found.");
+      window.SeavState?.updateProfile?.(local);
+      return count;
     },
 
     // v609 shared yacht directory (docs/schema-vessel-directory.sql).
