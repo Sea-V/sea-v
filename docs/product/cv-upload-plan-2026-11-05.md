@@ -1,6 +1,6 @@
 # Upload a CV and create records from it: plan
 
-**Status:** started 2026-11-06 (v625). Built for Jack's admin account only: `/cv-upload.html`, not in the menu. Needs the API key before it can read anything. See "Before crew use it".
+**Status:** v626, 2026-11-06. Built for Jack's admin account only: `/doc-upload.html` (any document) and `/cv-upload.html`, not in the menu. See "Before crew use it".
 
 **The idea:** crew upload their current CV, AI reads it, they check what it found, and one click creates their vessel profiles, time onboard, certificates and so on.
 
@@ -47,13 +47,13 @@ If a yacht already exists, it suggests updating that record rather than creating
 
 Nothing below is done, and the function refuses everyone but admins until the secret `CV_READ_OPEN` is `true`.
 
-- **Real reads:** run it on real CVs with Jack's key. No real read has happened yet. Check accuracy against the two tests, and read the cost from `cv_read_log` (tokens per read), then choose the model (`CV_READ_MODEL`).
+- **Real reads:** run it on real CVs with Jack's key. So far only one made-up Word CV has gone through the live function (2026-11-06, read correctly). Check accuracy against the two tests, and read the cost from `cv_read_log` (tokens per read), then choose the model (`CV_READ_MODEL`).
 - **Privacy:** name the AI provider in `privacy.html`, `docs/compliance/record-of-processing.md` and `docs/compliance/dpia.md`, including where it processes data and its data terms. The policy says data isn't used to train AI, so confirm that against the provider's terms. The upload page's "we don't keep the file" must stay true.
-- **Certificates with no date read "No Expiry",** on the page and the public profile, which an imported one can't honestly claim. It needs a "date to confirm" state.
 - **"Use the 1st for now" has no reminder.** The mockup promised one. It needs a marker on the yacht and a Needs attention row.
 - **Log your sea time doesn't pre-fill** the yacht, role and dates yet.
 - **Records show on the public profile as soon as they're saved,** if it's switched on. Decide whether that is right.
-- **Menu:** add "Upload my CV" to + Add and the guide.
+- **Files:** the privacy wording must cover files kept on records, and passports reaching the AI once before they are recognised.
+- **Menu:** add "Upload a document" to + Add and the guide, then retire the CV page as a separate entry.
 - **Certificate list:** add Helideck Landing Officer, Able Seaman and PWC Instructor.
 
 ## Build order
@@ -111,6 +111,28 @@ A blind read of a real three-page, two-column CV: the reader had seen none of hi
 - **Duties can be stale:** "currently planning" under a past job. They need a read before saving.
 
 **Still to test:** Canva, a scanned PDF, a very short CV, and how the real API model compares.
+
+## Test 3, 2026-11-06: reading certificates, towards a general document upload
+
+Jack: one upload for any document, which works out what it is and where it goes. 7 of his real files read in chat: 4 PDF scans and 3 images, including a card scan, a phone photo and a Swedish and English course certificate. His passport and ENG1 were skipped on purpose. Read before seeing the saved dates, but the same reader marked them, and the reader knew his certificate names.
+
+| Item | Result |
+|---|---|
+| Worked out it is a certificate, and which | 7 of 7, even with file names like "Advanced" or a random string |
+| Dates, where a saved record could check them | Expiry and 1 issue date agreed; 1 issue date was misread (a tiny card scan, day 20 for 26) |
+| Expiry printed on the document | 1 of 7 |
+| Matches the certificate list | 3 of 7 (Chief Mate, PSCRB; FPFF and PST on one certificate) |
+
+**What a general upload needs because of this:**
+- **Show the file beside the fields.** Small scans get misread, and only the crew member can compare them.
+- **Never invent an expiry.** Most certificates don't print one. Use "date to confirm", not "No Expiry". Only work one out when the document says so ("valid for five years"), and show that it was worked out.
+- **Older must not overwrite newer.** The same folder holds a 2020 FPFF / PST and the 2025 renewal in the records. Offer "update" only if the new date is later, and spot the same certificate number twice.
+- **One document can be several records:** FPFF and PST on one sheet; Chief Mate and OOW on one CoC card.
+- **Check the name and date of birth against the profile, and warn.** One certificate here shows a different birth year from his other documents.
+- **Don't take what isn't needed:** home addresses, ID numbers and dates of birth are read past, not stored.
+- **Where things go is a real question:** a recreational dive card could be a certificate, a specialist qualification or an interest. Suggest one, let them change it.
+- **Certificates are read in any layout, including a second language.**
+- **Spreadsheets:** a sea time .xlsx can't be sent as a document. It needs its text pulled out first.
 
 ## Technical notes
 

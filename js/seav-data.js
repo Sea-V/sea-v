@@ -2337,6 +2337,13 @@ function getTenderProficiencyDisplay(level) {
     return String(cert.status || "").trim().toLowerCase() === "no expiry";
   }
 
+  // v626: a certificate read from a document with no date on it. A blank expiry
+  // otherwise reads as "No Expiry", which it cannot honestly claim. Saving it on the
+  // Certificates form clears this, as that works the status out again.
+  function isCertDateToConfirm(cert) {
+    return !cert?.expiry && String(cert?.status || "").trim().toLowerCase() === "date to confirm";
+  }
+
   function isCertExpiringOrExpired(cert, warningDays = 90) {
     if (!cert || isCertNoExpiry(cert) || !cert.expiry) return false;
 
@@ -3779,6 +3786,7 @@ window.SeavData = {
   getSeatimeVerificationDisplay,
   getCertExpiryInfo,
   isCertNoExpiry,
+  isCertDateToConfirm,
   isCertExpiringOrExpired,
   getSortedVesselOptions,
   getVesselColor,

@@ -118,6 +118,7 @@
       : window.SeavSupabase;
   }
 
+  const DOC_READ_URL = "https://bnjtrwmwyulvmsautssd.supabase.co/functions/v1/doc-read";
   const CV_READ_URL = "https://bnjtrwmwyulvmsautssd.supabase.co/functions/v1/cv-read";
 
   const PUBLIC_ARRAY_COLUMNS = {
@@ -1390,6 +1391,21 @@ const SeavAPI = {
       const fail = (code) => Object.assign(new Error(code), { code });
       if (!session?.access_token) throw fail("signin");
       const res = await fetch(CV_READ_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify(payload)
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body.result) throw fail(body.error || "cannot_read");
+      return body.result;
+    },
+
+    async readDocument(payload) {
+      const client = window.SeavSupabase;
+      const session = (await client?.auth.getSession())?.data?.session;
+      const fail = (code) => Object.assign(new Error(code), { code });
+      if (!session?.access_token) throw fail("signin");
+      const res = await fetch(DOC_READ_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify(payload)

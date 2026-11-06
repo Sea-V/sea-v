@@ -173,6 +173,9 @@
   }
 
   function statusFromCert(cert) {
+    if (window.SeavData.isCertDateToConfirm?.(cert)) {
+      return { label: "Date to confirm", badge: "Date to confirm", statusClass: "pill-neutral" };
+    }
     if (cert.noExpiry || !cert.expiry) {
       return { label: "No expiry", badge: "No expiry", statusClass: "pill-neutral" };
     }
@@ -190,6 +193,7 @@
   }
 
   function expiryLabel(cert) {
+    if (window.SeavData.isCertDateToConfirm?.(cert)) return "Date to confirm";
     if (cert.noExpiry || !cert.expiry) return "No expiry";
     return formatDatePretty(cert.expiry) || "No expiry";
   }
@@ -955,7 +959,10 @@
           name: data.name,
           issued: data.issued,
           expiry: data.noExpiry ? "" : data.expiry,
-          status: computeStoredStatus(data.expiry, data.noExpiry),
+          // A date still to confirm stays that way until one is entered or "does not expire" is ticked.
+          status: !data.expiry && !data.noExpiry && window.SeavData.isCertDateToConfirm?.(existing)
+            ? existing.status
+            : computeStoredStatus(data.expiry, data.noExpiry),
           attachment: attachment || existing?.attachment || null,
           noExpiry: data.noExpiry,
           isMandatory: data.isMandatory,

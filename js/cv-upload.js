@@ -14,6 +14,7 @@
 
   const esc = window.Seav.escapeHtml;
   const MAX_FILE_BYTES = 10 * 1024 * 1024;
+  const HANDOFF_KEY = "seav_cv_handoff";
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const READ_ERRORS = {
     not_set_up: "The CV reader isn't switched on yet. Nothing was saved.",
@@ -308,6 +309,7 @@
   async function saveCert(cert) {
     const { KEYS, createId } = window.SeavData;
     const expiry = cert.expiry ? `${cert.expiry}-01` : "";
+    const status = expiry ? window.SeavData.getCertExpiryInfo(expiry).badge || "Valid" : "Date to confirm";
     const rows = cert.kind === "unclear" && cert.choice && cert.choice !== "own"
       ? [window.SeavData.findCertificateCatalogItem(cert.choice)].filter(Boolean)
       : cert.kind === "unclear"
@@ -322,6 +324,7 @@
         id: createId("cert"),
         issued: "",
         expiry,
+        status,
         isTemplate: false,
         showOnCv: true
       });
@@ -523,7 +526,7 @@
 
       ${check.certs.length ? `<article class="dash-panel">${head(ICONS.cert, "Certificates")}
         <table class="dash-table"><thead><tr><th scope="col"><small class="dash-sr-only">Add</small></th><th scope="col"><small>On your CV</small></th><th scope="col"><small>Saved as</small></th></tr></thead><tbody>${check.certs.map(certRow).join("")}</tbody></table>
-        <div class="dash-panel-note"><small>Add issue and expiry dates afterwards on Certificates. Without one, a certificate shows as having no expiry.</small></div>
+        <div class="dash-panel-note"><small>Add issue and expiry dates afterwards on Certificates. Until then, a certificate with no date says “date to confirm”.</small></div>
       </article>` : ""}
 
       ${check.fields.length ? `<article class="dash-panel">${head(ICONS.me, "About you")}
@@ -680,6 +683,18 @@
     await window.SeavAuth?.whenReady?.();
     const open = await window.SeavAPI.canReadCv().catch(() => false);
     if (!open) view = { step: "closed" };
+    // Sent on from Upload a document, already read. Taken once, so it doesn't linger.
+    let handoff = null;
+    try {
+      handoff = JSON.parse(sessionStorage.getItem(HANDOFF_KEY) || "null");
+      sessionStorage.removeItem(HANDOFF_KEY);
+    } catch (err) {
+      console.warn("[SEA-V] CV handoff unreadable:", err);
+    }
+    if (open && handoff) {
+      check = await buildCheck(handoff);
+      view = { step: "check" };
+    }
     render();
   }
 

@@ -49,7 +49,7 @@ html body.app-page .cvu-pill.is-bad { background: var(--dash-panel-bad); color: 
 html body.app-page .cvu-yacht-line strong, html body.app-page .cvu-month { color: var(--seav-field-value-color); font-weight: var(--font-weight-body); }
 .cvu-roles { display: grid; gap: 10px; margin: 10px 0 0 var(--cvu-indent); }
 .cvu-role { display: grid; grid-template-columns: minmax(170px, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 10px; }
-.cvu-stack :is(select, textarea, input[type="text"]) { box-sizing: border-box; width: 100%; min-width: 0; padding: 8px 10px; border: 1px solid var(--bridge-rule-strong); border-radius: var(--bridge-radius, 4px); background-color: var(--seav-select-bg); color: var(--seav-field-value-color); font: inherit; }
+.cvu-stack :is(select, textarea, input[type="text"], input[type="number"], input[type="date"]) { box-sizing: border-box; width: 100%; min-width: 0; padding: 8px 10px; border: 1px solid var(--bridge-rule-strong); border-radius: var(--bridge-radius, 4px); background-color: var(--seav-select-bg); color: var(--seav-field-value-color); font: inherit; }
 .cvu-stack select.is-need { border-color: var(--bridge-accent); box-shadow: inset 0 0 0 1px var(--bridge-accent); }
 .cvu-stack textarea { min-height: 92px; margin-top: 6px; resize: vertical; }
 .cvu-date { display: grid; grid-template-columns: 74px minmax(0, 1fr); align-items: center; gap: 6px; }

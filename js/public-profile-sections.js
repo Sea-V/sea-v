@@ -1225,7 +1225,7 @@
     // Medical fitness certs never count: "1 expired" would reveal it.
     const isMedical = window.SeavData?.isMedicalFitnessCert || (() => false);
     const badges = certs
-      .filter((cert) => !isMedical(cert))
+      .filter((cert) => !isMedical(cert) && !window.SeavData.isCertDateToConfirm?.(cert))
       .map((cert) => getCertExpiryInfo(cert.noExpiry ? "" : cert.expiry).badge);
     const expired = badges.filter((b) => b === "Expired").length;
     const soon = badges.filter((b) => b === "Expires Soon").length;

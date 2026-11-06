@@ -263,7 +263,7 @@
   const ATTENTION_LIMIT = 6;
   // So a long list of certificates can never push every other kind of row out.
   const ATTENTION_CERT_LIMIT = 3;
-  const COUNTED_ROWS = ["testimonial-declined", "testimonial-changed", "reference-declined", "profile-missing", "testimonial-unsigned"];
+  const COUNTED_ROWS = ["cert:to-confirm", "testimonial-declined", "testimonial-changed", "reference-declined", "profile-missing", "testimonial-unsigned"];
 
   let attentionCleared = null;
   let attentionShowAll = false;
@@ -315,9 +315,13 @@
         `cert:${cert.id}`,
         `${word}:${cert.expiry}`
       );
+    const toConfirm = (window.SeavState?.certs || []).filter((cert) => window.SeavData?.isCertDateToConfirm?.(cert)).length;
     return [
       ...withBadge("expired").map((cert) => row(cert, "Expired", "bad")),
-      ...withBadge("expires soon").map((cert) => row(cert, "Expires", "warn"))
+      ...withBadge("expires soon").map((cert) => row(cert, "Expires", "warn")),
+      ...(toConfirm
+        ? [attentionRow("certificates.html", `${toConfirm} ${toConfirm === 1 ? "certificate" : "certificates"} with a date to confirm`, "Add dates", "todo", "cert:to-confirm", toConfirm)]
+        : [])
     ];
   }
 
@@ -400,6 +404,7 @@
     // also reads as zero, and that must not undo what was cleared.
     const state = window.SeavState || {};
     const recordsHere = {
+      "cert:to-confirm": (state.certs || []).length,
       "testimonial-declined": (state.seatimes || []).length,
       "testimonial-changed": (state.seatimes || []).length,
       "testimonial-unsigned": (state.seatimes || []).length,

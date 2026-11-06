@@ -479,6 +479,10 @@
       return { badge: "Missing", label: "Not recorded", className: "pp-pill-missing" };
     }
 
+    if (window.SeavData.isCertDateToConfirm?.(cert)) {
+      return { badge: "Date to confirm", label: "Date to confirm", className: "pp-pill-neutral" };
+    }
+
     if (isCertNoExpiry(cert)) {
       return {
         badge: "No Expiry",

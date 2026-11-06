@@ -632,7 +632,10 @@
     `;
     }
     const expiry = cert?.noExpiry ? "" : cert?.expiry || "";
-    const info = window.SeavData.getCertExpiryInfo(expiry);
+    const toConfirm = window.SeavData.isCertDateToConfirm?.(cert);
+    const info = toConfirm
+      ? { badge: "Date to confirm", statusClass: "pill pill-neutral" }
+      : window.SeavData.getCertExpiryInfo(expiry);
     const formatDate = window.SeavData.formatDatePretty;
 
     // Reuse the exact same .cert-status-pill.pill-* classes the private
@@ -644,7 +647,7 @@
 
     const expiryMeta = expiry
       ? `${info.badge === "Expired" ? "Expired" : "Expires"} ${formatDate(expiry)}`
-      : "No expiry";
+      : toConfirm ? "Expiry date to confirm" : "No expiry";
     const issuedMeta = cert?.issued ? `Issued ${formatDate(cert.issued)}` : "";
     const meta = [expiryMeta, issuedMeta].filter(Boolean).join(" • ");
 

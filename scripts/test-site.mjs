@@ -41,6 +41,7 @@ const PAGES = [
   "land-experience.html",
   "crew-101.html",
   "cv-upload.html",
+  "doc-upload.html",
   "payslips.html",
   "admin.html"
 ];

@@ -503,6 +503,7 @@
   window.SeavUpload = {
     uploadToStorage,
     isHeicFile,
+    convertHeicToJpeg,
     buildPreviewUrl,
     PHOTO_MAX_BYTES,
     resizePhotoIfNeeded,

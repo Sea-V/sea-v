@@ -348,6 +348,11 @@
   --seav-topbar-pad-phone: 10px 14px;
   --seav-topbar-offset: 84px;
   /* Public profile panel on the dashboard */
+  /* Upload a document */
+  --du-picture-width: 210px;
+  --du-picture-max: 300px;
+  --du-body-indent: 42px;
+  --du-tile-phone: 72px;
   /* Upload my CV */
   --cvu-gutter: 20px;
   --cvu-gutter-phone: 12px;
