@@ -342,6 +342,21 @@ html body.app-page .dash-panel-title {
   color: var(--seav-accent-text);
 }
 
+/* Less blue on the dashboard (Jack, 2026-11-07, "Quieter"): links, actions, icons and
+   hover states go neutral. Field labels, + Add and the switch stay blue, and the
+   progress bars are the one colour in these cards. Set here so every card picks it
+   up through the tokens it already reads. */
+html body.app-page .dashboard-shell-section {
+  --seav-accent-text: rgb(var(--seav-ink-rgb) / 0.9);
+  --dash-panel-head-accent: var(--seav-topbar-ink);
+  --bridge-accent-soft: rgb(var(--seav-ink-rgb) / 0.07);
+  --bridge-accent: rgb(var(--seav-ink-rgb) / 0.55);
+}
+
+html body.app-page .dashboard-shell-section .dash-panel-head .dash-panel-icon {
+  color: var(--seav-topbar-ink);
+}
+
 .dash-panel-icon svg {
   display: block;
   width: var(--dash-panel-icon-size);
@@ -947,7 +962,7 @@ html body.app-page .dash-ticket-left {
 .dash-ticket-bar > i {
   display: block;
   height: 100%;
-  background: var(--bridge-accent);
+  background: var(--seav-progress-fill);
 }
 
 /* Crew support */
@@ -995,8 +1010,16 @@ a.dash-help-link:hover {
   pointer-events: auto;
 }
 
-.dash-panel--vessel:has(.dash-vessel-cover):hover {
-  box-shadow: 0 0 0 1px var(--bridge-accent) !important;
+/* A ring drawn inside the card and above the photo. A shadow outside it was clipped
+   along the left by the page shell, and one inside would sit under the photo. */
+.dash-panel--vessel:has(.dash-vessel-cover):hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border: 1px solid var(--dash-vessel-ring);
+  border-radius: inherit;
+  pointer-events: none;
 }
 
 .dash-panel--vessel:hover .dash-vessel-photo {

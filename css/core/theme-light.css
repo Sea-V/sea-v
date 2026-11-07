@@ -129,7 +129,7 @@ html[data-theme="light"] body.app-page :is(select option, .modal-form select opt
     --seav-ink-rgb: 255 255 255;
     --seav-entity-name-color: #ffffff;
     --seav-field-label-color: #5bbcff;
-    --seav-accent-text: #5bbcff;
+    --seav-accent-text: #ffffff;
     --seav-meta-desc-color: rgba(255, 255, 255, 0.82);
     --bridge-caption: rgba(255, 255, 255, 0.82);
   }
@@ -227,4 +227,9 @@ html[data-theme="light"] body.app-page .profile-public-share-switch:not(:checked
 /* Over the vessel photo the details are white, so the focus ring is light too. */
 html[data-theme="light"] body.app-page .dash-panel--vessel.is-photo {
   --seav-focus-ring-color: var(--dash-panel-head-accent);
+}
+
+/* Sea green dark enough to read as a bar against white. */
+html[data-theme="light"] body.app-page {
+  --seav-progress-fill: #1d8f77;
 }

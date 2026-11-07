@@ -316,9 +316,9 @@
   background: none !important;
 }
 
-/* Progress meters read in the accent. */
+/* Progress meters read in sea green (Jack, 2026-11-07). */
 :is(body.app-page, body.landing-page, body.legal-page, body.index-page) :is(.progress-fill, .ach-progress-bar > span) {
-  background: var(--bridge-accent) !important;
+  background: var(--seav-progress-fill) !important;
   box-shadow: none !important;
 }
 

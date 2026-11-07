@@ -1,17 +1,24 @@
 /* =========================================================
-   UPLOAD A DOCUMENT (v626). Markup in doc-upload.html, js/doc-upload.js.
-   Builds on css/pages/cv-upload.css: same cards, notes, buttons and save bar.
+   ADD FROM A DOCUMENT (v629). Markup in js/seav-doc-drop.js, on each section page.
+   Builds on css/pages/cv-upload.css: same cards, notes and buttons.
 ========================================================= */
-.du-kinds { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-.du-bar { margin: var(--dash-panel-pad); }
-.du-queue { margin: 0; padding: 0; list-style: none; }
-.du-queue li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; padding: 9px 14px; border-top: 1px solid var(--bridge-rule); }
-html body.app-page .du-queue strong { color: rgb(var(--seav-ink-rgb)); font-weight: var(--font-weight-body); overflow-wrap: anywhere; }
-
-.du-doc { border-top: 1px solid var(--bridge-rule); }
-.dash-panel-head + .du-doc { border-top: 0; }
+.dd-panel { padding: var(--dash-panel-pad) var(--dd-gutter) 0; }
+.dd-panel[hidden] { display: none; }
+.dd-panel .dash-panel { overflow: visible; }
+.dd-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+html body.app-page .dd-inline { display: inline; }
+.dd-save { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 14px; border-top: 1px solid var(--bridge-rule); }
+html body.app-page .dd-save small { color: var(--seav-meta-desc-color); font-size: var(--type-caption) !important; }
+.dd-save .cvu-btn { min-height: 40px; }
+.dd-save .cvu-actions { align-items: center; }
+.dd-save .cvu-btn:not(:disabled) { border-color: var(--bridge-accent); background: var(--bridge-accent); color: var(--cvu-on-accent); }
+.dd-save .cvu-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.dd-done { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 14px; }
+html body.app-page .dd-done strong { color: rgb(var(--seav-ink-rgb)); font-weight: var(--font-weight-title); }
+a.dd-link { display: inline-flex; align-items: center; text-decoration: none; }
+.dd-panel .cvu-alert { margin-bottom: 12px; }
+.dd-panel input[type="number"] { box-sizing: border-box; width: 100%; padding: 8px 10px; border: 1px solid var(--bridge-rule-strong); border-radius: var(--bridge-radius, 4px); background-color: var(--seav-select-bg); color: var(--seav-field-value-color); font: inherit; }
 .du-doc-top { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
-.du-doc-top > input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0; }
 html body.app-page .du-doc-top .cvu-yacht-name strong, html body.app-page .du-doc-top .cvu-yacht-name small { overflow-wrap: anywhere; }
 .du-doc-body { display: grid; grid-template-columns: var(--du-picture-width) minmax(0, 1fr); gap: 14px; padding: 0 14px 14px var(--du-body-indent); }
 .du-side { display: grid; gap: 6px; align-content: start; justify-items: center; }
@@ -19,7 +26,6 @@ html body.app-page .du-doc-top .cvu-yacht-name strong, html body.app-page .du-do
 .du-tile { display: grid; place-items: center; width: 100%; aspect-ratio: 0.78; border: 1px solid var(--bridge-rule-strong); border-radius: var(--bridge-radius, 4px); background: var(--bridge-surface-2); }
 html body.app-page .du-tile strong { color: var(--seav-meta-desc-color); font-weight: var(--font-weight-title); }
 .du-fields { display: grid; align-content: start; gap: 10px; min-width: 0; }
-.du-where { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .du-pair { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .du-pair--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 html body.app-page .du-value { display: block; color: var(--seav-field-value-color); font-weight: var(--font-weight-body); overflow-wrap: anywhere; }
@@ -35,13 +41,16 @@ html body.app-page .du-flag strong { display: block; color: rgb(var(--seav-ink-r
 .du-consent { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
 .du-consent input { flex: 0 0 auto; width: 16px; height: 16px; margin: 1px 0 0; }
 html body.app-page .du-consent small { color: var(--seav-meta-desc-color); font-size: var(--type-caption) !important; font-weight: var(--font-weight-body); }
-.du-next { margin: 10px 0 0; }
-.du-end { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 
 @media (max-width: 760px) {
+  .dd-panel { padding-right: var(--cvu-gutter-phone); padding-left: var(--cvu-gutter-phone); }
   .du-doc-body { grid-template-columns: minmax(0, 1fr); padding-left: 14px; }
-  .du-where, .du-pair, .du-pair--4 { grid-template-columns: minmax(0, 1fr); }
+  .dd-dates, .du-pair, .du-pair--4 { grid-template-columns: minmax(0, 1fr); }
   .du-side { justify-items: start; }
   .du-tile { aspect-ratio: auto; height: var(--du-tile-phone); }
   .du-doc-top { flex-wrap: wrap; }
 }
+
+/* .btn-ghost2 sets a display, which would beat the hidden attribute: the button stays
+   out of sight for everyone but admins. */
+a.btn-ghost2[hidden] { display: none !important; }

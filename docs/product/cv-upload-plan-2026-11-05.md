@@ -1,6 +1,6 @@
 # Upload a CV and create records from it: plan
 
-**Status:** v626, 2026-11-06. Built for Jack's admin account only: `/doc-upload.html` (any document) and `/cv-upload.html`, not in the menu. See "Before crew use it".
+**Status:** v629, 2026-11-07. Built for Jack's admin account only: "Add from a document" on Certificates, Payslips, Sea Time and Specialist Qualifications, one file at a time, plus `/cv-upload.html`, not in the menu. The `doc-upload.html` hub is gone. See "Before crew use it".
 
 **The idea:** crew upload their current CV, AI reads it, they check what it found, and one click creates their vessel profiles, time onboard, certificates and so on.
 
@@ -53,7 +53,7 @@ Nothing below is done, and the function refuses everyone but admins until the se
 - **Log your sea time doesn't pre-fill** the yacht, role and dates yet.
 - **Records show on the public profile as soon as they're saved,** if it's switched on. Decide whether that is right.
 - **Files:** the privacy wording must cover files kept on records, and passports reaching the AI once before they are recognised.
-- **Menu:** add "Upload a document" to + Add and the guide, then retire the CV page as a separate entry.
+- **Opening it:** `SeavAPI.canReadCv` shows the buttons to admins only, so it needs changing along with `CV_READ_OPEN`. Add Upload my CV to + Add and the guide.
 - **Certificate list:** add Helideck Landing Officer, Able Seaman and PWC Instructor.
 
 ## Build order
@@ -133,6 +133,15 @@ Jack: one upload for any document, which works out what it is and where it goes.
 - **Where things go is a real question:** a recreational dive card could be a certificate, a specialist qualification or an interest. Suggest one, let them change it.
 - **Certificates are read in any layout, including a second language.**
 - **Spreadsheets:** a sea time .xlsx can't be sent as a document. It needs its text pulled out first.
+
+## Decision, 2026-11-07: an upload in each section, one file at a time
+
+Jack: no hub. Each section gets its own upload, so people can't throw in hundreds of files for the system to sort out. Mockup: `design-concepts/section-drop/`. Then: "limit one at a time for now", so people think before uploading and don't build up lots of documents to update later.
+
+- One file per upload, on Certificates, Payslips, Sea Time and so on. A CV stays on its own page, as it fills several sections.
+- A file of the wrong type isn't added, and the page says where it belongs.
+- With one file at a time, ask for a missing expiry date on the check screen, so fewer records are left as "date to confirm".
+- `doc-upload.html` is gone (v629).
 
 ## Technical notes
 

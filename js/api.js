@@ -1376,7 +1376,7 @@ const SeavAPI = {
       if (!data?.length) throw new Error("Your profile could not be found.");
     },
 
-    // v625 Upload my CV. The function refuses everyone but admins until it is opened.
+    // v625 reading documents. The function refuses everyone but admins until it is opened.
     async canReadCv() {
       const client = window.SeavSupabase;
       if (!client) return false;

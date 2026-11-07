@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v627**. Jack pushes every commit himself from
+- HEAD = **v629**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1670,6 +1670,17 @@ A two-reviewer deep review of the dashboard (2026-11-06). Fixed here:
 **Public profile panel, same version (Jack's picture):** two columns when open, colours + layout | link name + link, one column at <=760px. Colour swatches are little rectangles.
 **Checklist removed, same version.** Jack: remove it and "really think about it" later. "Your first yacht" and its code are gone from the dashboard and guide; last in git at v622. `profile.crew101` stays, empty on all 15 rows (checked), and test-supabase still probes it; privacy policy and record no longer list it. To rebuild it, start from what it should be for, not the old code.
 **Jack said "do what you think is best" on the rest:** the title tick is deleted. Left as they are: the vessel photo crop, and Senses' builder (Lürssen, Wikidata). COLREGs stays a link under Regulations.
+
+### Shipped 2026-11-07 (v629) — Add from a document, in each section, one file at a time
+Jack: no hub, "in each section", then "limit one at a time ... make people think before uploading", then "do what you think is best and build it". Mockup `design-concepts/section-drop/` (his certificate details: **do not commit**). Replaces `doc-upload.html` and `js/doc-upload.js`, deleted.
+- `js/seav-doc-drop.js` + `css/components/doc-drop.css`. `SeavDocDrop.mount({ section, actions, label, isEmpty })`, an inline script on Certificates, Payslips, Sea Time ("Add from a testimonial") and Specialist Qualifications. A panel opens under the page's title row; the records stay below. Admins only: the button stays hidden unless `SeavAPI.canReadCv`, and `doc-read` refuses others. Opens by itself on an empty page.
+- One file, or nothing: several dropped are refused before any read. Wrong type: "This looks like a payslip", with Go to Payslips, and "It is a certificate, read it again", which sends `hint` and costs one more read. A CV goes to Upload my CV. Passports stop there.
+- Check: file beside site date fields that can be corrected, so a misread can be fixed there. Expiry is asked for there, leaving it blank saves "Date to confirm". **Save waits until every question is answered** (differs from v626). A sea time entry overlapping another by 2+ days can't be saved; same rule as the form. Sea time and payslip dates are checked again as they change; a half-picked date is not redrawn, as that would reset its year, so Save checks again itself. Done offers Add another.
+- `docxText` moved to seav-upload.js. Upload my CV stays, as a CV fills several sections.
+Tested on copies built from the real page markup with a stubbed reader: all four sections, wrong file, passport, read again, several files, saved payloads, Dark, Light, phone. **Not tried with a real file through these pages, or in Safari.** The page's own record list isn't running on those copies, so a list updating after Save is unseen.
+
+### Shipped 2026-11-07 (v628) — dashboard: sea green bars, less blue, vessel hover
+Jack, from options rendered on the real dashboard: "Sea green, Quieter". `--seav-progress-fill` #2fb89a (#1d8f77 in Light) on the dashboard's ticket bars and the Milestones page's bars, signed-in pages only (the public profile keeps its palette). The dashboard section overrides `--seav-accent-text`, `--bridge-accent` and `--bridge-accent-soft` with neutral ink, so links, actions, icons and hover go neutral there. **Field labels stay blue: that rule is unchanged, and level 3 of the options (grey labels) was not chosen.** Crew 101 and other pages keep their blue. Vessel card hover: the ring was a shadow outside the card, clipped on the left by the shell (`overflow: hidden`); now `::after`, inside and above the photo, keeping blue (`--dash-vessel-ring`). Bars are set in theme-bridge.css's progress rule, as it carries !important. Dashboard checked on the page copy in Dark and Light; Milestones bars not seen rendered, as that copy has none.
 
 ### Shipped 2026-11-07 (v627) — first real run of Upload a document, and a duplicate fix
 Jack ran 20 of his real files through the live page on the admin account (2026-11-07): 15 read as certificates, 4 as `other`, his passport as `passport_or_id`. 14 records and 14 files saved to real storage. **$0.87 at listed prices, 4.4 cents and about 8 seconds per file; about 7,000 of the 9,000 input tokens per read are our instructions and certificate list, so prompt caching should cut that a lot (not done).** 13 of the 14 saved as "Date to confirm". **Fixed:** the same certificate scanned twice saved twice (ECDIS, EFA, General Ship Knowledge), because the duplicate check used the number when there was one, and scans read it differently. Now same name and date is enough. The same name on another date stays ticked with a note. The duplicates already on the admin account are left for Jack.

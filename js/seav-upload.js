@@ -500,10 +500,38 @@
     initDropZones();
   }
 
+  // The words of a Word file, so only text is sent. Text boxes appear twice in the
+  // file, once as a fallback for old software, which is dropped.
+  async function docxText(file) {
+    const JSZip = await window.SeavAuth.loadJsZip();
+    const zip = await JSZip.loadAsync(file);
+    const entry = zip.file("word/document.xml");
+    if (!entry) throw Object.assign(new Error("cannot_read"), { code: "cannot_read" });
+    const xml = (await entry.async("string")).replace(/<mc:Fallback[\s\S]*?<\/mc:Fallback>/g, "");
+    const decode = document.createElement("textarea");
+    return xml
+      .split(/<\/w:p>/)
+      .map((para) =>
+        para
+          .replace(/<w:(br|cr)\b[^>]*\/>/g, "<w:t>\n</w:t>")
+          .replace(/<w:tab\b[^>]*\/>/g, "<w:t> </w:t>")
+          .match(/<w:t(?:\s[^>]*)?>[\s\S]*?<\/w:t>/g)
+          ?.map((run) => run.replace(/<[^>]+>/g, ""))
+          .join("") || ""
+      )
+      .filter((line) => line.trim())
+      .map((line) => {
+        decode.innerHTML = line;
+        return decode.value;
+      })
+      .join("\n");
+  }
+
   window.SeavUpload = {
     uploadToStorage,
     isHeicFile,
     convertHeicToJpeg,
+    docxText,
     buildPreviewUrl,
     PHOTO_MAX_BYTES,
     resizePhotoIfNeeded,

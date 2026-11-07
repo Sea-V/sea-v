@@ -18,7 +18,6 @@
     "profile.html",
     "cv-generator.html",
     "cv-upload.html",
-    "doc-upload.html",
     "vessels.html",
     "seatime.html",
     "certificates.html",

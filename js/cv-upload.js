@@ -14,7 +14,6 @@
 
   const esc = window.Seav.escapeHtml;
   const MAX_FILE_BYTES = 10 * 1024 * 1024;
-  const HANDOFF_KEY = "seav_cv_handoff";
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const READ_ERRORS = {
     not_set_up: "The CV reader isn't switched on yet. Nothing was saved.",
@@ -55,33 +54,6 @@
     });
   }
 
-  // The words of a Word file, so only text is sent. Text boxes appear twice in the
-  // file, once as a fallback for old software, which is dropped.
-  async function wordText(file) {
-    const JSZip = await window.SeavAuth.loadJsZip();
-    const zip = await JSZip.loadAsync(file);
-    const entry = zip.file("word/document.xml");
-    if (!entry) throw new Error("cannot_read");
-    const xml = (await entry.async("string")).replace(/<mc:Fallback[\s\S]*?<\/mc:Fallback>/g, "");
-    const decode = document.createElement("textarea");
-    return xml
-      .split(/<\/w:p>/)
-      .map((para) =>
-        para
-          .replace(/<w:(br|cr)\b[^>]*\/>/g, "<w:t>\n</w:t>")
-          .replace(/<w:tab\b[^>]*\/>/g, "<w:t> </w:t>")
-          .match(/<w:t(?:\s[^>]*)?>[\s\S]*?<\/w:t>/g)
-          ?.map((run) => run.replace(/<[^>]+>/g, ""))
-          .join("") || ""
-      )
-      .filter((line) => line.trim())
-      .map((line) => {
-        decode.innerHTML = line;
-        return decode.value;
-      })
-      .join("\n");
-  }
-
   async function readFile(file) {
     const isPdf = /\.pdf$/i.test(file.name);
     const isWord = /\.docx$/i.test(file.name);
@@ -90,7 +62,7 @@
     view = { step: "reading", fileName: file.name };
     render();
     try {
-      const content = isPdf ? await toBase64(file) : await wordText(file);
+      const content = isPdf ? await toBase64(file) : await window.SeavUpload.docxText(file);
       const result = await window.SeavAPI.readCv({
         kind: isPdf ? "pdf" : "word",
         file: content,
@@ -683,23 +655,11 @@
     await window.SeavAuth?.whenReady?.();
     const open = await window.SeavAPI.canReadCv().catch(() => false);
     if (!open) view = { step: "closed" };
-    // Sent on from Upload a document, already read. Taken once, so it doesn't linger.
-    let handoff = null;
-    try {
-      handoff = JSON.parse(sessionStorage.getItem(HANDOFF_KEY) || "null");
-      sessionStorage.removeItem(HANDOFF_KEY);
-    } catch (err) {
-      console.warn("[SEA-V] CV handoff unreadable:", err);
-    }
-    if (open && handoff) {
-      check = await buildCheck(handoff);
-      view = { step: "check" };
-    }
     render();
   }
 
   // Exposed for the rule tests.
-  window.SeavCvUpload = { buildRecords, wordText };
+  window.SeavCvUpload = { buildRecords };
 
   document.addEventListener("DOMContentLoaded", init);
 })();

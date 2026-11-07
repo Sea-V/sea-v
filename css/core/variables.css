@@ -335,6 +335,9 @@
   --dash-cards-pad-phone: 14px 0;
   --dash-panel-pad: 16px;
   --dash-panel-head-pad: 13px 14px;
+  /* Milestone progress, in sea green (Jack, 2026-11-07) */
+  --seav-progress-fill: #2fb89a;
+  --dash-vessel-ring: var(--accent-blue);
   --dash-panel-head-bg: #3a4d63;
   --dash-panel-head-rule: #4c6079;
   --dash-panel-head-accent: #8fd0ff;
@@ -348,10 +351,11 @@
   --seav-topbar-pad-phone: 10px 14px;
   --seav-topbar-offset: 84px;
   /* Public profile panel on the dashboard */
-  /* Upload a document */
+  /* Add from a document */
+  --dd-gutter: 28px;
   --du-picture-width: 210px;
   --du-picture-max: 300px;
-  --du-body-indent: 42px;
+  --du-body-indent: 14px;
   --du-tile-phone: 72px;
   /* Upload my CV */
   --cvu-gutter: 20px;
