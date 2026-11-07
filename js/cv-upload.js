@@ -19,6 +19,7 @@
     not_set_up: "The CV reader isn't switched on yet. Nothing was saved.",
     not_open: "This isn't open yet. Nothing was saved.",
     limit: "You've used today's CV reads. Try again tomorrow. Nothing was saved.",
+    busy: "A lot of documents have been read today. Try again tomorrow. Nothing was saved.",
     too_big: "That file is too big. Try one under 10 MB. Nothing was saved.",
     not_a_cv: "That doesn't look like a CV. Nothing was saved.",
     signin: "Please sign in again, then try once more.",
@@ -42,6 +43,7 @@
   let view = { step: "upload" };
   let check = null;
   let done = null;
+  let agreed = false;
 
   /* ---------- Reading the file ---------- */
 
@@ -59,6 +61,7 @@
     const isWord = /\.docx$/i.test(file.name);
     if (!isPdf && !isWord) return showError("Please use a PDF or a Word (.docx) file. Nothing was saved.");
     if (file.size > MAX_FILE_BYTES) return showError(READ_ERRORS.too_big);
+    if (!agreed) return showError("Please tick the box to agree first. Nothing was read.");
     view = { step: "reading", fileName: file.name };
     render();
     try {
@@ -375,9 +378,10 @@
             <input type="file" id="cvuFile" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
             <small class="cvu-note">PDF or Word (.docx), up to 10 MB.</small>
           </div>
+          <label class="du-consent"><input type="checkbox" id="cvuAgree"${agreed ? " checked" : ""}><small>I agree to this file being read by Claude, Anthropic's AI, including any health details it shows. <a href="privacy.html#document-reading">How this works</a></small></label>
           <div class="cvu-points">
             <div><strong>You stay in charge</strong><small class="cvu-note">Nothing is added until you tick it and press Save.</small></div>
-            <div><strong>What happens to the file</strong><small class="cvu-note">An AI service reads it once. We don't keep the file.</small></div>
+            <div><strong>What happens to the file</strong><small class="cvu-note">Claude reads it once. Anthropic doesn't train on it and deletes it within 30 days. We don't keep the file.</small></div>
             <div><strong>What we leave out</strong><small class="cvu-note">Referees' details, your date of birth and health notes.</small></div>
           </div>
         </div>
@@ -596,6 +600,10 @@
     const mount = main();
     mount.addEventListener("change", (event) => {
       const t = event.target;
+      if (t.id === "cvuAgree") {
+        agreed = t.checked;
+        return;
+      }
       if (t.id === "cvuFile") {
         if (t.files?.[0]) readFile(t.files[0]);
         return;
@@ -651,7 +659,7 @@
   async function init() {
     if (!main()) return;
     wire();
-    // Your account only for now: the function refuses everyone else anyway.
+    // Signed-in members only: the function checks again.
     await window.SeavAuth?.whenReady?.();
     const open = await window.SeavAPI.canReadCv().catch(() => false);
     if (!open) view = { step: "closed" };

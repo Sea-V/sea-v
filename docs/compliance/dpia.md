@@ -49,6 +49,7 @@ Likelihood × severity: Low / Medium / High.
 | 7 | Transfers outside the UK (Vercel, Resend in the US) | Low | Providers' DPAs with UK IDTA / SCCs; only minimal data (requests; referee name and email) leaves the UK | Low |
 | 8 | Member cannot get their data out or exercise rights | Low | Download my data (full ZIP incl. files); complaints process; one-month response | Low |
 | 9 | Inaccurate sea-time figures relied on for an MCA application | Medium | Figures are labelled guidance only in the terms; the MCA decides; calculations checked against MSN 1858 | Low |
+| 10 | A document read by AI (added 2026-11-07) exposes health or identity details, or a misread gets saved | Medium | Tick before reading, naming Anthropic and health details; no model training and deletion within 30 days under its terms; passports and ID return only their type and nothing is kept; the member checks everything before Save; feature is optional; daily limits per member and overall. **Awaiting Jack's sign-off with the rest of this document** |
 
 ## 4. Outcome
 

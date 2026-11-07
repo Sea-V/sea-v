@@ -396,6 +396,7 @@ const app = {
                 <a class="topbar-add-item" href="navigation.html">A passage</a>
                 <a class="topbar-add-item" href="references.html">A reference</a>
                 <a class="topbar-add-item" href="dashboard.html?add=onboard">Onboard experience</a>
+                <a class="topbar-add-item" href="cv-upload.html">From my CV</a>
               </div>
             </div>
 

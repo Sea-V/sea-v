@@ -85,6 +85,18 @@ is kept. The ICO can ask to see it.
 | **Retention** | Log rows deleted with the account |
 | **Status** | Built 8 Oct 2026; the daily job is OFF until Jack switches it on |
 
+## 4b. Reading documents with AI (added 2026-11-07, v631)
+
+| | |
+|---|---|
+| **Purpose** | A member chooses to have a CV, certificate, payslip, testimonial or qualification read, so they can check the details and save them as records |
+| **Data subjects** | Members; people named in a document (for example a captain signing a testimonial) |
+| **Data** | The whole file, which may hold identity, employment, pay and health details. A passport or ID uploaded by mistake also reaches the provider. Function logs hold user, time, model, tokens, file kind and document type only |
+| **Lawful basis** | Consent, ticked on the page before a file is read; explicit consent (art. 9(2)(a)) for health details |
+| **Recipients** | Anthropic (processor) |
+| **Retention** | Anthropic deletes inputs and outputs within 30 days, with exceptions for legal requirements and Usage Policy enforcement. SEA-V keeps the file only if the member adds it to a record. `cv_read_log` rows are removed by the read functions |
+| **Automated decisions** | None: nothing is saved until the member checks it |
+
 ## 5. Security and error monitoring
 
 | | |
@@ -111,6 +123,7 @@ changes this — update the policy first.**
 | Supabase | Database, sign-in, file storage, email function | Everything in sections 1–4 | London (eu-west-2) | None needed (UK) | _To request in the Supabase dashboard_ |
 | Vercel | Hosts the website | Requests (IP, pages) | US / global edge | Vercel DPA (UK IDTA / EU SCCs) | Part of Vercel terms — confirm |
 | Resend | Sends the referee email | Referee name and email, member's name | US | Resend DPA (SCCs + UK addendum) | Part of Resend terms — confirm |
+| Anthropic | Reads a document the member chooses to upload | The whole file | US | Anthropic DPA, part of its Commercial Terms | Confirm the API account is on the Commercial Terms, and check the DPA's transfer terms |
 | Sentry | Error monitoring | Error details, browser info | Germany (EU) | None needed (UK adequacy for EU) | _To accept in Sentry settings; check Session Replay is off_ |
 | cdnjs (Cloudflare), jsDelivr, unpkg | Serve open-source code libraries | IP address of the visitor's browser | Global | Independent providers | n/a |
 | CARTO / OpenStreetMap | Map tiles for passages | IP address | Global | Independent providers | n/a |

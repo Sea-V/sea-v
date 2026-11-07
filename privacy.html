@@ -24,19 +24,19 @@
   ></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="/favicon.ico?v=630" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=630" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=630" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=630" />
+  <link rel="icon" href="/favicon.ico?v=631" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=631" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=631" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=631" />
   <meta name="theme-color" content="#071019" />
 
   <meta name="description" content="SEA-V Privacy Policy — how we collect, use, and protect your personal data as a seafarer using the platform." />
   <link rel="canonical" href="https://www.sea-v.com/privacy.html" />
 
   <title>SEA-V • Privacy Policy</title>
-  <link rel="stylesheet" href="styles.css?v=630">
-  <script src="js/feedback.js?v=630" defer></script>
-  <script src="js/core.js?v=630" defer></script>
+  <link rel="stylesheet" href="styles.css?v=631">
+  <script src="js/feedback.js?v=631" defer></script>
+  <script src="js/core.js?v=631" defer></script>
 </head>
 
 <body class="legal-page">
@@ -87,7 +87,7 @@
             How SEA-V collects, uses, stores, and protects your personal information when you manage your maritime career with us.
           </p>
           <div class="legal-meta-row">
-            <span>Last updated: 6 November 2026</span>
+            <span>Last updated: 7 November 2026</span>
             <span>Contact: <a href="mailto:admin@sea-v.com">admin@sea-v.com</a></span>
             <a href="terms.html">Read Terms of Use →</a>
           </div>
@@ -133,6 +133,12 @@
           </p>
           <p>
             A medical fitness certificate (such as an ENG1) is health information. We only store the file if you tick a box agreeing to it when you upload, and you can withdraw that at any time by deleting the file. Your public profile only shows that you hold one — never its dates or whether it is in date.
+          </p>
+          <p id="document-reading">
+            <strong>Reading your documents with AI.</strong> If you choose “Add from a document” or “Upload my CV”, the file is sent to <strong>Claude, an AI service run by Anthropic</strong>, which reads the details so you can check them. This only happens after you tick a box agreeing to it on the page, and it is never done automatically. A medical certificate may show health information, so that tick is your explicit consent for it to be read. Anthropic acts as our service provider, may not use your files to train its models, and deletes them within 30 days, unless it must keep them longer for legal reasons or to enforce its usage policy. From a CV, we leave out dates of birth, referees’ details and health notes.
+          </p>
+          <p>
+            Nothing is added to your account until you check it and press Save, and no decision about you is made by the AI. It can misread a document, so please check every detail. We keep the file only if you add it to a record. If you upload a passport or ID by mistake, Anthropic receives it like any other file, but we do not keep the file or anything read from it. Please do not upload these. We keep a log of each read (who, when, what type of document and how much it cost), which holds nothing from the document, for a limited time. You can use SEA-V fully without this feature by entering your records by hand.
           </p>
           <p>
             Do not upload documents you are not entitled to store. You are responsible for the accuracy and lawfulness of content you add to your account.
@@ -203,6 +209,7 @@
             <li><strong>Supabase</strong> — database, sign-in, and file storage, hosted in London (UK)</li>
             <li><strong>Vercel</strong> — hosts the website, with anonymous page-speed measurement (Speed Insights, no cookies)</li>
             <li><strong>Resend</strong> — sends reference verification emails and certificate expiry reminders</li>
+            <li><strong>Anthropic</strong> — reads a document with its AI, Claude, only when you choose to upload one (see section 3)</li>
             <li><strong>Sentry</strong> — receives error reports when something breaks, hosted in the EU (Germany). Reports are set up to exclude your name, email, and anything you type into forms</li>
             <li><strong>jsDelivr, cdnjs, and unpkg</strong> — deliver standard code libraries the pages use; <strong>CARTO and OpenStreetMap</strong> — provide map images on navigation maps; <strong>GOV.UK</strong> — provides the latest MCA notices on your dashboard, asked at most once a day per device. Like any website request, these see your IP address but receive none of your records</li>
           </ul>
@@ -221,6 +228,7 @@
             <li>Referee and captain verification links are deleted 90 days after they expire</li>
             <li>A reference the referee declined is deleted one year after they declined it</li>
             <li>Messages sent through Report an issue are deleted after two years</li>
+            <li>Files sent to be read by AI are deleted by Anthropic within 30 days, as described in section 3</li>
             <li>If you do not sign in for three years, we will email you; if you still do not sign in within 30 days, your account and everything in it is deleted</li>
           </ul>
           <p>
@@ -275,7 +283,7 @@
           <h2><span class="legal-section-num">11</span> Where your data is held</h2>
           <p>
             Your account, records, and files are stored in London (UK). Error reports are held in the EU (Germany).
-            Some providers (Vercel, Resend) are US-based companies and may process limited data, such as email addresses for referee emails or website requests, outside the UK. Where they do, it is covered by their data processing terms, which include the safeguards UK GDPR requires for international transfers.
+            Some providers (Vercel, Resend, Anthropic) are US-based companies and may process data outside the UK, such as email addresses for referee emails, website requests, or a document you choose to have read by AI. Where they do, it is covered by their data processing terms, which include the safeguards UK GDPR requires for international transfers.
           </p>
         </section>
 

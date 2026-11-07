@@ -45,7 +45,7 @@ If a yacht already exists, it suggests updating that record rather than creating
 
 ## Before crew use it
 
-Nothing below is done, and the function refuses everyone but admins until the secret `CV_READ_OPEN` is `true`.
+**Opened to every signed-in member in v631 (2026-11-07), at Jack's word, to test as we go.** Privacy and opening are done; see the v631 entry in CLAUDE.md. The rest below is still open. Secret `CV_READ_CLOSED` = `true` shuts it again.
 
 - **Real reads:** run it on real CVs with Jack's key. So far only one made-up Word CV has gone through the live function (2026-11-06, read correctly). Check accuracy against the two tests, and read the cost from `cv_read_log` (tokens per read), then choose the model (`CV_READ_MODEL`).
 - **Privacy:** name the AI provider in `privacy.html`, `docs/compliance/record-of-processing.md` and `docs/compliance/dpia.md`, including where it processes data and its data terms. The policy says data isn't used to train AI, so confirm that against the provider's terms. The upload page's "we don't keep the file" must stay true.

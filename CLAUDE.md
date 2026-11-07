@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v630**. Jack pushes every commit himself from
+- HEAD = **v631**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1671,12 +1671,19 @@ A two-reviewer deep review of the dashboard (2026-11-06). Fixed here:
 **Checklist removed, same version.** Jack: remove it and "really think about it" later. "Your first yacht" and its code are gone from the dashboard and guide; last in git at v622. `profile.crew101` stays, empty on all 15 rows (checked), and test-supabase still probes it; privacy policy and record no longer list it. To rebuild it, start from what it should be for, not the old code.
 **Jack said "do what you think is best" on the rest:** the title tick is deleted. Left as they are: the vessel photo crop, and Senses' builder (Lürssen, Wikidata). COLREGs stays a link under Regulations.
 
+### Shipped 2026-11-07 (v631) — reading documents is open to every signed-in member
+Jack: it shows on admin, "make it go live for now and we can test as we go". `SeavAPI.canReadCv` is now "signed in". `cv-read` and `doc-read` no longer need a secret to open: **setting `CV_READ_CLOSED` = "true" in Edge Functions -> Secrets shuts them to everyone but admins, with no deploy.** Upload my CV is in + Add ("From my CV"), not in the guide.
+- Limits: CV 3 a day, documents 20 (was 30), and 100 reads a day across everyone (`ALL_DAILY_LIMIT`, returns `busy`), roughly $5-9 a day at measured cost. CV and document limits now count separately (`doc_type`); they shared one count before.
+- **Consent:** a tick naming Claude and Anthropic and health details, required before any file is read, on all four sections and the CV page. Stays ticked until the page reloads. Not recorded anywhere.
+- Privacy policy (section 3 `#document-reading`, providers, retention, where data is held; dated 7 Nov), terms, record of processing 4b, DPIA risk 10. Anthropic's terms checked 2026-11-07: no training on customer content, API data deleted within 30 days with exceptions, DPA part of the Commercial Terms. **Jack to confirm his API account is on those terms, and set a spend limit in the Anthropic console.**
+- **Still not done, "test as we go":** no reminder after "Use the 1st for now"; Log your sea time doesn't pre-fill; saved records show on the public profile straight away if it's on; certificate list lacks Helideck Landing Officer, Able Seaman, PWC Instructor; prompt caching; not in the guide. **Reads go through Jack's own API credit.**
+
 ### Shipped 2026-11-07 (v630) — sailor quotes back
 Jack: "my sailor quotes are gone". Every signed-in page's `.page-quote-footer` had been hidden by the Bridge theme since v581, which called them decorative; he never asked for that. Rule removed, so the page quotes show again. They sit directly on the wave, so they're on theme-light.css's white-text list. Then "right at the bottom": `.dash` rows were splitting spare height, leaving the quote mid-page on short pages; `grid-template-rows: 1fr` (topbar.css) gives it all to the page, `.dash-content` grows the same way on the phone's flex layout, and `.dash` min-height is now `100vh - --seav-page-chrome-height` so a short page fills the window. On long pages the quote just follows the content.
 
 ### Shipped 2026-11-07 (v629) — Add from a document, in each section, one file at a time
 Jack: no hub, "in each section", then "limit one at a time ... make people think before uploading", then "do what you think is best and build it". Mockup `design-concepts/section-drop/` (his certificate details: **do not commit**). Replaces `doc-upload.html` and `js/doc-upload.js`, deleted.
-- `js/seav-doc-drop.js` + `css/components/doc-drop.css`. `SeavDocDrop.mount({ section, actions, label, isEmpty })`, an inline script on Certificates, Payslips, Sea Time ("Add from a testimonial") and Specialist Qualifications. A panel opens under the page's title row; the records stay below. Admins only: the button stays hidden unless `SeavAPI.canReadCv`, and `doc-read` refuses others. Opens by itself on an empty page.
+- `js/seav-doc-drop.js` + `css/components/doc-drop.css`. `SeavDocDrop.mount({ section, actions, label, isEmpty })`, an inline script on Certificates, Payslips, Sea Time ("Add from a testimonial") and Specialist Qualifications. A panel opens under the page's title row; the records stay below. Admins only at v629 (opened in v631). Opens by itself on an empty page.
 - One file, or nothing: several dropped are refused before any read. Wrong type: "This looks like a payslip", with Go to Payslips, and "It is a certificate, read it again", which sends `hint` and costs one more read. A CV goes to Upload my CV. Passports stop there.
 - Check: file beside site date fields that can be corrected, so a misread can be fixed there. Expiry is asked for there, leaving it blank saves "Date to confirm". **Save waits until every question is answered** (differs from v626). A sea time entry overlapping another by 2+ days can't be saved; same rule as the form. Sea time and payslip dates are checked again as they change; a half-picked date is not redrawn, as that would reset its year, so Save checks again itself. Done offers Add another.
 - `docxText` moved to seav-upload.js. Upload my CV stays, as a CV fills several sections.

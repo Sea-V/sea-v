@@ -5,7 +5,7 @@
 // The edge function doc-read reads it, this panel shows the file beside what it found,
 // and nothing is saved until Save, through the same save code as the normal forms.
 // Everything from a document is untrusted, so it is escaped and every code is checked.
-// Admins only for now: the button stays hidden, and the function refuses everyone else.
+// Open to every signed-in member. Nothing is read until the agreement is ticked.
 (function () {
   "use strict";
 
@@ -19,6 +19,7 @@
     not_set_up: "The reader isn't switched on yet. Nothing was saved.",
     not_open: "This isn't open yet. Nothing was saved.",
     limit: "You've used today's reads. Try again tomorrow. Nothing was saved.",
+    busy: "A lot of documents have been read today. Try again tomorrow. Nothing was saved.",
     too_big: "That file is too big. Try one under 10 MB. Nothing was saved.",
     signin: "Please sign in again, then try once more.",
     type: "We can't read this kind of file. Try a PDF, Word file or photo. Nothing was saved.",
@@ -139,6 +140,8 @@
       doc = null;
     }
 
+    let agreed = false;
+
     function takeFiles(files) {
       message = "";
       saved = "";
@@ -150,6 +153,12 @@
       }
       const file = files[0];
       if (!file) return;
+      if (!agreed) {
+        message = "Please tick the box to agree first. Nothing was read.";
+        view = "ready";
+        render();
+        return;
+      }
       if (!fileKind(file)) message = READ_ERRORS.type;
       else if (file.size > MAX_FILE_BYTES) message = READ_ERRORS.too_big;
       if (message) {
@@ -413,9 +422,10 @@
           <input type="file" id="ddFile" accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,.heic,.heif,application/pdf,image/*">
           <small class="cvu-note">One file at a time. PDF, Word or a photo, up to 10 MB.</small>
         </div>
+        <label class="du-consent"><input type="checkbox" data-dd-agree${agreed ? " checked" : ""}><small>I agree to this file being read by Claude, Anthropic's AI, including any health details it shows. <a href="privacy.html#document-reading">How this works</a></small></label>
         <div class="cvu-points">
           <div><strong>You stay in charge</strong><small class="cvu-note">Nothing is added until you check it and press Save.</small></div>
-          <div><strong>What happens to the file</strong><small class="cvu-note">An AI service reads it once. It's kept only if you add it to a record, in your private storage.</small></div>
+          <div><strong>What happens to the file</strong><small class="cvu-note">Claude reads it once. Anthropic doesn't train on it and deletes it within 30 days. We keep it only if you add it to a record, in your private storage.</small></div>
           <div><strong>Only this kind of document</strong><small class="cvu-note">Anything else is sent back, and we'll say where it goes. Please don't upload passports or ID.</small></div>
         </div>
       </div></article>`;
@@ -617,6 +627,10 @@
         takeFiles([...t.files]);
         return;
       }
+      if ("ddAgree" in t.dataset) {
+        agreed = t.checked;
+        return;
+      }
       const seaFrom = doc?.sea?.from;
       const seaTo = doc?.sea?.to;
       const paid = doc?.pay?.date;
@@ -672,7 +686,7 @@
       takeFiles([...event.dataTransfer.files]);
     }, true);
 
-    /* ---------- Admins only for now ---------- */
+    /* ---------- Signed-in members only ---------- */
 
     (async () => {
       await window.SeavAuth?.whenReady?.();

@@ -10,8 +10,8 @@
 // details or health notes, so they cannot come back. The CV is untrusted text. The
 // page escapes the result, checks every code and saves nothing without a tick.
 //
-// Your account only until CV_READ_OPEN = "true": admins pass, everyone else gets 403.
-// Before opening it: see "Before crew use it" in the plan.
+// Open to every signed-in member since v631. Setting the secret CV_READ_CLOSED = "true"
+// shuts it to everyone but admins, with no deploy.
 // Deployed with verify_jwt = false; it authenticates itself, as sea-testimonial does.
 // Needs the secret ANTHROPIC_API_KEY in Edge Functions -> Secrets (not Vault).
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
@@ -26,6 +26,7 @@ const corsHeaders = {
 const MODEL = Deno.env.get("CV_READ_MODEL") || "claude-opus-5-5";
 const DAILY_LIMIT = 3;
 const ADMIN_DAILY_LIMIT = 30;
+const ALL_DAILY_LIMIT = 100; // cv-read and doc-read together
 const MAX_PDF_BASE64 = 14 * 1024 * 1024; // About 10 MB of file.
 const MAX_WORD_TEXT = 60000;
 const LOG_DAYS = 30;
@@ -148,7 +149,7 @@ Deno.serve(async (req: Request) => {
     global: { headers: { Authorization: `Bearer ${jwt}` } }
   });
   const { data: isAdmin } = await asUser.rpc("is_admin");
-  if (!isAdmin && Deno.env.get("CV_READ_OPEN") !== "true") return json({ error: "not_open" }, 403);
+  if (!isAdmin && Deno.env.get("CV_READ_CLOSED") === "true") return json({ error: "not_open" }, 403);
 
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
   if (!apiKey) return json({ error: "not_set_up" }, 503);
@@ -174,14 +175,25 @@ Deno.serve(async (req: Request) => {
     .from("cv_read_log")
     .select("id", { count: "exact", head: true })
     .eq("user_id", user.id)
+    .eq("doc_type", "cv")
     .gte("created_at", since);
   if (countError) return json({ error: "failed" }, 500);
   if ((count || 0) >= (isAdmin ? ADMIN_DAILY_LIMIT : DAILY_LIMIT)) return json({ error: "limit" }, 429);
 
+  // One cap across everyone, so a burst of sign-ups cannot run through the API credit.
+  if (!isAdmin) {
+    const { count: everyone, error: everyoneError } = await admin
+      .from("cv_read_log")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", since);
+    if (everyoneError) return json({ error: "failed" }, 500);
+    if ((everyone || 0) >= ALL_DAILY_LIMIT) return json({ error: "busy" }, 429);
+  }
+
   // Written first, so a failed read still counts: each one costs money.
   const { data: logRow, error: logError } = await admin
     .from("cv_read_log")
-    .insert({ user_id: user.id, file_kind: kind, model: MODEL })
+    .insert({ user_id: user.id, file_kind: kind, model: MODEL, doc_type: "cv" })
     .select("id")
     .single();
   if (logError) return json({ error: "failed" }, 500);

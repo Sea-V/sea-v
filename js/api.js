@@ -1376,13 +1376,10 @@ const SeavAPI = {
       if (!data?.length) throw new Error("Your profile could not be found.");
     },
 
-    // v625 reading documents. The function refuses everyone but admins until it is opened.
+    // Open to every signed-in member since v631. The read functions check again.
     async canReadCv() {
-      const client = window.SeavSupabase;
-      if (!client) return false;
-      const { data, error } = await client.rpc("is_admin");
-      if (error) throw error;
-      return !!data;
+      const session = (await window.SeavSupabase?.auth.getSession())?.data?.session;
+      return !!session;
     },
 
     async readCv(payload) {
