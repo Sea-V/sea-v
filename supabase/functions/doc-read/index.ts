@@ -168,6 +168,13 @@ Positions: ${JSON.stringify(positions)}
 Catalogue: ${JSON.stringify(catalog)}`;
 }
 
+const HINTS: Record<string, string> = {
+  certificate: " The crew member says this is a certificate, so set doc_type to certificate and fill that section with what it shows, unless it is a passport or ID.",
+  testimonial: " The crew member says this is a sea service testimonial, so set doc_type to testimonial and fill that section with what it shows, unless it is a passport or ID.",
+  payslip: " The crew member says this is a payslip, so set doc_type to payslip and fill that section with what it shows, unless it is a passport or ID.",
+  cv: " The crew member says this is a CV, so set doc_type to cv and fill that section with what it shows, unless it is a passport or ID."
+};
+
 const lettersOnly = (value: unknown) => String(value ?? "").toLowerCase().normalize("NFD").replace(/[^a-z ]/g, "");
 
 // Yes, no or unknown. The values themselves never leave this function.
@@ -218,6 +225,9 @@ Deno.serve(async (req: Request) => {
   if (!kind || !file || (kind === "image" && !IMAGE_TYPES.includes(imageType))) return json({ error: "bad_file" }, 400);
   if (file.length > (kind === "word" ? MAX_WORD_TEXT : MAX_BASE64)) return json({ error: "too_big" }, 413);
 
+  // The member has said what this is, after a first read got it wrong.
+  const hint = HINTS[String(body.hint || "")] || "";
+
   const positions = (Array.isArray(body.positions) ? body.positions : []).map(String).slice(0, 100);
   const catalog = (Array.isArray(body.catalog) ? body.catalog : [])
     .slice(0, 300)
@@ -260,7 +270,7 @@ Deno.serve(async (req: Request) => {
         output_config: { effort: "medium", format: { type: "json_schema", schema: DOC_FORMAT } },
         messages: [{
           role: "user",
-          content: [source, { type: "text", text: "Read this document and return its details." }]
+          content: [source, { type: "text", text: `Read this document and return its details.${hint}` }]
         }]
       } as never)
       .finalMessage();

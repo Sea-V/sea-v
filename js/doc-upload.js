@@ -41,7 +41,7 @@
   const BY_HAND = {
     contract: "We can't add contracts from here yet. Attach it on your yacht's record.",
     reference: "We can't add reference letters from here yet. Add it under References.",
-    other: "We don't know where this goes. Nothing will be saved from it."
+    other: "We don't know where this goes, so nothing will be saved from it. If we got that wrong, choose what it is above and we'll read it again."
   };
   const CERT_HOMES = ["Certificates", "Specialist qualifications", "Interests"];
   const ICON = (d) => `<span class="dash-panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="${d}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
@@ -101,7 +101,7 @@
     return toBase64(blob);
   }
 
-  async function readOne(doc) {
+  async function readOne(doc, hint = "") {
     doc.status = "reading";
     render();
     try {
@@ -113,6 +113,7 @@
         kind,
         file,
         mediaType: kind === "image" ? "image/jpeg" : "",
+        hint,
         positions: D.SEAFARER_POSITIONS.flatMap((group) => group.roles.map((role) => role.label)),
         catalog: D.getCertificateCatalog().map((item) => ({ code: item.code, name: item.name }))
       });
@@ -131,7 +132,8 @@
       const doc = { id: `d${nextId += 1}`, file, status: "waiting", answers: {}, open: false };
       if (!fileKind(file)) { doc.status = "failed"; doc.error = READ_ERRORS.type; }
       else if (file.size > MAX_FILE_BYTES) { doc.status = "failed"; doc.error = READ_ERRORS.too_big; }
-      if (doc.status === "waiting" && fileKind(file) === "image" && !window.SeavUpload?.isHeicFile?.(file)) doc.preview = URL.createObjectURL(file);
+      if (doc.status === "waiting") doc.fileUrl = URL.createObjectURL(file);
+      if (doc.status === "waiting" && fileKind(file) === "image" && !window.SeavUpload?.isHeicFile?.(file)) doc.preview = doc.fileUrl;
       return doc;
     });
     view = { step: "reading", extra: files.length - chosen.length };
@@ -143,6 +145,32 @@
     sortDocs();
     view = { step: "check" };
     window.scrollTo(0, 0);
+    render();
+  }
+
+  // The first read got the type wrong, and the crew member has said what it is. There
+  // is nothing to show until it is read again as that, so it costs one more read.
+  async function readAgainAs(doc, type) {
+    const previous = doc.result;
+    doc.rereading = TYPES[type];
+    doc.hintFailed = "";
+    doc.open = true;
+    render();
+    await readOne(doc, type);
+    doc.rereading = "";
+    if (doc.status === "failed") {
+      doc.status = "read";
+      doc.result = previous;
+      doc.hintFailed = doc.error;
+      doc.error = "";
+    } else {
+      prepare(doc);
+      linkDuplicates();
+      if (doc.type !== type && doc.type !== "passport_or_id") {
+        doc.hintFailed = `We read it again as a ${TYPES[type].toLowerCase()}, but couldn't find those details. You can add it by hand on that page.`;
+      }
+    }
+    doc.open = true;
     render();
   }
 
@@ -232,18 +260,26 @@
   }
 
   // The same certificate twice in one upload: the first stays, the rest step back.
+  // Same name and date is enough, as two scans of one certificate can read its number
+  // differently, or show it on only one. The same name on another date may be a
+  // renewal, so it stays ticked with a note.
   function linkDuplicates() {
     const seen = new Map();
+    const dated = new Map();
     docs.filter((doc) => doc.type === "certificate").forEach((doc) => {
       doc.certs.forEach((cert) => {
-        const key = cert.number ? `n:${cert.number.toLowerCase()}:${cert.name.toLowerCase()}` : `d:${cert.name.toLowerCase()}:${cert.issued}`;
-        if (seen.has(key)) {
+        const name = cert.name.toLowerCase();
+        const keys = [cert.number && `n:${cert.number.toLowerCase()}:${name}`, cert.issued && `d:${name}:${cert.issued}`].filter(Boolean);
+        const original = keys.map((key) => seen.get(key)).find(Boolean);
+        if (original) {
           cert.state = "duplicate";
-          cert.duplicateOf = seen.get(key);
+          cert.duplicateOf = original;
           cert.on = false;
-        } else {
-          seen.set(key, doc.file.name);
+          return;
         }
+        keys.forEach((key) => seen.set(key, doc.file.name));
+        if (dated.has(name)) cert.alsoIn = dated.get(name);
+        else dated.set(name, { file: doc.file.name, issued: cert.issued });
       });
       if (doc.certs.every((cert) => !cert.on)) doc.on = false;
     });
@@ -257,7 +293,6 @@
       if (doc.holder.birth_matches === false && !doc.answers.holder) count += 1;
       doc.certs.filter((cert) => cert.on).forEach((cert) => {
         if (cert.state === "differs" && !cert.answer) count += 1;
-        if (cert.state === "new" && !cert.expiry && !cert.expiryChoice) count += 1;
       });
     } else if (doc.type === "testimonial" && !doc.sea.checked) count += 1;
     if (doc.holder?.name_matches === false && !doc.answers.name) count += 1;
@@ -398,7 +433,7 @@
         console.warn("[SEA-V] CV handoff failed:", err);
       }
     }
-    docs.forEach((doc) => { if (doc.preview) URL.revokeObjectURL(doc.preview); });
+    docs.forEach((doc) => { if (doc.fileUrl) URL.revokeObjectURL(doc.fileUrl); });
     docs = [];
     done = result;
     view = { step: "done" };
@@ -441,7 +476,7 @@
   }
 
   function filePicture(doc) {
-    const open = `<button type="button" class="dash-panel-more" data-view-file="${doc.id}"><small>Open full size</small></button>`;
+    const open = `<a class="dash-panel-more" href="${esc(doc.fileUrl)}" target="_blank" rel="noopener">Open full size</a>`;
     return doc.preview
       ? `<div class="du-side"><img class="du-picture" src="${esc(doc.preview)}" alt="Your file, ${esc(doc.file.name)}">${open}</div>`
       : `<div class="du-side"><div class="du-tile"><strong>${esc({ pdf: "PDF", word: "Word", image: "Photo" }[fileKind(doc.file)] || "File")}</strong></div>${open}</div>`;
@@ -474,6 +509,9 @@
       ${cert.expiryChoice === "add" ? `<input type="date" data-expiry-date="${cert.id}" value="${esc(cert.expiryAdded)}" aria-label="Expiry date for ${esc(cert.name)}">` : `<small class="cvu-note">Not shown on this document.</small>`}</div>`;
   }
 
+  // Once answered, the question becomes the answer, so a press visibly does something.
+  const answered = (text, undo) => `<div class="du-flag is-done"><div><strong><span aria-hidden="true">✓ </span>${text}</strong></div><div class="cvu-actions"><button type="button" class="dash-panel-more" ${undo}><small>Change</small></button></div></div>`;
+
   function certBlock(doc, cert) {
     const theirs = cert.existing;
     let note = "";
@@ -489,27 +527,35 @@
         ${expiryCell(cert)}
         ${cert.issuer ? `<div><small class="cvu-label">Issued by</small><strong class="du-value">${esc(cert.issuer)}</strong></div>` : ""}
       </div>` : ""}
-      ${cert.state === "differs" ? `<div class="du-flag"><div><strong>The date issued differs</strong><small class="cvu-note">Your record says ${esc(pretty(theirs.issued))}. This reads as ${esc(pretty(cert.issued))}. Small scans get misread, so check the file.</small></div>
-        <div class="cvu-actions"><button type="button" class="cvu-btn${cert.answer === "keep" ? " is-chosen" : ""}" data-cert-answer="${cert.id}" data-value="keep">Keep mine</button><button type="button" class="cvu-btn${cert.answer === "use" ? " is-chosen" : ""}" data-cert-answer="${cert.id}" data-value="use">Use this</button></div></div>` : ""}
+      ${cert.state === "differs" ? (cert.answer
+        ? answered(cert.answer === "keep" ? `Keeping your date, ${esc(pretty(theirs.issued))}` : `Using this date, ${esc(pretty(cert.issued))}`, `data-cert-answer="${cert.id}" data-value=""`)
+        : `<div class="du-flag"><div><strong>The date issued differs</strong><small class="cvu-note">Your record says ${esc(pretty(theirs.issued))}. This reads as ${esc(pretty(cert.issued))}. Small scans get misread, so check the file.</small></div>
+        <div class="cvu-actions"><button type="button" class="cvu-btn" data-cert-answer="${cert.id}" data-value="keep">Keep mine</button><button type="button" class="cvu-btn" data-cert-answer="${cert.id}" data-value="use">Use this</button></div></div>`) : ""}
       ${note ? `<small class="cvu-note">${note}</small>` : ""}
+      ${cert.alsoIn ? `<small class="cvu-note">You also uploaded this as ${esc(cert.alsoIn.file)}, dated ${esc(pretty(cert.alsoIn.issued))}. Untick this one if they're the same certificate.</small>` : ""}
     </div>`;
   }
 
   function flags(doc) {
     let html = "";
     if (doc.holder?.birth_matches === false && doc.type === "certificate") {
-      html += `<div class="du-flag"><div><strong>The date of birth here doesn't match your profile</strong><small class="cvu-note">If this is yours, ask the issuer to correct it, or check your profile.</small></div>
-        <div class="cvu-actions"><button type="button" class="cvu-btn${doc.answers.holder ? " is-chosen" : ""}" data-doc-answer="${doc.id}" data-value="holder">It's mine, add it</button></div></div>`;
+      html += doc.answers.holder
+        ? answered("You've said this is yours", `data-doc-answer="${doc.id}" data-value="holder"`)
+        : `<div class="du-flag"><div><strong>The date of birth here doesn't match your profile</strong><small class="cvu-note">If this is yours, ask the issuer to correct it, or check your profile.</small></div>
+        <div class="cvu-actions"><button type="button" class="cvu-btn" data-doc-answer="${doc.id}" data-value="holder">It's mine, add it</button></div></div>`;
     }
     if (doc.holder?.name_matches === false) {
-      html += `<div class="du-flag"><div><strong>The name here doesn't match your profile</strong><small class="cvu-note">Please check this is your document.</small></div>
-        <div class="cvu-actions"><button type="button" class="cvu-btn${doc.answers.name ? " is-chosen" : ""}" data-doc-answer="${doc.id}" data-value="name">It's mine</button></div></div>`;
+      html += doc.answers.name
+        ? answered("You've said this is yours", `data-doc-answer="${doc.id}" data-value="name"`)
+        : `<div class="du-flag"><div><strong>The name here doesn't match your profile</strong><small class="cvu-note">Please check this is your document.</small></div>
+        <div class="cvu-actions"><button type="button" class="cvu-btn" data-doc-answer="${doc.id}" data-value="name">It's mine</button></div></div>`;
     }
     return html;
   }
 
   function docBody(doc) {
     let inner = typeRow(doc);
+    if (doc.hintFailed) inner += `<div class="du-flag is-quiet"><div><small class="cvu-note">${esc(doc.hintFailed)}</small></div></div>`;
     if (BY_HAND[doc.type]) inner += `<div class="du-flag is-quiet"><div><small class="cvu-note">${esc(BY_HAND[doc.type])}</small></div></div>`;
     if (doc.type === "cv") inner += `<div class="du-flag is-quiet"><div><small class="cvu-note">After you save, we'll take you to the CV check for your yachts and certificates.</small></div></div>`;
     inner += flags(doc);
@@ -527,8 +573,10 @@
       inner += `<div class="du-record"><strong>${esc(s.yacht || "Yacht not shown")}${s.role ? `, ${esc(s.role)}` : ""}</strong>
         <small class="cvu-note">${esc(pretty(s.from))} – ${esc(pretty(s.to))}${s.vesselId ? "" : ". This yacht isn't in your records yet, so the entry won't be linked to one."}</small>
         <div class="du-pair du-pair--4">${field("sea", "Sea days")}${field("standby", "Standby days")}${field("yard", "Yard days")}${field("watch", "Watchkeeping days")}</div></div>
-        <div class="du-flag"><div><strong>These count towards your tickets</strong><small class="cvu-note">Check each figure against the document. It saves as a normal entry, not as confirmed by a captain. Only the captain's online answer can do that.</small></div>
-        <div class="cvu-actions"><button type="button" class="cvu-btn${s.checked ? " is-chosen" : ""}" data-sea-check="${doc.id}">I've checked them</button></div></div>`;
+        ${s.checked
+          ? answered("You've checked these figures", `data-sea-check="${doc.id}"`)
+          : `<div class="du-flag"><div><strong>These count towards your tickets</strong><small class="cvu-note">Check each figure against the document. It saves as a normal entry, not as confirmed by a captain. Only the captain's online answer can do that.</small></div>
+        <div class="cvu-actions"><button type="button" class="cvu-btn" data-sea-check="${doc.id}">I've checked them</button></div></div>`}`;
     }
     if (doc.type === "payslip") {
       const p = doc.pay;
@@ -549,6 +597,9 @@
   }
 
   function docBlock(doc) {
+    if (doc.rereading) {
+      return `<div class="du-doc"><div class="du-doc-top"><span class="cvu-yacht-name"><strong>${esc(doc.file.name)}</strong><small role="status">Reading this again as a ${esc(doc.rereading.toLowerCase())}…</small></span></div></div>`;
+    }
     const q = docQuestions(doc);
     const open = q > 0 || doc.open;
     const canTick = ["certificate", "testimonial", "payslip"].includes(doc.type);
@@ -556,14 +607,14 @@
       <div class="du-doc-top">
         ${canTick ? `<input type="checkbox" data-doc-on="${doc.id}"${doc.on ? " checked" : ""} aria-label="Use ${esc(doc.file.name)}">` : ""}
         <span class="cvu-yacht-name"><strong>${esc(doc.file.name)}</strong><small>${esc(TYPES[doc.type] || "")}${!open && summary(doc) ? ` · ${esc(summary(doc))}` : ""}</small></span>
-        ${q ? `<small class="cvu-flag">Needs you</small>` : `<button type="button" class="cvu-btn" data-toggle="${doc.id}" aria-expanded="${open}">${open ? "Close" : "Review"}</button>`}
+        ${q ? `<small class="cvu-flag">${q} ${q === 1 ? "question" : "questions"}</small>` : `<button type="button" class="cvu-btn" data-toggle="${doc.id}" aria-expanded="${open}">${open ? "Close" : "Review"}</button>`}
       </div>
       ${open ? docBody(doc) : ""}
     </div>`;
   }
 
   function viewCheck() {
-    const read = docs.filter((doc) => doc.status === "read" && doc.type !== "passport_or_id");
+    const read = docs.filter((doc) => (doc.status === "read" && doc.type !== "passport_or_id") || doc.rereading);
     const refused = docs.filter((doc) => doc.status === "read" && doc.type === "passport_or_id");
     const failed = docs.filter((doc) => doc.status === "failed");
     const ticked = read.filter((doc) => doc.on).length;
@@ -639,10 +690,15 @@
       } else if (t.dataset.home) docById(t.dataset.home).home = t.value;
       else if (t.dataset.type) {
         const doc = docById(t.dataset.type);
-        const hasData = (t.value === "certificate" && doc.certs.length) || (t.value === "testimonial" && doc.sea) || (t.value === "payslip" && doc.pay) || (t.value === "cv" && doc.result.cv);
+        const readable = ["certificate", "testimonial", "payslip", "cv"].includes(t.value);
+        const hasData = (t.value === "certificate" && doc.certs.length) || (t.value === "testimonial" && doc.sea) || (t.value === "payslip" && doc.pay) || (t.value === "cv" && doc.result.cv?.jobs?.length);
+        if (readable && !hasData) {
+          readAgainAs(doc, t.value);
+          return;
+        }
+        doc.hintFailed = "";
         doc.type = t.value;
         doc.on = !!hasData && t.value !== "cv";
-        if (!hasData) doc.type = "other";
         doc.open = true;
       } else if (t.dataset.expiry) {
         const cert = certById(t.dataset.expiry);
@@ -666,22 +722,15 @@
       if (t.closest("#duSave")) { saveAll(); return; }
       if (t.closest("#duAgain")) { view = { step: "upload" }; render(); return; }
       const toggle = t.closest("[data-toggle]");
-      const viewFile = t.closest("[data-view-file]");
       const docAnswer = t.closest("[data-doc-answer]");
       const certAnswer = t.closest("[data-cert-answer]");
       const seaCheck = t.closest("[data-sea-check]");
-      if (viewFile) {
-        const url = URL.createObjectURL(docById(viewFile.dataset.viewFile).file);
-        window.open(url, "_blank", "noopener");
-        window.setTimeout(() => URL.revokeObjectURL(url), 60000);
-        return;
-      }
       if (toggle) {
         const doc = docById(toggle.dataset.toggle);
         doc.open = !doc.open;
       } else if (docAnswer) {
         const doc = docById(docAnswer.dataset.docAnswer);
-        doc.answers[docAnswer.dataset.value] = true;
+        doc.answers[docAnswer.dataset.value] = !doc.answers[docAnswer.dataset.value];
         doc.open = true;
       } else if (certAnswer) {
         certById(certAnswer.dataset.certAnswer).answer = certAnswer.dataset.value;

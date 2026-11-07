@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v626**. Jack pushes every commit himself from
+- HEAD = **v627**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1670,6 +1670,11 @@ A two-reviewer deep review of the dashboard (2026-11-06). Fixed here:
 **Public profile panel, same version (Jack's picture):** two columns when open, colours + layout | link name + link, one column at <=760px. Colour swatches are little rectangles.
 **Checklist removed, same version.** Jack: remove it and "really think about it" later. "Your first yacht" and its code are gone from the dashboard and guide; last in git at v622. `profile.crew101` stays, empty on all 15 rows (checked), and test-supabase still probes it; privacy policy and record no longer list it. To rebuild it, start from what it should be for, not the old code.
 **Jack said "do what you think is best" on the rest:** the title tick is deleted. Left as they are: the vessel photo crop, and Senses' builder (Lürssen, Wikidata). COLREGs stays a link under Regulations.
+
+### Shipped 2026-11-07 (v627) — first real run of Upload a document, and a duplicate fix
+Jack ran 20 of his real files through the live page on the admin account (2026-11-07): 15 read as certificates, 4 as `other`, his passport as `passport_or_id`. 14 records and 14 files saved to real storage. **$0.87 at listed prices, 4.4 cents and about 8 seconds per file; about 7,000 of the 9,000 input tokens per read are our instructions and certificate list, so prompt caching should cut that a lot (not done).** 13 of the 14 saved as "Date to confirm". **Fixed:** the same certificate scanned twice saved twice (ECDIS, EFA, General Ship Knowledge), because the duplicate check used the number when there was one, and scans read it differently. Now same name and date is enough. The same name on another date stays ticked with a note. The duplicates already on the admin account are left for Jack.
+**Also v627, Jack in Safari: "the buttons didn't seem to do anything, and certificate couldn't be selected".** Both real. (1) Choosing Certificate on a file read as `other` snapped straight back, because there was no data for it, so a wrongly typed certificate could never be saved. Now it reads the file again with that type as a hint (`doc-read` v2, `hint`), one more read. Also: contracts and reference letters can be chosen. (2) Keep mine, It's mine and I've checked them DID work (real click on the test copy), but only drew a thin outline. An answered question now turns into "✓ Keeping your date, ..." with Change, and the header counts the questions left. (3) A certificate with no expiry counted as a question that could never be answered, as "Date to confirm" was already selected, so choosing it fired nothing and the file stayed on "Needs you". The default is a valid answer now, and not a question. Open full size was `window.open` with noopener; now a plain link, as Safari handles those better. Not seen in Safari: none here.
+**Open:** why 4 real files read as `other`. The log deliberately doesn't hold file names, so only Jack can say. Advanced Polar, CoC, FPFF and PSCRB aren't among what saved.
 
 ### Shipped 2026-11-06 (v626) — Upload a document, Jack's account only
 Jack: one upload for any document, which "could detect what it is and where it applies". Approved from a mockup (`design-concepts/doc-upload/`, holds details from his certificates: **do not commit it**). Plan and test results: `docs/product/cv-upload-plan-2026-11-05.md`.
