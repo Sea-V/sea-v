@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v629**. Jack pushes every commit himself from
+- HEAD = **v630**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1670,6 +1670,9 @@ A two-reviewer deep review of the dashboard (2026-11-06). Fixed here:
 **Public profile panel, same version (Jack's picture):** two columns when open, colours + layout | link name + link, one column at <=760px. Colour swatches are little rectangles.
 **Checklist removed, same version.** Jack: remove it and "really think about it" later. "Your first yacht" and its code are gone from the dashboard and guide; last in git at v622. `profile.crew101` stays, empty on all 15 rows (checked), and test-supabase still probes it; privacy policy and record no longer list it. To rebuild it, start from what it should be for, not the old code.
 **Jack said "do what you think is best" on the rest:** the title tick is deleted. Left as they are: the vessel photo crop, and Senses' builder (Lürssen, Wikidata). COLREGs stays a link under Regulations.
+
+### Shipped 2026-11-07 (v630) — sailor quotes back
+Jack: "my sailor quotes are gone". Every signed-in page's `.page-quote-footer` had been hidden by the Bridge theme since v581, which called them decorative; he never asked for that. Rule removed, so the page quotes show again. They sit directly on the wave, so they're on theme-light.css's white-text list. Then "right at the bottom": `.dash` rows were splitting spare height, leaving the quote mid-page on short pages; `grid-template-rows: 1fr` (topbar.css) gives it all to the page, `.dash-content` grows the same way on the phone's flex layout, and `.dash` min-height is now `100vh - --seav-page-chrome-height` so a short page fills the window. On long pages the quote just follows the content.
 
 ### Shipped 2026-11-07 (v629) — Add from a document, in each section, one file at a time
 Jack: no hub, "in each section", then "limit one at a time ... make people think before uploading", then "do what you think is best and build it". Mockup `design-concepts/section-drop/` (his certificate details: **do not commit**). Replaces `doc-upload.html` and `js/doc-upload.js`, deleted.

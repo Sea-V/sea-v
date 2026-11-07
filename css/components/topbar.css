@@ -498,6 +498,14 @@
 
 body.app-page .dash {
   grid-template-columns: minmax(0, 1fr);
+  /* The page takes any spare height, so the sailor quote after it sits at the bottom. */
+  grid-template-rows: 1fr;
+  min-height: calc(100vh - var(--seav-page-chrome-height));
+}
+
+/* Below 980px .dash is a flex column (layout.css), so the same job needs flex here. */
+body.app-page .dash > .dash-content {
+  flex: 1 0 auto;
 }
 
 #sidebarMount[hidden] {

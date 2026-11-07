@@ -300,11 +300,6 @@
   border-radius: 0 !important;
 }
 
-/* Decorative extras that read as "generated". */
-:is(body.app-page, body.landing-page, body.legal-page, body.index-page) .page-quote-footer {
-  display: none !important;
-}
-
 /* ---------------------------------------------------------
    Dashboard
 --------------------------------------------------------- */
