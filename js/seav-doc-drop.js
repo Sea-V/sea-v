@@ -275,6 +275,16 @@
     /* ---------- Saving ---------- */
 
     // The site's date fields live in the page, so what's typed is read back before a redraw.
+    // The specialist page's own categories. Anything unclear stays "other", to be changed by hand.
+    function specialistCategory(name) {
+      if (/\b(div(e|er|ing)|padi|ssi|naui|kite|surf|wake|jet ?ski|pwc|water ?ski|paddle)|\bsup\b/i.test(name)) return "water_sports";
+      if (/first aid|medic|nurs|paramedic/i.test(name)) return "medical";
+      if (/yoga|pilates|massage|beauty|spa\b|therap/i.test(name)) return "wellness";
+      if (/fitness|personal trainer|\bpt\b/i.test(name)) return "fitness";
+      if (/wine|sommelier|barista|cocktail|silver service|hospitality|wset/i.test(name)) return "hospitality";
+      return "other";
+    }
+
     function readDates() {
       if (!doc) return;
       (doc.certs || []).forEach((cert) => {
@@ -305,7 +315,7 @@
       if (options.section === "specialist") {
         const id = createId("specialist");
         const attachment = await upload("specialist-qualification-files", id, "Qualification");
-        await window.SeavAPI.addItem(KEYS.SPECIALIST_QUALIFICATIONS, { id, category: "other", title: cert.name, issuingBody: cert.issuer, dateObtained: cert.issued || null, expiry: cert.expiry || null, attachment });
+        await window.SeavAPI.addItem(KEYS.SPECIALIST_QUALIFICATIONS, { id, category: specialistCategory(cert.name), title: cert.name, issuingBody: cert.issuer, dateObtained: cert.issued || null, expiry: cert.expiry || null, attachment });
         return;
       }
       const attachable = !doc.medical || doc.consent;
@@ -360,9 +370,14 @@
         } else if (doc.sea) {
           const id = createId("seatime");
           const attachment = await upload("seatime-files", id, "Sea service testimonial");
+          // The yacht's facts, as the Sea Time form copies them when a yacht is picked.
+          const vessel = (window.SeavState?.vessels || []).find((row) => row.id === doc.sea.vesselId);
           await window.SeavAPI.addItem(KEYS.SEATIMES, {
             id,
             vesselId: doc.sea.vesselId || null,
+            flag: vessel?.flag || "",
+            gt: vessel?.gt || "",
+            imoOfficialNumber: vessel?.imoOfficialNumber || vessel?.imo || "",
             capacityServed: doc.sea.role,
             dateJoined: doc.sea.from,
             dateLeft: doc.sea.to,
@@ -474,7 +489,7 @@
         ${editable && cert.on ? `<div class="dd-dates">
           ${dateField(`${cert.id}i`, "Date issued", true)}
           <div>${dateField(`${cert.id}e`, "Expiry date", true)}
-            ${cert.expiryBasis ? `<small class="cvu-note">Worked out from “${esc(cert.expiryBasis)}”. Please check it.</small>` : ""}
+            ${cert.expiryBasis ? `<small class="cvu-note">Worked out from “${esc(cert.expiryBasis.replace(/[.\s]+$/, ""))}”. Please check it.</small>` : ""}
             <label class="du-consent"><input type="checkbox" data-dd-noexpiry="${cert.id}"${cert.noExpiry ? " checked" : ""}><small>This certificate doesn't expire</small></label>
             ${!cert.expiry && !cert.noExpiry ? `<small class="cvu-note">Not on this document. Add it if you can, or it will say “date to confirm”.</small>` : ""}
           </div>
@@ -569,7 +584,14 @@
       window.Seav.mountDateFields?.(panel);
       (doc?.certs || []).forEach((cert) => {
         if (document.getElementById(`${cert.id}i_year`)) window.Seav.fillDateTriplet(`${cert.id}i`, cert.issued);
-        if (document.getElementById(`${cert.id}e_year`)) window.Seav.fillDateTriplet(`${cert.id}e`, cert.noExpiry ? "" : cert.expiry);
+        if (document.getElementById(`${cert.id}e_year`)) {
+          window.Seav.fillDateTriplet(`${cert.id}e`, cert.noExpiry ? "" : cert.expiry);
+          // As on the certificate form: a certificate that doesn't expire has no expiry to pick.
+          ["year", "month", "day"].forEach((part) => {
+            const select = document.getElementById(`${cert.id}e_${part}`);
+            if (select) select.disabled = cert.noExpiry;
+          });
+        }
       });
       if (doc?.sea) {
         window.Seav.fillDateTriplet("dd_from", doc.sea.from);

@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v631**. Jack pushes every commit himself from
+- HEAD = **v632**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1670,6 +1670,16 @@ A two-reviewer deep review of the dashboard (2026-11-06). Fixed here:
 **Public profile panel, same version (Jack's picture):** two columns when open, colours + layout | link name + link, one column at <=760px. Colour swatches are little rectangles.
 **Checklist removed, same version.** Jack: remove it and "really think about it" later. "Your first yacht" and its code are gone from the dashboard and guide; last in git at v622. `profile.crew101` stays, empty on all 15 rows (checked), and test-supabase still probes it; privacy policy and record no longer list it. To rebuild it, start from what it should be for, not the old code.
 **Jack said "do what you think is best" on the rest:** the title tick is deleted. Left as they are: the vessel photo crop, and Senses' builder (Lürssen, Wikidata). COLREGs stays a link under Regulations.
+
+### Shipped 2026-11-12 (v632) — fixes from a fresh-account run-through
+Jack: wipe the admin account and test everything one step at a time. Its records and 22 files were deleted (account, admin access and read log kept), then every step was run signed in on the live site with made-up test documents: guide, profile, a yacht by hand, sea time (overlap refused), all four document sections, Upload my CV, public profile as anon (private columns still refused), CV generator. Fixed:
+- **Your next ticket was empty for anyone part-way to OOW.** The group's summary milestone (`oow_eligible`) scored 0 until the three parts were done, and the card takes the group's lowest score. It now scores by its slowest part, capped at 99 (seav-data.js). The test account went from nothing to OOW 64%.
+- The guide's last step dropped the yacht or certificate just saved from its CV preview (`guide.saved`).
+- A sea time entry from a testimonial now copies the yacht's GT, flag and IMO, as the form does.
+- Specialist qualifications from a document get a category (`specialistCategory`: diving and watersports, medical, wellness, fitness, hospitality, else Other).
+- "This certificate doesn't expire" now disables the expiry boxes on the check screen; the worked-out-expiry quote lost a doubled full stop.
+Not bugs: the profile form is locked after a save ("Edit profile" unlocks it).
+**Seen, not fixed:** Jack's Safari asked Supabase for months-old signed file links (400s in the logs, 2026-11-11), so the device cache can serve expired signed URLs. Interests from a CV keep the CV's own case ("cycling"). The test account now holds test records (Alex Tester), public profile off.
 
 ### Shipped 2026-11-07 (v631) — reading documents is open to every signed-in member
 Jack: it shows on admin, "make it go live for now and we can test as we go". `SeavAPI.canReadCv` is now "signed in". `cv-read` and `doc-read` no longer need a secret to open: **setting `CV_READ_CLOSED` = "true" in Edge Functions -> Secrets shuts them to everyone but admins, with no deploy.** Upload my CV is in + Add ("From my CV"), not in the guide.

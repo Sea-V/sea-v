@@ -3300,10 +3300,22 @@ function getSortedVesselOptions(vessels = []) {
       }
       case "oow_eligible": {
         const met = isOowSeaTimeComplete(seatimes, vessels, dob);
+        // Not met: as far along as its slowest part, so the ticket shows while it is
+        // being worked towards. At 0 it hid the whole OOW group from Your next ticket.
+        const partsPercent = () => {
+          const parts = [
+            { type: "oow_actual_sea_days", minDays: 250, minVesselMeters: 15 },
+            { type: "oow_qualifying_days", minDays: 365, minVesselMeters: 15 },
+            { type: "sea_days", minDays: 1095 }
+          ].map((trigger) => computeMilestoneProgress({ trigger }, context).percent);
+          const recent = computeOowRecentSeagoingService(seatimes, vessels);
+          parts.push(Math.min(100, (recent.recentDays / recent.target) * 100));
+          return Math.min(99, Math.floor(Math.min(...parts)));
+        };
         return {
           current: met ? 1 : 0,
           target: 1,
-          percent: met ? 100 : 0,
+          percent: met ? 100 : partsPercent(),
           label: met
             ? "OOW <3000GT sea-time requirements met"
             : (() => {

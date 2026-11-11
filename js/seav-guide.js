@@ -14,7 +14,7 @@
   const el = (id) => document.getElementById(id);
   const has = (value) => value !== undefined && value !== null && String(value).trim() !== "";
 
-  const GUIDE_START = { step: 1, first: "", last: "", rank: "", choice: "", yacht: "", directory: null, yachtRole: "", from: "", to: "", current: true, certCode: "", issued: "", expiry: "" };
+  const GUIDE_START = { step: 1, first: "", last: "", rank: "", choice: "", saved: "", yacht: "", directory: null, yachtRole: "", from: "", to: "", current: true, certCode: "", issued: "", expiry: "" };
   const guide = { ...GUIDE_START };
   // The site's year / month / day selects, by the guide field each one fills.
   const DATE_FIELDS = { gd_from: "from", gd_to: "to", gd_issued: "issued", gd_expiry: "expiry" };
@@ -51,7 +51,9 @@
 
   /* ---------- The CV beside the form: fills in as they type ---------- */
   function cvHtml() {
-    const cert = guide.choice === "cert" && guide.certCode ? window.SeavData.findCertificateCatalogItem?.(guide.certCode) : null;
+    // After a save the choice resets to "none", so the CV reads what was saved too.
+    const shown = guide.choice === "none" ? guide.saved : guide.choice;
+    const cert = shown === "cert" && guide.certCode ? window.SeavData.findCertificateCatalogItem?.(guide.certCode) : null;
     const line = (title, sub) => `<strong class="guide-cv-line">${esc(title)}${sub ? `<small>${esc(sub)}</small>` : ""}</strong>`;
     const empty = (text) => `<small class="guide-cv-empty">${esc(text)}</small>`;
     return `
@@ -65,7 +67,7 @@
         </div>
         <div class="guide-cv-body">
           <strong class="guide-cv-heading">Yachting experience</strong>
-          ${guide.choice === "yacht" && guide.yacht ? line(guide.yacht, guide.yachtRole || guide.rank) : empty("Your yachts will show here")}
+          ${shown === "yacht" && guide.yacht ? line(guide.yacht, guide.yachtRole || guide.rank) : empty("Your yachts will show here")}
           <strong class="guide-cv-heading">Certificates</strong>
           ${cert ? line(cert.name) : empty("Your certificates will show here")}
           <strong class="guide-cv-heading">About me</strong>
@@ -290,6 +292,7 @@
       return;
     }
     // A saved record must not be saved again if they go back and continue.
+    guide.saved = guide.choice;
     guide.choice = "none";
     document.dispatchEvent(new CustomEvent("seav:data-updated"));
   }
