@@ -52,9 +52,9 @@
     const itemLabel = String(options.itemLabel || "entry").trim();
 
     const message = itemName
-      ? `Are you sure you want to delete "${itemName}"?\n\nThis cannot be undone.`
+      ? `Delete "${itemName}"?\n\nThis can't be undone.`
       : options.message ||
-        `Are you sure you want to delete this ${itemLabel}?\n\nThis cannot be undone.`;
+        `Delete this ${itemLabel}?\n\nThis can't be undone.`;
 
     return window.confirm(message);
   }
@@ -288,9 +288,9 @@
     if (!file) return fallback;
 
     if (file.size > maxBytes) {
-      const msg = `${kind} too large. Please upload a file under ${Math.round(maxBytes / (1024 * 1024))}MB.`;
+      const msg = `Choose a smaller ${String(kind).toLowerCase()}, under ${Math.round(maxBytes / (1024 * 1024))} MB.`;
       if (window.SeavFeedback?.error) {
-        window.SeavFeedback.error("File too large", msg);
+        window.SeavFeedback.error("That file is too big", msg);
       } else {
         alert(msg);
       }
@@ -299,9 +299,9 @@
 
     const allowDataUrl = window.SeavConfig?.ALLOW_DATAURL_FALLBACK === true;
     if (!allowDataUrl) {
-      const msg = `${kind} upload requires a signed-in connection. Check your network and try again.`;
+      const msg = "Check your connection and try again.";
       if (window.SeavFeedback?.error) {
-        window.SeavFeedback.error("Upload unavailable", msg);
+        window.SeavFeedback.error("The file didn't upload", msg);
       } else {
         alert(msg);
       }
@@ -390,8 +390,8 @@ const app = {
               >+<small class="topbar-add-label"> Add</small></button>
               <div class="topbar-add-menu" id="topbarAddPanel" hidden>
                 <small class="topbar-add-head">What do you want to add?</small>
-                <a class="topbar-add-item" href="dashboard.html?add=vessel">A yacht</a>
-                <a class="topbar-add-item" href="dashboard.html?add=seatime">Time on a yacht</a>
+                <a class="topbar-add-item" href="dashboard.html?add=vessel">A vessel</a>
+                <a class="topbar-add-item" href="dashboard.html?add=seatime">Time on a vessel</a>
                 <a class="topbar-add-item" href="dashboard.html?add=certificate">A certificate</a>
                 <a class="topbar-add-item" href="navigation.html">A passage</a>
                 <a class="topbar-add-item" href="references.html">A reference</a>
@@ -1380,8 +1380,8 @@ function renderAccountMenu() {
     banner.id = "seavDataEmptyBanner";
     banner.className = "seav-setup-banner";
     banner.innerHTML = `
-      <strong>Your records did not load</strong>
-      <p>SEA-V stores everything in your Supabase account. If this page looks empty, try reloading your data or signing in again with the same email you use on www.sea-v.com.</p>
+      <strong>Your records didn't load</strong>
+      <p>If this page looks empty, reload your data, or sign in again with the email you signed up with.</p>
       <p style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
         <button type="button" class="btn-blue" id="seavReloadDataBtn">Reload my data</button>
         <a class="btn-ghost2" href="index.html">Sign in again</a>
@@ -1391,7 +1391,7 @@ function renderAccountMenu() {
 
     banner.querySelector("#seavReloadDataBtn")?.addEventListener("click", async () => {
       if (window.SeavFeedback?.showPageLoader) {
-        window.SeavFeedback.showPageLoader("Reloading…", "Fetching your Supabase records");
+        window.SeavFeedback.showPageLoader("Reloading…", "Loading your records");
       }
       try {
         window.SeavState?.clearStateCache?.();
@@ -1401,12 +1401,12 @@ function renderAccountMenu() {
         }
         if (!window.SeavState?.isDataLikelyEmpty?.()) {
           banner.remove();
-          Seav.notify("success", "Data loaded", "Your SEA-V records are visible again.");
+          Seav.notify("success", "Records loaded", "");
         } else {
           Seav.notify(
             "info",
-            "Still empty",
-            "No records found for this account in Supabase. Check you are signed in with the correct email."
+            "Nothing here yet",
+            "We found no records for this account. Check you signed in with the right email."
           );
         }
       } finally {
@@ -1788,10 +1788,8 @@ document.addEventListener("DOMContentLoaded", function () {
     showDataEmptyBanner();
   });
 
-  document.addEventListener("seav:fetch-error", (event) => {
-    const detail = event.detail || {};
-    const table = detail.table || "table";
-    const message = detail.message || "Permission denied";
+  document.addEventListener("seav:fetch-error", (_event) => {
+    // The table and raw message stay in the console (state.js logs them).
     if (!document.body.classList.contains("app-page")) return;
 
     const target = document.querySelector(".dash-content");
@@ -1801,9 +1799,8 @@ document.addEventListener("DOMContentLoaded", function () {
     banner.id = "seavFetchErrorBanner";
     banner.className = "seav-setup-banner";
     banner.innerHTML = `
-      <strong>Could not load ${escapeHtml(table)}</strong>
-      <p>${escapeHtml(message)}</p>
-      <p>Run <code>docs/schema-grant-authenticated-read.sql</code> in Supabase SQL Editor, then click Reload my data.</p>
+      <strong>Some of your records didn't load</strong>
+      <p>Refresh the page to try again. Nothing has been lost.</p>
     `;
     target.prepend(banner);
   });

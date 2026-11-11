@@ -526,7 +526,7 @@
     const lngNum = Number(lng);
 
     if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) {
-      Seav.notify("error", "Invalid coordinates", "Enter numeric latitude and longitude.");
+      Seav.notify("error", "Check the position", "Enter latitude and longitude as numbers, for example 43.7 and 7.4.");
       return false;
     }
     if (latNum < -90 || latNum > 90 || lngNum < -180 || lngNum > 180) {
@@ -584,8 +584,8 @@
     if (!recommended.length) {
       Seav.notify(
         "info",
-        "No template found",
-        "No recommended passage template exists for that route yet. You can still add waypoints manually."
+        "No suggested route",
+        "We don't have one for these ports yet. Add waypoints yourself."
       );
       return;
     }
@@ -602,7 +602,7 @@
     Seav.notify(
       "success",
       "Recommended passage added",
-      `${recommended.length} waypoint${recommended.length === 1 ? "" : "s"} added from standard maritime corridors.`
+      `${recommended.length} waypoint${recommended.length === 1 ? "" : "s"} added along the usual route.`
     );
   }
 

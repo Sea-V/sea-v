@@ -113,7 +113,7 @@
     const rows = await yachtRequests.get(vessel.directory_id);
     // Not crew-sourced: that can be the blank their own save just filled in.
     return rows.some((row) => row.field !== "added" && row.source !== "crew" && after(row.created_at, since))
-      ? { label: `${vessel.name || "Yacht"} details updated`, href: "vessels.html" }
+      ? { label: `${vessel.name || "Vessel"} details updated`, href: "vessels.html" }
       : null;
   }
 

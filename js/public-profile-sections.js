@@ -1366,17 +1366,12 @@
   // achievement title) so a cert split across multiple catalog definitions
   // — currently only OOW Yachts <3000GT — reads as one certificate, not
   // its internal sub-badge name.
+  // v635: a ticket is a tracker row, so no medal art here any more.
   function buildInProgressHighlightCard(entry) {
     const title = entry.certGroupKey;
-    const imagePath = window.SeavBadges?.resolveBadgeImage?.(entry.full.badgeKey, false) || "";
-    const initial = Seav.escapeHtml((title || "M").trim().charAt(0).toUpperCase() || "M");
-    const badgeInner = imagePath
-      ? `<img src="${Seav.escapeHtml(imagePath)}" alt="" loading="lazy" />`
-      : `<span class="public-cv-highlight-badge-fallback">${initial}</span>`;
 
     return `
-      <article class="public-cv-highlight-card public-cv-inprogress-card">
-        <span class="public-cv-highlight-badge">${badgeInner}</span>
+      <article class="public-cv-highlight-card public-cv-inprogress-card is-tracker">
         <div class="public-cv-highlight-body">
           <p class="public-cv-highlight-title">${Seav.escapeHtml(title)}</p>
           <p class="public-cv-highlight-desc">${Seav.escapeHtml(entry.label || "")}</p>
@@ -1482,7 +1477,7 @@
         <h3><span class="public-profile-section-icon" data-pp-icon="achievements" aria-hidden="true"></span>Milestones</h3>
         <span class="public-profile-section-count" id="ppAchievementCount" hidden></span>
       </div>
-      <p class="public-profile-section-note">What this crew member is currently working toward — a badge shows progress made, not that the qualification is held. Seafarer Achievements (crossings, etc.) are shown under the vessel they were earned on.</p>
+      <p class="public-profile-section-note">What this crew member is currently working toward — a bar shows progress made, not that the qualification is held. Seafarer Achievements (crossings, etc.) are shown under the vessel they were earned on.</p>
 
       <div class="public-cv-highlight-list">
         ${visibleInProgress.map((entry) => buildInProgressHighlightCard(entry)).join("")}

@@ -647,7 +647,7 @@
     return generate(
       buildBadgeCardHtml,
       {
-        title: payload.title || "New badge",
+        title: payload.title || "New milestone",
         subtitle: rank ? `${name} · ${rank}` : name,
         statLabel: payload.statLabel || "",
         imageSrc: payload.image || "",

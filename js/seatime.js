@@ -296,8 +296,8 @@
       container.innerHTML = `
         <div class="seatime-table-wrap">
           <div class="seatime-empty-state">
-            <strong>No sea service entries yet</strong>
-            <span>Add your first vessel engagement with joined/left dates and day breakdown.</span>
+            <strong>No sea time yet</strong>
+            <span>Add each time you signed on a yacht: the dates, and how the days were spent.</span>
           </div>
         </div>
       `;
@@ -537,8 +537,12 @@
     document.getElementById("st_miles").value =
       entry.nauticalMiles == null ? "" : String(entry.nauticalMiles);
     renderLinkedPassageMiles(entry.id);
-    document.getElementById("st_status").value = entry.verificationStatus || "Logged";
+    document.getElementById("st_status").value =
+      entry.verificationStatus === "Pending Verification" ? "Pending Verification" : "Logged";
     document.getElementById("st_notes").value = entry.notes || "";
+    const fullCharge = document.getElementById("st_engine_full_charge");
+    if (fullCharge) fullCharge.checked = !!entry.engineWatchFullCharge;
+    syncEngineBlock();
 
     const editId = document.getElementById("st_edit_index");
     if (editId) editId.value = entry.id || "";
@@ -554,6 +558,19 @@
     const select = document.getElementById("st_role");
     if (!select || !window.SeavData?.getPositionOptionsHtml) return;
     select.innerHTML = window.SeavData.getPositionOptionsHtml(value);
+  }
+
+  // v641: the engineer tick and the missing-kW prompt, only for an
+  // engineering position.
+  function syncEngineBlock() {
+    const block = document.getElementById("stEngineBlock");
+    if (!block) return;
+    const role = document.getElementById("st_role")?.value || "";
+    const kind = window.SeavData?.engineRoleKind?.({ capacityServed: role }, getVessels()) || "";
+    block.hidden = !kind;
+    const vessel = getVessels().find((v) => v.id === document.getElementById("st_vessel")?.value);
+    const note = document.getElementById("stEngineKwNote");
+    if (note) note.hidden = !kind || !vessel || !!String(vessel.engine_kw || "").trim();
   }
 
   function resetSeatimeForm(form) {
@@ -572,6 +589,7 @@
     renderLinkedPassageMiles("");
 
     renderSeatimeAttachmentHint(null, { isNewSelection: false });
+    syncEngineBlock();
 
     populateSeattimeVesselOptions();
   }
@@ -616,6 +634,10 @@
       // v586: blank = not recorded (null), unlike the MCA day fields.
       ownerGuestDays: optionalNumber(document.getElementById("st_owner_guest")?.value),
       nauticalMiles: optionalNumber(document.getElementById("st_miles")?.value),
+      // Saved only while the tick is shown (an engineering position).
+      engineWatchFullCharge:
+        !document.getElementById("stEngineBlock")?.hidden &&
+        !!document.getElementById("st_engine_full_charge")?.checked,
       verificationStatus: document.getElementById("st_status")?.value || "Logged",
       notes: document.getElementById("st_notes")?.value.trim() || "",
       file: document.getElementById("st_attachment")?.files?.[0] || null
@@ -713,8 +735,10 @@
     if (vesselSelect) {
       vesselSelect.addEventListener("change", () => {
         applyVesselDefaultsToForm(vesselSelect.value);
+        syncEngineBlock();
       });
     }
+    document.getElementById("st_role")?.addEventListener("change", syncEngineBlock);
 
     if (seatimeForm) {
       seatimeForm.addEventListener("submit", async (e) => {
@@ -730,8 +754,8 @@
         ) {
           Seav.notify(
             "error",
-            "Missing details",
-            "Select a vessel and complete capacity served, date joined, and date left."
+            "Add the details",
+            "Add the vessel, your position, and the dates you joined and left."
           );
           return;
         }
@@ -739,8 +763,8 @@
         if (new Date(formData.dateLeft) < new Date(formData.dateJoined)) {
           Seav.notify(
             "error",
-            "Invalid dates",
-            "Date left must be on or after date joined."
+            "Check the dates",
+            "The date you left can't be before the date you joined."
           );
           return;
         }
@@ -798,7 +822,7 @@
           Seav.notify(
             "error",
             "Dates overlap another entry",
-            `These dates overlap your ${getDisplayVesselName(clash)} entry (${formatDatePretty(clash.dateJoined)} – ${clash.dateLeft ? formatDatePretty(clash.dateLeft) : "Present"}). You can only be signed on one yacht at a time; one shared changeover day is fine.`
+            `These dates overlap your ${getDisplayVesselName(clash)} entry (${formatDatePretty(clash.dateJoined)} – ${clash.dateLeft ? formatDatePretty(clash.dateLeft) : "Present"}). You can only be signed on one vessel at a time; one shared changeover day is fine.`
           );
           return;
         }
@@ -837,6 +861,7 @@
           watchkeepingDays: formData.watchkeepingDays,
           ownerGuestDays: formData.ownerGuestDays,
           nauticalMiles: formData.nauticalMiles,
+          engineWatchFullCharge: formData.engineWatchFullCharge,
           verificationStatus: formData.verificationStatus,
           notes: formData.notes,
           attachment,
@@ -852,7 +877,7 @@
           window.SeavModals.closeAllModals();
         }
 
-        Seav.notify("success", "Sea time logged", "Your service record has been updated.");
+        Seav.notify("success", "Sea time saved", "");
 
         if (window.Seav.app?.refreshAll) {
           await window.Seav.app.refreshAll();

@@ -195,8 +195,8 @@
         console.error("[SEA-V] Route import failed:", error);
         Seav.notify(
           "error",
-          "Import failed",
-          error?.message || "The KML/RTZ route could not be imported."
+          "Route not imported",
+          Seav.formatActionError(error, "We couldn't read that route file. Export it again as a .kml or .rtz file and try again.")
         );
       } finally {
         if (input) input.value = "";
@@ -354,16 +354,7 @@
         }, { sub: editId ? "Updating navigation passage" : "Logging navigation passage", rethrow: true });
       } catch (error) {
         console.error("[SEA-V] Navigation passage save failed:", error);
-        const raw =
-          error?.message ||
-          error?.error_description ||
-          error?.hint ||
-          "";
-        const detail =
-          /seatime_id/i.test(raw) && /column/i.test(raw)
-            ? "Your database is missing the navigation_areas.seatime_id column. Run docs/navigation-complete-migration.sql in the Supabase SQL Editor, then try again."
-            : raw || "The passage could not be saved. Check your connection and database columns.";
-        Seav.notify("error", "Save failed", detail);
+        Seav.notify("error", "Passage not saved", Seav.formatActionError(error));
       }
     });
 
@@ -501,7 +492,8 @@
   document.addEventListener("seav:schema-warning", (event) => {
     const message = event.detail?.message;
     if (!message) return;
-    Seav.notify("warning", "Database update needed", message);
+    // A schema mismatch is ours to fix, not the crew member's: console only.
+    console.warn("[SEA-V] Schema warning:", message);
   });
 
   document.addEventListener("DOMContentLoaded", () => {

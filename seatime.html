@@ -24,45 +24,45 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=632" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=632" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=632" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=632" />
+  <link rel="icon" href="/favicon.ico?v=641" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=641" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=641" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=641" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Sea Service</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css?v=632" />
+  <link rel="stylesheet" href="styles.css?v=641" />
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-  <script src="js/seav-config.js?v=632"></script>
-  <script src="js/supabase.js?v=632"></script>
-  <script src="js/auth.js?v=632"></script>
-  <script src="js/feedback.js?v=632" defer></script>
-  <script src="js/core.js?v=632" defer></script>
-  <script src="js/seav-search.js?v=632" defer></script>
-  <script src="js/bug-reports.js?v=632" defer></script>
-  <script src="js/seav-upload.js?v=632" defer></script>
-  <script src="js/seav-data.js?v=632" defer></script>
-  <script src="js/seav-badges.js?v=632" defer></script>
-  <script src="js/api-core.js?v=632" defer></script>
-  <script src="js/api-mappers.js?v=632" defer></script>
-  <script src="js/api.js?v=632" defer></script>
-  <script src="js/state.js?v=632" defer></script>
-  <script src="js/seav-notifications.js?v=632" defer></script>
-  <script src="js/achievements-engine.js?v=632" defer></script>
-  <script src="js/badge-unlock.js?v=632" defer></script>
+  <script src="js/seav-config.js?v=641"></script>
+  <script src="js/supabase.js?v=641"></script>
+  <script src="js/auth.js?v=641"></script>
+  <script src="js/feedback.js?v=641" defer></script>
+  <script src="js/core.js?v=641" defer></script>
+  <script src="js/seav-search.js?v=641" defer></script>
+  <script src="js/bug-reports.js?v=641" defer></script>
+  <script src="js/seav-upload.js?v=641" defer></script>
+  <script src="js/seav-data.js?v=641" defer></script>
+  <script src="js/seav-badges.js?v=641" defer></script>
+  <script src="js/api-core.js?v=641" defer></script>
+  <script src="js/api-mappers.js?v=641" defer></script>
+  <script src="js/api.js?v=641" defer></script>
+  <script src="js/state.js?v=641" defer></script>
+  <script src="js/seav-notifications.js?v=641" defer></script>
+  <script src="js/achievements-engine.js?v=641" defer></script>
+  <script src="js/badge-unlock.js?v=641" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous" defer></script>
-  <script src="js/seav-share.js?v=632" defer></script>
-  <script src="js/seav-row-menu.js?v=632" defer></script>
-  <script src="js/seav-testimonial.js?v=632" defer></script>
-  <script src="js/navigation-ports.js?v=632" defer></script>
-  <script src="js/navigation-helpers.js?v=632" defer></script>
-  <script src="js/navigation-passage.js?v=632" defer></script>
-  <script src="js/seav-doc-drop.js?v=632" defer></script>
-  <script src="js/seatime.js?v=632" defer></script>
+  <script src="js/seav-share.js?v=641" defer></script>
+  <script src="js/seav-row-menu.js?v=641" defer></script>
+  <script src="js/seav-testimonial.js?v=641" defer></script>
+  <script src="js/navigation-ports.js?v=641" defer></script>
+  <script src="js/navigation-helpers.js?v=641" defer></script>
+  <script src="js/navigation-passage.js?v=641" defer></script>
+  <script src="js/seav-doc-drop.js?v=641" defer></script>
+  <script src="js/seatime.js?v=641" defer></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       window.SeavDocDrop.mount({
@@ -136,11 +136,11 @@
       </div>
 
       <div class="seatime-shell-copy">
-        <h2>Sea service record</h2>
+        <h2>Sea time</h2>
 
         <p>
-          Track qualifying service in a format aligned with PYA / MCA sea service
-          testimonials — vessel, capacity, dates, day breakdown, and supporting evidence.
+          Log each time you signed on a vessel, and how the days were spent: at sea, on standby
+          or in the yard. It is the record the MCA uses when you apply for a ticket.
         </p>
       </div>
 
@@ -189,11 +189,11 @@
 
         <div class="kpi-box">
           <div class="kpi-num" id="kpiOowCapped">0</div>
-          <div class="kpi-label">OOW-qualifying (capped)</div>
+          <div class="kpi-label">Days towards OOW</div>
         </div>
 
       </div>
-      <p class="seatime-kpi-caveat">Capped figure applies MCA OOW &lt;3000GT rules (90-day yard cap, vessels 15m+ only) — other certificate routes may differ.</p>
+      <p class="seatime-kpi-caveat">Days that count towards Officer of the Watch (OOW): vessels 15 m and over, with at most 90 yard days. Other tickets count differently.</p>
     </article>
 
     <!-- TABLE SECTION -->
@@ -203,8 +203,8 @@
         <h3>Sea service entries</h3>
 
         <p>
-          One row per vessel engagement. Keep dates continuous, attach signed testimonials
-          where available, and ensure day totals match the employment period.
+          One entry per contract. The days should add up to the time you were signed on.
+          Attach your captain's signed testimonial if you have it.
         </p>
       </div>
 
@@ -254,8 +254,8 @@
         <h3>Official verification portals</h3>
 
         <p>
-          Submit and verify sea service with PYA or Nautilus — SEA-V helps you prepare
-          records locally; use these portals for official verification.
+          The PYA and Nautilus check sea time for the MCA. Keep your record here, then send it
+          to one of them when you apply.
         </p>
       </div>
 
@@ -269,7 +269,7 @@
         >
           <span class="seatime-portal-copy">
             <span class="seatime-portal-name">PYA member portal</span>
-            <span class="seatime-portal-desc">Upload testimonials, track verification, and access your D-SRB.</span>
+            <span class="seatime-portal-desc">Upload testimonials, track checks, and see your digital sea service record book.</span>
           </span>
           <span class="seatime-portal-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none">
@@ -312,10 +312,10 @@
         <ul class="seatime-guidance-list">
           <li>Record both start and end dates for every engagement — even if still onboard.</li>
           <li>Do not overlap dates between entries; new testimonials should follow the last period.</li>
-          <li>Break down actual sea, standby, and yard service using MCA definitions.</li>
+          <li>Split your days into at sea, standby and yard, as the MCA defines them (see each field).</li>
           <li>Watchkeeping days should reflect approved watchkeeping service only.</li>
-          <li>Attach signed sea service testimonials (SST) — Captain, or Owner/Manager for Masters.</li>
-          <li>Use the PYA or Nautilus portal links above for official verification, or export CSV for your training manager.</li>
+          <li>Attach your sea service testimonial (SST): the form your captain signs to confirm your days. Captains get theirs signed by the owner or manager.</li>
+          <li>Send it to the PYA or Nautilus using the links above, or download a spreadsheet (CSV) for your training manager.</li>
         </ul>
       </details>
     </section>
@@ -343,13 +343,11 @@
         <input type="hidden" id="st_edit_index" value="" />
 
         <p class="modal-intro">
-          Link to a vessel from your fleet, confirm flag and tonnage, then log the service
-          period and day breakdown as it would appear on a PYA sea service testimonial.
+          Pick the vessel, then add the dates you were signed on and how the days were spent.
         </p>
 
         <p class="modal-note modal-note--warning" id="stNoVesselNotice" hidden>
-          You need a vessel on your fleet before you can log a sea service entry —
-          <a href="vessels.html">add one on the Vessels page</a> first, then come back here.
+          Add the vessel first: <a href="vessels.html">add it on the Vessels page</a>, then come back here.
         </p>
 
         <!-- Vessel Details -->
@@ -363,23 +361,23 @@
         <div class="modal-grid2">
           <label>
             Flag
-            <input id="st_flag" placeholder="Country where the vessel is registered" />
+            <input id="st_flag" placeholder="Country the vessel is registered in" />
           </label>
 
           <label>
             Gross tonnage (GT)
-            <input id="st_gt" placeholder="Vessel gross tonnage — total registered size" />
+            <input id="st_gt" placeholder="The vessel's size by volume, on its papers or crew list" />
           </label>
         </div>
 
         <div class="modal-grid2">
           <label>
-            IMO / official number
-            <input id="st_imo" placeholder="Official vessel number if known" />
+            IMO or official number
+            <input id="st_imo" placeholder="On the vessel's registry papers, if known" />
           </label>
 
           <label>
-            Capacity served
+            Your position
             <!-- v571: a fixed list (SeavData.SEAFARER_POSITIONS) so a misspelt
                  rank can't silently drop out of the Master calculations. -->
             <select required id="st_role"><option value="">Select position</option></select>
@@ -409,12 +407,12 @@
         <div class="modal-grid2">
           <label>
             Actual sea service (days)
-            <input type="number" min="0" id="st_actual_sea" placeholder="Days at sea during this period" />
+            <input type="number" min="0" id="st_actual_sea" placeholder="Days the vessel was at sea and under way" />
           </label>
 
           <label>
             Standby service (days)
-            <input type="number" min="0" id="st_standby" placeholder="Days on standby, not ashore leave" />
+            <input type="number" min="0" id="st_standby" placeholder="Days in port ready to sail, on duty. Not leave" />
           </label>
         </div>
         <p class="modal-date-hint">Standby: MSN 1858 counts at most 14 days in a row at one time, and never more than the voyage before it. Only include standby that meets both.</p>
@@ -422,13 +420,26 @@
         <div class="modal-grid2">
           <label>
             Yard / shipyard service (days)
-            <input type="number" min="0" id="st_yard" placeholder="Days in shipyard or dry dock" />
+            <input type="number" min="0" id="st_yard" placeholder="Days in a shipyard for refit or repair" />
           </label>
 
           <label>
             Watchkeeping service (days)
-            <input type="number" min="0" id="st_watchkeeping" placeholder="Days on navigational watch" />
+            <input type="number" min="0" id="st_watchkeeping" placeholder="Days in charge of a watch at sea (4 hours = 1 day)" />
           </label>
+        </div>
+
+        <!-- v641: engineer sea time (MSN 1904). Shown only for an engineering
+             position (js/seatime.js syncEngineBlock). -->
+        <div class="seatime-engine-block" id="stEngineBlock" hidden>
+          <label class="modal-check">
+            <input type="checkbox" id="st_engine_full_charge" />
+            <span>I was in full charge of the engine-room watch, or on UMS duties (counts towards Chief Engineer)</span>
+          </label>
+          <p class="modal-note modal-note--warning" id="stEngineKwNote" hidden>
+            This vessel has no engine power (kW) saved, so this time won't count towards your engineer tickets yet.
+            <a href="vessels.html">Add it on the Vessels page</a> under Vessel details.
+          </p>
         </div>
 
         <div class="modal-grid2">
@@ -455,12 +466,14 @@
         </div>
 
         <!-- Verification -->
+        <!-- v639 (Jack): crew can no longer mark their own sea time Verified.
+             The captain confirms an entry through the testimonial; the PYA /
+             Nautilus check happens outside SEA-V. -->
         <label>
-          Verification status
+          Sent to the PYA or Nautilus?
           <select id="st_status">
-            <option value="Logged">Logged</option>
-            <option value="Pending Verification">Pending verification</option>
-            <option value="Verified">Verified</option>
+            <option value="Logged">Not yet</option>
+            <option value="Pending Verification">Yes, sent for checking</option>
           </select>
         </label>
 
@@ -481,11 +494,10 @@
         </label>
 
         <p class="modal-footnote">
-          Upload signed SSTs, company sea service letters, or discharge book pages.
-          Saved to your SEA-V profile.
+          Your signed testimonial, a company sea service letter, or discharge book pages.
         </p>
 
-        <button class="btn-blue" type="submit">Save service entry</button>
+        <button class="btn-blue" type="submit">Save sea time</button>
 
       </form>
 
@@ -504,9 +516,8 @@
         <input type="hidden" id="tst_seatime_id" value="" />
         <p class="modal-intro" id="tstEntryLine"></p>
         <p class="modal-note">
-          We email your captain a single-use link to a testimonial filled in from this entry and its
-          vessel. They can correct the days, add their CoC details, and confirm or decline. Once they
-          confirm, you can print the completed testimonial.
+          We email your captain a one-time link to a testimonial filled in from this entry. They can
+          correct the days and confirm or decline. Once they confirm, you can print it.
         </p>
         <label>
           Captain's name
@@ -518,8 +529,8 @@
         </label>
         <button class="btn-blue" type="submit">Send to captain</button>
         <p class="modal-footnote">
-          For an MCA Notice of Eligibility, large-yacht sea service must still be verified by the PYA
-          or Nautilus — the printout gives you everything their form asks for.
+          To apply for a Notice of Eligibility (NoE, the MCA's go-ahead to sit your exams), the PYA or
+          Nautilus must still check your sea time. The printout has everything they ask for.
         </p>
       </form>
     </div>

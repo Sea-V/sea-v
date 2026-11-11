@@ -497,6 +497,11 @@ html:has(body.public-profile-page)::-webkit-scrollbar {
    .public-cv-highlight-card shell, just with a real progress bar under the
    label instead of nothing. .ach-progress-bar is achievements.css's shared
    bar, loaded globally via styles.css's @import. */
+/* v635: a ticket in progress is a tracker row, with no medal column. */
+.public-cv-inprogress-card.is-tracker {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .public-cv-inprogress-card .ach-progress-bar {
   margin-top: 2px;
 }

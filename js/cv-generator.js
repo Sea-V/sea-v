@@ -222,7 +222,7 @@
       .map((vessel) => {
         const entry = draft.vessels[vessel.id] || { included: true, includeText: true, experienceText: "" };
         const role = window.SeavCvEngine.getVesselRole(vessel);
-        const label = `${vessel.name || "Yacht"} · ${role || "Crew"}`;
+        const label = `${vessel.name || "Vessel"} · ${role || "Crew"}`;
         const includeText = entry.includeText !== false;
         return `
           <article class="cvgen-vessel-card" data-vessel-id="${Seav.escapeHtml(vessel.id)}">
@@ -313,7 +313,7 @@
   };
 
   const VESSEL_ADD = {
-    text: "No vessels yet. Each yacht you add becomes an experience entry on your CV.",
+    text: "No vessels yet. Each vessel you add becomes an experience entry on your CV.",
     href: "vessels.html",
     cta: "Add a vessel"
   };

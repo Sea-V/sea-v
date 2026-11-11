@@ -23,7 +23,7 @@
     too_big: "That file is too big. Try one under 10 MB. Nothing was saved.",
     not_a_cv: "That doesn't look like a CV. Nothing was saved.",
     signin: "Please sign in again, then try once more.",
-    cannot_read: "We couldn't read that file. It may be password protected or a poor scan. Try another copy, or add your yachts by hand. Nothing was saved."
+    cannot_read: "We couldn't read that file. It may be password protected or a poor scan. Try another copy, or add your vessels by hand. Nothing was saved."
   };
   const ICON = (d) => `<span class="dash-panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="${d}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
   const ICONS = {
@@ -425,20 +425,20 @@
   function directoryBlock(record) {
     if (record.chosen || record.answer === "yes") {
       const entry = record.chosen || record.match;
-      return `<div class="cvu-info"><div><small class="cvu-label">Linked to the SEA-V yacht directory</small><strong>${esc(directoryLabel(entry))}</strong></div>
+      return `<div class="cvu-info"><div><small class="cvu-label">Linked to the SEA-V vessel directory</small><strong>${esc(directoryLabel(entry))}</strong></div>
         <div class="cvu-actions"><button type="button" class="cvu-btn" data-dir-clear="${record.id}">Change</button></div></div>`;
     }
     if (record.match && !record.answer) {
       const differs = record.length && record.match.vessel_length && Number(record.length) !== Number(record.match.vessel_length);
-      return `<div class="cvu-info is-need"><div><small class="cvu-label">Is this the same yacht?</small><strong>${esc(directoryLabel(record.match))}</strong>
+      return `<div class="cvu-info is-need"><div><small class="cvu-label">Is this the same vessel?</small><strong>${esc(directoryLabel(record.match))}</strong>
         ${differs ? `<small class="cvu-note">Your CV says ${esc(record.length)} m, the directory says ${esc(record.match.vessel_length)} m.</small>` : ""}
         <small class="cvu-note">Yes fills the flag, tonnage and numbers for you.</small></div>
         <div class="cvu-actions"><button type="button" class="cvu-btn is-main" data-dir-answer="yes" data-record-id="${record.id}">Yes</button><button type="button" class="cvu-btn" data-dir-answer="no" data-record-id="${record.id}">No</button></div></div>`;
     }
-    return `<div class="cvu-info"><div class="cvu-find"><small class="cvu-label">Find this yacht in the directory (optional)</small>
+    return `<div class="cvu-info"><div class="cvu-find"><small class="cvu-label">Find this vessel in the directory (optional)</small>
       <input type="text" class="cvu-find-input" data-find="${record.id}" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cvuFind${record.id}" aria-label="Find ${esc(record.name)} in the directory" placeholder="Name, IMO or MMSI">
-      <ul class="vessel-finder-list" id="cvuFind${record.id}" role="listbox" aria-label="Yachts found" hidden></ul>
-      <small class="cvu-note">We don't link from the name alone, as two yachts can share one.</small></div></div>`;
+      <ul class="vessel-finder-list" id="cvuFind${record.id}" role="listbox" aria-label="Vessels found" hidden></ul>
+      <small class="cvu-note">We don't link from the name alone, as two vessels can share one.</small></div></div>`;
   }
 
   function recordBlock(record) {
@@ -457,7 +457,7 @@
     const lines = record.duties ? record.duties.split("\n").filter(Boolean).length : 0;
     return `<div class="cvu-yacht">${summary}
       <div class="cvu-roles">${record.roles.map((role, index) => roleRow(record, role, index)).join("")}</div>
-      ${record.lengths.length > 1 ? `<div class="cvu-info"><small class="cvu-note">Your CV gives ${esc(record.lengths.join(" m and "))} m for this yacht. Using ${esc(record.length)} m.</small></div>` : ""}
+      ${record.lengths.length > 1 ? `<div class="cvu-info"><small class="cvu-note">Your CV gives ${esc(record.lengths.join(" m and "))} m for this vessel. Using ${esc(record.length)} m.</small></div>` : ""}
       ${directoryBlock(record)}
       ${lines ? `<details class="cvu-duties"><summary>Experience onboard, ${lines} lines from your CV</summary><textarea data-duties="${record.id}" aria-label="Experience onboard on ${esc(record.name)}">${esc(record.duties)}</textarea></details>` : ""}
     </div>`;
@@ -484,14 +484,14 @@
 
   function viewCheck() {
     const left = questionsLeft();
-    const yachts = check.records.filter((record) => record.on).length;
+    const vessels = check.records.filter((record) => record.on).length;
     const certs = check.certs.filter((cert) => cert.on).length;
     const jobs = check.records.reduce((sum, record) => sum + record.roles.length, 0);
     const daysOpen = check.records.some(needsDay);
     const fields = check.fields.filter((field) => !field.kept);
     const kept = check.fields.filter((field) => field.kept);
     return `<div class="cvu-stack">
-      ${check.records.length ? `<article class="dash-panel">${head(ICONS.yacht, "Yachts", `<small class="dash-panel-more">${jobs} ${jobs === 1 ? "job" : "jobs"}, ${check.records.length} ${check.records.length === 1 ? "record" : "records"}</small>`)}
+      ${check.records.length ? `<article class="dash-panel">${head(ICONS.yacht, "Vessels", `<small class="dash-panel-more">${jobs} ${jobs === 1 ? "job" : "jobs"}, ${check.records.length} ${check.records.length === 1 ? "record" : "records"}</small>`)}
         ${daysOpen || check.useFirst ? `<div class="cvu-days${check.useFirst ? " is-done" : ""}${check.tried && !check.useFirst ? " is-need" : ""}" id="cvuDaysBanner">
           ${check.useFirst
             ? `<small class="cvu-note">Using the 1st of the month where you haven't chosen a day. Correct these when you log your sea time.</small><button type="button" class="dash-panel-more" data-first="0"><small>Undo</small></button>`
@@ -525,7 +525,7 @@
       </article>
 
       <div class="cvu-save">
-        <div><strong>${yachts} ${yachts === 1 ? "yacht" : "yachts"} and ${certs} ${certs === 1 ? "certificate line" : "certificate lines"} ticked</strong>
+        <div><strong>${vessels} ${vessels === 1 ? "vessel" : "vessels"} and ${certs} ${certs === 1 ? "certificate line" : "certificate lines"} ticked</strong>
           <small>${left ? `${left} ${left === 1 ? "question" : "questions"} left. Anything unanswered keeps your CV's wording and isn't linked.` : "Everything is answered."}</small></div>
         <button type="button" class="cvu-btn" id="cvuSave">Save ticked items</button>
       </div>
@@ -541,20 +541,20 @@
     return `<div class="cvu-stack">
       ${done.failed ? `<div class="cvu-alert" role="alert">${done.failed} ${done.failed === 1 ? "item" : "items"} didn't save. Check your connection, then add ${done.failed === 1 ? "it" : "them"} by hand. Everything else below is saved.</div>` : ""}
       <article class="dash-panel">${head(ICONS.file, "What was added")}
-        <dl class="dash-figures"><div><dt>Yachts</dt><dd>${done.yachts}</dd></div><div><dt>Certificates</dt><dd>${done.certs}</dd></div><div><dt>Profile fields</dt><dd>${done.fields}</dd></div><div><dt>Interests</dt><dd>${done.interests}</dd></div></dl>
+        <dl class="dash-figures"><div><dt>Vessels</dt><dd>${done.yachts}</dd></div><div><dt>Certificates</dt><dd>${done.certs}</dd></div><div><dt>Profile fields</dt><dd>${done.fields}</dd></div><div><dt>Interests</dt><dd>${done.interests}</dd></div></dl>
         <div class="dash-panel-note"><small>If your public profile is switched on, these now show on it.</small></div>
       </article>
       ${rows.length ? `<article class="dash-panel">${head(ICONS.yacht, "Next: log your sea time")}
         <div class="dash-panel-note"><small>Add the sea, standby and yard days for each role. This is what counts towards your tickets.</small></div>
-        <table class="dash-table"><thead><tr><th scope="col"><small>Yacht</small></th><th scope="col"><small>Role</small></th><th scope="col"><small>Dates</small></th></tr></thead><tbody>
+        <table class="dash-table"><thead><tr><th scope="col"><small>Vessel</small></th><th scope="col"><small>Role</small></th><th scope="col"><small>Dates</small></th></tr></thead><tbody>
           ${rows.map((row) => `<tr><td><a href="dashboard.html?add=seatime">${esc(row.name)}</a></td><td>${esc(row.role)}</td><td>${esc(row.dates)}</td></tr>`).join("")}
         </tbody></table>
       </article>` : ""}
       <article class="dash-panel">${head(ICONS.cert, "To finish later")}
         <ul class="cvu-out">
           <li><strong>Certificate dates</strong><small class="cvu-note">Add issue and expiry dates so SEA-V can remind you.</small></li>
-          <li><strong>Exact days on your yachts</strong><small class="cvu-note">Any that started on the 1st of the month.</small></li>
-          <li><strong>Yacht details</strong><small class="cvu-note">Find each yacht in the directory to fill in its flag, tonnage and IMO.</small></li>
+          <li><strong>Exact days on your vessels</strong><small class="cvu-note">Any that started on the 1st of the month.</small></li>
+          <li><strong>Vessel details</strong><small class="cvu-note">Find each vessel in the directory to fill in its flag, tonnage and IMO.</small></li>
         </ul>
       </article>
       <div><a class="btn-blue cvu-go" href="dashboard.html">Go to my dashboard</a></div>

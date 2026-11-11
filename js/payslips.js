@@ -89,7 +89,6 @@
       file,
       existingMeta: existing,
       kind: "Payslip",
-      errorHint: "Run docs/payslips-table.sql in Supabase (storage bucket + policies)."
     }) ?? existing ?? null;
   }
 
@@ -198,11 +197,11 @@
 
         const formData = readForm();
         if (!formData.taxYear) {
-          Seav.notify("error", "Missing details", "Please select a tax year.");
+          Seav.notify("error", "Choose a tax year", "");
           return;
         }
         if (!formData.payMonth) {
-          Seav.notify("error", "Missing details", "Please select a month.");
+          Seav.notify("error", "Choose a month", "");
           return;
         }
 
@@ -256,7 +255,7 @@
         Seav.clearDateTriplet("ps_payment_date");
         if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
 
-        Seav.notify("success", "Payslip saved", "Record stored privately in SEA-V.");
+        Seav.notify("success", "Payslip saved", "Only you can see it.");
 
         if (window.Seav.app?.refreshAll) {
           await window.Seav.app.refreshAll();
@@ -377,7 +376,7 @@
         }
         expandedPsIds.delete(entryId);
 
-        Seav.notify("success", "Deleted", "Payslip removed from your records.");
+        Seav.notify("success", "Payslip deleted", "");
 
         if (window.Seav.app?.refreshAll) {
           await window.Seav.app.refreshAll();

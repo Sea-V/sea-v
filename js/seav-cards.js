@@ -44,7 +44,7 @@
   // options.markSelfDeclared (public profile only, Jack 2026-09-29): tag a
   // tile whose every instance is a manual 'Self-declared' award, so an
   // employer can tell it from a verified or automatically earned one.
-  function buildAwardTile(item, instances, options = {}) {
+  function buildAwardTile(item, instances, _options = {}) {
     const code = item?.code || instances?.[0]?.code || "";
     const full = window.SeavBadges?.getAchievementWithBadge?.(code) || null;
     const list = instances && instances.length ? instances : [item].filter(Boolean);
@@ -53,18 +53,10 @@
     const primary = list[0];
     const title = full?.title || primary.title || "Milestone";
     const category = full?.category || primary.category || "";
-    const tier = full?.badge?.tier || "default";
     const imagePath =
       window.SeavBadges?.resolveItemBadgeImage?.(primary) ||
       window.SeavBadges?.resolveBadgeImage?.(full?.badgeKey, true) ||
       "";
-
-    // Same colour family + flag stripe the Milestones card and the dashboard
-    // widget read — AWARD_FAMILY_BY_CODE in js/seav-badges.js. Null for any
-    // badge that is not a geographic award; the tile still renders, just
-    // without a family tint.
-    const treatment = window.SeavBadges?.getAwardTreatment?.(code) || null;
-    const seg = (color) => `<i style="background:${Seav.escapeHtml(color)}"></i>`;
 
     const vessels = list.map((entry) => entry.vessel).filter(Boolean);
     let status;
@@ -79,33 +71,24 @@
     }
 
     const dateText = list.length === 1 ? formatCardDate(primary.date) : "";
-    const selfDeclared =
-      !!options.markSelfDeclared &&
-      list.every((entry) => entry.status === "Self-declared" && !entry.autoAwarded);
+    // v635: every stamp says how it is known, so _options.markSelfDeclared
+    // (still passed by the public profile) is no longer needed.
+    const isStamp = !!window.SeavBadges?.isStampCode?.(code);
+    const proof = window.SeavBadges?.stampProof?.(list) || "self";
 
     return `
       <article
-        class="ach-trophy is-unlocked${treatment ? " ach-trophy--award" : ""}"
-        data-tier="${Seav.escapeHtml(tier)}"
+        class="ach-trophy is-unlocked${isStamp ? " ach-trophy--stamp" : ""}${isStamp && proof === "self" ? " is-self" : ""}"
         data-category="${Seav.escapeHtml(category)}"
-        ${treatment ? `data-award-family="${Seav.escapeHtml(treatment.family)}" style="--award-edge:${Seav.escapeHtml(treatment.edge)};--award-back:${Seav.escapeHtml(treatment.back)}"` : ""}
       >
-        ${treatment ? `<span class="ach-trophy-flag" aria-hidden="true">${treatment.stripe.map(seg).join("")}</span>` : ""}
         <div class="ach-trophy-badge-wrap">
-          <span class="ach-trophy-glow" aria-hidden="true"></span>
           ${list.length > 1 ? `<span class="ach-trophy-count">×${list.length}</span>` : ""}
           ${imagePath ? `<img class="ach-trophy-badge" src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(title)}" loading="lazy" />` : ""}
         </div>
         <h4 class="ach-trophy-title">${Seav.escapeHtml(title)}</h4>
-        ${category ? `<p class="ach-trophy-category">${Seav.escapeHtml(category)}</p>` : ""}
-        ${
-          treatment && treatment.country
-            ? `<span class="ach-trophy-country">${treatment.stripe.map(seg).join("")}<b>${Seav.escapeHtml(treatment.country)}</b></span>`
-            : ""
-        }
         <p class="ach-trophy-status ach-trophy-status--unlocked">${Seav.escapeHtml(status)}</p>
         ${dateText ? `<p class="ach-trophy-meta"><span class="ach-trophy-date">${Seav.escapeHtml(dateText)}</span></p>` : ""}
-        ${selfDeclared ? `<small class="ach-trophy-self-declared">Self-declared</small>` : ""}
+        ${isStamp ? window.SeavBadges?.stampProofTag?.(proof) || "" : ""}
       </article>
     `;
   }

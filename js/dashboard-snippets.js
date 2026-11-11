@@ -97,6 +97,7 @@
     "Latest from the MCA": line("M6.5 16.5v-5a5.5 5.5 0 0 1 11 0v5l1.5 1.5H5l1.5-1.5ZM10.5 20.5h3"),
     "Crew 101": window.SeavCrew101?.ICONS.book || "",
     "Your next ticket": window.SeavIcons?.achievements || "",
+    "Your first tickets": window.SeavIcons?.certificates || "",
     "Certificates": window.SeavIcons?.certificates || "",
     "Sea time": window.SeavIcons?.seatime || "",
     "Navigation": window.SeavIcons?.navigation || "",
@@ -171,19 +172,10 @@
 
     if (!vessel) {
       card?.classList.remove("is-photo");
-      fill(
-        "dashVesselCard",
-        "vessel",
-        null,
-        emptyCard(
-          "Current vessel",
-          "Add your yacht to start your career record.",
-          "dashboard.html?add=vessel",
-          "Add a vessel"
-        )
-      );
+      renderFirstYachtCard();
       return;
     }
+    card?.classList.remove("is-first-yacht");
 
     const bucket = window.SeavApiCore?.STORAGE_BUCKETS?.VESSEL_PHOTOS || "vessel-photos";
     if (window.SeavApiCore?.hydrateItemsFileField) {
@@ -475,18 +467,16 @@
   // One short line on what is holding a ticket back: the requirement furthest
   // from done. The Milestones page keeps the full list.
   function ticketLeft(entry) {
-    const needs = (window.SeavAchievementEngine?.getSubRequirements?.(entry.full) || []).filter(
-      (need) => Number(need.current) < Number(need.target)
-    );
-    if (!needs.length) return entry.label || "";
-    const need = needs.reduce((worst, row) =>
-      Number(row.current) / Number(row.target) < Number(worst.current) / Number(worst.target) ? row : worst
-    );
-    const label = String(need.label).replace(/\s*\(since holding[^)]*\)/i, "");
-    return need.unit ? `Left to do: ${label}, ${number(need.current)} of ${number(need.target)} ${need.unit}` : `Left to do: ${label}`;
+    const rows = window.SeavAchievementEngine?.getSubRequirements?.(entry.full) || [];
+    return window.SeavAchievementEngine?.describeLeftToDo?.(rows) || entry.label || "";
   }
 
   function renderTicketCard() {
+    // No yacht yet: the tickets to get before a first job (v637).
+    if (!(window.SeavState?.vessels || []).length) {
+      renderFirstTicketsCard();
+      return;
+    }
     const entries = (window.SeavAchievementEngine?.getInProgressMilestones?.() || []).slice(0, TICKET_LIMIT);
 
     if (!entries.length) {
@@ -524,6 +514,84 @@
   }
 
   // ---------------------------------------------------------------
+  // Green crew (v637, Jack 2026-11-12): until the first yacht is added, the
+  // vessel card is "Your first yacht" and the ticket card "Your first
+  // tickets". Same grid, same card style; both switch back by themselves.
+  // The rules are SeavData.computeFirstYachtReadiness / computeFirstTickets.
+  // ---------------------------------------------------------------
+
+  function greenInputs() {
+    const state = window.SeavState || {};
+    return {
+      profile: state.profile || {},
+      certs: (state.certs || []).filter((cert) => window.SeavData?.isSavedCert?.(cert) ?? !!cert?.name),
+      landExperiences: state.landExperiences || [],
+      specialistQualifications: state.specialistQualifications || [],
+      hobbiesInterests: state.hobbiesInterests || []
+    };
+  }
+
+  function renderFirstYachtCard() {
+    const ready = window.SeavData.computeFirstYachtReadiness(greenInputs());
+    const card = document.getElementById("dashVesselCard");
+    card?.classList.add("is-first-yacht");
+    const percent = Math.round((ready.done / ready.total) * 100);
+    const rows = ready.rows
+      .map((row) => {
+        const mark = row.done ? "✓" : row.next ? "!" : "";
+        const state = row.done ? "is-done" : row.next ? "is-next" : "";
+        return `<li class="dash-ready-row ${state}">
+          <span class="dash-ready-mark" aria-hidden="true">${mark}</span>
+          <span class="dash-ready-copy"><strong class="dash-panel-name">${esc(row.label)}</strong><small class="dash-panel-sub">${esc(row.detail)}</small></span>
+          ${row.done ? `<span class="dash-sr-only">Done</span>` : `<a class="dash-panel-more" href="${esc(row.href)}">${esc(row.linkLabel)}<span class="dash-sr-only">: ${esc(row.label)}</span></a>`}
+        </li>`;
+      })
+      .join("");
+
+    fill(
+      "dashVesselCard",
+      "vessel",
+      ["first-yacht", ready.rows.map((row) => [row.key, row.done, row.detail])],
+      `<div class="dash-first-hero">
+        <small class="dash-first-kicker">No vessel yet</small>
+        <h3 class="dash-first-title">Let's get you hired</h3>
+        <p class="dash-first-text">Captains look for the tickets, a clear CV and what you bring from ashore.</p>
+        <div class="dash-first-meter">
+          <span class="dash-ticket-bar" role="progressbar" aria-label="Ready for a first vessel" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"><i style="width:${percent}%"></i></span>
+          <b>${ready.done} of ${ready.total} ready</b>
+        </div>
+      </div>
+      <ul class="dash-ready-list">${rows}</ul>
+      <div class="dash-first-nudge">
+        <span class="dash-first-nudge-copy"><strong>Landed your first vessel?</strong><small>Add it and this card becomes your career record.</small></span>
+        <a class="btn-blue" href="dashboard.html?add=vessel">Add vessel</a>
+      </div>`
+    );
+  }
+
+  function renderFirstTicketsCard() {
+    const tickets = window.SeavData.computeFirstTickets(greenInputs().certs, window.SeavState?.profile?.rank);
+    const tone = { held: "ok", expired: "warn", part: "todo", missing: "todo", optional: "" };
+    fill(
+      "dashTicketCard",
+      "ticket",
+      ["first", tickets.map((row) => [row.key, row.text])],
+      `${cardHead("Your first tickets", "certificates.html", "Certificates")}
+      ${table(
+        [{ label: "Ticket" }, { label: "Why" }, { label: "Status", num: true }],
+        tickets.map((row) => ({
+          cells: [
+            `<strong class="dash-panel-name">${esc(row.label)}</strong>`,
+            `<small class="dash-panel-sub">${esc(row.why)}</small>`,
+            `<span class="dash-first-status${tone[row.state] ? ` is-${tone[row.state]}` : ""}">${esc(row.text)}</span>`
+          ]
+        }))
+      )}
+      <small class="dash-panel-note">Crew 101 explains each one.</small>`
+    );
+  }
+
+  // ---------------------------------------------------------------
   // Your records — every page's total in one place
   // ---------------------------------------------------------------
 
@@ -535,7 +603,7 @@
     const isPublic = !!profile.publicEnabled;
     const records = [
       ["vessels.html", "Vessels", number((state.vessels || []).length)],
-      ["seatime.html", "Sea time", days ? `${number(days)} days` : "0"],
+      ["seatime.html", "Sea time", days ? `${number(days)} logged days` : "0"],
       ["certificates.html", "Certificates", number((state.certs || []).filter((cert) => window.SeavData?.isSavedCert?.(cert) ?? !!cert?.name).length)],
       ["navigation.html", "Passages", number((state.navigationAreas || []).length)],
       ["tenders.html", "Tenders", number((state.tenders || []).length)],
@@ -549,6 +617,15 @@
       ["cv-generator.html", "Your CV", "Open"],
       [(isPublic && Seav.buildPublicProfileUrl?.(profile)) || "#ppShare", "Public profile", isPublic ? "Live" : "Off"]
     ];
+    // No yacht yet: what they can show from ashore comes first (v637).
+    if (!(state.vessels || []).length) {
+      const first = ["land-experience.html", "specialist-qualifications.html", "hobbies-interests.html", "certificates.html"];
+      records.sort((a, b) => {
+        const ia = first.indexOf(a[0]);
+        const ib = first.indexOf(b[0]);
+        return (ia < 0 ? first.length : ia) - (ib < 0 ? first.length : ib);
+      });
+    }
 
     // Two tables side by side, so each page is its own row to press.
     const half = Math.ceil(records.length / 2);

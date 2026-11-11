@@ -173,19 +173,28 @@
   }
 
   function showSaving(message, submessage) {
-    showPageLoader(message || "Saving…", submessage || "Updating your SEA-V records");
+    showPageLoader(message || "Saving…", submessage || "");
   }
 
   function hideSaving() {
     hidePageLoader();
   }
 
-  function formatActionError(err, fallback = "Something went wrong. Check the browser console (F12).") {
+  // v638 plain English: crew never see database or developer wording. A
+  // message we wrote ourselves passes through; anything that reads like a
+  // database, network or code error becomes the plain fallback, and the raw
+  // error stays in the console for us.
+  const TECHNICAL_ERROR =
+    /supabase|postgres|\bsql\b|column|relation|schema|row[- ]level|permission denied|violates|duplicate key|null value|pgrst|jwt|42501|23505|bucket|storage|policy|undefined|is not a function|cannot read|unexpected token|status code|\bfetch\b|networkerror|load failed|timeout/i;
+  const OFFLINE_ERROR = /failed to fetch|networkerror|load failed|network request failed|timeout/i;
+
+  function formatActionError(err, fallback = "That didn't save. Check your connection and try again.") {
     if (!err) return fallback;
-    if (typeof err === "string") return err;
-    const message = String(err.message || "").trim();
-    if (message) return message;
-    return fallback;
+    const message = String(typeof err === "string" ? err : err.message || "").trim();
+    if (!message) return fallback;
+    if (OFFLINE_ERROR.test(message)) return "SEA-V couldn't be reached. Check your connection and try again.";
+    if (TECHNICAL_ERROR.test(message)) return fallback;
+    return message;
   }
 
   async function withSaving(task, options = {}) {
@@ -208,7 +217,7 @@
       // reported the wrong visibility after failed saves.)
       if (options.rethrow) throw err;
       error(
-        options.errorTitle || "Save failed",
+        options.errorTitle || "That didn't save",
         options.errorMessage || formatActionError(err)
       );
       return undefined;

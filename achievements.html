@@ -24,38 +24,38 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=632" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=632" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=632" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=632" />
+  <link rel="icon" href="/favicon.ico?v=641" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=641" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=641" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=641" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Milestones</title>
 
-  <link rel="stylesheet" href="styles.css?v=632" />
+  <link rel="stylesheet" href="styles.css?v=641" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-  <script src="js/seav-config.js?v=632"></script>
-  <script src="js/supabase.js?v=632"></script>
-  <script src="js/auth.js?v=632"></script>
-  <script src="js/feedback.js?v=632" defer></script>
-  <script src="js/core.js?v=632" defer></script>
-  <script src="js/seav-search.js?v=632" defer></script>
-  <script src="js/bug-reports.js?v=632" defer></script>
-  <script src="js/seav-upload.js?v=632" defer></script>
-  <script src="js/seav-data.js?v=632" defer></script>
-  <script src="js/seav-page-colors.js?v=632"></script>
-  <script src="js/seav-badges.js?v=632" defer></script>
-  <script src="js/api-core.js?v=632" defer></script>
-  <script src="js/api-mappers.js?v=632" defer></script>
-  <script src="js/api.js?v=632" defer></script>
-  <script src="js/state.js?v=632" defer></script>
-  <script src="js/seav-notifications.js?v=632" defer></script>
-  <script src="js/achievements-engine.js?v=632" defer></script>
-  <script src="js/badge-unlock.js?v=632" defer></script>
+  <script src="js/seav-config.js?v=641"></script>
+  <script src="js/supabase.js?v=641"></script>
+  <script src="js/auth.js?v=641"></script>
+  <script src="js/feedback.js?v=641" defer></script>
+  <script src="js/core.js?v=641" defer></script>
+  <script src="js/seav-search.js?v=641" defer></script>
+  <script src="js/bug-reports.js?v=641" defer></script>
+  <script src="js/seav-upload.js?v=641" defer></script>
+  <script src="js/seav-data.js?v=641" defer></script>
+  <script src="js/seav-page-colors.js?v=641"></script>
+  <script src="js/seav-badges.js?v=641" defer></script>
+  <script src="js/api-core.js?v=641" defer></script>
+  <script src="js/api-mappers.js?v=641" defer></script>
+  <script src="js/api.js?v=641" defer></script>
+  <script src="js/state.js?v=641" defer></script>
+  <script src="js/seav-notifications.js?v=641" defer></script>
+  <script src="js/achievements-engine.js?v=641" defer></script>
+  <script src="js/badge-unlock.js?v=641" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous" defer></script>
-  <script src="js/seav-share.js?v=632" defer></script>
-  <script src="js/achievements.js?v=632" defer></script>
+  <script src="js/seav-share.js?v=641" defer></script>
+  <script src="js/achievements.js?v=641" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -112,15 +112,15 @@
           <div class="ach-shell-copy">
             <h2>Milestones</h2>
             <p>
-              Unlock badges as you log sea time, vessels, and milestones — like Strava segments
-              for your yachting career. Auto badges appear when you qualify; log passage and ops
-              moments per vessel whenever you earn them again.
+              Track how close you are to your next ticket, and collect a stamp for every
+              crossing. Stamps found on a passage you logged are marked as checked; ones you
+              add yourself are marked self-declared.
             </p>
           </div>
 
           <div class="ach-shell-actions">
             <a href="#" class="btn-blue" data-open="achievementModal" id="achOpenModal">
-              Log a milestone
+              Add a crossing
             </a>
           </div>
         </div>
@@ -142,43 +142,26 @@
           <details class="ach-progress-section ach-department" id="achDeckProgression" open>
             <summary class="ach-section-head ach-department-summary">
               <h3>Deck Progression</h3>
-              <p>Grouped by certificate, in the order you'd actually earn them — real sea-time and mileage requirements, not round numbers. Progress stays visible even once a step is met.</p>
+              <p>Each ticket in the order you would earn it, with the MCA's real requirements.</p>
             </summary>
             <div class="ach-progress-groups" id="achDeckProgressionList"></div>
           </details>
 
-          <!--
-            Engineering is NOT a <details> on purpose — there is nothing to
-            open, and a disclosure control that reveals an empty panel is worse
-            than no control. Rendered as an inert head with the same
-            "(Coming Soon)" treatment the sidebar already uses for unbuilt
-            pages (.dash-link-soon, css/core/layout.css).
-
-            The category is already wired: CAREER_PATH_CATEGORIES in
-            js/achievements.js includes "Engineering Progression", so the day
-            definitions carry that category they render without further work.
-
-            The old blocker is GONE (verified 2026-08-16): vessels.engine_kw
-            exists, the vs_engine_kw form field saves it, and js/vessels.js
-            renders it as "Engine power ... kW". The known-gaps tracker still
-            records this ladder as blocked on a missing kW field — that entry
-            is stale. Remaining caveat: engine_kw is a TEXT column, so any
-            MSN 1859 power-band gate needs the same tolerant parsing
-            js/seav-data.js already applies to vessel length/GT (all five
-            populated rows are currently clean integers, but nothing enforces
-            that).
-          -->
-          <section class="ach-progress-section ach-department ach-department--soon" aria-disabled="true">
-            <div class="ach-section-head ach-department-summary">
-              <h3>Engineering Progression <span class="ach-department-soon">(Coming Soon)</span></h3>
-              <p>MSN 1859's engineer ladder — AEC, MEOL(Y), Y4 through Y1 — tracked the same way as the deck route.</p>
-            </div>
-          </section>
+          <!-- v641: engineer tickets from MSN 1904 (MSN 1859 was withdrawn on
+               10 Jan 2023). Open by default only for crew with engineering
+               sea time (js/achievements.js). -->
+          <details class="ach-progress-section ach-department" id="achEngineeringProgression">
+            <summary class="ach-section-head ach-department-summary">
+              <h3>Engineering Progression</h3>
+              <p>The Small Vessel engineer tickets (MSN 1904), from MEOL to Chief Engineer. Each shows the Limited to Yachts rule and the full Small Vessel rule; the nearer one is shown. Add each vessel's engine power (kW): it decides what counts.</p>
+            </summary>
+            <div class="ach-progress-groups" id="achEngineeringProgressionList"></div>
+          </details>
 
           <div class="ach-trophy-section">
             <div class="ach-section-head">
-              <h3>Seafarer Achievements</h3>
-              <p>Career moments you log yourself, on the vessel where you earned them.</p>
+              <h3>Crossing stamps</h3>
+              <p>A stamp for each crossing, on the vessel you did it on. Log the passage on the Navigation page and the equator, date line and polar circles stamp themselves.</p>
             </div>
             <div class="ach-trophy-grid" id="achSeafarerAwardsGrid"></div>
           </div>
@@ -215,7 +198,7 @@
         <p class="modal-intro">
           Your MCA-approved Training Record Book — the task-by-task book trainee officers
           fill in and the Master signs off. It has to be completed and presented to the
-          examiner before your OOW oral.
+          examiner before your Officer of the Watch (OOW) oral exam.
         </p>
 
         <label>Status
@@ -247,7 +230,7 @@
     <div class="modal-card modal-card--purple">
 
       <div class="modal-head">
-        <h3>Log a milestone</h3>
+        <h3>Add a crossing</h3>
         <button type="button" class="modal-x" data-close>&times;</button>
       </div>
 
@@ -256,26 +239,25 @@
         <input type="hidden" id="ach_edit_index" value="" />
 
         <p class="modal-intro">
-          Record a passage, operation, or career moment on a specific vessel. You can earn the
-          same badge again on different yachts — each unlock shows the vessel name in your trophy case.
+          Add a crossing you made on a specific vessel. You can add the same one again on another
+          vessel; each shows the vessel's name.
         </p>
 
         <p class="modal-note modal-note--warning" id="achNoVesselNotice" hidden>
-          You need a vessel on your fleet before you can log a milestone —
-          <a href="vessels.html">add one on the Vessels page</a> first, then come back here.
+          Add the vessel first: <a href="vessels.html">add it on the Vessels page</a>, then come back here.
         </p>
 
         <label>
-          Milestone
+          Crossing
           <select id="ach_code" required>
-            <option value="">Choose a milestone to log</option>
+            <option value="">Choose a crossing</option>
           </select>
         </label>
 
         <div class="modal-info-box">
-          <span class="modal-info-label">Badge</span>
+          <span class="modal-info-label">Stamp</span>
           <span class="modal-info-value" id="achBadgeLabel">
-            Pick a milestone to preview its badge.
+            Pick a crossing to see its stamp.
           </span>
         </div>
 
@@ -288,12 +270,20 @@
           <label>
             Vessel
             <select id="ach_vessel" required>
-              <option value="">Which yacht was this on?</option>
+              <option value="">Which vessel was this on?</option>
             </select>
           </label>
 
           <div data-date-field="ach_date" data-date-label="When"></div>
         </div>
+
+        <label>
+          Logged passage <span class="muted">(optional)</span>
+          <select id="ach_passage">
+            <option value="">Not linked to a passage</option>
+          </select>
+        </label>
+        <p class="modal-footnote">Pick the passage you made this crossing on, from your Navigation page. A linked stamp shows "✓ Logged passage" instead of "Self-declared".</p>
 
         <label>
           Your story <span class="muted">(optional)</span>
@@ -309,9 +299,9 @@
           <input type="file" id="ach_file" accept="image/*,.pdf,.doc,.docx" />
         </label>
 
-        <button type="submit" class="btn-blue">Unlock on my profile</button>
+        <button type="submit" class="btn-blue">Save crossing</button>
 
-        <p class="modal-footnote">Self-declared — this badge is recorded as your own claim, not a verified one. Shown on your public profile when enabled.</p>
+        <p class="modal-footnote">Self-declared: this stamp is recorded as your own claim, not a checked one. Shown on your public profile when it is on.</p>
 
       </form>
 

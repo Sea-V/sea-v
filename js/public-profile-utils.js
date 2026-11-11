@@ -223,8 +223,11 @@
 
       const fromCountry = entry.fromCountry || entry.from_country || "";
       const toCountry = entry.toCountry || entry.to_country || entry.country || "";
-      if (fromCountry) countries.add(fromCountry);
-      if (toCountry) countries.add(toCountry);
+      // Ignoring case and spaces, as the Career snapshot counts them.
+      [fromCountry, toCountry].forEach((name) => {
+        const key = String(name || "").trim().toLowerCase();
+        if (key) countries.add(key);
+      });
 
       const vesselId = entry.vesselId || entry.vessel_id || "";
       if (!vesselMap.has(vesselId)) {

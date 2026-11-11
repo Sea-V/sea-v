@@ -185,9 +185,8 @@
         <div class="list-row">
           <div>
             <div class="list-title">No hobbies or interests yet</div>
-            <div class="list-sub">Add sport, travel, music, photography, and other passions with showcase photos.</div>
+            <div class="list-sub">Add what you do outside work, such as sport, travel or music, with a few photos.</div>
           </div>
-          <span class="pill">Draft</span>
         </div>
       `;
       return;
@@ -391,7 +390,6 @@
       file,
       existingMeta: null,
       kind: "Photo",
-      errorHint: "Run docs/hobbies-interests-table.sql in Supabase (storage bucket + policies).",
       maxBytes: window.SeavUpload?.PHOTO_MAX_BYTES,
       resizeImage: true
     });
@@ -486,8 +484,8 @@
         if (!formData.category || !formData.title || !formData.description) {
           Seav.notify(
             "error",
-            "Missing details",
-            "Please complete category, title, and description."
+            "Add the details",
+            "Add a category, a title and a description."
           );
           return;
         }
@@ -505,7 +503,7 @@
             Seav.notify(
               "error",
               "Photos not uploaded",
-              "Your text can still be saved, but the photos failed to upload. Run docs/hobbies-interests-table.sql in Supabase if you have not already."
+              "Your interest will still save. Edit it afterwards to add the photos again."
             );
           }
 
@@ -531,11 +529,7 @@
             });
           } catch (err) {
             console.error("[SEA-V] Hobby save failed:", err);
-            const hint =
-              /does not exist|relation|schema cache/i.test(String(err?.message || err))
-                ? "Run docs/hobbies-interests-table.sql in Supabase → SQL Editor, then try again."
-                : err?.message || "Something went wrong. Check the browser console (F12).";
-            Seav.notify("error", "Could not save", hint);
+            Seav.notify("error", "Interest not saved", Seav.formatActionError(err));
             throw err;
           }
 
@@ -546,7 +540,7 @@
           renderPhotoPreview();
           if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
 
-          Seav.notify("success", "Interest saved", "Hobby saved to your SEA-V profile.");
+          Seav.notify("success", "Interest saved", "");
 
           if (window.Seav.app?.refreshAll) {
             await window.Seav.app.refreshAll();

@@ -152,7 +152,7 @@
     if (input) input.value = "";
     formSearch?.close();
     if (directoryId) {
-      showLinkNote("Linked to the SEA-V yacht directory.");
+      showLinkNote("Linked to the SEA-V vessel directory.");
     } else {
       const row = el("vsFinderLinked");
       const search = el("vsFinderSearchRow");
@@ -171,7 +171,7 @@
     });
     el("vs_directory_id").value = entry.id;
     el("vs_directory_search").value = "";
-    showLinkNote(`Filled in from the SEA-V yacht directory: ${entry.name}. Please check the details, as a yacht can change after you served.`);
+    showLinkNote(`Filled in from the SEA-V vessel directory: ${entry.name}. Please check the details, as a vessel can change after you served.`);
   }
 
   function init() {

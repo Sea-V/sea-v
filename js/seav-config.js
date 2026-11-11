@@ -51,10 +51,10 @@
 
   window.SeavConfig = {
     /** Bump when deploying JS/CSS changes — keep HTML ?v= in sync (see scripts/patch-html-scripts.mjs). */
-    ASSET_VERSION: 632,
+    ASSET_VERSION: 641,
 
     /** Bump when regenerating img/badges/*.svg (cache-bust on badge image URLs). */
-    BADGE_ASSET_VERSION: 30,
+    BADGE_ASSET_VERSION: 31,
 
     /**
      * CARTO basemap key — 2026-09-13.

@@ -524,9 +524,8 @@
         <div class="list-row">
           <div>
             <div class="list-title">No onboard experience yet</div>
-            <div class="list-sub">Add familiarisations, paint work, crane ops, and other yacht skills.</div>
+            <div class="list-sub">Add jobs you've done onboard, such as painting, crane work or tender driving.</div>
           </div>
-          <span class="pill">Draft</span>
         </div>
       `;
       return;
@@ -604,7 +603,6 @@
       file,
       existingMeta: existing,
       kind: "Onboard experience",
-      errorHint: "Run docs/onboard-experiences-table.sql in Supabase (storage bucket + policies)."
     }) ?? existing ?? null;
   }
 
@@ -807,14 +805,14 @@
     const note = noteInput?.value.trim() || "";
 
     if (!category) {
-      Seav.notify("error", "Missing details", "Choose a category first.");
+      Seav.notify("error", "Choose a category", "Pick the kind of skill first.");
       return;
     }
     if (!skill) {
       Seav.notify(
         "error",
-        "Missing details",
-        isCustom ? "Type the name of the skill or training." : "Choose a skill first."
+        isCustom ? "Add the skill" : "Choose a skill",
+        isCustom ? "Type the name of the skill or training." : "Pick one from the list."
       );
       return;
     }
@@ -863,7 +861,7 @@
         renderSkillRatingInput(0);
         populateSkillNameOptions(category);
 
-        Seav.notify("success", "Skill added", `${skill} saved to your skills profile.`);
+        Seav.notify("success", "Skill added", `${skill} added to your skills.`);
 
         if (window.Seav.app?.refreshAll) {
           await window.Seav.app.refreshAll();
@@ -1070,8 +1068,8 @@
         if (!formData.vesselId || !formData.category || !formData.title || !formData.description) {
           Seav.notify(
             "error",
-            "Missing details",
-            "Please complete vessel, category, title, and description."
+            "Add the details",
+            "Add the vessel, a category, a title and a description."
           );
           return;
         }
@@ -1140,8 +1138,8 @@
 
         Seav.notify(
           "success",
-          "Experience logged",
-          "Onboard work saved to your SEA-V profile."
+          "Onboard experience saved",
+          ""
         );
 
         if (window.Seav.app?.refreshAll) {

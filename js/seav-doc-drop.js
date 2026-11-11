@@ -521,8 +521,8 @@
       const s = doc.sea;
       const field = (key, label) => `<div><small class="cvu-label">${label}</small><input type="number" min="0" data-dd-day="${key}" value="${esc(s.days[key])}" aria-label="${label}"></div>`;
       const overlap = s.from ? findOverlap(s.from, s.to) : null;
-      return `<div class="du-record"><strong>${esc(s.yacht || "Yacht not shown")}${s.role ? `, ${esc(s.role)}` : ""}</strong>
-        ${s.vesselId ? "" : `<small class="cvu-note">This yacht isn't in your records yet, so the entry won't be linked to one. Add it under Vessels, then link it.</small>`}
+      return `<div class="du-record"><strong>${esc(s.yacht || "Vessel not shown")}${s.role ? `, ${esc(s.role)}` : ""}</strong>
+        ${s.vesselId ? "" : `<small class="cvu-note">This vessel isn't in your records yet, so the entry won't be linked to one. Add it under Vessels, then link it.</small>`}
         <div class="dd-dates">${dateField("dd_from", "Joined", true)}${dateField("dd_to", "Left", true)}</div>
         <div class="du-pair du-pair--4">${field("sea", "Sea days")}${field("standby", "Standby days")}${field("yard", "Yard days")}${field("watch", "Watchkeeping days")}</div>
         ${overlap ? `<div class="du-flag"><div><strong>These dates overlap another entry</strong><small class="cvu-note">Each day can only count once. Check the dates, or edit the other entry, before you save.</small></div></div>` : ""}
@@ -536,7 +536,7 @@
       const p = doc.pay;
       const money = (key, label) => `<div><small class="cvu-label">${label}${p.currency === "OTHER" ? "" : `, ${esc(p.currency)}`}</small><input type="number" step="0.01" min="0" data-dd-pay="${key}" value="${esc(p[key])}" aria-label="${label}"></div>`;
       return `<div class="du-record">
-        <div class="dd-dates">${dateField("dd_pay", "Paid on", true)}<div><small class="cvu-label">Yacht</small><strong class="du-value">${esc(p.yacht || "Not shown")}</strong></div></div>
+        <div class="dd-dates">${dateField("dd_pay", "Paid on", true)}<div><small class="cvu-label">Vessel</small><strong class="du-value">${esc(p.yacht || "Not shown")}</strong></div></div>
         <div class="du-pair">${money("gross", "Gross pay")}${money("net", "Net pay")}</div>
         <small class="cvu-note">Private. Never on your public profile or CV.</small>
       </div>`;

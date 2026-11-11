@@ -574,3 +574,10 @@
     grid-template-columns: 1fr;
   }
 }
+/* v633: a fifth "Date to confirm" box appears only when one exists; keep the
+   row on one line on wide screens instead of wrapping it on its own. */
+@media (min-width: 901px) {
+  .sq-kpi-row.cert-kpi-row--five {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}

@@ -854,3 +854,14 @@
 .seatime-linked-miles .modal-date-hint {
   margin: 6px 0 0;
 }
+
+/* v641: engineer sea time block (full-charge tick, missing-kW prompt). */
+.seatime-engine-block {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 12px;
+}
+
+.seatime-engine-block[hidden] {
+  display: none;
+}

@@ -145,30 +145,6 @@ body.badge-unlock-open {
   text-transform: uppercase;
 }
 
-.badge-unlock-card[data-tier="bronze"] .badge-unlock-tier-pill,
-.badge-unlock-card.tier-bronze .badge-unlock-tier-pill {
-  border-color: rgba(205, 127, 50, 0.32);
-  color: #f0b27a;
-}
-
-.badge-unlock-card[data-tier="silver"] .badge-unlock-tier-pill,
-.badge-unlock-card.tier-silver .badge-unlock-tier-pill {
-  border-color: rgba(184, 201, 220, 0.32);
-  color: #d7e4f2;
-}
-
-.badge-unlock-card[data-tier="gold"] .badge-unlock-tier-pill,
-.badge-unlock-card.tier-gold .badge-unlock-tier-pill {
-  border-color: rgba(255, 210, 90, 0.32);
-  color: #ffe08a;
-}
-
-.badge-unlock-card[data-tier="platinum"] .badge-unlock-tier-pill,
-.badge-unlock-card.tier-platinum .badge-unlock-tier-pill {
-  border-color: rgba(114, 228, 255, 0.32);
-  color: #9aeaff;
-}
-
 .badge-unlock-desc {
   margin: 0 0 18px;
   color: rgb(var(--seav-ink-rgb) / 0.7);
@@ -264,4 +240,24 @@ body.badge-unlock-open {
   .badge-unlock-heading {
     font-size: 16px;
   }
+}
+
+/* v635: no tiers. A stamp's pill says it was found on a logged passage, in
+   the progress green; the stage is hidden for a ticket (no medal art). */
+.badge-unlock-card.is-stamp .badge-unlock-tier-pill {
+  border-color: var(--seav-stamp-proof-border);
+  color: var(--seav-progress-fill);
+}
+
+.badge-unlock-badge-stage[hidden] {
+  display: none !important;
+}
+
+.badge-unlock-card.is-stamp .badge-unlock-badge-stage {
+  width: var(--seav-stamp-size);
+  height: var(--seav-stamp-size);
+}
+
+.badge-unlock-card.is-stamp .badge-unlock-badge-ring {
+  display: none;
 }

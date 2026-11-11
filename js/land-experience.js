@@ -252,11 +252,11 @@
       e.preventDefault();
       const formData = readForm();
       if (!formData.role) {
-        Seav.notify("error", "Missing details", "Add the role you held.");
+        Seav.notify("error", "Add your role", "Say what your job was.");
         return;
       }
       if (formData.dateFrom && formData.dateTo && formData.dateTo < formData.dateFrom) {
-        Seav.notify("error", "Invalid dates", "The finish date must be on or after the start date.");
+        Seav.notify("error", "Check the dates", "The date you left can't be before the date you started.");
         return;
       }
 
@@ -295,7 +295,7 @@
         Seav.clearDateTriplet("le_date_from");
         Seav.clearDateTriplet("le_date_to");
         if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
-        Seav.notify("success", "Role saved", "Saved to your SEA-V profile.");
+        Seav.notify("success", "Job saved", "");
 
         if (window.Seav.app?.refreshAll) await window.Seav.app.refreshAll();
         else await refreshView();
@@ -338,7 +338,7 @@
           return; // SeavAPI has already shown "Delete failed".
         }
         expandedIds.delete(id);
-        Seav.notify("success", "Deleted", "Role removed from your profile.");
+        Seav.notify("success", "Job deleted", "");
         if (window.Seav.app?.refreshAll) await window.Seav.app.refreshAll();
         else await refreshView();
       }

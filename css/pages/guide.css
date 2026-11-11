@@ -142,3 +142,55 @@ body.seav-guide-open .app-topbar :is(.nav-left, .nav-right) { visibility: hidden
   .guide-two { grid-template-columns: 1fr; }
   .guide-box { padding: 16px; }
 }
+
+/* v637 green crew: the yacht question, the skills picker, the path list. */
+.guide-question {
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.guide-question legend {
+  margin-bottom: 8px;
+  padding: 0;
+  color: var(--seav-field-label-color);
+  font-weight: var(--font-weight-title);
+}
+
+.guide-qualities {
+  display: grid;
+  gap: 8px;
+}
+
+.guide-qualities-label {
+  color: var(--seav-field-label-color);
+  font-weight: var(--font-weight-title);
+}
+
+.guide-qualities-label small {
+  color: var(--seav-meta-muted-color);
+  font-weight: var(--font-weight-body);
+}
+
+.guide-path li {
+  display: grid;
+  grid-template-columns: var(--dash-first-mark-size) minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.guide-path-mark {
+  width: var(--dash-first-mark-size);
+  height: var(--dash-first-mark-size);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--bridge-rule);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.guide-path .is-done .guide-path-mark {
+  border-color: var(--seav-progress-fill);
+  color: var(--seav-progress-fill);
+}

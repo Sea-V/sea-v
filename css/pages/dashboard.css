@@ -1185,3 +1185,159 @@ html body.app-page .dash-vessel-numbers {
   gap: 9px;
 }
 
+
+/* =========================================================
+   GREEN CREW — v637, Jack 2026-11-12
+   "Your first yacht" (in the vessel slot) and "Your first tickets" (in the
+   ticket slot) while there is no yacht. The hero sits on the ocean photo,
+   so its ink is white in both themes, like the vessel photo card.
+========================================================= */
+.dash-panel--vessel.is-first-yacht {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-first-hero {
+  --seav-ink-rgb: 255 255 255;
+  padding: 20px var(--dash-panel-pad) 18px;
+  background: var(--dash-first-scrim), var(--dash-first-photo) center 70% / cover;
+  border-bottom: 1px solid var(--bridge-rule, rgb(var(--seav-ink-rgb) / 0.12));
+  color: #fff;
+}
+
+html body.app-page .dash-first-kicker {
+  display: block;
+  color: var(--dash-first-kicker);
+  font-size: var(--type-caption) !important;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+html body.app-page .dash-first-title {
+  margin: 4px 0 6px;
+  color: #fff;
+  font-size: var(--type-page) !important;
+  font-weight: 800;
+}
+
+html body.app-page .dash-first-text {
+  margin: 0;
+  color: rgb(255 255 255 / 0.78);
+}
+
+.dash-first-meter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.dash-first-meter .dash-ticket-bar {
+  flex: 1;
+  margin-top: 0;
+  background: rgb(255 255 255 / 0.18);
+}
+
+.dash-first-meter b {
+  white-space: nowrap;
+  font-weight: 800;
+}
+
+.dash-ready-list {
+  margin: 0;
+  padding: 0 var(--dash-panel-pad);
+  list-style: none;
+}
+
+.dash-ready-row {
+  display: grid;
+  grid-template-columns: var(--dash-first-mark-size) minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid var(--bridge-rule, rgb(var(--seav-ink-rgb) / 0.12));
+}
+
+.dash-ready-row:first-child {
+  border-top: 0;
+}
+
+.dash-ready-mark {
+  width: var(--dash-first-mark-size);
+  height: var(--dash-first-mark-size);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--bridge-rule, rgb(var(--seav-ink-rgb) / 0.2));
+  color: var(--seav-meta-muted-color);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.dash-ready-row.is-done .dash-ready-mark {
+  border-color: var(--seav-progress-fill);
+  color: var(--seav-progress-fill);
+}
+
+.dash-ready-row.is-next .dash-ready-mark {
+  border-color: var(--dash-first-next);
+  color: var(--dash-first-next);
+}
+
+.dash-ready-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.dash-ready-row.is-done .dash-panel-name {
+  color: var(--seav-meta-desc-color);
+}
+
+.dash-first-nudge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px var(--dash-panel-pad) var(--dash-panel-pad);
+  padding: 12px 14px;
+  border: 1px dashed var(--dash-first-next);
+  border-radius: var(--bridge-radius, 4px);
+  background: var(--dash-first-next-soft);
+}
+
+.dash-first-nudge-copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-first-nudge-copy small {
+  color: var(--seav-meta-desc-color);
+}
+
+.dash-first-nudge .btn-blue {
+  white-space: nowrap;
+}
+
+/* Status in Your first tickets */
+.dash-first-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgb(var(--seav-ink-rgb) / 0.07);
+  color: var(--seav-meta-muted-color);
+  font-size: var(--type-caption);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dash-first-status.is-ok {
+  background: var(--seav-stamp-proof-bg);
+  color: var(--seav-progress-fill);
+}
+
+.dash-first-status.is-todo,
+.dash-first-status.is-warn {
+  background: var(--dash-first-next-soft);
+  color: var(--dash-first-next);
+}

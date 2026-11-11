@@ -240,7 +240,11 @@
   const YACHTMASTER_OFFSHORE_TIDAL_MILES = 1250;
 
   function buildNavigationStats(entries, paths) {
-    const countries = collectVisitedCountries(entries);
+    // Counted ignoring case and spaces, as the public profile and CV count
+    // them ("Italy" and "italy " are one country).
+    const countries = new Set(
+      [...collectVisitedCountries(entries)].map((name) => String(name).trim().toLowerCase()).filter(Boolean)
+    );
     const ports = new Set();
 
     entries.forEach((entry) => {
@@ -258,6 +262,10 @@
       0
     );
     const worldPct = (totalNm / EARTH_CIRCUMFERENCE_NM) * 100;
+    // Yachtmaster miles count yachts up to 500GT only (Jack's strict-RYA call,
+    // 2026-10-04), the same figure the Milestones page uses.
+    const ym = window.SeavData?.computeYachtmasterOffshoreMiles?.(entries, getVessels())
+      || { totalNm, tidalNm };
 
     return {
       countries: countries.size,
@@ -265,6 +273,8 @@
       passages: paths.length,
       totalNm,
       tidalNm,
+      ymNm: ym.totalNm,
+      ymTidalNm: ym.tidalNm,
       worldPct
     };
   }
@@ -292,16 +302,16 @@
     if (worldPctEl) worldPctEl.textContent = formatWorldPct(stats.worldPct);
 
     if (ymMilesEl) {
-      const milesMet = Math.min(Math.round(stats.totalNm), YACHTMASTER_OFFSHORE_MILES);
+      const milesMet = Math.min(Math.round(stats.ymNm), YACHTMASTER_OFFSHORE_MILES);
       ymMilesEl.textContent = `${milesMet.toLocaleString()} / ${YACHTMASTER_OFFSHORE_MILES.toLocaleString()}`;
     }
     if (ymTidalEl) {
-      const tidalMet = Math.min(Math.round(stats.tidalNm), YACHTMASTER_OFFSHORE_TIDAL_MILES);
+      const tidalMet = Math.min(Math.round(stats.ymTidalNm), YACHTMASTER_OFFSHORE_TIDAL_MILES);
       ymTidalEl.textContent = `${tidalMet.toLocaleString()} / ${YACHTMASTER_OFFSHORE_TIDAL_MILES.toLocaleString()} tidal`;
     }
     if (ymWrapEl) {
       const qualified =
-        stats.totalNm >= YACHTMASTER_OFFSHORE_MILES && stats.tidalNm >= YACHTMASTER_OFFSHORE_TIDAL_MILES;
+        stats.ymNm >= YACHTMASTER_OFFSHORE_MILES && stats.ymTidalNm >= YACHTMASTER_OFFSHORE_TIDAL_MILES;
       ymWrapEl.classList.toggle("navigation-stat--met", qualified);
     }
   }

@@ -156,7 +156,7 @@
       "id", "user_id", "code", "title", "category", "dashboard_section", "badge_key",
       "badge_file_name", "badge_tier", "badge_label", "badge_image", "badge_locked_image",
       "vessel_id", "vessel", "achievement_date", "status", "witness_name",
-      "witness_position", "description", "attachment", "auto_awarded", "created_at", "updated_at"
+      "witness_position", "description", "attachment", "auto_awarded", "navigation_area_id", "created_at", "updated_at"
     ].join(","),
     navigation_areas: [
       "id", "user_id", "country", "port", "from_country", "from_port", "from_lat",
@@ -377,7 +377,7 @@
         if (!error) {
           if (payload.seatime_id) emitSchemaWarning(
             "navigation_areas",
-            "Passage saved, but the sea time link was skipped because your database is missing navigation_areas.seatime_id. Run docs/navigation-complete-migration.sql in Supabase."
+            "Passage saved, but it couldn't be linked to your sea time. Try linking it again later."
           );
           return;
         }
@@ -409,7 +409,7 @@
       if (!error) {
         if (payload.seatime_id) emitSchemaWarning(
           "navigation_areas",
-          "Passage saved, but the sea time link was skipped because your database is missing navigation_areas.seatime_id. Run docs/navigation-complete-migration.sql in Supabase."
+          "Passage saved, but it couldn't be linked to your sea time. Try linking it again later."
         );
         return;
       }
@@ -419,7 +419,7 @@
 
   async function upsertSupabaseItem(table, item) {
     if (!window.SeavSupabase) {
-      throw new Error("Supabase is not available.");
+      throw new Error("SEA-V couldn't be reached. Check your connection and try again.");
     }
 
     if (table === "navigation_areas") {
@@ -444,7 +444,7 @@
 
   async function updateSupabaseItem(table, id, item) {
     if (!window.SeavSupabase) {
-      throw new Error("Supabase is not available.");
+      throw new Error("SEA-V couldn't be reached. Check your connection and try again.");
     }
 
     if (table === "navigation_areas") {
@@ -542,7 +542,7 @@
 
   async function deleteSupabaseItem(table, id) {
     if (!window.SeavSupabase) {
-      throw new Error("Supabase is not available.");
+      throw new Error("SEA-V couldn't be reached. Check your connection and try again.");
     }
 
     const row = await fetchSupabaseRowById(table, id);
@@ -583,10 +583,10 @@
 
   function notifyDeleteFailure(err) {
     const message =
-      window.SeavFeedback?.formatActionError?.(err, "Could not delete this record.") ||
-      String(err?.message || "Could not delete this record.");
+      window.SeavFeedback?.formatActionError?.(err, "Check your connection and try again.") ||
+      "Check your connection and try again.";
     if (window.SeavFeedback?.error) {
-      window.SeavFeedback.error("Delete failed", message);
+      window.SeavFeedback.error("That wasn't deleted", message);
     }
   }
 
@@ -769,9 +769,8 @@ const SeavAPI = {
         console.error("[SEA-V] Supabase profile fetch failed:", error);
         if (window.SeavFeedback?.error) {
           window.SeavFeedback.error(
-            "Profile did not load",
-            "Run grant select on profile to authenticated in Supabase, then reload. Details: " +
-              (error.message || "permission denied")
+            "Your profile didn't load",
+            "Refresh the page. If it keeps happening, sign out and back in."
           );
         }
         return fallback;
@@ -818,9 +817,8 @@ const SeavAPI = {
       console.error("[SEA-V] Supabase profile fetch failed:", error);
       if (window.SeavFeedback?.error) {
         window.SeavFeedback.error(
-          "Profile did not load",
-          "Run grant select on profile to authenticated in Supabase, then reload. Details: " +
-            (error.message || "permission denied")
+          "Your profile didn't load",
+          "Refresh the page. If it keeps happening, sign out and back in."
         );
       }
       return fallback;

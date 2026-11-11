@@ -782,8 +782,8 @@
         await saveProfileFromForm();
         Seav.notify(
           "success",
-          "Profile anchored",
-          "Your SEA-V profile is saved and shipshape."
+          "Profile saved",
+          "Click Edit profile to make more changes."
         );
         // 2026-08-05, per Jack: lock back to the read-only view on a
         // successful save — Edit is the only way back into the form.
@@ -793,8 +793,8 @@
         console.error("[SEA-V] Profile save failed:", err);
         Seav.notify(
           "error",
-          "Could not save profile",
-          Seav.formatActionError(err, "Check the browser console (F12) for details.")
+          "Your profile didn't save",
+          Seav.formatActionError(err, "Check your connection and try again.")
         );
       }
     });
@@ -834,7 +834,7 @@
         } catch (err) {
           console.error("[SEA-V] Data export failed:", err);
           say("");
-          Seav.notify("error", "Could not export your data", err?.message || "Try again or contact support.");
+          Seav.notify("error", "Could not export your data", Seav.formatActionError(err, "Try again. If it keeps happening, use Contact in the menu."));
         } finally {
           exportBtn.disabled = false;
         }
@@ -854,7 +854,7 @@
           window.location.href = "index.html";
         } catch (err) {
           console.error("[SEA-V] Account deletion failed:", err);
-          Seav.notify("error", "Could not delete account", err?.message || "Try again or contact support.");
+          Seav.notify("error", "Could not delete account", Seav.formatActionError(err, "Try again. If it keeps happening, use Contact in the menu."));
         }
       });
     }
@@ -942,7 +942,7 @@
         codeInput?.focus();
       } catch (err) {
         console.error("[SEA-V] Two-step setup failed:", err);
-        Seav.notify("error", "Could not start two-step login", err?.message || "Try again or contact support.");
+        Seav.notify("error", "Could not start two-step login", Seav.formatActionError(err, "Try again. If it keeps happening, use Contact in the menu."));
       } finally {
         startBtn.disabled = false;
       }

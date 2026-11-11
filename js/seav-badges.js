@@ -251,7 +251,7 @@ northwest_passage_transit: {
       dashboardSection: "navigation",
       sourcePage: "navigation",
       badgeKey: "yachtmaster_offshore",
-      description: "Logged 2,500 miles on yachts up to 500GT, at least 1,250 of them in tidal waters — the sea-mile prerequisite for the RYA Yachtmaster Offshore exam. Passages on larger yachts don't count (RYA rule); passages with no vessel linked do.",
+      description: "Logged 2,500 miles on vessels up to 500GT, at least 1,250 of them in tidal waters — the sea-mile prerequisite for the RYA Yachtmaster Offshore exam. Passages on larger yachts don't count (RYA rule); passages with no vessel linked do.",
       approvalRequired: false,
       trigger: { type: "yachtmaster_offshore_miles" }
     },
@@ -265,7 +265,7 @@ northwest_passage_transit: {
       dashboardSection: "navigation",
       sourcePage: "navigation",
       badgeKey: "yachtmaster_offshore_ready",
-      description: "Met the RYA's pre-exam requirements for Yachtmaster Offshore: 50 days at sea in the last 10 years on yachts up to 500GT (half under 24m), 2,500 miles (half tidal), 5 passages over 60 miles including 2 overnight and 2 as skipper, 5 days as skipper on vessels under 24m, plus a VHF/SRC and a first aid certificate. Set your role on each passage on the Navigation page.",
+      description: "Met the RYA's pre-exam requirements for Yachtmaster Offshore: 50 days at sea in the last 10 years on vessels up to 500GT (half under 24m), 2,500 miles (half tidal), 5 passages over 60 miles including 2 overnight and 2 as skipper (on vessels up to 500GT, or over 24m up to 3000GT), 5 days as skipper on vessels under 24m, plus a VHF/SRC and a first aid certificate. Set your role on each passage on the Navigation page.",
       approvalRequired: false,
       trigger: { type: "yachtmaster_offshore_ready" }
     },
@@ -277,7 +277,7 @@ northwest_passage_transit: {
       dashboardSection: "navigation",
       sourcePage: "navigation",
       badgeKey: "yachtmaster_ocean_passage",
-      description: "Logged a Yachtmaster Ocean qualifying passage within the last 10 years — non-stop, 600+ miles, 200+ of them more than 50 miles from land, at least 96 hours, as skipper or in charge of a watch — while holding Yachtmaster Offshore or OOW Yachts <3000GT. Celestial sights are assessed by the RYA, not tracked here.",
+      description: "Logged a Yachtmaster Ocean qualifying passage within the last 10 years — non-stop, 600+ miles, 200+ of them more than 50 miles from land, at least 96 hours (5 or more nights by date, as passages hold no times), as skipper or in charge of a watch — while holding Yachtmaster Offshore or OOW Yachts <3000GT. Celestial sights are assessed by the RYA, not tracked here.",
       approvalRequired: false,
       trigger: { type: "yachtmaster_ocean_passage" }
     },
@@ -410,10 +410,73 @@ northwest_passage_transit: {
       badgeKey: "chief_mate_yachts_unlimited",
       description: "Holding Master Yachts <3000GT meets the Certificate of Competency prerequisite for Chief Mate Yachts Unlimited (MSN 1858 §4.3(a)) — the new pathway letting yacht deck officers progress beyond 3000GT on yacht sea time alone, no Merchant Navy tickets required. Ancillary courses, 9 academic modules at an MCA-approved college, an MCA practical assessment, ENG1 and the oral exam are still required for the actual CoC.",
       approvalRequired: false,
+      // SCOPE NOTE: §4.3(a) has two routes. Only holding Master Yachts <3000GT is
+      // implemented; the other needs OOW Unlimited, which SEA-V does not track.
+      // v611 swapped this trigger for the Master Unlimited one by mistake (the
+      // milestone below was deleted in the same edit); both restored in v633.
+      trigger: { type: "chief_mate_unlimited_direct" }
+    },
+    master_yachts_unlimited: {
+      code: "master_yachts_unlimited",
+      title: "Master Yachts Unlimited — Sea Service",
+      category: "Deck Progression",
+      certGroup: "Master Yachts Unlimited",
+      dashboardSection: "seatime",
+      sourcePage: "seatime",
+      badgeKey: "master_yachts_unlimited",
+      description: "Logged the onboard service for Master Yachts Unlimited on vessels 500GT or over (MSN 1858 §4.4(b)): while holding Master Yachts <3000GT, 6 months as Master including 3 months' actual sea service; or while holding Chief Mate Yachts Unlimited, 12 months as Chief Mate including 6 months' actual sea service. Counted from your Sea Time entries' capacity served, so keep that accurate. The third route needs OOW Unlimited, which SEA-V does not track.",
+      approvalRequired: false,
       // SCOPE NOTE: §4.4(b) has three routes. Two are implemented (via Master Yachts
       // <3000GT and via Chief Mate Yachts Unlimited). The third needs OOW Unlimited,
       // which SEA-V does not track. Recorded so it is not mistaken for a bug.
       trigger: { type: "master_unlimited_master3000_route", gatingCertCode: "MASTER Y3000" }
+    },
+
+    // v641: engineer tickets from MSN 1904 (MSN 1859 was withdrawn 10 Jan
+    // 2023). Tracker rows only, no medal. Rules: SeavData.computeEngineeringTier.
+    eng_meol_sv: {
+      code: "eng_meol_sv",
+      title: "MEOL (Small Vessel) — Sea Service",
+      category: "Engineering Progression",
+      certGroup: "MEOL (Small Vessel)",
+      dashboardSection: "seatime",
+      sourcePage: "seatime",
+      description: "The sea service for the Marine Engine Operator Licence (Small Vessel), for vessels of 200 to 750 kW (MSN 1904 §3.2): 24 months onboard as an engineer on vessels of 200 kW or more, or 36 months as deck/engineer, including 6 months of seagoing service in the engine department. From age 19. AEC I and II, the STCW basics, ENG1 and an MCA oral are also needed.",
+      approvalRequired: false,
+      trigger: { type: "engineering_tier", tier: "meol" }
+    },
+    eng_eoow_sv: {
+      code: "eng_eoow_sv",
+      title: "Engineer Officer of the Watch (Small Vessel) — Sea Service",
+      category: "Engineering Progression",
+      certGroup: "Engineer Officer of the Watch (Small Vessel)",
+      dashboardSection: "seatime",
+      sourcePage: "seatime",
+      description: "The Experienced Seafarer route to EOOW (Small Vessel), <9,000 kW and <3,000GT (MSN 1904 §4.4-4.6, §5.9): 24 months onboard in the engine room on vessels of 200 kW or more to register, then the programme time on vessels of 350 kW or more, with 6 months of engine-room watchkeeping. Shown for the Limited to Yachts version and the full Small Vessel version. SEA-V cannot see your registration date, so the two parts are added together. From age 18.",
+      approvalRequired: false,
+      trigger: { type: "engineering_tier", tier: "eoow" }
+    },
+    eng_ce500_sv: {
+      code: "eng_ce500_sv",
+      title: "Chief Engineer (Small Vessel) <500GT — Sea Service",
+      category: "Engineering Progression",
+      certGroup: "Chief Engineer (Small Vessel) <500GT",
+      dashboardSection: "seatime",
+      sourcePage: "seatime",
+      description: "Chief Engineer (Small Vessel) <3,000 kW and <500GT (MSN 1904 §4.9, §5.9): while holding EOOW (Small Vessel), on vessels of 350 kW or more. Limited to Yachts: 6 months onboard as an engineer officer, 4 of them seagoing. Full Small Vessel: 6 months of seagoing service in full charge of the watch (tick it on each sea time entry).",
+      approvalRequired: false,
+      trigger: { type: "engineering_tier", tier: "ce500" }
+    },
+    eng_ce3000_sv: {
+      code: "eng_ce3000_sv",
+      title: "Chief Engineer (Small Vessel) <3000GT — Sea Service",
+      category: "Engineering Progression",
+      certGroup: "Chief Engineer (Small Vessel) <3000GT",
+      dashboardSection: "seatime",
+      sourcePage: "seatime",
+      description: "Chief Engineer (Small Vessel) <9,000 kW and <3,000GT (MSN 1904 §4.10, §5.9, MIN 642): while holding EOOW (Small Vessel). Limited to Yachts: 12 months onboard as an engineer officer, 8 seagoing, 4 of those on vessels of 750 kW or more (6 and 4 if you hold Chief Engineer <500GT). Full Small Vessel: 12 months of seagoing service in full charge of the watch, 6 on vessels of 750 kW or more.",
+      approvalRequired: false,
+      trigger: { type: "engineering_tier", tier: "ce3000" }
     },
 
     atlantic_crossing: {
@@ -666,85 +729,39 @@ northwest_passage_transit: {
   }
 
   /* =========================================================
-     AWARD COLOUR FAMILIES  —  2026-08-22, per Jack
+     PASSPORT STAMPS  —  v635, Jack's pick 2026-11-12
      =========================================================
-     Every Passage & Navigation badge used to render in one teal, because they
-     all resolved to the "navigation" page colour in scripts/generate-badges.mjs.
-     They now split four ways, and the same split drives the CARD around the
-     badge on all three surfaces (Milestones, the dashboard widget, the public
-     profile) so a Cape Horn card looks like a Cape Horn card everywhere.
+     Passage achievements are one-colour stamps (scripts/generate-stamps.mjs).
+     The 2026-08-22 colour families, flag stripes and bronze-to-platinum tiers
+     are gone: an employer reads the fact and how it is known, not a colour.
+     Ticket milestones (Deck Progression) are no longer drawn as medals at all;
+     the Milestones page shows them as a progress tracker.
 
-     Keep in step with the `family` field in scripts/badge-copy.json — that
-     drives the SVG's own ring colours, this drives the card's border, backdrop
-     and top stripe. They must name the same family for a badge or the hexagon
-     and the card it sits in will disagree.
+     getAwardTreatment is kept as a stub so older callers keep working. */
+  function getAwardTreatment() {
+    return null;
+  }
 
-     `flag` is the country whose water or land the award is earned in, rendered
-     as solid colour segments in the card's 4px top border. Segments, not an
-     image or an emoji: emoji flags have no glyphs in Chrome on Windows and
-     render as bare letters, and a gradient would break the solid-colour rule.
-     Awards in international water carry no flag and fall back to the family
-     colour, so the top edge still reads as deliberate rather than missing.
+  function isStampCode(code) {
+    return getAchievement(code)?.category === "Passage & Navigation";
+  }
 
-     Cape of Good Hope has no entry ON PURPOSE: six colours in a Y-shape does
-     not reduce to honest stripes. It takes the family colour until someone
-     draws that one flag as a real SVG. */
-  const AWARD_FAMILIES = {
-    ocean: { edge: "rgba(91,188,255,0.42)",  back: "#5bbcff", label: "Ocean crossing" },
-    place: { edge: "rgba(94,230,168,0.42)",  back: "#5ee6a8", label: "Place" },
-    canal: { edge: "rgba(216,185,138,0.46)", back: "#d8b98a", label: "Canal" },
-    polar: { edge: "rgba(232,242,255,0.40)", back: "#e8f2ff", label: "Polar" }
-  };
+  // "logged" when any instance was found on a logged passage (the engine
+  // unlocks those itself) or is linked to one (navigationAreaId, v636), else
+  // "self". A manual record's status is NOT trusted as proof: nothing in
+  // SEA-V verifies a crossing, and the three old "Verified" manual rows had
+  // no witness (v636 correction of v635's "✓ Verified" tag).
+  function stampProof(instances) {
+    const list = (instances || []).filter((item) => item && item.status !== "Declined");
+    return list.some((item) => item.autoAwarded || item.navigationAreaId) ? "logged" : "self";
+  }
 
-  const AWARD_FLAGS = {
-    panama: { name: "Panama",       colors: ["#0A5BB4", "#FFFFFF", "#D21034"] },
-    egypt:  { name: "Egypt",        colors: ["#CE1126", "#FFFFFF", "#000000"] },
-    greece: { name: "Greece",       colors: ["#0D5EAF", "#FFFFFF"] },
-    chile:  { name: "Chile",        colors: ["#0039A6", "#FFFFFF", "#D52B1E"] },
-    canada: { name: "Canada",       colors: ["#D80621", "#FFFFFF", "#D80621"] }
-  };
-
-  const AWARD_FAMILY_BY_CODE = {
-    atlantic_crossing:         { family: "ocean" },
-    pacific_crossing:          { family: "ocean" },
-    indian_ocean_crossing:     { family: "ocean" },
-    equator_crossing:          { family: "ocean" },
-    date_line_crossing:        { family: "ocean" },
-
-    panama_canal_transit:      { family: "canal", flag: "panama" },
-    suez_canal_transit:        { family: "canal", flag: "egypt" },
-    corinth_canal_transit:     { family: "canal", flag: "greece" },
-
-    cape_horn_rounding:        { family: "place", flag: "chile" },
-    magellan_transit:          { family: "place", flag: "chile" },
-    northwest_passage_transit: { family: "place", flag: "canada" },
-    good_hope_rounding:        { family: "place" },
-    drake_passage_crossing:    { family: "place" },
-
-    arctic_circle_crossing:    { family: "polar" },
-    antarctic_circle_crossing: { family: "polar" }
-  };
-
-  /* Returns the card treatment for one award code, or null for a badge that
-     has no family (every Deck Progression milestone, for one) — callers render
-     those exactly as they do today. */
-  function getAwardTreatment(code) {
-    const entry = AWARD_FAMILY_BY_CODE[code];
-    if (!entry) return null;
-
-    const family = AWARD_FAMILIES[entry.family];
-    if (!family) return null;
-
-    const flag = entry.flag ? AWARD_FLAGS[entry.flag] : null;
-    return {
-      family: entry.family,
-      edge: family.edge,
-      back: family.back,
-      label: family.label,
-      country: flag ? flag.name : "",
-      // Always at least one segment, so the stripe is never an empty strip.
-      stripe: flag ? flag.colors : [family.back]
-    };
+  // The one line an employer reads first: found on a logged passage, or the
+  // crew member's own word. Static text, nothing to escape.
+  function stampProofTag(proof) {
+    return proof === "logged"
+      ? `<small class="ach-stamp-proof is-logged">✓ Logged passage</small>`
+      : `<small class="ach-stamp-proof is-self">Self-declared</small>`;
   }
 
   window.SeavBadges = {
@@ -760,8 +777,9 @@ northwest_passage_transit: {
     withBadgeCacheBust,
     resolveBadgeImage,
     resolveItemBadgeImage,
-    AWARD_FAMILIES,
-    AWARD_FLAGS,
-    getAwardTreatment
+    getAwardTreatment,
+    isStampCode,
+    stampProof,
+    stampProofTag
   };
 })();

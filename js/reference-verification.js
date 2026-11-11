@@ -191,7 +191,7 @@
       if (error && /could not find the function|404|42883/i.test(String(error.message || ""))) {
         if (payload?.signatureImage) {
           throw new Error(
-            "Drawn signatures require the verification signature SQL migration. Run docs/schema-reference-verification-signature.sql in Supabase."
+            "Your drawn signature couldn't be saved. Type your name as your signature instead, or try again later."
           );
         }
 

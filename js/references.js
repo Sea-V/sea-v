@@ -658,9 +658,8 @@
         <div class="list-row">
           <div>
             <div class="list-title">No references yet</div>
-            <div class="list-sub">Add one from a Captain or Senior Officer.</div>
+            <div class="list-sub">Add a captain or senior crew member you worked for. We email them to confirm it.</div>
           </div>
-          <span class="pill pill-neutral">Unverified</span>
         </div>
       `;
       updateReferencesSummary(refs);
@@ -906,8 +905,8 @@ function readReferenceForm() {
         if (!formData.name) {
           Seav.notify(
             "error",
-            "Reference details missing",
-            "Add the referee's name before saving."
+            "Add the referee's name",
+            "The reference needs a name before you save."
           );
           return;
         }
@@ -1008,7 +1007,7 @@ function readReferenceForm() {
         resetReferenceForm(refForm);
         if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
 
-        Seav.notify("success", "Reference saved", "Stored in your professional record.");
+        Seav.notify("success", "Reference saved", "");
 
         if (window.Seav.app?.refreshAll) {
           await window.Seav.app.refreshAll();
@@ -1060,8 +1059,8 @@ function readReferenceForm() {
         if (!window.SeavReferenceVerification?.sendRequest) {
           Seav.notify(
             "error",
-            "Verification unavailable",
-            "Reference verification is not loaded. Refresh and try again."
+            "Can't send right now",
+            "Refresh the page and try again."
           );
           return;
         }
@@ -1071,7 +1070,8 @@ function readReferenceForm() {
           sendResult = await window.SeavReferenceVerification.sendRequest(refId);
         }, {
           sub: "Sending verification email",
-          errorTitle: "Verification email failed"
+          errorTitle: "Email not sent",
+          errorMessage: "Check the referee's email address and your connection, then try again."
         });
 
         if (!sendResult) {
@@ -1118,8 +1118,8 @@ function readReferenceForm() {
         e.preventDefault();
         Seav.notify(
           "info",
-          "Page update required",
-          "Hard refresh this page (Cmd+Shift+R), then use Send verification email."
+          "Refresh the page",
+          "SEA-V has been updated. Refresh, then send the email again."
         );
         return;
       }

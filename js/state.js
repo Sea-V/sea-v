@@ -379,7 +379,7 @@
         if (window.SeavFeedback?.error) {
           window.SeavFeedback.error(
             "Couldn't load your records",
-            "We couldn't confirm your session in time. Please refresh the page — your data is safe."
+            "Refresh the page. Nothing has been lost."
           );
         }
         this.ready = true;
@@ -448,8 +448,8 @@
         console.error("[SEA-V] loadAll failed:", loadErr);
         if (window.SeavFeedback?.error) {
           window.SeavFeedback.error(
-            "Records did not load",
-            loadErr?.message || "Check the browser console (F12) and Supabase grants."
+            "Your records didn't load",
+            "Refresh the page to try again. Nothing has been lost."
           );
         }
       }

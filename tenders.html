@@ -25,37 +25,37 @@
   ></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.ico?v=632" sizes="any" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=632" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=632" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=632" />
+  <link rel="icon" href="/favicon.ico?v=641" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/img/favicon-48.png?v=641" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=641" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=641" />
   <meta name="theme-color" content="#071019" />
 
   <title>SEA-V • Tenders</title>
 
-  <link rel="stylesheet" href="styles.css?v=632" />
+  <link rel="stylesheet" href="styles.css?v=641" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-  <script src="js/seav-config.js?v=632"></script>
-  <script src="js/supabase.js?v=632"></script>
-  <script src="js/auth.js?v=632"></script>
-  <script src="js/feedback.js?v=632" defer></script>
-  <script src="js/core.js?v=632" defer></script>
-  <script src="js/seav-search.js?v=632" defer></script>
-  <script src="js/bug-reports.js?v=632" defer></script>
-  <script src="js/seav-upload.js?v=632" defer></script>
-  <script src="js/seav-data.js?v=632" defer></script>
-  <script src="js/seav-badges.js?v=632" defer></script>
-  <script src="js/api-core.js?v=632" defer></script>
-  <script src="js/api-mappers.js?v=632" defer></script>
-  <script src="js/api.js?v=632" defer></script>
-  <script src="js/state.js?v=632" defer></script>
-  <script src="js/seav-notifications.js?v=632" defer></script>
-  <script src="js/achievements-engine.js?v=632" defer></script>
-  <script src="js/badge-unlock.js?v=632" defer></script>
+  <script src="js/seav-config.js?v=641"></script>
+  <script src="js/supabase.js?v=641"></script>
+  <script src="js/auth.js?v=641"></script>
+  <script src="js/feedback.js?v=641" defer></script>
+  <script src="js/core.js?v=641" defer></script>
+  <script src="js/seav-search.js?v=641" defer></script>
+  <script src="js/bug-reports.js?v=641" defer></script>
+  <script src="js/seav-upload.js?v=641" defer></script>
+  <script src="js/seav-data.js?v=641" defer></script>
+  <script src="js/seav-badges.js?v=641" defer></script>
+  <script src="js/api-core.js?v=641" defer></script>
+  <script src="js/api-mappers.js?v=641" defer></script>
+  <script src="js/api.js?v=641" defer></script>
+  <script src="js/state.js?v=641" defer></script>
+  <script src="js/seav-notifications.js?v=641" defer></script>
+  <script src="js/achievements-engine.js?v=641" defer></script>
+  <script src="js/badge-unlock.js?v=641" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous" defer></script>
-  <script src="js/seav-share.js?v=632" defer></script>
-  <script src="js/tenders.js?v=632" defer></script>
+  <script src="js/seav-share.js?v=641" defer></script>
+  <script src="js/tenders.js?v=641" defer></script>
 </head>
 
 <body class="app-page" data-topbar="app" data-sidebar="app" data-shared-modals="true">
@@ -114,17 +114,17 @@
       </div>
 
       <div>
-        <h2>Tender Fleet</h2>
+        <h2>Tenders</h2>
 
         <p>
-          Manage chase boats, guest tenders, rescue craft,
-          and operational fleet assets in one place.
+          The tenders and toys you have driven or looked after, such as RIBs, chase boats
+          and jet skis.
         </p>
       </div>
 
       <div class="tender-shell-actions">
         <a class="btn-blue" href="#" data-open="tenderModal">
-          Add Tender
+          Add tender
         </a>
       </div>
 
@@ -136,8 +136,7 @@
 
       <div class="tender-section-head">
         <div>
-          <h3>Fleet Overview</h3>
-          <p>All registered tenders linked to your SEA-V profile.</p>
+          <h3>Your tenders</h3>
         </div>
       </div>
 
@@ -182,24 +181,24 @@
         </label>
 
         <label>
-          Attached Vessel (optional)
+          Vessel (optional)
           <select id="td_vessel">
-            <option value="">Link to parent yacht, or leave blank</option>
+            <option value="">Link to parent vessel, or leave blank</option>
           </select>
         </label>
         <p class="modal-note" id="tdNoVesselNote" hidden>
-          No vessels on your fleet yet — this is optional, so you can still save the tender.
+          No vessels added yet. The vessel is optional, so you can still save the tender.
           <a href="vessels.html">Add a vessel</a> later to link it.
         </p>
 
         <label>
-          Proficiency level
+          Your level
           <select id="td_proficiency">
             <option value="">Not specified</option>
-            <option value="Familiarisation">Familiarisation</option>
-            <option value="Competent">Competent</option>
-            <option value="Advanced">Advanced</option>
-            <option value="Coxswain">Proficient</option>
+            <option value="Familiarisation">Familiarisation: shown how it works, not driven it alone yet</option>
+            <option value="Competent">Competent: drive it on your own in good conditions</option>
+            <option value="Advanced">Advanced: drive it in any conditions, with guests aboard</option>
+            <option value="Coxswain">Coxswain: in charge of it, launch, drive, recover and teach others</option>
           </select>
         </label>
 
@@ -210,7 +209,7 @@
           </label>
 
           <label>
-            Make / Model
+            Make and model
             <input id="td_model" placeholder="Manufacturer and model name" />
           </label>
         </div>
@@ -233,7 +232,7 @@
         </label>
 
         <label>
-          Registration / Hull Number
+          Registration or hull number
           <input id="td_reg" placeholder="Official registration if known" />
         </label>
 
@@ -255,7 +254,7 @@
         </label>
 
         <button class="btn-blue" type="submit">Save tender</button>
-        <p class="modal-footnote">Saved to your SEA-V profile.</p>
+
 
       </form>
 

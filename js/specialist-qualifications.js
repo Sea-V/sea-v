@@ -279,7 +279,6 @@
       file,
       existingMeta: existing,
       kind: "Qualification",
-      errorHint: "Run docs/specialist-qualifications-table.sql in Supabase (storage bucket + policies)."
     }) ?? existing ?? null;
   }
 
@@ -327,8 +326,8 @@
         if (!formData.category || !formData.title) {
           Seav.notify(
             "error",
-            "Missing details",
-            "Please complete category and qualification title."
+            "Add the details",
+            "Add a category and the qualification's name."
           );
           return;
         }
@@ -371,7 +370,7 @@
         Seav.notify(
           "success",
           "Qualification saved",
-          "Specialist credential saved to your SEA-V profile."
+          ""
         );
 
         if (window.Seav.app?.refreshAll) {
@@ -427,7 +426,7 @@
         }
         expandedSqIds.delete(entryId);
 
-        Seav.notify("success", "Deleted", "Qualification removed from your profile.");
+        Seav.notify("success", "Qualification deleted", "");
 
         if (window.Seav.app?.refreshAll) {
           await window.Seav.app.refreshAll();

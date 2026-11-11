@@ -35,26 +35,24 @@
     localStorage.setItem(storageKey(), JSON.stringify(codes));
   }
 
-  function formatTier(tier) {
-    const value = String(tier || "default").trim();
-    if (!value || value === "default") return "Milestone";
-    return value.charAt(0).toUpperCase() + value.slice(1);
-  }
-
   function buildPayload(achievement) {
     const definition = window.SeavBadges?.getAchievementWithBadge?.(achievement?.code);
     const badge = definition?.badge || {};
 
+    // v635: a passage achievement is a stamp found on a logged passage; a
+    // ticket milestone has no medal any more, so it shows no art.
+    const code = achievement?.code || definition?.code || "";
+    const isStamp = !!window.SeavBadges?.isStampCode?.(code);
     return {
-      code: achievement?.code || definition?.code || "",
-      title: achievement?.title || definition?.title || badge.label || "New badge",
-      tier: achievement?.badgeTier || badge.tier || "default",
+      code,
+      isStamp,
+      title: achievement?.title || definition?.title || badge.label || "New milestone",
       category: achievement?.category || definition?.category || "",
       description:
         achievement?.description ||
         definition?.description ||
         "You reached a new milestone in your SEA-V career.",
-      image:
+      image: !isStamp ? "" :
         window.SeavBadges?.resolveItemBadgeImage?.({
           ...achievement,
           status: "Verified"
@@ -115,7 +113,7 @@
             class="badge-unlock-share-btn"
             data-badge-unlock-action="share"
           >
-            Share this badge
+            Share this stamp
           </button>
           <button
             type="button"
@@ -171,12 +169,7 @@
     const card = overlay.querySelector(".badge-unlock-card");
     if (!card) return;
 
-    const tierClass = String(item.tier || "default")
-      .toLowerCase()
-      .replace(/[^a-z0-9-]/g, "");
-
-    card.className = `badge-unlock-card is-entering tier-${tierClass}`;
-    card.dataset.tier = item.tier || "default";
+    card.className = `badge-unlock-card is-entering${item.isStamp ? " is-stamp" : " is-ticket"}`;
     card.dataset.unlockCode = item.code;
 
     const imageEl = card.querySelector(".badge-unlock-badge-image");
@@ -184,12 +177,18 @@
     const tierEl = card.querySelector(".badge-unlock-tier-pill");
     const descEl = card.querySelector(".badge-unlock-desc");
 
-    if (imageEl) {
+    const stageEl = card.querySelector(".badge-unlock-badge-stage");
+    const kickerEl = card.querySelector(".badge-unlock-kicker");
+    const shareEl = card.querySelector('[data-badge-unlock-action="share"]');
+    if (stageEl) stageEl.hidden = !item.image;
+    if (imageEl && item.image) {
       imageEl.src = item.image;
       imageEl.alt = item.title;
     }
+    if (kickerEl) kickerEl.textContent = item.isStamp ? "New stamp" : "Milestone reached";
+    if (shareEl) shareEl.hidden = !item.isStamp;
     if (headingEl) headingEl.textContent = item.title;
-    if (tierEl) tierEl.textContent = formatTier(item.tier);
+    if (tierEl) tierEl.textContent = item.isStamp ? "✓ Found on a logged passage" : "Sea-time requirements met";
     if (descEl) descEl.textContent = item.description;
 
     overlay.classList.add("is-open");

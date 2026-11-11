@@ -141,11 +141,14 @@
   const MAX_QUALITIES = 4;
   const MAX_HIGHLIGHTS = 8;
 
+  // v640: the top level reads "Coxswain" (its stored value), not "Proficient",
+  // which sounded lower than "Advanced"; each level has a one-line meaning
+  // shown in the form. Values are stored: never rename one.
   const TENDER_PROFICIENCY_LEVELS = [
-    { value: "Familiarisation", label: "Familiarisation" },
-    { value: "Competent", label: "Competent" },
-    { value: "Advanced", label: "Advanced" },
-    { value: "Coxswain", label: "Proficient" }
+    { value: "Familiarisation", label: "Familiarisation", meaning: "Shown how it works, not driven it alone yet" },
+    { value: "Competent", label: "Competent", meaning: "Drive it on your own in good conditions" },
+    { value: "Advanced", label: "Advanced", meaning: "Drive it in any conditions, with guests aboard" },
+    { value: "Coxswain", label: "Coxswain", meaning: "In charge of it: launch, drive, recover and teach others" }
   ];
 
   const ONBOARD_EXPERIENCE_CATEGORIES = [
@@ -341,8 +344,20 @@
     {
       label: "Engineering qualifications",
       certs: [
-        { code: "AEC", name: "Approved Engine Course (AEC)" },
-        { code: "MEOL", name: "Marine Engine Operators License (MEOL)" }
+        { code: "AEC", name: "Approved Engine Course (AEC I and II)" },
+        { code: "MEOL", name: "Marine Engine Operators Licence (MEOL)" },
+        // v641: MSN 1904 Small Vessel engineer exams, training and TRB.
+        { code: "WORKSHOP SKILLS", name: "Workshop Skills Training (engineering)" },
+        { code: "SV TRB", name: "Small Vessel Engineer Training Record Book" },
+        { code: "SV MDE", name: "Marine Diesel Engineering (SV exam)" },
+        { code: "SV AUX 1", name: "Auxiliary Equipment Part I (SV exam)" },
+        { code: "SV OPS", name: "Operational Procedures, Basic Hotel Services and Ship Construction (SV exam)" },
+        { code: "SV AUX 2", name: "Auxiliary Equipment Part II (SV exam)" },
+        { code: "SV CE STAT", name: "Chief Engineer Statutory and Operational Requirements (SV exam)" },
+        { code: "SV AME", name: "Applied Marine Engineering (SV exam)" },
+        { code: "GES 1", name: "General Engineering Science I" },
+        { code: "GES 2", name: "General Engineering Science II" },
+        { code: "HIGH VOLTAGE", name: "High Voltage (management or operational)" }
       ]
     },
     {
@@ -1404,6 +1419,147 @@ function getTenderProficiencyDisplay(level) {
   // <option>s for a position <select>. A saved value that is not in the
   // list (free text from before v571) is kept as its own first option so
   // opening an old record never silently blanks it.
+  // The position group ("Deck", "Engineering", "Interior", "Galley", "Other")
+  // a role belongs to, or "" when it is not on the list (v637).
+  function positionGroupOf(label) {
+    const key = String(label || "").trim().toLowerCase();
+    if (!key) return "";
+    const group = SEAFARER_POSITIONS.find((g) => g.roles.some((role) => role.label.toLowerCase() === key));
+    return group ? group.group : "";
+  }
+
+  /* =========================================================
+     GREEN CREW (v637, Jack 2026-11-12): no yacht yet.
+     The dashboard swaps "Current vessel" for "Your first yacht" and "Your
+     next ticket" for "Your first tickets" until a yacht is added. Every row
+     ticks itself from saved records; nothing is ticked by hand. Private:
+     never shown on the public profile (v572 rejected any "new to yachting"
+     label there).
+  ========================================================= */
+  const STCW_BASIC_MODULE_CODES = ["PST", "FPFF", "EFA", "PSSR"];
+
+  function heldCert(certs, codes) {
+    for (const code of codes) {
+      const cert = findSavedCertByCode(certs, code);
+      if (cert) return cert;
+    }
+    return null;
+  }
+
+  // Basic Safety: the full BST certificate, or its four modules.
+  function stcwBasicStatus(certs) {
+    const full = heldCert(certs, ["STCW BST"]);
+    const modules = STCW_BASIC_MODULE_CODES.filter((code) => findSavedCertByCode(certs, code)).length;
+    return { held: !!full || modules === 4, modules: full ? 4 : modules, cert: full };
+  }
+
+  // The fourth "first ticket" follows the role they are after.
+  const FIRST_TICKET_BY_GROUP = {
+    Deck: { codes: ["RYA PB2", "IYT PB2"], label: "Powerboat Level 2", why: "For driving the tender" },
+    Engineering: { codes: ["AEC"], label: "Approved Engine Course (AEC)", why: "The first engineering ticket" },
+    Interior: { codes: ["FOOD HYGIENE"], label: "Food Hygiene Level 2", why: "Expected for interior and galley crew" },
+    Galley: { codes: ["FOOD HYGIENE"], label: "Food Hygiene Level 2", why: "Expected for interior and galley crew" }
+  };
+
+  function certTicketStatus(cert) {
+    if (!cert) return { state: "missing", text: "Not added" };
+    if (cert.expiry && !isCertNoExpiry(cert)) {
+      const info = getCertExpiryInfo(cert.expiry);
+      if (info.badge === "Expired") return { state: "expired", text: "Expired" };
+    }
+    return { state: "held", text: "Held" };
+  }
+
+  function computeFirstTickets(certs, rank) {
+    const basic = stcwBasicStatus(certs);
+    const rows = [
+      {
+        key: "stcw",
+        label: "STCW Basic Safety",
+        why: "Needed to work on any vessel",
+        ...(basic.held
+          ? certTicketStatus(basic.cert || { name: "STCW Basic Safety" })
+          : basic.modules
+            ? { state: "part", text: `${basic.modules} of 4 modules` }
+            : { state: "missing", text: "Not added" })
+      },
+      { key: "eng1", label: "ENG1 medical", why: "Your fitness to work at sea", ...certTicketStatus(heldCert(certs, ["ENG1", "STCW ML5"])) },
+      { key: "psa", label: "Security Awareness (PSA)", why: "Most vessels ask for it", ...certTicketStatus(heldCert(certs, ["PSA", "STCW A-VI/6-1", "STCW A-VI/6-2"])) }
+    ];
+    const extra = FIRST_TICKET_BY_GROUP[positionGroupOf(rank)];
+    if (extra) {
+      const status = certTicketStatus(heldCert(certs, extra.codes));
+      rows.push({ key: "role", label: extra.label, why: extra.why, ...(status.state === "missing" ? { state: "optional", text: "Optional" } : status) });
+    }
+    return rows;
+  }
+
+  function computeFirstYachtReadiness({ profile = {}, certs = [], landExperiences = [], specialistQualifications = [], hobbiesInterests = [] } = {}) {
+    const basic = stcwBasicStatus(certs);
+    const eng1 = heldCert(certs, ["ENG1", "STCW ML5"]);
+    const titles = (list, field) => list.map((item) => item[field]).filter(Boolean).slice(0, 2).join(", ");
+    const missing = [
+      !profile.photo ? "photo" : "",
+      !String(profile.nationality || "").trim() ? "nationality" : "",
+      !String(profile.phone || "").trim() ? "phone" : ""
+    ].filter(Boolean);
+    const land = landExperiences[0];
+    const rows = [
+      {
+        key: "stcw",
+        label: "STCW Basic Safety",
+        done: basic.held,
+        detail: basic.held ? "Held" : basic.modules ? `${basic.modules} of 4 modules added` : "The 5-day course every crew member needs",
+        href: "certificates.html",
+        linkLabel: "Add"
+      },
+      { key: "eng1", label: "ENG1 medical", done: !!eng1, detail: eng1 ? "Held" : "From an MCA-approved doctor", href: "certificates.html", linkLabel: "Add" },
+      {
+        key: "land",
+        label: "A job ashore",
+        done: landExperiences.length > 0,
+        detail: land ? [land.role, land.employer].filter(Boolean).join(", ") : "Bar, hotel, a trade, a season: it all counts",
+        href: "land-experience.html",
+        linkLabel: "Add"
+      },
+      {
+        key: "skill",
+        label: "A skill or qualification",
+        done: specialistQualifications.length > 0,
+        detail: specialistQualifications.length ? titles(specialistQualifications, "title") : "Diving, first aid, a chef or barista course",
+        href: "specialist-qualifications.html",
+        linkLabel: "Add"
+      },
+      {
+        key: "interests",
+        label: "Interests",
+        done: hobbiesInterests.length > 0,
+        detail: hobbiesInterests.length ? titles(hobbiesInterests, "title") : "What you do when you're not working",
+        href: "hobbies-interests.html",
+        linkLabel: "Add"
+      },
+      {
+        key: "details",
+        label: "Photo and details",
+        done: missing.length === 0,
+        detail: missing.length ? `Add your ${missing.join(", ").replace(/, ([^,]*)$/, " and $1")}` : "Done",
+        href: "profile.html",
+        linkLabel: "Profile"
+      },
+      {
+        key: "public",
+        label: "CV and public profile",
+        done: !!profile.publicEnabled,
+        detail: profile.publicEnabled ? "Live: send the link with your CV" : "Switch it on, then send the link",
+        href: "dashboard.html#ppShare",
+        linkLabel: "Open"
+      }
+    ];
+    const next = rows.find((row) => !row.done);
+    if (next) next.next = true;
+    return { rows, done: rows.filter((row) => row.done).length, total: rows.length };
+  }
+
   function getPositionOptionsHtml(current, { placeholder = "Select position" } = {}) {
     const esc = (v) =>
       String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -1474,6 +1630,18 @@ function getTenderProficiencyDisplay(level) {
 
   // §3.3(c): "Since the age of 16". Drops or clips what came earlier. Without a
   // date of birth (the public profile never has one) entries are left alone.
+  // Minimum ages (MSN 1858 §3.1(a) 18, §3.3(a) 19; Jack 2026-11-12). With no
+  // date of birth (the public profile never has one) the check passes.
+  const OOW_MIN_AGE = 19;
+  const MASTER_200GT_MIN_AGE = 18;
+  function meetsMinAge(dob, years, now) {
+    const birth = dob ? parseDateOnly(dob) : null;
+    if (!birth || Number.isNaN(birth.getTime())) return true;
+    const today = now instanceof Date ? now : new Date();
+    const reached = new Date(birth.getFullYear() + years, birth.getMonth(), birth.getDate());
+    return today >= reached;
+  }
+
   function entriesSinceAge16(entries, dob) {
     const birth = dob ? new Date(dob) : null;
     if (!birth || Number.isNaN(birth.getTime())) return entries || [];
@@ -1686,8 +1854,13 @@ function getTenderProficiencyDisplay(level) {
   const OOW_RECENCY_WINDOW_YEARS = 5;
   const OOW_RECENCY_MIN_DAYS = 6 * DAYS_PER_MONTH;
 
-  function computeOowRecentSeagoingService(seatimes, vessels, now) {
+  // options (v634, Jack's call 2026-11-12): Master <200GT (§3.1) has no
+  // length rule and asks for seagoing service, so it passes
+  // { minLengthM: 0, seaOnly: true }. Every other tier keeps the OOW rule.
+  function computeOowRecentSeagoingService(seatimes, vessels, now, options = {}) {
     const today = now instanceof Date && !Number.isNaN(now.getTime()) ? now : new Date();
+    const minLengthM = options.minLengthM ?? 15;
+    const seaOnly = !!options.seaOnly;
     const cutoff = new Date(today);
     cutoff.setFullYear(cutoff.getFullYear() - OOW_RECENCY_WINDOW_YEARS);
 
@@ -1695,7 +1868,7 @@ function getTenderProficiencyDisplay(level) {
     let recentYard = 0;
 
     (seatimes || []).forEach((entry) => {
-      if (getEntryVesselLengthMeters(entry, vessels) < 15) return;
+      if (minLengthM && getEntryVesselLengthMeters(entry, vessels) < minLengthM) return;
       const deckFactor = deckServiceFactor(entry, vessels);
       if (deckFactor <= 0) return;
 
@@ -1708,8 +1881,8 @@ function getTenderProficiencyDisplay(level) {
 
       const actual = toNumber(entry.actualSeaServiceDays);
       const share = apportionEntryToWindow(entry, cutoff.toISOString(), null) * deckFactor;
-      recentDays += (actual + Math.min(toNumber(entry.standbyServiceDays), actual)) * share;
-      recentYard += toNumber(entry.yardServiceDays) * share;
+      recentDays += (seaOnly ? actual : actual + Math.min(toNumber(entry.standbyServiceDays), actual)) * share;
+      if (!seaOnly) recentYard += toNumber(entry.yardServiceDays) * share;
     });
 
     recentDays = Math.round(recentDays + Math.min(recentYard, OOW_YARD_TOTAL_CAP));
@@ -1728,7 +1901,8 @@ function getTenderProficiencyDisplay(level) {
       computeOowSeaService(seatimes, vessels).allMet &&
       computeOow36MonthsOnboard(seatimes, vessels, dob).met &&
       // MSN 1858 §5.1 recency condition — added 2026-08-16.
-      computeOowRecentSeagoingService(seatimes, vessels).met
+      computeOowRecentSeagoingService(seatimes, vessels).met &&
+      meetsMinAge(dob, OOW_MIN_AGE)
     );
   }
 
@@ -1814,7 +1988,7 @@ function getTenderProficiencyDisplay(level) {
   // v466 Chief Mate fix; swept for here on 2026-08-16.
   const MASTER_200GT_GATING_CERT_CODES = [MASTER_200GT_GATING_CERT_CODE, "IYT MOY LTD"];
 
-  function computeMaster200SeaService(seatimes, certs, vessels) {
+  function computeMaster200SeaService(seatimes, certs, vessels, dob) {
     const gated = seatimesGatedByCertIssueDate(seatimes, certs, MASTER_200GT_GATING_CERT_CODES);
 
     if (!gated.held) {
@@ -1843,7 +2017,7 @@ function getTenderProficiencyDisplay(level) {
     totalDays = Math.round(totalDays);
 
     const months = totalDays / DAYS_PER_MONTH;
-    const recent = computeOowRecentSeagoingService(seatimes, vessels);
+    const recent = computeOowRecentSeagoingService(seatimes, vessels, null, { minLengthM: 0, seaOnly: true });
 
     return {
       held: true,
@@ -1851,7 +2025,9 @@ function getTenderProficiencyDisplay(level) {
       totalDays,
       months,
       recent,
-      met: months >= MASTER_200GT_TARGET_MONTHS && recent.met,
+      ageMet: meetsMinAge(dob, MASTER_200GT_MIN_AGE),
+      MIN_AGE: MASTER_200GT_MIN_AGE,
+      met: months >= MASTER_200GT_TARGET_MONTHS && recent.met && meetsMinAge(dob, MASTER_200GT_MIN_AGE),
       TARGET_MONTHS: MASTER_200GT_TARGET_MONTHS,
       GATING_CERT_CODE: MASTER_200GT_GATING_CERT_CODE
     };
@@ -2277,10 +2453,11 @@ function getTenderProficiencyDisplay(level) {
   // pills.css lists these class names in the shared pill base selector
   // for the shape/white-text/shadow that every pill gets).
   function getSeatimeVerificationDisplay(status) {
+    // v639: no self-set "Verified" any more (a DB check allows only these
+    // two); an old cached "Verified" shows as Logged.
     const map = {
-      Verified: { label: "Verified", className: "seatime-verified-pill" },
       "Pending Verification": {
-        label: "Pending Verification",
+        label: "Sent to PYA / Nautilus",
         className: "seatime-pending-pill"
       },
       Logged: { label: "Logged", className: "seatime-logged-pill" }
@@ -2560,6 +2737,19 @@ function getSortedVesselOptions(vessels = []) {
     return !gt || gt <= YACHTMASTER_MAX_GT;
   }
 
+  // RYA qualifying passages (rya.org.uk/qualifying-passages, Jack's call
+  // 2026-11-12): passages also count on large yachts over 24m up to 3000GT.
+  // Miles and sea days stay at yachts up to 500GT.
+  const YACHTMASTER_LARGE_YACHT_MAX_GT = 3000;
+  const YM_SMALL_VESSEL_M_FOR_PASSAGES = 24;
+  function isYachtmasterPassageVessel(vesselId, vessels) {
+    if (isYachtmasterEligibleVessel(vesselId, vessels)) return true;
+    const vessel = findVesselById(vessels, vesselId);
+    const gt = parseGrossTonnage(vessel?.gt);
+    const lengthM = parseLengthMeters(vessel?.vessel_length || vessel?.length);
+    return gt <= YACHTMASTER_LARGE_YACHT_MAX_GT && lengthM > YM_SMALL_VESSEL_M_FOR_PASSAGES;
+  }
+
   function computeYachtmasterOffshoreMiles(navigationEntries, vessels) {
     let totalNm = 0;
     let tidalNm = 0;
@@ -2648,7 +2838,7 @@ function getSortedVesselOptions(vessels = []) {
     let asSkipper = 0;
     let skipperDays = 0;
     (navigationEntries || []).forEach((entry) => {
-      if (!isYachtmasterEligibleVessel(entry?.vesselId, vessels)) return;
+      if (!isYachtmasterPassageVessel(entry?.vesselId, vessels)) return;
       const span = passageDateSpan(entry);
       const isSkipper = entry?.passageRole === "Skipper";
       if (isSkipper) {
@@ -2666,9 +2856,9 @@ function getSortedVesselOptions(vessels = []) {
     const firstAidHeld = holdsAnyCert(certs, YM_FIRST_AID_CODES);
 
     const rows = [
-      { key: "seaDays", label: `Days at sea on yachts up to 500GT (last ${YM_OFFSHORE_WINDOW_YEARS} years)`, current: seaDays, target: YM_OFFSHORE_SEA_DAYS, unit: "days" },
+      { key: "seaDays", label: `Days at sea on vessels up to 500GT (last ${YM_OFFSHORE_WINDOW_YEARS} years)`, current: seaDays, target: YM_OFFSHORE_SEA_DAYS, unit: "days" },
       { key: "seaDaysSmall", label: "…of which on vessels under 24m", current: seaDaysSmall, target: YM_OFFSHORE_SEA_DAYS / 2, unit: "days" },
-      { key: "miles", label: "Miles on yachts up to 500GT", current: Math.round(miles.totalNm), target: miles.TARGET_NM, unit: "NM" },
+      { key: "miles", label: "Miles on vessels up to 500GT", current: Math.round(miles.totalNm), target: miles.TARGET_NM, unit: "NM" },
       { key: "tidal", label: "…of which in tidal waters", current: Math.round(miles.tidalNm), target: miles.TIDAL_TARGET_NM, unit: "NM" },
       { key: "longPassages", label: `Passages over ${YM_OFFSHORE_LONG_PASSAGE_NM} NM`, current: longPassages, target: YM_OFFSHORE_LONG_PASSAGES, unit: "" },
       { key: "overnight", label: "…of which overnight", current: overnight, target: YM_OFFSHORE_OVERNIGHT, unit: "" },
@@ -2688,11 +2878,11 @@ function getSortedVesselOptions(vessels = []) {
   /* RYA Yachtmaster Ocean: hold Yachtmaster Offshore or OOW Yachts <3000GT,
      plus one qualifying ocean passage within 10 years: non-stop 600 NM+,
      200 NM+ more than 50 NM from land (self-declared per passage), at least
-     96 hours (4+ days between departure and arrival dates — passages have
-     no times), as skipper or in charge of a watch. Celestial sights are not
+     96 hours (5+ nights between departure and arrival dates — passages have
+     no times, and 4 nights can be as little as 72 hours; Jack 2026-11-12), as skipper or in charge of a watch. Celestial sights are not
      tracked. */
   const YM_OCEAN_MIN_NM = 600;
-  const YM_OCEAN_MIN_DAYS = 4;
+  const YM_OCEAN_MIN_DAYS = 5;
   const YM_OCEAN_PREREQ_CODES = ["RYA YMO", "IYT YMO", "OOW YACHT"];
 
   function computeYachtmasterOceanPassage(navigationEntries, certs) {
@@ -2919,7 +3109,85 @@ function getSortedVesselOptions(vessels = []) {
     not_started: { state: "miss", note: "Not started" }
   };
 
+  // MSN 1858 Am.2 §4.3: the 9 Chief Mate Unlimited modules and the MCA
+  // assessment. "Marine Vessels" is "Structures and Maintenance" in the notice.
+  const CM_UNLIMITED_MODULES = [
+    { code: "APPLIED MET", label: "Applied Marine Meteorology" },
+    { code: "MGT PASSAGE PLAN", label: "Management Level Passage Planning" },
+    { code: "MGT BRIDGE OPS", label: "Management of Bridge Operations" },
+    { code: "MGT YACHT OPS", label: "Management of Yacht Operations" },
+    { code: "MARINE ENG SYS", label: "Marine Engineering Systems" },
+    { code: "MARINE VESSELS SM", label: "Marine Vessels – Structures and Maintenance" },
+    { code: "SHIP STABILITY TPA", label: "Ship Stability (TPA)" },
+    { code: "SHIPBOARD MGT", label: "Shipboard Management" },
+    { code: "SHIPMASTERS LAW", label: "Shipmaster's Law" },
+    { code: "CM NAV STAB ASSESS", label: "Chief Mate Navigation & Stability assessment" }
+  ];
+
+  // v641: MSN 1904 §6 ancillary table, the same for all four engineer tickets
+  // (HELM differs: Operational for EOOW, Management for Chief Engineer).
+  const ENGINEER_ANCILLARY = [
+    { code: "STCW A-VI/2", label: "Survival Craft & Rescue Boats (A-VI/2)" },
+    { code: "STCW A-VI/3", label: "Advanced Fire Fighting (A-VI/3)" },
+    { code: "STCW A-VI/4-1", label: "Medical First Aid (A-VI/4-1)" }
+  ];
+
   const MILESTONE_PREREQUISITES = {
+    // MSN 1904 §3.2: MEOL (Small Vessel), 200-750 kW, not an STCW certificate.
+    eng_meol_sv: [
+      { code: "AEC", label: "Approved Engine Course (AEC I and II)" },
+      { code: "PST", label: "Personal Survival Techniques (A-VI/1-1)" },
+      { code: "FPFF", label: "Fire Prevention & Fire Fighting (A-VI/1-2)" },
+      { code: "EFA", label: "Elementary First Aid (A-VI/1-3)" },
+      { code: "PSSR", label: "Personal Safety & Social Responsibility (A-VI/1-4)" },
+      { code: "ENG1", label: "ENG1 medical fitness certificate" }
+    ],
+    // MSN 1904 §4.4-4.6, Experienced Seafarer route.
+    eng_eoow_sv: [
+      { code: "AEC", label: "Approved Engine Course (AEC I and II)" },
+      { code: "PST", label: "Personal Survival Techniques (A-VI/1-1)" },
+      { code: "FPFF", label: "Fire Prevention & Fire Fighting (A-VI/1-2)" },
+      { code: "EFA", label: "Elementary First Aid (A-VI/1-3)" },
+      { code: "PSSR", label: "Personal Safety & Social Responsibility (A-VI/1-4)" },
+      ...ENGINEER_ANCILLARY,
+      { code: "HELM-O", label: "HELM (operational)" },
+      { code: "WORKSHOP SKILLS", label: "Workshop Skills Training (2 weeks, plus 2 more at sea or in the workshop)" },
+      { code: "SV TRB", label: "Small Vessel Engineer Training Record Book" },
+      { code: "SV MDE", label: "Exam: Marine Diesel Engineering" },
+      { code: "SV AUX 1", label: "Exam: Auxiliary Equipment Part I" },
+      { code: "SV OPS", label: "Exam: Operational Procedures, Basic Hotel Services and Ship Construction" },
+      { code: "ENG1", label: "ENG1 medical fitness certificate" }
+    ],
+    // MSN 1904 §4.9.
+    eng_ce500_sv: [
+      { code: "EOOW SV", label: "Engineer Officer of the Watch (Small Vessel)" },
+      { code: "PST", label: "Personal Survival Techniques (A-VI/1-1)" },
+      { code: "FPFF", label: "Fire Prevention & Fire Fighting (A-VI/1-2)" },
+      { code: "EFA", label: "Elementary First Aid (A-VI/1-3)" },
+      { code: "PSSR", label: "Personal Safety & Social Responsibility (A-VI/1-4)" },
+      ...ENGINEER_ANCILLARY,
+      { code: "HELM-M", label: "HELM (management)" },
+      { code: "SV CE STAT", label: "Exam: Chief Engineer Statutory and Operational Requirements" },
+      { code: "SV AUX 2", label: "Exam: Auxiliary Equipment Part II" },
+      { code: "ENG1", label: "ENG1 medical fitness certificate" }
+    ],
+    // MSN 1904 §4.10. The two Part II / Statutory exams are waived when the
+    // <500GT Chief Engineer CoC is held (fn 22).
+    eng_ce3000_sv: [
+      { code: "EOOW SV", label: "Engineer Officer of the Watch (Small Vessel)" },
+      { code: "PST", label: "Personal Survival Techniques (A-VI/1-1)" },
+      { code: "FPFF", label: "Fire Prevention & Fire Fighting (A-VI/1-2)" },
+      { code: "EFA", label: "Elementary First Aid (A-VI/1-3)" },
+      { code: "PSSR", label: "Personal Safety & Social Responsibility (A-VI/1-4)" },
+      ...ENGINEER_ANCILLARY,
+      { code: "HELM-M", label: "HELM (management)" },
+      { anyOf: ["SV CE STAT", "CE SV500"], label: "Exam: Chief Engineer Statutory and Operational Requirements (or hold Chief Engineer <500GT)" },
+      { anyOf: ["SV AUX 2", "CE SV500"], label: "Exam: Auxiliary Equipment Part II (or hold Chief Engineer <500GT)" },
+      { code: "SV AME", label: "Exam: Applied Marine Engineering" },
+      { code: "GES 1", label: "General Engineering Science I" },
+      { code: "GES 2", label: "General Engineering Science II" },
+      { code: "ENG1", label: "ENG1 medical fitness certificate" }
+    ],
     // RYA ticket, not an MCA CoC — RYA's own exam prerequisites.
     yachtmaster_offshore: [
       {
@@ -2969,11 +3237,13 @@ function getSortedVesselOptions(vessels = []) {
 
     // MSN 1858 3.1. EDH is explicitly NOT required at this tier and ECDIS is
     // optional — both recorded so neither gets added later by analogy.
+    // §6.2 table, checked on the page 2026-11-12: no PSCRB for either Code
+    // Vessel column, and HELM (Operational) is required.
     master_200gt_sea_service: [
       { anyOf: ["RYA YMO", "IYT MOY LTD"], label: "Yachtmaster Offshore or IYT MoY Limited" },
       ...STCW_BASIC_FOUR,
-      PSCRB,
       { anyOf: ["GMDSS ROC", "GMDSS GOC"], label: "GMDSS operator's certificate (ROC or GOC)" },
+      { code: "HELM-O", label: "HELM (operational)" },
       { ...ECDIS_REQ, optional: true },
       ENG1_REQ,
       SECURITY_COND
@@ -3033,24 +3303,20 @@ function getSortedVesselOptions(vessels = []) {
       GOC,
       { code: "HELM-M", label: "HELM (management)" },
       { code: "NAEST-M", label: "NAEST (management)" },
-      { code: "APPLIED MET", label: "Applied Marine Meteorology" },
-      { code: "MGT PASSAGE PLAN", label: "Management Level Passage Planning" },
-      { code: "MGT BRIDGE OPS", label: "Management of Bridge Operations" },
-      { code: "MGT YACHT OPS", label: "Management of Yacht Operations" },
-      { code: "MARINE ENG SYS", label: "Marine Engineering Systems" },
-      { code: "MARINE VESSELS SM", label: "Marine Vessels & Ship Management" },
-      { code: "SHIP STABILITY TPA", label: "Ship Stability (TPA)" },
-      { code: "SHIPBOARD MGT", label: "Shipboard Management" },
-      { code: "SHIPMASTERS LAW", label: "Shipmaster's Law" },
-      { code: "CM NAV STAB ASSESS", label: "Chief Mate Navigation & Stability assessment" },
+      ...CM_UNLIMITED_MODULES,
       ENG1_REQ,
       SECURITY_COND
     ],
 
-    // MSN 1858 Am.2 4.4 — no separate academic modules; inherits Chief Mate
-    // Unlimited's, so holding that certificate covers them.
+    // MSN 1858 Am.2 4.4(a) — no modules of its own. Holding Chief Mate
+    // Unlimited covers them; a Master <3000GT holder is spared only the Chief
+    // Mate oral (footnote 10), so still needs the modules and the assessment.
     master_yachts_unlimited: [
-      { anyOf: ["MASTER Y3000", "CHIEF MATE Y UNLTD"], label: "Master Yachts <3000GT or Chief Mate Yachts Unlimited" },
+      {
+        anyOf: ["CHIEF MATE Y UNLTD"],
+        allOfAlt: ["MASTER Y3000", ...CM_UNLIMITED_MODULES.map((m) => m.code)],
+        label: "Chief Mate Yachts Unlimited, or Master Yachts <3000GT plus the 9 Chief Mate modules and the Navigation & Stability assessment"
+      },
       ...STCW_BASIC_FOUR,
       PSCRB,
       AFF,
@@ -3206,14 +3472,251 @@ function getSortedVesselOptions(vessels = []) {
      certificates count — the ticket was still earned. Matched by catalogue
      code (findSavedCertByCode), so a custom-typed certificate name does not
      count. Groups key = the badges' certGroup (js/seav-badges.js). */
+  /* =========================================================
+     ENGINEERING (v641, Jack 2026-11-12) — MSN 1904 Small Vessel tickets.
+     MSN 1859 (Y4-Y1) was withdrawn on 10 Jan 2023. Each ticket has a full
+     Small Vessel rule and a "Limited to Yachts" rule (§5.9.1 / §5.9.2); a
+     ticket is met when EITHER is, and the rows shown are the version nearer
+     completion. Definitions (§5.2, §5.4, §5.9):
+       - onboard service: signed on in the engine department, join to leave;
+       - seagoing service (yachts): the same, minus yard time;
+       - watchkeeping: the entry's watchkeeping days (a 4-hour engine-room
+         watch in 24 = 1 day); for Chief Engineer only entries ticked "in
+         full charge of the watch" count (§5.4);
+       - kW is the vessel's main propulsion power (§1.7); a vessel with none
+         recorded does not count, and is named so it can be filled in;
+       - 6 months of the seagoing service within the last 5 years (§5.2).
+     SEA-V cannot see the date someone registered on the SV programme, so
+     the Experienced route adds the entry and programme time together. That
+     is our reading, not confirmed with the MCA.
+  ========================================================= */
+  const ENGINE_KW = { entry: 200, programme: 350, large: 750 };
+  const ENGINE_ROLE_MATCH = /\b(engineer|eto|electro|motorman|oiler|wiper)\b/i;
+  const ENGINE_OFFICER_MATCH = /\b(chief engineer|second engineer|2nd engineer|third engineer|3rd engineer|engineer officer|eoow)\b/i;
+  const EOOW_MIN_AGE = 18;
+  const MEOL_MIN_AGE = 19;
+
+  // "engineer", "dual" (Deck / Engineer) or "".
+  function engineRoleKind(entry, vessels) {
+    const role = getEntryRole(entry, vessels);
+    if (!role) return "";
+    if (/\bdeck\b.*\bengineer|\bengineer.*\bdeck\b/i.test(role)) return "dual";
+    const known = findSeafarerPosition(role);
+    if (known) {
+      const group = SEAFARER_POSITIONS.find((g) => g.roles.includes(known))?.group;
+      return group === "Engineering" ? "engineer" : "";
+    }
+    return ENGINE_ROLE_MATCH.test(role) ? "engineer" : "";
+  }
+
+  // Chief Engineer service is "as an engineer officer": not junior or ETO.
+  function servedAsEngineerOfficer(entry, vessels) {
+    const role = getEntryRole(entry, vessels);
+    if (/\b(junior|trainee|cadet|eto|electro)\b/i.test(role)) return false;
+    return ENGINE_OFFICER_MATCH.test(role) || /^engineer$/i.test(role.trim());
+  }
+
+  function engineEntryKw(entry, vessels) {
+    const vessel = findVesselById(vessels, entry?.vesselId);
+    const n = parseFloat(String(vessel?.engine_kw ?? "").replace(/[,\s]/g, ""));
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
+  function engineService(seatimes, vessels, options = {}) {
+    const { minKw = 0, kinds = ["engineer", "dual"], fromIso = null, fullCharge = false, officer = false } = options;
+    const counted = [];
+    const unknown = [];
+    let yard = 0;
+    let watch = 0;
+    (seatimes || []).forEach((entry) => {
+      if (!kinds.includes(engineRoleKind(entry, vessels))) return;
+      if (officer && !servedAsEngineerOfficer(entry, vessels)) return;
+      if (fullCharge && !entry.engineWatchFullCharge) return;
+      const share = fromIso ? apportionEntryToWindow(entry, fromIso, null) : 1;
+      if (share <= 0) return;
+      const clipped = fromIso && entry.dateJoined && entry.dateJoined < fromIso ? { ...entry, dateJoined: fromIso } : entry;
+      const kw = engineEntryKw(entry, vessels);
+      if (minKw && !kw) {
+        unknown.push(clipped);
+        return;
+      }
+      if (kw < minKw) return;
+      counted.push(clipped);
+      yard += toNumber(entry.yardServiceDays) * share;
+      watch += toNumber(entry.watchkeepingDays) * share;
+    });
+    const onboardMonths = serviceMonths(counted);
+    return {
+      onboardMonths,
+      seagoingMonths: Math.max(0, onboardMonths - yard / DAYS_PER_MONTH),
+      watchMonths: watch / DAYS_PER_MONTH,
+      unknownKwMonths: serviceMonths(unknown)
+    };
+  }
+
+  function engineRecent(seatimes, vessels, now) {
+    const today = now instanceof Date ? now : new Date();
+    const cutoff = new Date(today);
+    cutoff.setFullYear(cutoff.getFullYear() - OOW_RECENCY_WINDOW_YEARS);
+    const months = engineService(seatimes, vessels, { fromIso: cutoff.toISOString().slice(0, 10) }).seagoingMonths;
+    const recentDays = Math.floor(months * DAYS_PER_MONTH);
+    return { recentDays, target: OOW_RECENCY_MIN_DAYS, windowYears: OOW_RECENCY_WINDOW_YEARS, met: recentDays >= OOW_RECENCY_MIN_DAYS };
+  }
+
+  function monthsRow(label, current, target) {
+    const value = Math.floor(current * 10) / 10;
+    return { label, current: value, target, unit: "months", met: current >= target };
+  }
+
+  // One version of a ticket's service: rows + whether all are met.
+  function engineVariant(name, rows) {
+    const percent = rows.length
+      ? Math.floor(Math.min(...rows.map((row) => Math.min(100, (row.current / row.target) * 100))))
+      : 0;
+    const met = rows.every((row) => row.met);
+    return { name, rows, met, percent: met ? 100 : Math.min(99, percent) };
+  }
+
+  // The full computation for one engineer ticket: { met, percent, label, rows }.
+  function computeEngineeringTier(tier, context = {}) {
+    const seatimes = context.seatimes || [];
+    const vessels = context.vessels || [];
+    const certs = context.certs || [];
+    const dob = context.dob || "";
+    const recent = engineRecent(seatimes, vessels);
+    let variants = [];
+    let gate = null;
+    let minAge = 0;
+    let unknownKw = 0;
+
+    if (tier === "meol") {
+      minAge = MEOL_MIN_AGE;
+      const engineer = engineService(seatimes, vessels, { minKw: ENGINE_KW.entry, kinds: ["engineer"] });
+      const dual = engineService(seatimes, vessels, { minKw: ENGINE_KW.entry, kinds: ["engineer", "dual"] });
+      unknownKw = dual.unknownKwMonths;
+      variants = [
+        engineVariant("As an engineer", [
+          monthsRow("Months onboard as an engineer, vessels 200 kW+", engineer.onboardMonths, 24),
+          monthsRow("Months of seagoing service (excluding yard)", engineer.seagoingMonths, 6)
+        ]),
+        engineVariant("As deck/engineer", [
+          monthsRow("Months onboard as deck/engineer, vessels 200 kW+", dual.onboardMonths, 36),
+          monthsRow("Months of seagoing service in the engine department", dual.seagoingMonths, 6)
+        ])
+      ];
+    } else if (tier === "eoow") {
+      minAge = EOOW_MIN_AGE;
+      const entry = engineService(seatimes, vessels, { minKw: ENGINE_KW.entry });
+      const programme = engineService(seatimes, vessels, { minKw: ENGINE_KW.programme });
+      unknownKw = entry.unknownKwMonths;
+      variants = [
+        engineVariant("Limited to yachts", [
+          monthsRow("Months onboard in the engine room, vessels 200 kW+", entry.onboardMonths, 36),
+          monthsRow("Months of seagoing service, vessels 200 kW+", entry.seagoingMonths, 11),
+          monthsRow("…of which on vessels 350 kW+", programme.seagoingMonths, 5),
+          monthsRow("Months of engine-room watchkeeping, vessels 350 kW+", programme.watchMonths, 6)
+        ]),
+        engineVariant("Full Small Vessel", [
+          monthsRow("Months onboard in the engine room, vessels 200 kW+", entry.onboardMonths, 36),
+          monthsRow("Months of seagoing service, vessels 200 kW+", entry.seagoingMonths, 14),
+          monthsRow("…of which on vessels 350 kW+", programme.seagoingMonths, 8),
+          monthsRow("Months of engine-room watchkeeping, vessels 350 kW+", programme.watchMonths, 6)
+        ])
+      ];
+    } else if (tier === "ce500" || tier === "ce3000") {
+      gate = seatimesGatedByCertIssueDate(seatimes, certs, ["EOOW SV"]);
+      if (!gate.held) {
+        return {
+          met: false,
+          percent: 0,
+          label: "Hold Engineer Officer of the Watch (Small Vessel) first",
+          rows: [{ label: "Engineer Officer of the Watch (Small Vessel) held", current: 0, target: 1, unit: "", met: false }]
+        };
+      }
+      const from = gate.issuedDate;
+      const officer = engineService(seatimes, vessels, { minKw: ENGINE_KW.programme, fromIso: from, officer: true });
+      const charge = engineService(seatimes, vessels, { minKw: ENGINE_KW.programme, fromIso: from, fullCharge: true });
+      unknownKw = officer.unknownKwMonths;
+      if (tier === "ce500") {
+        variants = [
+          engineVariant("Limited to yachts", [
+            monthsRow("Months onboard as an engineer officer, vessels 350 kW+", officer.onboardMonths, 6),
+            monthsRow("Months of seagoing service", officer.seagoingMonths, 4)
+          ]),
+          engineVariant("Full Small Vessel", [
+            monthsRow("Months of seagoing service in full charge of the watch, vessels 350 kW+", charge.seagoingMonths, 6)
+          ])
+        ];
+      } else {
+        // fn 21: time while holding the <500GT Chief Engineer CoC also counts;
+        // §5.9 halves the yacht time for those who hold it.
+        const ce500 = seatimesGatedByCertIssueDate(seatimes, certs, ["CE SV500"]);
+        const big = engineService(seatimes, vessels, { minKw: ENGINE_KW.large, fromIso: from, officer: true });
+        const bigCharge = engineService(seatimes, vessels, { minKw: ENGINE_KW.large, fromIso: from, fullCharge: true });
+        const onboardTarget = ce500.held ? 6 : 12;
+        const seaTarget = ce500.held ? 4 : 8;
+        variants = [
+          engineVariant("Limited to yachts", [
+            monthsRow("Months onboard as an engineer officer, vessels 350 kW+", officer.onboardMonths, onboardTarget),
+            monthsRow("Months of seagoing service", officer.seagoingMonths, seaTarget),
+            monthsRow("…of which on vessels 750 kW+", big.seagoingMonths, 4)
+          ]),
+          engineVariant("Full Small Vessel", [
+            monthsRow("Months of seagoing service in full charge of the watch, vessels 350 kW+", charge.seagoingMonths, 12),
+            monthsRow("…of which on vessels 750 kW+", bigCharge.seagoingMonths, 6)
+          ])
+        ];
+      }
+    } else {
+      return { met: false, percent: 0, label: "", rows: [] };
+    }
+
+    const best = variants.reduce((a, b) => (b.met && !a.met) || (b.percent > a.percent && b.met === a.met) ? b : a);
+    const ageMet = minAge ? meetsMinAge(dob, minAge) : true;
+    const met = best.met && recent.met && ageMet;
+    const recentPct = Math.floor(Math.min(100, (recent.recentDays / recent.target) * 100));
+    let percent = Math.min(best.percent, recentPct);
+    if (!met) percent = Math.min(99, percent);
+    const rows = best.rows.map((row) => ({ ...row, percent: row.met ? 100 : Math.min(99, Math.floor((row.current / row.target) * 100)) }));
+    rows.push({
+      label: `Seagoing days in the last ${recent.windowYears} years`,
+      current: recent.recentDays,
+      target: recent.target,
+      unit: "days",
+      met: recent.met,
+      percent: recent.met ? 100 : Math.min(99, recentPct),
+      note: "MSN 1904 §5.2: 6 months of your service must be from the 5 years before you apply."
+    });
+    if (!ageMet) rows.push({ label: `Aged ${minAge} or over`, current: 0, target: 1, met: false, percent: 0, note: `MSN 1904: from age ${minAge}.` });
+    // A note on the first row, not a requirement of its own: a missing kW is
+    // data to fill in, and describeLeftToDo must not report it as the gap.
+    if (unknownKw >= 0.5 && rows[0]) {
+      rows[0] = {
+        ...rows[0],
+        note: `${Math.floor(unknownKw * 10) / 10} months on vessels with no engine power (kW) saved are not counted. Add it on the Vessels page.`
+      };
+    }
+    const other = variants.find((v) => v !== best);
+    const lead = rows.find((row) => !row.met && row.target > 1);
+    const label = met
+      ? `Sea time met (${best.name.toLowerCase()})`
+      : lead
+        ? `${best.name}: ${lead.current} / ${lead.target} ${lead.unit || ""}`.trim() + (other ? ` · ${other.name}: ${other.percent}%` : "")
+        : !ageMet
+          ? `Sea time met. This ticket can be issued from age ${minAge}`
+          : `${best.name}: almost there`;
+    return { met, percent: met ? 100 : percent, label, rows, variant: best.name };
+  }
+
   const CERT_GROUP_COMPLETED_BY = {
     "RYA Yachtmaster Offshore": [
-      "RYA YMO", "IYT YMO", "RYA YMOCEAN", "IYT YMOCEAN", "OOW YACHT", "MASTER Y200",
-      "CHIEF MATE Y", "MASTER Y500", "MASTER Y3000", "CHIEF MATE Y UNLTD", "MASTER Y UNLTD"
+      "RYA YMO", "IYT YMO", "IYT MOY LTD", "RYA YMOCEAN", "IYT YMOCEAN", "IYT MOY UNLTD", "OOW YACHT",
+      "MASTER Y200", "CHIEF MATE Y", "MASTER Y500", "MASTER Y3000", "CHIEF MATE Y UNLTD", "MASTER Y UNLTD"
     ],
-    "RYA Yachtmaster Ocean": [
-      "RYA YMOCEAN", "IYT YMOCEAN", "CHIEF MATE Y", "MASTER Y3000", "CHIEF MATE Y UNLTD", "MASTER Y UNLTD"
-    ],
+    // Only Chief Mate <3000GT needs Yachtmaster Ocean (§3.4). Master <3000GT and
+    // the Unlimited tickets can be reached without it (§3.6, §4.3(a)), so they
+    // no longer complete this group (v633).
+    "RYA Yachtmaster Ocean": ["RYA YMOCEAN", "IYT YMOCEAN", "IYT MOY UNLTD", "CHIEF MATE Y"],
     "Master <200GT": ["MASTER Y200", "MASTER Y500", "MASTER Y3000", "MASTER Y UNLTD"],
     "OOW Yachts <3000GT": [
       "OOW YACHT", "CHIEF MATE Y", "MASTER Y500", "MASTER Y3000", "CHIEF MATE Y UNLTD", "MASTER Y UNLTD"
@@ -3222,7 +3725,12 @@ function getSortedVesselOptions(vessels = []) {
     "Master <500GT": ["MASTER Y500", "MASTER Y3000", "MASTER Y UNLTD"],
     "Master <3000GT": ["MASTER Y3000", "MASTER Y UNLTD"],
     "Chief Mate Yachts Unlimited": ["CHIEF MATE Y UNLTD", "MASTER Y UNLTD"],
-    "Master Yachts Unlimited": ["MASTER Y UNLTD"]
+    "Master Yachts Unlimited": ["MASTER Y UNLTD"],
+    // v641 engineering (MSN 1904; Y1-Y3 per the gov.uk conversion table, MIN 642 §7.3).
+    "MEOL (Small Vessel)": ["MEOL", "EOOW SV", "CE SV500", "CE SV3000", "Y1", "Y2", "Y3", "Y4"],
+    "Engineer Officer of the Watch (Small Vessel)": ["EOOW SV", "CE SV500", "CE SV3000", "Y1", "Y2", "Y3"],
+    "Chief Engineer (Small Vessel) <500GT": ["CE SV500", "CE SV3000", "Y1", "Y2", "Y3"],
+    "Chief Engineer (Small Vessel) <3000GT": ["CE SV3000", "Y1"]
   };
 
   // The saved certificate that completes this group, or null.
@@ -3255,7 +3763,7 @@ function getSortedVesselOptions(vessels = []) {
     // §5.1: a tier's bar cannot read full while the recent service is missing.
     const recentCap = (result, percent) =>
       result.recent && !result.recent.met
-        ? Math.min(percent, Math.round((result.recent.recentDays / result.recent.target) * 100))
+        ? Math.min(percent, Math.floor((result.recent.recentDays / result.recent.target) * 100))
         : percent;
     const recentNote = (result) =>
       result.recent && !result.recent.met
@@ -3270,11 +3778,11 @@ function getSortedVesselOptions(vessels = []) {
         // cap -- so it could read "1200 / 1095, 100%" on a locked badge.
         // Fixed 2026-09-26 audit.
         const result = computeOow36MonthsOnboard(seatimes, vessels, dob);
-        const current = Math.round(result.months * 10) / 10;
+        const current = Math.floor(result.months * 10) / 10;
         return {
           current,
           target: result.targetMonths,
-          percent: Math.min(100, Math.round((result.months / result.targetMonths) * 100)),
+          percent: Math.min(100, Math.floor((result.months / result.targetMonths) * 100)),
           label: `${current} / ${result.targetMonths} months onboard, deck department`
         };
       }
@@ -3284,7 +3792,7 @@ function getSortedVesselOptions(vessels = []) {
         return {
           current,
           target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          percent: target ? Math.min(100, Math.floor((current / target) * 100)) : 0,
           label: `${current} / ${target} actual sea days (${trigger.minVesselMeters}m+)`
         };
       }
@@ -3294,7 +3802,7 @@ function getSortedVesselOptions(vessels = []) {
         return {
           current,
           target,
-          percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0,
+          percent: target ? Math.min(100, Math.floor((current / target) * 100)) : 0,
           label: `${current} / ${target} qualifying days (${trigger.minVesselMeters}m+)`
         };
       }
@@ -3312,6 +3820,14 @@ function getSortedVesselOptions(vessels = []) {
           parts.push(Math.min(100, (recent.recentDays / recent.target) * 100));
           return Math.min(99, Math.floor(Math.min(...parts)));
         };
+        if (!met && !meetsMinAge(dob, OOW_MIN_AGE)) {
+          return {
+            current: 0,
+            target: 1,
+            percent: partsPercent(),
+            label: `OOW Yachts <3000GT can be issued from age ${OOW_MIN_AGE} (MSN 1858 §3.3(a))`
+          };
+        }
         return {
           current: met ? 1 : 0,
           target: 1,
@@ -3331,7 +3847,7 @@ function getSortedVesselOptions(vessels = []) {
         return {
           current: result.metCount,
           target: result.rows.length,
-          percent: Math.round((result.metCount / result.rows.length) * 100),
+          percent: Math.floor((result.metCount / result.rows.length) * 100),
           label: `${result.metCount} / ${result.rows.length} Yachtmaster Offshore requirements met`
         };
       }
@@ -3353,10 +3869,10 @@ function getSortedVesselOptions(vessels = []) {
       case "yachtmaster_offshore_miles": {
         const result = computeYachtmasterOffshoreMiles(navigationEntries, vessels);
         const totalPct = result.TARGET_NM
-          ? Math.min(100, Math.round((result.totalNm / result.TARGET_NM) * 100))
+          ? Math.min(100, Math.floor((result.totalNm / result.TARGET_NM) * 100))
           : 0;
         const tidalPct = result.TIDAL_TARGET_NM
-          ? Math.min(100, Math.round((result.tidalNm / result.TIDAL_TARGET_NM) * 100))
+          ? Math.min(100, Math.floor((result.tidalNm / result.TIDAL_TARGET_NM) * 100))
           : 0;
         return {
           current: Math.round(result.totalNm),
@@ -3366,7 +3882,7 @@ function getSortedVesselOptions(vessels = []) {
         };
       }
       case "master_200gt_gated_sea_service": {
-        const result = computeMaster200SeaService(seatimes, certs, vessels);
+        const result = computeMaster200SeaService(seatimes, certs, vessels, dob);
         if (!result.held) {
           return {
             current: 0,
@@ -3375,14 +3891,14 @@ function getSortedVesselOptions(vessels = []) {
             label: "Hold RYA Yachtmaster Offshore first"
           };
         }
-        const monthsRounded = Math.round(result.months * 10) / 10;
+        const monthsRounded = Math.floor(result.months * 10) / 10;
         return {
           current: monthsRounded,
           target: result.TARGET_MONTHS,
-          percent: recentCap(result, result.TARGET_MONTHS
-            ? Math.min(100, Math.round((result.months / result.TARGET_MONTHS) * 100))
-            : 0),
-          label: `${monthsRounded} / ${result.TARGET_MONTHS} months' seagoing service (since holding Yachtmaster Offshore)${recentNote(result)}`
+          percent: Math.min(result.ageMet ? 100 : 99, recentCap(result, result.TARGET_MONTHS
+            ? Math.min(100, Math.floor((result.months / result.TARGET_MONTHS) * 100))
+            : 0)),
+          label: `${monthsRounded} / ${result.TARGET_MONTHS} months' seagoing service (since holding Yachtmaster Offshore)${recentNote(result)}${result.ageMet ? "" : ` · can be issued from age ${result.MIN_AGE}`}`
         };
       }
       case "master_500gt_gated_sea_service": {
@@ -3395,12 +3911,12 @@ function getSortedVesselOptions(vessels = []) {
             label: "Hold OOW Yachts <3000GT first"
           };
         }
-        const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
+        const onboardMonthsRounded = Math.floor(result.onboardMonths * 10) / 10;
         const onboardPct = result.ONBOARD_TARGET_MONTHS
-          ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+          ? Math.min(100, Math.floor((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
           : 0;
         const watchPct = result.WATCHKEEPING_TARGET
-          ? Math.min(100, Math.round((result.watchkeepingDays / result.WATCHKEEPING_TARGET) * 100))
+          ? Math.min(100, Math.floor((result.watchkeepingDays / result.WATCHKEEPING_TARGET) * 100))
           : 0;
         return {
           current: onboardMonthsRounded,
@@ -3420,14 +3936,14 @@ function getSortedVesselOptions(vessels = []) {
           };
         }
         const watchPct = result.WATCHKEEPING_TARGET
-          ? Math.min(100, Math.round((result.totalWatchkeeping15m / result.WATCHKEEPING_TARGET) * 100))
+          ? Math.min(100, Math.floor((result.totalWatchkeeping15m / result.WATCHKEEPING_TARGET) * 100))
           : 0;
         const specialPct = result.specialTarget
-          ? Math.min(100, Math.round((result.specialValue / result.specialTarget) * 100))
+          ? Math.min(100, Math.floor((result.specialValue / result.specialTarget) * 100))
           : 0;
         const specialLabel = result.use500gtPath ? "months on 500GT+ vessels" : "months on 24m+ vessels";
         const onboardPct = result.ONBOARD_TARGET_MONTHS
-          ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+          ? Math.min(100, Math.floor((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
           : 0;
         return {
           current: result.totalWatchkeeping15m,
@@ -3471,19 +3987,36 @@ function getSortedVesselOptions(vessels = []) {
             label: "Hold Master Yachts <3000GT or Chief Mate Yachts Unlimited first"
           };
         }
-        const onboardMonthsRounded = Math.round(result.onboardMonths * 10) / 10;
-        const actualSeaMonthsRounded = Math.round(result.actualSeaMonths * 10) / 10;
+        const onboardMonthsRounded = Math.floor(result.onboardMonths * 10) / 10;
+        const actualSeaMonthsRounded = Math.floor(result.actualSeaMonths * 10) / 10;
         const onboardPct = result.ONBOARD_TARGET_MONTHS
-          ? Math.min(100, Math.round((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
+          ? Math.min(100, Math.floor((result.onboardMonths / result.ONBOARD_TARGET_MONTHS) * 100))
           : 0;
         const actualSeaPct = result.ACTUAL_SEA_TARGET_MONTHS
-          ? Math.min(100, Math.round((result.actualSeaMonths / result.ACTUAL_SEA_TARGET_MONTHS) * 100))
+          ? Math.min(100, Math.floor((result.actualSeaMonths / result.ACTUAL_SEA_TARGET_MONTHS) * 100))
           : 0;
         return {
           current: onboardMonthsRounded,
           target: result.ONBOARD_TARGET_MONTHS,
           percent: recentCap(result, Math.min(onboardPct, actualSeaPct)),
           label: `${onboardMonthsRounded} / ${result.ONBOARD_TARGET_MONTHS} months as ${result.roleName} on 500GT+ vessels (${actualSeaMonthsRounded} / ${result.ACTUAL_SEA_TARGET_MONTHS} months actual sea) — since holding ${result.certName}${recentNote(result)}`
+        };
+      }
+      case "engineering_tier": {
+        const result = computeEngineeringTier(trigger.tier, context);
+        return { current: result.met ? 1 : 0, target: 1, percent: result.percent, label: result.label };
+      }
+      case "geo_crossing": {
+        // Same answer as the breakdown row and the unlock check: a logged
+        // passage that crosses the line.
+        const result = computeGeoCrossing(navigationEntries, trigger.geo);
+        return {
+          current: result.met ? 1 : 0,
+          target: 1,
+          percent: result.met ? 100 : 0,
+          label: result.met
+            ? `Crossed on ${result.passageName || "a logged passage"}`
+            : "Log the passage on the Navigation page and this unlocks itself"
         };
       }
       case "manual":
@@ -3778,6 +4311,9 @@ window.SeavData = {
   SEAFARER_POSITIONS,
   findSeafarerPosition,
   getPositionOptionsHtml,
+  positionGroupOf,
+  computeFirstTickets,
+  computeFirstYachtReadiness,
   isOowSeaTimeComplete,
   seatimesGatedByCertIssueDate,
   computeMaster200SeaService,
@@ -3790,6 +4326,10 @@ window.SeavData = {
   computeYachtmasterOffshoreChecklist,
   computeYachtmasterOceanPassage,
   computeMilestoneProgress,
+  computeEngineeringTier,
+  engineRoleKind,
+  meetsMinAge,
+  OOW_MIN_AGE,
   computeMilestonePrerequisites,
   computeGeoCrossing,
   passageCrossesGeo,

@@ -329,7 +329,7 @@
       return "An account with this email already exists. Log in instead.";
     }
     if (msg.includes("row-level security") || msg.includes("row level security")) {
-      return "Profile setup failed (database security policy). Run docs/schema-phase2-auth-trigger.sql in Supabase SQL Editor, then try logging in.";
+      return "Your account couldn't be set up. Wait a minute, then try signing in. If it keeps happening, use Contact on sea-v.com.";
     }
     return err?.message || "Something went wrong. Please try again.";
   }

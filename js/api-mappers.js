@@ -216,6 +216,8 @@ function mapVesselToSupabase(item) {
       // v586: optional extras (not MCA figures). null = not recorded.
       ownerGuestDays: s.owner_guest_days == null ? null : Number(s.owner_guest_days),
       nauticalMiles: s.nautical_miles == null ? null : Number(s.nautical_miles),
+      // v641: MSN 1904 §5.4, an engineer in full charge of the engine-room watch.
+      engineWatchFullCharge: !!s.engine_watch_full_charge,
       verificationStatus: s.verification_status || "Logged",
       // v579: the captain's online confirmation (read-only for the member;
       // never sent back by mapSeatimeToSupabase — a DB trigger guards it).
@@ -253,6 +255,7 @@ function mapVesselToSupabase(item) {
       watchkeeping_days: Number(item.watchkeepingDays || 0),
       owner_guest_days: optionalCount(item.ownerGuestDays),
       nautical_miles: optionalCount(item.nauticalMiles),
+      engine_watch_full_charge: !!item.engineWatchFullCharge,
       verification_status: item.verificationStatus || "Logged",
       notes: item.notes || "",
       attachment: sanitizeFileForStorage(item.attachment, STORAGE_BUCKETS.SEATIME_FILES),
@@ -424,6 +427,8 @@ function mapAchievementFromSupabase(a) {
     description: a.description || "",
     attachment: a.attachment || null,
     autoAwarded: !!a.auto_awarded,
+    // v636: the logged passage a crossing was made on ("" = none).
+    navigationAreaId: a.navigation_area_id || "",
     createdAt: a.created_at || "",
     updatedAt: a.updated_at || ""
   };
@@ -453,6 +458,7 @@ function mapAchievementToSupabase(item) {
     description: item.description || "",
     attachment: sanitizeFileForStorage(item.attachment, STORAGE_BUCKETS.ACHIEVEMENT_FILES),
     auto_awarded: !!item.autoAwarded,
+    navigation_area_id: item.navigationAreaId || null,
     updated_at: new Date().toISOString()
   };
 }

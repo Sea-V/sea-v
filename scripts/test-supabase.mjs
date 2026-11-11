@@ -80,7 +80,7 @@ const PUBLIC_TABLE_SAFE_COLUMNS = {
     "id", "user_id", "code", "title", "category", "dashboard_section", "badge_key",
     "badge_file_name", "badge_tier", "badge_label", "badge_image", "badge_locked_image",
     "vessel_id", "vessel", "achievement_date", "status", "witness_name",
-    "witness_position", "description", "attachment", "auto_awarded", "created_at", "updated_at"
+    "witness_position", "description", "attachment", "auto_awarded", "navigation_area_id", "created_at", "updated_at"
   ].join(","),
   navigation_areas: [
     "id", "user_id", "country", "port", "from_country", "from_port", "from_lat",
@@ -967,6 +967,41 @@ async function testOwnerWriteGuards(config) {
     await authedRequest(config, token, "DELETE", `seatimes?id=eq.${linkId}-s`);
     await authedRequest(config, token, "DELETE", `vessels?id=eq.${linkId}-v`);
   }
+
+
+  // v639: crew can no longer mark their own sea time Verified (check
+  // constraint seatimes_verification_status_check). A control insert with
+  // "Logged" must work, so a refusal is the constraint and not a bad row.
+  const stId = `test_st_${Date.now()}`;
+  const stControl = await authedRequest(config, token, "POST", "seatimes", { id: `${stId}-ok`, user_id: uid, verification_status: "Logged" });
+  const stVerified = await authedRequest(config, token, "POST", "seatimes", { id: stId, user_id: uid, verification_status: "Verified" });
+  report(
+    "sea time self-marked Verified blocked",
+    stControl.ok && !stVerified.ok,
+    stVerified.status,
+    stVerified.ok ? "crew can still set Verified on their own sea time" : stControl.ok ? "check constraint refuses it" : "control insert failed too"
+  );
+  await authedRequest(config, token, "DELETE", `seatimes?id=in.(${stId},${stId}-ok)`);
+
+  // v636: a crossing may only be linked to the member's OWN logged passage
+  // (trigger achievements_passage_owner_guard). demo-n7 belongs to the demo
+  // account, so this insert must be refused.
+  const stampId = `test_stamp_${Date.now()}`;
+  const foreignLink = await authedRequest(config, token, "POST", "achievements", {
+    id: stampId,
+    user_id: uid,
+    code: "equator_crossing",
+    title: "Test stamp",
+    status: "Self-declared",
+    navigation_area_id: "demo-n7"
+  });
+  report(
+    "crossing linked to another member's passage blocked",
+    !foreignLink.ok,
+    foreignLink.status,
+    foreignLink.ok ? "a stamp can point at someone else's passage" : "owner guard refuses it"
+  );
+  if (foreignLink.ok) await authedRequest(config, token, "DELETE", `achievements?id=eq.${stampId}`);
 
   return allPassed;
 }

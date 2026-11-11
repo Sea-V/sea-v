@@ -179,14 +179,14 @@
 
       if (uploadError) {
         console.error(`[SEA-V] ${kind} upload failed:`, uploadError);
-        let detail =
-          errorHint && /row-level security|bucket not found|does not exist/i.test(uploadError.message || "")
-            ? errorHint
-            : uploadError.message || `Could not upload ${kind.toLowerCase()}. Try a smaller file.`;
+        // v638: errorHint (a developer note naming SQL files) is no longer
+        // shown; crew get one plain line and the raw error stays in the console.
+        void errorHint;
+        const detail = "Try again, or try a smaller file.";
         if (window.SeavFeedback?.error) {
-          window.SeavFeedback.error("Upload failed", detail);
+          window.SeavFeedback.error("The file didn't upload", detail);
         } else if (window.Seav?.notify) {
-          window.Seav.notify("error", "Upload failed", detail);
+          window.Seav.notify("error", "The file didn't upload", detail);
         }
         return existingMeta || null;
       }
@@ -473,7 +473,7 @@
     const accepted = dropped.filter((file) => inputAcceptsFile(input, file));
     if (!accepted.length) {
       if (dropped.length && window.Seav?.notify) {
-        window.Seav.notify("error", "File type not accepted", "That file can't be uploaded here.");
+        window.Seav.notify("error", "That type of file can't go here", `Choose a ${String(input.accept || "different").replace(/\./g, "").split(",").map((t) => t.trim().replace(/\/\*$/, "")).filter(Boolean).slice(0, 4).join(", ")} file.`);
       }
       return;
     }

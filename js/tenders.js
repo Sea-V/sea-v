@@ -48,7 +48,7 @@ function populateTenderVesselOptions() {
   const vessels = getSortedVesselOptions(getVessels());
 
   select.innerHTML = `
-    <option value="">Link to parent yacht, or leave blank</option>
+    <option value="">Link to parent vessel, or leave blank</option>
     ${vessels
       .map(
         (v) =>
@@ -268,7 +268,7 @@ function buildTenderVesselGroups(tenders) {
   // .sq-kpi-box markup and #___KpiRow mount pattern (originally defined in
   // css/pages/specialist-qualifications.css but now a shared, sitewide KPI
   // component), so Tenders picks up the same bordered-box treatment for
-  // free. "Proficient" = top medal level (Coxswain/"Proficient" in
+  // free. "As coxswain" = top level (Coxswain in
   // getTenderProficiencyDisplay); "Still training" covers any tender with a
   // proficiency logged below that, giving a real breakdown rather than a
   // single flat total.
@@ -294,7 +294,7 @@ function buildTenderVesselGroups(tenders) {
       </div>
       <div class="sq-kpi-box">
         <div class="kpi-num">${proficient}</div>
-        <div class="kpi-label">Proficient</div>
+        <div class="kpi-label">As coxswain</div>
       </div>
       <div class="sq-kpi-box">
         <div class="kpi-num">${stillTraining}</div>
@@ -324,7 +324,7 @@ function buildTenderVesselGroups(tenders) {
     renderTenderKpis(tenders);
 
     if (!tenders.length) {
-      tendersGrid.innerHTML = `<p class="muted">No tenders added yet.</p>`;
+      tendersGrid.innerHTML = `<p class="muted">No tenders yet. Add the tenders and toys you've driven or looked after.</p>`;
       lastRenderedFingerprint = null;
       return;
     }
@@ -546,7 +546,7 @@ function readTenderForm() {
         resetTenderFormState();
         if (window.SeavModals?.closeAllModals) window.SeavModals.closeAllModals();
 
-        Seav.notify("success", "Tender logged", "Added to your fleet overview.");
+        Seav.notify("success", "Tender saved", "");
 
         if (window.Seav.app?.refreshAll) {
           await window.Seav.app.refreshAll();

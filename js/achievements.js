@@ -11,7 +11,6 @@
   const { listAchievements, getAchievementWithBadge } = window.SeavBadges;
   const STORAGE_KEY = KEYS.ACHIEVEMENTS;
 
-  const TIER_RANK = { default: 0, bronze: 1, silver: 2, gold: 3, platinum: 4 };
 
   // Two permanent sections, Deck Progression always rendered above Seafarer
   // Awards — not a filter, both are always visible. "Deck Progression" (and
@@ -120,19 +119,6 @@
     return formatDatePretty(date) || date;
   }
 
-  function getTierRank(tier) {
-    return TIER_RANK[String(tier || "default").toLowerCase()] ?? 0;
-  }
-
-  function getHighestTier(earnedGroups) {
-    let best = "default";
-    earnedGroups.forEach((items) => {
-      const tier = items[0]?.badgeTier || "default";
-      if (getTierRank(tier) > getTierRank(best)) best = tier;
-    });
-    return best;
-  }
-
   function populateVesselOptions() {
     const select = document.getElementById("ach_vessel");
     if (!select) return;
@@ -145,7 +131,7 @@
     });
 
     select.innerHTML = `
-      <option value="">Which yacht was this on?</option>
+      <option value="">Which vessel was this on?</option>
       ${sorted
         .map(
           (v) =>
@@ -173,7 +159,7 @@
       .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
 
     select.innerHTML = `
-      <option value="">Choose a badge to log</option>
+      <option value="">Choose a crossing to add</option>
       ${manual
         .map(
           (achievement) =>
@@ -194,45 +180,49 @@
     const definition = codeEl.value ? getAchievementWithBadge(codeEl.value) : null;
 
     if (!definition) {
-      labelEl.textContent = "Pick a milestone to preview its badge.";
-      previewEl.innerHTML = `<span class="muted">No badge selected.</span>`;
+      labelEl.textContent = "Pick a crossing to see its stamp.";
+      previewEl.innerHTML = `<span class="muted">Nothing chosen yet.</span>`;
       return;
     }
 
-    labelEl.textContent = definition.badge?.label || definition.title || "Badge";
+    labelEl.textContent = definition.badge?.label || definition.title || "Crossing";
     const imagePath = window.SeavBadges.resolveBadgeImage(definition.badgeKey, true);
 
     previewEl.innerHTML = `
-      <div class="seav-badge-wrap ach-modal-badge" data-tier="${Seav.escapeHtml(definition.badge?.tier || "default")}">
+      <div class="seav-badge-wrap ach-modal-badge">
         <img class="seav-badge" src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(definition.title || "")}" />
       </div>
     `;
   }
 
+  // v635: stamps collected, and how many a logged passage backs (found on
+  // one, or linked to one) rather than self-declared.
+  // Replaces "Badges unlocked" and "Top tier earned" (tiers are gone).
   function renderKpis(earnedGroups) {
     const row = document.getElementById("achKpiRow");
     if (!row) return;
 
-    const definitions = listAchievements();
-    const unlockedCodes = earnedGroups.size;
-    const totalCodes = definitions.length;
-    const highestTier = getHighestTier(earnedGroups);
-    const tierLabel =
-      highestTier === "default" ? "—" : highestTier.charAt(0).toUpperCase() + highestTier.slice(1);
+    const stampCodes = listAchievements().filter((definition) => window.SeavBadges.isStampCode?.(definition.code));
+    let collected = 0;
+    let logged = 0;
+    stampCodes.forEach((definition) => {
+      const items = earnedGroups.get(definition.code);
+      if (!items?.length) return;
+      collected += 1;
+      if (window.SeavBadges.stampProof?.(items) === "logged") logged += 1;
+    });
+    const total = stampCodes.length;
 
-    // 2026-08-05: Jack asked to drop "Total moments" and "Categories" (low
-    // signal, cluttered the row) and make the remaining two boxes bigger —
-    // see .ach-kpi-row / .ach-kpi-box in achievements.css (now 2-box layout).
     row.innerHTML = `
       <div class="ach-kpi-box ach-kpi-box--hero">
-        <div class="ach-kpi-ring" style="--ach-progress: ${totalCodes ? Math.round((unlockedCodes / totalCodes) * 100) : 0}%">
-          <span class="ach-kpi-ring-value">${unlockedCodes}<small>/${totalCodes}</small></span>
+        <div class="ach-kpi-ring" style="--ach-progress: ${total ? Math.round((collected / total) * 100) : 0}%">
+          <span class="ach-kpi-ring-value">${collected}<small>/${total}</small></span>
         </div>
-        <div class="ach-kpi-label">Badges unlocked</div>
+        <div class="ach-kpi-label">Stamps collected</div>
       </div>
       <div class="ach-kpi-box ach-kpi-box--hero">
-        <div class="kpi-num ach-kpi-tier" data-tier="${Seav.escapeHtml(highestTier)}">${Seav.escapeHtml(tierLabel)}</div>
-        <div class="kpi-label">Top tier earned</div>
+        <div class="kpi-num">${logged}</div>
+        <div class="kpi-label">On a logged passage</div>
       </div>
     `;
   }
@@ -248,13 +238,14 @@
     }
 
     const full = getAchievementWithBadge(next.definition.code);
-    const imagePath = window.SeavBadges.resolveBadgeImage(next.definition.badgeKey, false);
+    // Only a stamp has art now; a ticket shows its bar alone.
+    const imagePath = window.SeavBadges.isStampCode?.(next.definition.code)
+      ? window.SeavBadges.resolveBadgeImage(next.definition.badgeKey, false)
+      : "";
 
     mount.hidden = false;
     mount.innerHTML = `
-      <div class="ach-next-badge">
-        <img src="${Seav.escapeHtml(imagePath)}" alt="" />
-      </div>
+      ${imagePath ? `<div class="ach-next-badge ach-next-badge--stamp"><img src="${Seav.escapeHtml(imagePath)}" alt="" /></div>` : ""}
       <div class="ach-next-copy">
         <span class="ach-next-label">Next up</span>
         <strong>${Seav.escapeHtml(full?.title || next.definition.title || "Milestone")}</strong>
@@ -264,6 +255,17 @@
         </div>
       </div>
     `;
+  }
+
+  // v636: a manual stamp names its linked passage, or offers to link one.
+  function passageLinkHtml(item) {
+    const passage = item.navigationAreaId
+      ? (window.SeavState?.navigationAreas || []).find((entry) => entry.id === item.navigationAreaId)
+      : null;
+    if (passage) {
+      return `<p class="ach-stamp-passage">${Seav.escapeHtml(passageLabel(passage))}</p>`;
+    }
+    return `<button type="button" class="ach-stamp-link" data-link-achievement-id="${Seav.escapeHtml(item.id)}">Link a passage</button>`;
   }
 
   function buildInstanceRow(item) {
@@ -282,6 +284,7 @@
             ? `<p class="ach-instance-note">${Seav.escapeHtml(item.description)}</p>`
             : ""
         }
+        ${canEdit ? passageLinkHtml(item) : ""}
         ${
           canEdit
             ? achievementActionsHtml(item.id)
@@ -296,7 +299,6 @@
     if (!full) return "";
 
     const unlocked = instances.length > 0;
-    const tier = full.badge?.tier || "default";
     const sourcePage = definition.sourcePage || "achievements";
     const imagePath = window.SeavBadges.resolveBadgeImage(definition.badgeKey, unlocked);
     const progress = window.SeavAchievementEngine?.getProgressForDefinition?.(definition) || {
@@ -340,6 +342,7 @@
               ? `<p class="ach-trophy-story">${Seav.escapeHtml(primary.description)}</p>`
               : ""
           }
+          ${!primary.autoAwarded ? passageLinkHtml(primary) : ""}
           ${
             !primary.autoAwarded
               ? achievementActionsHtml(primary.id)
@@ -348,41 +351,27 @@
         `
         : instanceList;
 
-    // Award colour family + the flag stripe across the card's top border
-    // (2026-08-22, Jack). getAwardTreatment returns null for anything that
-    // isn't a geographic Seafarer Award — Deck Progression rows keep exactly
-    // the look they had. See AWARD_FAMILY_BY_CODE in js/seav-badges.js.
-    const treatment = window.SeavBadges.getAwardTreatment?.(definition.code) || null;
-    const stripeHtml = treatment
-      ? `<span class="ach-trophy-flag" aria-hidden="true">${treatment.stripe
-          .map((color) => `<i style="background:${Seav.escapeHtml(color)}"></i>`)
-          .join("")}</span>`
+    // v635: passage achievements are passport stamps, one colour, no tiers.
+    // Self-declared ones are inked grey; the next to earn is a faint outline.
+    const isStamp = !!window.SeavBadges.isStampCode?.(definition.code);
+    const proof = window.SeavBadges.stampProof?.(instances) || "self";
+    const stampClass = isStamp
+      ? ` ach-trophy--stamp${unlocked && proof === "self" ? " is-self" : ""}`
       : "";
-    const countryHtml =
-      treatment && treatment.country
-        ? `<span class="ach-trophy-country">${treatment.stripe
-            .map((color) => `<i style="background:${Seav.escapeHtml(color)}"></i>`)
-            .join("")}<b>${Seav.escapeHtml(treatment.country)}</b></span>`
-        : "";
 
     return `
       <article
-        class="ach-trophy ${unlocked ? "is-unlocked" : "is-locked"}${treatment ? " ach-trophy--award" : ""}"
-        data-tier="${Seav.escapeHtml(tier)}"
+        class="ach-trophy ${unlocked ? "is-unlocked" : "is-locked"}${stampClass}"
         data-source-page="${Seav.escapeHtml(sourcePage)}"
         data-category="${Seav.escapeHtml(definition.category || "")}"
-        ${treatment ? `data-award-family="${Seav.escapeHtml(treatment.family)}" style="--award-edge:${Seav.escapeHtml(treatment.edge)};--award-back:${Seav.escapeHtml(treatment.back)}"` : ""}
       >
-        ${stripeHtml}
         <div class="ach-trophy-badge-wrap">
-          ${unlocked ? `<span class="ach-trophy-glow" aria-hidden="true"></span>` : ""}
           ${instances.length > 1 ? `<span class="ach-trophy-count">×${instances.length}</span>` : ""}
           <img class="ach-trophy-badge" src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(full.title || "")}" />
         </div>
 
         <h4 class="ach-trophy-title">${Seav.escapeHtml(full.title || "")}</h4>
-        <p class="ach-trophy-category">${Seav.escapeHtml(definition.category || "")}</p>
-        ${countryHtml}
+        ${isStamp && unlocked ? window.SeavBadges.stampProofTag?.(proof) || "" : ""}
 
         ${
           unlocked
@@ -565,28 +554,34 @@
   // exactly, per Jack). Everything else — badge art, description, the
   // per-requirement progress breakdown — lives in the detail panel and
   // only renders once opened.
+  // v635 (Jack's pick 2026-11-12): a ticket is a tracker row, not a medal —
+  // title, one status line, a bar and its percentage. No badge art, no tier.
   function buildMinimalCertDropdown({
-    tier,
     unlocked,
     unlockedTitle,
     title,
     subtitle,
-    imagePath,
+    percent = 0,
     description,
     subRequirements,
     prerequisites,
     readiness = "progress"
   }) {
+    const shown = unlocked ? 100 : Math.max(0, Math.min(100, Math.floor(Number(percent) || 0)));
     return `
       <details class="ach-milestone-row is-${Seav.escapeHtml(readiness)} ${
         unlocked ? "is-unlocked" : "is-locked"
-      }" data-tier="${Seav.escapeHtml(tier)}">
+      }">
         <summary class="ach-milestone-summary">
           <span class="ach-milestone-dot" aria-hidden="true"></span>
           <span class="ach-milestone-summary-title">
             <strong>${Seav.escapeHtml(title)}</strong>
             <small>${Seav.escapeHtml(subtitle)}</small>
           </span>
+          <span class="ach-milestone-track" aria-hidden="true">
+            <span class="ach-progress-bar ach-progress-bar--compact"><span style="width: ${shown}%"></span></span>
+          </span>
+          ${readiness === "ready" || readiness === "sea-time" ? "" : `<span class="ach-milestone-pct">${shown}%</span>`}
           ${
             readiness === "ready"
               ? `
@@ -609,12 +604,7 @@
           }
         </summary>
         <div class="ach-milestone-detail">
-          <div class="ach-milestone-detail-head">
-            <div class="ach-progress-row-badge">
-              <img src="${Seav.escapeHtml(imagePath)}" alt="${Seav.escapeHtml(title)}" />
-            </div>
-            ${description ? `<p class="ach-progress-row-desc">${Seav.escapeHtml(description)}</p>` : ""}
-          </div>
+          ${description ? `<div class="ach-milestone-detail-head"><p class="ach-progress-row-desc">${Seav.escapeHtml(description)}</p></div>` : ""}
           <ul class="ach-req-list">
             ${subRequirements.map(buildRequirementRow).join("")}
           </ul>
@@ -622,6 +612,20 @@
         </div>
       </details>
     `;
+  }
+
+  // A held certificate covers the milestone, so its sea-time rows (which can
+  // still read "34 / 36 months") are replaced by one row saying so.
+  function heldCertRows(held) {
+    return [
+      {
+        label: "Certificate held",
+        current: 1,
+        target: 1,
+        percent: 100,
+        note: `${held.name || held.code} covers this milestone`
+      }
+    ];
   }
 
   /* ---------------------------------------------------------------
@@ -663,7 +667,7 @@
     return prerequisites.held >= prerequisites.total ? "ready" : "sea-time";
   }
 
-  function certRowSubtitle(unlocked, unlockDate, percent, readiness, prerequisites) {
+  function certRowSubtitle(unlocked, unlockDate, percent, readiness, prerequisites, subRequirements) {
     if (readiness === "sea-time") {
       const outstanding = prerequisites.total - prerequisites.held;
       return `Sea time met · ${outstanding} certificate${outstanding === 1 ? "" : "s"} outstanding`;
@@ -673,7 +677,9 @@
         unlockDate ? ` · ${formatAchievementDate(unlockDate)}` : ""
       }`;
     }
-    return percent > 0 ? `${percent}% complete` : "Not started";
+    if (percent <= 0) return "Not started";
+    // The bar carries the percentage; the line says what is left (v635).
+    return window.SeavAchievementEngine?.describeLeftToDo?.(subRequirements) || `${percent}% complete`;
   }
 
   function buildProgressRow(definition, instances) {
@@ -681,8 +687,6 @@
     if (!full) return "";
 
     const unlocked = instances.length > 0;
-    const tier = full.badge?.tier || "default";
-    const imagePath = window.SeavBadges.resolveBadgeImage(definition.badgeKey, unlocked || !!heldCertFor(definition));
     const progress = window.SeavAchievementEngine?.getProgressForDefinition?.(definition) || {
       percent: unlocked ? 100 : 0,
       label: ""
@@ -698,16 +702,15 @@
       : "";
 
     return buildMinimalCertDropdown({
-      tier,
       unlocked: unlocked || !!held,
       unlockedTitle: held ? `Certificate held · ${held.name || held.code}` : unlockedTitle,
       title: full.title || "",
       subtitle: held
         ? `Certificate held · ${held.name || held.code}`
-        : certRowSubtitle(unlocked, primary?.date, progress.percent, readiness, prerequisites),
-      imagePath,
+        : certRowSubtitle(unlocked, primary?.date, progress.percent, readiness, prerequisites, subRequirements),
+      percent: progress.percent,
       description: full.description || "",
-      subRequirements,
+      subRequirements: held ? heldCertRows(held) : subRequirements,
       prerequisites,
       readiness
     });
@@ -746,8 +749,6 @@
 
     const primaryInstances = earnedGroups.get(primary.code) || [];
     const unlocked = primaryInstances.length > 0;
-    const tier = full.badge?.tier || "default";
-    const imagePath = window.SeavBadges.resolveBadgeImage(primary.badgeKey, unlocked || !!heldCertFor(primary));
 
     const subProgresses = breakdownDefinitions.map(
       (definition) => window.SeavAchievementEngine?.getProgressForDefinition?.(definition) || { percent: 0 }
@@ -785,29 +786,42 @@
       : "";
 
     return buildMinimalCertDropdown({
-      tier,
       unlocked: unlocked || !!heldGroup,
       unlockedTitle: heldGroup ? `Certificate held · ${heldGroup.name || heldGroup.code}` : unlockedTitle,
       title: certGroupKey,
       subtitle: heldGroup
         ? `Certificate held · ${heldGroup.name || heldGroup.code}`
-        : certRowSubtitle(unlocked, primaryRecord?.date, percent, readiness, prerequisites),
-      imagePath,
+        : certRowSubtitle(unlocked, primaryRecord?.date, percent, readiness, prerequisites, subRequirements),
+      percent,
       description: full.description || "",
-      subRequirements,
+      subRequirements: heldGroup ? heldCertRows(heldGroup) : subRequirements,
       prerequisites,
       readiness
     });
   }
 
+  // v641: one list per department (Deck, Engineering); they used to share
+  // the deck list.
   function renderDeckProgression() {
-    const mount = document.getElementById("achDeckProgressionList");
+    renderProgressionList("achDeckProgressionList", "Deck Progression");
+    renderProgressionList("achEngineeringProgressionList", "Engineering Progression");
+    // Engineering opens by itself for anyone with engine-room sea time.
+    const engineering = document.getElementById("achEngineeringProgression");
+    if (engineering && !engineering.dataset.opened) {
+      const hasEngineTime = (window.SeavState?.seatimes || []).some(
+        (entry) => window.SeavData.engineRoleKind?.(entry, getVessels())
+      );
+      if (hasEngineTime) engineering.open = true;
+      engineering.dataset.opened = "1";
+    }
+  }
+
+  function renderProgressionList(mountId, category) {
+    const mount = document.getElementById(mountId);
     if (!mount) return;
 
     const earnedGroups = groupEarnedByCode();
-    const definitions = listAchievements().filter((definition) =>
-      CAREER_PATH_CATEGORIES.includes(definition.category)
-    );
+    const definitions = listAchievements().filter((definition) => definition.category === category);
 
     if (!definitions.length) {
       mount.innerHTML = `<div class="ach-empty">No progression milestones yet.</div>`;
@@ -855,7 +869,7 @@
       });
 
     if (!definitions.length) {
-      grid.innerHTML = `<div class="ach-empty">No badges here yet.</div>`;
+      grid.innerHTML = `<div class="ach-empty">No stamps here yet.</div>`;
       return;
     }
 
@@ -872,11 +886,39 @@
     renderSeafarerAwards();
   }
 
+  // v636: the logged passages a crossing can be linked to. With a yacht
+  // chosen, that yacht's passages plus any with no yacht; the current link is
+  // always kept in the list so editing never drops it silently.
+  function passageLabel(entry) {
+    const from = [entry.fromPort, entry.fromCountry].filter(Boolean).join(", ");
+    const to = [entry.toPort || entry.port, entry.toCountry || entry.country].filter(Boolean).join(", ");
+    const route = entry.passageName || [from, to].filter(Boolean).join(" – ") || "Logged passage";
+    const date = entry.departureDate || entry.visitedDate || "";
+    return date ? `${route} · ${formatAchievementDate(date)}` : route;
+  }
+
+  function populatePassageOptions(selectedId = "") {
+    const select = document.getElementById("ach_passage");
+    if (!select) return;
+    const vesselId = document.getElementById("ach_vessel")?.value || "";
+    const keep = selectedId || select.value;
+    const passages = [...(window.SeavState?.navigationAreas || [])]
+      .filter((entry) => !vesselId || !entry.vesselId || entry.vesselId === vesselId || entry.id === keep)
+      .sort((a, b) =>
+        String(b.departureDate || b.visitedDate || "").localeCompare(String(a.departureDate || a.visitedDate || ""))
+      );
+    select.innerHTML = `<option value="">Not linked to a passage</option>${passages
+      .map((entry) => `<option value="${Seav.escapeHtml(entry.id)}">${Seav.escapeHtml(passageLabel(entry))}</option>`)
+      .join("")}`;
+    select.value = passages.some((entry) => entry.id === keep) ? keep : "";
+  }
+
   function readAchievementForm() {
     return {
       id: document.getElementById("ach_edit_index")?.value || "",
       code: document.getElementById("ach_code")?.value || "",
       vesselId: document.getElementById("ach_vessel")?.value || "",
+      navigationAreaId: document.getElementById("ach_passage")?.value || "",
       date: Seav.readDateTriplet("ach_date"),
       description: document.getElementById("ach_description")?.value.trim() || "",
       file: document.getElementById("ach_file")?.files?.[0] || null
@@ -886,6 +928,7 @@
   function fillAchievementForm(item) {
     document.getElementById("ach_code").value = item.code || "";
     document.getElementById("ach_vessel").value = item.vesselId || "";
+    populatePassageOptions(item.navigationAreaId || "");
     Seav.fillDateTriplet("ach_date", item.date || "");
     document.getElementById("ach_description").value = item.description || "";
 
@@ -904,6 +947,7 @@
     if (editId) editId.value = "";
 
     Seav.clearDateTriplet("ach_date");
+    populatePassageOptions("");
     updateAchievementBadgePreview();
   }
 
@@ -933,12 +977,14 @@
 
     const runRefresh = () => {
       populateVesselOptions();
+      populatePassageOptions();
       renderPage();
     };
 
     Seav.bindStateRefresh(runRefresh, { label: "Achievements refresh" });
 
     document.getElementById("ach_code")?.addEventListener("change", updateAchievementBadgePreview);
+    document.getElementById("ach_vessel")?.addEventListener("change", () => populatePassageOptions());
 
     const form = document.getElementById("achievementForm");
     if (form) {
@@ -947,12 +993,12 @@
 
         const formData = readAchievementForm();
         if (!formData.code) {
-          Seav.notify("error", "Pick a milestone", "Choose which badge you are logging.");
+          Seav.notify("error", "Pick a crossing", "Choose which crossing you are adding.");
           return;
         }
 
         if (!formData.vesselId) {
-          Seav.notify("error", "Pick a vessel", "Every milestone needs a yacht — even career-wide badges.");
+          Seav.notify("error", "Pick a vessel", "Every stamp needs the vessel you did it on.");
           return;
         }
 
@@ -1000,7 +1046,8 @@
             witnessCocNumber: "",
             description: formData.description,
             attachment,
-            autoAwarded: false
+            autoAwarded: false,
+            navigationAreaId: formData.navigationAreaId
           };
 
           const isNew = !existingItem;
@@ -1010,7 +1057,13 @@
           resetAchievementFormState();
           window.SeavModals?.closeAllModals?.();
 
-          Seav.notify("success", "Badge unlocked", `${definition.title} added to your trophy case.`);
+          Seav.notify(
+            "success",
+            formData.navigationAreaId ? "Stamp linked" : "Stamp added",
+            formData.navigationAreaId
+              ? `${definition.title} now shows as on a logged passage.`
+              : `${definition.title} added to your stamps.`
+          );
 
           if (window.Seav.app?.refreshAll) {
             await window.Seav.app.refreshAll();
@@ -1064,7 +1117,7 @@
         window.SeavState?.patchData?.({ profile: updatedProfile });
         window.SeavModals?.closeAllModals?.();
         renderPage();
-        Seav.notify("success", "Training Record Book saved", "Your TRB status is up to date.");
+        Seav.notify("success", "Training Record Book saved", "");
       }, { sub: "Saving Training Record Book" });
     }
 
@@ -1086,14 +1139,19 @@
         return;
       }
 
-      const editBtn = e.target.closest("[data-edit-achievement-id]");
+      const editBtn = e.target.closest("[data-edit-achievement-id], [data-link-achievement-id]");
       if (editBtn) {
         e.preventDefault();
-        const item = getAchievements().find((entry) => entry.id === editBtn.getAttribute("data-edit-achievement-id"));
+        const id = editBtn.getAttribute("data-edit-achievement-id") || editBtn.getAttribute("data-link-achievement-id");
+        const item = getAchievements().find((entry) => entry.id === id);
         if (!item || item.autoAwarded) return;
         populateVesselOptions();
         populateAchievementOptions();
         fillAchievementForm(item);
+        // "Link a passage" lands on the passage field.
+        if (editBtn.hasAttribute("data-link-achievement-id")) {
+          window.setTimeout(() => document.getElementById("ach_passage")?.focus(), 60);
+        }
         return;
       }
 

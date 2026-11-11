@@ -63,10 +63,6 @@
     return window.SeavState?.profile?.dob || "";
   }
 
-  function getTotalSeaDays() {
-    return computeOow36MonthsOnboard(getSeatimes(), getVessels(), getDob()).totalDays;
-  }
-
   function parseMeters(value) {
     const match = String(value || "").match(/(\d+(\.\d+)?)/);
     return match ? Number(match[1]) : 0;
@@ -223,7 +219,8 @@
           )
         );
       }
-      case "oow_eligible": {
+      case "oow_eligible":
+      case "engineering_tier": {
         const entries = seatimesWithSeaDays();
         return vesselContextFromSeatimeEntry(entries[entries.length - 1] || null);
       }
@@ -305,8 +302,12 @@
       case "geo_crossing":
         return computeGeoCrossing(getNavigationEntries(), trigger.geo).met;
 
+      // v641: MSN 1904 engineer tickets (seav-data.js computeEngineeringTier).
+      case "engineering_tier":
+        return window.SeavData.computeEngineeringTier(trigger.tier, currentMilestoneContext()).met;
+
       case "master_200gt_gated_sea_service":
-        return computeMaster200SeaService(getSeatimes(), getCerts(), getVessels()).met;
+        return computeMaster200SeaService(getSeatimes(), getCerts(), getVessels(), getDob()).met;
 
       case "master_500gt_gated_sea_service":
         return computeMaster500SeaService(getSeatimes(), getCerts(), getVessels()).met;
@@ -362,7 +363,7 @@
       witnessPosition: "",
       witnessEmail: "",
       witnessCocNumber: "",
-      description: definition.description || "Automatically awarded by SEA-V.",
+      description: definition.description || "Unlocked automatically by SEA-V.",
       attachment: null,
       autoAwarded: true
     };
@@ -391,6 +392,7 @@
     "chief_mate_unlimited_direct",
     "chief_mate_3000_eligible",
     "master_unlimited_master3000_route",
+    "engineering_tier",
     // A crossing that happened cannot un-happen. Also protects against the
     // same lazy-load problem the others guard: navigationAreas is only in
     // PAGE_LOAD_KEYS for some pages, so an evaluation elsewhere would see an
@@ -519,6 +521,17 @@
     };
   }
 
+  // Shown only while the member is under the minimum age.
+  function ageRow(years, section) {
+    return {
+      label: `Aged ${years} or over`,
+      current: 0,
+      target: 1,
+      percent: 0,
+      note: `MSN 1858 §${section}: this certificate can be issued from age ${years}.`
+    };
+  }
+
   // §5.1: every tier's service needs 6 months in the last 5 years.
   function recencyRow(recent) {
     return {
@@ -558,15 +571,17 @@
 
     switch (trigger.type) {
       case "sea_days": {
-        const current = getTotalSeaDays();
-        const target = Number(trigger.minDays || 0);
+        // Months, as the unlock check and the bar count them (§5.3), not
+        // days against 1095.
+        const result = computeOow36MonthsOnboard(getSeatimes(), getVessels(), getDob());
+        const current = Math.floor(result.months * 10) / 10;
         return [
           {
-            label: "Days onboard (signed on to signed off)",
+            label: "Months onboard, deck department",
             current,
-            target,
-            unit: "days",
-            percent: target ? Math.min(100, Math.round((current / target) * 100)) : 0
+            target: result.targetMonths,
+            unit: "months",
+            percent: result.targetMonths ? Math.min(100, Math.round((result.months / result.targetMonths) * 100)) : 0
           }
         ];
       }
@@ -634,9 +649,14 @@
             unit: "days",
             percent: pct(recent.recentDays, recent.target),
             note: "MSN 1858: 6 months of your qualifying sea service must be from the 5 years before you apply"
-          }
+          },
+          ...(window.SeavData?.meetsMinAge?.(getDob(), window.SeavData.OOW_MIN_AGE) === false
+            ? [ageRow(window.SeavData.OOW_MIN_AGE, "3.3(a)")]
+            : [])
         ];
       }
+      case "engineering_tier":
+        return window.SeavData.computeEngineeringTier(trigger.tier, currentMilestoneContext()).rows;
       case "geo_crossing": {
         const result = computeGeoCrossing(getNavigationEntries(), trigger.geo);
         return [
@@ -677,7 +697,7 @@
           row("Hold Yachtmaster Offshore or OOW Yachts <3000GT", result.prereqHeld),
           row(`Passage of ${result.MIN_NM}+ NM`, c.distance, name ? `Closest: ${name} (${Math.round(result.closest.nm)} NM)` : ""),
           row("200+ NM more than 50 NM from land (ticked on the passage)", c.offshore),
-          row(`At least 96 hours (${result.MIN_DAYS}+ days between departure and arrival)`, c.duration),
+          row(`At least 96 hours (${result.MIN_DAYS}+ nights between departure and arrival dates)`, c.duration),
           row("As skipper or watch leader", c.role),
           row("Within the last 10 years", c.recent)
         ];
@@ -692,7 +712,7 @@
           : 0;
         return [
           {
-            label: "Miles on yachts up to 500GT",
+            label: "Miles on vessels up to 500GT",
             current: Math.round(result.totalNm),
             target: result.TARGET_NM,
             unit: "NM",
@@ -708,7 +728,7 @@
         ];
       }
       case "master_200gt_gated_sea_service": {
-        const result = computeMaster200SeaService(getSeatimes(), getCerts(), getVessels());
+        const result = computeMaster200SeaService(getSeatimes(), getCerts(), getVessels(), getDob());
         if (!result.held) {
           return [
             {
@@ -732,7 +752,8 @@
               ? Math.min(100, Math.round((result.months / result.TARGET_MONTHS) * 100))
               : 0
           },
-          recencyRow(result.recent)
+          recencyRow(result.recent),
+          ...(result.ageMet ? [] : [ageRow(result.MIN_AGE, "3.1(a)")])
         ];
       }
       case "master_500gt_gated_sea_service": {
@@ -938,8 +959,30 @@
    * is complete still unlocks with certificates outstanding, and the rows
    * simply show what is still needed for the Certificate of Competency.
    */
+  // "Left to do: <the requirement furthest from done>, N of M unit" — one
+  // line, shared by the dashboard's Your next ticket and the Milestones
+  // ticket rows so they always say the same thing. "" when nothing is left.
+  function describeLeftToDo(rows) {
+    const needs = (rows || []).filter((need) => Number(need.current) < Number(need.target));
+    if (!needs.length) return "";
+    const need = needs.reduce((worst, row) =>
+      Number(row.current) / Number(row.target) < Number(worst.current) / Number(worst.target) ? row : worst
+    );
+    const label = String(need.label).replace(/\s*\(since holding[^)]*\)/i, "");
+    const num = (value) => Number(value || 0).toLocaleString("en-GB");
+    return need.unit
+      ? `Left to do: ${label}, ${num(need.current)} of ${num(need.target)} ${need.unit}`
+      : `Left to do: ${label}`;
+  }
+
+  // A row reads 100% / "Met" only once current reaches target: rounding
+  // 35.9 / 36 months gave 100% beside a locked badge.
   function getSubRequirements(definition) {
-    return getSeaTimeSubRequirements(definition);
+    return getSeaTimeSubRequirements(definition).map((row) =>
+      row && row.percent >= 100 && Number(row.current) < Number(row.target)
+        ? { ...row, percent: 99 }
+        : row
+    );
   }
 
   /**
@@ -971,11 +1014,14 @@
   // in getInProgressMilestones before this fix) wrongly treated his
   // Declined record as "earned."
   function getEarnedAchievementCodes() {
+    const validCodes = new Set(listAchievements().map((definition) => definition.code));
     return new Set(
       getAchievements()
         .filter((item) => item?.status !== "Declined")
         .map((item) => item.code)
-        .filter(Boolean)
+        // Codes no longer in the catalog stay in Supabase but are not
+        // counted, as on the Milestones page (groupEarnedByCode).
+        .filter((code) => code && validCodes.has(code))
     );
   }
 
@@ -1037,6 +1083,7 @@
     runAchievementEvaluation,
     getProgressForDefinition,
     getSubRequirements,
+    describeLeftToDo,
     getPrerequisites,
     getNextMilestone,
     getEarnedAchievementCodes,

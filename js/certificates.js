@@ -232,13 +232,18 @@
     if (!row) return;
 
     const certs = getSavedCerts();
+    // A "Date to confirm" certificate is not known to be valid; it gets its
+    // own box (only when there is one), as on the public profile.
+    const toConfirm = certs.filter((c) => window.SeavData.isCertDateToConfirm?.(c)).length;
     const valid = certs.filter((c) => {
+      if (window.SeavData.isCertDateToConfirm?.(c)) return false;
       const s = statusFromCert(c);
       return s.statusClass === "pill-valid" || s.statusClass === "pill-neutral";
     }).length;
     const expiring = certs.filter((c) => statusFromCert(c).statusClass === "pill-warning").length;
     const expired = certs.filter((c) => statusFromCert(c).statusClass === "pill-expired").length;
 
+    row.classList.toggle("cert-kpi-row--five", toConfirm > 0);
     row.innerHTML = `
       <div class="sq-kpi-box">
         <div class="kpi-num">${certs.length}</div>
@@ -256,6 +261,11 @@
         <div class="kpi-num">${expired}</div>
         <div class="kpi-label">Expired</div>
       </div>
+      ${toConfirm ? `
+      <div class="sq-kpi-box">
+        <div class="kpi-num">${toConfirm}</div>
+        <div class="kpi-label">Date to confirm</div>
+      </div>` : ""}
     `;
   }
 
@@ -449,10 +459,9 @@
           <div>
             <div class="list-title">No certificates yet</div>
             <div class="list-sub">
-              Add STCW, medical, and rank certificates from the dropdown.
+              Add your STCW safety courses, your ENG1 medical and any officer tickets.
             </div>
           </div>
-          <span class="pill">Empty</span>
         </div>
       `;
       return;
@@ -921,7 +930,7 @@
         );
       });
       if (dup) {
-        Seav.notify("error", "Already added", "This certificate is already in your library.");
+        Seav.notify("error", "Already added", "You've already added this certificate. Edit it instead.");
         return;
       }
 
@@ -978,7 +987,7 @@
         });
 
         window.SeavModals?.closeAllModals?.();
-        Seav.notify("success", "Saved", "Certificate added to your library.");
+        Seav.notify("success", "Certificate saved", "");
         refreshView();
       }, { sub: "Saving certificate" });
     });

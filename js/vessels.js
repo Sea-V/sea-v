@@ -161,7 +161,7 @@ function buildExperienceSection(experience) {
     return `
       <section class="vessel-experience-card vessel-experience-card--empty">
         <span class="vessel-panel-label">Experience onboard</span>
-        <p class="vessel-experience-text">No onboard experience notes added yet.</p>
+        <p class="vessel-experience-text">No notes yet.</p>
       </section>
     `;
   }
@@ -351,7 +351,7 @@ function buildVesselCardBody(v, options = {}) {
 
           ${v.directory_id ? `
           <details class="vessel-specs-toggle" data-yacht-history="${Seav.escapeHtml(v.directory_id)}">
-            <summary class="vessel-specs-toggle-summary">Yacht history</summary>
+            <summary class="vessel-specs-toggle-summary">Vessel history</summary>
             <div class="vessel-yacht-history-body">Loading…</div>
           </details>` : ""}
         </div>
@@ -701,7 +701,7 @@ async function renderVessels(options = {}) {
 
   if (!vessels.length) {
     if (vesselsGrid) {
-      vesselsGrid.innerHTML = `<p class="muted">No vessels added yet.</p>`;
+      vesselsGrid.innerHTML = `<p class="muted">No vessels yet. Add each vessel you've worked on, starting with the latest.</p>`;
     }
     return;
   }
@@ -1128,7 +1128,7 @@ async function saveVesselData(vesselData) {
 
     const formData = readVesselForm();
     if (!formData.name) {
-      Seav.notify("error", "Vessel name required", "Add a vessel name before saving.");
+      Seav.notify("error", "Add the vessel's name", "The vessel needs a name before you save.");
       return;
     }
 
@@ -1218,12 +1218,12 @@ async function saveVesselData(vesselData) {
 
       Seav.notify(
         "success",
-        existingVessel ? "Vessel updated" : "Vessel logged",
-        existingVessel ? "Your changes were saved." : "Added to your fleet record."
+        "Vessel saved",
+        ""
       );
     }, { sub: "Saving vessel" }).catch((err) => {
       console.error("[SEA-V] Vessel save failed:", err);
-      Seav.notify("error", "Vessel not saved", "Something went wrong. Check the browser console (F12).");
+      Seav.notify("error", "Vessel not saved", "Check your connection and try again.");
     });
   });
 }

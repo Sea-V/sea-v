@@ -27,26 +27,6 @@
     drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
 }
 
-.seav-badge-wrap[data-tier="bronze"]:hover .seav-badge {
-  filter: drop-shadow(0 0 14px rgba(205, 127, 50, 0.45))
-    drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
-}
-
-.seav-badge-wrap[data-tier="silver"]:hover .seav-badge {
-  filter: drop-shadow(0 0 14px rgba(184, 201, 220, 0.45))
-    drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
-}
-
-.seav-badge-wrap[data-tier="gold"]:hover .seav-badge {
-  filter: drop-shadow(0 0 16px rgba(255, 210, 90, 0.5))
-    drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
-}
-
-.seav-badge-wrap[data-tier="platinum"]:hover .seav-badge {
-  filter: drop-shadow(0 0 18px rgba(114, 228, 255, 0.55))
-    drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
-}
-
 .seav-badge-wrap.is-locked .seav-badge {
   opacity: 0.55;
   filter: grayscale(0.85) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));

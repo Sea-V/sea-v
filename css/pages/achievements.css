@@ -124,7 +124,7 @@
   margin-bottom: 10px;
   background:
     radial-gradient(circle closest-side, rgba(12, 28, 48, 0.95) 78%, transparent 80%),
-    conic-gradient(#ffb347 var(--ach-progress), rgb(var(--seav-ink-rgb) / 0.08) 0);
+    conic-gradient(var(--seav-progress-fill) var(--ach-progress), rgb(var(--seav-ink-rgb) / 0.08) 0);
   /* 2026-08-05 audit fix: dropped the soft box-shadow blur around this ring
      — it read as a mild glow/halo, which Jack asked to avoid site-wide. */
 }
@@ -142,10 +142,6 @@
   color: var(--seav-meta-muted-color);
 }
 
-.ach-kpi-tier[data-tier="bronze"] { color: #cd7f32; }
-.ach-kpi-tier[data-tier="silver"] { color: #c0c0c0; }
-.ach-kpi-tier[data-tier="gold"] { color: #ffd700; }
-.ach-kpi-tier[data-tier="platinum"] { color: #b9f2ff; }
 
 /* Next milestone */
 
@@ -405,7 +401,7 @@
 }
 
 .ach-milestone-row.is-unlocked .ach-milestone-dot {
-  background: #ffb347;
+  background: var(--seav-progress-fill);
 }
 
 .ach-milestone-summary-title {
@@ -535,16 +531,6 @@
   place-items: center;
 }
 
-.ach-trophy-glow {
-  position: absolute;
-  inset: -10px;
-  clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
-  /* Solid fill, not a radial-gradient glow — Jack wants solid colors
-     site-wide 2026-08-03, no glow/halo effects. */
-  background: rgba(56, 189, 248, 0.14);
-  pointer-events: none;
-}
-
 .ach-trophy-badge {
   width: 88px;
   height: 88px;
@@ -601,7 +587,8 @@
   text-align: center;
   font-size: 12px;
   font-weight: 700;
-  color: #ffb347;
+  /* v635: was orange; the stamp and its proof tag carry the state now. */
+  color: var(--seav-meta-desc-color);
 }
 
 .ach-trophy-meta {
@@ -627,22 +614,6 @@
 .ach-trophy-date {
   color: var(--seav-meta-muted-color);
   font-size: 11px;
-}
-
-/* Public profile only (SeavCards.buildAwardTile markSelfDeclared): a manual
-   award nobody has verified. Outline pill in the muted note colour — it
-   qualifies the tile, it must not compete with the title. <small> because
-   typography.css forces 14px on span. */
-.ach-trophy-self-declared {
-  display: block;
-  width: fit-content;
-  margin: 0 auto 8px;
-  padding: 2px 10px;
-  border: 1px solid var(--seav-meta-muted-color);
-  border-radius: 999px;
-  color: var(--seav-note-color);
-  font-size: var(--font-caption);
-  font-weight: var(--font-weight-body);
 }
 
 .ach-trophy-story {
@@ -1248,23 +1219,7 @@
 .ach-trophy.is-unlocked[data-source-page="onboard-experience"] { border-color: color-mix(in srgb, var(--page-onboard-experience) 38%, transparent); }
 .ach-trophy.is-unlocked[data-source-page="hobbies-interests"] { border-color: color-mix(in srgb, var(--page-hobbies-interests) 38%, transparent); }
 
-.ach-trophy.is-unlocked[data-source-page="seatime"] .ach-trophy-glow {
-  background: color-mix(in srgb, var(--page-seatime) 14%, transparent);
-}
-
-.ach-trophy.is-unlocked[data-source-page="navigation"] .ach-trophy-glow {
-  background: color-mix(in srgb, var(--page-navigation) 14%, transparent);
-}
-
-.ach-trophy.is-unlocked[data-source-page="vessels"] .ach-trophy-glow {
-  background: color-mix(in srgb, var(--page-vessels) 14%, transparent);
-}
-
-.ach-trophy.is-unlocked[data-source-page="profile"] .ach-trophy-glow {
-  background: color-mix(in srgb, var(--page-profile) 14%, transparent);
-}
-
-/* Responsive */
+.ach-trophy.is-unlocked[data-source-page="seatime"] .ach-trophy.is-unlocked[data-source-page="navigation"] .ach-trophy.is-unlocked[data-source-page="vessels"] .ach-trophy.is-unlocked[data-source-page="profile"] /* Responsive */
 
 @media (max-width: 900px) {
   .ach-shell-head {
@@ -1300,95 +1255,142 @@
 }
 
 /* =========================================================
-   SEAFARER AWARD COLOUR FAMILIES — 2026-08-22
-   Jack: "the colors need to vary" — green for geographical areas, a SEA-V blue
-   for ocean crossings, beige for the canals, ice white for the polar circles,
-   with the country's flag worked into the card's border.
-
-   The four families and the flag colours live in ONE place, AWARD_FAMILY_BY_CODE
-   in js/seav-badges.js, and are read by this card, the dashboard widget
-   (.ach-progress-row--award) and the public profile
-   (.public-cv-highlight-card--award). The badge SVG's own ring colour comes
-   from the matching `family` field in scripts/badge-copy.json — the two must
-   name the same family or the hexagon and its card disagree.
-
-   Only the border, the badge backdrop and the top stripe are tinted. Type is
-   untouched: .cursor/rules/field-label-typography.mdc puts accents on borders
-   and icons, never on label text, and that holds here.
+   PASSPORT STAMPS + TICKET TRACKER — v635, Jack's pick 2026-11-12
+   Replaces the 2026-08-22 award colour families, flag stripes and tiers.
+   Stamps are one ink (img/badges, scripts/generate-stamps.mjs); a
+   self-declared stamp is greyed, the next to earn is the faint dashed
+   outline (LOCKED art + opacity). Stamp cards keep one neutral border:
+   no page colour, no lift shadow.
 ========================================================= */
-
-.ach-trophy--award {
-  border-color: var(--award-edge, rgb(var(--seav-ink-rgb) / 0.08));
-  padding-top: 20px;
+.ach-trophy--stamp,
+.ach-trophy--stamp.is-unlocked {
+  border-color: rgb(var(--seav-ink-rgb) / 0.10);
 }
 
-/* Option B, Jack's pick: the flag IS the card's top border. Solid segments,
-   never a gradient (solid colours site-wide, 2026-08-03), and never an emoji
-   flag — Chrome on Windows ships no flag glyphs and renders them as bare
-   letters. An award in international water gets a single segment in its family
-   colour, so the edge always reads as deliberate rather than missing. */
-.ach-trophy-flag {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  display: flex;
-  pointer-events: none;
+.ach-trophy--stamp.is-unlocked:hover {
+  box-shadow: none;
 }
 
-.ach-trophy-flag i {
-  flex: 1;
+.ach-trophy--stamp .ach-trophy-badge-wrap {
+  width: var(--seav-stamp-size);
+  height: var(--seav-stamp-size);
 }
 
-/* The hexagon's own soft backdrop picks up the family colour so the badge and
-   its card belong together. Locked stays grey — the colour is the reward. */
-.ach-trophy--award.is-unlocked .ach-trophy-badge-wrap::before {
-  content: "";
-  position: absolute;
-  inset: -6px;
-  border-radius: 22px;
-  background: var(--award-back, transparent);
-  opacity: 0.12;
-  pointer-events: none;
+.ach-trophy--stamp .ach-trophy-badge {
+  width: var(--seav-stamp-size);
+  height: var(--seav-stamp-size);
+  filter: var(--seav-stamp-ink-filter);
 }
 
-/* Named underneath, because a 4px stripe cannot carry a country on its own —
-   nobody identifies Chile from three thin bands. The chip repeats the stripe
-   so the two read as the same object. */
-/* flex, not inline-flex: .ach-trophy sets no text-align of its own — every
-   child centres itself individually (.ach-trophy-title, -category, -status all
-   carry their own `text-align: center`). An inline-flex span therefore got the
-   default left alignment and sat off to one side while everything above it was
-   centred. A block-level flex row centres its own contents and does not depend
-   on the parent at all. */
-.ach-trophy-country {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+.ach-trophy--stamp.is-self .ach-trophy-badge {
+  filter: var(--seav-stamp-self-filter);
+}
+
+.ach-trophy--stamp.is-locked .ach-trophy-badge {
+  filter: var(--seav-stamp-self-filter);
+  opacity: var(--seav-stamp-locked-opacity);
+}
+
+.ach-stamp-proof {
+  display: block;
+  width: fit-content;
+  margin: 2px auto 8px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: var(--font-caption);
+  font-weight: 700;
+}
+
+.ach-stamp-proof.is-logged {
+  color: var(--seav-progress-fill);
+  background: var(--seav-stamp-proof-bg);
+}
+
+.ach-stamp-proof.is-self {
+  color: var(--seav-meta-muted-color);
+  background: rgb(var(--seav-ink-rgb) / 0.07);
+}
+
+/* The meta row keeps the date only (it repeated the yacht name), and the
+   ×N count loses its orange. */
+.ach-trophy--stamp .ach-trophy-meta .ach-trophy-vessel {
+  display: none;
+}
+
+.ach-trophy--stamp .ach-trophy-count {
+  color: rgb(var(--seav-ink-rgb));
+  background: var(--bridge-surface-2, rgb(var(--seav-ink-rgb) / 0.12));
+  border: 1px solid rgb(var(--seav-ink-rgb) / 0.2);
+}
+
+/* v636: the linked passage under a stamp, or the button to link one. */
+.ach-stamp-passage {
   margin: 0 0 8px;
+  text-align: center;
+  color: var(--seav-meta-desc-color);
+  font-size: var(--font-caption);
 }
 
-.ach-trophy-country i {
-  width: 5px;
-  height: 11px;
+.ach-stamp-link {
+  display: block;
+  margin: 0 auto 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--seav-accent-text);
+  font-size: var(--font-caption) !important;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.ach-trophy-country i:first-of-type {
-  border-radius: 2px 0 0 2px;
+.ach-stamp-link:hover {
+  text-decoration: underline;
 }
 
-.ach-trophy-country i:last-of-type {
-  border-radius: 0 2px 2px 0;
+/* Ticket rows: a bar and its percentage in the closed row. */
+.ach-milestone-track {
+  display: block;
+  flex: 0 0 var(--seav-ticket-bar-width);
 }
 
-.ach-trophy-country b {
-  font-size: 10.5px;
+/* A <span> here (it sits inside <summary>), so it needs block display or
+   the bar has no height. */
+.ach-milestone-track .ach-progress-bar,
+.ach-milestone-track .ach-progress-bar > span {
+  display: block;
+}
+
+.ach-milestone-track .ach-progress-bar {
+  margin: 0;
+}
+
+/* The percentage and the tick / part icon share one 40px slot, so every
+   row's bar ends at the same place. */
+.ach-milestone-summary > .ach-progress-row-check {
+  margin-left: calc(var(--seav-ticket-pct-width) - 30px);
+}
+
+.ach-milestone-summary > .ach-progress-row-part {
+  margin-left: calc(var(--seav-ticket-pct-width) - 26px);
+}
+
+.ach-milestone-pct {
+  flex: 0 0 var(--seav-ticket-pct-width);
+  text-align: right;
+  color: rgb(var(--seav-ink-rgb));
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: var(--seav-meta-muted-color, rgb(var(--seav-ink-rgb) / 0.45));
+}
+
+@media (max-width: 560px) {
+  .ach-milestone-track {
+    flex-basis: 64px;
+  }
+}
+
+.ach-next-badge--stamp img {
+  filter: var(--seav-stamp-self-filter);
+  opacity: 0.7;
 }
 
 /* ---- Dashboard widget rows (js/core.js buildDashboardMilestoneRow) ---- */

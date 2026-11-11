@@ -32,7 +32,7 @@
         ["Soft, folding bag", "Hard cases have nowhere to go in a crew cabin."],
         ["Passport, 6+ months left", "Some countries refuse less. Check your contract's return date."],
         ["Original certificates and copies", "STCW, ENG1, any others. Keep scans on your phone too."],
-        ["Non-marking deck shoes", "Black soles mark teak. The yacht usually supplies uniform."],
+        ["Non-marking deck shoes", "Black soles mark teak. The vessel usually supplies uniform."],
         ["Sunglasses, hat, sun cream", "You will be outside more than you expect."],
         ["Small torch, notebook, pen", "For night watches and everything you are told."],
         ["Adaptors and a few photos", "Cabins are small. Bring what makes it feel like home."]
@@ -64,7 +64,7 @@
       icon: ICONS.anchor,
       columns: ["Basic", "What it means"],
       rows: [
-        ["One hand for you, one for the yacht", "Hold on when moving around at sea."],
+        ["One hand for you, one for the vessel", "Hold on when moving around at sea."],
         ["Never stand in a bight", "A loop of line under load can take your foot or leg."],
         ["Stay clear of lines under load", "If one parts, it snaps back with no warning."],
         ["Fender height, not guesswork", "Set them for the dock or tender you are actually coming alongside."],
@@ -84,7 +84,7 @@
         ["What happens onboard stays onboard", "No guest names, no photos online. You may have signed an NDA."],
         ["Your cabin is shared", "Keep it tidy. Respect someone sleeping off a night watch."],
         ["Stay out of guest areas off duty", "Unless you are told otherwise."],
-        ["Know the alcohol and drugs policy", "Most yachts are strict, and it can end a career."]
+        ["Know the alcohol and drugs policy", "Most vessels are strict, and it can end a career."]
       ],
       more: [
         { label: "The Islander", url: "https://theislander.online/2026/06/crew-life/tzarinas-steps-to-the-etiquette-on-board-a-superyacht/" },
