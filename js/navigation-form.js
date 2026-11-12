@@ -254,12 +254,25 @@
     return null;
   }
 
+  // The name box follows the port list unless someone typed their own name
+  // there. v645: it only filled an EMPTY box, so changing the port on a saved
+  // passage kept the old name (it saves over the list), e.g. Palma stayed
+  // Palma after choosing Ibiza.
   function syncLocationFromPort(role) {
+    const countryEl = document.getElementById(role === "from" ? "navFromCountry" : "navToCountry");
     const portSelectEl = document.getElementById(role === "from" ? "navFromPort" : "navToPort");
     const manualEl = getEndpointLocationInput(role);
     const portFromList = portSelectEl?.value.trim() || "";
-    if (portFromList && manualEl && !manualEl.value.trim()) {
+    if (!portFromList || !manualEl) return;
+    const manual = manualEl.value.trim();
+    const wasListName =
+      !manual ||
+      manual === manualEl.dataset.syncedPort ||
+      !!findPort(countryEl?.value.trim() || "", manual) ||
+      !!lookupPortByName(manual, "");
+    if (wasListName) {
       manualEl.value = portFromList;
+      manualEl.dataset.syncedPort = portFromList;
     }
   }
 

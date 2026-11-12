@@ -758,7 +758,11 @@
     Seav.setDateTriplet("ct_expiry", cert.expiry || "");
     // An empty expiry_date IS "no expiry" everywhere else in the app, so the
     // box reflects that rather than inventing a second meaning for blank.
-    setNoExpiryChecked(!cert.expiry, { reanchor: false });
+    // Except "Date to confirm" (v626): its expiry is unknown, not absent, so
+    // the box stays unticked and the expiry fields stay open (v645 fix: they
+    // opened ticked and disabled, and saving made it "No Expiry").
+    const toConfirm = !!window.SeavData.isCertDateToConfirm?.(cert);
+    setNoExpiryChecked(!cert.expiry && !toConfirm, { reanchor: toConfirm });
     fillIssuerSelects(cert.issuingAuthority || "", cert.trainingProvider || "");
     const certNumberEl = document.getElementById("ct_cert_number");
     if (certNumberEl) certNumberEl.value = cert.certificateNumber || "";
@@ -776,8 +780,12 @@
     const issued = Seav.readDateTriplet("ct_issued");
     const expiry = Seav.readDateTriplet("ct_expiry");
     // Explicit tick wins; a blank field still counts as no-expiry so the
-    // behaviour for anyone who never touches the checkbox is unchanged.
-    const noExpiry = !!document.getElementById("ct_no_expiry")?.checked || !expiry;
+    // behaviour for anyone who never touches the checkbox is unchanged,
+    // EXCEPT on a "Date to confirm" certificate, where blank stays unknown
+    // until a date is entered or the box is ticked (v645).
+    const editingToConfirm =
+      !!editId && !!window.SeavData.isCertDateToConfirm?.(getCerts().find((c) => c.id === editId));
+    const noExpiry = !!document.getElementById("ct_no_expiry")?.checked || (!expiry && !editingToConfirm);
 
     let code = "";
     let name = "";

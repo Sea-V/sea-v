@@ -833,6 +833,36 @@ body.app-page .dash > .dash-content {
   color: var(--progress-red, #ff5f6d);
 }
 
+/* v646 (Jack, 2026-11-13): Log out is a full-width outlined button at the
+   foot of the menu, not floating red text. Red stays for Delete my account,
+   which really does destroy something; logging out loses nothing. */
+.app-topbar .topbar-account-menu a.topbar-account-item.is-exit {
+  justify-content: center;
+  gap: 8px;
+  margin-top: 2px;
+  padding: 10px 12px;
+  border: 1px solid rgb(var(--seav-ink-rgb) / var(--seav-logout-border-alpha));
+  border-radius: var(--bridge-radius, 4px);
+}
+
+.app-topbar .topbar-account-menu a.topbar-account-item.is-exit:hover,
+.app-topbar .topbar-account-menu a.topbar-account-item.is-exit:focus-visible {
+  border-color: rgb(var(--seav-ink-rgb) / var(--seav-logout-border-hover-alpha));
+  background: var(--seav-glass-wash);
+}
+
+.app-topbar .topbar-account-item.is-exit .topbar-account-icon {
+  flex: 0 0 auto;
+  width: auto;
+  height: auto;
+  background: none;
+  color: var(--seav-field-value-color);
+}
+
+.app-topbar .topbar-account-item.is-exit .topbar-account-text {
+  flex: 0 0 auto;
+}
+
 .app-topbar .topbar-account-sep {
   height: 1px;
   margin: 6px 4px;

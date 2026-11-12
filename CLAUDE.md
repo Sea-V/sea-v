@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v644**. Jack pushes every commit himself from
+- HEAD = **v646**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1670,6 +1670,16 @@ A two-reviewer deep review of the dashboard (2026-11-06). Fixed here:
 **Public profile panel, same version (Jack's picture):** two columns when open, colours + layout | link name + link, one column at <=760px. Colour swatches are little rectangles.
 **Checklist removed, same version.** Jack: remove it and "really think about it" later. "Your first yacht" and its code are gone from the dashboard and guide; last in git at v622. `profile.crew101` stays, empty on all 15 rows (checked), and test-supabase still probes it; privacy policy and record no longer list it. To rebuild it, start from what it should be for, not the old code.
 **Jack said "do what you think is best" on the rest:** the title tick is deleted. Left as they are: the vessel photo crop, and Senses' builder (Lürssen, Wikidata). COLREGs stays a link under Regulations.
+
+### Shipped 2026-11-13 (v646) — Log out is an outlined button
+Jack asked for a big red "stop sign" Log out, then chose the outlined version after my note that red means "destroys something" (Delete my account) and logging out loses nothing. Account menu (core.js `renderAccountMenu`, option `exit`): `.topbar-account-item.is-exit` = full-width, centred, 1px ink border at `--seav-logout-border-alpha` (.32, hover .6), 4px corners, bare exit icon, white text in Dark / navy in Light. The old red `is-danger` styles stay in topbar.css for any future use. Checked on the dashboard harness in Dark, Light and at 390px (inside the screen, no sideways scroll).
+
+### Shipped 2026-11-13 (v645) — fixes from a full edit-and-save run on the admin account
+Jack: "edit everything, change everything, save everything" on the admin account (not his). Run signed in on the live site (v644), each save checked in the database: profile (incl. clearing a field and removing a passport chip), vessels, sea time (incl. the engineer tick and the missing-kW prompt), certificates, passages, tenders, onboard experience, references (no email sent), payslips, specialist quals, jobs ashore (incl. skills), interests (incl. a highlight), a crossing stamp added and linked to a passage. Everything saved except:
+- **Certificates, "Date to confirm":** the edit form opened with "does not expire" ticked and the expiry boxes disabled (`fillForm` `setNoExpiryChecked(!cert.expiry)`), and `readForm` treated any blank expiry as no-expiry, so editing such a certificate turned it into "No Expiry" (undoing v626). Now the box stays unticked and the boxes open for a to-confirm certificate, and a blank there stays "Date to confirm". **The admin's ENG1 and RYA PB2 now read No Expiry from the run; fix them after deploy (ENG1 expiry 2027-03-01).**
+- **Passages, changing a port on a saved passage did nothing:** the name box kept the old port and the name wins on save (`syncLocationFromPort` only filled an empty box). It now follows the list unless the box holds a custom name.
+- Passage toast "Passage logged/updated" -> "Passage saved"; Sea Time page `<title>` "Sea Time".
+Live Engineering section on the admin: MEOL 79%, EOOW 52% from 19 months on the 1800 kW vessel; the no-kW vessel correctly not counted. Log out button: see v646.
 
 ### Shipped 2026-11-13 (v642-v644) — even title spacing; "Outlined" slate bars
 Jack: the grey top bar and card title bands are "too bland"; and the page title is not evenly spaced between the top bar and its rule.

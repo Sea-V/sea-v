@@ -358,6 +358,9 @@
   --dash-panel-head-edge: rgba(143, 208, 255, 0.42);
   --seav-topbar-outline: rgba(143, 208, 255, 0.55);
   --seav-topbar-highlight: rgba(255, 255, 255, 0.12);
+  /* v646 Log out button, outlined: alphas of the ink, so it follows Dark / Light */
+  --seav-logout-border-alpha: 0.32;
+  --seav-logout-border-hover-alpha: 0.6;
   /* Storm Slate topbar, the same in Dark and Light */
   --seav-danger-text: #ff8a8a;
   --seav-topbar-ink: #ffffff;

@@ -348,10 +348,10 @@
 
         Seav.notify(
           "success",
-          editId ? "Passage updated" : "Passage logged",
-          `${fromDetails.portName} → ${toDetails.portName} ${editId ? "updated on" : "added to"} your chart.`
+          "Passage saved",
+          `${fromDetails.portName} → ${toDetails.portName}`
         );
-        }, { sub: editId ? "Updating navigation passage" : "Logging navigation passage", rethrow: true });
+        }, { sub: "", rethrow: true });
       } catch (error) {
         console.error("[SEA-V] Navigation passage save failed:", error);
         Seav.notify("error", "Passage not saved", Seav.formatActionError(error));

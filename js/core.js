@@ -607,7 +607,7 @@ function renderAppNav() {
 
 function renderAccountMenu() {
   const item = (href, label, sub, icon, options = {}) => `
-    <a class="topbar-account-item${options.danger ? " is-danger" : ""}" href="${href}"${
+    <a class="topbar-account-item${options.danger ? " is-danger" : ""}${options.exit ? " is-exit" : ""}" href="${href}"${
       options.id ? ` id="${options.id}"` : ""
     }${options.newTab ? ' target="_blank" rel="noopener"' : ""}>
       <span class="topbar-account-icon" aria-hidden="true">${icon}</span>
@@ -639,7 +639,7 @@ function renderAccountMenu() {
       </span>
     </div>
     <div class="topbar-account-sep" role="separator"></div>
-    ${item("index.html", "Log out", "", iconLogout, { id: "btnLogout", danger: true })}
+    ${item("index.html", "Log out", "", iconLogout, { id: "btnLogout", exit: true })}
   `;
 }
 
