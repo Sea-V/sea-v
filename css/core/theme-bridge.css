@@ -38,6 +38,8 @@
   --bridge-radius: 4px;
   --bridge-radius-small: 3px;
   --bridge-head-pad-y: 14px;
+  /* Matches .dash-content's margin-top (layout.css). */
+  --bridge-title-gap: 22px;
   --bridge-head-pad-x: 20px;
   --bridge-head-icon: 28px;
 
@@ -452,6 +454,23 @@ body.app-page [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-she
   padding-right: 0 !important;
 }
 
+/* Even spacing (Jack, 2026-11-13): the gap from the top bar down to the page
+   title matches the gap from the title down to the rule. The space above is
+   the page's own top margin (.dash-content, 22px), so the title row loses its
+   top padding and its bottom padding becomes that same 22px. It was 14px
+   above and below, which put the title 42px under the bar but only 23px
+   above its rule. */
+body.app-page [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) {
+  padding-top: 0 !important;
+  padding-bottom: var(--bridge-title-gap) !important;
+}
+
+/* The last line in the title row carries no margin of its own, or the gap
+   below the title reads a few pixels taller than the gap above it. */
+body.app-page [class$="-shell-card"] > :is([class$="-shell-head"], [class*="-shell-head "]) :is(h1, h2, p):last-child {
+  margin-bottom: 0 !important;
+}
+
 /* Modals all match (v594, Jack: "make sure the modals all match"). An
    audit of all 17 modals in both themes found card, header, title, fields,
    Save bar, buttons and close button identical; what differed:
@@ -505,9 +524,10 @@ html:has(> body.app-page) {
 html body.app-page .app-topbar .topbar-inner {
   padding: var(--seav-topbar-pad) !important;
   border: 0 !important;
-  border-bottom: 1px solid var(--dash-panel-head-rule) !important;
+  border-bottom: 1px solid var(--seav-topbar-outline) !important;
   border-radius: 0 !important;
   background: var(--dash-panel-head-bg) !important;
+  box-shadow: inset 0 1px 0 var(--seav-topbar-highlight);
 }
 
 html body.app-page .app-topbar :is(.nav-left > a, .topbar-search, .topbar-search-label, .topbar-search-kbd, .topbar-icon-btn, .notif-bell-btn) {

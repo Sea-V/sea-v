@@ -154,7 +154,7 @@ thing most easily broken by an agent that starts editing without looking.
 10px out of line.
 
 ## Current state (2026-09-26)
-- HEAD = **v641**. Jack pushes every commit himself from
+- HEAD = **v644**. Jack pushes every commit himself from
   Cursor — this sandbox cannot push (403), and committing from it leaves stale
   `.git/*.lock` files it has no permission to delete. **Write files here;
   commit in Cursor.**
@@ -1670,6 +1670,12 @@ A two-reviewer deep review of the dashboard (2026-11-06). Fixed here:
 **Public profile panel, same version (Jack's picture):** two columns when open, colours + layout | link name + link, one column at <=760px. Colour swatches are little rectangles.
 **Checklist removed, same version.** Jack: remove it and "really think about it" later. "Your first yacht" and its code are gone from the dashboard and guide; last in git at v622. `profile.crew101` stays, empty on all 15 rows (checked), and test-supabase still probes it; privacy policy and record no longer list it. To rebuild it, start from what it should be for, not the old code.
 **Jack said "do what you think is best" on the rest:** the title tick is deleted. Left as they are: the vessel photo crop, and Senses' builder (Lürssen, Wikidata). COLREGs stays a link under Regulations.
+
+### Shipped 2026-11-13 (v642-v644) — even title spacing; "Outlined" slate bars
+Jack: the grey top bar and card title bands are "too bland"; and the page title is not evenly spaced between the top bar and its rule.
+- **Spacing** (theme-bridge.css, after "Title row"): the title row has no top padding and `--bridge-title-gap` (22px, = `.dash-content` margin-top) below, and its last h1/h2/p has no bottom margin. Measured: dashboard was 42px bar->title / 23px title->rule, now 30 / 29 (the Live switch centres the title 1px off); Milestones 23 / 23. Applies to every signed-in page's `*-shell-head`.
+- **"Outlined"** (Jack picked C of four rendered on the dashboard: A green edge, B ocean gradient, C outlined, D deep sea blue): the Storm Slate stays; `.dash-panel` gets a 1px `outline` (`--dash-panel-outline` rgba(143,208,255,.42), offset -1px so nothing resizes; Light uses rgba(31,111,178,.35)); `.dash-panel-head` gets a white top highlight and a light-blue bottom edge (`--dash-panel-head-highlight` / `--dash-panel-head-edge`); the topbar's bottom rule is `--seav-topbar-outline` (.55) with `--seav-topbar-highlight`. Every `.dash-panel` (dashboard, Crew 101, public profile card) and the app topbar.
+Seen on the dashboard harness (Dark; Light checked by computed style). Not seen signed in.
 
 ### Shipped 2026-11-12 (v641) — engineering milestones (MSN 1904)
 **MSN 1859 (Y4-Y1) was withdrawn on 10 Jan 2023**; engineers now follow **MSN 1904** (Small Vessel tickets), read with MIN 642 (which says it expired 1 Dec 2025, still linked on gov.uk: status to confirm). Research text saved in the session scratchpad (`msn1859/msn1904.txt`, `min642.txt`). Jack's calls: track the **Limited to Yachts** rule (§5.9.2) and the **full Small Vessel** rule side by side (met when either is; rows show the nearer); cover **MEOL SV -> SV EOOW -> SV CE <500GT/3,000kW -> SV CE <3,000GT/9,000kW** (Y4-Y1 conversions later); ask for engine power on the forms and one full-charge tick.

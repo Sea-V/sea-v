@@ -250,3 +250,9 @@ html[data-theme="light"] body.app-page {
   --dash-first-next: #9a6400;
   --dash-first-next-soft: rgba(154, 100, 0, 0.1);
 }
+
+/* v642 "Outlined": on white cards the light-blue edge needs the darker
+   Light accent to show. The slate bands keep their own (they stay dark). */
+html[data-theme="light"] body.app-page {
+  --dash-panel-outline: rgba(31, 111, 178, 0.35);
+}

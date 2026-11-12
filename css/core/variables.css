@@ -351,6 +351,13 @@
   --dash-panel-head-bg: #3a4d63;
   --dash-panel-head-rule: #4c6079;
   --dash-panel-head-accent: #8fd0ff;
+  /* v642 "Outlined" (Jack, 2026-11-13): a light-blue edge round each card,
+     a top highlight on the slate bands and under the top bar. */
+  --dash-panel-outline: rgba(143, 208, 255, 0.42);
+  --dash-panel-head-highlight: rgba(255, 255, 255, 0.16);
+  --dash-panel-head-edge: rgba(143, 208, 255, 0.42);
+  --seav-topbar-outline: rgba(143, 208, 255, 0.55);
+  --seav-topbar-highlight: rgba(255, 255, 255, 0.12);
   /* Storm Slate topbar, the same in Dark and Light */
   --seav-danger-text: #ff8a8a;
   --seav-topbar-ink: #ffffff;
